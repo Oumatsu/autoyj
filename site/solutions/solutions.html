@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Solutions — Evexportweb | PDI, Parts Kit & Dealer Support</title>
+  <meta name="description" content="Discover Evexportweb's export solutions: 50-point PDI, HD loading videos, starter parts kits, and turnkey marketing support for EV dealers.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,600;0,700;0,800;0,900;1,300;1,400;1,700;1,800;1,900&display=swap" rel="stylesheet">
+  <style>
+    /* ── Core tokens (V3 palette) ── */
+    :root {
+      --gold:    #C5A059;
+      --gold-lt: #D4AF37;
+      --green:   #10B981;
+      --bg:      #161616;
+      --bg2:     #232323;
+      --bg3:     #2a2a2a;
+      --mid:     #1c1c1c;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html  { scroll-behavior: smooth; }
+    body  { font-family: 'Inter', sans-serif; background: var(--bg); color: #E5E7EB;
+            -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+
+    /* ── Background Gradients (The Rhythm of Darkness) ── */
+    .bg-a { background: linear-gradient(to bottom, var(--mid) 0%, var(--bg)  15%, var(--bg)  85%, var(--mid) 100%); }
+    .bg-b { background: linear-gradient(to bottom, var(--mid) 0%, var(--bg2) 15%, var(--bg2) 85%, var(--mid) 100%); }
+
+    /* ── Glass (V3: 0.09 opacity) ── */
+    .glass {
+      background: rgba(255,255,255,0.09);
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+      border: 1px solid rgba(197,160,89,0.25);
+    }
+    .bg-b .glass { background: rgba(0,0,0,0.18); }
+    .glass-sm { border-color: rgba(197,160,89,0.12); }
+
+    /* ── Button Styles ── */
+    .btn-primary {
+      background: linear-gradient(135deg, #D4AF37 0%, #C5A059 100%);
+      color: #000;
+      transition: transform .25s, box-shadow .25s;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 24px -6px rgba(197,160,89,.45); }
+
+    .btn-green {
+      border: 1px solid rgba(16,185,129,.4);
+      color: var(--green);
+      transition: background .2s, color .2s;
+    }
+    .btn-green:hover { background: var(--green); color: #000; }
+
+    .btn-outline {
+      border: 1px solid rgba(197,160,89,.4);
+      color: var(--gold);
+      transition: background .2s, color .2s;
+    }
+    .btn-outline:hover { background: var(--gold); color: #000; }
+
+    /* ── Text helpers ── */
+    .text-theme  { color: var(--gold); }
+    .text-accent { color: var(--green); }
+
+    /* ── Section heading ── */
+    .sh {
+      font-size: clamp(2.4rem,5.5vw,4.5rem);
+      font-weight: 900;
+      line-height: .95;
+      letter-spacing: -.03em;
+      text-transform: uppercase;
+      font-style: italic;
+      color: #fff;
+    }
+
+    /* ── Label ── */
+    .label {
+      font-size: 10px; font-weight: 900;
+      letter-spacing: .3em; text-transform: uppercase;
+      color: var(--green);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .label::before { content:''; width:20px; height:1px; background:var(--green); flex-shrink:0; }
+    .label-gold { color:var(--gold); }
+    .label-gold::before { background:var(--gold); }
+
+    /* ── Nav link ── */
+    .nav-link { font-size:11px; font-weight:700; letter-spacing:.18em; text-transform:uppercase; color:var(--gold); transition:color .2s; }
+    .nav-link:hover { color:#fff; }
+    .nav-link.green { color:var(--green); }
+
+    /* ── Section tab bar ── */
+    #section-tabs {
+      position:fixed; top:0; left:0; right:0; z-index:40;
+      background:rgba(255,255,255,0.032);
+      backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);
+      border-top: 1px solid rgba(197,160,89,0.22);
+      border-bottom: 1px solid rgba(197,160,89,0.1);
+      transform:translateY(-100%); opacity:0;
+      transition:transform .3s ease, opacity .3s ease;
+      pointer-events:none;
+    }
+    #section-tabs.visible { transform:translateY(0); opacity:1; pointer-events:auto; }
+
+    .tab-inner {
+      display:flex; align-items:center; overflow-x:auto; scrollbar-width:none;
+      max-width:1280px; margin:0 auto; padding:0 16px;
+    }
+    .tab-inner::-webkit-scrollbar { display:none; }
+
+    .tab-btn {
+      flex-shrink:0; padding:10px 14px;
+      font-size:9.5px; font-weight:900; letter-spacing:.2em; text-transform:uppercase;
+      color:#4B5563; cursor:pointer; white-space:nowrap;
+      border-bottom:2px solid transparent;
+      transition:color .2s, border-color .2s;
+      background:none; border-top:none; border-left:none; border-right:none;
+    }
+    .tab-btn:hover { color:#9CA3AF; }
+    .tab-btn.active { color:var(--gold); border-bottom-color:var(--gold); }
+
+    .tab-wa {
+      flex-shrink:0; margin-left:auto; padding:6px 14px;
+      display:flex; align-items:center; gap:6px;
+      background:rgba(37,211,102,.12); border:1px solid rgba(37,211,102,.25);
+      border-radius:20px; color:#25D366;
+      font-size:9px; font-weight:900; letter-spacing:.15em; text-transform:uppercase;
+      transition:background .2s; white-space:nowrap; cursor:pointer; text-decoration:none;
+    }
+    .tab-wa:hover { background:rgba(37,211,102,.22); }
+
+    /* ── PDI Checklist ── */
+    .pdi-item { display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid rgba(255,255,255,.03); }
+    .pdi-item:last-child { border-bottom:none; }
+    .pdi-check { width:16px; height:16px; border:1px solid var(--green); border-radius:4px; display:flex; items-center; justify-content:center; flex-shrink:0; }
+    .pdi-check::after { content:'✓'; color:var(--green); font-size:10px; font-weight:900; }
+
+    /* ── Pulse dot ── */
+    .pulse-dot { width:8px; height:8px; border-radius:50%; background:var(--green);
+                 box-shadow:0 0 0 0 rgba(16,185,129,.5);
+                 animation:pulse-anim 2s infinite; }
+    @keyframes pulse-anim { 0%,100%{box-shadow:0 0 0 0 rgba(16,185,129,.5)} 60%{box-shadow:0 0 0 8px transparent} }
+
+    /* ── Numbered circle ── */
+    .num-circle {
+      width:28px; height:28px; border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      font-size:10px; font-weight:900; flex-shrink:0;
+    }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:var(--bg2)}::-webkit-scrollbar-thumb{background:var(--gold);border-radius:2px}
+  </style>
+</head>
+<body class="antialiased">
+
+<!-- ════════════════════════════════════════════
+     NAVBAR
+════════════════════════════════════════════ -->
+<nav id="navbar" class="fixed top-0 left-0 right-0 z-50 glass px-6 md:px-10 py-4 flex items-center justify-between transition-all duration-300">
+  <a href="index.html" class="flex items-center gap-2.5">
+    <div class="w-8 h-8 rounded flex items-center justify-center font-black italic text-black text-base"
+         style="background:linear-gradient(135deg,#D4AF37,#C5A059);">E</div>
+    <span class="text-lg font-black tracking-tighter uppercase italic text-white">Evexport<span class="text-theme">web</span></span>
+  </a>
+
+  <div class="hidden lg:flex items-center gap-10">
+    <a href="index.html#products" class="nav-link">Vehicles</a>
+    <a href="solutions.html"       class="nav-link active" style="color:#fff;">Solutions</a>
+    <a href="index.html#insights"  class="nav-link">Insights</a>
+    <a href="index.html#academy"   class="nav-link green">Academy</a>
+    <a href="about.html"           class="nav-link">About</a>
+  </div>
+
+  <a href="index.html#contact" class="hidden lg:block btn-primary px-7 py-2.5 rounded-full text-xs font-black tracking-widest uppercase shadow-lg">Contact Us</a>
+
+  <button id="mob-open" class="lg:hidden p-2 flex flex-col gap-1.5">
+    <span class="w-6 h-0.5 bg-white block"></span>
+    <span class="w-6 h-0.5 bg-white block"></span>
+    <span class="w-4 h-0.5 bg-white block"></span>
+  </button>
+</nav>
+
+<!-- Mobile drawer -->
+<div id="mob-menu" class="fixed inset-0 z-40 flex flex-col items-center justify-center gap-8 text-2xl font-black uppercase italic tracking-tight hidden" style="background:rgba(5,5,5,.97);">
+  <button id="mob-close" class="absolute top-5 right-6 text-3xl text-gray-600">✕</button>
+  <a href="products.html"   onclick="closeMob()" class="text-white hover:text-theme transition">Vehicles</a>
+  <a href="solutions.html"  onclick="closeMob()" class="text-theme transition">Solutions</a>
+  <a href="index.html#insights" onclick="closeMob()" class="text-white hover:text-theme transition">Insights</a>
+  <a href="index.html#academy"  onclick="closeMob()" class="text-accent">Academy</a>
+  <a href="about.html"      onclick="closeMob()" class="text-white hover:text-theme transition">About</a>
+  <a href="index.html#contact" onclick="closeMob()" class="mt-4 btn-primary px-12 py-4 rounded text-sm tracking-widest">Contact Us</a>
+</div>
+
+<!-- ── Section Tab Bar ── -->
+<div id="section-tabs" role="navigation" aria-label="Page sections">
+  <div class="tab-inner">
+    <button class="tab-btn" data-target="hero">Overview</button>
+    <button class="tab-btn" data-target="pdi">PDI</button>
+    <button class="tab-btn" data-target="video">Visual Proof</button>
+    <button class="tab-btn" data-target="parts">Parts Kit</button>
+    <button class="tab-btn" data-target="service">Service Centre</button>
+    <button class="tab-btn" data-target="marketing">Marketing</button>
+    <button class="tab-btn" data-target="finance">Trade Terms</button>
+    <a href="https://wa.me/your-number" class="tab-wa">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.72.938 3.659 1.434 5.705 1.435h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+      </svg>
+      WhatsApp
+    </a>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     HERO: SOLUTIONS OVERVIEW
+════════════════════════════════════════════ -->
+<section id="hero" class="relative min-h-[75vh] flex items-end overflow-hidden">
+  <div class="absolute inset-0">
+    <img src="https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&w=2000&q=80"
+         class="w-full h-full object-cover" style="filter: brightness(.95);" alt="Export Logistics">
+    <div class="absolute inset-0" style="background: linear-gradient(to top, rgba(15,15,15,.95) 15%, rgba(15,15,15,.35) 45%, transparent 100%);"></div>
+    <div class="absolute inset-0" style="background: linear-gradient(to right, rgba(15,15,15,.6) 28%, transparent 75%);"></div>
+    <div class="absolute inset-0" style="background: linear-gradient(to bottom, rgba(15,15,15,1) 0%, rgba(15,15,15,1) 10%, transparent 32%);"></div>
+  </div>
+
+  <div class="relative z-10 container mx-auto px-6 md:px-12 pt-20 pb-20 md:pb-28">
+    <div class="max-w-3xl">
+      <div class="label label-gold mb-6 text-[11px]">Precision Export Solutions</div>
+      <h1 class="sh mb-8" style="font-size:clamp(3rem, 7.5vw, 6.5rem);">
+        Quality <span class="text-accent">Verified</span>.<br>Delivered Transparently.
+      </h1>
+      <p class="text-xl text-gray-400 font-light italic border-l-2 pl-8 leading-relaxed max-w-xl"
+         style="border-color:var(--green);">
+        Eliminating the uncertainty of China-to-Africa EV exports with rigorous 50-point PDI and end-to-end visual tracking.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════
+     PDI & QUALITY STANDARDS [bg-a]
+════════════════════════════════════════════ -->
+<section id="pdi" class="py-20 md:py-28 bg-a">
+  <div class="container mx-auto px-6 md:px-12">
+    <div class="grid lg:grid-cols-2 gap-16 items-start">
+      <div>
+        <div class="label mb-6">PDI & Quality Control</div>
+        <h2 class="sh mb-8">The <span class="text-theme">50-Point</span><br>Gold Standard.</h2>
+        <p class="text-gray-500 text-lg font-light leading-relaxed mb-10">
+          Every vehicle we source undergoes a comprehensive pre-delivery inspection at our designated facility before moving to the port. We don't just ship; we validate.
+        </p>
+        <div class="grid grid-cols-2 gap-6">
+          <div class="glass p-6 rounded-2xl border-accent/20">
+            <div class="text-3xl font-black italic text-accent mb-1">100%</div>
+            <div class="text-[9px] font-black tracking-widest uppercase text-gray-600">Inspection Rate</div>
+          </div>
+          <div class="glass p-6 rounded-2xl border-theme/20">
+            <div class="text-3xl font-black italic text-theme mb-1">Digital</div>
+            <div class="text-[9px] font-black tracking-widest uppercase text-gray-600">PDI Reports</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="glass rounded-[3rem] p-8 md:p-12">
+        <div class="text-[10px] font-black tracking-widest uppercase text-accent mb-8 flex items-center gap-3">
+          <span class="pulse-dot"></span> PDI Checklist Categories
+        </div>
+        <div class="space-y-6">
+          <div>
+            <h4 class="text-xs font-black uppercase text-white mb-3 tracking-widest">Battery & Powertrain</h4>
+            <div class="grid gap-2">
+              <div class="pdi-item"><div class="pdi-check"></div><span class="text-xs text-gray-400">SoH (State of Health) Verification</span></div>
+              <div class="pdi-item"><div class="pdi-check"></div><span class="text-xs text-gray-400">High-Voltage Cable Insulation Check</span></div>
+              <div class="pdi-item"><div class="pdi-check"></div><span class="text-xs text-gray-400">DC/AC Charging Port Functionality</span></div>
+            </div>
+          </div>
+          <div>
+            <h4 class="text-xs font-black uppercase text-white mb-3 tracking-widest">Exterior & Structural</h4>
+            <div class="grid gap-2">
+              <div class="pdi-item"><div class="pdi-check"></div><span class="text-xs text-gray-400">Paint Depth & Micro-Scratch Audit</span></div>
+              <div class="pdi-item"><div class="pdi-check"></div><span class="text-xs text-gray-400">Sealant Integrity & Water-Leak Test</span></div>
+              <div class="pdi-item"><div class="pdi-check"></div><span class="text-xs text-gray-400">Underbody Suspension & Shield Check</span></div>
+            </div>
+          </div>
+          <div>
+            <h4 class="text-xs font-black uppercase text-white mb-3 tracking-widest">Systems & Software</h4>
+            <div class="grid gap-2">
+              <div class="pdi-item"><div class="pdi-check"></div><span class="text-xs text-gray-400">Infotainment Language & GPS Setup</span></div>
+              <div class="pdi-item"><div class="pdi-check"></div><span class="text-xs text-gray-400">ADAS Calibration & Sensor Check</span></div>
+              <div class="pdi-item"><div class="pdi-check"></div><span class="text-xs text-gray-400">Factory Key & Remote App Sync</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════
+     VISUAL PROOF: VIDEO LOADING [image dark]
+════════════════════════════════════════════ -->
+<section id="video" class="py-20 md:py-28 relative overflow-hidden">
+  <div class="absolute inset-0">
+    <img src="https://images.unsplash.com/photo-1520038410233-7141be7e6f97?auto=format&fit=crop&w=2000&q=80"
+         class="w-full h-full object-cover" style="filter: brightness(.28) grayscale(20%);" alt="Port Loading">
+    <div class="absolute inset-0" style="background: rgba(10,10,10,.65);"></div>
+    <div class="absolute inset-0" style="background: linear-gradient(to bottom, var(--mid) 0%, transparent 15%, transparent 85%, var(--mid) 100%);"></div>
+  </div>
+
+  <div class="relative z-10 container mx-auto px-6 md:px-12 text-center">
+    <div class="max-w-3xl mx-auto">
+      <div class="label label-gold justify-center mb-6">Zero Surprises</div>
+      <h2 class="sh mb-8">Every Loading.<br><span class="text-theme">On HD Video</span>.</h2>
+      <p class="text-gray-400 text-lg font-light italic leading-relaxed mb-12">
+        We provide a full HD walkthrough of your container loading process. You see the condition of each vehicle, the securing methods, and the final seal — before the ship ever leaves China.
+      </p>
+      <div class="inline-flex items-center gap-6">
+        <div class="flex flex-col items-center">
+          <div class="w-14 h-14 rounded-full flex items-center justify-center bg-theme/10 border border-theme text-theme mb-3">▶</div>
+          <span class="text-[9px] font-black tracking-widest uppercase text-gray-500">Walkthrough</span>
+        </div>
+        <div class="flex flex-col items-center">
+          <div class="w-14 h-14 rounded-full flex items-center justify-center bg-accent/10 border border-accent text-accent mb-3">✓</div>
+          <span class="text-[9px] font-black tracking-widest uppercase text-gray-500">Seal Verification</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════
+     STARTER PARTS KIT [bg-b]
+════════════════════════════════════════════ -->
+<section id="parts" class="py-20 md:py-28 bg-b">
+  <div class="container mx-auto px-6 md:px-12">
+    <div class="grid lg:grid-cols-2 gap-16 items-center">
+      <div class="order-2 lg:order-1">
+        <div class="glass rounded-[3rem] p-10 md:p-14 border-theme/20 relative overflow-hidden">
+          <div class="absolute top-0 right-0 w-32 h-32 bg-theme/5 rounded-bl-full pointer-events-none"></div>
+          <div class="text-[10px] font-black tracking-widest uppercase text-theme mb-8">Typical "Class A" Kit Inventory</div>
+          <div class="space-y-4">
+            <div class="flex justify-between border-b border-white/5 pb-2">
+              <span class="text-sm text-gray-400 font-light">Brake Pads (Full Set)</span>
+              <span class="text-xs font-black text-theme">× 2</span>
+            </div>
+            <div class="flex justify-between border-b border-white/5 pb-2">
+              <span class="text-sm text-gray-400 font-light">HEPA Cabin Filters</span>
+              <span class="text-xs font-black text-theme">× 4</span>
+            </div>
+            <div class="flex justify-between border-b border-white/5 pb-2">
+              <span class="text-sm text-gray-400 font-light">Wiper Blade Sets</span>
+              <span class="text-xs font-black text-theme">× 2</span>
+            </div>
+            <div class="flex justify-between border-b border-white/5 pb-2">
+              <span class="text-sm text-gray-400 font-light">Auxiliary 12V Battery</span>
+              <span class="text-xs font-black text-theme">× 1</span>
+            </div>
+            <div class="flex justify-between border-b border-white/5 pb-2">
+              <span class="text-sm text-gray-400 font-light">Charging Cable (Type 2)</span>
+              <span class="text-xs font-black text-theme">× 1</span>
+            </div>
+            <div class="flex justify-between border-b border-white/5 pb-2">
+              <span class="text-sm text-gray-400 font-light">OBD2 Diagnostic Tool</span>
+              <span class="text-xs font-black text-theme">× 1</span>
+            </div>
+          </div>
+          <p class="mt-8 text-[9px] text-gray-600 italic">Customized per model (BYD, GAC, Geely) and per market requirement.</p>
+        </div>
+      </div>
+
+      <div class="order-1 lg:order-2">
+        <div class="label mb-6">Operational Uptime</div>
+        <h2 class="sh mb-8">Starter <span class="text-accent">Parts Kit</span> Bundle.</h2>
+        <p class="text-gray-500 text-lg font-light leading-relaxed mb-8">
+          Don't let a missing air filter or worn brake pad stall your sales. We offer pre-packaged maintenance kits tailored to your specific fleet models, shipped inside the vehicle to maximize logistics efficiency.
+        </p>
+        <div class="flex items-start gap-4 mb-10">
+          <div class="num-circle bg-accent/10 border border-accent text-accent">!</div>
+          <p class="text-sm text-gray-400 italic">"Availability of basic parts is the #1 hurdle for African EV buyers. We solve it at the point of export."</p>
+        </div>
+        <a href="index.html#contact" class="btn-outline px-9 py-4 rounded text-xs font-black tracking-widest uppercase italic">
+          Configure My Kit →
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════
+     SERVICE CENTRE SETUP [bg-a]
+════════════════════════════════════════════ -->
+<section id="service" class="py-20 md:py-28 bg-a">
+  <div class="container mx-auto px-6 md:px-12">
+    <div class="grid lg:grid-cols-2 gap-16 items-center">
+      <div>
+        <div class="label label-gold mb-6">After-Sales Infrastructure</div>
+        <h2 class="sh mb-8">Build Your Own <span class="text-theme">Service Centre</span>.</h2>
+        <p class="text-gray-500 text-lg font-light leading-relaxed mb-8">
+          We represent leading Chinese automotive maintenance equipment brands. When your dealership is ready to offer in-house EV servicing, we supply the complete setup — from diagnostics to high-voltage safety tooling.
+        </p>
+        <a href="index.html#contact" class="btn-outline px-9 py-4 rounded text-xs font-black tracking-widest uppercase italic">
+          Request Setup Quote →
+        </a>
+      </div>
+      <div class="grid gap-4">
+        <div class="glass rounded-2xl p-6 flex items-start gap-4">
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 font-black text-sm text-theme" style="background:rgba(197,160,89,.1); border:1px solid rgba(197,160,89,.25);">01</div>
+          <div>
+            <div class="text-xs font-black uppercase tracking-widest text-white mb-1">EV Diagnostics Station</div>
+            <p class="text-xs text-gray-600 font-light">Battery SoH reader, OBD multi-brand scanner, HV insulation tester</p>
+          </div>
+        </div>
+        <div class="glass rounded-2xl p-6 flex items-start gap-4">
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 font-black text-sm text-theme" style="background:rgba(197,160,89,.1); border:1px solid rgba(197,160,89,.25);">02</div>
+          <div>
+            <div class="text-xs font-black uppercase tracking-widest text-white mb-1">Workshop Lifts & Tooling</div>
+            <p class="text-xs text-gray-600 font-light">4-post alignment lift, wheel balancer, EV-rated floor jack sets</p>
+          </div>
+        </div>
+        <div class="glass rounded-2xl p-6 flex items-start gap-4">
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 font-black text-sm text-accent" style="background:rgba(16,185,129,.1); border:1px solid rgba(16,185,129,.25);">03</div>
+          <div>
+            <div class="text-xs font-black uppercase tracking-widest text-white mb-1">Technician Onboarding</div>
+            <p class="text-xs text-gray-600 font-light">Remote training guide + Chinese-English technical manual set included</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════
+     MARKETING SUPPORT [image dark]
+════════════════════════════════════════════ -->
+<section id="marketing" class="py-20 md:py-28 relative overflow-hidden">
+  <div class="absolute inset-0">
+    <img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=2000&q=80"
+         class="w-full h-full object-cover" style="filter: brightness(.28) grayscale(20%);" alt="Dealer Support">
+    <div class="absolute inset-0" style="background: rgba(10,10,10,.55);"></div>
+    <div class="absolute inset-0" style="background: linear-gradient(to bottom, var(--mid) 0%, transparent 15%, transparent 85%, var(--mid) 100%);"></div>
+  </div>
+  <div class="relative z-10 container mx-auto px-6 md:px-12 text-center">
+    <div class="max-w-3xl mx-auto">
+      <div class="label label-gold justify-center mb-6">Dealer Empowerment</div>
+      <h2 class="sh mb-8">Sales <span class="text-theme">Ready</span> from Day 1.</h2>
+      <p class="text-gray-400 text-lg font-light italic leading-relaxed mb-12">
+        We provide every partner with high-res marketing packs: studio photos, Facebook ad templates, and technical selling points for your showroom team.
+      </p>
+      <div class="grid md:grid-cols-3 gap-6">
+        <div class="p-8 rounded-[2rem]" style="background:rgba(0,0,0,.42); border:1px solid rgba(255,255,255,.06);">
+          <h5 class="text-[10px] font-black uppercase tracking-widest text-theme mb-2">Visuals</h5>
+          <p class="text-xs text-gray-600">4K Unbranded Images & Video Tours</p>
+        </div>
+        <div class="p-8 rounded-[2rem]" style="background:rgba(0,0,0,.42); border:1px solid rgba(255,255,255,.06);">
+          <h5 class="text-[10px] font-black uppercase tracking-widest text-accent mb-2">Digital</h5>
+          <p class="text-xs text-gray-600">FB & Instagram Campaign Templates</p>
+        </div>
+        <div class="p-8 rounded-[2rem]" style="background:rgba(0,0,0,.42); border:1px solid rgba(255,255,255,.06);">
+          <h5 class="text-[10px] font-black uppercase tracking-widest text-white mb-2">Technical</h5>
+          <p class="text-xs text-gray-600">Sales Scripts & Battery Safety Guides</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════
+     TRADE TERMS [bg-b]
+════════════════════════════════════════════ -->
+<section id="finance" class="py-20 md:py-28 bg-b">
+  <div class="container mx-auto px-6 md:px-12">
+    <div class="grid lg:grid-cols-2 gap-16 items-center">
+      <div>
+        <div class="label mb-6">Flexible Trade Terms</div>
+        <h2 class="sh mb-8"><span class="text-theme">30 / 70</span> CIF.<br>Your Pace.</h2>
+        <p class="text-gray-500 text-lg font-light leading-relaxed mb-8">
+          Most suppliers demand 100% T/T upfront. We accept a 30% deposit to confirm your order, with the 70% balance due against shipping documents — you pay the majority only when your vehicles are already on the water.
+        </p>
+        <a href="index.html#contact" class="btn-primary px-9 py-4 rounded text-xs font-black tracking-widest uppercase italic shadow-lg">
+          Discuss Terms →
+        </a>
+      </div>
+      <div class="grid grid-cols-3 gap-4">
+        <div class="glass rounded-[2rem] p-8 text-center flex flex-col items-center gap-3">
+          <div class="text-4xl font-black italic text-theme">30%</div>
+          <div class="text-[9px] font-black tracking-widest uppercase text-gray-600 leading-relaxed">Deposit to Confirm Order</div>
+        </div>
+        <div class="glass rounded-[2rem] p-8 text-center flex flex-col items-center gap-3" style="border-color:rgba(16,185,129,.25);">
+          <div class="text-2xl font-black italic text-accent">CIF</div>
+          <div class="text-[9px] font-black tracking-widest uppercase text-gray-600 leading-relaxed">Delivered to Your Port</div>
+        </div>
+        <div class="glass rounded-[2rem] p-8 text-center flex flex-col items-center gap-3">
+          <div class="text-4xl font-black italic text-theme">70%</div>
+          <div class="text-[9px] font-black tracking-widest uppercase text-gray-600 leading-relaxed">Against Bill of Lading</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════
+     CTA + FOOTER NAV (Shared Background)
+════════════════════════════════════════════ -->
+<div class="relative overflow-hidden">
+  <div class="absolute inset-0">
+    <img src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=2000&q=80"
+         class="w-full h-full object-cover" style="filter: brightness(.28) grayscale(20%);" alt="">
+    <div class="absolute inset-0" style="background: rgba(10,10,10,.45);"></div>
+    <div class="absolute inset-0" style="background: linear-gradient(to bottom, var(--mid) 0%, transparent 12%);"></div>
+  </div>
+
+  <!-- CTA -->
+  <section class="relative z-10 container mx-auto px-6 md:px-12 pt-24 pb-20">
+    <div class="rounded-[4rem] p-12 md:p-20 text-center" style="background:rgba(0,0,0,.38); border:1px solid rgba(197,160,89,.2); backdrop-filter:blur(20px);">
+      <div class="label justify-center mb-6">Scale Your Operations</div>
+      <h2 class="sh mb-6" style="font-size:clamp(2.5rem,6.5vw,5.5rem);">
+        Professional <span class="text-accent">Sourcing</span>.<br>Predictable Growth.
+      </h2>
+      <p class="text-gray-500 text-lg font-light italic mb-10 max-w-lg mx-auto">
+        Request a consultation for your next batch shipment and explore our turnkey support.
+      </p>
+      <div class="flex flex-wrap justify-center gap-4">
+        <a href="https://wa.me/your-number" class="btn-primary px-12 py-5 rounded text-sm font-black tracking-widest uppercase italic shadow-lg">
+          WhatsApp Us Now
+        </a>
+        <a href="index.html#contact" class="btn-outline px-12 py-5 rounded text-sm font-black tracking-widest uppercase italic">
+          Get Quote
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer Nav -->
+  <footer class="relative z-10" id="contact">
+    <div class="absolute inset-0" style="background: linear-gradient(to top, rgba(0,0,0,.96) 0%, rgba(0,0,0,.82) 45%, rgba(0,0,0,.5) 75%, transparent 100%);"></div>
+    <div class="relative z-10 container mx-auto px-6 md:px-12 py-16">
+      <div class="grid md:grid-cols-4 gap-10 mb-14">
+        <div>
+          <div class="flex items-center gap-2.5 mb-5">
+            <div class="w-8 h-8 rounded flex items-center justify-center font-black italic text-black"
+                 style="background:linear-gradient(135deg,#D4AF37,#C5A059);">E</div>
+            <span class="text-base font-black tracking-tighter uppercase italic text-white">Evexport<span class="text-theme">web</span></span>
+          </div>
+          <p class="text-gray-600 text-xs font-light leading-relaxed">China's trusted EV sourcing partner for African dealers. Expert-curated, transparently delivered.</p>
+        </div>
+        <div>
+          <div class="text-[10px] font-black tracking-widest uppercase mb-5 text-theme">Vehicles</div>
+          <ul class="space-y-3 text-xs text-gray-600 font-light">
+            <li><a href="index.html#products" class="hover:text-white transition">Revenue King EVs</a></li>
+            <li><a href="index.html#products" class="hover:text-white transition">Elite Flagship EVs</a></li>
+            <li><a href="index.html#products" class="hover:text-white transition">Utility Pro EVs</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="text-[10px] font-black tracking-widest uppercase mb-5 text-theme">Solutions</div>
+          <ul class="space-y-3 text-xs text-gray-600 font-light">
+            <li><a href="solutions.html#pdi"       class="hover:text-white transition">PDI & Quality</a></li>
+            <li><a href="solutions.html#parts"     class="hover:text-white transition">Starter Parts Kit</a></li>
+            <li><a href="solutions.html#service"   class="hover:text-white transition">Service Centre Setup</a></li>
+            <li><a href="solutions.html#marketing" class="hover:text-white transition">Marketing Assets</a></li>
+            <li><a href="solutions.html#finance"   class="hover:text-white transition">Trade Terms</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="text-[10px] font-black tracking-widest uppercase mb-5 text-theme">Resources</div>
+          <ul class="space-y-3 text-xs text-gray-600 font-light">
+            <li><a href="index.html#insights" class="hover:text-white transition">Market Reports</a></li>
+            <li><a href="index.html#academy"  class="hover:text-white transition text-accent">EV Academy</a></li>
+            <li><a href="about.html"          class="hover:text-white transition">About Us</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="flex flex-col md:flex-row justify-between items-center gap-4 pt-8"
+           style="border-top:1px solid rgba(197,160,89,.06);">
+        <p class="text-[9px] font-black tracking-[.4em] uppercase text-gray-700">© 2026 EVEXPORTWEB Eco Supply Chain. All Rights Reserved.</p>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<!-- ════════════════════════════════════════════
+     FLOATING CTA
+════════════════════════════════════════════ -->
+<div class="fixed bottom-8 right-8 z-50">
+  <a href="https://wa.me/your-number" class="w-16 h-16 rounded-full flex items-center justify-center transition transform hover:scale-110"
+     style="background:var(--gold);box-shadow:0 0 28px rgba(197,160,89,.4);">
+    <svg class="w-8 h-8 text-black" fill="currentColor" viewBox="0 0 24 24">
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.72.938 3.659 1.434 5.705 1.435h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+    </svg>
+  </a>
+</div>
+
+<!-- ════════════════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════════════════ -->
+<script>
+// ── Section tab bar ──
+const tabBar  = document.getElementById('section-tabs');
+const tabBtns = document.querySelectorAll('.tab-btn');
+const heroEl  = document.getElementById('hero');
+const navbarEl = document.getElementById('navbar');
+
+function syncTabTop() {
+  if (!tabBar || !navbarEl) return;
+  tabBar.style.top = (navbarEl.offsetHeight - 1) + 'px';
+}
+window.addEventListener('scroll', syncTabTop, { passive: true });
+syncTabTop();
+
+function updateTabVisibility() {
+  if (!heroEl || !tabBar) return;
+  const heroBottom = heroEl.getBoundingClientRect().bottom;
+  tabBar.classList.toggle('visible', heroBottom < window.innerHeight * 0.25);
+}
+window.addEventListener('scroll', updateTabVisibility, { passive: true });
+updateTabVisibility();
+
+tabBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    const target = document.getElementById(btn.dataset.target);
+    if (!target) return;
+    const offset = navbarEl.offsetHeight + tabBar.offsetHeight + 10;
+    const top = target.getBoundingClientRect().top + window.scrollY - offset;
+    window.scrollTo({ top, behavior: 'smooth' });
+  });
+});
+
+const tabSectionIds = ['hero', 'pdi', 'video', 'parts', 'service', 'marketing', 'finance'];
+function updateActiveTab() {
+  if (!tabBar) return;
+  const mid = window.innerHeight * 0.45;
+  let activeId = null;
+  tabSectionIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const top = el.getBoundingClientRect().top;
+    if (top <= mid) activeId = id;
+  });
+  tabBtns.forEach(b => b.classList.toggle('active', b.dataset.target === activeId));
+}
+window.addEventListener('scroll', updateActiveTab, { passive: true });
+
+// Navbar shrink
+window.addEventListener('scroll', () => {
+  const py = window.scrollY > 50 ? '10px' : '16px';
+  const el = document.getElementById('navbar');
+  if(el){
+    el.style.paddingTop = py;
+    el.style.paddingBottom = py;
+  }
+});
+
+// Mobile menu
+document.getElementById('mob-open').addEventListener('click',  () => document.getElementById('mob-menu').classList.remove('hidden'));
+document.getElementById('mob-close').addEventListener('click', closeMob);
+function closeMob() { document.getElementById('mob-menu').classList.add('hidden'); }
+</script>
+
+</body>
+</html>

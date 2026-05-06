@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LFP vs. NCM Batteries: The Equatorial Guide — Evexportweb</title>
+  <meta name="description" content="Why Lithium Iron Phosphate (LFP) is the only viable chemistry for long-term fleet survival in high-temperature African markets.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,600;0,700;0,800;0,900;1,300;1,400;1,700;1,800;1,900&display=swap" rel="stylesheet">
+  <style>
+    /* ── Core tokens (V3 palette) ── */
+    :root {
+      --gold:    #C5A059;
+      --gold-lt: #D4AF37;
+      --green:   #10B981;
+      --bg:      #161616;
+      --bg2:     #232323;
+      --bg3:     #2a2a2a;
+      --mid:     #1c1c1c;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html  { scroll-behavior: smooth; }
+    body  { font-family: 'Inter', sans-serif; background: var(--bg); color: #E5E7EB; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+
+    /* ── Background Gradients ── */
+    .bg-a { background: linear-gradient(to bottom, var(--mid) 0%, var(--bg)  15%, var(--bg)  85%, var(--mid) 100%); }
+    
+    /* ── Glass ── */
+    .glass { background: rgba(255,255,255,0.04); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border: 1px solid rgba(197,160,89,0.15); }
+    .glass-sm { border-color: rgba(197,160,89,0.12); }
+
+    /* ── Buttons ── */
+    .btn-primary { background: linear-gradient(135deg, #D4AF37 0%, #C5A059 100%); color: #000; transition: transform .25s, box-shadow .25s; display: inline-flex; justify-content: center; align-items: center; }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 24px -6px rgba(197,160,89,.45); }
+    
+    /* ── Text helpers ── */
+    .text-theme  { color: var(--gold); }
+    .text-accent { color: var(--green); }
+    .sh { font-size: clamp(2.4rem,5.5vw,4.5rem); font-weight: 900; line-height: .95; letter-spacing: -.03em; text-transform: uppercase; font-style: italic; color: #fff; }
+
+    /* ── Nav link ── */
+    .nav-link { font-size:11px; font-weight:700; letter-spacing:.18em; text-transform:uppercase; color:var(--gold); transition:color .2s; }
+    .nav-link:hover { color:#fff; }
+    .nav-link.green { color:var(--green); }
+
+    /* ── Tags ── */
+    .tag { font-size: 10px; font-weight: 900; letter-spacing: .15em; text-transform: uppercase; padding: 6px 14px; border-radius: 99px; display: inline-block; width: fit-content; }
+    .tag-basics { background: rgba(255,255,255,0.1); color: #fff; }
+
+    /* ── Article Typography (High Readability) ── */
+    .article-body p { font-size: 1.125rem; line-height: 1.8; color: #9CA3AF; margin-bottom: 2rem; font-weight: 300; }
+    .article-body h2 { font-size: 2rem; font-weight: 900; font-style: italic; color: #fff; margin-top: 3.5rem; margin-bottom: 1.5rem; letter-spacing: -0.02em; }
+    .article-body h3 { font-size: 1.5rem; font-weight: 700; color: #E5E7EB; margin-top: 2.5rem; margin-bottom: 1rem; }
+    .article-body ul { margin-bottom: 2rem; padding-left: 1.5rem; }
+    .article-body li { font-size: 1.125rem; line-height: 1.8; color: #9CA3AF; margin-bottom: 0.75rem; position: relative; font-weight: 300; }
+    .article-body li::before { content: '•'; color: var(--gold); position: absolute; left: -1.5rem; font-weight: bold; }
+    .article-body blockquote { font-size: 1.5rem; font-style: italic; color: #fff; border-left: 4px solid var(--gold); padding-left: 1.5rem; margin: 3rem 0; background: linear-gradient(to right, rgba(197,160,89,0.05), transparent); padding-top: 1rem; padding-bottom: 1rem; }
+    .article-body strong { color: #E5E7EB; font-weight: 600; }
+    
+    /* ── Sidebar Sticky ── */
+    .sticky-sidebar { position: sticky; top: 120px; }
+
+    /* ── Article Card (Recirculation) ── */
+    .article-card { border-radius: 1.5rem; overflow: hidden; position: relative; cursor: pointer; background: #1c1c1c; border: 1px solid rgba(255,255,255,0.03); transition: all 0.4s ease; display: flex; flex-direction: column; height: 100%; }
+    .article-card:hover { transform: translateY(-8px); border-color: rgba(197,160,89,0.5); box-shadow: 0 20px 40px -10px rgba(0,0,0,0.5); }
+    .article-img-wrap { width: 100%; aspect-ratio: 16/9; overflow: hidden; position: relative; }
+    .article-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.8s ease; filter: brightness(0.8); }
+    .article-card:hover .article-img { transform: scale(1.05); filter: brightness(1); }
+    .article-card .tag { font-size: 8px; padding: 4px 10px; margin-bottom: 1rem; }
+
+    ::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:var(--bg2)}::-webkit-scrollbar-thumb{background:var(--gold);border-radius:2px}
+  </style>
+</head>
+<body class="antialiased">
+
+<!-- NAVBAR -->
+<nav id="navbar" class="fixed top-0 left-0 right-0 z-50 glass px-6 md:px-10 py-4 flex items-center justify-between transition-all duration-300">
+  <a href="index.html" class="flex items-center gap-2.5">
+    <div class="w-8 h-8 rounded flex items-center justify-center font-black italic text-black" style="background:linear-gradient(135deg,#D4AF37,#C5A059);">E</div>
+    <span class="text-lg font-black tracking-tighter uppercase italic text-white">Evexport<span class="text-theme">web</span></span>
+  </a>
+
+  <div class="hidden lg:flex items-center gap-10">
+    <a href="products-index-v5.html" class="nav-link">Vehicles</a>
+    <a href="solutions.html"         class="nav-link">Solutions</a>
+    <a href="index.html#insights"    class="nav-link">Insights</a>
+    <a href="academy.html"           class="nav-link green active" style="color:#10B981;">Academy</a>
+    <a href="about.html"             class="nav-link">About</a>
+  </div>
+
+  <a href="contact.html" class="hidden lg:block btn-primary px-7 py-2.5 rounded-full text-xs font-black tracking-widest uppercase shadow-lg">Contact Us</a>
+
+  <button id="mob-open" class="lg:hidden p-2 flex flex-col gap-1.5">
+    <span class="w-6 h-0.5 bg-white block"></span>
+    <span class="w-6 h-0.5 bg-white block"></span>
+    <span class="w-4 h-0.5 bg-white block"></span>
+  </button>
+</nav>
+
+<!-- Mobile drawer -->
+<div id="mob-menu" class="fixed inset-0 z-[60] flex flex-col items-center justify-center gap-8 text-2xl font-black uppercase italic tracking-tight hidden" style="background:rgba(5,5,5,.97);">
+  <button id="mob-close" class="absolute top-5 right-6 text-3xl text-gray-600">✕</button>
+  <a href="products-index-v5.html" onclick="closeMob()" class="text-white hover:text-theme transition">Vehicles</a>
+  <a href="solutions.html"       onclick="closeMob()" class="text-white hover:text-theme transition">Solutions</a>
+  <a href="index.html#insights"  onclick="closeMob()" class="text-white hover:text-theme transition">Insights</a>
+  <a href="academy.html"         onclick="closeMob()" class="text-accent">Academy</a>
+  <a href="about.html"           onclick="closeMob()" class="text-white hover:text-theme transition">About</a>
+  <a href="contact.html"         onclick="closeMob()" class="mt-4 btn-primary px-12 py-4 rounded text-sm tracking-widest">Contact Us</a>
+</div>
+
+<!-- ARTICLE LAYOUT -->
+<main class="pt-32 pb-24 relative z-10">
+  <div class="container mx-auto px-6 md:px-12">
+    
+    <!-- Breadcrumb -->
+    <div class="mb-10 text-[10px] font-black uppercase tracking-widest text-gray-500">
+      <a href="index.html" class="hover:text-gold transition">Home</a> <span class="mx-2">/</span> 
+      <a href="academy.html" class="hover:text-gold transition">EV Academy</a> <span class="mx-2">/</span> 
+      <span class="text-white">Battery Tech</span>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 xl:gap-20">
+      
+      <!-- LEFT COLUMN: CONTENT (70%) -->
+      <div class="lg:col-span-8 xl:col-span-8">
+        
+        <!-- Article Header -->
+        <header class="mb-12">
+          <span class="tag tag-basics mb-6">Battery Tech</span>
+          <h1 class="text-4xl md:text-5xl lg:text-6xl font-black italic text-white uppercase tracking-tighter leading-[1.05] mb-6">
+            LFP vs. NCM Batteries: <br><span class="text-theme">The Equatorial Guide</span>
+          </h1>
+          <p class="text-xl text-gray-400 font-light italic border-l-2 border-theme/30 pl-6 mb-8 max-w-2xl">
+            Why Lithium Iron Phosphate (LFP) is the only viable chemistry for long-term fleet survival in high-temperature African markets.
+          </p>
+          
+          <!-- Meta Data -->
+          <div class="flex items-center gap-6 text-[10px] font-black uppercase tracking-widest text-gray-500 border-t border-white/10 pt-6">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-full bg-mid flex items-center justify-center border border-white/5">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gold"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+              </div>
+              <span class="text-white">Evexport Intelligence</span>
+            </div>
+            <div>Oct 12, 2026</div>
+            <div class="flex items-center gap-2 text-gold">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+              7 Min Read
+            </div>
+          </div>
+        </header>
+
+        <!-- Hero Image -->
+        <div class="w-full aspect-[21/9] rounded-[2rem] overflow-hidden mb-16 relative">
+          <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1600&q=80" alt="EV Battery Pack" class="w-full h-full object-cover">
+          <div class="absolute inset-0 border border-white/10 rounded-[2rem] pointer-events-none"></div>
+        </div>
+
+        <!-- Article Body (Immersive Reading) -->
+        <article class="article-body max-w-3xl">
+          <p>When procuring electric vehicles for African markets, the spec sheet is not just a marketing tool—it is a matter of commercial survival. The most critical decision a dealership or fleet operator must make is not the brand or the range, but the foundational chemistry of the battery pack.</p>
+          
+          <p>Globally, the EV market is dominated by two primary lithium-ion battery chemistries: <strong>NCM (Nickel Cobalt Manganese)</strong> and <strong>LFP (Lithium Iron Phosphate)</strong>. While European and North American buyers obsess over the high energy density of NCM, deploying an NCM-powered fleet in Sub-Saharan Africa is often a costly mistake.</p>
+
+          <h2>The Thermal Runaway Reality</h2>
+          <p>NCM batteries offer a higher energy density, meaning they can store more power in a smaller, lighter package. This gives vehicles longer range and faster acceleration. However, this performance comes at a severe cost: thermal instability.</p>
+          
+          <p>NCM chemistry is inherently more volatile. In high-temperature environments—common across African equatorial zones—the cooling systems of NCM batteries must work continuously at maximum capacity to prevent overheating. If the cooling system fails, or if the battery is physically damaged on poorly maintained roads, NCM packs have a significantly higher risk of thermal runaway (fire).</p>
+
+          <blockquote>
+            "For African fleet operators, a 10% increase in vehicle range is meaningless if the battery degrades by 30% within the first two years of equatorial operation."
+          </blockquote>
+
+          <h2>Why LFP is the Undisputed Champion</h2>
+          <p>LFP (Lithium Iron Phosphate) is rapidly becoming the gold standard for commercial EVs in emerging markets, spearheaded by massive investments from Chinese manufacturers like BYD and CATL. Here is why LFP is the only chemistry you should be importing:</p>
+
+          <ul>
+            <li><strong>Thermal Stability:</strong> LFP batteries are incredibly stable. They can withstand much higher operating temperatures without degrading or risking thermal runaway. They are structurally robust and highly resistant to puncture damage.</li>
+            <li><strong>Cycle Life (Longevity):</strong> An NCM battery typically degrades to 80% capacity after 1,000 to 1,500 charge cycles. An LFP battery, however, can easily exceed <strong>3,000 to 4,000 cycles</strong>. For a ride-hailing fleet operating daily, this means the battery outlives the chassis.</li>
+            <li><strong>100% Depth of Discharge:</strong> NCM batteries should ideally be kept between 20% and 80% charge to prevent rapid degradation. LFP batteries can be safely charged to 100% every single day without damaging the cell chemistry, making them far easier for drivers to manage.</li>
+            <li><strong>Cost Effectiveness:</strong> Because LFP does not require expensive, conflict-heavy minerals like Cobalt and Nickel, the base cost of the vehicle is significantly lower, improving the initial ROI for the dealer.</li>
+          </ul>
+
+          <h2>The Verdict for Importers</h2>
+          <p>When sourcing vehicles from China, you will often find the same model offered with both battery types (e.g., a "Standard Range" LFP version and an "Extended Range" NCM version). Do not be tempted by the longer range.</p>
+          <p>For operations in Kenya, Nigeria, South Africa, and beyond, the math is simple. The durability, safety, and lifespan of LFP battery architecture will drastically reduce warranty claims and protect your dealership's reputation. At Evexportweb, 100% of our curated commercial fleet vehicles utilize advanced LFP architecture.</p>
+        </article>
+
+        <!-- Article Footer / Share -->
+        <div class="mt-16 pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-6">
+          <div class="flex flex-wrap gap-2">
+            <span class="px-4 py-1.5 rounded-full bg-white/5 border border-white/5 text-[10px] font-black uppercase text-gray-400">Battery Tech</span>
+            <span class="px-4 py-1.5 rounded-full bg-white/5 border border-white/5 text-[10px] font-black uppercase text-gray-400">Procurement</span>
+            <span class="px-4 py-1.5 rounded-full bg-white/5 border border-white/5 text-[10px] font-black uppercase text-gray-400">Africa Market</span>
+          </div>
+          
+          <div class="flex items-center gap-4">
+            <span class="text-[10px] font-black uppercase tracking-widest text-gray-500">Share:</span>
+            <button class="w-10 h-10 rounded-full glass flex items-center justify-center text-gray-400 hover:text-white hover:border-gold transition">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+            </button>
+            <button class="w-10 h-10 rounded-full glass flex items-center justify-center text-gray-400 hover:text-white hover:border-gold transition">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT COLUMN: STICKY LEAD-GEN SIDEBAR (30%) -->
+      <aside class="lg:col-span-4 xl:col-span-4">
+        <div class="sticky-sidebar space-y-6">
+          
+          <!-- Lead Gen Card 1: The Bait -->
+          <div class="glass rounded-[2rem] p-8 relative overflow-hidden group">
+            <!-- Decorative gradient -->
+            <div class="absolute -top-20 -right-20 w-40 h-40 bg-gold/20 rounded-full blur-3xl group-hover:bg-gold/30 transition-all"></div>
+            
+            <div class="relative z-10">
+              <div class="w-12 h-12 rounded-xl bg-gold/10 flex items-center justify-center mb-6 text-gold">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+              </div>
+              <div class="text-[10px] font-black tracking-[.2em] uppercase text-gray-500 mb-2">Free Download</div>
+              <h3 class="text-xl font-black italic text-white mb-4">The 50-Point Factory PDI Checklist</h3>
+              <p class="text-gray-400 text-xs font-light leading-relaxed mb-8">Don't import blind. Download the exact technical inspection checklist our engineers use before loading any LFP-powered vehicle in Shanghai.</p>
+              
+              <!-- Conversion Action -->
+              <a href="https://wa.me/your-number" class="w-full btn-primary py-3 rounded text-[10px] font-black tracking-widest uppercase flex items-center justify-center gap-2">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.72.938 3.659 1.434 5.705 1.435h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                Get PDF via WhatsApp
+              </a>
+            </div>
+          </div>
+
+          <!-- Lead Gen Card 2: Direct Contact -->
+          <div class="glass rounded-[2rem] p-8 bg-mid/50 border-white/5 hover:border-green/30 transition-all duration-300 group">
+            <div class="flex items-center gap-4 mb-6">
+              <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80" alt="Consultant" class="w-12 h-12 rounded-full border-2 border-green/50 object-cover group-hover:border-green transition-colors">
+              <div>
+                <div class="text-sm font-bold text-white group-hover:text-green transition-colors">Speak to an Expert</div>
+                <div class="text-[10px] text-green flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-green animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]"></span> Available Now</div>
+              </div>
+            </div>
+            <p class="text-gray-400 text-xs font-light leading-relaxed mb-6">Have specific questions about LFP vehicle models or wholesale pricing? Our procurement team responds in 15 minutes.</p>
+            <a href="contact.html" class="w-full btn-outline py-3 rounded text-[10px] font-black tracking-widest uppercase flex items-center justify-center hover:bg-green hover:text-black hover:border-green transition-colors">
+              Book a Consultation
+            </a>
+          </div>
+
+        </div>
+      </aside>
+
+    </div>
+  </div>
+</main>
+
+<!-- BOTTOM RECIRCULATION ZONE (bg-a) -->
+<section class="py-24 bg-a border-t border-white/5">
+  <div class="container mx-auto px-6 md:px-12">
+    <div class="flex items-center justify-between mb-12">
+      <h3 class="text-2xl font-black italic text-white uppercase tracking-tighter">Related <span class="text-theme">Playbooks</span></h3>
+      <a href="academy.html" class="text-[10px] font-black uppercase tracking-widest text-gold hover:text-white transition">View Academy →</a>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-8">
+      <div class="article-card">
+        <div class="article-img-wrap"><img src="https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&w=800&q=80" class="article-img"></div>
+        <div class="article-content">
+          <span class="tag tag-basics">Infrastructure</span>
+          <h3 class="text-xl font-bold text-white mb-3">Off-Grid Charging: The V2L Blueprint</h3>
+          <p class="text-gray-400 text-xs leading-relaxed font-light mb-6">How to utilize Vehicle-to-Load technology and standalone solar + storage systems to bypass unstable municipal power grids.</p>
+        </div>
+      </div>
+      <div class="article-card">
+        <div class="article-img-wrap"><img src="https://images.unsplash.com/photo-1605810230434-7631ac76ec81?auto=format&fit=crop&w=800&q=80" class="article-img"></div>
+        <div class="article-content">
+          <span class="tag tag-basics">TCO Analysis</span>
+          <h3 class="text-xl font-bold text-white mb-3">ICE vs. EV: The True Cost of Ownership</h3>
+          <p class="text-gray-400 text-xs leading-relaxed font-light mb-6">A brutal mathematical breakdown comparing a petrol Toyota Corolla against a BYD Seagull over 5 years of commercial driving.</p>
+        </div>
+      </div>
+      <div class="article-card">
+        <div class="article-img-wrap"><img src="https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?auto=format&fit=crop&w=800&q=80" class="article-img"></div>
+        <div class="article-content">
+          <span class="tag" style="background: rgba(16,185,129,0.15); color: var(--green);">Diagnostics</span>
+          <h3 class="text-xl font-bold text-white mb-3">Remote OBD Scanning & Error Codes</h3>
+          <p class="text-gray-400 text-xs leading-relaxed font-light mb-6">How to use standard OBD-II scanners on Chinese EV exports and translate proprietary factory fault codes.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SHARED FOOTER CONTEXT -->
+<footer class="relative z-10 bg-black">
+  <div class="relative z-10 container mx-auto px-6 md:px-12 py-16">
+    <div class="grid md:grid-cols-4 gap-10 mb-14">
+      <div>
+        <div class="flex items-center gap-2.5 mb-6">
+          <div class="w-8 h-8 rounded flex items-center justify-center font-black italic text-black" style="background:linear-gradient(135deg,#D4AF37,#C5A059);">E</div>
+          <span class="text-base font-black tracking-tighter uppercase italic text-white">Evexport<span class="text-theme">web</span></span>
+        </div>
+        <p class="text-gray-600 text-xs font-light leading-relaxed">China's trusted EV sourcing partner for African dealers. Expert-curated, transparently delivered.</p>
+      </div>
+      <div><div class="text-[10px] font-black tracking-widest uppercase mb-6 text-theme">Vehicles</div><ul class="space-y-4 text-xs text-gray-600 font-light"><li><a href="products-index-v5.html#cat-01">Revenue King Matrix</a></li><li><a href="products-index-v5.html#cat-02">Elite Flagship Hub</a></li><li><a href="products-index-v5.html#cat-03">Utility Pro Center</a></li></ul></div>
+      <div><div class="text-[10px] font-black tracking-widest uppercase mb-6 text-theme">Solutions</div><ul class="space-y-4 text-xs text-gray-600 font-light"><li><a href="solutions.html">PDI & Quality</a></li><li><a href="solutions.html#parts">Starter Parts Kit</a></li><li><a href="solutions.html#marketing">Marketing Assets</a></li></ul></div>
+      <div><div class="text-[10px] font-black tracking-widest uppercase mb-6 text-theme">Resources</div><ul class="space-y-4 text-xs text-gray-600 font-light"><li><a href="index.html#insights">Insights</a></li><li><a href="academy.html" class="text-accent">EV Academy</a></li><li><a href="about.html">About Sourcing</a></li></ul></div>
+    </div>
+    <div class="pt-8 border-t border-white/5 text-[9px] font-black tracking-[.4em] uppercase text-gray-700">© 2026 EVEXPORTWEB Eco Supply Chain. All Rights Reserved.</div>
+  </div>
+</footer>
+
+<script>
+const navbar = document.getElementById('navbar');
+window.addEventListener('scroll', () => {
+  const py = window.scrollY > 50 ? '10px' : '16px';
+  if(navbar) { navbar.style.paddingTop = py; navbar.style.paddingBottom = py; }
+});
+
+function closeMob() { document.getElementById('mob-menu').style.display='none'; }
+document.getElementById('mob-open').addEventListener('click', () => document.getElementById('mob-menu').style.display='flex');
+</script>
+
+</body>
+</html>

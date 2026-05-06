@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Market Insights — Evexportweb | African EV Intelligence</title>
+  <meta name="description" content="Latest news, policy updates, and market intelligence for the African EV import sector.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,600;0,700;0,800;0,900;1,300;1,400;1,700;1,800;1,900&display=swap" rel="stylesheet">
+  <style>
+    /* ── Core tokens (V3 palette) ── */
+    :root {
+      --gold:    #C5A059;
+      --gold-lt: #D4AF37;
+      --green:   #10B981;
+      --bg:      #161616;
+      --bg2:     #232323;
+      --bg3:     #2a2a2a;
+      --mid:     #1c1c1c;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html  { scroll-behavior: smooth; }
+    body  { font-family: 'Inter', sans-serif; background: var(--bg); color: #E5E7EB; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+
+    /* ── Background Gradients ── */
+    .bg-a { background: linear-gradient(to bottom, var(--mid) 0%, var(--bg)  15%, var(--bg)  85%, var(--mid) 100%); }
+    .bg-b { background: linear-gradient(to bottom, var(--mid) 0%, var(--bg2) 15%, var(--bg2) 85%, var(--mid) 100%); }
+
+    /* ── Glass ── */
+    .glass { background: rgba(255,255,255,0.04); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border: 1px solid rgba(197,160,89,0.15); }
+    
+    /* ── Buttons ── */
+    .btn-primary { background: linear-gradient(135deg, #D4AF37 0%, #C5A059 100%); color: #000; transition: transform .25s, box-shadow .25s; display: inline-flex; justify-content: center; align-items: center; }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 24px -6px rgba(197,160,89,.45); }
+    
+    /* ── Text helpers ── */
+    .text-theme  { color: var(--gold); }
+    .text-accent { color: var(--green); }
+    .sh { font-size: clamp(2.4rem,5.5vw,4.5rem); font-weight: 900; line-height: .95; letter-spacing: -.03em; text-transform: uppercase; font-style: italic; color: #fff; }
+
+    /* ── Nav link ── */
+    .nav-link { font-size:11px; font-weight:700; letter-spacing:.18em; text-transform:uppercase; color:var(--gold); transition:color .2s; }
+    .nav-link:hover { color:#fff; }
+
+    /* ── Tags & Meta ── */
+    .tag { font-size: 9px; font-weight: 900; letter-spacing: .15em; text-transform: uppercase; padding: 4px 10px; border-radius: 99px; display: inline-block; width: fit-content; border: 1px solid rgba(255,255,255,0.1); }
+    .tag-policy { background: rgba(197,160,89,0.1); color: var(--gold); border-color: rgba(197,160,89,0.3); }
+    .tag-market { background: rgba(255,255,255,0.05); color: #fff; }
+    .tag-logistics { background: rgba(16,185,129,0.1); color: var(--green); border-color: rgba(16,185,129,0.3); }
+    .meta-text { font-size: 10px; font-weight: 600; color: #6B7280; text-transform: uppercase; letter-spacing: 0.1em; }
+
+    /* ── Editorial Cards ── */
+    .hero-card { position: relative; border-radius: 1.5rem; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; padding: 2rem; min-height: 400px; cursor: pointer; transition: transform 0.4s ease; border: 1px solid rgba(255,255,255,0.05); }
+    .hero-card:hover { transform: translateY(-5px); border-color: var(--gold); }
+    .hero-card-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; transition: transform 0.8s ease; filter: brightness(0.6); }
+    .hero-card:hover .hero-card-img { transform: scale(1.05); filter: brightness(0.8); }
+    .hero-card-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.4) 50%, transparent 100%); z-index: 1; }
+    .hero-card-content { position: relative; z-index: 10; }
+
+    .news-item { padding: 2rem 0; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; gap: 2rem; transition: all 0.3s; cursor: pointer; }
+    .news-item:hover { background: rgba(255,255,255,0.02); padding-left: 1rem; padding-right: 1rem; border-radius: 1rem; border-bottom-color: transparent; }
+    .news-img-wrap { width: 200px; height: 140px; border-radius: 1rem; overflow: hidden; flex-shrink: 0; display: none; md:block; }
+    .news-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s; filter: grayscale(20%); }
+    .news-item:hover .news-img { transform: scale(1.05); filter: grayscale(0%); }
+
+    /* ── Sticky Sub-nav (Ticker) ── */
+    #ticker-nav { position:sticky; top:70px; z-index:40; background:rgba(22,22,22,0.9); backdrop-filter:blur(20px); border-bottom:1px solid rgba(255,255,255,0.05); padding: 15px 0; }
+    .ticker-link { font-size: 10px; font-weight: 900; letter-spacing: 0.15em; text-transform: uppercase; color: #6B7280; margin-right: 2rem; transition: color 0.2s; text-decoration: none; }
+    .ticker-link:hover, .ticker-link.active { color: var(--gold); }
+
+    ::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:var(--bg2)}::-webkit-scrollbar-thumb{background:var(--gold);border-radius:2px}
+  </style>
+</head>
+<body class="antialiased">
+
+<!-- NAVBAR -->
+<nav id="navbar" class="fixed top-0 left-0 right-0 z-50 glass px-6 md:px-10 py-4 flex items-center justify-between transition-all duration-300">
+  <a href="index.html" class="flex items-center gap-2.5">
+    <div class="w-8 h-8 rounded flex items-center justify-center font-black italic text-black" style="background:linear-gradient(135deg,#D4AF37,#C5A059);">E</div>
+    <span class="text-lg font-black tracking-tighter uppercase italic text-white">Evexport<span class="text-theme">web</span></span>
+  </a>
+
+  <div class="hidden lg:flex items-center gap-10">
+    <a href="products-index-v5.html" class="nav-link">Vehicles</a>
+    <a href="solutions.html"         class="nav-link">Solutions</a>
+    <a href="insights.html"          class="nav-link active" style="color:#fff;">Insights</a>
+    <a href="academy.html"           class="nav-link green">Academy</a>
+    <a href="about.html"             class="nav-link">About</a>
+  </div>
+
+  <a href="contact.html" class="hidden lg:block btn-primary px-7 py-2.5 rounded-full text-xs font-black tracking-widest uppercase shadow-lg">Contact Us</a>
+
+  <button id="mob-open" class="lg:hidden p-2 flex flex-col gap-1.5">
+    <span class="w-6 h-0.5 bg-white block"></span>
+    <span class="w-6 h-0.5 bg-white block"></span>
+    <span class="w-4 h-0.5 bg-white block"></span>
+  </button>
+</nav>
+
+<!-- Mobile drawer -->
+<div id="mob-menu" class="fixed inset-0 z-[60] flex flex-col items-center justify-center gap-8 text-2xl font-black uppercase italic tracking-tight hidden" style="background:rgba(5,5,5,.97);">
+  <button id="mob-close" class="absolute top-5 right-6 text-3xl text-gray-600">✕</button>
+  <a href="products-index-v5.html" onclick="closeMob()" class="text-white hover:text-theme transition">Vehicles</a>
+  <a href="solutions.html"       onclick="closeMob()" class="text-white hover:text-theme transition">Solutions</a>
+  <a href="insights.html"        onclick="closeMob()" class="text-white">Insights</a>
+  <a href="academy.html"         onclick="closeMob()" class="text-accent">Academy</a>
+  <a href="about.html"           onclick="closeMob()" class="text-theme">About</a>
+  <a href="contact.html"         onclick="closeMob()" class="mt-4 btn-primary px-12 py-4 rounded text-sm tracking-widest">Contact Us</a>
+</div>
+
+<!-- PAGE HEADER -->
+<header class="pt-32 pb-12 bg-a relative z-10">
+  <div class="container mx-auto px-6 md:px-12">
+    <div class="flex items-center gap-2 mb-4">
+      <div class="w-1.5 h-1.5 rounded-full bg-theme"></div>
+      <span class="text-[10px] font-black uppercase tracking-[0.3em] text-gray-500">Market <span class="text-accent">Intelligence</span></span>
+    </div>
+    <h1 class="text-5xl md:text-6xl font-black italic text-white uppercase tracking-tighter mb-4">The <span class="text-theme">Insights</span> <span class="text-accent">Desk</span>.</h1>
+    <p class="text-gray-400 text-lg font-light max-w-2xl">Real-time policy updates, tariff analyses, and export logistics tracking for the African EV sector.</p>
+  </div>
+</header>
+
+<!-- TICKER / SUB-NAV -->
+<div id="ticker-nav" class="hidden md:block">
+  <div class="container mx-auto px-6 md:px-12 flex overflow-x-auto scrollbar-hide">
+    <a href="#" class="ticker-link active">All News</a>
+    <a href="#" class="ticker-link">Policy & Tariffs</a>
+    <a href="#" class="ticker-link">Market Reports</a>
+    <a href="#" class="ticker-link">Logistics Updates</a>
+  </div>
+</div>
+
+<!-- MAIN EDITORIAL SECTION -->
+<main class="py-12 bg-bg min-h-screen">
+  <div class="container mx-auto px-6 md:px-12">
+    
+    <!-- ASYMMETRIC HERO GRID (Featured) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-16">
+      
+      <!-- Lead Story (70%) -->
+      <a href="article.html" class="lg:col-span-8 hero-card" style="min-height: 500px;">
+        <img src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=1200&q=80" class="hero-card-img" alt="Policy Update">
+        <div class="hero-card-overlay"></div>
+        <div class="hero-card-content">
+          <span class="tag tag-policy mb-4">Breaking Policy</span>
+          <h2 class="text-3xl md:text-4xl font-black italic text-white uppercase tracking-tighter leading-tight mb-3">Ethiopia Announces Zero-Tariff Extension on EV Imports Through 2026</h2>
+          <p class="text-gray-300 font-light text-sm mb-4 max-w-xl">The Ministry of Finance confirms continued exemptions for fully electric vehicles, triggering a massive surge in commercial fleet orders from Chinese OEMs.</p>
+          <div class="meta-text flex items-center gap-3">
+            <span>By Evexport Desk</span> <span>•</span> <span>2 Hours Ago</span>
+          </div>
+        </div>
+      </a>
+
+      <!-- Right Column (Stacked stories 30%) -->
+      <div class="lg:col-span-4 flex flex-col gap-6">
+        <a href="article.html" class="hero-card flex-1" style="min-height: 235px; padding: 1.5rem;">
+          <img src="https://images.unsplash.com/photo-1494412574643-ff11b0a5c1c3?auto=format&fit=crop&w=600&q=80" class="hero-card-img" alt="Market Data">
+          <div class="hero-card-overlay"></div>
+          <div class="hero-card-content">
+            <span class="tag tag-market mb-3">Market Report</span>
+            <h3 class="text-xl font-black italic text-white leading-tight mb-2">Q3 Data: BYD Surpasses Toyota in Nairobi Ride-Hailing</h3>
+            <div class="meta-text">Oct 10, 2026</div>
+          </div>
+        </a>
+
+        <a href="article.html" class="hero-card flex-1" style="min-height: 235px; padding: 1.5rem;">
+          <img src="https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&w=600&q=80" class="hero-card-img" alt="Logistics">
+          <div class="hero-card-overlay"></div>
+          <div class="hero-card-content">
+            <span class="tag tag-logistics mb-3">Logistics</span>
+            <h3 class="text-xl font-black italic text-white leading-tight mb-2">Shanghai Port Wait Times Decrease for RoRo Vessels</h3>
+            <div class="meta-text">Oct 08, 2026</div>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-16">
+      
+      <!-- CHRONOLOGICAL FEED (Left 70%) -->
+      <div class="lg:col-span-8">
+        <div class="flex items-center gap-4 mb-8 pb-4 border-b border-white/10">
+          <div class="text-xs font-black uppercase tracking-widest text-white">Latest Intelligence</div>
+          <div class="h-px bg-white/10 flex-grow"></div>
+        </div>
+
+        <div class="space-y-2">
+          <!-- News Item -->
+          <a href="article.html" class="news-item flex-col md:flex-row">
+            <div class="news-img-wrap hidden md:block"><img src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=400&q=80" class="news-img"></div>
+            <div class="flex flex-col justify-center">
+              <span class="tag tag-policy mb-3">Tariff Update</span>
+              <h3 class="text-xl font-bold text-white mb-2">Nigeria Considers Reduced Import Duties for CKD (Completely Knocked Down) EVs</h3>
+              <p class="text-gray-400 text-sm font-light leading-relaxed mb-4">To stimulate local assembly, the Nigerian government is drafting a bill that drastically lowers tariffs for CKD kits sourced from China.</p>
+              <div class="meta-text">Oct 05, 2026 <span>•</span> 4 Min Read</div>
+            </div>
+          </a>
+
+          <!-- News Item -->
+          <a href="article.html" class="news-item flex-col md:flex-row">
+            <div class="news-img-wrap hidden md:block"><img src="https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=400&q=80" class="news-img"></div>
+            <div class="flex flex-col justify-center">
+              <span class="tag tag-market mb-3">Market Report</span>
+              <h3 class="text-xl font-bold text-white mb-2">Why LFP Batteries Are Dominating the African Commercial Sector</h3>
+              <p class="text-gray-400 text-sm font-light leading-relaxed mb-4">An analysis of why fleet operators are completely abandoning NCM chemistry in favor of high-cycle LFP packs for equatorial climates.</p>
+              <div class="meta-text">Oct 01, 2026 <span>•</span> 8 Min Read</div>
+            </div>
+          </a>
+
+          <!-- News Item -->
+          <a href="article.html" class="news-item flex-col md:flex-row">
+            <div class="news-img-wrap hidden md:block"><img src="https://images.unsplash.com/photo-1493946740644-2d8a1f1a6aff?auto=format&fit=crop&w=400&q=80" class="news-img"></div>
+            <div class="flex flex-col justify-center">
+              <span class="tag tag-logistics mb-3">Logistics</span>
+              <h3 class="text-xl font-bold text-white mb-2">Understanding RHD (Right-Hand Drive) Availability from Chinese Tier-1 Factories</h3>
+              <p class="text-gray-400 text-sm font-light leading-relaxed mb-4">Which brands are actually producing native RHD models for export to Kenya and South Africa, versus aftermarket conversions.</p>
+              <div class="meta-text">Sep 28, 2026 <span>•</span> 6 Min Read</div>
+            </div>
+          </a>
+        </div>
+
+        <button class="w-full py-4 mt-8 rounded-xl border border-white/10 text-xs font-black uppercase tracking-widest text-gray-400 hover:text-white hover:border-gold transition">Load More Articles</button>
+      </div>
+
+      <!-- SIDEBAR: NEWSLETTER TRAP (Right 30%) -->
+      <aside class="lg:col-span-4">
+        <div class="sticky top-[140px]">
+          <div class="glass rounded-[2rem] p-8 border-theme/30 bg-gradient-to-b from-mid to-bg2 relative overflow-hidden">
+            <div class="absolute -top-10 -right-10 w-32 h-32 bg-gold/20 rounded-full blur-2xl"></div>
+            <div class="relative z-10">
+              <div class="text-[10px] font-black uppercase tracking-widest text-theme mb-4">Intelligence Briefing</div>
+              <h3 class="text-2xl font-black italic text-white mb-4">Don't Miss the Next Tariff Shift.</h3>
+              <p class="text-gray-400 text-sm font-light leading-relaxed mb-6">Get our monthly digest of African EV policy changes and exclusive wholesale pricing updates delivered straight to your WhatsApp.</p>
+              
+              <form class="flex flex-col gap-3" action="#" onsubmit="event.preventDefault();">
+                <input type="tel" placeholder="WhatsApp Number" class="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-sm text-white focus:border-gold outline-none transition">
+                <button type="submit" class="w-full btn-primary py-3 rounded-lg text-[10px] font-black uppercase tracking-widest">Subscribe Now</button>
+              </form>
+              <div class="text-[8px] text-gray-500 uppercase tracking-widest mt-4 text-center">No spam. Unsubscribe anytime.</div>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+    </div>
+  </div>
+</main>
+
+<!-- SHARED FOOTER CONTEXT -->
+<footer class="relative z-10 bg-black border-t border-white/5">
+  <div class="relative z-10 container mx-auto px-6 md:px-12 py-16">
+    <div class="grid md:grid-cols-4 gap-10 mb-14">
+      <div>
+        <div class="flex items-center gap-2.5 mb-6">
+          <div class="w-8 h-8 rounded flex items-center justify-center font-black italic text-black" style="background:linear-gradient(135deg,#D4AF37,#C5A059);">E</div>
+          <span class="text-base font-black tracking-tighter uppercase italic text-white">Evexport<span class="text-theme">web</span></span>
+        </div>
+        <p class="text-gray-600 text-xs font-light leading-relaxed">China's trusted EV sourcing partner for African dealers. Expert-curated, transparently delivered.</p>
+      </div>
+      <div><div class="text-[10px] font-black tracking-widest uppercase mb-6 text-theme">Vehicles</div><ul class="space-y-4 text-xs text-gray-600 font-light"><li><a href="products-index-v5.html#cat-01">Revenue King Matrix</a></li><li><a href="products-index-v5.html#cat-02">Elite Flagship Hub</a></li><li><a href="products-index-v5.html#cat-03">Utility Pro Center</a></li></ul></div>
+      <div><div class="text-[10px] font-black tracking-widest uppercase mb-6 text-theme">Solutions</div><ul class="space-y-4 text-xs text-gray-600 font-light"><li><a href="solutions.html">PDI & Quality</a></li><li><a href="solutions.html#parts">Starter Parts Kit</a></li><li><a href="solutions.html#marketing">Marketing Assets</a></li></ul></div>
+      <div><div class="text-[10px] font-black tracking-widest uppercase mb-6 text-theme">Resources</div><ul class="space-y-4 text-xs text-gray-600 font-light"><li><a href="insights.html">Insights</a></li><li><a href="academy.html" class="text-accent">EV Academy</a></li><li><a href="about.html">About Sourcing</a></li></ul></div>
+    </div>
+    <div class="pt-8 border-t border-white/5 text-[9px] font-black tracking-[.4em] uppercase text-gray-700">© 2026 EVEXPORTWEB Eco Supply Chain. All Rights Reserved.</div>
+  </div>
+</footer>
+
+<script>
+const navbar = document.getElementById('navbar');
+window.addEventListener('scroll', () => {
+  const py = window.scrollY > 50 ? '10px' : '16px';
+  if(navbar) { navbar.style.paddingTop = py; navbar.style.paddingBottom = py; }
+});
+
+function closeMob() { document.getElementById('mob-menu').style.display='none'; }
+document.getElementById('mob-open').addEventListener('click', () => document.getElementById('mob-menu').style.display='flex');
+</script>
+
+</body>
+</html>

@@ -1,0 +1,22 @@
+[build]
+  publish = "."
+
+# ── Redirect: Map /products.html → /products/products.html ──
+[[redirects]]
+  from = "/products.html"
+  to = "/products/products.html"
+  status = 200
+
+# ── Redirect: Map /solutions.html → /solutions/solutions.html ──  
+[[redirects]]
+  from = "/solutions.html"
+  to = "/solutions/solutions.html"
+  status = 200
+
+# ── Redirect: Map /contact.html → /contact/contact.html ──
+[[redirects]]
+  from = "/contact.html"
+  to = "/contact/contact.html"
+  status = 200
+
+

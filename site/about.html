@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About Us — Evexportweb | Your Trusted EV Sourcing Partner</title>
+  <meta name="description" content="Meet Evexportweb: 15+ years of automotive and logistics expertise. We don't just sell cars; we build dealerships across Africa with a dual-track strategy.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,600;0,700;0,800;0,900;1,300;1,400;1,700;1,800;1,900&display=swap" rel="stylesheet">
+  <style>
+    /* ── Core tokens (V3 palette) ── */
+    :root {
+      --gold:    #C5A059;
+      --gold-lt: #D4AF37;
+      --green:   #10B981;
+      --bg:      #161616;
+      --bg2:     #232323;
+      --bg3:     #2a2a2a;
+      --mid:     #1c1c1c;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html  { scroll-behavior: smooth; }
+    body  { font-family: 'Inter', sans-serif; background: var(--bg); color: #E5E7EB; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+
+    /* ── Background Gradients (Seamless Transitions) ── */
+    .bg-a { background: linear-gradient(to bottom, var(--mid) 0%, var(--bg)  15%, var(--bg)  85%, var(--mid) 100%); }
+    .bg-b { background: linear-gradient(to bottom, var(--mid) 0%, var(--bg2) 15%, var(--bg2) 85%, var(--mid) 100%); }
+
+    /* ── Glass ── */
+    .glass { background: rgba(255,255,255,0.04); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border: 1px solid rgba(197,160,89,0.15); }
+    .glass-sm { border-color: rgba(197,160,89,0.12); }
+
+    /* ── Buttons ── */
+    .btn-primary { background: linear-gradient(135deg, #D4AF37 0%, #C5A059 100%); color: #000; transition: transform .25s, box-shadow .25s; }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 24px -6px rgba(197,160,89,.45); }
+    .btn-outline { border: 1px solid rgba(197,160,89,.4); color: var(--gold); transition: background .2s, color .2s; }
+    .btn-outline:hover { background: var(--gold); color: #000; }
+
+    /* ── Text helpers ── */
+    .text-theme  { color: var(--gold); }
+    .text-accent { color: var(--green); }
+    .sh { font-size: clamp(2.4rem,5.5vw,4.5rem); font-weight: 900; line-height: .95; letter-spacing: -.03em; text-transform: uppercase; font-style: italic; color: #fff; }
+
+    /* ── Label ── */
+    .label { font-size: 10px; font-weight: 900; letter-spacing: .3em; text-transform: uppercase; color: var(--green); display: flex; align-items: center; gap: 8px; }
+    .label::before { content:''; width:20px; height:1px; background:var(--green); flex-shrink:0; }
+    .label-gold { color:var(--gold); }
+    .label-gold::before { background:var(--gold); }
+
+    /* ── Nav link ── */
+    .nav-link { font-size:11px; font-weight:700; letter-spacing:.18em; text-transform:uppercase; color:var(--gold); transition:color .2s; }
+    .nav-link:hover { color:#fff; }
+    .nav-link.green { color:var(--green); }
+
+    /* ── Sticky Sub-nav ── */
+    #section-tabs { position:fixed; top:0; left:0; right:0; z-index:40; background:rgba(22,22,22,0.85); backdrop-filter:blur(20px); border-top:1px solid rgba(197,160,89,0.22); border-bottom:1px solid rgba(255,255,255,0.05); transform:translateY(-100%); opacity:0; transition:all .4s ease; pointer-events:none; }
+    #section-tabs.visible { transform:translateY(0); opacity:1; pointer-events:auto; }
+    .tab-inner { display:flex; align-items:center; overflow-x:auto; scrollbar-width:none; max-width:1440px; margin:0 auto; padding:0 24px; }
+    .tab-inner::-webkit-scrollbar { display:none; }
+    .tab-btn { flex-shrink:0; padding:16px 20px; font-size:9.5px; font-weight:900; letter-spacing:.2em; text-transform:uppercase; color:#6B7280; cursor:pointer; white-space:nowrap; border-bottom:2px solid transparent; transition:all .2s; }
+    .tab-btn:hover { color:#9CA3AF; }
+    .tab-btn.active { color:var(--gold); border-bottom-color:var(--gold); }
+    .tab-wa { flex-shrink:0; margin-left:auto; padding:6px 14px; display:flex; align-items:center; gap:6px; background:rgba(37,211,102,.12); border:1px solid rgba(37,211,102,.25); border-radius:20px; color:#25D366; font-size:9px; font-weight:900; letter-spacing:.15em; text-transform:uppercase; transition:background .2s; white-space:nowrap; cursor:pointer; text-decoration:none; }
+    .tab-wa:hover { background:rgba(37,211,102,.22); }
+
+    /* ── Case Card ── */
+    .case-card { border-radius:2.5rem; overflow:hidden; position:relative; cursor:pointer; border: 1px solid rgba(255,255,255,0.03); transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+    .case-card img { transition:transform 1.2s ease; filter: brightness(.8); }
+    .case-card:hover { transform: translateY(-10px); border-color: var(--gold); }
+    .case-card:hover img { transform:scale(1.1); filter: brightness(1); }
+    .case-card-overlay { position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,.95) 0%, rgba(0,0,0,.2) 50%, transparent 100%); z-index: 5; }
+    .case-content { position: relative; z-index: 10; display: flex; flex-direction: column; justify-content: flex-end; height: 100%; padding: 2rem; }
+
+    /* ── Numbered circle ── */
+    .num-circle { width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:900; flex-shrink:0; }
+    .pulse-dot { width:8px; height:8px; border-radius:50%; background:var(--green); box-shadow:0 0 0 0 rgba(16,185,129,.5); animation:pulse-anim 2s infinite; }
+    @keyframes pulse-anim { 0%,100%{box-shadow:0 0 0 0 rgba(16,185,129,.5)} 60%{box-shadow:0 0 0 8px transparent} }
+
+    /* ── Infinite Marquee ── */
+    @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+    .marquee-container { overflow: hidden; white-space: nowrap; position: relative; border-top: 1px solid rgba(197,160,89,0.05); border-bottom: 1px solid rgba(197,160,89,0.05); }
+    .marquee-content { display: inline-block; animation: marquee 40s linear infinite; padding: 25px 0; }
+    .marquee-item { display: inline-flex; align-items: center; padding: 0 50px; font-size: 16px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.25em; transition: color 0.3s, opacity 0.3s; cursor: default; }
+    .marquee-item:hover { color: var(--gold) !important; opacity: 1 !important; }
+
+    ::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:var(--bg2)}::-webkit-scrollbar-thumb{background:var(--gold);border-radius:2px}
+  </style>
+</head>
+<body class="antialiased">
+
+<!-- NAVBAR -->
+<nav id="navbar" class="fixed top-0 left-0 right-0 z-50 glass px-6 md:px-10 py-4 flex items-center justify-between transition-all duration-300">
+  <a href="index.html" class="flex items-center gap-2.5">
+    <div class="w-8 h-8 rounded flex items-center justify-center font-black italic text-black" style="background:linear-gradient(135deg,#D4AF37,#C5A059);">E</div>
+    <span class="text-lg font-black tracking-tighter uppercase italic text-white">Evexport<span class="text-theme">web</span></span>
+  </a>
+
+  <div class="hidden lg:flex items-center gap-10">
+    <a href="products-index-v5.html" class="nav-link">Vehicles</a>
+    <a href="solutions.html"         class="nav-link">Solutions</a>
+    <a href="index.html#insights"    class="nav-link">Insights</a>
+    <a href="index.html#academy"     class="nav-link green">Academy</a>
+    <a href="about.html"             class="nav-link active" style="color:#fff;">About</a>
+  </div>
+
+  <a href="contact.html" class="hidden lg:block btn-primary px-7 py-2.5 rounded-full text-xs font-black tracking-widest uppercase shadow-lg">Contact Us</a>
+
+  <button id="mob-open" class="lg:hidden p-2 flex flex-col gap-1.5">
+    <span class="w-6 h-0.5 bg-white block"></span>
+    <span class="w-6 h-0.5 bg-white block"></span>
+    <span class="w-4 h-0.5 bg-white block"></span>
+  </button>
+</nav>
+
+<!-- Mobile drawer -->
+<div id="mob-menu" class="fixed inset-0 z-[60] flex flex-col items-center justify-center gap-8 text-2xl font-black uppercase italic tracking-tight hidden" style="background:rgba(5,5,5,.97);">
+  <button id="mob-close" class="absolute top-5 right-6 text-3xl text-gray-600">✕</button>
+  <a href="products-index-v5.html" onclick="closeMob()" class="text-white hover:text-theme transition">Vehicles</a>
+  <a href="solutions.html"       onclick="closeMob()" class="text-white hover:text-theme transition">Solutions</a>
+  <a href="index.html#insights"  onclick="closeMob()" class="text-white hover:text-theme transition">Insights</a>
+  <a href="index.html#academy"   onclick="closeMob()" class="text-accent">Academy</a>
+  <a href="about.html"           onclick="closeMob()" class="text-theme">About</a>
+  <a href="contact.html"         onclick="closeMob()" class="mt-4 btn-primary px-12 py-4 rounded text-sm tracking-widest">Contact Us</a>
+</div>
+
+<!-- SECTION TABS -->
+<div id="section-tabs" role="navigation" aria-label="Page sections">
+  <div class="tab-inner">
+    <button class="tab-btn active" data-target="hero">Mission</button>
+    <button class="tab-btn" data-target="heritage">Heritage</button>
+    <button class="tab-btn" data-target="cases">Deliveries</button>
+    <button class="tab-btn" data-target="sla">SLA Guarantee</button>
+    <a href="https://wa.me/your-number" class="tab-wa">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.72.938 3.659 1.434 5.705 1.435h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      Batch Inquiry
+    </a>
+  </div>
+</div>
+
+<!-- HERO (REFINED MASKING) -->
+<section id="hero" class="relative min-h-[80vh] flex items-center overflow-hidden">
+  <div class="absolute inset-0">
+    <img src="https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=2000&q=80" class="w-full h-full object-cover" alt="Mission">
+    <!-- LAYER 1: Darkening -->
+    <div class="absolute inset-0" style="background: rgba(0,0,0,0.45);"></div>
+    <!-- LAYER 2: Gradient Dissolve (Must be Topmost) -->
+    <div class="absolute inset-0" style="background: linear-gradient(to top, var(--mid) 10%, rgba(15,15,15,0.5) 45%, transparent 100%);"></div>
+  </div>
+
+  <div class="relative z-10 container mx-auto px-6 md:px-12 pt-24 pb-20">
+    <div class="max-w-3xl">
+      <div class="flex items-center gap-2.5 mb-6">
+        <div class="pulse-dot"></div>
+        <span class="text-accent text-[10px] font-black uppercase tracking-[.3em]">Dual-Track Strategy</span>
+      </div>
+      <h1 class="sh mb-8" style="font-size:clamp(3rem, 7vw, 6rem);">
+        We Don't Just<br><span class="text-theme">Sell Cars</span>.<br>We Build Dealerships.
+      </h1>
+      <p class="text-xl text-gray-400 font-light italic border-l-2 pl-8 leading-relaxed max-w-xl" style="border-color:rgba(197,160,89,.3);">
+        Most exporters simply ship cars. We architect dealerships. Our comprehensive ecosystem equips African importers with curated vehicles, specialized maintenance tools, technical guidance, starter parts, and marketing assets to dominate their local markets.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- HERITAGE (UPGRADED GLASS UI) -->
+<section id="heritage" class="py-32 bg-a scroll-mt-48">
+  <div class="container mx-auto px-6 md:px-12">
+    <div class="grid lg:grid-cols-2 gap-16 lg:gap-24 items-center">
+      <div>
+        <div class="label label-gold mb-6">Our Heritage</div>
+        <h2 class="sh mb-8">15+ Years of<br><span class="text-theme">Combined</span> Expertise.</h2>
+        <p class="text-gray-500 text-lg font-light leading-relaxed mb-12">
+          Headquartered in <strong>Shanghai, China</strong>—the global epicenter of advanced EV manufacturing and logistics—Evexportweb was forged to bridge the gap between Tier-1 automotive factories and the African market's demand for a reliable, end-to-end green mobility partner.
+        </p>
+        
+        <!-- Upgraded B2B Data Points -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="glass rounded-[2rem] p-6 text-center shadow-2xl glass-sm">
+            <div class="text-4xl font-black italic text-theme mb-2">200+</div>
+            <div class="text-[9px] font-black tracking-widest uppercase text-gray-400">Batches Shipped</div>
+          </div>
+          <div class="glass rounded-[2rem] p-6 text-center shadow-2xl glass-sm">
+            <div class="text-4xl font-black italic text-accent mb-2">12</div>
+            <div class="text-[9px] font-black tracking-widest uppercase text-gray-400">African Markets</div>
+          </div>
+          <div class="glass rounded-[2rem] p-6 text-center shadow-2xl glass-sm">
+            <div class="text-4xl font-black italic text-white mb-2">30+</div>
+            <div class="text-[9px] font-black tracking-widest uppercase text-gray-400">Brands Sourced</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Quote Card -->
+      <div class="glass rounded-[3rem] p-12 md:p-16 relative overflow-hidden">
+        <div class="absolute top-0 right-0 p-8 opacity-10">
+          <svg width="120" height="120" viewBox="0 0 24 24" fill="currentColor" class="text-gold"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/></svg>
+        </div>
+        <p class="text-2xl md:text-3xl font-light italic text-white leading-relaxed mb-8 relative z-10">
+          "True partnership isn't about the transaction; it's about the inventory turnover and the dealer's sustainable growth."
+        </p>
+        <div class="flex items-center gap-4 relative z-10">
+          <div class="w-12 h-px bg-theme"></div>
+          <span class="text-[10px] font-black uppercase tracking-widest text-gray-500">The Founders' Vision</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GLOBAL LOGISTICS NETWORK (Abstracted Scale) -->
+<section id="cases" class="relative py-48 scroll-mt-48 overflow-hidden">
+  <!-- Map/Tech Background -->
+  <div class="absolute inset-0 z-0">
+    <img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=2000&q=80" class="w-full h-full object-cover" style="filter: brightness(.4) contrast(1.2) grayscale(40%);" alt="Global Network">
+    
+    <!-- LAYER 1: Darkening (Moved behind the map lines) -->
+    <div class="absolute inset-0" style="background: rgba(10,10,10,0.5);"></div>
+    <!-- LAYER 2: Transition Gradient -->
+    <div class="absolute inset-0" style="background: linear-gradient(to bottom, var(--mid) 0%, transparent 20%, transparent 80%, var(--mid) 100%);"></div>
+
+    <!-- Abstracted Routing Lines Overlay (CSS Driven) -->
+    <div class="absolute inset-0 overflow-hidden opacity-80 mix-blend-screen z-20">
+      
+      <!-- Precision SVG Lines (0-100 coordinates mapping directly to %) -->
+      <svg class="absolute inset-0 w-full h-full z-10" viewBox="0 0 100 100" preserveAspectRatio="none">
+        <style>
+          .path-glow { stroke-linecap: round; animation: dash 20s linear infinite; }
+          @keyframes dash { to { stroke-dashoffset: -100; } }
+        </style>
+        <!-- Line: China (75,35) to East Africa (55,50) -->
+        <path d="M 75 35 Q 65 30 55 50" fill="none" stroke="rgba(197,160,89,0.7)" stroke-width="0.3" stroke-dasharray="1.5,1.5" class="path-glow" />
+        <!-- Line: China (75,35) to West Africa (48,45) -->
+        <path d="M 75 35 Q 60 60 48 45" fill="none" stroke="rgba(16,185,129,0.5)" stroke-width="0.2" stroke-dasharray="1.2,1.2" class="path-glow" style="animation-duration: 25s;" />
+        <!-- Line: China (75,35) to South America (25,65) -->
+        <path d="M 75 35 Q 50 80 25 65" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.1" stroke-dasharray="0.8,0.8" class="path-glow" style="animation-duration: 30s;" />
+      </svg>
+
+      <!-- HTML Nodes (Mapped exactly to the SVG coordinates via %) -->
+      <!-- Node: China (Origin) -->
+      <div class="absolute top-[35%] left-[75%] w-3 h-3 bg-gold rounded-full shadow-[0_0_30px_rgba(197,160,89,1)] -translate-x-1/2 -translate-y-1/2 z-30">
+        <div class="absolute inset-0 rounded-full border-2 border-gold animate-ping"></div>
+      </div>
+      
+      <!-- Node: East Africa -->
+      <div class="absolute top-[50%] left-[55%] w-2 h-2 bg-green rounded-full shadow-[0_0_20px_rgba(16,185,129,1)] -translate-x-1/2 -translate-y-1/2 z-30"></div>
+      
+      <!-- Node: West Africa -->
+      <div class="absolute top-[45%] left-[48%] w-2 h-2 bg-green rounded-full shadow-[0_0_20px_rgba(16,185,129,1)] -translate-x-1/2 -translate-y-1/2 z-30"></div>
+      
+      <!-- Node: South America (Future Scale) -->
+      <div class="absolute top-[65%] left-[25%] w-1.5 h-1.5 bg-white/60 rounded-full -translate-x-1/2 -translate-y-1/2 z-30"></div>
+    </div>
+  </div>
+
+  <div class="relative z-10 container mx-auto px-6 md:px-12">
+    <div class="max-w-2xl">
+      <div class="label mb-4">Export Infrastructure</div>
+      <h2 class="sh mb-8">Global <span class="text-theme">Footprint</span>.</h2>
+      <p class="text-gray-400 text-lg font-light leading-relaxed mb-12 border-l-2 border-theme/30 pl-6">
+        Our supply chain is built for scale and ultimate flexibility. Leveraging a pan-China network of deep-water ports customized to client logistics, to primary customs hubs across the African continent, we manage the entire export lifecycle. We provide end-to-end routing, eliminating the friction of cross-border EV procurement.
+      </p>
+    </div>
+
+    <!-- Capabilities Grid replacing specific cases -->
+    <div class="grid md:grid-cols-3 gap-6 mt-16">
+      <div class="glass rounded-[2rem] p-8 glass-sm hover:border-gold transition-colors duration-500 relative overflow-hidden group">
+        <div class="absolute inset-0 bg-gradient-to-br from-gold/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+        <div class="relative z-10">
+          <h3 class="text-xl font-black italic text-white uppercase tracking-tight mb-3">RoRo & Container</h3>
+          <p class="text-sm text-gray-500 font-light">Flexible shipping modes. Whether securing RoRo slots for fleet volumes or optimizing 40HQ container packing for mixed batches.</p>
+        </div>
+      </div>
+      
+      <div class="glass rounded-[2rem] p-8 glass-sm hover:border-gold transition-colors duration-500 relative overflow-hidden group">
+        <div class="absolute inset-0 bg-gradient-to-br from-gold/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+        <div class="relative z-10">
+          <h3 class="text-xl font-black italic text-white uppercase tracking-tight mb-3">Customs Clearance</h3>
+          <p class="text-sm text-gray-500 font-light">Pre-validated export documentation (CoO, EV specific battery certs) ensuring rapid processing at destination ports.</p>
+        </div>
+      </div>
+
+      <div class="glass rounded-[2rem] p-8 glass-sm hover:border-gold transition-colors duration-500 relative overflow-hidden group">
+        <div class="absolute inset-0 bg-gradient-to-br from-gold/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+        <div class="relative z-10">
+          <h3 class="text-xl font-black italic text-white uppercase tracking-tight mb-3">Port-to-Port Tracking</h3>
+          <p class="text-sm text-gray-500 font-light">Complete transparency from the moment vehicles leave the factory floor until they arrive at your designated terminal.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLA -->
+<section id="sla" class="py-32 bg-b scroll-mt-48">
+  <div class="container mx-auto px-6 md:px-12">
+    <div class="text-center mb-20">
+      <div class="label justify-center mb-4">Our Commitment</div>
+      <h2 class="sh">The <span class="text-theme">SLA</span> Guarantee.</h2>
+    </div>
+    <div class="grid md:grid-cols-4 gap-6">
+      <div class="glass rounded-[2rem] p-8 glass-sm hover:-translate-y-2 transition duration-300 cursor-default">
+        <div class="num-circle mb-6 border border-theme text-theme">01</div>
+        <h4 class="text-white font-black uppercase tracking-wider text-sm mb-3">2h Response</h4>
+        <p class="text-gray-500 text-xs leading-relaxed font-light">Batch quotes and factory availability confirmed within 2 hours of inquiry.</p>
+      </div>
+      <div class="glass rounded-[2rem] p-8 glass-sm hover:-translate-y-2 transition duration-300 cursor-default">
+        <div class="num-circle mb-6 border border-accent text-accent">02</div>
+        <h4 class="text-white font-black uppercase tracking-wider text-sm mb-3">Video Loading</h4>
+        <p class="text-gray-500 text-xs leading-relaxed font-light">HD container loading footage provided for every single vehicle in your shipment.</p>
+      </div>
+      <div class="glass rounded-[2rem] p-8 glass-sm hover:-translate-y-2 transition duration-300 cursor-default">
+        <div class="num-circle mb-6 border border-theme text-theme">03</div>
+        <h4 class="text-white font-black uppercase tracking-wider text-sm mb-3">Parts Mastery</h4>
+        <p class="text-gray-500 text-xs leading-relaxed font-light">Custom starter parts kits available for all curated models to ensure zero downtime.</p>
+      </div>
+      <div class="glass rounded-[2rem] p-8 glass-sm hover:-translate-y-2 transition duration-300 cursor-default">
+        <div class="num-circle mb-6 border border-accent text-accent">04</div>
+        <h4 class="text-white font-black uppercase tracking-wider text-sm mb-3">Secure Transactions</h4>
+        <p class="text-gray-500 text-xs leading-relaxed font-light">We operate on a strict, transparent 30/70 T/T structure. Original compliance documents (BoL, Invoice, CoO) are dispatched immediately upon final settlement.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SHARED FOOTER CONTEXT -->
+<div class="relative overflow-hidden">
+  <div class="absolute inset-0">
+    <img src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=2000&q=80" class="w-full h-full object-cover" style="filter: brightness(.28) grayscale(20%);">
+    <!-- LAYER ORDER MATCHING index.html exactly -->
+    <div class="absolute inset-0" style="background: rgba(10,10,10,0.65);"></div>
+    <div class="absolute inset-0" style="background: linear-gradient(to bottom, var(--mid) 0%, transparent 12%);"></div>
+  </div>
+
+  <section id="partners" class="relative z-10 pt-28 pb-10">
+    <div class="container mx-auto px-6 md:px-12 text-center mb-10">
+      <div class="text-[10px] font-black tracking-[.4em] uppercase text-gray-500">Global Supply Chain Partners</div>
+    </div>
+    <div class="marquee-container">
+      <div class="marquee-content">
+        <!-- Original set -->
+        <span class="marquee-item text-gray-500 opacity-40"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Maersk Line</span>
+        <span class="marquee-item text-theme opacity-90"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> COSCO Shipping</span>
+        <span class="marquee-item text-gray-500 opacity-40"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg> SGS Quality</span>
+        <span class="marquee-item text-theme opacity-90"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Lloyd's Register</span>
+        <span class="marquee-item text-gray-500 opacity-40"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg> Bureau Veritas</span>
+        <span class="marquee-item text-theme opacity-90"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> CMA CGM</span>
+        <!-- Duplicate set for infinite loop -->
+        <span class="marquee-item text-gray-500 opacity-40"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Maersk Line</span>
+        <span class="marquee-item text-theme opacity-90"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> COSCO Shipping</span>
+        <span class="marquee-item text-gray-500 opacity-40"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg> SGS Quality</span>
+        <span class="marquee-item text-theme opacity-90"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Lloyd's Register</span>
+        <span class="marquee-item text-gray-500 opacity-40"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg> Bureau Veritas</span>
+        <span class="marquee-item text-theme opacity-90"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> CMA CGM</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="relative z-10 container mx-auto px-6 md:px-12 pt-10 pb-20 text-center">
+    <div class="glass rounded-[4rem] p-12 md:p-24">
+      <div class="label justify-center mb-6">Ready to Partner?</div>
+      <h2 class="sh mb-6" style="font-size:clamp(2.5rem,6.5vw,5.5rem);">Join the <span class="text-accent">Green</span> <span class="text-theme">Network</span>.</h2>
+      <p class="text-gray-500 text-lg font-light italic mb-10 max-w-lg mx-auto">Scale your dealership with China's most transparent EV sourcing partner.</p>
+      <div class="flex flex-wrap justify-center gap-4">
+        <a href="https://wa.me/your-number" class="btn-primary px-12 py-5 rounded-full text-xs font-black tracking-widest uppercase italic shadow-lg">WhatsApp Us Now</a>
+        <a href="index.html#contact" class="glass px-12 py-5 rounded-full text-xs font-black tracking-widest uppercase italic text-white hover:bg-white/5 transition">Get Dealer Pricing</a>
+      </div>
+    </div>
+  </section>
+
+  <footer class="relative z-10">
+    <div class="absolute inset-0" style="background: linear-gradient(to top, rgba(0,0,0,.96) 0%, rgba(0,0,0,.82) 45%, rgba(0,0,0,.5) 75%, transparent 100%);"></div>
+    <div class="relative z-10 container mx-auto px-6 md:px-12 py-16">
+      <div class="grid md:grid-cols-4 gap-10 mb-14">
+        <div>
+          <div class="flex items-center gap-2.5 mb-6">
+            <div class="w-8 h-8 rounded flex items-center justify-center font-black italic text-black" style="background:linear-gradient(135deg,#D4AF37,#C5A059);">E</div>
+            <span class="text-base font-black tracking-tighter uppercase italic text-white">Evexport<span class="text-theme">web</span></span>
+          </div>
+          <p class="text-gray-600 text-xs font-light leading-relaxed">China's trusted EV sourcing partner for African dealers. Expert-curated, transparently delivered.</p>
+        </div>
+        <div><div class="text-[10px] font-black tracking-widest uppercase mb-6 text-theme">Vehicles</div><ul class="space-y-4 text-xs text-gray-600 font-light"><li><a href="products-index-v5.html#cat-01">Revenue King Matrix</a></li><li><a href="products-index-v5.html#cat-02">Elite Flagship Hub</a></li><li><a href="products-index-v5.html#cat-03">Utility Pro Center</a></li></ul></div>
+        <div><div class="text-[10px] font-black tracking-widest uppercase mb-6 text-theme">Solutions</div><ul class="space-y-4 text-xs text-gray-600 font-light"><li><a href="solutions.html">PDI & Quality</a></li><li><a href="solutions.html#parts">Starter Parts Kit</a></li><li><a href="solutions.html#marketing">Marketing Assets</a></li></ul></div>
+        <div><div class="text-[10px] font-black tracking-widest uppercase mb-6 text-theme">Resources</div><ul class="space-y-4 text-xs text-gray-600 font-light"><li><a href="index.html#insights">Insights</a></li><li><a href="index.html#academy" class="text-accent">EV Academy</a></li><li><a href="about.html">About Sourcing</a></li></ul></div>
+      </div>
+      <div class="pt-8 border-t border-white/5 text-[9px] font-black tracking-[.4em] uppercase text-gray-700">© 2026 EVEXPORTWEB Eco Supply Chain. All Rights Reserved.</div>
+    </div>
+  </footer>
+</div>
+
+<script>
+const navbar = document.getElementById('navbar');
+const tabBar = document.getElementById('section-tabs');
+const hero = document.querySelector('section');
+
+window.addEventListener('scroll', () => {
+  const py = window.scrollY > 50 ? '10px' : '16px';
+  if(navbar) { navbar.style.paddingTop = py; navbar.style.paddingBottom = py; }
+  if (tabBar && navbar) {
+    tabBar.style.top = (navbar.offsetHeight - 1) + 'px';
+    tabBar.classList.toggle('visible', hero.getBoundingClientRect().bottom < 150);
+  }
+});
+
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const target = document.getElementById(btn.dataset.target);
+    if (!target) return;
+    const offset = (navbar ? navbar.offsetHeight : 0) + (tabBar ? tabBar.offsetHeight : 0) - 1;
+    const top = target.getBoundingClientRect().top + window.scrollY - offset;
+    window.scrollTo({ top, behavior: 'smooth' });
+  });
+});
+
+const tabSectionIds = ['hero', 'heritage', 'cases', 'sla'];
+window.addEventListener('scroll', () => {
+  if (!tabBar) return;
+  const mid = window.innerHeight * 0.45;
+  let activeId = null;
+  tabSectionIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (el && el.getBoundingClientRect().top <= mid) activeId = id;
+  });
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.target === activeId));
+}, { passive: true });
+
+function closeMob() { document.getElementById('mob-menu').style.display='none'; }
+document.getElementById('mob-open').addEventListener('click', () => document.getElementById('mob-menu').style.display='flex');
+</script>
+
+</body>
+</html>

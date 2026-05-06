@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Battery Tech Library — EV Academy | Evexportweb</title>
+  <meta name="description" content="Explore our complete library of technical playbooks, battery chemistry guides, and infrastructure blueprints.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,600;0,700;0,800;0,900;1,300;1,400;1,700;1,800;1,900&display=swap" rel="stylesheet">
+  <style>
+    /* ── Core tokens (V3 palette) ── */
+    :root {
+      --gold:    #C5A059;
+      --gold-lt: #D4AF37;
+      --green:   #10B981;
+      --bg:      #161616;
+      --bg2:     #232323;
+      --bg3:     #2a2a2a;
+      --mid:     #1c1c1c;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html  { scroll-behavior: smooth; }
+    body  { font-family: 'Inter', sans-serif; background: var(--bg); color: #E5E7EB; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+
+    /* ── Background Gradients ── */
+    .bg-a { background: linear-gradient(to bottom, var(--mid) 0%, var(--bg)  15%, var(--bg)  85%, var(--mid) 100%); }
+    
+    /* ── Glass ── */
+    .glass { background: rgba(255,255,255,0.04); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border: 1px solid rgba(197,160,89,0.15); }
+    
+    /* ── Buttons ── */
+    .btn-primary { background: linear-gradient(135deg, #D4AF37 0%, #C5A059 100%); color: #000; transition: transform .25s, box-shadow .25s; display: inline-flex; justify-content: center; align-items: center; }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 24px -6px rgba(197,160,89,.45); }
+    
+    /* ── Text helpers ── */
+    .text-theme  { color: var(--gold); }
+    .text-accent { color: var(--green); }
+    .sh { font-size: clamp(2.4rem,5.5vw,4.5rem); font-weight: 900; line-height: .95; letter-spacing: -.03em; text-transform: uppercase; font-style: italic; color: #fff; }
+
+    /* ── Nav link ── */
+    .nav-link { font-size:11px; font-weight:700; letter-spacing:.18em; text-transform:uppercase; color:var(--gold); transition:color .2s; }
+    .nav-link:hover { color:#fff; }
+    .nav-link.green { color:var(--green); }
+
+    /* ── Tags ── */
+    .tag { font-size: 8px; font-weight: 900; letter-spacing: .15em; text-transform: uppercase; padding: 4px 10px; border-radius: 99px; display: inline-block; margin-bottom: 1rem; width: fit-content; border: 1px solid transparent; }
+    .tag-basics { background: rgba(255,255,255,0.1); color: #fff; }
+    .tag-sales { background: rgba(197,160,89,0.15); color: var(--gold); }
+    .tag-maintenance { background: rgba(16,185,129,0.15); color: var(--green); }
+
+    /* ── Article Card (Reused from Academy) ── */
+    .article-card { border-radius: 1.5rem; overflow: hidden; position: relative; cursor: pointer; background: #1c1c1c; border: 1px solid rgba(255,255,255,0.03); transition: all 0.4s ease; display: flex; flex-direction: column; height: 100%; }
+    .article-card:hover { transform: translateY(-8px); border-color: rgba(197,160,89,0.5); box-shadow: 0 20px 40px -10px rgba(0,0,0,0.5); }
+    .article-img-wrap { width: 100%; aspect-ratio: 16/9; overflow: hidden; position: relative; }
+    .article-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.8s ease; filter: brightness(0.8); }
+    .article-card:hover .article-img { transform: scale(1.05); filter: brightness(1); }
+    .article-content { padding: 1.5rem; flex-grow: 1; display: flex; flex-direction: column; }
+
+    /* ── Sidebar Filters ── */
+    .sticky-sidebar { position: sticky; top: 120px; }
+    .filter-link { display: flex; items-center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.875rem; color: #9CA3AF; transition: all 0.2s; cursor: pointer; }
+    .filter-link:hover, .filter-link.active { color: var(--gold); border-bottom-color: rgba(197,160,89,0.3); padding-left: 8px; }
+    .filter-count { font-size: 10px; font-weight: 900; background: rgba(255,255,255,0.05); padding: 2px 8px; border-radius: 10px; color: #6B7280; }
+    .filter-link.active .filter-count { background: rgba(197,160,89,0.2); color: var(--gold); }
+
+    /* ── Pagination ── */
+    .page-btn { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); color: #9CA3AF; font-weight: 700; font-size: 14px; transition: all 0.2s; cursor: pointer; }
+    .page-btn:hover { border-color: var(--gold); color: var(--gold); }
+    .page-btn.active { background: var(--gold); color: #000; border-color: var(--gold); }
+    .page-btn-wide { width: auto; padding: 0 16px; text-transform: uppercase; font-size: 10px; letter-spacing: 0.1em; font-weight: 900; }
+
+    ::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:var(--bg2)}::-webkit-scrollbar-thumb{background:var(--gold);border-radius:2px}
+  </style>
+</head>
+<body class="antialiased">
+
+<!-- NAVBAR -->
+<nav id="navbar" class="fixed top-0 left-0 right-0 z-50 glass px-6 md:px-10 py-4 flex items-center justify-between transition-all duration-300">
+  <a href="index.html" class="flex items-center gap-2.5">
+    <div class="w-8 h-8 rounded flex items-center justify-center font-black italic text-black" style="background:linear-gradient(135deg,#D4AF37,#C5A059);">E</div>
+    <span class="text-lg font-black tracking-tighter uppercase italic text-white">Evexport<span class="text-theme">web</span></span>
+  </a>
+
+  <div class="hidden lg:flex items-center gap-10">
+    <a href="products-index-v5.html" class="nav-link">Vehicles</a>
+    <a href="solutions.html"         class="nav-link">Solutions</a>
+    <a href="insights.html"          class="nav-link">Insights</a>
+    <a href="academy.html"           class="nav-link green active" style="color:#10B981;">Academy</a>
+    <a href="about.html"             class="nav-link">About</a>
+  </div>
+
+  <a href="contact.html" class="hidden lg:block btn-primary px-7 py-2.5 rounded-full text-xs font-black tracking-widest uppercase shadow-lg">Contact Us</a>
+
+  <button id="mob-open" class="lg:hidden p-2 flex flex-col gap-1.5">
+    <span class="w-6 h-0.5 bg-white block"></span>
+    <span class="w-6 h-0.5 bg-white block"></span>
+    <span class="w-4 h-0.5 bg-white block"></span>
+  </button>
+</nav>
+
+<!-- Mobile drawer -->
+<div id="mob-menu" class="fixed inset-0 z-[60] flex flex-col items-center justify-center gap-8 text-2xl font-black uppercase italic tracking-tight hidden" style="background:rgba(5,5,5,.97);">
+  <button id="mob-close" class="absolute top-5 right-6 text-3xl text-gray-600">✕</button>
+  <a href="products-index-v5.html" onclick="closeMob()" class="text-white hover:text-theme transition">Vehicles</a>
+  <a href="solutions.html"       onclick="closeMob()" class="text-white hover:text-theme transition">Solutions</a>
+  <a href="insights.html"        onclick="closeMob()" class="text-white hover:text-theme transition">Insights</a>
+  <a href="academy.html"         onclick="closeMob()" class="text-accent">Academy</a>
+  <a href="about.html"           onclick="closeMob()" class="text-white hover:text-theme transition">About</a>
+  <a href="contact.html"         onclick="closeMob()" class="mt-4 btn-primary px-12 py-4 rounded text-sm tracking-widest">Contact Us</a>
+</div>
+
+<!-- ARCHIVE LAYOUT -->
+<main class="pt-32 pb-24 relative z-10 bg-a min-h-screen">
+  <div class="container mx-auto px-6 md:px-12">
+    
+    <!-- Context Header -->
+    <header class="mb-16 border-b border-white/5 pb-10">
+      <div class="mb-6 text-[10px] font-black uppercase tracking-widest text-gray-500">
+        <a href="index.html" class="hover:text-gold transition">Home</a> <span class="mx-2">/</span> 
+        <a href="academy.html" class="hover:text-gold transition">EV Academy</a> <span class="mx-2">/</span> 
+        <span class="text-white">EV Basics</span>
+      </div>
+      <h1 class="text-5xl md:text-6xl font-black italic text-white uppercase tracking-tighter mb-4">
+        The <span class="text-theme">Basics</span> <span class="text-accent">Library</span>.
+      </h1>
+      <p class="text-gray-400 text-lg font-light max-w-2xl border-l-2 border-theme/30 pl-5">
+        Explore our complete archive of technical playbooks covering core physics, battery chemistry, and grid infrastructure fundamentals tailored for African markets.
+      </p>
+    </header>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 xl:gap-20 items-start">
+      
+      <!-- LEFT COLUMN: FILTER SIDEBAR (25%) -->
+      <aside class="lg:col-span-3">
+        <div class="sticky-sidebar">
+          
+          <!-- Search Box -->
+          <div class="mb-10 relative">
+            <input type="text" placeholder="Search the vault..." class="w-full bg-black/40 border border-white/10 rounded-xl px-5 py-4 text-sm text-white focus:border-gold outline-none transition-colors">
+            <svg class="absolute right-5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          </div>
+
+          <!-- Topics Filter -->
+          <div class="mb-10">
+            <div class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-600 mb-4">Topics</div>
+            <div class="space-y-1">
+              <a href="#" class="filter-link active">
+                <span>All Basics</span>
+                <span class="filter-count">42</span>
+              </a>
+              <a href="#" class="filter-link">
+                <span>Battery Chemistry</span>
+                <span class="filter-count">15</span>
+              </a>
+              <a href="#" class="filter-link">
+                <span>Off-Grid Infrastructure</span>
+                <span class="filter-count">12</span>
+              </a>
+              <a href="#" class="filter-link">
+                <span>TCO & ROI Analysis</span>
+                <span class="filter-count">8</span>
+              </a>
+              <a href="#" class="filter-link">
+                <span>High Voltage Safety</span>
+                <span class="filter-count">7</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- Content Format Filter -->
+          <div>
+            <div class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-600 mb-4">Format</div>
+            <div class="flex flex-wrap gap-2">
+              <span class="px-4 py-2 rounded-full border border-gold text-gold text-[10px] font-black uppercase tracking-widest cursor-pointer bg-gold/10">Articles</span>
+              <span class="px-4 py-2 rounded-full border border-white/10 text-gray-400 text-[10px] font-black uppercase tracking-widest cursor-pointer hover:border-gold hover:text-gold transition">PDF Playbooks</span>
+              <span class="px-4 py-2 rounded-full border border-white/10 text-gray-400 text-[10px] font-black uppercase tracking-widest cursor-pointer hover:border-gold hover:text-gold transition">Excel Models</span>
+            </div>
+          </div>
+
+        </div>
+      </aside>
+
+      <!-- RIGHT COLUMN: ARTICLE GRID (75%) -->
+      <div class="lg:col-span-9">
+        
+        <div class="grid md:grid-cols-2 gap-8 mb-16">
+          
+          <!-- Card 1 -->
+          <a href="article.html" class="article-card">
+            <div class="article-img-wrap"><img src="https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80" class="article-img" alt="EV Battery Tech"></div>
+            <div class="article-content">
+              <span class="tag tag-basics">Battery Tech</span>
+              <h3 class="text-xl font-bold text-white mb-3">LFP vs. NCM Batteries: The Equatorial Guide</h3>
+              <p class="text-gray-400 text-xs leading-relaxed font-light mb-6">Why Lithium Iron Phosphate (LFP) is the only viable chemistry for long-term fleet survival in high-temperature African markets.</p>
+              <div class="mt-auto pt-4 border-t border-white/5 text-[9px] font-black uppercase tracking-widest text-gold">Read Playbook →</div>
+            </div>
+          </a>
+
+          <!-- Card 2 -->
+          <a href="article.html" class="article-card">
+            <div class="article-img-wrap"><img src="https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&w=800&q=80" class="article-img"></div>
+            <div class="article-content">
+              <span class="tag tag-basics">Infrastructure</span>
+              <h3 class="text-xl font-bold text-white mb-3">Off-Grid Charging: The V2L Blueprint</h3>
+              <p class="text-gray-400 text-xs leading-relaxed font-light mb-6">How to utilize Vehicle-to-Load technology and standalone solar + storage systems to bypass unstable municipal power grids.</p>
+              <div class="mt-auto pt-4 border-t border-white/5 text-[9px] font-black uppercase tracking-widest text-gold">Read Playbook →</div>
+            </div>
+          </a>
+
+          <!-- Card 3 -->
+          <a href="article.html" class="article-card">
+            <div class="article-img-wrap"><img src="https://images.unsplash.com/photo-1605810230434-7631ac76ec81?auto=format&fit=crop&w=800&q=80" class="article-img"></div>
+            <div class="article-content">
+              <span class="tag tag-basics">TCO Analysis</span>
+              <h3 class="text-xl font-bold text-white mb-3">ICE vs. EV: The True Cost of Ownership</h3>
+              <p class="text-gray-400 text-xs leading-relaxed font-light mb-6">A brutal mathematical breakdown comparing a petrol Toyota Corolla against a BYD Seagull over 5 years of commercial driving.</p>
+              <div class="mt-auto pt-4 border-t border-white/5 text-[9px] font-black uppercase tracking-widest text-gold">Read Playbook →</div>
+            </div>
+          </a>
+
+          <!-- Card 4 (New Content) -->
+          <a href="article.html" class="article-card">
+            <div class="article-img-wrap"><img src="https://images.unsplash.com/photo-1563720360172-67b8f3dce741?auto=format&fit=crop&w=800&q=80" class="article-img"></div>
+            <div class="article-content">
+              <span class="tag tag-basics">Battery Tech</span>
+              <h3 class="text-xl font-bold text-white mb-3">Understanding Battery State of Health (SoH)</h3>
+              <p class="text-gray-400 text-xs leading-relaxed font-light mb-6">How to accurately measure and communicate battery degradation to fleet operators and second-hand buyers.</p>
+              <div class="mt-auto pt-4 border-t border-white/5 text-[9px] font-black uppercase tracking-widest text-gold">Read Playbook →</div>
+            </div>
+          </a>
+
+          <!-- Card 5 (New Content) -->
+          <a href="article.html" class="article-card">
+            <div class="article-img-wrap"><img src="https://images.unsplash.com/photo-1620800615569-42b781a62dcb?auto=format&fit=crop&w=800&q=80" class="article-img"></div>
+            <div class="article-content">
+              <span class="tag tag-basics">Infrastructure</span>
+              <h3 class="text-xl font-bold text-white mb-3">DC Fast Charging (Level 3) Installation Guide</h3>
+              <p class="text-gray-400 text-xs leading-relaxed font-light mb-6">The electrical requirements and transformer upgrades needed to support commercial 120kW+ fast chargers at your dealership.</p>
+              <div class="mt-auto pt-4 border-t border-white/5 text-[9px] font-black uppercase tracking-widest text-gold">Read Playbook →</div>
+            </div>
+          </a>
+
+          <!-- Card 6 (New Content) -->
+          <a href="article.html" class="article-card">
+            <div class="article-img-wrap"><img src="https://images.unsplash.com/photo-1581092335397-9583eb92d232?auto=format&fit=crop&w=800&q=80" class="article-img"></div>
+            <div class="article-content">
+              <span class="tag tag-basics">High Voltage</span>
+              <h3 class="text-xl font-bold text-white mb-3">400V vs 800V Architectures Explained</h3>
+              <p class="text-gray-400 text-xs leading-relaxed font-light mb-6">Why the transition to 800V Silicon Carbide (SiC) matters for heavy-duty commercial EVs and charging speeds.</p>
+              <div class="mt-auto pt-4 border-t border-white/5 text-[9px] font-black uppercase tracking-widest text-gold">Read Playbook →</div>
+            </div>
+          </a>
+
+        </div>
+
+        <!-- Pagination -->
+        <div class="flex flex-wrap items-center justify-center gap-2 border-t border-white/5 pt-10">
+          <a href="#" class="page-btn page-btn-wide pointer-events-none opacity-50">← Prev</a>
+          <a href="#" class="page-btn active">1</a>
+          <a href="#" class="page-btn">2</a>
+          <a href="#" class="page-btn">3</a>
+          <span class="text-gray-600 px-2">...</span>
+          <a href="#" class="page-btn">7</a>
+          <a href="#" class="page-btn page-btn-wide hover:border-gold hover:text-gold transition">Next →</a>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<!-- SHARED FOOTER CONTEXT -->
+<footer class="relative z-10 bg-black border-t border-white/5">
+  <div class="relative z-10 container mx-auto px-6 md:px-12 py-16">
+    <div class="grid md:grid-cols-4 gap-10 mb-14">
+      <div>
+        <div class="flex items-center gap-2.5 mb-6">
+          <div class="w-8 h-8 rounded flex items-center justify-center font-black italic text-black" style="background:linear-gradient(135deg,#D4AF37,#C5A059);">E</div>
+          <span class="text-base font-black tracking-tighter uppercase italic text-white">Evexport<span class="text-theme">web</span></span>
+        </div>
+        <p class="text-gray-600 text-xs font-light leading-relaxed">China's trusted EV sourcing partner for African dealers. Expert-curated, transparently delivered.</p>
+      </div>
+      <div><div class="text-[10px] font-black tracking-widest uppercase mb-6 text-theme">Vehicles</div><ul class="space-y-4 text-xs text-gray-600 font-light"><li><a href="products-index-v5.html#cat-01">Revenue King Matrix</a></li><li><a href="products-index-v5.html#cat-02">Elite Flagship Hub</a></li><li><a href="products-index-v5.html#cat-03">Utility Pro Center</a></li></ul></div>
+      <div><div class="text-[10px] font-black tracking-widest uppercase mb-6 text-theme">Solutions</div><ul class="space-y-4 text-xs text-gray-600 font-light"><li><a href="solutions.html">PDI & Quality</a></li><li><a href="solutions.html#parts">Starter Parts Kit</a></li><li><a href="solutions.html#marketing">Marketing Assets</a></li></ul></div>
+      <div><div class="text-[10px] font-black tracking-widest uppercase mb-6 text-theme">Resources</div><ul class="space-y-4 text-xs text-gray-600 font-light"><li><a href="insights.html">Insights</a></li><li><a href="academy.html" class="text-accent">EV Academy</a></li><li><a href="about.html">About Sourcing</a></li></ul></div>
+    </div>
+    <div class="pt-8 border-t border-white/5 text-[9px] font-black tracking-[.4em] uppercase text-gray-700">© 2026 EVEXPORTWEB Eco Supply Chain. All Rights Reserved.</div>
+  </div>
+</footer>
+
+<script>
+const navbar = document.getElementById('navbar');
+window.addEventListener('scroll', () => {
+  const py = window.scrollY > 50 ? '10px' : '16px';
+  if(navbar) { navbar.style.paddingTop = py; navbar.style.paddingBottom = py; }
+});
+
+function closeMob() { document.getElementById('mob-menu').style.display='none'; }
+document.getElementById('mob-open').addEventListener('click', () => document.getElementById('mob-menu').style.display='flex');
+</script>
+
+</body>
+</html>

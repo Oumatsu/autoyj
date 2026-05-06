@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EV Sourcing for Ethiopia — Evexportweb | Addis Ababa Fleet Expert</title>
+  <meta name="description" content="The definitive EV sourcing partner for Ethiopian dealers. Localized expertise on Ethiopia tariffs, road conditions, and the best BYD/GAC models for Addis Ababa.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,600;0,700;0,800;0,900;1,300;1,400;1,700;1,800;1,900&display=swap" rel="stylesheet">
+  <style>
+    /* ── Core tokens (V3 palette) ── */
+    :root {
+      --gold:    #C5A059;
+      --gold-lt: #D4AF37;
+      --green:   #10B981;
+      --bg:      #161616;
+      --bg2:     #232323;
+      --bg3:     #2a2a2a;
+      --mid:     #1c1c1c;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html  { scroll-behavior: smooth; }
+    body  { font-family: 'Inter', sans-serif; background: var(--bg); color: #E5E7EB;
+            -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+
+    /* ── Background Gradients (The Rhythm of Darkness) ── */
+    .bg-a { background: linear-gradient(to bottom, var(--mid) 0%, var(--bg)  15%, var(--bg)  85%, var(--mid) 100%); }
+    .bg-b { background: linear-gradient(to bottom, var(--mid) 0%, var(--bg2) 15%, var(--bg2) 85%, var(--mid) 100%); }
+
+    /* ── Glass (V3: 0.09 opacity) ── */
+    .glass {
+      background: rgba(255,255,255,0.09);
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+      border: 1px solid rgba(197,160,89,0.25);
+    }
+    .bg-b .glass { background: rgba(0,0,0,0.18); }
+
+    /* ── Button Styles ── */
+    .btn-primary {
+      background: linear-gradient(135deg, #D4AF37 0%, #C5A059 100%);
+      color: #000;
+      transition: transform .25s, box-shadow .25s;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 24px -6px rgba(197,160,89,.45); }
+
+    /* ── Nav link ── */
+    .nav-link { font-size:11px; font-weight:700; letter-spacing:.18em; text-transform:uppercase; color:var(--gold); transition:color .2s; }
+    .nav-link:hover { color:#fff; }
+    .nav-link.green { color:var(--green); }
+
+    /* ── Section heading ── */
+    .sh {
+      font-size: clamp(2.4rem,5.5vw,4.5rem);
+      font-weight: 900;
+      line-height: .95;
+      letter-spacing: -.03em;
+      text-transform: uppercase;
+      font-style: italic;
+      color: #fff;
+    }
+
+    /* ── Label ── */
+    .label {
+      font-size: 10px; font-weight: 900;
+      letter-spacing: .3em; text-transform: uppercase;
+      color: var(--green);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .label::before { content:''; width:20px; height:1px; background:var(--green); flex-shrink:0; }
+    .label-gold { color:var(--gold); }
+    .label-gold::before { background:var(--gold); }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:var(--bg2)}::-webkit-scrollbar-thumb{background:var(--gold);border-radius:2px}
+  </style>
+</head>
+<body class="antialiased">
+
+<!-- ════════════════════════════════════════════
+     NAVBAR
+════════════════════════════════════════════ -->
+<nav id="navbar" class="fixed top-0 left-0 right-0 z-50 glass px-6 md:px-10 py-4 flex items-center justify-between transition-all duration-300">
+  <a href="../index.html" class="flex items-center gap-2.5">
+    <div class="w-8 h-8 rounded flex items-center justify-center font-black italic text-black text-base"
+         style="background:linear-gradient(135deg,#D4AF37,#C5A059);">E</div>
+    <span class="text-lg font-black tracking-tighter uppercase italic text-white">Evexport<span class="text-theme">web</span></span>
+  </a>
+
+  <div class="hidden lg:flex items-center gap-10">
+    <a href="../index.html#products" class="nav-link">Vehicles</a>
+    <a href="../solutions.html"       class="nav-link">Solutions</a>
+    <a href="../index.html#insights"  class="nav-link">Insights</a>
+    <a href="../index.html#academy"   class="nav-link green">Academy</a>
+    <a href="../about.html"           class="nav-link">About</a>
+  </div>
+
+  <a href="../contact.html" class="hidden lg:block btn-primary px-7 py-2.5 rounded-full text-xs font-black tracking-widest uppercase shadow-lg">Contact Us</a>
+
+  <button id="mob-open" class="lg:hidden p-2 flex flex-col gap-1.5">
+    <span class="w-6 h-0.5 bg-white block"></span>
+    <span class="w-6 h-0.5 bg-white block"></span>
+    <span class="w-4 h-0.5 bg-white block"></span>
+  </button>
+</nav>
+
+<!-- Mobile drawer -->
+<div id="mob-menu" class="fixed inset-0 z-40 flex flex-col items-center justify-center gap-8 text-2xl font-black uppercase italic tracking-tight hidden" style="background:rgba(5,5,5,.97);">
+  <button id="mob-close" class="absolute top-5 right-6 text-3xl text-gray-600">✕</button>
+  <a href="../index.html#products"  onclick="closeMob()" class="text-white hover:text-theme transition">Vehicles</a>
+  <a href="../solutions.html"       onclick="closeMob()" class="text-white hover:text-theme transition">Solutions</a>
+  <a href="../index.html#insights"  onclick="closeMob()" class="text-white hover:text-theme transition">Insights</a>
+  <a href="../index.html#academy"   onclick="closeMob()" class="text-accent">Academy</a>
+  <a href="../about.html"           onclick="closeMob()" class="text-white hover:text-theme transition">About</a>
+  <a href="../contact.html"         onclick="closeMob()" class="mt-4 btn-primary px-12 py-4 rounded text-sm tracking-widest">Contact Us</a>
+</div>
+
+<!-- ════════════════════════════════════════════
+     HERO: ETHIOPIA MARKET
+════════════════════════════════════════════ -->
+<section id="hero" class="relative min-h-[85vh] flex items-end overflow-hidden">
+  <div class="absolute inset-0">
+    <img src="https://images.unsplash.com/photo-1523805009345-7448845a9e53?auto=format&fit=crop&w=2000&q=80"
+         class="w-full h-full object-cover" style="filter: brightness(.95);" alt="Addis Ababa Skyine">
+    <div class="absolute inset-0" style="background: linear-gradient(to top, rgba(22,22,22,.95) 15%, rgba(22,22,22,.3) 45%, transparent 100%);"></div>
+    <div class="absolute inset-0" style="background: linear-gradient(to right, rgba(22,22,22,.65) 30%, transparent 75%);"></div>
+  </div>
+
+  <div class="relative z-10 container mx-auto px-6 md:px-12 pb-24">
+    <div class="max-w-3xl">
+      <div class="flex items-center gap-2.5 mb-6">
+        <span class="text-accent text-[11px] font-black uppercase tracking-[.3em]">Market Focus: Ethiopia</span>
+      </div>
+      <h1 class="sh mb-8" style="font-size:clamp(3rem, 7vw, 6rem);">
+        Powering the<br><span class="text-theme">Green Shift</span> in<br>Addis Ababa.
+      </h1>
+      <p class="text-xl text-gray-400 font-light italic border-l-2 pl-8 leading-relaxed max-w-xl"
+         style="border-color:var(--gold);">
+        Dedicated EV sourcing and logistics for the Ethiopian market. Leveraging zero-tariff policies for maximum dealer profit.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════
+     MARKET CONTEXT [bg-a]
+════════════════════════════════════════════ -->
+<section class="py-20 bg-a">
+  <div class="container mx-auto px-6 md:px-12">
+    <div class="grid lg:grid-cols-2 gap-16 items-center">
+      <div>
+        <div class="label mb-6">The Ethiopia Opportunity</div>
+        <h2 class="sh mb-8">Africa's EV<br><span class="text-theme">Pioneer</span>.</h2>
+        <p class="text-gray-500 text-lg font-light leading-relaxed mb-8">
+          With the Ethiopian government's bold ban on internal combustion engine (ICE) passenger vehicle imports, the market for high-quality, reliable EVs is expanding at an unprecedented rate.
+        </p>
+        <div class="space-y-4">
+          <div class="glass p-6 rounded-2xl border-accent/20 flex justify-between items-center">
+            <span class="text-xs font-black uppercase text-white tracking-widest">Import Tariff</span>
+            <span class="text-2xl font-black italic text-accent">0%</span>
+          </div>
+          <div class="glass p-6 rounded-2xl border-theme/20 flex justify-between items-center">
+            <span class="text-xs font-black uppercase text-white tracking-widest">Excise Tax</span>
+            <span class="text-2xl font-black italic text-theme">Min.</span>
+          </div>
+        </div>
+      </div>
+      <div class="glass rounded-[3rem] p-10 md:p-14">
+        <h4 class="text-white font-black uppercase tracking-widest text-sm mb-6">Why Source with Us?</h4>
+        <ul class="space-y-6">
+          <li class="flex gap-4">
+            <div class="w-5 h-5 rounded-full bg-theme/20 text-theme flex items-center justify-center text-[10px] font-black">1</div>
+            <p class="text-sm text-gray-400 font-light">Custom clearing documentation optimized for Ethiopian bank requirements.</p>
+          </li>
+          <li class="flex gap-4">
+            <div class="w-5 h-5 rounded-full bg-theme/20 text-theme flex items-center justify-center text-[10px] font-black">2</div>
+            <p class="text-sm text-gray-400 font-light">Ground clearance & suspension audits for Addis Ababa road profiles.</p>
+          </li>
+          <li class="flex gap-4">
+            <div class="w-5 h-5 rounded-full bg-theme/20 text-theme flex items-center justify-center text-[10px] font-black">3</div>
+            <p class="text-sm text-gray-400 font-light">LC/CAD payment workflow support for qualified dealers.</p>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════
+     ROAD CONDITIONS [image dark]
+════════════════════════════════════════════ -->
+<section class="py-20 md:py-28 relative overflow-hidden">
+  <div class="absolute inset-0">
+    <img src="https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&w=2000&q=80"
+         class="w-full h-full object-cover" style="filter: brightness(.3) grayscale(15%);" alt="Ethiopia Logistics">
+    <div class="absolute inset-0" style="background: rgba(10,10,10,.65);"></div>
+    <div class="absolute inset-0" style="background: linear-gradient(to bottom, var(--mid) 0%, transparent 15%, transparent 85%, var(--mid) 100%);"></div>
+  </div>
+
+  <div class="relative z-10 container mx-auto px-6 md:px-12 text-center">
+    <div class="max-w-3xl mx-auto">
+      <div class="label label-gold justify-center mb-6">Terrain Tested</div>
+      <h2 class="sh mb-8">Addis <span class="text-theme">Optimized</span> Selection.</h2>
+      <p class="text-gray-400 text-lg font-light italic leading-relaxed mb-12">
+        We don't just ship any car. We select models like the BYD Seagull and GAC Aion RT specifically for their proven performance on Ethiopia's high-altitude and varied urban terrains.
+      </p>
+      <a href="../index.html#products" class="btn-primary px-12 py-5 rounded text-sm font-black uppercase tracking-widest italic shadow-lg">
+        View Best-Fit Models
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════
+     CTA [Shared Background]
+════════════════════════════════════════════ -->
+<div class="relative overflow-hidden">
+  <div class="absolute inset-0">
+    <img src="https://images.unsplash.com/photo-1523805009345-7448845a9e53?auto=format&fit=crop&w=2000&q=80"
+         class="w-full h-full object-cover" style="filter: brightness(.28) grayscale(20%);" alt="">
+    <div class="absolute inset-0" style="background: linear-gradient(to bottom, rgba(22,22,22,.9) 0%, rgba(22,22,22,.3) 30%, rgba(22,22,22,.6) 70%, #000 100%);"></div>
+  </div>
+
+  <section class="py-24 relative z-10">
+    <div class="container mx-auto px-6 md:px-12">
+      <div class="glass rounded-[4rem] p-12 md:p-20 text-center" style="border-color:rgba(197,160,89,.2);">
+        <div class="label justify-center mb-6">Ethiopia Dealer Support</div>
+        <h2 class="sh mb-6" style="font-size:clamp(2.5rem,6.5vw,5.5rem);">
+          Claim Your <span class="text-accent">Market</span> Share.
+        </h2>
+        <p class="text-gray-500 text-lg font-light italic mb-10 max-w-lg mx-auto">
+          Partner with the experts who understand the Addis Ababa trade cycle.
+        </p>
+        <div class="flex flex-wrap justify-center gap-4">
+          <a href="https://wa.me/your-number" class="btn-primary px-12 py-5 rounded text-sm font-black tracking-widest uppercase italic shadow-lg">
+            WhatsApp Strategy Call
+          </a>
+          <a href="../contact.html" class="glass px-12 py-5 rounded text-sm font-black tracking-widest uppercase italic text-white hover:bg-white/5 transition">
+            Request Local PDI List
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ════════════════════════════════════════════
+     FOOTER
+════════════════════════════════════════════ -->
+<footer style="background:#000; border-top:1px solid rgba(197,160,89,.06);">
+  <div class="container mx-auto px-6 md:px-12 py-16">
+    <div class="grid md:grid-cols-4 gap-10 mb-14">
+      <div>
+        <div class="flex items-center gap-2.5 mb-5">
+          <div class="w-8 h-8 rounded flex items-center justify-center font-black italic text-black"
+               style="background:linear-gradient(135deg,#D4AF37,#C5A059);">E</div>
+          <span class="text-base font-black tracking-tighter uppercase italic text-white">Evexport<span class="text-theme">web</span></span>
+        </div>
+        <p class="text-gray-600 text-xs font-light leading-relaxed">China's trusted EV sourcing partner for African dealers. Expert-curated, transparently delivered.</p>
+      </div>
+      <div>
+        <div class="text-[10px] font-black tracking-widest uppercase mb-5 text-theme">Vehicles</div>
+        <ul class="space-y-3 text-xs text-gray-600 font-light">
+          <li><a href="../index.html#products" class="hover:text-white transition">Revenue King EVs</a></li>
+          <li><a href="../index.html#products" class="hover:text-white transition">Elite Flagship EVs</a></li>
+          <li><a href="../index.html#products" class="hover:text-white transition">Utility Pro EVs</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="text-[10px] font-black tracking-widest uppercase mb-5 text-theme">Solutions</div>
+        <ul class="space-y-3 text-xs text-gray-600 font-light">
+          <li><a href="../solutions.html"       class="hover:text-white transition">PDI & Quality</a></li>
+          <li><a href="../solutions.html#parts" class="hover:text-white transition">Starter Parts Kit</a></li>
+          <li><a href="../solutions.html#marketing" class="hover:text-white transition">Marketing Assets</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="text-[10px] font-black tracking-widest uppercase mb-5 text-theme">Resources</div>
+        <ul class="space-y-3 text-xs text-gray-600 font-light">
+          <li><a href="../index.html#insights" class="hover:text-white transition">Market Reports</a></li>
+          <li><a href="../index.html#academy"  class="hover:text-white transition text-accent">EV Academy</a></li>
+          <li><a href="../about.html"           class="hover:text-white transition">About Us</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="flex flex-col md:flex-row justify-between items-center gap-4 pt-8"
+         style="border-top:1px solid rgba(197,160,89,.06);">
+      <p class="text-[9px] font-black tracking-[.4em] uppercase text-gray-700">© 2026 EVEXPORTWEB Eco Supply Chain. All Rights Reserved.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+window.addEventListener('scroll', () => {
+  const py = window.scrollY > 50 ? '10px' : '16px';
+  const el = document.getElementById('navbar');
+  if(el){
+    el.style.paddingTop = py;
+    el.style.paddingBottom = py;
+  }
+});
+
+document.getElementById('mob-open').addEventListener('click',  () => document.getElementById('mob-menu').style.display='flex');
+document.getElementById('mob-close').addEventListener('click', () => document.getElementById('mob-menu').style.display='none');
+function closeMob() { document.getElementById('mob-menu').style.display='none'; }
+</script>
+
+</body>
+</html>

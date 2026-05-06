@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Revenue King EVs — High-ROI Urban Fleets | Evexportweb</title>
+  <meta name="description" content="Curated EVs for ride-hailing, network taxis, and urban fleets. Up to $350/mo saved vs petrol. Direct factory FOB pricing for African dealers.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,600;0,700;0,800;0,900;1,300;1,400;1,700;1,800;1,900&display=swap" rel="stylesheet">
+  <style>
+    /* ── Core tokens (V3 palette) ── */
+    :root {
+      --gold:    #C5A059;
+      --gold-lt: #D4AF37;
+      --green:   #10B981;
+      --bg:      #161616;
+      --bg2:     #232323;
+      --bg3:     #2a2a2a;
+      --mid:     #1c1c1c;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html  { scroll-behavior: smooth; }
+    body  { font-family: 'Inter', sans-serif; background: var(--bg); color: #E5E7EB; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+
+    /* ── Background Gradients ── */
+    .bg-a { background: linear-gradient(to bottom, var(--mid) 0%, var(--bg)  15%, var(--bg)  85%, var(--mid) 100%); }
+
+    /* ── Glass ── */
+    .glass { background: rgba(255,255,255,0.04); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border: 1px solid rgba(197,160,89,0.15); }
+    
+    /* ── Buttons ── */
+    .btn-primary { background: linear-gradient(135deg, #D4AF37 0%, #C5A059 100%); color: #000; transition: transform .25s, box-shadow .25s; display: inline-flex; justify-content: center; align-items: center; }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 24px -6px rgba(197,160,89,.45); }
+    .btn-outline { border: 1px solid rgba(197,160,89,.4); color: var(--gold); transition: background .2s, color .2s; }
+    .btn-outline:hover { background: var(--gold); color: #000; }
+
+    /* ── Text helpers ── */
+    .text-theme  { color: var(--gold); }
+    .text-accent { color: var(--green); }
+    .sh { font-size: clamp(2.4rem,5.5vw,4.5rem); font-weight: 900; line-height: .95; letter-spacing: -.03em; text-transform: uppercase; font-style: italic; color: #fff; }
+
+    /* ── Nav link ── */
+    .nav-link { font-size:11px; font-weight:700; letter-spacing:.18em; text-transform:uppercase; color:var(--gold); transition:color .2s; }
+    .nav-link:hover { color:#fff; }
+
+    /* ── Dropdown ── */
+    .nav-group { position:relative; }
+    .nav-dropdown { position:absolute; top:calc(100% + 12px); left:50%; transform:translateX(-50%); min-width:200px; opacity:0; visibility:hidden; pointer-events:none; transition:opacity .2s, transform .2s; transform:translateX(-50%) translateY(-4px); }
+    .nav-group:hover .nav-dropdown { opacity:1; visibility:visible; pointer-events:auto; transform:translateX(-50%) translateY(0); }
+    .nav-dropdown a { display:flex; align-items:center; justify-content:space-between; padding:10px 16px; font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:#9CA3AF; transition:color .15s, background .15s; }
+    .nav-dropdown a:hover { color:#fff; background:rgba(255,255,255,.04); }
+    .nav-dropdown a.active-cat { color:var(--gold); }
+    .dropdown-dot { width:5px; height:5px; border-radius:50%; background:rgba(255,255,255,.2); }
+    .nav-dropdown a.active-cat .dropdown-dot { background:var(--gold); }
+    .nav-dropdown a:first-child { border-radius:12px 12px 0 0; }
+    .nav-dropdown a:last-child  { border-radius:0 0 12px 12px; }
+
+    /* ── Pulse dot ── */
+    .pulse-dot { width:8px; height:8px; border-radius:50%; background:var(--green); box-shadow:0 0 0 0 rgba(16,185,129,.5); flex-shrink:0; animation:pulse-anim 2s infinite; }
+    @keyframes pulse-anim { 0%,100%{box-shadow:0 0 0 0 rgba(16,185,129,.5)} 60%{box-shadow:0 0 0 8px transparent} }
+
+    /* ── Sidebar Filters ── */
+    .sticky-sidebar { position: sticky; top: 120px; }
+    .filter-group { border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 1.5rem; margin-bottom: 1.5rem; }
+    .filter-title { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.2em; color: #6B7280; margin-bottom: 1rem; }
+    .filter-checkbox { display: flex; align-items: center; gap: 10px; cursor: pointer; margin-bottom: 8px; }
+    .checkbox-box { width: 16px; height: 16px; border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+    .filter-checkbox input:checked ~ .checkbox-box { background: var(--gold); border-color: var(--gold); }
+    .checkbox-box::after { content: '✓'; color: #000; font-size: 10px; font-weight: 900; opacity: 0; transition: opacity 0.2s; }
+    .filter-checkbox input:checked ~ .checkbox-box::after { opacity: 1; }
+    .filter-text { font-size: 0.875rem; color: #9CA3AF; transition: color 0.2s; }
+    .filter-checkbox:hover .filter-text { color: #fff; }
+    .filter-checkbox input:checked ~ .filter-text { color: var(--gold); font-weight: 600; }
+
+    /* ── New Vehicle Grid Card (Compact) ── */
+    .v-card-compact { border-radius: 1.5rem; overflow: hidden; background: #1c1c1c; border: 1px solid rgba(197,160,89,0.1); transition: all 0.4s ease; display: flex; flex-direction: column; cursor: pointer; text-decoration: none; }
+    .v-card-compact:hover { border-color: var(--gold); transform: translateY(-6px); box-shadow: 0 20px 40px -10px rgba(0,0,0,0.5); }
+    .v-card-compact-img-wrap { width: 100%; aspect-ratio: 4/3; position: relative; overflow: hidden; }
+    .v-card-compact-img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.85); transition: transform 0.8s ease, filter 0.5s; }
+    .v-card-compact:hover .v-card-compact-img { transform: scale(1.05); filter: brightness(1); }
+    .v-card-compact-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 50%); }
+    .v-card-compact-content { padding: 1.5rem; flex-grow: 1; display: flex; flex-direction: column; }
+    .v-spec-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.03); }
+    .v-spec-row:last-child { border-bottom: none; }
+
+    /* ── Pagination ── */
+    .page-btn { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); color: #9CA3AF; font-weight: 700; font-size: 14px; transition: all 0.2s; cursor: pointer; }
+    .page-btn:hover { border-color: var(--gold); color: var(--gold); }
+    .page-btn.active { background: var(--gold); color: #000; border-color: var(--gold); }
+    .page-btn-wide { width: auto; padding: 0 16px; text-transform: uppercase; font-size: 10px; letter-spacing: 0.1em; font-weight: 900; }
+
+    ::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:var(--bg2)}::-webkit-scrollbar-thumb{background:var(--gold);border-radius:2px}
+  </style>
+</head>
+<body class="antialiased">
+
+<!-- NAVBAR -->
+<nav id="navbar" class="fixed top-0 left-0 right-0 z-50 glass px-6 md:px-10 py-4 flex items-center justify-between transition-all duration-300">
+  <a href="../index.html" class="flex items-center gap-2.5">
+    <div class="w-8 h-8 rounded flex items-center justify-center font-black italic text-black text-base" style="background:linear-gradient(135deg,#D4AF37,#C5A059);">E</div>
+    <span class="text-lg font-black tracking-tighter uppercase italic text-white">Evexport<span class="text-theme">web</span></span>
+  </a>
+
+  <div class="hidden lg:flex items-center gap-10">
+    <div class="nav-group relative group flex items-center gap-1 cursor-default">
+      <a href="../products-index-v5.html" class="nav-link active flex items-center gap-1.5" style="color:#fff;">
+        Vehicles
+        <svg class="w-2 h-2 opacity-50" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4"/></svg>
+      </a>
+      <div class="nav-dropdown glass absolute top-[calc(100%+12px)] left-1/2 min-w-[200px] opacity-0 invisible pointer-events-none transition-all duration-200 rounded-[14px]">
+        <a href="revenue-king.html"   class="active-cat flex items-center justify-between px-4 py-2.5 text-[11px] font-bold tracking-[.12em] uppercase hover:bg-white/5 rounded-t-[14px] transition-colors">Revenue King <span class="dropdown-dot"></span></a>
+        <a href="#" class="flex items-center justify-between px-4 py-2.5 text-[11px] font-bold tracking-[.12em] uppercase text-gray-400 hover:text-white hover:bg-white/5 transition-colors">Elite Flagship <span class="dropdown-dot"></span></a>
+        <a href="#"    class="flex items-center justify-between px-4 py-2.5 text-[11px] font-bold tracking-[.12em] uppercase text-gray-400 hover:text-white hover:bg-white/5 rounded-b-[14px] transition-colors">Utility Pro <span class="dropdown-dot"></span></a>
+      </div>
+    </div>
+    <a href="../solutions.html" class="nav-link">Solutions</a>
+    <a href="../insights.html"  class="nav-link">Insights</a>
+    <a href="../academy.html"   class="nav-link green">Academy</a>
+    <a href="../about.html"     class="nav-link">About</a>
+  </div>
+
+  <a href="../contact.html" class="hidden lg:block btn-primary px-7 py-2.5 rounded-full text-xs font-black tracking-widest uppercase shadow-lg">Contact Us</a>
+
+  <button id="mob-open" class="lg:hidden p-2 flex flex-col gap-1.5">
+    <span class="w-6 h-0.5 bg-white block"></span>
+    <span class="w-6 h-0.5 bg-white block"></span>
+    <span class="w-4 h-0.5 bg-white block"></span>
+  </button>
+</nav>
+
+<!-- Mobile drawer -->
+<div id="mob-menu" class="fixed inset-0 z-[60] flex flex-col items-center justify-center gap-8 text-2xl font-black uppercase italic tracking-tight hidden" style="background:rgba(5,5,5,.97);">
+  <button id="mob-close" class="absolute top-5 right-6 text-3xl text-gray-600">✕</button>
+  <a href="../products-index-v5.html" onclick="closeMob()" class="text-white hover:text-theme transition">Vehicles</a>
+  <a href="../solutions.html"       onclick="closeMob()" class="text-white hover:text-theme transition">Solutions</a>
+  <a href="../insights.html"        onclick="closeMob()" class="text-white hover:text-theme transition">Insights</a>
+  <a href="../academy.html"         onclick="closeMob()" class="text-accent">Academy</a>
+  <a href="../about.html"           onclick="closeMob()" class="text-white hover:text-theme transition">About</a>
+  <a href="../contact.html"         onclick="closeMob()" class="mt-4 btn-primary px-12 py-4 rounded text-sm tracking-widest">Contact Us</a>
+</div>
+
+<!-- HERO SECTION -->
+<header class="pt-32 pb-20 relative z-10 overflow-hidden min-h-[50vh] flex items-center">
+  <div class="absolute inset-0 z-0">
+    <img src="https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&w=2000&q=80" class="w-full h-full object-cover" style="filter: brightness(.3) grayscale(20%);" alt="Urban Fleet">
+    <div class="absolute inset-0" style="background: rgba(10,10,10,0.65);"></div>
+    <div class="absolute inset-0" style="background: linear-gradient(to top, var(--mid) 0%, transparent 60%);"></div>
+  </div>
+
+  <div class="container mx-auto px-6 md:px-12 relative z-10">
+    <div class="max-w-3xl">
+      <div class="flex items-center gap-2 mb-4">
+        <a href="../products-index-v5.html" class="text-[10px] font-black uppercase tracking-[0.3em] text-gray-500 hover:text-gold transition">Vehicles</a>
+        <span class="text-gray-600">/</span>
+        <span class="text-[10px] font-black uppercase tracking-[0.3em] text-white">Category 01</span>
+      </div>
+      <h1 class="sh mb-6" style="font-size:clamp(3.5rem, 8vw, 6rem);">
+        The <span class="text-theme">Revenue King</span> <span class="text-accent">Matrix</span>.
+      </h1>
+      <p class="text-xl text-gray-400 font-light italic border-l-2 border-theme/30 pl-6 leading-relaxed max-w-2xl">
+        High-yield EVs engineered for ride-hailing networks and urban fleets. Maximize operational uptime and slash TCO with our curated LFP-powered selection.
+      </p>
+    </div>
+  </div>
+</header>
+
+<!-- MAIN CATALOG LAYOUT -->
+<main class="py-12 bg-a relative z-10">
+  <div class="container mx-auto px-6 md:px-12">
+    
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 xl:gap-16 items-start">
+      
+      <!-- LEFT COLUMN: FILTER SIDEBAR (25%) -->
+      <aside class="lg:col-span-3">
+        <div class="sticky-sidebar">
+          
+          <!-- Search Box -->
+          <div class="mb-10 relative">
+            <input type="text" placeholder="Search models..." class="w-full bg-black/40 border border-white/10 rounded-xl px-5 py-4 text-sm text-white focus:border-gold outline-none transition-colors">
+            <svg class="absolute right-5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          </div>
+
+          <!-- Body Style Filter -->
+          <div class="filter-group">
+            <div class="filter-title">Body Style</div>
+            <label class="filter-checkbox">
+              <input type="checkbox" class="hidden" checked>
+              <div class="checkbox-box"></div>
+              <span class="filter-text">Hatchback (Sub-Compact)</span>
+            </label>
+            <label class="filter-checkbox">
+              <input type="checkbox" class="hidden">
+              <div class="checkbox-box"></div>
+              <span class="filter-text">Compact SUV</span>
+            </label>
+            <label class="filter-checkbox">
+              <input type="checkbox" class="hidden">
+              <div class="checkbox-box"></div>
+              <span class="filter-text">Sedan</span>
+            </label>
+          </div>
+
+          <!-- Battery Type Filter -->
+          <div class="filter-group">
+            <div class="filter-title">Battery Chemistry</div>
+            <label class="filter-checkbox">
+              <input type="checkbox" class="hidden" checked>
+              <div class="checkbox-box"></div>
+              <span class="filter-text">LFP (Lithium Iron Phosphate)</span>
+            </label>
+            <label class="filter-checkbox">
+              <input type="checkbox" class="hidden">
+              <div class="checkbox-box"></div>
+              <span class="filter-text">NCM (Ternary Lithium)</span>
+            </label>
+          </div>
+
+          <!-- Range Filter -->
+          <div class="filter-group">
+            <div class="filter-title">Urban Range (NEDC)</div>
+            <label class="filter-checkbox">
+              <input type="checkbox" class="hidden">
+              <div class="checkbox-box"></div>
+              <span class="filter-text">Under 300 km</span>
+            </label>
+            <label class="filter-checkbox">
+              <input type="checkbox" class="hidden" checked>
+              <div class="checkbox-box"></div>
+              <span class="filter-text">300 km - 450 km</span>
+            </label>
+            <label class="filter-checkbox">
+              <input type="checkbox" class="hidden">
+              <div class="checkbox-box"></div>
+              <span class="filter-text">450 km +</span>
+            </label>
+          </div>
+
+          <!-- Price Filter -->
+          <div class="filter-group">
+            <div class="filter-title">Est. FOB Price</div>
+            <label class="filter-checkbox">
+              <input type="checkbox" class="hidden">
+              <div class="checkbox-box"></div>
+              <span class="filter-text">Under $10,000</span>
+            </label>
+            <label class="filter-checkbox">
+              <input type="checkbox" class="hidden" checked>
+              <div class="checkbox-box"></div>
+              <span class="filter-text">$10,000 - $15,000</span>
+            </label>
+            <label class="filter-checkbox">
+              <input type="checkbox" class="hidden">
+              <div class="checkbox-box"></div>
+              <span class="filter-text">Above $15,000</span>
+            </label>
+          </div>
+
+          <!-- Steering Filter -->
+          <div class="filter-group">
+            <div class="filter-title">Steering Setup</div>
+            <label class="filter-checkbox">
+              <input type="checkbox" class="hidden" checked>
+              <div class="checkbox-box"></div>
+              <span class="filter-text">LHD (Left-Hand Drive)</span>
+            </label>
+            <label class="filter-checkbox">
+              <input type="checkbox" class="hidden">
+              <div class="checkbox-box"></div>
+              <span class="filter-text">RHD (Right-Hand Drive)</span>
+            </label>
+          </div>
+
+          <!-- Availability Filter -->
+          <div class="filter-group border-none">
+            <div class="filter-title">Availability</div>
+            <label class="filter-checkbox">
+              <input type="checkbox" class="hidden" checked>
+              <div class="checkbox-box"></div>
+              <span class="filter-text">In Stock (Port)</span>
+            </label>
+            <label class="filter-checkbox">
+              <input type="checkbox" class="hidden">
+              <div class="checkbox-box"></div>
+              <span class="filter-text">Factory Order (14+ Days)</span>
+            </label>
+          </div>
+
+        </div>
+      </aside>
+
+      <!-- RIGHT COLUMN: VEHICLE GRID (75%) -->
+      <div class="lg:col-span-9">
+        
+        <!-- Sort & Count -->
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 border-b border-white/5 pb-6">
+          <div class="text-[10px] font-black tracking-widest uppercase text-gray-500">Showing 6 Curated Models</div>
+          <div class="flex gap-4 items-center">
+            <span class="text-[10px] font-black uppercase tracking-widest text-gray-600">Sort By:</span>
+            <select class="bg-transparent border-none text-gold text-[10px] font-black uppercase tracking-widest outline-none cursor-pointer">
+              <option value="roi" class="bg-bg text-white">Highest ROI</option>
+              <option value="price_low" class="bg-bg text-white">Price: Low to High</option>
+              <option value="range" class="bg-bg text-white">Range: High to Low</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- The 2-Column Product Grid -->
+        <div class="grid md:grid-cols-2 gap-8 mb-0">
+
+          <!-- Vehicle 1: Seagull -->
+          <a href="#" class="v-card-compact group">
+            <div class="v-card-compact-img-wrap">
+              <img src="https://images.unsplash.com/photo-1620800615569-42b781a62dcb?auto=format&fit=crop&w=800&q=80" alt="BYD Seagull" class="v-card-compact-img">
+              <div class="v-card-compact-overlay"></div>
+              <div class="absolute bottom-4 left-5 flex items-center gap-2">
+                <span class="pulse-dot w-1.5 h-1.5"></span>
+                <span class="text-[9px] font-black tracking-[0.2em] uppercase text-white drop-shadow-md">In Stock: Shenzhen</span>
+              </div>
+            </div>
+            <div class="v-card-compact-content">
+              <div class="flex justify-between items-start mb-6">
+                <div>
+                  <div class="text-[9px] font-black tracking-widest uppercase text-gray-500 mb-1">BYD</div>
+                  <h2 class="text-2xl font-black italic text-white uppercase tracking-tight">Seagull Flying</h2>
+                </div>
+                <div class="text-right">
+                  <div class="text-[9px] font-black tracking-widest uppercase text-gray-500 mb-1">Est. FOB</div>
+                  <div class="text-xl font-black text-theme">$11,500</div>
+                </div>
+              </div>
+              <div class="flex-grow">
+                <div class="v-spec-row">
+                  <span class="text-[10px] font-black tracking-widest uppercase text-gray-500">Battery</span>
+                  <span class="text-xs font-bold text-white">38.8 kWh <span class="text-accent">LFP</span></span>
+                </div>
+                <div class="v-spec-row">
+                  <span class="text-[10px] font-black tracking-widest uppercase text-gray-500">Range (NEDC)</span>
+                  <span class="text-xs font-bold text-white">405 km</span>
+                </div>
+                <div class="v-spec-row">
+                  <span class="text-[10px] font-black tracking-widest uppercase text-gray-500">Charging</span>
+                  <span class="text-xs font-bold text-white">30-80% in 30m</span>
+                </div>
+              </div>
+              <div class="mt-6 pt-4 border-t border-white/5 text-[9px] font-black uppercase tracking-widest text-gold flex items-center justify-between">
+                <span>View Full Spec Sheet</span>
+                <span class="group-hover:translate-x-1 transition-transform">→</span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Vehicle 2: Aion Y -->
+          <a href="#" class="v-card-compact group">
+            <div class="v-card-compact-img-wrap">
+              <img src="https://images.unsplash.com/photo-1563720360172-67b8f3dce741?auto=format&fit=crop&w=800&q=80" alt="GAC Aion Y" class="v-card-compact-img">
+              <div class="v-card-compact-overlay"></div>
+              <div class="absolute bottom-4 left-5 flex items-center gap-2">
+                <span class="w-1.5 h-1.5 rounded-full bg-theme shadow-[0_0_8px_rgba(197,160,89,0.8)]"></span>
+                <span class="text-[9px] font-black tracking-[0.2em] uppercase text-white drop-shadow-md">Factory Order: 14 Days</span>
+              </div>
+            </div>
+            <div class="v-card-compact-content">
+              <div class="flex justify-between items-start mb-6">
+                <div>
+                  <div class="text-[9px] font-black tracking-widest uppercase text-gray-500 mb-1">GAC Motor</div>
+                  <h2 class="text-2xl font-black italic text-white uppercase tracking-tight">Aion Y Plus</h2>
+                </div>
+                <div class="text-right">
+                  <div class="text-[9px] font-black tracking-widest uppercase text-gray-500 mb-1">Est. FOB</div>
+                  <div class="text-xl font-black text-theme">$14,200</div>
+                </div>
+              </div>
+              <div class="flex-grow">
+                <div class="v-spec-row">
+                  <span class="text-[10px] font-black tracking-widest uppercase text-gray-500">Battery</span>
+                  <span class="text-xs font-bold text-white">51.9 kWh <span class="text-accent">LFP</span></span>
+                </div>
+                <div class="v-spec-row">
+                  <span class="text-[10px] font-black tracking-widest uppercase text-gray-500">Range (NEDC)</span>
+                  <span class="text-xs font-bold text-white">430 km</span>
+                </div>
+                <div class="v-spec-row">
+                  <span class="text-[10px] font-black tracking-widest uppercase text-gray-500">Space</span>
+                  <span class="text-xs font-bold text-white">Max Rear Legroom</span>
+                </div>
+              </div>
+              <div class="mt-6 pt-4 border-t border-white/5 text-[9px] font-black uppercase tracking-widest text-gold flex items-center justify-between">
+                <span>View Full Spec Sheet</span>
+                <span class="group-hover:translate-x-1 transition-transform">→</span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Vehicle 3: Bingo -->
+          <a href="#" class="v-card-compact group">
+            <div class="v-card-compact-img-wrap">
+              <img src="https://images.unsplash.com/photo-1619682817481-e994891cd1f5?auto=format&fit=crop&w=800&q=80" alt="Wuling Bingo" class="v-card-compact-img">
+              <div class="v-card-compact-overlay"></div>
+              <div class="absolute bottom-4 left-5 flex items-center gap-2">
+                <span class="pulse-dot w-1.5 h-1.5"></span>
+                <span class="text-[9px] font-black tracking-[0.2em] uppercase text-white drop-shadow-md">In Stock: Ningbo</span>
+              </div>
+            </div>
+            <div class="v-card-compact-content">
+              <div class="flex justify-between items-start mb-6">
+                <div>
+                  <div class="text-[9px] font-black tracking-widest uppercase text-gray-500 mb-1">Wuling</div>
+                  <h2 class="text-2xl font-black italic text-white uppercase tracking-tight">Bingo EV</h2>
+                </div>
+                <div class="text-right">
+                  <div class="text-[9px] font-black tracking-widest uppercase text-gray-500 mb-1">Est. FOB</div>
+                  <div class="text-xl font-black text-theme">$9,200</div>
+                </div>
+              </div>
+              <div class="flex-grow">
+                <div class="v-spec-row">
+                  <span class="text-[10px] font-black tracking-widest uppercase text-gray-500">Battery</span>
+                  <span class="text-xs font-bold text-white">31.9 kWh <span class="text-accent">LFP</span></span>
+                </div>
+                <div class="v-spec-row">
+                  <span class="text-[10px] font-black tracking-widest uppercase text-gray-500">Range (NEDC)</span>
+                  <span class="text-xs font-bold text-white">333 km</span>
+                </div>
+                <div class="v-spec-row">
+                  <span class="text-[10px] font-black tracking-widest uppercase text-gray-500">Design</span>
+                  <span class="text-xs font-bold text-white">Retro 4-Door Hatch</span>
+                </div>
+              </div>
+              <div class="mt-6 pt-4 border-t border-white/5 text-[9px] font-black uppercase tracking-widest text-gold flex items-center justify-between">
+                <span>View Full Spec Sheet</span>
+                <span class="group-hover:translate-x-1 transition-transform">→</span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Vehicle 4: Neta V -->
+          <a href="#" class="v-card-compact group">
+            <div class="v-card-compact-img-wrap">
+              <img src="https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&w=800&q=80" alt="Neta V" class="v-card-compact-img">
+              <div class="v-card-compact-overlay"></div>
+              <div class="absolute bottom-4 left-5 flex items-center gap-2">
+                <span class="pulse-dot w-1.5 h-1.5"></span>
+                <span class="text-[9px] font-black tracking-[0.2em] uppercase text-white drop-shadow-md">In Stock: Shanghai</span>
+              </div>
+            </div>
+            <div class="v-card-compact-content">
+              <div class="flex justify-between items-start mb-6">
+                <div>
+                  <div class="text-[9px] font-black tracking-widest uppercase text-gray-500 mb-1">Hozon Auto</div>
+                  <h2 class="text-2xl font-black italic text-white uppercase tracking-tight">Neta V</h2>
+                </div>
+                <div class="text-right">
+                  <div class="text-[9px] font-black tracking-widest uppercase text-gray-500 mb-1">Est. FOB</div>
+                  <div class="text-xl font-black text-theme">$10,800</div>
+                </div>
+              </div>
+              <div class="flex-grow">
+                <div class="v-spec-row">
+                  <span class="text-[10px] font-black tracking-widest uppercase text-gray-500">Battery</span>
+                  <span class="text-xs font-bold text-white">38.5 kWh <span class="text-accent">LFP</span></span>
+                </div>
+                <div class="v-spec-row">
+                  <span class="text-[10px] font-black tracking-widest uppercase text-gray-500">Range (NEDC)</span>
+                  <span class="text-xs font-bold text-white">401 km</span>
+                </div>
+                <div class="v-spec-row">
+                  <span class="text-[10px] font-black tracking-widest uppercase text-gray-500">Clearance</span>
+                  <span class="text-xs font-bold text-white">130mm (Urban Crossover)</span>
+                </div>
+              </div>
+              <div class="mt-6 pt-4 border-t border-white/5 text-[9px] font-black uppercase tracking-widest text-gold flex items-center justify-between">
+                <span>View Full Spec Sheet</span>
+                <span class="group-hover:translate-x-1 transition-transform">→</span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Vehicle 5: Changan Lumin -->
+          <a href="#" class="v-card-compact group">
+            <div class="v-card-compact-img-wrap">
+              <img src="https://images.unsplash.com/photo-1620800615569-42b781a62dcb?auto=format&fit=crop&w=800&q=80" alt="Changan Lumin" class="v-card-compact-img" style="filter: brightness(0.7) sepia(20%);">
+              <div class="v-card-compact-overlay"></div>
+              <div class="absolute bottom-4 left-5 flex items-center gap-2">
+                <span class="pulse-dot w-1.5 h-1.5"></span>
+                <span class="text-[9px] font-black tracking-[0.2em] uppercase text-white drop-shadow-md">In Stock: Shenzhen</span>
+              </div>
+            </div>
+            <div class="v-card-compact-content">
+              <div class="flex justify-between items-start mb-6">
+                <div>
+                  <div class="text-[9px] font-black tracking-widest uppercase text-gray-500 mb-1">Changan</div>
+                  <h2 class="text-2xl font-black italic text-white uppercase tracking-tight">Lumin Corn</h2>
+                </div>
+                <div class="text-right">
+                  <div class="text-[9px] font-black tracking-widest uppercase text-gray-500 mb-1">Est. FOB</div>
+                  <div class="text-xl font-black text-theme">$8,500</div>
+                </div>
+              </div>
+              <div class="flex-grow">
+                <div class="v-spec-row">
+                  <span class="text-[10px] font-black tracking-widest uppercase text-gray-500">Battery</span>
+                  <span class="text-xs font-bold text-white">27.9 kWh <span class="text-accent">LFP</span></span>
+                </div>
+                <div class="v-spec-row">
+                  <span class="text-[10px] font-black tracking-widest uppercase text-gray-500">Range (NEDC)</span>
+                  <span class="text-xs font-bold text-white">301 km</span>
+                </div>
+                <div class="v-spec-row">
+                  <span class="text-[10px] font-black tracking-widest uppercase text-gray-500">Target Use</span>
+                  <span class="text-xs font-bold text-white">Last-Mile Delivery / Micro-Taxi</span>
+                </div>
+              </div>
+              <div class="mt-6 pt-4 border-t border-white/5 text-[9px] font-black uppercase tracking-widest text-gold flex items-center justify-between">
+                <span>View Full Spec Sheet</span>
+                <span class="group-hover:translate-x-1 transition-transform">→</span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Vehicle 6: Dongfeng Nano Box -->
+          <a href="#" class="v-card-compact group">
+            <div class="v-card-compact-img-wrap">
+              <img src="https://images.unsplash.com/photo-1563720360172-67b8f3dce741?auto=format&fit=crop&w=800&q=80" alt="Dongfeng Nano Box" class="v-card-compact-img" style="filter: brightness(0.6) hue-rotate(180deg);">
+              <div class="v-card-compact-overlay"></div>
+              <div class="absolute bottom-4 left-5 flex items-center gap-2">
+                <span class="w-1.5 h-1.5 rounded-full bg-theme shadow-[0_0_8px_rgba(197,160,89,0.8)]"></span>
+                <span class="text-[9px] font-black tracking-[0.2em] uppercase text-white drop-shadow-md">Factory Order: 21 Days</span>
+              </div>
+            </div>
+            <div class="v-card-compact-content">
+              <div class="flex justify-between items-start mb-6">
+                <div>
+                  <div class="text-[9px] font-black tracking-widest uppercase text-gray-500 mb-1">Dongfeng</div>
+                  <h2 class="text-2xl font-black italic text-white uppercase tracking-tight">Nano Box</h2>
+                </div>
+                <div class="text-right">
+                  <div class="text-[9px] font-black tracking-widest uppercase text-gray-500 mb-1">Est. FOB</div>
+                  <div class="text-xl font-black text-theme">$9,800</div>
+                </div>
+              </div>
+              <div class="flex-grow">
+                <div class="v-spec-row">
+                  <span class="text-[10px] font-black tracking-widest uppercase text-gray-500">Battery</span>
+                  <span class="text-xs font-bold text-white">27.2 kWh <span class="text-white">Ternary</span></span>
+                </div>
+                <div class="v-spec-row">
+                  <span class="text-[10px] font-black tracking-widest uppercase text-gray-500">Range (NEDC)</span>
+                  <span class="text-xs font-bold text-white">331 km</span>
+                </div>
+                <div class="v-spec-row">
+                  <span class="text-[10px] font-black tracking-widest uppercase text-gray-500">Clearance</span>
+                  <span class="text-xs font-bold text-white">150mm (Compact SUV)</span>
+                </div>
+              </div>
+              <div class="mt-6 pt-4 border-t border-white/5 text-[9px] font-black uppercase tracking-widest text-gold flex items-center justify-between">
+                <span>View Full Spec Sheet</span>
+                <span class="group-hover:translate-x-1 transition-transform">→</span>
+              </div>
+            </div>
+          </a>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- ════════════════════════════════════════════
+     SHARED BACKGROUND (Transition + Pagination + Footer)
+════════════════════════════════════════════ -->
+<div class="relative overflow-hidden">
+  
+  <!-- The Shared Background Image -->
+  <div class="absolute inset-0 z-0">
+    <img src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=2000&q=80"
+         class="w-full h-full object-cover" style="filter: brightness(.28) grayscale(20%);" alt="Global Export Shipping">
+    
+    <!-- Darkening Base Layer -->
+    <div class="absolute inset-0" style="background: rgba(10,10,10,.55);"></div>
+    
+    <!-- The Foolproof Transition: Fades from solid --mid at the very top, down 100px into the photo -->
+    <div class="absolute inset-0" style="background: linear-gradient(to bottom, var(--mid) 0%, transparent 100px);"></div>
+  </div>
+
+  <!-- Pagination Area (With top padding to create the whitespace where the fade happens) -->
+  <div class="relative z-10 container mx-auto px-6 md:px-12 pt-16 pb-12">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 xl:gap-16">
+      <div class="lg:col-span-3"></div> <!-- Empty spacer to align with vehicle grid -->
+      <div class="lg:col-span-9">
+        <div class="flex flex-wrap items-center justify-center gap-2">
+          <a href="#" class="page-btn page-btn-wide pointer-events-none opacity-50">← Prev</a>
+          <a href="#" class="page-btn active">1</a>
+          <a href="#" class="page-btn">2</a>
+          <a href="#" class="page-btn">3</a>
+          <span class="text-gray-600 px-2">...</span>
+          <a href="#" class="page-btn page-btn-wide hover:border-gold hover:text-gold transition">Next →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. The Standard Footer -->
+  <footer class="relative z-10" id="contact">
+    <div class="absolute inset-0" style="background: linear-gradient(to top, rgba(0,0,0,.96) 0%, rgba(0,0,0,.82) 45%, rgba(0,0,0,.5) 75%, transparent 100%);"></div>
+    <div class="relative z-10 container mx-auto px-6 md:px-12 py-16">
+      <div class="grid md:grid-cols-4 gap-10 mb-14">
+        <div>
+          <div class="flex items-center gap-2.5 mb-5">
+            <div class="w-8 h-8 rounded flex items-center justify-center font-black italic text-black" style="background:linear-gradient(135deg,#D4AF37,#C5A059);">E</div>
+            <span class="text-base font-black tracking-tighter uppercase italic text-white">Evexport<span class="text-theme">web</span></span>
+          </div>
+          <p class="text-gray-600 text-xs font-light leading-relaxed">China's trusted EV sourcing partner for African dealers. Expert-curated, transparently delivered.</p>
+        </div>
+        <div>
+          <div class="text-[10px] font-black tracking-widest uppercase mb-5 text-theme">Vehicles</div>
+          <ul class="space-y-3 text-xs text-gray-600 font-light">
+            <li><a href="revenue-king.html" class="text-white">Revenue King EVs</a></li>
+            <li><a href="#" class="hover:text-white transition">Elite Flagship EVs</a></li>
+            <li><a href="#" class="hover:text-white transition">Utility Pro EVs</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="text-[10px] font-black tracking-widest uppercase mb-5 text-theme">Solutions</div>
+          <ul class="space-y-3 text-xs text-gray-600 font-light">
+            <li><a href="../solutions.html#pdi"       class="hover:text-white transition">PDI & Quality</a></li>
+            <li><a href="../solutions.html#parts"     class="hover:text-white transition">Starter Parts Kit</a></li>
+            <li><a href="../solutions.html#service"   class="hover:text-white transition">Service Centre Setup</a></li>
+            <li><a href="../solutions.html#marketing" class="hover:text-white transition">Marketing Assets</a></li>
+            <li><a href="../solutions.html#finance"   class="hover:text-white transition">Trade Terms</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="text-[10px] font-black tracking-widest uppercase mb-5 text-theme">Resources</div>
+          <ul class="space-y-3 text-xs text-gray-600 font-light">
+            <li><a href="../insights.html" class="hover:text-white transition">Market Reports</a></li>
+            <li><a href="../academy.html"  class="hover:text-white transition text-accent">EV Academy</a></li>
+            <li><a href="../about.html"    class="hover:text-white transition">About Us</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="flex flex-col md:flex-row justify-between items-center gap-4 pt-8" style="border-top:1px solid rgba(197,160,89,.06);">
+        <p class="text-[9px] font-black tracking-[.4em] uppercase text-gray-700">© 2026 EVEXPORTWEB Eco Supply Chain. All Rights Reserved.</p>
+        <div class="flex gap-6">
+          <a href="../privacy.html" class="text-[9px] font-black tracking-widest uppercase text-gray-700 hover:text-gray-500 transition">Privacy</a>
+          <a href="../terms.html"   class="text-[9px] font-black tracking-widest uppercase text-gray-700 hover:text-gray-500 transition">Terms</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<script>
+const navbar = document.getElementById('navbar');
+window.addEventListener('scroll', () => {
+  const py = window.scrollY > 50 ? '10px' : '16px';
+  if(navbar) { navbar.style.paddingTop = py; navbar.style.paddingBottom = py; }
+});
+
+function closeMob() { document.getElementById('mob-menu').classList.add('hidden'); }
+document.getElementById('mob-open').addEventListener('click', () => document.getElementById('mob-menu').classList.remove('hidden'));
+document.getElementById('mob-close').addEventListener('click', closeMob);
+</script>
+
+</body>
+</html>

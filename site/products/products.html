@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Curated EV Catalog — Evexportweb | High-ROI Vehicles for Africa</title>
+  <meta name="description" content="Explore China's best-selling EVs, expert-curated for African dealers. Featuring Revenue King, Elite Flagship, and Utility Pro categories.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,600;0,700;0,800;0,900;1,300;1,400;1,700;1,800;1,900&display=swap" rel="stylesheet">
+  <style>
+    /* ── Core tokens (V3 palette) ── */
+    :root {
+      --gold:    #C5A059;
+      --gold-lt: #D4AF37;
+      --green:   #10B981;
+      --bg:      #161616;
+      --bg2:     #232323;
+      --bg3:     #2a2a2a;
+      --mid:     #1c1c1c;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html  { scroll-behavior: smooth; }
+    body  { font-family: 'Inter', sans-serif; background: var(--bg); color: #E5E7EB;
+            -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+
+    /* ── Background Gradients (The Rhythm of Darkness) ── */
+    .bg-a { background: linear-gradient(to bottom, var(--mid) 0%, var(--bg)  15%, var(--bg)  85%, var(--mid) 100%); }
+    .bg-b { background: linear-gradient(to bottom, var(--mid) 0%, var(--bg2) 15%, var(--bg2) 85%, var(--mid) 100%); }
+
+    /* ── Glass (V3: 0.09 opacity) ── */
+    .glass {
+      background: rgba(255,255,255,0.09);
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+      border: 1px solid rgba(197,160,89,0.25);
+    }
+    .bg-b .glass { background: rgba(0,0,0,0.18); }
+
+    /* ── Button Styles ── */
+    .btn-primary {
+      background: linear-gradient(135deg, #D4AF37 0%, #C5A059 100%);
+      color: #000;
+      transition: transform .25s, box-shadow .25s;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 24px -6px rgba(197,160,89,.45); }
+
+    /* ── Nav link ── */
+    .nav-link { font-size:11px; font-weight:700; letter-spacing:.18em; text-transform:uppercase; color:var(--gold); transition:color .2s; }
+    .nav-link:hover { color:#fff; }
+    .nav-link.green { color:var(--green); }
+
+    /* ── Section heading ── */
+    .sh {
+      font-size: clamp(2.4rem,5.5vw,4.5rem);
+      font-weight: 900;
+      line-height: .95;
+      letter-spacing: -.03em;
+      text-transform: uppercase;
+      font-style: italic;
+      color: #fff;
+    }
+
+    /* ── Label ── */
+    .label {
+      font-size: 10px; font-weight: 900;
+      letter-spacing: .3em; text-transform: uppercase;
+      color: var(--green);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .label::before { content:''; width:20px; height:1px; background:var(--green); flex-shrink:0; }
+    .label-gold { color:var(--gold); }
+    .label-gold::before { background:var(--gold); }
+
+    /* ── Section tab bar (V3 Sub-nav) ── */
+    #section-tabs {
+      position:fixed; top:0; left:0; right:0; z-index:40;
+      background:rgba(255,255,255,0.032);
+      backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);
+      border-top:1px solid rgba(197,160,89,0.22);
+      border-bottom:1px solid rgba(197,160,89,0.1);
+      transform:translateY(-100%); opacity:0;
+      transition:transform .3s ease, opacity .3s ease;
+      pointer-events:none;
+    }
+    #section-tabs.visible { transform:translateY(0); opacity:1; pointer-events:auto; }
+
+    .tab-inner {
+      display:flex; align-items:center; overflow-x:auto; scrollbar-width:none;
+      max-width:1280px; margin:0 auto; padding:0 16px;
+    }
+    .tab-inner::-webkit-scrollbar { display:none; }
+
+    .tab-btn {
+      flex-shrink:0; padding:12px 18px;
+      font-size:9.5px; font-weight:900; letter-spacing:.2em; text-transform:uppercase;
+      color:#6B7280; cursor:pointer; white-space:nowrap;
+      border-bottom:2px solid transparent;
+      transition:color .2s, border-color .2s;
+      background:none; border-top:none; border-left:none; border-right:none;
+    }
+    .tab-btn:hover { color:#9CA3AF; }
+    .tab-btn.active { color:var(--gold); border-bottom-color:var(--gold); }
+
+    .tab-wa {
+      flex-shrink:0; margin-left:auto; padding:6px 14px;
+      display:flex; align-items:center; gap:6px;
+      background:rgba(37,211,102,.12); border:1px solid rgba(37,211,102,.25);
+      border-radius:20px; color:#25D366;
+      font-size:9px; font-weight:900; letter-spacing:.15em; text-transform:uppercase;
+      transition:background .2s; white-space:nowrap; cursor:pointer; text-decoration:none;
+    }
+    .tab-wa:hover { background:rgba(37,211,102,.22); }
+    .tab-wa svg { flex-shrink:0; }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:var(--bg2)}::-webkit-scrollbar-thumb{background:var(--gold);border-radius:2px}
+  </style>
+</head>
+<body class="antialiased">
+
+<!-- ════════════════════════════════════════════
+     NAVBAR
+════════════════════════════════════════════ -->
+<nav id="navbar" class="fixed top-0 left-0 right-0 z-50 glass px-6 md:px-10 py-4 flex items-center justify-between transition-all duration-300">
+  <a href="index.html" class="flex items-center gap-2.5">
+    <div class="w-8 h-8 rounded flex items-center justify-center font-black italic text-black text-base"
+         style="background:linear-gradient(135deg,#D4AF37,#C5A059);">E</div>
+    <span class="text-lg font-black tracking-tighter uppercase italic text-white">Evexport<span class="text-theme">web</span></span>
+  </a>
+
+  <div class="hidden lg:flex items-center gap-10">
+    <a href="products.html"        class="nav-link active" style="color:#fff;">Vehicles</a>
+    <a href="solutions.html"       class="nav-link">Solutions</a>
+    <a href="index.html#insights"  class="nav-link">Insights</a>
+    <a href="index.html#academy"   class="nav-link green">Academy</a>
+    <a href="about.html"           class="nav-link">About</a>
+  </div>
+
+  <a href="contact.html" class="hidden lg:block btn-primary px-7 py-2.5 rounded-full text-xs font-black tracking-widest uppercase shadow-lg">Contact Us</a>
+
+  <button id="mob-open" class="lg:hidden p-2 flex flex-col gap-1.5">
+    <span class="w-6 h-0.5 bg-white block"></span>
+    <span class="w-6 h-0.5 bg-white block"></span>
+    <span class="w-4 h-0.5 bg-white block"></span>
+  </button>
+</nav>
+
+<!-- Mobile drawer -->
+<div id="mob-menu" class="fixed inset-0 z-40 flex flex-col items-center justify-center gap-8 text-2xl font-black uppercase italic tracking-tight hidden" style="background:rgba(5,5,5,.97);">
+  <button id="mob-close" class="absolute top-5 right-6 text-3xl text-gray-600">✕</button>
+  <a href="products.html"       onclick="closeMob()" class="text-accent">Vehicles</a>
+  <a href="solutions.html"       onclick="closeMob()" class="text-white hover:text-theme transition">Solutions</a>
+  <a href="index.html#insights"  onclick="closeMob()" class="text-white hover:text-theme transition">Insights</a>
+  <a href="index.html#academy"   onclick="closeMob()" class="text-accent">Academy</a>
+  <a href="about.html"           onclick="closeMob()" class="text-white hover:text-theme transition">About</a>
+  <a href="contact.html"         onclick="closeMob()" class="mt-4 btn-primary px-12 py-4 rounded text-sm tracking-widest">Contact Us</a>
+</div>
+
+<!-- ════════════════════════════════════════════
+     HERO: PRODUCT CENTER
+════════════════════════════════════════════ -->
+<section class="relative min-h-[70vh] flex items-center overflow-hidden">
+  <!-- Ultra-visible background image -->
+  <div class="absolute inset-0">
+    <img src="https://images.unsplash.com/photo-1601362840469-51e4d8d59085?auto=format&fit=crop&w=2000&q=80" 
+         class="w-full h-full object-cover" style="filter: contrast(1.1);" alt="Curated Selection Background">
+    <!-- Simplified thin overlay -->
+    <div class="absolute inset-0" style="background: rgba(0, 0, 0, 0.45);"></div>
+    <div class="absolute inset-0" style="background: linear-gradient(to top, var(--bg) 0%, transparent 40%);"></div>
+  </div>
+
+  <div class="container relative z-10 mx-auto px-6 md:px-12 text-center pt-16">
+    <div class="label justify-center mb-6">Expertly Curated Selection</div>
+    <h1 class="sh mb-6" style="font-size:clamp(3rem, 8vw, 6.5rem);">
+      Proven <span class="text-theme">Market</span><br><span class="text-accent">Champions</span>.
+    </h1>
+    <p class="text-gray-300 text-lg font-light italic max-w-2xl mx-auto leading-relaxed">
+      The world’s best-selling electric vehicles, hand-picked by expert buyers for their reliability, durability, and proven performance on African roads.
+    </p>
+  </div>
+</section>
+
+<!-- ── Section Tab Bar (Secondary Nav) ── -->
+<div id="section-tabs" role="navigation" aria-label="Vehicle Categories">
+  <div class="tab-inner">
+    <button class="tab-btn active" data-target="cat-01">Revenue King</button>
+    <button class="tab-btn" data-target="cat-02">Elite Flagship</button>
+    <button class="tab-btn" data-target="cat-03">Utility Pro</button>
+    <a href="https://wa.me/your-number" class="tab-wa">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.72.938 3.659 1.434 5.705 1.435h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+      </svg>
+      Batch Inquiry
+    </a>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     PRODUCT GALLERY: THE SELECTION MATRIX
+════════════════════════════════════════════ -->
+<section class="py-24 bg-a overflow-hidden">
+  <div class="container mx-auto px-6 md:px-12">
+
+    <!-- ── CATEGORY 01: REVENUE KING ── -->
+    <div id="cat-01" class="mb-40 scroll-mt-40">
+      <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+        <div class="max-w-xl">
+          <div class="label mb-4">Category 01</div>
+          <h2 class="sh mb-4" style="font-size:clamp(2rem, 5vw, 3.5rem);">
+            Revenue <span class="text-accent">King</span>.
+          </h2>
+          <p class="text-gray-500 text-sm font-light italic leading-relaxed">
+            The highest-ROI EVs for ride-hailing fleets and network taxis. Built for volume, durability, and maximum fuel-to-electric savings.
+          </p>
+        </div>
+        <div class="flex items-center gap-4 text-[10px] font-black uppercase tracking-widest text-gray-700">
+          <span class="w-8 h-px bg-white/10"></span>
+          Avg. Monthly Saving: $280
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+        
+        <!-- Card: BYD Seagull -->
+        <a href="products/byd-seagull-v3-reordered.html" class="group relative bg-bg3/30 rounded-[2.5rem] overflow-hidden border border-white/5 hover:border-accent/30 transition-all duration-500 block">
+          <div class="aspect-[4/5] overflow-hidden relative">
+            <img src="https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&w=800&q=80" alt="BYD Seagull" class="w-full h-full object-cover scale-100 group-hover:scale-110 transition-all duration-700">
+            <div class="absolute inset-0 bg-gradient-to-t from-bg via-transparent to-transparent opacity-60"></div>
+            <div class="absolute top-6 left-6 flex flex-col gap-2">
+              <span class="text-[8px] font-black px-2.5 py-1.5 rounded-full bg-gold text-black uppercase tracking-wider">Global #1</span>
+            </div>
+            <div class="absolute bottom-6 left-6 right-6">
+              <div class="text-[9px] font-black text-accent uppercase tracking-[0.2em] mb-1">Save $250/mo</div>
+              <h3 class="text-xl font-black italic text-white uppercase tracking-tight">BYD Seagull</h3>
+            </div>
+          </div>
+          <div class="p-6">
+            <div class="flex flex-wrap gap-2 mb-4">
+              <span class="text-[8px] font-black px-2 py-1 rounded bg-white/5 text-gray-500 uppercase">LFP Blade</span>
+              <span class="text-[8px] font-black px-2 py-1 rounded bg-white/5 text-gray-500 uppercase">405km Range</span>
+            </div>
+            <div class="text-[10px] font-black text-theme uppercase tracking-widest flex items-center gap-2">
+              View Matrix Analysis <span class="group-hover:translate-x-1 transition-transform">→</span>
+            </div>
+          </div>
+        </a>
+
+        <!-- Card: GAC Aion RT -->
+        <div class="group relative bg-bg3/30 rounded-[2.5rem] overflow-hidden border border-white/5 hover:border-accent/30 transition-all duration-500 cursor-pointer">
+          <div class="aspect-[4/5] overflow-hidden relative">
+            <img src="https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=800&q=80" alt="GAC Aion RT" class="w-full h-full object-cover scale-100 group-hover:scale-110 transition-all duration-700">
+            <div class="absolute inset-0 bg-gradient-to-t from-bg via-transparent to-transparent opacity-60"></div>
+            <div class="absolute top-6 left-6 flex flex-col gap-2">
+              <span class="text-[8px] font-black px-2.5 py-1.5 rounded-full bg-accent/20 text-accent uppercase tracking-wider border border-accent/30">2025 New King</span>
+            </div>
+            <div class="absolute bottom-6 left-6 right-6">
+              <div class="text-[9px] font-black text-accent uppercase tracking-[0.2em] mb-1">Save $380/mo</div>
+              <h3 class="text-xl font-black italic text-white uppercase tracking-tight">GAC Aion RT</h3>
+            </div>
+          </div>
+          <div class="p-6">
+            <div class="flex flex-wrap gap-2 mb-4">
+              <span class="text-[8px] font-black px-2 py-1 rounded bg-white/5 text-gray-500 uppercase">LiDAR ADAS</span>
+              <span class="text-[8px] font-black px-2 py-1 rounded bg-white/5 text-gray-500 uppercase">520km Range</span>
+            </div>
+            <div class="text-[10px] font-black text-gray-600 uppercase tracking-widest">Details Coming Soon</div>
+          </div>
+        </div>
+
+        <!-- Card: BYD Qin PLUS EV -->
+        <div class="group relative bg-bg3/30 rounded-[2.5rem] overflow-hidden border border-white/5 hover:border-accent/30 transition-all duration-500 cursor-pointer">
+          <div class="aspect-[4/5] overflow-hidden relative">
+            <!-- Specific reliable URL for sedan -->
+            <img src="https://images.unsplash.com/photo-1542362567-b052d00122e2?auto=format&fit=crop&w=800&q=80" alt="BYD Qin PLUS EV" class="w-full h-full object-cover scale-100 group-hover:scale-110 transition-all duration-700">
+            <div class="absolute inset-0 bg-gradient-to-t from-bg via-transparent to-transparent opacity-60"></div>
+            <div class="absolute bottom-6 left-6 right-6">
+              <div class="text-[9px] font-black text-accent uppercase tracking-[0.2em] mb-1">Save $350/mo</div>
+              <h3 class="text-xl font-black italic text-white uppercase tracking-tight">BYD Qin PLUS</h3>
+            </div>
+          </div>
+          <div class="p-6">
+            <div class="flex flex-wrap gap-2 mb-4">
+              <span class="text-[8px] font-black px-2 py-1 rounded bg-white/5 text-gray-500 uppercase">Million-Unit Proof</span>
+              <span class="text-[8px] font-black px-2 py-1 rounded bg-white/5 text-gray-500 uppercase">510km Range</span>
+            </div>
+            <div class="text-[10px] font-black text-gray-600 uppercase tracking-widest">Details Coming Soon</div>
+          </div>
+        </div>
+
+        <!-- Card: Geely Galaxy E5 -->
+        <div class="group relative bg-bg3/30 rounded-[2.5rem] overflow-hidden border border-white/5 hover:border-accent/30 transition-all duration-500 cursor-pointer">
+          <div class="aspect-[4/5] overflow-hidden relative">
+            <img src="https://images.unsplash.com/photo-1560958089-b8a1929cea89?auto=format&fit=crop&w=800&q=80" alt="Geely Galaxy E5" class="w-full h-full object-cover scale-100 group-hover:scale-110 transition-all duration-700">
+            <div class="absolute inset-0 bg-gradient-to-t from-bg via-transparent to-transparent opacity-60"></div>
+            <div class="absolute top-6 left-6 flex flex-col gap-2">
+              <span class="text-[8px] font-black px-2.5 py-1.5 rounded-full bg-white/5 text-gray-500 uppercase tracking-wider border border-white/10">Global Model</span>
+            </div>
+            <div class="absolute bottom-6 left-6 right-6">
+              <div class="text-[9px] font-black text-accent uppercase tracking-[0.2em] mb-1">Save $220/mo</div>
+              <h3 class="text-xl font-black italic text-white uppercase tracking-tight">Galaxy E5</h3>
+            </div>
+          </div>
+          <div class="p-6">
+            <div class="flex flex-wrap gap-2 mb-4">
+              <span class="text-[8px] font-black px-2 py-1 rounded bg-white/5 text-gray-500 uppercase">Aegis Battery</span>
+              <span class="text-[8px] font-black px-2 py-1 rounded bg-white/5 text-gray-500 uppercase">530km Range</span>
+            </div>
+            <div class="text-[10px] font-black text-gray-600 uppercase tracking-widest">Details Coming Soon</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Discovery Footer for Category -->
+      <div class="flex justify-center">
+        <a href="contact.html" class="group flex items-center gap-4 px-10 py-4 rounded-full border border-white/10 hover:border-accent/40 transition-all">
+          <span class="text-[10px] font-black uppercase tracking-[0.3em] text-gray-500 group-hover:text-white">Discover Full Revenue Matrix (15+ Models)</span>
+          <span class="w-6 h-px bg-white/10 group-hover:bg-accent/50 transition-all"></span>
+          <span class="text-accent group-hover:translate-x-1 transition-transform">→</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- ── CATEGORY 02: ELITE FLAGSHIP ── -->
+    <div id="cat-02" class="mb-40 scroll-mt-40">
+      <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+        <div class="max-w-xl">
+          <div class="label label-gold mb-4">Category 02</div>
+          <h2 class="sh mb-4" style="font-size:clamp(2rem, 5vw, 3.5rem);">
+            Elite <span class="text-theme">Flagship</span>.
+          </h2>
+          <p class="text-gray-500 text-sm font-light italic leading-relaxed">
+            Top-tier luxury and high-tech intelligence. The social currency for government, corporate, and premium private markets.
+          </p>
+        </div>
+        <div class="flex items-center gap-4 text-[10px] font-black uppercase tracking-widest text-gray-700">
+          <span class="w-8 h-px bg-white/10"></span>
+          Avg. Monthly Saving: $500+
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+        
+        <!-- Large Card: AITO M9 -->
+        <div class="group relative bg-bg3/30 rounded-[3rem] overflow-hidden border border-white/5 hover:border-theme/30 transition-all duration-500 cursor-pointer col-span-1 lg:col-span-2">
+          <div class="aspect-[21/9] overflow-hidden relative">
+            <img src="https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=1600&q=80" alt="AITO M9" class="w-full h-full object-cover scale-100 group-hover:scale-105 transition-all duration-700">
+            <div class="absolute inset-0 bg-gradient-to-r from-bg via-bg/20 to-transparent opacity-80"></div>
+            <div class="absolute inset-0 flex flex-col justify-center p-8 md:p-16">
+              <div class="label label-gold mb-4">The Tech Pinnacle</div>
+              <h3 class="text-4xl md:text-6xl font-black italic text-white uppercase tracking-tighter mb-4">AITO M9</h3>
+              <p class="text-gray-400 text-sm md:text-base font-light italic max-w-md leading-relaxed mb-8">
+                Huawei's ADS 3.0 tech masterpiece. Executive projection headlights and the most advanced chassis in the industry.
+              </p>
+              <div class="flex flex-wrap gap-4">
+                <div class="px-6 py-3 rounded-full bg-theme text-black text-[10px] font-black uppercase tracking-widest">Performance King</div>
+                <div class="px-6 py-3 rounded-full border border-white/10 text-white text-[10px] font-black uppercase tracking-widest">Save $500+/mo</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card: Zeekr 001 -->
+        <div class="group relative bg-bg3/30 rounded-[2.5rem] overflow-hidden border border-white/5 hover:border-theme/30 transition-all duration-500 cursor-pointer">
+          <div class="aspect-[16/10] overflow-hidden relative">
+            <img src="https://images.unsplash.com/photo-1544636331-e26879cd4d9b?auto=format&fit=crop&w=800&q=80" alt="Zeekr 001" class="w-full h-full object-cover scale-100 group-hover:scale-105 transition-all duration-700">
+            <div class="absolute inset-0 bg-gradient-to-t from-bg via-transparent to-transparent opacity-60"></div>
+            <div class="absolute bottom-6 left-6 right-6">
+              <div class="text-[9px] font-black text-theme uppercase tracking-[0.2em] mb-1">800V Ultra-Fast Charge</div>
+              <h3 class="text-2xl font-black italic text-white uppercase tracking-tight">Zeekr 001</h3>
+            </div>
+          </div>
+          <div class="p-8">
+            <p class="text-gray-500 text-xs font-light leading-relaxed mb-6">Extreme handling and range. The fastest charging executive shooting brake in the market.</p>
+            <div class="flex items-center justify-between pt-6 border-t border-white/5">
+              <div class="text-[10px] font-black text-theme uppercase tracking-widest">Tech Icon</div>
+              <div class="text-[10px] font-black text-gray-600 uppercase">Details Coming Soon</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card: Xiaomi SU7 Ultra -->
+        <div class="group relative bg-bg3/30 rounded-[2.5rem] overflow-hidden border border-white/5 hover:border-theme/30 transition-all duration-500 cursor-pointer">
+          <div class="aspect-[16/10] overflow-hidden relative">
+            <img src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=800&q=80" alt="Xiaomi SU7 Ultra" class="w-full h-full object-cover scale-100 group-hover:scale-105 transition-all duration-700">
+            <div class="absolute inset-0 bg-gradient-to-t from-bg via-transparent to-transparent opacity-60"></div>
+            <div class="absolute bottom-6 left-6 right-6">
+              <div class="text-[9px] font-black text-theme uppercase tracking-[0.2em] mb-1">1500+ Horsepower</div>
+              <h3 class="text-2xl font-black italic text-white uppercase tracking-tight">Xiaomi SU7 Ultra</h3>
+            </div>
+          </div>
+          <div class="p-8">
+            <p class="text-gray-500 text-xs font-light leading-relaxed mb-6">The ultimate social currency for tech-elite buyers. Carbon-fiber aero with peak acceleration.</p>
+            <div class="flex items-center justify-between pt-6 border-t border-white/5">
+              <div class="text-[10px] font-black text-theme uppercase tracking-widest">Performance Icon</div>
+              <div class="text-[10px] font-black text-gray-600 uppercase">Details Coming Soon</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Discovery Footer for Category -->
+      <div class="flex justify-center">
+        <a href="contact.html" class="group flex items-center gap-4 px-10 py-4 rounded-full border border-white/10 hover:border-theme/40 transition-all">
+          <span class="text-[10px] font-black uppercase tracking-[0.3em] text-gray-500 group-hover:text-white">Discover Full Elite Series (8+ Models)</span>
+          <span class="w-6 h-px bg-white/10 group-hover:bg-theme/50 transition-all"></span>
+          <span class="text-theme group-hover:translate-x-1 transition-transform">→</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- ── CATEGORY 03: UTILITY PRO ── -->
+    <div id="cat-03" class="mb-24 scroll-mt-40">
+      <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+        <div class="max-w-xl">
+          <div class="label mb-4">Category 03</div>
+          <h2 class="sh mb-4" style="font-size:clamp(2rem, 5vw, 3.5rem);">
+            Utility <span class="text-accent">Pro</span>.
+          </h2>
+          <p class="text-gray-500 text-sm font-light italic leading-relaxed">
+            Extreme productivity workhorses. From off-road pickups to digital cargo vans, built for all-terrain business.
+          </p>
+        </div>
+        <div class="flex items-center gap-4 text-[10px] font-black uppercase tracking-widest text-gray-700">
+          <span class="w-8 h-px bg-white/10"></span>
+          Fuel Saving: 50% - 80%
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+        
+        <!-- Card: BYD Shark -->
+        <div class="group relative bg-bg3/30 rounded-[2.5rem] overflow-hidden border border-white/5 hover:border-accent/30 transition-all duration-500 cursor-pointer">
+          <div class="aspect-[16/9] overflow-hidden relative">
+            <img src="https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=1200&q=80" alt="BYD Shark" class="w-full h-full object-cover scale-100 group-hover:scale-105 transition-all duration-700">
+            <div class="absolute inset-0 bg-gradient-to-t from-bg via-transparent to-transparent opacity-60"></div>
+            <div class="absolute bottom-6 left-6 right-6">
+              <div class="text-[9px] font-black text-accent uppercase tracking-[0.2em] mb-1">V2L Mobile Power</div>
+              <h3 class="text-2xl font-black italic text-white uppercase tracking-tight">BYD Shark</h3>
+            </div>
+          </div>
+          <div class="p-8">
+            <p class="text-gray-500 text-xs font-light leading-relaxed mb-6">PHEV Pickup with DMO off-road platform. 1000km+ total range for the hardest jobs.</p>
+            <div class="flex items-center justify-between pt-6 border-t border-white/5">
+              <div class="text-[10px] font-black text-accent uppercase tracking-widest">Hybrid Power</div>
+              <div class="text-[10px] font-black text-gray-600 uppercase italic">Pickup Pro</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card: Radar RD6 -->
+        <div class="group relative bg-bg3/30 rounded-[2.5rem] overflow-hidden border border-white/5 hover:border-accent/30 transition-all duration-500 cursor-pointer">
+          <div class="aspect-[16/9] overflow-hidden relative">
+            <img src="https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=1200&q=80" alt="Radar RD6" class="w-full h-full object-cover scale-100 group-hover:scale-105 transition-all duration-700">
+            <div class="absolute inset-0 bg-gradient-to-t from-bg via-transparent to-transparent opacity-60"></div>
+            <div class="absolute bottom-6 left-6 right-6">
+              <div class="text-[9px] font-black text-accent uppercase tracking-[0.2em] mb-1">SUV Comfort Pickup</div>
+              <h3 class="text-2xl font-black italic text-white uppercase tracking-tight">Radar RD6</h3>
+            </div>
+          </div>
+          <div class="p-8">
+            <p class="text-gray-500 text-xs font-light leading-relaxed mb-6">Pure electric efficiency for urban logistics and farms. 6kW external discharge capacity.</p>
+            <div class="flex items-center justify-between pt-6 border-t border-white/5">
+              <div class="text-[10px] font-black text-accent uppercase tracking-widest">Production Power</div>
+              <div class="text-[10px] font-black text-gray-600 uppercase italic">Eco Logistics</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card: Farizon Super Van -->
+        <div class="group relative bg-bg3/30 rounded-[2.5rem] overflow-hidden border border-white/5 hover:border-accent/30 transition-all duration-500 cursor-pointer">
+          <div class="aspect-[16/9] overflow-hidden relative">
+            <img src="https://images.unsplash.com/photo-1517524008410-d4484e313a21?auto=format&fit=crop&w=1200&q=80" alt="Farizon Super Van" class="w-full h-full object-cover scale-100 group-hover:scale-105 transition-all duration-700">
+            <div class="absolute inset-0 bg-gradient-to-t from-bg via-transparent to-transparent opacity-60"></div>
+            <div class="absolute bottom-6 left-6 right-6">
+              <div class="text-[9px] font-black text-accent uppercase tracking-[0.2em] mb-1">Digital Logistics</div>
+              <h3 class="text-2xl font-black italic text-white uppercase tracking-tight">Super Van</h3>
+            </div>
+          </div>
+          <div class="p-8">
+            <p class="text-gray-500 text-xs font-light leading-relaxed mb-6">The future of city cargo. Steer-by-wire with flat-floor cargo optimization for 11m³+ volume.</p>
+            <div class="flex items-center justify-between pt-6 border-t border-white/5">
+              <div class="text-[10px] font-black text-accent uppercase tracking-widest">Digital Cargo</div>
+              <div class="text-[10px] font-black text-gray-600 uppercase italic">Next-Gen Van</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Discovery Footer for Category -->
+      <div class="flex justify-center">
+        <a href="contact.html" class="group flex items-center gap-4 px-10 py-4 rounded-full border border-white/10 hover:border-accent/40 transition-all">
+          <span class="text-[10px] font-black uppercase tracking-[0.3em] text-gray-500 group-hover:text-white">Discover Full Utility Matrix (6+ Models)</span>
+          <span class="w-6 h-px bg-white/10 group-hover:bg-accent/50 transition-all"></span>
+          <span class="text-accent group-hover:translate-x-1 transition-transform">→</span>
+        </a>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════
+     CTA + FOOTER (Shared Background Context)
+════════════════════════════════════════════ -->
+<div class="relative overflow-hidden">
+  
+  <!-- Shared background image -->
+  <div class="absolute inset-0">
+    <img src="https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=2000&q=80"
+         class="w-full h-full object-cover" style="filter: brightness(.28) grayscale(20%);" alt="">
+    <!-- General darkening layer -->
+    <div class="absolute inset-0" style="background: rgba(10,10,10,.45);"></div>
+    <!-- Top fade: blends with section above (must be topmost layer) -->
+    <div class="absolute inset-0" style="background: linear-gradient(to bottom, var(--bg) 0%, transparent 15%);"></div>
+  </div>
+
+  <!-- CTA Section -->
+  <section class="py-24 relative z-10">
+    <div class="container mx-auto px-6 md:px-12">
+      <div class="glass rounded-[4rem] p-12 md:p-20 text-center" style="border-color:rgba(197,160,89,.25);">
+        <div class="label justify-center mb-6">Market-Ready Inventory</div>
+        <h2 class="sh mb-6" style="font-size:clamp(2.5rem,6.5vw,5.5rem);">
+          Secure Your <span class="text-accent">Batch</span> FOB<br><span class="text-theme">Pricing</span> Now.
+        </h2>
+        <p class="text-gray-500 text-lg font-light italic mb-10 max-w-lg mx-auto">
+          We respond to all professional batch inquiries with current factory lead times and FOB quotes within 2 hours.
+        </p>
+        <div class="flex flex-wrap justify-center gap-4">
+          <a href="https://wa.me/your-number" class="btn-primary px-12 py-5 rounded text-sm font-black tracking-widest uppercase italic shadow-lg">
+            WhatsApp Batch Inquiry
+          </a>
+          <a href="contact.html" class="glass px-12 py-5 rounded text-sm font-black tracking-widest uppercase italic text-white hover:bg-white/5 transition">
+            Request Full Catalog PDF
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer Nav -->
+  <footer class="relative z-10">
+    <!-- Bottom-to-top dark gradient for text readability -->
+    <div class="absolute inset-0" style="background: linear-gradient(to top, rgba(0,0,0,.96) 0%, rgba(0,0,0,.82) 45%, rgba(0,0,0,.5) 75%, transparent 100%);"></div>
+    
+    <div class="relative z-10 container mx-auto px-6 md:px-12 py-16">
+      <div class="grid md:grid-cols-4 gap-10 mb-14">
+        <!-- Brand -->
+        <div>
+          <div class="flex items-center gap-2.5 mb-5">
+            <div class="w-8 h-8 rounded flex items-center justify-center font-black italic text-black"
+                 style="background:linear-gradient(135deg,#D4AF37,#C5A059);">E</div>
+            <span class="text-base font-black tracking-tighter uppercase italic text-white">Evexport<span class="text-theme">web</span></span>
+          </div>
+          <p class="text-gray-600 text-xs font-light leading-relaxed">China's trusted EV sourcing partner for African dealers. Expert-curated, transparently delivered.</p>
+        </div>
+        <!-- Vehicles -->
+        <div>
+          <div class="text-[10px] font-black tracking-widest uppercase mb-5 text-theme">Vehicles</div>
+          <ul class="space-y-3 text-xs text-gray-600 font-light">
+            <li><a href="products/revenue-king.html" class="hover:text-white transition">Revenue King EVs</a></li>
+            <li><a href="products/elite-flagship.html" class="hover:text-white transition">Elite Flagship EVs</a></li>
+            <li><a href="products/utility-pro.html"   class="hover:text-white transition">Utility Pro EVs</a></li>
+          </ul>
+        </div>
+        <!-- Solutions -->
+        <div>
+          <div class="text-[10px] font-black tracking-widest uppercase mb-5 text-theme">Solutions</div>
+          <ul class="space-y-3 text-xs text-gray-600 font-light">
+            <li><a href="solutions.html"       class="hover:text-white transition">PDI & Quality</a></li>
+            <li><a href="solutions.html#parts" class="hover:text-white transition">Starter Parts Kit</a></li>
+            <li><a href="solutions.html#marketing" class="hover:text-white transition">Marketing Assets</a></li>
+          </ul>
+        </div>
+        <!-- Resources -->
+        <div>
+          <div class="text-[10px] font-black tracking-widest uppercase mb-5 text-theme">Resources</div>
+          <ul class="space-y-3 text-xs text-gray-600 font-light">
+            <li><a href="index.html#insights" class="hover:text-white transition">Market Reports</a></li>
+            <li><a href="index.html#academy"  class="hover:text-white transition text-accent">EV Academy</a></li>
+            <li><a href="about.html"           class="hover:text-white transition">About Us</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="flex flex-col md:flex-row justify-between items-center gap-4 pt-8"
+           style="border-top:1px solid rgba(197,160,89,.06);">
+        <p class="text-[9px] font-black tracking-[.4em] uppercase text-gray-700">© 2026 EVEXPORTWEB Eco Supply Chain. All Rights Reserved.</p>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<script>
+// ── Mobile menu ──────────────────────────────
+document.getElementById('mob-open').addEventListener('click',  () => document.getElementById('mob-menu').style.display='flex');
+document.getElementById('mob-close').addEventListener('click', closeMob);
+function closeMob() { document.getElementById('mob-menu').style.display='none'; }
+
+// ── Navbar shrink on scroll ──────────────────
+const navbar = document.getElementById('navbar');
+window.addEventListener('scroll', () => {
+  const py = window.scrollY > 50 ? '10px' : '16px';
+  if(navbar){
+    navbar.style.paddingTop = py;
+    navbar.style.paddingBottom = py;
+  }
+});
+
+// ── Section Tab Bar (Sub-nav) ──
+const tabBar  = document.getElementById('section-tabs');
+const tabBtns = document.querySelectorAll('.tab-btn');
+const heroEl  = document.querySelector('section.relative'); // Hero section
+
+// Keep tab bar flush against navbar bottom
+function syncTabTop() {
+  if (!tabBar || !navbar) return;
+  tabBar.style.top = (navbar.offsetHeight - 1) + 'px';
+}
+window.addEventListener('scroll', syncTabTop, { passive: true });
+syncTabTop();
+
+// Show/hide: appear after hero is 75% scrolled past
+function updateTabVisibility() {
+  if (!heroEl || !tabBar) return;
+  const heroBottom = heroEl.getBoundingClientRect().bottom;
+  // Use same logic as index: visible when hero is mostly gone
+  tabBar.classList.toggle('visible', heroBottom < window.innerHeight * 0.25);
+}
+window.addEventListener('scroll', updateTabVisibility, { passive: true });
+updateTabVisibility();
+
+// Smooth-scroll on tab click
+tabBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    const target = document.getElementById(btn.dataset.target);
+    if (target) {
+      const offset = navbar.offsetHeight + tabBar.offsetHeight + 10;
+      const top = target.getBoundingClientRect().top + window.scrollY - offset;
+      window.scrollTo({ top, behavior: 'smooth' });
+    }
+  });
+});
+
+// Active tab highlight
+const categories = ['cat-01', 'cat-02', 'cat-03'];
+function updateActiveTab() {
+  if (!tabBar) return;
+  const mid = window.innerHeight * 0.45;
+  let activeId = null;
+  categories.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      const rect = el.getBoundingClientRect();
+      if (rect.top <= mid) activeId = id;
+    }
+  });
+  tabBtns.forEach(b => b.classList.toggle('active', b.dataset.target === activeId));
+}
+window.addEventListener('scroll', updateActiveTab, { passive: true });
+</script>
+
+</body>
+</html>
