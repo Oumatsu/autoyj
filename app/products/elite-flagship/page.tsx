@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useMemo, useCallback } from "react";
 import Link from "next/link";
@@ -36,7 +36,7 @@ function generatePageNumbers(current: number, total: number): (number | "ellipsi
 }
 
 function parsePriceLow(fob: string): number {
-  const match = fob.match(/CNY ([0-9,]+)/);
+  const match = fob.match(/\$([0-9,]+)/);
   if (!match) return Infinity;
   return parseInt(match[1].replace(/,/g, ""), 10);
 }
@@ -234,10 +234,10 @@ export default function EliteFlagshipPage() {
                   <FilterCheckbox label="700 km +" checked={activeFilters["Range (CLTC)"]?.has("700 km +") || false} onChange={() => handleFilterToggle("Range (CLTC)", "700 km +")} />
                 </FilterGroup>
 
-                <FilterGroup title="Est. FOB Price">
-                  <FilterCheckbox label="CNY 250,000 - CNY 350,000" checked={activeFilters["Est. FOB Price"]?.has("CNY 250,000 - CNY 350,000") || false} onChange={() => handleFilterToggle("Est. FOB Price", "CNY 250,000 - CNY 350,000")} />
-                  <FilterCheckbox label="CNY 350,000 - CNY 450,000" checked={activeFilters["Est. FOB Price"]?.has("CNY 350,000 - CNY 450,000") || false} onChange={() => handleFilterToggle("Est. FOB Price", "CNY 350,000 - CNY 450,000")} />
-                  <FilterCheckbox label="Above CNY 450,000" checked={activeFilters["Est. FOB Price"]?.has("Above CNY 450,000") || false} onChange={() => handleFilterToggle("Est. FOB Price", "Above CNY 450,000")} />
+                <FilterGroup title="Price">
+                  <FilterCheckbox label="$35,000 - $50,000" checked={activeFilters["Price"]?.has("$35,000 - $50,000") || false} onChange={() => handleFilterToggle("Price", "$35,000 - $50,000")} />
+                  <FilterCheckbox label="$50,000 - $65,000" checked={activeFilters["Price"]?.has("$50,000 - $65,000") || false} onChange={() => handleFilterToggle("Price", "$50,000 - $65,000")} />
+                  <FilterCheckbox label="Above $65,000" checked={activeFilters["Price"]?.has("Above $65,000") || false} onChange={() => handleFilterToggle("Price", "Above $65,000")} />
                 </FilterGroup>
 
                 <FilterGroup title="Charging Standard">
@@ -621,7 +621,7 @@ function VehicleCard({
           </div>
           <div className="text-right">
             <div className="text-[9px] font-black tracking-widest uppercase text-gray-500 mb-1">
-              Est. FOB
+              Est. Price
             </div>
             <div className="text-xl font-black text-theme">{vehicle.fob}</div>
           </div>

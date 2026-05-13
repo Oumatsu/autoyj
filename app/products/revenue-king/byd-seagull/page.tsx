@@ -4,12 +4,12 @@ import { useState, useCallback } from "react";
 import Link from "next/link";
 
 const galleryImages = [
-  { src: "https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&w=1200&q=80", cat: "Exterior", label: "Front 3/4 View" },
-  { src: "https://images.unsplash.com/photo-1620800615569-42b781a62dcb?auto=format&fit=crop&w=1200&q=80", cat: "Exterior", label: "Side Profile" },
-  { src: "https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=1200&q=80", cat: "Interior", label: "Dashboard" },
-  { src: "https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?auto=format&fit=crop&w=1200&q=80", cat: "Interior", label: "Rotating Screen" },
-  { src: "https://images.unsplash.com/photo-1542282088-72c9c27ed0cd?auto=format&fit=crop&w=1200&q=80", cat: "Exterior", label: "Rear View" },
-  { src: "https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&w=1200&q=80", cat: "Detail", label: "Blade Battery" },
+  { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/seagull/seagull%20detail%20(2).webp", cat: "Exterior", label: "" },
+  { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/seagull/seagull%20detail%20(2).jpg", cat: "Exterior", label: "" },
+  { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/seagull/seagull%20detail%20(1).webp", cat: "Interior", label: "" },
+  { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/seagull/seagull%20detail%20(1).png", cat: "Interior", label: "" },
+  { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/seagull/seagull%20detail%20(1).jpg", cat: "Detail", label: "" },
+  { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/seagull/seagull%20detail%20(1).jpeg", cat: "Detail", label: "" },
 ];
 
 const trimData = [
@@ -20,10 +20,10 @@ const trimData = [
 ];
 
 const batchLevels = [
-  { units: 10, display: "CNY 315K – CNY 455K" },
-  { units: 20, display: "CNY 630K – CNY 910K" },
-  { units: 50, display: "CNY 1.58M – CNY 2.28M" },
-  { units: 100, display: "CNY 3.15M – CNY 4.55M" },
+  { units: 10, display: "$45K – $65K" },
+  { units: 20, display: "$90K – $130K" },
+  { units: 50, display: "$225K – $325K" },
+  { units: 100, display: "$450K – $650K" },
 ];
 
 export default function BydSeagullPage() {
@@ -53,7 +53,7 @@ export default function BydSeagullPage() {
       <section className="relative min-h-screen flex items-end overflow-hidden bg-bg2">
         <div className="absolute inset-0">
           <img
-            src="https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&w=2000&q=80"
+            src="https://6a0327d1fc46b5b25f3480d6.imgix.net/seagull/seagull%20display.png"
             className="w-full h-full object-cover"
             style={{ filter: "grayscale(100%) brightness(.95)" }}
             alt="BYD Seagull"
@@ -83,7 +83,7 @@ export default function BydSeagullPage() {
               </h1>
               <p className="text-2xl font-light italic text-gray-500 mb-8">海鸥 — 2024 Edition</p>
               <p className="text-gray-300 text-base font-light leading-relaxed mb-10 max-w-lg italic border-l-2 pl-6" style={{ borderColor: "rgba(16,185,129,.45)" }}>
-                The world&apos;s top-selling compact EV. The strongest weapon against the used ICE market — your customers save up to CNY 1,750 every month.
+                The world&apos;s top-selling compact EV. The strongest weapon against the used ICE market — your customers save up to $250 every month.
               </p>
               <div className="flex flex-wrap gap-4">
                 <a href="https://wa.me/your-number" className="btn-primary px-9 py-4 rounded text-xs font-black tracking-widest uppercase italic shadow-lg">
@@ -100,7 +100,7 @@ export default function BydSeagullPage() {
                 <div className="text-[8px] font-black tracking-[.25em] uppercase text-gray-600">km CLTC Range</div>
               </div>
               <div className="glass rounded-[1.5rem] p-5 text-center border-theme/20">
-                <div className="text-3xl font-black italic text-theme mb-1">CNY 1,750</div>
+                <div className="text-3xl font-black italic text-theme mb-1">$250</div>
                 <div className="text-[8px] font-black tracking-[.25em] uppercase text-gray-600">Max Monthly Saving</div>
               </div>
               <div className="glass rounded-[1.5rem] p-5 text-center border-accent/20">
@@ -110,7 +110,7 @@ export default function BydSeagullPage() {
               <div className="col-span-3 glass rounded-[1.5rem] px-6 py-4 flex items-center justify-between border-theme/10">
                 <div className="flex items-center gap-2.5">
                   <div className="pulse-dot" />
-                  <span className="text-[10px] font-black tracking-widest uppercase text-gray-500">Factory FOB Price</span>
+                  <span className="text-[10px] font-black tracking-widest uppercase text-gray-500">Factory Price</span>
                 </div>
                 <Link href="/contact" className="text-[10px] font-black tracking-widest uppercase text-theme hover:text-white transition">
                   Request Batch Quote →</Link>
@@ -164,9 +164,6 @@ export default function BydSeagullPage() {
                 <div className="absolute bottom-4 left-4 bg-black/65 border border-accent/30 text-accent text-[9px] font-black tracking-[.3em] uppercase px-3 py-1 rounded-full z-10">
                   {galleryImages[galIdx].cat}
                 </div>
-                <div className="absolute bottom-4 right-4 bg-black/65 text-white/50 text-[10px] font-black tracking-[.2em] px-3 py-1 rounded-full z-10">
-                  {galIdx + 1} / {galleryImages.length}
-                </div>
               </div>
 
               {/* Right peek — pinned to right screen edge */}
@@ -198,11 +195,6 @@ export default function BydSeagullPage() {
             >
               &rsaquo;
             </button>
-
-            {/* Center label */}
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/55 text-[11px] font-black tracking-[.18em] uppercase pointer-events-none whitespace-nowrap z-10">
-              {galleryImages[galIdx].label}
-            </div>
           </div>
 
           {/* Dot indicators */}
@@ -250,7 +242,7 @@ export default function BydSeagullPage() {
             <div className="flex flex-col gap-4">
               {[
                 { icon: "🛡️", title: "Blade Battery Safety", desc: "BYD's proprietary LFP Blade cell design eliminates thermal runaway — the #1 safety concern your customers ask about. Zero fire risk, maximum owner confidence." },
-                { icon: "📱", title: 'Rotating 10.1" Touchscreen', desc: "A premium feature typically seen in CNY 210,000+ cars — now standard in a budget EV. Your showroom's strongest visual closer when customers sit inside." },
+                { icon: "📱", title: 'Rotating 10.1" Touchscreen', desc: "A premium feature typically seen in $30,000+ cars — now standard in a budget EV. Your showroom's strongest visual closer when customers sit inside." },
                 { icon: "✅", title: "1M+ Units Validated", desc: "Over one million Seagulls in daily operation worldwide. The maturity of this platform means lower defect rates, globally available parts, and minimal after-sales headache." },
               ].map((feat, i) => (
                 <div key={i} className="rounded-[2rem] p-7 bg-white/[0.02] border border-accent/10 hover:border-accent/30 transition-colors">
@@ -283,13 +275,13 @@ export default function BydSeagullPage() {
                 Your Margin.<br /><span className="text-theme">Your Market</span>.
               </h2>
               <p className="text-gray-300 text-base font-light leading-relaxed mb-8">
-                Africa&apos;s compact-car buyers are priced out of CNY 175,000+ EVs but hungry to cut fuel bills. The Seagull lands exactly in the gap — an accessible entry price with a maximum cost-saving argument. That gap is your margin.
+                Africa&apos;s compact-car buyers are priced out of $25,000+ EVs but hungry to cut fuel bills. The Seagull lands exactly in the gap — an accessible entry price with a maximum cost-saving argument. That gap is your margin.
               </p>
               <div className="space-y-4 mb-8">
                 {[
-                  "Low FOB entry — accessible minimum order quantity",
-                  "Fast inventory turnover — CNY 1,400/mo saving closes deals quickly",
-                  "Typical 10-unit batch gross: CNY 315,000 – CNY 455,000",
+                  "Low entry price — accessible minimum order quantity",
+                  "Fast inventory turnover — $200/mo saving closes deals quickly",
+                  "Typical 10-unit batch gross: $45,000 – $65,000",
                 ].map((text, i) => (
                   <div key={i} className="flex items-center gap-3">
                     <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 text-[9px] font-black" style={{ background: "rgba(197,160,89,.15)", color: "var(--color-gold)", border: "1px solid rgba(197,160,89,.3)" }}>{i + 1}</div>
@@ -301,7 +293,7 @@ export default function BydSeagullPage() {
               </div>
               <div className="glass rounded-[1.5rem] p-6 inline-block" style={{ background: "rgba(0,0,0,.4)", borderColor: "rgba(197,160,89,.25)" }}>
                 <div className="text-[9px] font-black tracking-widest uppercase text-gray-600 mb-1">Estimated Gross Margin per Unit</div>
-                <div className="text-4xl font-black italic text-theme">CNY 31,500 – CNY 45,500</div>
+                <div className="text-4xl font-black italic text-theme">$4,500 – $6,500</div>
               </div>
             </div>
             <div className="glass rounded-[2.5rem] p-8 md:p-10" style={{ background: "rgba(0,0,0,.48)" }}>
@@ -331,7 +323,7 @@ export default function BydSeagullPage() {
               </div>
               <div className="space-y-3 mb-5">
                 <div className="flex justify-between text-xs"><span className="text-gray-600 font-black uppercase tracking-wider">Units</span><span className="text-white font-black">{batch.units}</span></div>
-                <div className="flex justify-between text-xs"><span className="text-gray-600 font-black uppercase tracking-wider">Margin / unit</span><span className="text-theme font-black">CNY 31,500 – CNY 45,500</span></div>
+                <div className="flex justify-between text-xs"><span className="text-gray-600 font-black uppercase tracking-wider">Margin / unit</span><span className="text-theme font-black">$4,500 – $6,500</span></div>
                 <div className="flex justify-between text-xs border-t pt-3" style={{ borderColor: "rgba(255,255,255,.05)" }}><span className="text-gray-400 font-black uppercase tracking-wider">Total gross</span><span className="text-accent font-black">{batch.display}</span></div>
               </div>
               <p className="text-[9px] text-gray-700 text-center">*Based on typical East Africa retail pricing. <Link href="/contact" className="text-theme hover:text-white transition">Request a detailed quote</Link>.</p>
@@ -349,7 +341,7 @@ export default function BydSeagullPage() {
           </div>
           <div className="grid md:grid-cols-3 gap-5">
             {[
-              { icon: "🚖", title: "Network Taxi Operator", desc: "High daily mileage makes the fuel saving dramatic. Drivers reduce costs by CNY 1,400+/mo, improving retention and attracting new recruits to your fleet.", accent: "Best ROI in category", accentColor: "var(--color-green)" },
+              { icon: "🚖", title: "Network Taxi Operator", desc: "High daily mileage makes the fuel saving dramatic. Drivers reduce costs by $200+/mo, improving retention and attracting new recruits to your fleet.", accent: "Best ROI in category", accentColor: "var(--color-green)" },
               { icon: "🏙️", title: "Urban Family — 2nd Car", desc: "School runs, market trips, daily commutes under 80km/day. Charges overnight at home from a standard socket. Eliminates petrol spending entirely for weekday use.", accent: "Home charging compatible", accentColor: "var(--color-gold)" },
               { icon: "🏪", title: "Entry-Level Fleet Dealer", desc: "Start with 5–10 units and the lowest possible per-unit risk. The Seagull's 1M+ validation record means minimal warranty claims and easy resale if needed.", accent: "Lowest entry risk", accentColor: "var(--color-green)" },
             ].map((fit, i) => (
@@ -450,7 +442,7 @@ export default function BydSeagullPage() {
                   { label: "Sunroof", key: "sunroof" as const, diff: true },
                   { label: "Airbags", key: "airbags" as const, diff: true },
                   { label: "Seat Material", key: "seat" as const, diff: true },
-                  { label: "FOB Level", key: "fob" as const, diff: true },
+                  { label: "Price Level", key: "fob" as const, diff: true },
                 ].map((row) => (
                   <tr key={row.label} className={row.diff ? "[&>td]:text-[#F3F4F6]" : ""}>
                     <td className={`py-2.5 px-3.5 text-[10px] font-black tracking-[.08em] uppercase text-left ${row.diff ? "text-accent border-l-2 border-l-accent pl-2.5" : "text-[#6B7280]"}`}>{row.label}</td>
@@ -474,7 +466,7 @@ export default function BydSeagullPage() {
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mt-5">
             <p className="text-[10px] text-gray-700">
               * 2024 model year. All trims share: LFP Blade battery · FWD · 130 km/h top speed · 8-yr battery warranty.<br />
-              FOB pricing on request — varies by order volume & destination port.
+              Pricing on request — varies by order volume & destination port.
             </p>
             <Link href="/contact" className="btn-primary px-7 py-3 rounded text-xs font-black tracking-widest uppercase italic flex-shrink-0">
               Request Trim Pricing →</Link>
@@ -500,7 +492,7 @@ export default function BydSeagullPage() {
                 </p>
                 <div className="glass rounded-[1.5rem] p-5 mb-6 inline-flex items-start gap-3 border-theme/15">
                   <span className="text-[9px] font-black tracking-[.2em] uppercase text-gray-600 pt-0.5">Note:</span>
-                  <span className="text-[11px] font-light text-gray-300 leading-relaxed">This is an <strong className="text-white font-black">optional purchase</strong>, not included in the base FOB price.</span>
+                  <span className="text-[11px] font-light text-gray-300 leading-relaxed">This is an <strong className="text-white font-black">optional purchase</strong>, not included in the base price.</span>
                 </div>
                 <Link href="/solutions/configure-kit" className="btn-outline inline-block px-9 py-4 rounded text-xs font-black tracking-widest uppercase italic">
                   Ask About Parts Kit →</Link>
@@ -527,8 +519,8 @@ export default function BydSeagullPage() {
             <div className="rounded-[4rem] p-12 md:p-20 text-center" style={{ background: "rgba(0,0,0,.38)", border: "1px solid rgba(197,160,89,.18)", backdropFilter: "blur(20px)" }}>
               <div className="flex justify-center mb-5"><div className="pulse-dot w-2.5 h-2.5" /></div>
               <div className="label justify-center mb-5">Ready to Order?</div>
-              <h2 className="sh mb-4" style={{ fontSize: "clamp(2rem,5vw,4rem)" }}>Get Your BYD Seagull<br /><span className="text-accent">Batch FOB Quote.</span></h2>
-              <p className="text-gray-400 text-base font-light italic mb-10 max-w-md mx-auto">Tell us your quantity and destination port. We respond within 2 hours with a transparent factory FOB price.</p>
+              <h2 className="sh mb-4" style={{ fontSize: "clamp(2rem,5vw,4rem)" }}>Get Your BYD Seagull<br /><span className="text-accent">Batch Quote.</span></h2>
+              <p className="text-gray-400 text-base font-light italic mb-10 max-w-md mx-auto">Tell us your quantity and destination port. We respond within 2 hours with a transparent factory price.</p>
               <div className="flex flex-wrap justify-center gap-4">
                 <a href="https://wa.me/your-number" className="btn-primary px-12 py-5 rounded text-sm font-black tracking-widest uppercase italic shadow-lg">WhatsApp Us Now</a>
                 <Link href="/contact" className="px-12 py-5 rounded text-sm font-black tracking-widest uppercase italic border border-accent/40 text-accent hover:bg-accent hover:text-black transition">Send an Enquiry</Link>

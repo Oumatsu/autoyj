@@ -14,6 +14,8 @@ interface GalleryImage {
 interface VehicleSpec {
   label: string;
   value: string;
+  green?: boolean;
+  gold?: boolean;
 }
 
 interface VehicleFit {
@@ -66,13 +68,13 @@ const DEFAULT_GALLERY: GalleryImage[] = [
 ];
 
 const DEFAULT_BATCH_LEVELS = [
-  { units: 10, display: "CNY 315K – CNY 455K" },
-  { units: 20, display: "CNY 630K – CNY 910K" },
-  { units: 50, display: "CNY 1.58M – CNY 2.28M" },
-  { units: 100, display: "CNY 3.15M – CNY 4.55M" },
+  { units: 10, display: "$45K – $65K" },
+  { units: 20, display: "$90K – $130K" },
+  { units: 50, display: "$225K – $325K" },
+  { units: 100, display: "$450K – $650K" },
 ];
 
-const DEFAULT_BATCH_MARGIN = { low: "CNY 31,500", high: "CNY 45,500" };
+const DEFAULT_BATCH_MARGIN = { low: "$4,500", high: "$6,500" };
 
 export default function VehicleDetail({ data }: { data: DetailData }) {
   const v = data.vehicle;
@@ -137,7 +139,7 @@ export default function VehicleDetail({ data }: { data: DetailData }) {
               <div className="glass rounded-[1.5rem] p-5 text-center border-theme/20"><div className="text-3xl font-black italic text-theme mb-1">{data.stat2Value}</div><div className="text-[8px] font-black tracking-[.25em] uppercase text-gray-600">{data.stat2Label}</div></div>
               <div className="glass rounded-[1.5rem] p-5 text-center border-accent/20"><div className="text-xl font-black italic text-white mb-1">{data.stat3Value}</div><div className="text-[8px] font-black tracking-[.25em] uppercase text-gray-600">{data.stat3Label}</div></div>
               <div className="col-span-3 glass rounded-[1.5rem] px-6 py-4 flex items-center justify-between border-theme/10">
-                <div className="flex items-center gap-2.5"><div className="pulse-dot" /><span className="text-[10px] font-black tracking-widest uppercase text-gray-500">Factory FOB Price</span></div>
+                <div className="flex items-center gap-2.5"><div className="pulse-dot" /><span className="text-[10px] font-black tracking-widest uppercase text-gray-500">Factory Price</span></div>
                 <Link href="/contact" className="text-[10px] font-black tracking-widest uppercase text-theme hover:text-white transition">Request Batch Quote →</Link>
               </div>
             </div>
@@ -158,7 +160,6 @@ export default function VehicleDetail({ data }: { data: DetailData }) {
               <div className="relative mx-auto w-[85%] h-full cursor-zoom-in" style={{ zIndex: 1 }} onClick={() => {}}>
                 <img key={`center-img-${galIdx}`} src={gallery[galIdx].src} className="w-full h-full object-cover rounded-xl img-switch-in" alt={gallery[galIdx].label} />
                 <div className="absolute bottom-4 left-4 bg-black/65 border border-accent/30 text-accent text-[9px] font-black tracking-[.3em] uppercase px-3 py-1 rounded-full z-10">{gallery[galIdx].cat}</div>
-                <div className="absolute bottom-4 right-4 bg-black/65 text-white/50 text-[10px] font-black tracking-[.2em] px-3 py-1 rounded-full z-10">{galIdx + 1} / {gallery.length}</div>
               </div>
               <div className="absolute right-0 top-0 w-[7%] h-full cursor-pointer overflow-hidden" onClick={() => goGallery(1)}>
                 <img src={gallery[nextIdx].src} className="w-full h-full object-cover transition-opacity duration-700" alt={gallery[nextIdx].label} style={{ opacity: 0.4, borderRadius: "0.75rem 0 0 0.75rem" }} />
@@ -167,7 +168,6 @@ export default function VehicleDetail({ data }: { data: DetailData }) {
             </div>
             <button onClick={(e) => { e.stopPropagation(); goGallery(-1); }} className="absolute top-1/2 -translate-y-1/2 left-3 md:left-5 w-10 h-10 md:w-11 md:h-11 rounded-full bg-black/55 border border-white/10 text-white text-xl flex items-center justify-center hover:bg-gold/85 hover:text-black transition z-20">&lsaquo;</button>
             <button onClick={(e) => { e.stopPropagation(); goGallery(1); }} className="absolute top-1/2 -translate-y-1/2 right-3 md:right-5 w-10 h-10 md:w-11 md:h-11 rounded-full bg-black/55 border border-white/10 text-white text-xl flex items-center justify-center hover:bg-gold/85 hover:text-black transition z-20">&rsaquo;</button>
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/55 text-[11px] font-black tracking-[.18em] uppercase pointer-events-none whitespace-nowrap z-10">{gallery[galIdx].label}</div>
           </div>
           <div className="flex items-center justify-center gap-2 mt-6">
             {gallery.map((_, i) => (
@@ -215,7 +215,7 @@ export default function VehicleDetail({ data }: { data: DetailData }) {
               <h2 className="sh mb-5" style={{ fontSize: "clamp(2rem,4.5vw,3.5rem)" }}>Your Margin.<br /><span className="text-theme">Your Market</span>.</h2>
               <p className="text-gray-300 text-base font-light leading-relaxed mb-8">Forward-thinking fleet buyers are ready to transition from ICE to EV — but they need the right price point. The {v.brand} {v.name} lands exactly in that gap: an accessible entry price backed by a powerful total-cost-of-ownership story. That gap is your margin.</p>
               <div className="space-y-4 mb-8">
-                {["Low FOB entry — accessible minimum order quantity", "Fast inventory turnover — strong monthly savings close deals quickly", `Typical 10-unit batch gross: ${batchMargin.low} – ${batchMargin.high}`].map((text, i) => (
+                {["Low entry price — accessible minimum order quantity", "Fast inventory turnover — strong monthly savings close deals quickly", `Typical 10-unit batch gross: ${batchMargin.low} – ${batchMargin.high}`].map((text, i) => (
                   <div key={i} className="flex items-center gap-3"><div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 text-[9px] font-black" style={{ background: "rgba(197,160,89,.15)", color: "var(--color-gold)", border: "1px solid rgba(197,160,89,.3)" }}>{i + 1}</div><p className="text-xs font-black uppercase tracking-wider text-gray-400">{text}</p></div>
                 ))}
               </div>
@@ -248,17 +248,45 @@ export default function VehicleDetail({ data }: { data: DetailData }) {
 
       {/* Specs */}
       <section id="specs" className="py-12 md:py-16 relative overflow-hidden">
-        <div className="absolute inset-0"><img src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1600&q=80" className="w-full h-full object-cover" style={{ filter: "brightness(.35) grayscale(20%)" }} alt="" /><div className="absolute inset-0" style={{ background: "rgba(10,10,10,.60)" }} /></div>
+        <div className="absolute inset-0">
+          <img src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1600&q=80" className="w-full h-full object-cover" style={{ filter: "brightness(.35) grayscale(20%)" }} alt="" />
+          <div className="absolute inset-0" style={{ background: "rgba(10,10,10,.60)" }} />
+        </div>
         <div className="relative z-10 container mx-auto px-6 md:px-12">
-          <div className="flex items-end justify-between mb-10 flex-wrap gap-4"><div><div className="label mb-3">Full Specifications</div><h2 className="text-2xl font-black uppercase italic tracking-tight text-white">{v.brand} {v.name}</h2></div></div>
+          <div className="flex items-end justify-between mb-10 flex-wrap gap-4">
+            <div>
+              <div className="label mb-3">Full Specifications</div>
+              <h2 className="text-2xl font-black uppercase italic tracking-tight text-white">
+                {v.brand} {v.name} — {new Date().getFullYear()} Model
+              </h2>
+            </div>
+          </div>
           <div className="grid md:grid-cols-2 gap-6">
             <div className="glass rounded-[2rem] p-8" style={{ background: "rgba(0,0,0,.45)", borderColor: "rgba(16,185,129,.2)" }}>
-              <div className="text-[9px] font-black tracking-widest uppercase text-accent mb-6 flex items-center gap-2"><span className="w-4 h-px bg-accent inline-block" />Performance & Range</div>
-              {data.specsLeft.map((spec, j) => (<div key={j} className="spec-row"><span className="spec-label">{spec.label}</span><span className="spec-val">{spec.value}</span></div>))}
+              <div className="text-[9px] font-black tracking-widest uppercase text-accent mb-6 flex items-center gap-2"><span className="w-4 h-px bg-accent inline-block" /> Performance & Range</div>
+              {data.specsLeft.map((spec, j) => {
+                const g = spec.green ?? /Range|Motor|Fast Charge|Top Speed|0 .100|100 km|Efficiency|kW|hp/.test(spec.label);
+                const o = spec.gold ?? /Battery Type|Battery Capacity|Battery Chem|Drive Type|Platform|Energy Density/.test(spec.label);
+                return (
+                <div key={j} className="flex items-center justify-between py-3 border-b border-white/[0.04] last:border-b-0 gap-3">
+                  <span className="text-[11px] font-bold tracking-[.08em] uppercase text-[#9CA3AF] flex-shrink-0">{spec.label}</span>
+                  <span className={`text-xs font-extrabold text-right ${g ? "text-accent" : o ? "text-theme" : "text-white"}`} style={spec.value === "Not Supported" ? { color: "#6B7280" } : undefined}>{spec.value}</span>
+                </div>
+                );
+              })}
             </div>
             <div className="glass rounded-[2rem] p-8" style={{ background: "rgba(0,0,0,.45)", borderColor: "rgba(197,160,89,.2)" }}>
-              <div className="text-[9px] font-black tracking-widest uppercase text-theme mb-6 flex items-center gap-2"><span className="w-4 h-px bg-theme inline-block" />Dimensions & Features</div>
-              {data.specsRight.map((spec, j) => (<div key={j} className="spec-row"><span className="spec-label">{spec.label}</span><span className="spec-val">{spec.value}</span></div>))}
+              <div className="text-[9px] font-black tracking-widest uppercase text-theme mb-6 flex items-center gap-2"><span className="w-4 h-px bg-theme inline-block" /> Dimensions & Features</div>
+              {data.specsRight.map((spec, j) => {
+                const g = spec.green ?? /Charge|Export|V2L|Warranty/.test(spec.label);
+                const o = spec.gold ?? /Dimensions|Seating?|Airbag|Audio|Ambient|Sunroof|Boot|Wheelbase/.test(spec.label);
+                return (
+                <div key={j} className="flex items-center justify-between py-3 border-b border-white/[0.04] last:border-b-0 gap-3">
+                  <span className="text-[11px] font-bold tracking-[.08em] uppercase text-[#9CA3AF] flex-shrink-0">{spec.label}</span>
+                  <span className={`text-xs font-extrabold text-right ${g ? "text-accent" : o ? "text-theme" : "text-white"}`} style={spec.value === "Not Supported" ? { color: "#6B7280" } : undefined}>{spec.value}</span>
+                </div>
+                );
+              })}
             </div>
           </div>
           <p className="text-[10px] text-gray-700 mt-5 text-center">Specifications shown for latest model year. Multiple trim levels available — contact us for full trim comparison.</p>
@@ -290,8 +318,8 @@ export default function VehicleDetail({ data }: { data: DetailData }) {
             <div className="rounded-[4rem] p-12 md:p-20 text-center" style={{ background: "rgba(0,0,0,.38)", border: "1px solid rgba(197,160,89,.18)", backdropFilter: "blur(20px)" }}>
               <div className="flex justify-center mb-5"><div className="pulse-dot w-2.5 h-2.5" /></div>
               <div className="label justify-center mb-5">Ready to Order?</div>
-              <h2 className="sh mb-4" style={{ fontSize: "clamp(2rem,5vw,4rem)" }}>Get Your {v.brand} {v.name}<br /><span className="text-accent">Batch FOB Quote.</span></h2>
-              <p className="text-gray-400 text-base font-light italic mb-10 max-w-md mx-auto">Tell us your quantity and destination port. We respond within 2 hours with a transparent factory FOB price.</p>
+              <h2 className="sh mb-4" style={{ fontSize: "clamp(2rem,5vw,4rem)" }}>Get Your {v.brand} {v.name}<br /><span className="text-accent">Batch Quote.</span></h2>
+              <p className="text-gray-400 text-base font-light italic mb-10 max-w-md mx-auto">Tell us your quantity and destination port. We respond within 2 hours with a transparent factory price.</p>
               <div className="flex flex-wrap justify-center gap-4">
                 <a href="https://wa.me/your-number" className="btn-primary px-12 py-5 rounded text-sm font-black tracking-widest uppercase italic shadow-lg">WhatsApp Us Now</a>
                 <Link href="/contact" className="px-12 py-5 rounded text-sm font-black tracking-widest uppercase italic border border-accent/40 text-accent hover:bg-accent hover:text-black transition">Send an Enquiry</Link>

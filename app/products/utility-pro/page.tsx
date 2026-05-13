@@ -36,7 +36,7 @@ function generatePageNumbers(current: number, total: number): (number | "ellipsi
 }
 
 function parsePriceLow(fob: string): number {
-  const match = fob.match(/CNY ([0-9,]+)/);
+  const match = fob.match(/\$([0-9,]+)/);
   if (!match) return Infinity;
   return parseInt(match[1].replace(/,/g, ""), 10);
 }
@@ -234,10 +234,10 @@ export default function UtilityProPage() {
                   <FilterCheckbox label="350 km +" checked={activeFilters["Range (NEDC)"]?.has("350 km +") || false} onChange={() => handleFilterToggle("Range (NEDC)", "350 km +")} />
                 </FilterGroup>
 
-                <FilterGroup title="Est. FOB Price">
-                  <FilterCheckbox label="Under CNY 150,000" checked={activeFilters["Est. FOB Price"]?.has("Under CNY 150,000") || false} onChange={() => handleFilterToggle("Est. FOB Price", "Under CNY 150,000")} />
-                  <FilterCheckbox label="CNY 150,000 - CNY 250,000" checked={activeFilters["Est. FOB Price"]?.has("CNY 150,000 - CNY 250,000") || false} onChange={() => handleFilterToggle("Est. FOB Price", "CNY 150,000 - CNY 250,000")} />
-                  <FilterCheckbox label="Above CNY 250,000" checked={activeFilters["Est. FOB Price"]?.has("Above CNY 250,000") || false} onChange={() => handleFilterToggle("Est. FOB Price", "Above CNY 250,000")} />
+                <FilterGroup title="Price">
+                  <FilterCheckbox label="Under $20,000" checked={activeFilters["Price"]?.has("Under $20,000") || false} onChange={() => handleFilterToggle("Price", "Under $20,000")} />
+                  <FilterCheckbox label="$20,000 - $35,000" checked={activeFilters["Price"]?.has("$20,000 - $35,000") || false} onChange={() => handleFilterToggle("Price", "$20,000 - $35,000")} />
+                  <FilterCheckbox label="Above $35,000" checked={activeFilters["Price"]?.has("Above $35,000") || false} onChange={() => handleFilterToggle("Price", "Above $35,000")} />
                 </FilterGroup>
 
                 <FilterGroup title="Capability">
@@ -621,7 +621,7 @@ function VehicleCard({
           </div>
           <div className="text-right">
             <div className="text-[9px] font-black tracking-widest uppercase text-gray-500 mb-1">
-              Est. FOB
+              Est. Price
             </div>
             <div className="text-xl font-black text-theme">{vehicle.fob}</div>
           </div>
