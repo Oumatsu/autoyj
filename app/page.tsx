@@ -55,7 +55,7 @@ export default function HomePage() {
               </h2>
             </div>
             <Link
-              href="#"
+              href="/products"
               className="btn-outline px-8 py-3 rounded text-[11px] font-black tracking-widest uppercase self-start md:self-auto whitespace-nowrap"
             >
               Full Catalog →
@@ -65,31 +65,33 @@ export default function HomePage() {
           <div className="grid md:grid-cols-3 gap-10">
             {/* Revenue King */}
             <div>
-              <div className="v-card aspect-[4/5] border border-accent/20">
-                <img
-                  src="https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&w=800&q=80"
-                  className="w-full h-full object-cover absolute inset-0"
-                  alt="Revenue King"
-                />
-                <div className="v-card-overlay" />
-                <div className="absolute top-8 left-8">
-                  <span
-                    className="text-[9px] font-black px-3 py-1 rounded uppercase tracking-widest"
-                    style={{ background: "var(--color-green)", color: "#000" }}
-                  >
-                    High ROI
-                  </span>
+              <Link href="/products/revenue-king" className="block">
+                <div className="v-card aspect-[4/5] border border-accent/20">
+                  <img
+                    src="https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&w=800&q=80"
+                    className="w-full h-full object-cover absolute inset-0"
+                    alt="Revenue King"
+                  />
+                  <div className="v-card-overlay" />
+                  <div className="absolute top-8 left-8">
+                    <span
+                      className="text-[9px] font-black px-3 py-1 rounded uppercase tracking-widest"
+                      style={{ background: "var(--color-green)", color: "#000" }}
+                    >
+                      High ROI
+                    </span>
+                  </div>
+                  <div className="absolute bottom-8 left-8 right-8">
+                    <div className="label mb-2">Category 01</div>
+                    <h3 className="text-2xl font-black text-white uppercase italic tracking-tight">
+                      Revenue King
+                    </h3>
+                    <p className="text-gray-400 text-xs mt-2 font-light">
+                      Ride-hailing &amp; urban fleets. Up to $350/mo saved.
+                    </p>
+                  </div>
                 </div>
-                <div className="absolute bottom-8 left-8 right-8">
-                  <div className="label mb-2">Category 01</div>
-                  <h3 className="text-2xl font-black text-white uppercase italic tracking-tight">
-                    Revenue King
-                  </h3>
-                  <p className="text-gray-400 text-xs mt-2 font-light">
-                    Ride-hailing &amp; urban fleets. Up to $350/mo saved.
-                  </p>
-                </div>
-              </div>
+              </Link>
               <div className="mt-5 flex items-center justify-between px-1">
                 <div className="flex flex-wrap gap-2">
                   <span
@@ -122,37 +124,39 @@ export default function HomePage() {
 
             {/* Elite Flagship */}
             <div>
-              <div
-                className="v-card aspect-[4/5] border border-theme/25"
-                style={{ boxShadow: "0 0 40px rgba(197,160,89,.07)" }}
-              >
-                <img
-                  src="https://images.unsplash.com/photo-1563720360172-67b8f3dce741?auto=format&fit=crop&w=800&q=80"
-                  className="w-full h-full object-cover absolute inset-0"
-                  alt="Elite Flagship"
-                />
-                <div className="v-card-overlay" />
-                <div className="absolute top-8 left-8">
-                  <span
-                    className="text-[9px] font-black px-3 py-1 rounded uppercase tracking-widest"
-                    style={{
-                      background: "var(--color-gold)",
-                      color: "#000",
-                    }}
-                  >
-                    Premium Yield
-                  </span>
+              <Link href="/products/elite-flagship" className="block">
+                <div
+                  className="v-card aspect-[4/5] border border-theme/25"
+                  style={{ boxShadow: "0 0 40px rgba(197,160,89,.07)" }}
+                >
+                  <img
+                    src="https://images.unsplash.com/photo-1563720360172-67b8f3dce741?auto=format&fit=crop&w=800&q=80"
+                    className="w-full h-full object-cover absolute inset-0"
+                    alt="Elite Flagship"
+                  />
+                  <div className="v-card-overlay" />
+                  <div className="absolute top-8 left-8">
+                    <span
+                      className="text-[9px] font-black px-3 py-1 rounded uppercase tracking-widest"
+                      style={{
+                        background: "var(--color-gold)",
+                        color: "#000",
+                      }}
+                    >
+                      Premium Yield
+                    </span>
+                  </div>
+                  <div className="absolute bottom-8 left-8 right-8">
+                    <div className="label label-gold mb-2">Category 02</div>
+                    <h3 className="text-2xl font-black text-white uppercase italic tracking-tight">
+                      Elite Flagship
+                    </h3>
+                    <p className="text-gray-400 text-xs mt-2 font-light">
+                      Government &amp; corporate. The B2B social currency.
+                    </p>
+                  </div>
                 </div>
-                <div className="absolute bottom-8 left-8 right-8">
-                  <div className="label label-gold mb-2">Category 02</div>
-                  <h3 className="text-2xl font-black text-white uppercase italic tracking-tight">
-                    Elite Flagship
-                  </h3>
-                  <p className="text-gray-400 text-xs mt-2 font-light">
-                    Government &amp; corporate. The B2B social currency.
-                  </p>
-                </div>
-              </div>
+              </Link>
               <div className="mt-5 flex items-center justify-between px-1">
                 <div className="flex flex-wrap gap-2">
                   <span
@@ -185,31 +189,33 @@ export default function HomePage() {
 
             {/* Utility Pro */}
             <div>
-              <div className="v-card aspect-[4/5] border border-accent/20">
-                <img
-                  src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=800&q=80"
-                  className="w-full h-full object-cover absolute inset-0"
-                  alt="Utility Pro"
-                />
-                <div className="v-card-overlay" />
-                <div className="absolute top-8 left-8">
-                  <span
-                    className="text-[9px] font-black px-3 py-1 rounded uppercase tracking-widest"
-                    style={{ background: "var(--color-green)", color: "#000" }}
-                  >
-                    Durable Offroad
-                  </span>
+              <Link href="/products/utility-pro" className="block">
+                <div className="v-card aspect-[4/5] border border-accent/20">
+                  <img
+                    src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=800&q=80"
+                    className="w-full h-full object-cover absolute inset-0"
+                    alt="Utility Pro"
+                  />
+                  <div className="v-card-overlay" />
+                  <div className="absolute top-8 left-8">
+                    <span
+                      className="text-[9px] font-black px-3 py-1 rounded uppercase tracking-widest"
+                      style={{ background: "var(--color-green)", color: "#000" }}
+                    >
+                      Durable Offroad
+                    </span>
+                  </div>
+                  <div className="absolute bottom-8 left-8 right-8">
+                    <div className="label mb-2">Category 03</div>
+                    <h3 className="text-2xl font-black text-white uppercase italic tracking-tight">
+                      Utility Pro
+                    </h3>
+                    <p className="text-gray-400 text-xs mt-2 font-light">
+                      All-terrain &amp; logistics. Fuel costs cut 50–60%.
+                    </p>
+                  </div>
                 </div>
-                <div className="absolute bottom-8 left-8 right-8">
-                  <div className="label mb-2">Category 03</div>
-                  <h3 className="text-2xl font-black text-white uppercase italic tracking-tight">
-                    Utility Pro
-                  </h3>
-                  <p className="text-gray-400 text-xs mt-2 font-light">
-                    All-terrain &amp; logistics. Fuel costs cut 50–60%.
-                  </p>
-                </div>
-              </div>
+              </Link>
               <div className="mt-5 flex items-center justify-between px-1">
                 <div className="flex flex-wrap gap-2">
                   <span
@@ -593,12 +599,12 @@ export default function HomePage() {
                   smarter sourcing decisions.
                 </p>
               </div>
-              <a
-                href="#lead-magnet"
+              <Link
+                href="/insights"
                 className="btn-outline inline-block mt-8 px-8 py-3 rounded text-[11px] font-black tracking-widest uppercase self-start"
               >
                 Download Free →
-              </a>
+              </Link>
             </div>
 
             {/* Academy */}
@@ -622,7 +628,7 @@ export default function HomePage() {
               </div>
               <div className="flex items-center gap-4 mt-8">
                 <Link
-                  href="#"
+                  href="/academy"
                   className="btn-primary inline-block px-8 py-3 rounded text-[11px] font-black tracking-widest uppercase"
                 >
                   Browse Academy →

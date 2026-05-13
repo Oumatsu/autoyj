@@ -1,4 +1,7 @@
 import Link from "next/link";
+import { vehicles as revenueVehicles } from "./revenue-king/data";
+import { vehicles as eliteVehicles } from "./elite-flagship/data";
+import { vehicles as utilityVehicles } from "./utility-pro/data";
 
 export default function ProductsPage() {
   return (
@@ -7,7 +10,7 @@ export default function ProductsPage() {
       <section className="relative min-h-[70vh] flex items-center overflow-hidden">
         <div className="absolute inset-0">
           <img
-            src="https://images.unsplash.com/photo-1601362840469-51e4d8d59085?auto=format&fit=crop&w=2000&q=80"
+            src="https://6a0327d1fc46b5b25f3480d6.imgix.net/Our-solutions-durability-and-fatigue.avif"
             className="w-full h-full object-cover"
             style={{ filter: "contrast(1.1)" }}
             alt="Curated Selection Background"
@@ -97,7 +100,7 @@ export default function ProductsPage() {
                   badgeCls: "",
                   saving: "Save $350/mo",
                   tags: ["Million-Unit Proof", "510km Range"],
-                  img: "https://images.unsplash.com/photo-1542362567-b052d00122e2?auto=format&fit=crop&w=800&q=80",
+                  img: "https://6a0327d1fc46b5b25f3480d6.imgix.net/2qin-plus-ev-p.webp",
                   link: null,
                 },
                 {
@@ -169,11 +172,11 @@ export default function ProductsPage() {
 
             <div className="flex justify-center">
               <Link
-                href="/contact"
+                href="/products/revenue-king"
                 className="group flex items-center gap-4 px-10 py-4 rounded-full border border-white/10 hover:border-accent/40 transition-all"
               >
                 <span className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-500 group-hover:text-white">
-                  Discover Full Revenue Matrix (15+ Models)
+                  Discover Full Revenue Matrix ({revenueVehicles.length}+ Models)
                 </span>
                 <span className="w-6 h-px bg-white/10 group-hover:bg-accent/50 transition-all" />
                 <span className="text-accent group-hover:translate-x-1 transition-transform">
@@ -295,11 +298,11 @@ export default function ProductsPage() {
 
             <div className="flex justify-center">
               <Link
-                href="/contact"
+                href="/products/elite-flagship"
                 className="group flex items-center gap-4 px-10 py-4 rounded-full border border-white/10 hover:border-theme/40 transition-all"
               >
                 <span className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-500 group-hover:text-white">
-                  Discover Full Elite Series (8+ Models)
+                  Discover Full Elite Series ({eliteVehicles.length}+ Models)
                 </span>
                 <span className="w-6 h-px bg-white/10 group-hover:bg-theme/50 transition-all" />
                 <span className="text-theme group-hover:translate-x-1 transition-transform">
@@ -355,7 +358,7 @@ export default function ProductsPage() {
                   desc: "The future of city cargo. Steer-by-wire with flat-floor cargo optimization for 11m³+ volume.",
                   label: "Digital Cargo",
                   sub: "Next-Gen Van",
-                  img: "https://images.unsplash.com/photo-1517524008410-d4484e313a21?auto=format&fit=crop&w=1200&q=80",
+                  img: "https://6a0327d1fc46b5b25f3480d6.imgix.net/b499683c8d996730819daad124c318ee.jpeg",
                 },
               ].map((car, i) => (
                 <div
@@ -397,11 +400,11 @@ export default function ProductsPage() {
 
             <div className="flex justify-center">
               <Link
-                href="/contact"
+                href="/products/utility-pro"
                 className="group flex items-center gap-4 px-10 py-4 rounded-full border border-white/10 hover:border-accent/40 transition-all"
               >
                 <span className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-500 group-hover:text-white">
-                  Discover Full Utility Matrix (6+ Models)
+                  Discover Full Utility Matrix ({utilityVehicles.length}+ Models)
                 </span>
                 <span className="w-6 h-px bg-white/10 group-hover:bg-accent/50 transition-all" />
                 <span className="text-accent group-hover:translate-x-1 transition-transform">

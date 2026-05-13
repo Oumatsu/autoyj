@@ -122,10 +122,10 @@ export function Navbar() {
           <Link href="/solutions" className="nav-link">
             Solutions
           </Link>
-          <Link href="/#insights" className="nav-link">
+          <Link href="/insights" className="nav-link">
             Insights
           </Link>
-          <Link href="/#academy" className="nav-link green">
+          <Link href="/academy" className="nav-link green">
             Academy
           </Link>
           <Link href="/about" className="nav-link">
@@ -176,14 +176,14 @@ export function Navbar() {
             Solutions
           </Link>
           <Link
-            href="/#insights"
+            href="/insights"
             onClick={closeMobile}
             className="text-white hover:text-theme transition"
           >
             Insights
           </Link>
           <Link
-            href="/#academy"
+            href="/academy"
             onClick={closeMobile}
             className="text-accent"
           >

@@ -1,148 +1,10 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import Link from "next/link";
+import { vehicles, specLabels } from "./data";
 
 const ITEMS_PER_PAGE = 6;
-
-const vehicles = [
-  {
-    brand: "BYD",
-    name: "Han EV",
-    fob: "$32,500",
-    battery: "76.9 kWh",
-    batteryType: "LFP Blade",
-    range: "610 km",
-    charging: "30-80% in 25m (800V)",
-    img: "https://images.unsplash.com/photo-1619767886558-efdc259cde1a?auto=format&fit=crop&w=800&q=80",
-    status: "in-stock",
-    statusText: "In Stock: Shenzhen",
-  },
-  {
-    brand: "Zeekr",
-    name: "001",
-    fob: "$38,900",
-    battery: "100 kWh",
-    batteryType: "NCM",
-    range: "650 km",
-    charging: "30-80% in 15m (800V)",
-    img: "https://images.unsplash.com/photo-1542362567-b07e54358753?auto=format&fit=crop&w=800&q=80",
-    status: "factory",
-    statusText: "Factory Order: 21 Days",
-  },
-  {
-    brand: "Xpeng",
-    name: "P7i",
-    fob: "$29,800",
-    battery: "86.2 kWh",
-    batteryType: "NCM",
-    range: "702 km",
-    charging: "30-80% in 28m (800V)",
-    img: "https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=800&q=80",
-    status: "in-stock",
-    statusText: "In Stock: Shanghai",
-  },
-  {
-    brand: "Li Auto",
-    name: "L9 Max",
-    fob: "$42,500",
-    battery: "44.5 kWh EREV",
-    batteryType: "NCM",
-    range: "1,315 km (Ext)",
-    charging: "30-80% in 30m",
-    img: "https://images.unsplash.com/photo-1606611013016-969c19ba27a5?auto=format&fit=crop&w=800&q=80",
-    status: "in-stock",
-    statusText: "In Stock: Beijing",
-  },
-  {
-    brand: "NIO",
-    name: "ET7",
-    fob: "$45,200",
-    battery: "100 kWh",
-    batteryType: "NCM",
-    range: "1,000 km (Semi-Solid)",
-    charging: "Swap in 3 min",
-    img: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=800&q=80",
-    status: "factory",
-    statusText: "Factory Order: 28 Days",
-  },
-  {
-    brand: "Hongqi",
-    name: "E-HS9",
-    fob: "$55,000",
-    battery: "120 kWh",
-    batteryType: "NCM",
-    range: "510 km",
-    charging: "VIP Diplomatic Grade",
-    img: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=800&q=80",
-    status: "factory",
-    statusText: "Factory Order: 35 Days",
-  },
-  {
-    brand: "BYD",
-    name: "Seal",
-    fob: "$28,500",
-    battery: "82.5 kWh",
-    batteryType: "LFP Blade",
-    range: "650 km",
-    charging: "30-80% in 26m (800V)",
-    img: "https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?auto=format&fit=crop&w=800&q=80",
-    status: "in-stock",
-    statusText: "In Stock: Guangzhou",
-  },
-  {
-    brand: "GAC Aion",
-    name: "LX Plus",
-    fob: "$36,800",
-    battery: "144.4 kWh",
-    batteryType: "Sponge Si",
-    range: "1,008 km",
-    charging: "30-80% in 30m (800V)",
-    img: "https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&w=800&q=80",
-    status: "factory",
-    statusText: "Factory Order: 21 Days",
-  },
-  {
-    brand: "Voyah",
-    name: "Free DNA",
-    fob: "$39,500",
-    battery: "106.7 kWh",
-    batteryType: "NCM",
-    range: "730 km",
-    charging: "30-80% in 22m (800V)",
-    img: "https://images.unsplash.com/photo-1542282088-72c9c27ed0cd?auto=format&fit=crop&w=800&q=80",
-    status: "in-stock",
-    statusText: "In Stock: Wuhan",
-  },
-];
-
-const specLabels: Record<string, string> = {
-  "76.9 kWh": "Battery",
-  "100 kWh": "Battery",
-  "86.2 kWh": "Battery",
-  "44.5 kWh EREV": "Battery",
-  "120 kWh": "Battery",
-  "82.5 kWh": "Battery",
-  "144.4 kWh": "Battery",
-  "106.7 kWh": "Battery",
-  "610 km": "Range (CLTC)",
-  "650 km": "Range (CLTC)",
-  "702 km": "Range (CLTC)",
-  "1,315 km (Ext)": "Range (Extended)",
-  "1,000 km (Semi-Solid)": "Range (CLTC)",
-  "510 km": "Range (CLTC)",
-  "730 km": "Range (CLTC)",
-  "1,008 km": "Range (CLTC)",
-  "30-80% in 25m (800V)": "Charging",
-  "30-80% in 15m (800V)": "Charging",
-  "30-80% in 28m (800V)": "Charging",
-  "30-80% in 30m": "Charging",
-  "Swap in 3 min": "Battery Swap",
-  "VIP Diplomatic Grade": "Grade",
-  "30-80% in 26m (800V)": "Charging",
-  "30-80% in 30m (800V)": "Charging",
-  "30-80% in 22m (800V)": "Charging",
-};
 
 function generatePageNumbers(current: number, total: number): (number | "ellipsis")[] {
   if (total <= 7) {
@@ -173,23 +35,99 @@ function generatePageNumbers(current: number, total: number): (number | "ellipsi
   return pages;
 }
 
+function parsePriceLow(fob: string): number {
+  const match = fob.match(/¥([0-9,]+)/);
+  if (!match) return Infinity;
+  return parseInt(match[1].replace(/,/g, ""), 10);
+}
+
+function parseRangeNum(range: string): number {
+  const match = range.match(/([0-9,]+)\s*km/);
+  if (!match) return 0;
+  return parseInt(match[1].replace(/,/g, ""), 10);
+}
+
 export default function EliteFlagshipPage() {
   const [currentPage, setCurrentPage] = useState(1);
+  const [sortBy, setSortBy] = useState<"price_low" | "price_high" | "range_high" | "range_low">("price_low");
+  const [search, setSearch] = useState("");
+  const [activeFilters, setActiveFilters] = useState<Record<string, Set<string>>>({});
 
-  const totalPages = Math.ceil(vehicles.length / ITEMS_PER_PAGE);
+  const handleFilterToggle = useCallback((group: string, label: string) => {
+    setActiveFilters(prev => {
+      const next = { ...prev };
+      const existing = prev[group];
+      const nextSet = new Set(existing || []);
+      if (nextSet.has(label)) {
+        nextSet.delete(label);
+        if (nextSet.size === 0) delete next[group];
+        else next[group] = nextSet;
+      } else {
+        next[group] = new Set([...nextSet, label]);
+      }
+      return next;
+    });
+    setCurrentPage(1);
+  }, []);
+
+  const sortedVehicles = useMemo(() => {
+    const sorted = [...vehicles];
+    switch (sortBy) {
+      case "price_low":
+        sorted.sort((a, b) => parsePriceLow(a.fob) - parsePriceLow(b.fob));
+        break;
+      case "price_high":
+        sorted.sort((a, b) => parsePriceLow(b.fob) - parsePriceLow(a.fob));
+        break;
+      case "range_high":
+        sorted.sort((a, b) => parseRangeNum(b.range) - parseRangeNum(a.range));
+        break;
+      case "range_low":
+        sorted.sort((a, b) => parseRangeNum(a.range) - parseRangeNum(b.range));
+        break;
+    }
+    return sorted;
+  }, [sortBy]);
+
+  const filteredVehicles = useMemo(() => {
+    let result = sortedVehicles;
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      result = result.filter(v =>
+        v.brand.toLowerCase().includes(q) ||
+        v.name.toLowerCase().includes(q)
+      );
+    }
+    const groups = Object.keys(activeFilters);
+    if (groups.length === 0) return result;
+    return result.filter(v =>
+      groups.every(group => {
+        const checked = activeFilters[group];
+        if (!checked || checked.size === 0) return true;
+        return v.tags.some(tag => checked.has(tag));
+      })
+    );
+  }, [sortedVehicles, search, activeFilters]);
+
+  const handleSortChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSortBy(e.target.value as typeof sortBy);
+    setCurrentPage(1);
+  }, []);
+
+  const totalPages = Math.max(1, Math.ceil(filteredVehicles.length / ITEMS_PER_PAGE));
 
   const pageVehicles = useMemo(() => {
     const start = (currentPage - 1) * ITEMS_PER_PAGE;
-    return vehicles.slice(start, start + ITEMS_PER_PAGE);
-  }, [currentPage]);
+    return filteredVehicles.slice(start, start + ITEMS_PER_PAGE);
+  }, [currentPage, filteredVehicles]);
 
   const pageNumbers = useMemo(
     () => generatePageNumbers(currentPage, totalPages),
     [currentPage, totalPages]
   );
 
-  const showingStart = (currentPage - 1) * ITEMS_PER_PAGE + 1;
-  const showingEnd = Math.min(currentPage * ITEMS_PER_PAGE, vehicles.length);
+  const showingStart = filteredVehicles.length === 0 ? 0 : (currentPage - 1) * ITEMS_PER_PAGE + 1;
+  const showingEnd = Math.min(currentPage * ITEMS_PER_PAGE, filteredVehicles.length);
 
   return (
     <>
@@ -255,6 +193,8 @@ export default function EliteFlagshipPage() {
                   <input
                     type="text"
                     placeholder="Search models..."
+                    value={search}
+                    onChange={(e) => { setSearch(e.target.value); setCurrentPage(1); }}
                     className="w-full bg-black/40 border border-white/10 rounded-xl px-5 py-4 text-sm text-white focus:border-gold outline-none transition-colors"
                   />
                   <svg
@@ -270,38 +210,38 @@ export default function EliteFlagshipPage() {
                 </div>
 
                 <FilterGroup title="Body Style">
-                  <FilterCheckbox label="Executive Sedan" defaultChecked />
-                  <FilterCheckbox label="Premium SUV" defaultChecked />
-                  <FilterCheckbox label="Diplomatic MPV" />
+                  <FilterCheckbox label="Executive Sedan" checked={activeFilters["Body Style"]?.has("Executive Sedan") || false} onChange={() => handleFilterToggle("Body Style", "Executive Sedan")} />
+                  <FilterCheckbox label="Premium SUV" checked={activeFilters["Body Style"]?.has("Premium SUV") || false} onChange={() => handleFilterToggle("Body Style", "Premium SUV")} />
+                  <FilterCheckbox label="Diplomatic MPV" checked={activeFilters["Body Style"]?.has("Diplomatic MPV") || false} onChange={() => handleFilterToggle("Body Style", "Diplomatic MPV")} />
                 </FilterGroup>
 
                 <FilterGroup title="Battery Chemistry">
-                  <FilterCheckbox label="LFP Blade (BYD)" />
-                  <FilterCheckbox label="NCM (Ternary Lithium)" defaultChecked />
-                  <FilterCheckbox label="Semi-Solid State" />
+                  <FilterCheckbox label="LFP Blade (BYD)" checked={activeFilters["Battery Chemistry"]?.has("LFP Blade (BYD)") || false} onChange={() => handleFilterToggle("Battery Chemistry", "LFP Blade (BYD)")} />
+                  <FilterCheckbox label="NCM (Ternary Lithium)" checked={activeFilters["Battery Chemistry"]?.has("NCM (Ternary Lithium)") || false} onChange={() => handleFilterToggle("Battery Chemistry", "NCM (Ternary Lithium)")} />
+                  <FilterCheckbox label="Semi-Solid State" checked={activeFilters["Battery Chemistry"]?.has("Semi-Solid State") || false} onChange={() => handleFilterToggle("Battery Chemistry", "Semi-Solid State")} />
                 </FilterGroup>
 
                 <FilterGroup title="Range (CLTC)">
-                  <FilterCheckbox label="Under 500 km" />
-                  <FilterCheckbox label="500 km - 700 km" defaultChecked />
-                  <FilterCheckbox label="700 km +" defaultChecked />
+                  <FilterCheckbox label="Under 500 km" checked={activeFilters["Range (CLTC)"]?.has("Under 500 km") || false} onChange={() => handleFilterToggle("Range (CLTC)", "Under 500 km")} />
+                  <FilterCheckbox label="500 km - 700 km" checked={activeFilters["Range (CLTC)"]?.has("500 km - 700 km") || false} onChange={() => handleFilterToggle("Range (CLTC)", "500 km - 700 km")} />
+                  <FilterCheckbox label="700 km +" checked={activeFilters["Range (CLTC)"]?.has("700 km +") || false} onChange={() => handleFilterToggle("Range (CLTC)", "700 km +")} />
                 </FilterGroup>
 
                 <FilterGroup title="Est. FOB Price">
-                  <FilterCheckbox label="$25,000 - $35,000" defaultChecked />
-                  <FilterCheckbox label="$35,000 - $45,000" defaultChecked />
-                  <FilterCheckbox label="Above $45,000" />
+                  <FilterCheckbox label="¥250,000 - ¥350,000" checked={activeFilters["Est. FOB Price"]?.has("¥250,000 - ¥350,000") || false} onChange={() => handleFilterToggle("Est. FOB Price", "¥250,000 - ¥350,000")} />
+                  <FilterCheckbox label="¥350,000 - ¥450,000" checked={activeFilters["Est. FOB Price"]?.has("¥350,000 - ¥450,000") || false} onChange={() => handleFilterToggle("Est. FOB Price", "¥350,000 - ¥450,000")} />
+                  <FilterCheckbox label="Above ¥450,000" checked={activeFilters["Est. FOB Price"]?.has("Above ¥450,000") || false} onChange={() => handleFilterToggle("Est. FOB Price", "Above ¥450,000")} />
                 </FilterGroup>
 
                 <FilterGroup title="Charging Standard">
-                  <FilterCheckbox label="800V Platform" defaultChecked />
-                  <FilterCheckbox label="Battery Swap (NIO)" />
-                  <FilterCheckbox label="EREV (Extended Range)" />
+                  <FilterCheckbox label="800V Platform" checked={activeFilters["Charging Standard"]?.has("800V Platform") || false} onChange={() => handleFilterToggle("Charging Standard", "800V Platform")} />
+                  <FilterCheckbox label="Battery Swap (NIO)" checked={activeFilters["Charging Standard"]?.has("Battery Swap (NIO)") || false} onChange={() => handleFilterToggle("Charging Standard", "Battery Swap (NIO)")} />
+                  <FilterCheckbox label="EREV (Extended Range)" checked={activeFilters["Charging Standard"]?.has("EREV (Extended Range)") || false} onChange={() => handleFilterToggle("Charging Standard", "EREV (Extended Range)")} />
                 </FilterGroup>
 
                 <FilterGroup title="Availability" last>
-                  <FilterCheckbox label="In Stock (Port)" defaultChecked />
-                  <FilterCheckbox label="Factory Order (21+ Days)" />
+                  <FilterCheckbox label="In Stock (Port)" checked={activeFilters["Availability"]?.has("In Stock (Port)") || false} onChange={() => handleFilterToggle("Availability", "In Stock (Port)")} />
+                  <FilterCheckbox label="Factory Order (21+ Days)" checked={activeFilters["Availability"]?.has("Factory Order (21+ Days)") || false} onChange={() => handleFilterToggle("Availability", "Factory Order (21+ Days)")} />
                 </FilterGroup>
               </div>
             </aside>
@@ -309,21 +249,24 @@ export default function EliteFlagshipPage() {
             <div className="lg:col-span-9">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 border-b border-white/5 pb-6">
                 <div className="text-[10px] font-black tracking-widest uppercase text-gray-500">
-                  Showing {showingStart}–{showingEnd} of {vehicles.length} Models
+                  Showing {showingStart}–{showingEnd} of {filteredVehicles.length} Models
                 </div>
                 <div className="flex gap-4 items-center">
                   <span className="text-[10px] font-black uppercase tracking-widest text-gray-600">
                     Sort By:
                   </span>
-                  <select className="bg-transparent border-none text-gold text-[10px] font-black uppercase tracking-widest outline-none cursor-pointer">
-                    <option value="premium" className="bg-bg text-white">
-                      Premium Grade
-                    </option>
+                  <select value={sortBy} onChange={handleSortChange} className="bg-transparent border-none text-gold text-[10px] font-black uppercase tracking-widest outline-none cursor-pointer">
                     <option value="price_low" className="bg-bg text-white">
                       Price: Low to High
                     </option>
-                    <option value="range" className="bg-bg text-white">
+                    <option value="price_high" className="bg-bg text-white">
+                      Price: High to Low
+                    </option>
+                    <option value="range_high" className="bg-bg text-white">
                       Range: High to Low
+                    </option>
+                    <option value="range_low" className="bg-bg text-white">
+                      Range: Low to High
                     </option>
                   </select>
                 </div>
@@ -545,7 +488,7 @@ export default function EliteFlagshipPage() {
               style={{ borderTop: "1px solid rgba(197,160,89,.06)" }}
             >
               <p className="text-[9px] font-black tracking-[.4em] uppercase text-gray-700">
-                © 2026 EVEXPORTWEB Eco Supply Chain. All Rights Reserved.
+                漏 2026 EVEXPORTWEB Eco Supply Chain. All Rights Reserved.
               </p>
               <div className="flex gap-6">
                 <Link
@@ -601,22 +544,23 @@ function FilterGroup({
 
 function FilterCheckbox({
   label,
-  defaultChecked,
+  checked,
+  onChange,
 }: {
   label: string;
-  defaultChecked?: boolean;
+  checked: boolean;
+  onChange: () => void;
 }) {
   return (
     <label className="flex items-center gap-[10px] cursor-pointer mb-2 group">
       <input
         type="checkbox"
         className="hidden peer"
-        defaultChecked={defaultChecked}
+        checked={checked}
+        onChange={onChange}
       />
       <span className="w-4 h-4 border border-white/20 rounded flex items-center justify-center transition-all peer-checked:bg-gold peer-checked:border-gold">
-        <span className="text-black text-[10px] font-black opacity-0 peer-checked:opacity-100 transition-opacity">
-          ✓
-        </span>
+        <span className="text-black text-[10px] font-black opacity-0 peer-checked:opacity-100 transition-opacity">✓</span>
       </span>
       <span className="text-sm text-gray-400 group-hover:text-white transition-colors peer-checked:text-gold peer-checked:font-semibold">
         {label}
@@ -704,7 +648,7 @@ function VehicleCard({
         <div className="mt-6 pt-4 border-t border-white/5 text-[9px] font-black uppercase tracking-widest text-gold flex items-center justify-between">
           <span>View Full Spec Sheet</span>
           <span className="group-hover:translate-x-1 transition-transform">
-            →
+            鈫?
           </span>
         </div>
       </div>
