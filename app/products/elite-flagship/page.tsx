@@ -320,7 +320,7 @@ export default function EliteFlagshipPage() {
                   disabled={currentPage === 1}
                   className="page-btn page-btn-wide disabled:opacity-30 disabled:pointer-events-none"
                 >
-                  鈫?Prev
+                  {"←"} Prev
                 </button>
 
                 {pageNumbers.map((page, idx) =>
@@ -344,7 +344,7 @@ export default function EliteFlagshipPage() {
                   disabled={currentPage === totalPages}
                   className="page-btn page-btn-wide disabled:opacity-30 disabled:pointer-events-none"
                 >
-                  Next 鈫?
+                  Next {"→"}
                 </button>
               </div>
             </div>

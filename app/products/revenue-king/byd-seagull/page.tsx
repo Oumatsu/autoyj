@@ -112,7 +112,7 @@ export default function BydSeagullPage() {
                   <div className="pulse-dot" />
                   <span className="text-[10px] font-black tracking-widest uppercase text-gray-500">Factory Price</span>
                 </div>
-                <Link href="/contact" className="text-[10px] font-black tracking-widest uppercase text-theme hover:text-white transition">
+                <Link href="/solutions/request-quote" className="text-[10px] font-black tracking-widest uppercase text-theme hover:text-white transition">
                   Request Batch Quote →</Link>
               </div>
             </div>
@@ -326,7 +326,7 @@ export default function BydSeagullPage() {
                 <div className="flex justify-between text-xs"><span className="text-gray-600 font-black uppercase tracking-wider">Margin / unit</span><span className="text-theme font-black">$4,500 – $6,500</span></div>
                 <div className="flex justify-between text-xs border-t pt-3" style={{ borderColor: "rgba(255,255,255,.05)" }}><span className="text-gray-400 font-black uppercase tracking-wider">Total gross</span><span className="text-accent font-black">{batch.display}</span></div>
               </div>
-              <p className="text-[9px] text-gray-700 text-center">*Based on typical East Africa retail pricing. <Link href="/contact" className="text-theme hover:text-white transition">Request a detailed quote</Link>.</p>
+              <p className="text-[9px] text-gray-700 text-center">*Based on typical East Africa retail pricing. <Link href="/solutions/request-quote" className="text-theme hover:text-white transition">Request a detailed quote</Link>.</p>
             </div>
           </div>
         </div>

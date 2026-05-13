@@ -140,7 +140,7 @@ export default function VehicleDetail({ data }: { data: DetailData }) {
               <div className="glass rounded-[1.5rem] p-5 text-center border-accent/20"><div className="text-xl font-black italic text-white mb-1">{data.stat3Value}</div><div className="text-[8px] font-black tracking-[.25em] uppercase text-gray-600">{data.stat3Label}</div></div>
               <div className="col-span-3 glass rounded-[1.5rem] px-6 py-4 flex items-center justify-between border-theme/10">
                 <div className="flex items-center gap-2.5"><div className="pulse-dot" /><span className="text-[10px] font-black tracking-widest uppercase text-gray-500">Factory Price</span></div>
-                <Link href="/contact" className="text-[10px] font-black tracking-widest uppercase text-theme hover:text-white transition">Request Batch Quote →</Link>
+                <Link href="/solutions/request-quote" className="text-[10px] font-black tracking-widest uppercase text-theme hover:text-white transition">Request Batch Quote →</Link>
               </div>
             </div>
           </div>
@@ -240,7 +240,7 @@ export default function VehicleDetail({ data }: { data: DetailData }) {
                 <div className="flex justify-between text-xs"><span className="text-gray-600 font-black uppercase tracking-wider">Margin / unit</span><span className="text-theme font-black">{batchMargin.low} – {batchMargin.high}</span></div>
                 <div className="flex justify-between text-xs border-t pt-3" style={{ borderColor: "rgba(255,255,255,.05)" }}><span className="text-gray-400 font-black uppercase tracking-wider">Total gross</span><span className="text-accent font-black">{batch.display}</span></div>
               </div>
-              <p className="text-[9px] text-gray-700 text-center">*Based on typical emerging market retail pricing. <Link href="/contact" className="text-theme hover:text-white transition">Request a detailed quote</Link>.</p>
+             <p className="text-[9px] text-gray-700 text-center">*Based on typical emerging market retail pricing. <Link href="/solutions/request-quote" className="text-theme hover:text-white transition">Request a detailed quote</Link>.</p>
             </div>
           </div>
         </div>

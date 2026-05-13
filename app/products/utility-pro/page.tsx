@@ -320,7 +320,7 @@ export default function UtilityProPage() {
                   disabled={currentPage === 1}
                   className="page-btn page-btn-wide disabled:opacity-30 disabled:pointer-events-none"
                 >
-                  鈫?Prev
+                  {"←"} Prev
                 </button>
 
                 {pageNumbers.map((page, idx) =>
@@ -344,7 +344,7 @@ export default function UtilityProPage() {
                   disabled={currentPage === totalPages}
                   className="page-btn page-btn-wide disabled:opacity-30 disabled:pointer-events-none"
                 >
-                  Next 鈫?                </button>
+                  Next {"→"}</button>
               </div>
             </div>
           </div>

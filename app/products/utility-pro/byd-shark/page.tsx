@@ -4,7 +4,7 @@ const data = {
   vehicle: {
     brand: "BYD",
     name: "Shark",
-    fob: "$55,200 - $59,500 (Overseas)",
+    fob: "$55,200 - $59,500",
     battery: "29.6 kWh",
     batteryType: "LFP (PHEV)",
     range: "840 km (Ext)",
