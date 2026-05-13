@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useMemo, useCallback } from "react";
 import Link from "next/link";
@@ -36,7 +36,7 @@ function generatePageNumbers(current: number, total: number): (number | "ellipsi
 }
 
 function parsePriceLow(fob: string): number {
-  const match = fob.match(/¥([0-9,]+)/);
+  const match = fob.match(/CNY ([0-9,]+)/);
   if (!match) return Infinity;
   return parseInt(match[1].replace(/,/g, ""), 10);
 }
@@ -211,6 +211,13 @@ export default function RevenueKingPage() {
                   </svg>
                 </div>
 
+                <button
+                  onClick={() => { setActiveFilters({}); setSearch(""); setCurrentPage(1); }}
+                  className="w-full text-[9px] font-black uppercase tracking-[0.2em] text-gray-500 hover:text-white transition mb-6 text-left flex items-center gap-2"
+                >
+                  <span className="text-xs">×</span> Clear All Filters
+                </button>
+
                 <FilterGroup title="Body Style">
                   <FilterCheckbox label="Hatchback (Sub-Compact)" checked={activeFilters["Body Style"]?.has("Hatchback (Sub-Compact)") || false} onChange={() => handleFilterToggle("Body Style", "Hatchback (Sub-Compact)")} />
                   <FilterCheckbox label="Compact SUV" checked={activeFilters["Body Style"]?.has("Compact SUV") || false} onChange={() => handleFilterToggle("Body Style", "Compact SUV")} />
@@ -229,9 +236,9 @@ export default function RevenueKingPage() {
                 </FilterGroup>
 
                 <FilterGroup title="Est. FOB Price">
-                  <FilterCheckbox label="Under ¥100,000" checked={activeFilters["Est. FOB Price"]?.has("Under ¥100,000") || false} onChange={() => handleFilterToggle("Est. FOB Price", "Under ¥100,000")} />
-                  <FilterCheckbox label="¥100,000 - ¥150,000" checked={activeFilters["Est. FOB Price"]?.has("¥100,000 - ¥150,000") || false} onChange={() => handleFilterToggle("Est. FOB Price", "¥100,000 - ¥150,000")} />
-                  <FilterCheckbox label="Above ¥150,000" checked={activeFilters["Est. FOB Price"]?.has("Above ¥150,000") || false} onChange={() => handleFilterToggle("Est. FOB Price", "Above ¥150,000")} />
+                  <FilterCheckbox label="Under CNY 100,000" checked={activeFilters["Est. FOB Price"]?.has("Under CNY 100,000") || false} onChange={() => handleFilterToggle("Est. FOB Price", "Under CNY 100,000")} />
+                  <FilterCheckbox label="CNY 100,000 - CNY 150,000" checked={activeFilters["Est. FOB Price"]?.has("CNY 100,000 - CNY 150,000") || false} onChange={() => handleFilterToggle("Est. FOB Price", "CNY 100,000 - CNY 150,000")} />
+                  <FilterCheckbox label="Above CNY 150,000" checked={activeFilters["Est. FOB Price"]?.has("Above CNY 150,000") || false} onChange={() => handleFilterToggle("Est. FOB Price", "Above CNY 150,000")} />
                 </FilterGroup>
 
                 <FilterGroup title="Steering Setup">
@@ -315,7 +322,7 @@ export default function RevenueKingPage() {
                   disabled={currentPage === 1}
                   className="page-btn page-btn-wide disabled:opacity-30 disabled:pointer-events-none"
                 >
-                  ← Prev
+                  鈫?Prev
                 </button>
 
                 {pageNumbers.map((page, idx) =>
@@ -339,8 +346,7 @@ export default function RevenueKingPage() {
                   disabled={currentPage === totalPages}
                   className="page-btn page-btn-wide disabled:opacity-30 disabled:pointer-events-none"
                 >
-                  Next →
-                </button>
+                  Next 鈫?                </button>
               </div>
             </div>
           </div>
@@ -491,7 +497,7 @@ export default function RevenueKingPage() {
               style={{ borderTop: "1px solid rgba(197,160,89,.06)" }}
             >
               <p className="text-[9px] font-black tracking-[.4em] uppercase text-gray-700">
-                漏 2026 EVEXPORTWEB Eco Supply Chain. All Rights Reserved.
+                婕?2026 EVEXPORTWEB Eco Supply Chain. All Rights Reserved.
               </p>
               <div className="flex gap-6">
                 <Link
@@ -656,8 +662,7 @@ function VehicleCard({
         <div className="mt-6 pt-4 border-t border-white/5 text-[9px] font-black uppercase tracking-widest text-gold flex items-center justify-between">
           <span>View Full Spec Sheet</span>
           <span className="group-hover:translate-x-1 transition-transform">
-            →
-          </span>
+            鈫?          </span>
         </div>
       </div>
     </Link>

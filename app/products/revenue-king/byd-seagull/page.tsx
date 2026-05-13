@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useCallback } from "react";
 import Link from "next/link";
@@ -20,26 +20,30 @@ const trimData = [
 ];
 
 const batchLevels = [
-  { units: 10, display: "$45K – $65K" },
-  { units: 20, display: "$90K – $130K" },
-  { units: 50, display: "$225K – $325K" },
-  { units: 100, display: "$450K – $650K" },
+  { units: 10, display: "CNY 315K – CNY 455K" },
+  { units: 20, display: "CNY 630K – CNY 910K" },
+  { units: 50, display: "CNY 1.58M – CNY 2.28M" },
+  { units: 100, display: "CNY 3.15M – CNY 4.55M" },
 ];
 
 export default function BydSeagullPage() {
   const [galIdx, setGalIdx] = useState(0);
+  const [animating, setAnimating] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [batchIdx, setBatchIdx] = useState(0);
 
   const goGallery = useCallback((dir: number) => {
+    if (animating) return;
+    setAnimating(true);
     setGalIdx((prev) => (prev + dir + galleryImages.length) % galleryImages.length);
-  }, []);
+    setTimeout(() => setAnimating(false), 600);
+  }, [animating]);
 
   const openLightbox = useCallback(() => setLightboxOpen(true), []);
   const closeLightbox = useCallback(() => setLightboxOpen(false), []);
-  const goLightbox = useCallback((dir: number) => {
-    setGalIdx((prev) => (prev + dir + galleryImages.length) % galleryImages.length);
-  }, []);
+
+  const prevIdx = (galIdx - 1 + galleryImages.length) % galleryImages.length;
+  const nextIdx = (galIdx + 1) % galleryImages.length;
 
   const batch = batchLevels[batchIdx];
 
@@ -79,15 +83,14 @@ export default function BydSeagullPage() {
               </h1>
               <p className="text-2xl font-light italic text-gray-500 mb-8">海鸥 — 2024 Edition</p>
               <p className="text-gray-300 text-base font-light leading-relaxed mb-10 max-w-lg italic border-l-2 pl-6" style={{ borderColor: "rgba(16,185,129,.45)" }}>
-                The world&apos;s top-selling compact EV. The strongest weapon against the used ICE market — your customers save up to $250 every month.
+                The world&apos;s top-selling compact EV. The strongest weapon against the used ICE market — your customers save up to CNY 1,750 every month.
               </p>
               <div className="flex flex-wrap gap-4">
                 <a href="https://wa.me/your-number" className="btn-primary px-9 py-4 rounded text-xs font-black tracking-widest uppercase italic shadow-lg">
                   WhatsApp Inquiry
                 </a>
                 <Link href="#specs" className="px-9 py-4 rounded text-xs font-black tracking-widest uppercase italic border border-accent/40 text-accent hover:bg-accent hover:text-black transition">
-                  View Full Specs ↓
-                </Link>
+                  View Full Specs ↓</Link>
               </div>
             </div>
 
@@ -97,7 +100,7 @@ export default function BydSeagullPage() {
                 <div className="text-[8px] font-black tracking-[.25em] uppercase text-gray-600">km CLTC Range</div>
               </div>
               <div className="glass rounded-[1.5rem] p-5 text-center border-theme/20">
-                <div className="text-3xl font-black italic text-theme mb-1">$250</div>
+                <div className="text-3xl font-black italic text-theme mb-1">CNY 1,750</div>
                 <div className="text-[8px] font-black tracking-[.25em] uppercase text-gray-600">Max Monthly Saving</div>
               </div>
               <div className="glass rounded-[1.5rem] p-5 text-center border-accent/20">
@@ -110,8 +113,7 @@ export default function BydSeagullPage() {
                   <span className="text-[10px] font-black tracking-widest uppercase text-gray-500">Factory FOB Price</span>
                 </div>
                 <Link href="/contact" className="text-[10px] font-black tracking-widest uppercase text-theme hover:text-white transition">
-                  Request Batch Quote →
-                </Link>
+                  Request Batch Quote →</Link>
               </div>
             </div>
           </div>
@@ -119,39 +121,110 @@ export default function BydSeagullPage() {
       </section>
 
       {/* Photo Gallery */}
-      <section style={{ background: "#000", padding: 0, lineHeight: 0 }}>
-        <div className="relative bg-black overflow-hidden cursor-zoom-in" onClick={openLightbox}>
-          <img
-            src={galleryImages[galIdx].src}
-            className="w-full h-[280px] md:h-[540px] object-cover transition-opacity duration-300"
-            alt={galleryImages[galIdx].label}
-          />
-          <button onClick={(e) => { e.stopPropagation(); goGallery(-1); }} className="absolute top-1/2 -translate-y-1/2 left-4 w-11 h-11 rounded-full bg-black/55 border border-white/10 text-white text-xl flex items-center justify-center hover:bg-gold/85 hover:text-black transition z-5">‹</button>
-          <button onClick={(e) => { e.stopPropagation(); goGallery(1); }} className="absolute top-1/2 -translate-y-1/2 right-4 w-11 h-11 rounded-full bg-black/55 border border-white/10 text-white text-xl flex items-center justify-center hover:bg-gold/85 hover:text-black transition z-5">›</button>
-          <div className="absolute bottom-4 left-4 bg-black/65 border border-accent/30 text-accent text-[9px] font-black tracking-[.3em] uppercase px-3 py-1 rounded-full">{galleryImages[galIdx].cat}</div>
-          <div className="absolute bottom-4 right-4 bg-black/65 text-white/50 text-[10px] font-black tracking-[.2em] px-3 py-1 rounded-full">{galIdx + 1} / {galleryImages.length}</div>
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/55 text-[11px] font-black tracking-[.18em] uppercase pointer-events-none whitespace-nowrap">{galleryImages[galIdx].label}</div>
-        </div>
-        <div className="flex items-center gap-1 overflow-x-auto px-4 py-2.5 bg-black">
-          {galleryImages.map((img, i) => (
-            <div
-              key={i}
-              onClick={() => setGalIdx(i)}
-              className={`flex-shrink-0 w-[100px] h-[66px] rounded-lg overflow-hidden cursor-pointer border-2 transition-all ${i === galIdx ? "opacity-100 border-accent" : "opacity-40 border-transparent hover:opacity-70 hover:-translate-y-0.5"}`}
-            >
-              <img src={img.src} className="w-full h-full object-cover" alt="" />
+      <section className="bg-black py-8 md:py-12">
+        <style>{`
+          @keyframes imgSwitchIn {
+            from { opacity: 0.5; transform: scale(0.96); }
+            to   { opacity: 1;   transform: scale(1);    }
+          }
+          .img-switch-in {
+            animation: imgSwitchIn 500ms cubic-bezier(0.4, 0, 0.2, 1) both;
+          }
+        `}</style>
+        <div className="container mx-auto px-4 md:px-8 max-w-6xl">
+          <div className="relative" style={{ height: "clamp(280px, 50vw, 540px)" }}>
+            <div className="relative h-full rounded-2xl overflow-hidden bg-black">
+
+              {/* Left peek — pinned to left screen edge */}
+              <div
+                className="absolute left-0 top-0 w-[7%] h-full cursor-pointer overflow-hidden"
+                onClick={() => goGallery(-1)}
+              >
+                <img
+                  src={galleryImages[prevIdx].src}
+                  className="w-full h-full object-cover transition-opacity duration-700"
+                  alt={galleryImages[prevIdx].label}
+                  style={{ opacity: 0.4, borderRadius: "0 0.75rem 0.75rem 0" }}
+                />
+                <div className="absolute inset-0 bg-black/35" style={{ borderRadius: "0 0.75rem 0.75rem 0" }} />
+              </div>
+
+              {/* Center image — centered with space on both sides */}
+              <div
+                className="relative mx-auto w-[85%] h-full cursor-zoom-in"
+                onClick={openLightbox}
+                style={{ zIndex: 1 }}
+              >
+                <img
+                  key={`center-img-${galIdx}`}
+                  src={galleryImages[galIdx].src}
+                  className="w-full h-full object-cover rounded-xl img-switch-in"
+                  alt={galleryImages[galIdx].label}
+                />
+                <div className="absolute bottom-4 left-4 bg-black/65 border border-accent/30 text-accent text-[9px] font-black tracking-[.3em] uppercase px-3 py-1 rounded-full z-10">
+                  {galleryImages[galIdx].cat}
+                </div>
+                <div className="absolute bottom-4 right-4 bg-black/65 text-white/50 text-[10px] font-black tracking-[.2em] px-3 py-1 rounded-full z-10">
+                  {galIdx + 1} / {galleryImages.length}
+                </div>
+              </div>
+
+              {/* Right peek — pinned to right screen edge */}
+              <div
+                className="absolute right-0 top-0 w-[7%] h-full cursor-pointer overflow-hidden"
+                onClick={() => goGallery(1)}
+              >
+                <img
+                  src={galleryImages[nextIdx].src}
+                  className="w-full h-full object-cover transition-opacity duration-700"
+                  alt={galleryImages[nextIdx].label}
+                  style={{ opacity: 0.4, borderRadius: "0.75rem 0 0 0.75rem" }}
+                />
+                <div className="absolute inset-0 bg-black/35" style={{ borderRadius: "0.75rem 0 0 0.75rem" }} />
+              </div>
+
             </div>
-          ))}
+
+            {/* Navigation arrows */}
+            <button
+              onClick={(e) => { e.stopPropagation(); goGallery(-1); }}
+              className="absolute top-1/2 -translate-y-1/2 left-3 md:left-5 w-10 h-10 md:w-11 md:h-11 rounded-full bg-black/55 border border-white/10 text-white text-xl flex items-center justify-center hover:bg-gold/85 hover:text-black transition z-20"
+            >
+              &lsaquo;
+            </button>
+            <button
+              onClick={(e) => { e.stopPropagation(); goGallery(1); }}
+              className="absolute top-1/2 -translate-y-1/2 right-3 md:right-5 w-10 h-10 md:w-11 md:h-11 rounded-full bg-black/55 border border-white/10 text-white text-xl flex items-center justify-center hover:bg-gold/85 hover:text-black transition z-20"
+            >
+              &rsaquo;
+            </button>
+
+            {/* Center label */}
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/55 text-[11px] font-black tracking-[.18em] uppercase pointer-events-none whitespace-nowrap z-10">
+              {galleryImages[galIdx].label}
+            </div>
+          </div>
+
+          {/* Dot indicators */}
+          <div className="flex items-center justify-center gap-2 mt-6">
+            {galleryImages.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => { if (i !== galIdx) goGallery(i - galIdx); }}
+                className={`w-2 h-2 rounded-full transition-all ${i === galIdx ? "bg-gold w-5" : "bg-white/20 hover:bg-white/40"}`}
+              />
+            ))}
+          </div>
         </div>
       </section>
 
       {/* Lightbox */}
       {lightboxOpen && (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/95" onClick={closeLightbox}>
-          <button className="absolute top-5 right-6 w-10 h-10 rounded-full bg-white/7 border border-white/15 text-white text-lg flex items-center justify-center hover:bg-white/15 transition z-10" onClick={closeLightbox}>✕</button>
-          <button className="absolute top-1/2 -translate-y-1/2 left-5 w-12 h-12 rounded-full bg-white/5 border border-white/10 text-white text-2xl flex items-center justify-center hover:bg-gold/60 hover:text-black transition" onClick={(e) => { e.stopPropagation(); goLightbox(-1); }}>‹</button>
+          <button className="absolute top-5 right-6 w-10 h-10 rounded-full bg-white/7 border border-white/15 text-white text-lg flex items-center justify-center hover:bg-white/15 transition z-10" onClick={closeLightbox}>&times;</button>
+          <button className="absolute top-1/2 -translate-y-1/2 left-5 w-12 h-12 rounded-full bg-white/5 border border-white/10 text-white text-2xl flex items-center justify-center hover:bg-gold/60 hover:text-black transition" onClick={(e) => { e.stopPropagation(); goGallery(-1); }}>&lsaquo;</button>
           <img src={galleryImages[galIdx].src} className="max-w-[92vw] max-h-[88vh] object-contain rounded-md" alt="" onClick={(e) => e.stopPropagation()} />
-          <button className="absolute top-1/2 -translate-y-1/2 right-5 w-12 h-12 rounded-full bg-white/5 border border-white/10 text-white text-2xl flex items-center justify-center hover:bg-gold/60 hover:text-black transition" onClick={(e) => { e.stopPropagation(); goLightbox(1); }}>›</button>
+          <button className="absolute top-1/2 -translate-y-1/2 right-5 w-12 h-12 rounded-full bg-white/5 border border-white/10 text-white text-2xl flex items-center justify-center hover:bg-gold/60 hover:text-black transition" onClick={(e) => { e.stopPropagation(); goGallery(1); }}>&rsaquo;</button>
           <div className="absolute bottom-5 left-1/2 -translate-x-1/2 text-white/30 text-[11px] font-black tracking-[.2em]">{galIdx + 1} / {galleryImages.length}</div>
         </div>
       )}
@@ -177,7 +250,7 @@ export default function BydSeagullPage() {
             <div className="flex flex-col gap-4">
               {[
                 { icon: "🛡️", title: "Blade Battery Safety", desc: "BYD's proprietary LFP Blade cell design eliminates thermal runaway — the #1 safety concern your customers ask about. Zero fire risk, maximum owner confidence." },
-                { icon: "📱", title: 'Rotating 10.1" Touchscreen', desc: "A premium feature typically seen in $30,000+ cars — now standard in a budget EV. Your showroom's strongest visual closer when customers sit inside." },
+                { icon: "📱", title: 'Rotating 10.1" Touchscreen', desc: "A premium feature typically seen in CNY 210,000+ cars — now standard in a budget EV. Your showroom's strongest visual closer when customers sit inside." },
                 { icon: "✅", title: "1M+ Units Validated", desc: "Over one million Seagulls in daily operation worldwide. The maturity of this platform means lower defect rates, globally available parts, and minimal after-sales headache." },
               ].map((feat, i) => (
                 <div key={i} className="rounded-[2rem] p-7 bg-white/[0.02] border border-accent/10 hover:border-accent/30 transition-colors">
@@ -210,13 +283,13 @@ export default function BydSeagullPage() {
                 Your Margin.<br /><span className="text-theme">Your Market</span>.
               </h2>
               <p className="text-gray-300 text-base font-light leading-relaxed mb-8">
-                Africa&apos;s compact-car buyers are priced out of $25,000+ EVs but hungry to cut fuel bills. The Seagull lands exactly in the gap — an accessible entry price with a maximum cost-saving argument. That gap is your margin.
+                Africa&apos;s compact-car buyers are priced out of CNY 175,000+ EVs but hungry to cut fuel bills. The Seagull lands exactly in the gap — an accessible entry price with a maximum cost-saving argument. That gap is your margin.
               </p>
               <div className="space-y-4 mb-8">
                 {[
                   "Low FOB entry — accessible minimum order quantity",
-                  "Fast inventory turnover — $200/mo saving closes deals quickly",
-                  "Typical 10-unit batch gross: $45,000 – $65,000",
+                  "Fast inventory turnover — CNY 1,400/mo saving closes deals quickly",
+                  "Typical 10-unit batch gross: CNY 315,000 – CNY 455,000",
                 ].map((text, i) => (
                   <div key={i} className="flex items-center gap-3">
                     <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 text-[9px] font-black" style={{ background: "rgba(197,160,89,.15)", color: "var(--color-gold)", border: "1px solid rgba(197,160,89,.3)" }}>{i + 1}</div>
@@ -228,7 +301,7 @@ export default function BydSeagullPage() {
               </div>
               <div className="glass rounded-[1.5rem] p-6 inline-block" style={{ background: "rgba(0,0,0,.4)", borderColor: "rgba(197,160,89,.25)" }}>
                 <div className="text-[9px] font-black tracking-widest uppercase text-gray-600 mb-1">Estimated Gross Margin per Unit</div>
-                <div className="text-4xl font-black italic text-theme">$4,500 – $6,500</div>
+                <div className="text-4xl font-black italic text-theme">CNY 31,500 – CNY 45,500</div>
               </div>
             </div>
             <div className="glass rounded-[2.5rem] p-8 md:p-10" style={{ background: "rgba(0,0,0,.48)" }}>
@@ -258,7 +331,7 @@ export default function BydSeagullPage() {
               </div>
               <div className="space-y-3 mb-5">
                 <div className="flex justify-between text-xs"><span className="text-gray-600 font-black uppercase tracking-wider">Units</span><span className="text-white font-black">{batch.units}</span></div>
-                <div className="flex justify-between text-xs"><span className="text-gray-600 font-black uppercase tracking-wider">Margin / unit</span><span className="text-theme font-black">$4,500 – $6,500</span></div>
+                <div className="flex justify-between text-xs"><span className="text-gray-600 font-black uppercase tracking-wider">Margin / unit</span><span className="text-theme font-black">CNY 31,500 – CNY 45,500</span></div>
                 <div className="flex justify-between text-xs border-t pt-3" style={{ borderColor: "rgba(255,255,255,.05)" }}><span className="text-gray-400 font-black uppercase tracking-wider">Total gross</span><span className="text-accent font-black">{batch.display}</span></div>
               </div>
               <p className="text-[9px] text-gray-700 text-center">*Based on typical East Africa retail pricing. <Link href="/contact" className="text-theme hover:text-white transition">Request a detailed quote</Link>.</p>
@@ -276,7 +349,7 @@ export default function BydSeagullPage() {
           </div>
           <div className="grid md:grid-cols-3 gap-5">
             {[
-              { icon: "🚖", title: "Network Taxi Operator", desc: "High daily mileage makes the fuel saving dramatic. Drivers reduce costs by $200+/mo, improving retention and attracting new recruits to your fleet.", accent: "Best ROI in category", accentColor: "var(--color-green)" },
+              { icon: "🚖", title: "Network Taxi Operator", desc: "High daily mileage makes the fuel saving dramatic. Drivers reduce costs by CNY 1,400+/mo, improving retention and attracting new recruits to your fleet.", accent: "Best ROI in category", accentColor: "var(--color-green)" },
               { icon: "🏙️", title: "Urban Family — 2nd Car", desc: "School runs, market trips, daily commutes under 80km/day. Charges overnight at home from a standard socket. Eliminates petrol spending entirely for weekday use.", accent: "Home charging compatible", accentColor: "var(--color-gold)" },
               { icon: "🏪", title: "Entry-Level Fleet Dealer", desc: "Start with 5–10 units and the lowest possible per-unit risk. The Seagull's 1M+ validation record means minimal warranty claims and easy resale if needed.", accent: "Lowest entry risk", accentColor: "var(--color-green)" },
             ].map((fit, i) => (
@@ -355,7 +428,7 @@ export default function BydSeagullPage() {
           <div className="mb-10">
             <div className="label mb-3">All Versions — Side by Side</div>
             <h2 className="text-2xl font-black uppercase italic tracking-tight text-white">Choose Your Trim</h2>
-            <p className="text-gray-500 text-sm font-light mt-2">6 key decision factors — everything else is identical across all trims.</p>
+            <p className="text-gray-500 text-sm font-light mt-2">6 key decision factors 鈥?everything else is identical across all trims.</p>
           </div>
           <div className="overflow-x-auto pb-2 rounded-[1.5rem] border border-white/10 bg-white/[0.025]">
             <table className="w-full border-collapse min-w-[720px]">
@@ -365,7 +438,7 @@ export default function BydSeagullPage() {
                   {trimData.map((t) => (
                     <th key={t.name} className={`py-3.5 px-3.5 text-[10px] font-black tracking-[.15em] uppercase border-b border-white/[0.07] text-center ${t.rec ? "border-b-2 border-b-accent bg-accent/[0.07] rounded-t-xl text-white" : "text-[#6B7280]"}`}>
                       {t.range}<br /><span className="text-[9px] font-semibold">{t.name}</span>
-                      {t.rec && <span className="block mt-1 text-[8px] font-black tracking-[.12em] bg-accent text-black px-1.5 py-0.5 rounded inline-block">★ RECOMMENDED</span>}
+                      {t.rec && <span className="block mt-1 text-[8px] font-black tracking-[.12em] bg-accent text-black px-1.5 py-0.5 rounded inline-block">鈽?RECOMMENDED</span>}
                     </th>
                   ))}
                 </tr>
@@ -404,8 +477,7 @@ export default function BydSeagullPage() {
               FOB pricing on request — varies by order volume & destination port.
             </p>
             <Link href="/contact" className="btn-primary px-7 py-3 rounded text-xs font-black tracking-widest uppercase italic flex-shrink-0">
-              Request Trim Pricing →
-            </Link>
+              Request Trim Pricing →</Link>
           </div>
         </div>
       </section>
@@ -431,8 +503,7 @@ export default function BydSeagullPage() {
                   <span className="text-[11px] font-light text-gray-300 leading-relaxed">This is an <strong className="text-white font-black">optional purchase</strong>, not included in the base FOB price.</span>
                 </div>
                 <Link href="/solutions/configure-kit" className="btn-outline inline-block px-9 py-4 rounded text-xs font-black tracking-widest uppercase italic">
-                  Ask About Parts Kit →
-                </Link>
+                  Ask About Parts Kit →</Link>
               </div>
               <div className="glass rounded-[2rem] p-8" style={{ background: "rgba(0,0,0,.42)", borderColor: "rgba(197,160,89,.18)" }}>
                 <div className="text-[9px] font-black tracking-widest uppercase text-theme mb-6">Class A Kit — Typical Contents</div>
@@ -462,7 +533,7 @@ export default function BydSeagullPage() {
                 <a href="https://wa.me/your-number" className="btn-primary px-12 py-5 rounded text-sm font-black tracking-widest uppercase italic shadow-lg">WhatsApp Us Now</a>
                 <Link href="/contact" className="px-12 py-5 rounded text-sm font-black tracking-widest uppercase italic border border-accent/40 text-accent hover:bg-accent hover:text-black transition">Send an Enquiry</Link>
               </div>
-              <p className="text-[10px] text-gray-600 mt-8 font-black tracking-widest uppercase">Response within 2 hours · No commitment required</p>
+              <p className="text-[10px] text-gray-600 mt-8 font-black tracking-widest uppercase">Response within 2 hours 路 No commitment required</p>
             </div>
           </div>
         </section>
@@ -475,7 +546,7 @@ export default function BydSeagullPage() {
               {[
                 { name: "BYD Qin PLUS EV", href: "#" },
                 { name: "BYD Dolphin", href: "#" },
-                { name: "GAC Aion RT ★", href: "#" },
+                { name: "GAC Aion RT *", href: "#" },
                 { name: "Geely Galaxy E5", href: "#" },
               ].map((link) => (
                 <Link key={link.name} href={link.href} className="glass px-5 py-2.5 rounded-full text-xs font-black uppercase tracking-wider text-gray-400 hover:text-white transition border-theme/15">
@@ -483,8 +554,7 @@ export default function BydSeagullPage() {
                 </Link>
               ))}
               <Link href="/products/revenue-king" className="px-5 py-2.5 rounded-full text-xs font-black uppercase tracking-wider border border-accent/40 text-accent hover:bg-accent hover:text-black transition">
-                View All 10 Models →
-              </Link>
+                View All 10 Models →              </Link>
             </div>
           </div>
         </section>
