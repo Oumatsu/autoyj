@@ -588,7 +588,7 @@ function VehicleCard({
   ];
 
   return (
-    <div className="v-card-compact group">
+    <Link href={vehicle.link || "#"} className={`v-card-compact group ${!vehicle.link ? "pointer-events-none" : ""}`}>
       <div className="v-card-compact-img-wrap">
         <img
           src={vehicle.img}
@@ -654,11 +654,9 @@ function VehicleCard({
         </div>
         <div className="mt-6 pt-4 border-t border-white/5 text-[9px] font-black uppercase tracking-widest text-gold flex items-center justify-between">
           <span>View Full Spec Sheet</span>
-          <span className="group-hover:translate-x-1 transition-transform">
-            閳?
-          </span>
+          <span className="group-hover:translate-x-1 transition-transform">→</span>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }
