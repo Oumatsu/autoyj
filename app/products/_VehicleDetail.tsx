@@ -130,7 +130,7 @@ export default function VehicleDetail({ data }: { data: DetailData }) {
               <p className="text-2xl font-light italic text-gray-500 mb-8">{data.subtitle}</p>
               <p className="text-gray-300 text-base font-light leading-relaxed mb-10 max-w-lg italic border-l-2 pl-6" style={{ borderColor: "rgba(16,185,129,.45)" }}>{data.heroDesc}</p>
               <div className="flex flex-wrap gap-4">
-                <a href="https://wa.me/your-number" className="btn-primary px-9 py-4 rounded text-xs font-black tracking-widest uppercase italic shadow-lg">WhatsApp Inquiry</a>
+                <a href="https://wa.me/qr/F7M2RQADCE3KN1" className="btn-primary px-9 py-4 rounded text-xs font-black tracking-widest uppercase italic shadow-lg">WhatsApp Inquiry</a>
                 <Link href="#specs" className="px-9 py-4 rounded text-xs font-black tracking-widest uppercase italic border border-accent/40 text-accent hover:bg-accent hover:text-black transition">View Full Specs ↓</Link>
               </div>
             </div>
@@ -321,8 +321,8 @@ export default function VehicleDetail({ data }: { data: DetailData }) {
               <h2 className="sh mb-4" style={{ fontSize: "clamp(2rem,5vw,4rem)" }}>Get Your {v.brand} {v.name}<br /><span className="text-accent">Batch Quote.</span></h2>
               <p className="text-gray-400 text-base font-light italic mb-10 max-w-md mx-auto">Tell us your quantity and destination port. We respond within 2 hours with a transparent factory price.</p>
               <div className="flex flex-wrap justify-center gap-4">
-                <a href="https://wa.me/your-number" className="btn-primary px-12 py-5 rounded text-sm font-black tracking-widest uppercase italic shadow-lg">WhatsApp Us Now</a>
-                <Link href="/contact" className="px-12 py-5 rounded text-sm font-black tracking-widest uppercase italic border border-accent/40 text-accent hover:bg-accent hover:text-black transition">Send an Enquiry</Link>
+                <a href="https://wa.me/qr/F7M2RQADCE3KN1" className="btn-primary px-12 py-5 rounded text-sm font-black tracking-widest uppercase italic shadow-lg">WhatsApp Us Now</a>
+                <a href="mailto:alan@youguard.cn" className="px-12 py-5 rounded text-sm font-black tracking-widest uppercase italic border border-accent/40 text-accent hover:bg-accent hover:text-black transition">Send an Enquiry</a>
               </div>
               <p className="text-[10px] text-gray-600 mt-8 font-black tracking-widest uppercase">Response within 2 hours · No commitment required</p>
             </div>

@@ -1,3 +1,5 @@
+"use client";
+
 export default function ContactPage() {
   return (
     <main className="pt-32 pb-24 relative z-10 min-h-screen flex items-center bg-a">
@@ -22,7 +24,7 @@ export default function ContactPage() {
 
               <div className="space-y-4 mb-16">
                 <a
-                  href="https://wa.me/your-number"
+                  href="https://wa.me/qr/F7M2RQADCE3KN1"
                   className="contact-card group flex items-center gap-4 p-6 rounded-2xl border border-white/5 hover:border-gold transition-all duration-300 hover:translate-x-1"
                   style={{ background: "rgba(255,255,255,0.02)" }}
                 >
@@ -55,7 +57,7 @@ export default function ContactPage() {
                 </a>
 
                 <a
-                  href="mailto:sales@evexportweb.com"
+                  href="mailto:sales@autoyj.com"
                   className="contact-card group flex items-center gap-4 p-6 rounded-2xl border border-white/5 hover:border-gold transition-all duration-300 hover:translate-x-1"
                   style={{ background: "rgba(255,255,255,0.02)" }}
                 >
@@ -79,7 +81,7 @@ export default function ContactPage() {
                       Official Desk
                     </div>
                     <div className="text-white font-bold">
-                      sales@evexportweb.com
+                      sales@autoyj.com
                     </div>
                     <div className="text-xs text-gray-500 font-light mt-1">
                       For official RFQs and L/C inquiries

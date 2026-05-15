@@ -371,10 +371,10 @@ export default function RevenueKingPage() {
                       background: "linear-gradient(135deg,#D4AF37,#C5A059)",
                     }}
                   >
-                    E
+                    A
                   </div>
-                  <span className="text-base font-black tracking-tighter uppercase italic text-white">
-                    Evexport<span className="text-theme">web</span>
+                  <span className="text-base font-black tracking-tighter uppercase italic">
+                    <span className="text-gray-400">auto</span><span className="text-theme">YJ</span>
                   </span>
                 </div>
                 <p className="text-gray-600 text-xs font-light leading-relaxed">
@@ -383,9 +383,6 @@ export default function RevenueKingPage() {
                 </p>
               </div>
               <div>
-                <div className="text-[10px] font-black tracking-widest uppercase mb-5 text-theme">
-                  Vehicles
-                </div>
                 <ul className="space-y-3 text-xs text-gray-600 font-light">
                   <li>
                     <Link
@@ -470,7 +467,7 @@ export default function RevenueKingPage() {
                       href="/insights"
                       className="hover:text-white transition"
                     >
-                      Market Reports
+                      Insights
                     </Link>
                   </li>
                   <li>
@@ -497,7 +494,7 @@ export default function RevenueKingPage() {
               style={{ borderTop: "1px solid rgba(197,160,89,.06)" }}
             >
               <p className="text-[9px] font-black tracking-[.4em] uppercase text-gray-700">
-                婕?2026 EVEXPORTWEB Eco Supply Chain. All Rights Reserved.
+                &copy; 2026 autoYJ Eco Supply Chain. All Rights Reserved.
               </p>
               <div className="flex gap-6">
                 <Link

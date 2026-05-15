@@ -12,7 +12,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Evexportweb — Your Dedicated EV Sourcing Expert for Africa",
+  title: "autoYJ — Your Dedicated EV Sourcing Expert for Africa",
   description:
     "China's premier EV export partner for African dealers. Expert sourcing, transparent PDI, turnkey dealer empowerment.",
 };

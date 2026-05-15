@@ -87,7 +87,7 @@ export function SectionTabs() {
         >
           Heritage
         </button>
-        <a href="https://wa.me/your-number" className="tab-wa">
+        <a href="https://wa.me/qr/F7M2RQADCE3KN1" className="tab-wa">
           <svg
             width="14"
             height="14"

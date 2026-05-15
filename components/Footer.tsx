@@ -50,13 +50,13 @@ export function Footer() {
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <a
-              href="https://wa.me/your-number"
+              href="https://wa.me/qr/F7M2RQADCE3KN1"
               className="btn-primary px-12 py-5 rounded text-sm font-black tracking-widest uppercase italic shadow-lg"
             >
               WhatsApp Us Now
             </a>
             <a
-              href="mailto:hello@evexportweb.com"
+              href="mailto:alan@youguard.cn"
               className="btn-outline px-12 py-5 rounded text-sm font-black tracking-widest uppercase italic"
             >
               Send an Enquiry
@@ -83,11 +83,11 @@ export function Footer() {
                     background: "linear-gradient(135deg,#D4AF37,#C5A059)",
                   }}
                 >
-                  E
+                  A
                 </div>
-                <span className="text-base font-black tracking-tighter uppercase italic text-white">
-                  Evexport<span className="text-theme">web</span>
-                </span>
+                <span className="text-base font-black tracking-tighter uppercase italic">
+                    <span className="text-gray-400">auto</span><span className="text-theme">YJ</span>
+                  </span>
               </div>
               <p className="text-gray-600 text-xs font-light leading-relaxed">
                 China&apos;s trusted EV sourcing partner for African dealers.
@@ -196,13 +196,13 @@ export function Footer() {
               </div>
               <ul className="space-y-3 text-xs text-gray-600 font-light mb-6">
                 <li>
-                  <Link href="#" className="hover:text-white transition">
-                    Market Reports
+                  <Link href="/insights" className="hover:text-white transition">
+                    Insights
                   </Link>
                 </li>
                 <li>
                   <Link
-                    href="#"
+                    href="/academy"
                     className="hover:text-white transition text-accent"
                   >
                     EV Academy
@@ -242,7 +242,7 @@ export function Footer() {
             style={{ borderTop: "1px solid rgba(197,160,89,.06)" }}
           >
             <p className="text-[9px] font-black tracking-[.4em] uppercase text-gray-700">
-              © 2026 EVEXPORTWEB Eco Supply Chain. All Rights Reserved.
+              © 2026 autoYJ Eco Supply Chain. All Rights Reserved.
             </p>
             <div className="flex gap-6">
               <Link

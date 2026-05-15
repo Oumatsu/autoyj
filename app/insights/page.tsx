@@ -54,7 +54,7 @@ export default function InsightsPage() {
                   commercial fleet orders from Chinese OEMs.
                 </p>
                 <div className="meta-text text-[10px] font-semibold text-gray-500 uppercase tracking-wider flex items-center gap-3">
-                  <span>By Evexport Desk</span> <span>•</span>{" "}
+                  <span>By autoYJ Desk</span> <span>•</span>{" "}
                   <span>2 Hours Ago</span>
                 </div>
               </div>
@@ -195,7 +195,7 @@ export default function InsightsPage() {
                     data. Delivered to your WhatsApp.
                   </p>
                   <a
-                    href="https://wa.me/your-number"
+                    href="https://wa.me/qr/F7M2RQADCE3KN1"
                     className="btn-primary w-full py-4 rounded-xl text-xs font-black tracking-widest uppercase italic flex items-center justify-center gap-2"
                   >
                     Join WhatsApp Channel

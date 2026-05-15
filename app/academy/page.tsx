@@ -81,7 +81,7 @@ export default function AcademyPage() {
                 modules: "6 Modules",
                 level: "Advanced",
                 levelCls: "bg-red-500/10 text-red-400 border border-red-500/30",
-                img: "https://images.unsplash.com/photo-1620714223084-8fcacc6df438?auto=format&fit=crop&w=600&q=80",
+                img: "https://6a0327d1fc46b5b25f3480d6.imgix.net/academy/DIY-Battery-Maintenance-Tips-and-Safety-Precautions.jpg",
               },
               {
                 num: "05",
@@ -136,8 +136,8 @@ export default function AcademyPage() {
                   <p className="text-gray-500 text-xs font-light leading-relaxed mb-6">
                     {course.desc}
                   </p>
-                  <div className="flex items-center gap-2 text-[10px] font-black text-theme uppercase tracking-widest">
-                    Enroll Now →
+                  <div className="flex items-center gap-2 text-[10px] font-black text-gray-600 uppercase tracking-widest">
+                    Enroll Now(Not open yet) →
                   </div>
                 </div>
               </div>
@@ -195,7 +195,7 @@ export default function AcademyPage() {
                   Become a Partner
                 </Link>
                 <a
-                  href="https://wa.me/your-number"
+                  href="https://wa.me/qr/F7M2RQADCE3KN1"
                   className="btn-outline px-12 py-5 rounded text-sm font-black tracking-widest uppercase italic"
                 >
                   WhatsApp Inquiry

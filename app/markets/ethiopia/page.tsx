@@ -283,7 +283,7 @@ export default function EthiopiaMarketPage() {
               </p>
               <div className="flex flex-wrap justify-center gap-4">
                 <a
-                  href="https://wa.me/your-number"
+                  href="https://wa.me/qr/F7M2RQADCE3KN1"
                   className="btn-primary px-12 py-5 rounded text-sm font-black tracking-widest uppercase italic shadow-lg"
                 >
                   WhatsApp Priority Desk

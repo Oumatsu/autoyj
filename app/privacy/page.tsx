@@ -113,8 +113,8 @@ export default function PrivacyPage() {
             <p className="text-gray-400 font-light leading-relaxed">
               For any questions about this Privacy Policy or to exercise your
               data rights, please contact us at{" "}
-              <a href="mailto:privacy@evexportweb.com" className="text-theme hover:underline">
-                privacy@evexportweb.com
+              <a href="mailto:privacy@autoyj.com" className="text-theme hover:underline">
+                privacy@autoyj.com
               </a>{" "}
               or via WhatsApp at our business number.
             </p>

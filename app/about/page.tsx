@@ -70,7 +70,7 @@ export default function AboutPage() {
               <p className="text-gray-500 text-lg font-light leading-relaxed mb-12">
                 Headquartered in{" "}
                 <strong>Shanghai, China</strong>—the global epicenter of
-                advanced EV manufacturing and logistics—Evexportweb was forged
+                advanced EV manufacturing and logistics—autoYJ was forged
                 to bridge the gap between Tier-1 automotive factories and the
                 African market&apos;s demand for a reliable, end-to-end green
                 mobility partner.
@@ -310,7 +310,7 @@ export default function AboutPage() {
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               <a
-                href="https://wa.me/your-number"
+                href="https://wa.me/qr/F7M2RQADCE3KN1"
                 className="btn-primary px-12 py-5 rounded text-sm font-black tracking-widest uppercase italic shadow-lg"
               >
                 WhatsApp Us Now

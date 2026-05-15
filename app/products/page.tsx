@@ -82,8 +82,8 @@ export default function ProductsPage() {
                   badgeCls: "bg-gold text-black",
                   saving: "Save $250/mo",
                   tags: ["LFP Blade", "405km Range"],
-                  img: "https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&w=800&q=80",
-                  link: "/products/byd-seagull",
+                  img: "https://6a0327d1fc46b5b25f3480d6.imgix.net/seagull/seagull%20display.png",
+                  link: "/products/revenue-king/byd-seagull",
                 },
                 {
                   name: "GAC Aion RT",
@@ -91,8 +91,8 @@ export default function ProductsPage() {
                   badgeCls: "bg-accent/20 text-accent border border-accent/30",
                   saving: "Save $380/mo",
                   tags: ["LiDAR ADAS", "520km Range"],
-                  img: "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=800&q=80",
-                  link: null,
+                  img: "https://6a0327d1fc46b5b25f3480d6.imgix.net/RT/RT%20display.jpg",
+                  link: "/products/revenue-king/gac-aion-rt",
                 },
                 {
                   name: "BYD Qin PLUS",
@@ -100,8 +100,8 @@ export default function ProductsPage() {
                   badgeCls: "",
                   saving: "Save $350/mo",
                   tags: ["Million-Unit Proof", "510km Range"],
-                  img: "https://6a0327d1fc46b5b25f3480d6.imgix.net/2qin-plus-ev-p.webp",
-                  link: null,
+                  img: "https://6a0327d1fc46b5b25f3480d6.imgix.net/qinplusev/qinplusev%20display.webp",
+                  link: "/products/revenue-king/byd-qin-plus",
                 },
                 {
                   name: "Galaxy E5",
@@ -109,8 +109,8 @@ export default function ProductsPage() {
                   badgeCls: "bg-white/5 text-gray-500 border border-white/10",
                   saving: "Save $220/mo",
                   tags: ["Aegis Battery", "530km Range"],
-                  img: "https://images.unsplash.com/photo-1560958089-b8a1929cea89?auto=format&fit=crop&w=800&q=80",
-                  link: null,
+                  img: "https://6a0327d1fc46b5b25f3480d6.imgix.net/Galaxye5/Galaxye5%20display.jpg",
+                  link: "/products/revenue-king/geely-galaxy-e5",
                 },
               ].map((car, i) => {
                 const CardContent = (
@@ -211,10 +211,13 @@ export default function ProductsPage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
               {/* AITO M9 - Large Card */}
-              <div className="group relative bg-bg3/30 rounded-[3rem] overflow-hidden border border-white/5 hover:border-theme/30 transition-all duration-500 cursor-pointer col-span-1 lg:col-span-2">
+              <Link
+                href="/products/elite-flagship/aito-m9"
+                className="group relative bg-bg3/30 rounded-[3rem] overflow-hidden border border-white/5 hover:border-theme/30 transition-all duration-500 cursor-pointer col-span-1 lg:col-span-2"
+              >
                 <div className="aspect-[21/9] overflow-hidden relative">
                   <img
-                    src="https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=1600&q=80"
+                    src="https://6a0327d1fc46b5b25f3480d6.imgix.net/M9/M9%20display.webp"
                     alt="AITO M9"
                     className="w-full h-full object-cover scale-100 group-hover:scale-105 transition-all duration-700"
                   />
@@ -241,7 +244,7 @@ export default function ProductsPage() {
                     </div>
                   </div>
                 </div>
-              </div>
+              </Link>
 
               {[
                 {
@@ -249,51 +252,60 @@ export default function ProductsPage() {
                   tag: "800V Ultra-Fast Charge",
                   desc: "Extreme handling and range. The fastest charging executive shooting brake in the market.",
                   label: "Tech Icon",
-                  img: "https://images.unsplash.com/photo-1544636331-e26879cd4d9b?auto=format&fit=crop&w=800&q=80",
+                  img: "https://6a0327d1fc46b5b25f3480d6.imgix.net/001/001%20display.png",
+                  link: "/products/elite-flagship/zeekr-001",
                 },
                 {
                   name: "Xiaomi SU7 Ultra",
                   tag: "1500+ Horsepower",
                   desc: "The ultimate social currency for tech-elite buyers. Carbon-fiber aero with peak acceleration.",
                   label: "Performance Icon",
-                  img: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=800&q=80",
+                  img: "https://6a0327d1fc46b5b25f3480d6.imgix.net/SU7ultra/SU7ultra%20display.png",
+                  link: "/products/elite-flagship/xiaomi-su7-ultra",
                 },
-              ].map((car, i) => (
-                <div
-                  key={i}
-                  className="group relative bg-bg3/30 rounded-[2.5rem] overflow-hidden border border-white/5 hover:border-theme/30 transition-all duration-500 cursor-pointer"
-                >
-                  <div className="aspect-[16/10] overflow-hidden relative">
-                    <img
-                      src={car.img}
-                      alt={car.name}
-                      className="w-full h-full object-cover scale-100 group-hover:scale-105 transition-all duration-700"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-bg via-transparent to-transparent opacity-60" />
-                    <div className="absolute bottom-6 left-6 right-6">
-                      <div className="text-[9px] font-black text-theme uppercase tracking-[0.2em] mb-1">
-                        {car.tag}
-                      </div>
-                      <h3 className="text-2xl font-black italic text-white uppercase tracking-tight">
-                        {car.name}
-                      </h3>
-                    </div>
-                  </div>
-                  <div className="p-8">
-                    <p className="text-gray-500 text-xs font-light leading-relaxed mb-6">
-                      {car.desc}
-                    </p>
-                    <div className="flex items-center justify-between pt-6 border-t border-white/5">
-                      <div className="text-[10px] font-black text-theme uppercase tracking-widest">
-                        {car.label}
-                      </div>
-                      <div className="text-[10px] font-black text-gray-600 uppercase">
-                        Details Coming Soon
+              ].map((car, i) => {
+                const CardContent = (
+                  <div className="group relative bg-bg3/30 rounded-[2.5rem] overflow-hidden border border-white/5 hover:border-theme/30 transition-all duration-500 cursor-pointer">
+                    <div className="aspect-[16/10] overflow-hidden relative">
+                      <img
+                        src={car.img}
+                        alt={car.name}
+                        className="w-full h-full object-cover scale-100 group-hover:scale-105 transition-all duration-700"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-bg via-transparent to-transparent opacity-60" />
+                      <div className="absolute bottom-6 left-6 right-6">
+                        <div className="text-[9px] font-black text-theme uppercase tracking-[0.2em] mb-1">
+                          {car.tag}
+                        </div>
+                        <h3 className="text-2xl font-black italic text-white uppercase tracking-tight">
+                          {car.name}
+                        </h3>
                       </div>
                     </div>
+                    <div className="p-8">
+                      <p className="text-gray-500 text-xs font-light leading-relaxed mb-6">
+                        {car.desc}
+                      </p>
+                      <div className="flex items-center justify-between pt-6 border-t border-white/5">
+                        <div className="text-[10px] font-black text-theme uppercase tracking-widest">
+                          {car.label}
+                        </div>
+                        <div className="text-[10px] font-black text-gray-600 uppercase">
+                          View Details →
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+
+                return car.link ? (
+                  <Link key={i} href={car.link}>
+                    {CardContent}
+                  </Link>
+                ) : (
+                  <div key={i}>{CardContent}</div>
+                );
+              })}
             </div>
 
             <div className="flex justify-center">
@@ -342,7 +354,8 @@ export default function ProductsPage() {
                   desc: "PHEV Pickup with DMO off-road platform. 1000km+ total range for the hardest jobs.",
                   label: "Hybrid Power",
                   sub: "Pickup Pro",
-                  img: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=1200&q=80",
+                  img: "https://6a0327d1fc46b5b25f3480d6.imgix.net/shark/shark%20display.png",
+                  link: "/products/utility-pro/byd-shark",
                 },
                 {
                   name: "Radar RD6",
@@ -350,7 +363,8 @@ export default function ProductsPage() {
                   desc: "Pure electric efficiency for urban logistics and farms. 6kW external discharge capacity.",
                   label: "Production Power",
                   sub: "Eco Logistics",
-                  img: "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=1200&q=80",
+                  img: "https://6a0327d1fc46b5b25f3480d6.imgix.net/RD6/RD6%20display.webp",
+                  link: "/products/utility-pro/radar-rd6",
                 },
                 {
                   name: "Super Van",
@@ -358,44 +372,52 @@ export default function ProductsPage() {
                   desc: "The future of city cargo. Steer-by-wire with flat-floor cargo optimization for 11m³+ volume.",
                   label: "Digital Cargo",
                   sub: "Next-Gen Van",
-                  img: "https://6a0327d1fc46b5b25f3480d6.imgix.net/b499683c8d996730819daad124c318ee.jpeg",
+                  img: "https://6a0327d1fc46b5b25f3480d6.imgix.net/supervan/supervan%20display.png",
+                  link: "/products/utility-pro/farizon-super-van",
                 },
-              ].map((car, i) => (
-                <div
-                  key={i}
-                  className="group relative bg-bg3/30 rounded-[2.5rem] overflow-hidden border border-white/5 hover:border-accent/30 transition-all duration-500 cursor-pointer"
-                >
-                  <div className="aspect-[16/9] overflow-hidden relative">
-                    <img
-                      src={car.img}
-                      alt={car.name}
-                      className="w-full h-full object-cover scale-100 group-hover:scale-105 transition-all duration-700"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-bg via-transparent to-transparent opacity-60" />
-                    <div className="absolute bottom-6 left-6 right-6">
-                      <div className="text-[9px] font-black text-accent uppercase tracking-[0.2em] mb-1">
-                        {car.tag}
-                      </div>
-                      <h3 className="text-2xl font-black italic text-white uppercase tracking-tight">
-                        {car.name}
-                      </h3>
-                    </div>
-                  </div>
-                  <div className="p-8">
-                    <p className="text-gray-500 text-xs font-light leading-relaxed mb-6">
-                      {car.desc}
-                    </p>
-                    <div className="flex items-center justify-between pt-6 border-t border-white/5">
-                      <div className="text-[10px] font-black text-accent uppercase tracking-widest">
-                        {car.label}
-                      </div>
-                      <div className="text-[10px] font-black text-gray-600 uppercase italic">
-                        {car.sub}
+              ].map((car, i) => {
+                const CardContent = (
+                  <div className="group relative bg-bg3/30 rounded-[2.5rem] overflow-hidden border border-white/5 hover:border-accent/30 transition-all duration-500 cursor-pointer">
+                    <div className="aspect-[16/9] overflow-hidden relative">
+                      <img
+                        src={car.img}
+                        alt={car.name}
+                        className="w-full h-full object-cover scale-100 group-hover:scale-105 transition-all duration-700"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-bg via-transparent to-transparent opacity-60" />
+                      <div className="absolute bottom-6 left-6 right-6">
+                        <div className="text-[9px] font-black text-accent uppercase tracking-[0.2em] mb-1">
+                          {car.tag}
+                        </div>
+                        <h3 className="text-2xl font-black italic text-white uppercase tracking-tight">
+                          {car.name}
+                        </h3>
                       </div>
                     </div>
+                    <div className="p-8">
+                      <p className="text-gray-500 text-xs font-light leading-relaxed mb-6">
+                        {car.desc}
+                      </p>
+                      <div className="flex items-center justify-between pt-6 border-t border-white/5">
+                        <div className="text-[10px] font-black text-accent uppercase tracking-widest">
+                          {car.label}
+                        </div>
+                        <div className="text-[10px] font-black text-gray-600 uppercase italic">
+                          View Details →
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+
+                return car.link ? (
+                  <Link key={i} href={car.link}>
+                    {CardContent}
+                  </Link>
+                ) : (
+                  <div key={i}>{CardContent}</div>
+                );
+              })}
             </div>
 
             <div className="flex justify-center">
@@ -461,7 +483,7 @@ export default function ProductsPage() {
               </p>
               <div className="flex flex-wrap justify-center gap-4">
                 <a
-                  href="https://wa.me/your-number"
+                  href="https://wa.me/qr/F7M2RQADCE3KN1"
                   className="btn-primary px-12 py-5 rounded text-sm font-black tracking-widest uppercase italic shadow-lg"
                 >
                   WhatsApp Batch Inquiry

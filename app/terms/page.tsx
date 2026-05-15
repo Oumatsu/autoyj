@@ -16,7 +16,7 @@ export default function TermsPage() {
               1. Acceptance of Terms
             </h2>
             <p className="text-gray-400 font-light leading-relaxed">
-              By accessing and using the Evexportweb website and services, you
+              By accessing and using the autoYJ website and services, you
               agree to be bound by these Terms of Service. If you do not agree
               with any part of these terms, you must not use our website or
               services.
@@ -28,7 +28,7 @@ export default function TermsPage() {
               2. Services Description
             </h2>
             <p className="text-gray-400 font-light leading-relaxed">
-              Evexportweb provides electric vehicle sourcing, export logistics,
+              autoYJ provides electric vehicle sourcing, export logistics,
               and dealership support services connecting Chinese OEMs with
               African markets. Our services include but are not limited to:
               vehicle procurement, pre-delivery inspection (PDI), export
@@ -76,7 +76,7 @@ export default function TermsPage() {
               Vehicle lead times vary by model and factory production schedules.
               Typical lead times range from 2-8 weeks from order confirmation to
               port loading. Shipping transit times vary by destination (28-45
-              days for most African ports). Evexportweb provides estimated
+              days for most African ports). autoYJ provides estimated
               timelines in good faith but cannot guarantee exact delivery dates
               due to factors beyond our control including factory delays, port
               congestion, and customs processing.
@@ -91,7 +91,7 @@ export default function TermsPage() {
               All vehicles undergo our 50-point Pre-Delivery Inspection (PDI)
               before port loading. Digital PDI reports and HD loading videos are
               provided to the buyer. Any defects identified during PDI are
-              communicated to the buyer before shipment. Evexportweb acts as a
+              communicated to the buyer before shipment. autoYJ acts as a
               sourcing and logistics agent; vehicle warranties are provided by
               the respective OEMs per their standard terms.
             </p>
@@ -103,9 +103,9 @@ export default function TermsPage() {
             </h2>
             <p className="text-gray-400 font-light leading-relaxed">
               All content on this website including text, graphics, logos,
-              images, and software is the property of Evexportweb or its content
+              images, and software is the property of autoYJ or its content
               suppliers and is protected by international copyright laws. The
-              Evexportweb name, logo, and brand assets are trademarks and may
+              autoYJ name, logo, and brand assets are trademarks and may
               not be used without prior written permission.
             </p>
           </section>
@@ -115,7 +115,7 @@ export default function TermsPage() {
               7. Limitation of Liability
             </h2>
             <p className="text-gray-400 font-light leading-relaxed">
-              Evexportweb shall not be liable for any indirect, incidental,
+              autoYJ shall not be liable for any indirect, incidental,
               special, consequential, or punitive damages resulting from your
               use of our services. Our total liability for any claim arising
               from our services shall not exceed the total fees paid by you for
@@ -128,7 +128,7 @@ export default function TermsPage() {
               8. Force Majeure
             </h2>
             <p className="text-gray-400 font-light leading-relaxed">
-              Evexportweb shall not be liable for any failure or delay in
+              autoYJ shall not be liable for any failure or delay in
               performance due to circumstances beyond our reasonable control,
               including but not limited to: acts of God, war, terrorism, natural
               disasters, pandemics, government actions, port closures, shipping
@@ -166,8 +166,8 @@ export default function TermsPage() {
             </h2>
             <p className="text-gray-400 font-light leading-relaxed">
               For questions about these Terms of Service, please contact us at{" "}
-              <a href="mailto:legal@evexportweb.com" className="text-theme hover:underline">
-                legal@evexportweb.com
+              <a href="mailto:legal@autoyj.com" className="text-theme hover:underline">
+                legal@autoyj.com
               </a>{" "}
               or via our contact page.
             </p>

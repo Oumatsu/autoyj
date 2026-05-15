@@ -53,10 +53,10 @@ export function Navbar() {
             className="w-8 h-8 rounded flex items-center justify-center font-black italic text-black text-base"
             style={{ background: "linear-gradient(135deg,#D4AF37,#C5A059)" }}
           >
-            E
+            A
           </div>
-          <span className="text-lg font-black tracking-tighter uppercase italic text-white">
-            Evexport<span className="text-theme">web</span>
+          <span className="text-lg font-black tracking-tighter uppercase italic">
+            <span className="text-gray-400">auto</span><span className="text-theme">YJ</span>
           </span>
         </Link>
 

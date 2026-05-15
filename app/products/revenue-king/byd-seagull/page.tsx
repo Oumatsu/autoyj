@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useCallback } from "react";
 import Link from "next/link";
@@ -86,7 +86,7 @@ export default function BydSeagullPage() {
                 The world&apos;s top-selling compact EV. The strongest weapon against the used ICE market — your customers save up to $250 every month.
               </p>
               <div className="flex flex-wrap gap-4">
-                <a href="https://wa.me/your-number" className="btn-primary px-9 py-4 rounded text-xs font-black tracking-widest uppercase italic shadow-lg">
+                <a href="https://wa.me/qr/F7M2RQADCE3KN1" className="btn-primary px-9 py-4 rounded text-xs font-black tracking-widest uppercase italic shadow-lg">
                   WhatsApp Inquiry
                 </a>
                 <Link href="#specs" className="px-9 py-4 rounded text-xs font-black tracking-widest uppercase italic border border-accent/40 text-accent hover:bg-accent hover:text-black transition">
@@ -522,8 +522,8 @@ export default function BydSeagullPage() {
               <h2 className="sh mb-4" style={{ fontSize: "clamp(2rem,5vw,4rem)" }}>Get Your BYD Seagull<br /><span className="text-accent">Batch Quote.</span></h2>
               <p className="text-gray-400 text-base font-light italic mb-10 max-w-md mx-auto">Tell us your quantity and destination port. We respond within 2 hours with a transparent factory price.</p>
               <div className="flex flex-wrap justify-center gap-4">
-                <a href="https://wa.me/your-number" className="btn-primary px-12 py-5 rounded text-sm font-black tracking-widest uppercase italic shadow-lg">WhatsApp Us Now</a>
-                <Link href="/contact" className="px-12 py-5 rounded text-sm font-black tracking-widest uppercase italic border border-accent/40 text-accent hover:bg-accent hover:text-black transition">Send an Enquiry</Link>
+                <a href="https://wa.me/qr/F7M2RQADCE3KN1" className="btn-primary px-12 py-5 rounded text-sm font-black tracking-widest uppercase italic shadow-lg">WhatsApp Us Now</a>
+                <a href="mailto:alan@youguard.cn" className="px-12 py-5 rounded text-sm font-black tracking-widest uppercase italic border border-accent/40 text-accent hover:bg-accent hover:text-black transition">Send an Enquiry</a>
               </div>
               <p className="text-[10px] text-gray-600 mt-8 font-black tracking-widest uppercase">Response within 2 hours 路 No commitment required</p>
             </div>
