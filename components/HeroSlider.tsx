@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 
 const slidesData = [
   {
-    img: "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=2000&q=80",
+    img: "https://6a0327d1fc46b5b25f3480d6.imgix.net/hero/title1.png",
     alt: "Expert Buyer",
     label: "Expert Buyer Network",
     h1: 'Your Dedicated<br><span class="text-theme">EV Sourcing</span><br>Expert.',
@@ -20,7 +20,7 @@ const slidesData = [
     cta: "Explore Our Process",
   },
   {
-    img: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=2000&q=80",
+    img: "https://6a0327d1fc46b5b25f3480d6.imgix.net/hero/title3.png",
     alt: "African Roads",
     label: "Built for African Roads",
     h1: 'Selected for<br>Your <span class="text-accent">Eco</span> <span class="text-theme">Profit</span>.',

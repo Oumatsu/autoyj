@@ -7,7 +7,7 @@ export default function AboutPage() {
       <section className="relative min-h-[80vh] flex items-center overflow-hidden">
         <div className="absolute inset-0">
           <img
-            src="https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=2000&q=80"
+            src="https://6a0327d1fc46b5b25f3480d6.imgix.net/hero/title5.png"
             className="w-full h-full object-cover"
             alt="Mission"
           />
