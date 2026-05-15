@@ -37,9 +37,9 @@ body {
 }
 
 .glass {
-  background: rgba(255, 255, 255, 0.09);
-  backdrop-filter: blur(15px);
-  -webkit-backdrop-filter: blur(15px);
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(197, 160, 89, 0.25);
 }
 
