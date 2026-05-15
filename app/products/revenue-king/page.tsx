@@ -49,7 +49,7 @@ function parseRangeNum(range: string): number {
 
 export default function RevenueKingPage() {
   const [currentPage, setCurrentPage] = useState(1);
-  const [sortBy, setSortBy] = useState<"price_low" | "price_high" | "range_high" | "range_low">("price_low");
+  const [sortBy, setSortBy] = useState<"default" | "price_low" | "price_high" | "range_high" | "range_low">("default");
   const [search, setSearch] = useState("");
   const [activeFilters, setActiveFilters] = useState<Record<string, Set<string>>>({});
 
@@ -73,6 +73,8 @@ export default function RevenueKingPage() {
   const sortedVehicles = useMemo(() => {
     const sorted = [...vehicles];
     switch (sortBy) {
+      case "default":
+        break;
       case "price_low":
         sorted.sort((a, b) => parsePriceLow(a.fob) - parsePriceLow(b.fob));
         break;
@@ -264,6 +266,9 @@ export default function RevenueKingPage() {
                     Sort By:
                   </span>
                   <select value={sortBy} onChange={handleSortChange} className="bg-transparent border-none text-gold text-[10px] font-black uppercase tracking-widest outline-none cursor-pointer">
+                    <option value="default" className="bg-bg text-white">
+                      Default Order
+                    </option>
                     <option value="price_low" className="bg-bg text-white">
                       Price: Low to High
                     </option>
@@ -659,7 +664,7 @@ function VehicleCard({
         <div className="mt-6 pt-4 border-t border-white/5 text-[9px] font-black uppercase tracking-widest text-gold flex items-center justify-between">
           <span>View Full Spec Sheet</span>
           <span className="group-hover:translate-x-1 transition-transform">
-            鈫?          </span>
+            →          </span>
         </div>
       </div>
     </Link>

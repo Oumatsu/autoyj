@@ -49,7 +49,7 @@ function parseRangeNum(range: string): number {
 
 export default function UtilityProPage() {
   const [currentPage, setCurrentPage] = useState(1);
-  const [sortBy, setSortBy] = useState<"price_low" | "price_high" | "range_high" | "range_low">("price_low");
+  const [sortBy, setSortBy] = useState<"default" | "price_low" | "price_high" | "range_high" | "range_low">("default");
   const [search, setSearch] = useState("");
   const [activeFilters, setActiveFilters] = useState<Record<string, Set<string>>>({});
 
@@ -73,6 +73,8 @@ export default function UtilityProPage() {
   const sortedVehicles = useMemo(() => {
     const sorted = [...vehicles];
     switch (sortBy) {
+      case "default":
+        break;
       case "price_low":
         sorted.sort((a, b) => parsePriceLow(a.fob) - parsePriceLow(b.fob));
         break;
@@ -263,6 +265,9 @@ export default function UtilityProPage() {
                     Sort By:
                   </span>
                   <select value={sortBy} onChange={handleSortChange} className="bg-transparent border-none text-gold text-[10px] font-black uppercase tracking-widest outline-none cursor-pointer">
+                    <option value="default" className="bg-bg text-white">
+                      Default Order
+                    </option>
                     <option value="price_low" className="bg-bg text-white">
                       Price: Low to High
                     </option>
