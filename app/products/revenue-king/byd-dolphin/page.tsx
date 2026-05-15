@@ -53,5 +53,12 @@ const data = {
     { units: 10, display: "$48K - $60K" }, { units: 20, display: "$96K - $120K" }, { units: 50, display: "$240K - $300K" }, { units: 100, display: "$480K - $600K" },
   ],
   batchMargin: { low: "$4,800", high: "$6,000" },
+  trimData: [
+    { name: "Active", range: "320 km", accel: "10.9 sec", sunroof: "✗ None", airbags: "4", seat: "Fabric", fob: "Lowest" },
+    { name: "Free", range: "420 km", accel: "10.5 sec", sunroof: "✗ None", airbags: "6", seat: "Fabric", fob: "Low" },
+    { name: "Design", range: "420 km", accel: "9.8 sec", sunroof: "○ Optional", airbags: "6", seat: "Leatherette", fob: "Mid ★", rec: true },
+    { name: "Premium", range: "420 km", accel: "9.8 sec", sunroof: "✓ Standard", airbags: "6", seat: "Full Leather", fob: "Premium" },
+  ],
+  trimNote: "* 2025 model year. All trims share: LFP Blade battery · FWD · Heat pump standard · 8-yr battery warranty.<br />Pricing on request — varies by order volume & destination port.",
 };
 export default function Page() { return <VehicleDetail data={data} />; }

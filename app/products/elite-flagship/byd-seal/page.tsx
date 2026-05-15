@@ -52,6 +52,13 @@ const data = {
   batchLevels: [
     { units: 10, display: "$85K - $118K" }, { units: 20, display: "$170K - $236K" }, { units: 50, display: "$425K - $590K" }, { units: 100, display: "$850K - $1.18M" },
   ],
-  batchMargin: { low: "$8,500", high: "$11,800" },
+  batchMargin: { low: "$8,500", high: "$11,000" },
+  trimData: [
+    { name: "Standard", range: "550 km", accel: "5.9 sec", sunroof: "✗ None", airbags: "6", seat: "Leatherette", fob: "Lowest" },
+    { name: "Comfort", range: "700 km", accel: "5.5 sec", sunroof: "✓ Panoramic", airbags: "6", seat: "Nappa Leather", fob: "Low" },
+    { name: "Premium", range: "700 km", accel: "4.2 sec", sunroof: "✓ Panoramic", airbags: "6", seat: "Nappa Leather", fob: "Mid ★", rec: true },
+    { name: "Performance AWD", range: "650 km", accel: "3.8 sec", sunroof: "✓ Panoramic", airbags: "8", seat: "Full Leather", fob: "Premium" },
+  ],
+  trimNote: "* Current model year. All trims share: LFP Blade · 800V · CTB technology · LiDAR · DiPilot 300.<br />Pricing on request — varies by order volume & destination port.",
 };
 export default function Page() { return <VehicleDetail data={data} />; }

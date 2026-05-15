@@ -53,5 +53,12 @@ const data = {
     { units: 10, display: "$19K - $28K" }, { units: 20, display: "$38K - $56K" }, { units: 50, display: "$95K - $140K" }, { units: 100, display: "$190K - $280K" },
   ],
   batchMargin: { low: "$1,900", high: "$2,800" },
+  trimData: [
+    { name: "Standard", range: "155 km", accel: "✗ N/A", sunroof: "✗ None", airbags: "2", seat: "Fabric", fob: "Lowest" },
+    { name: "Comfort", range: "210 km", accel: "✗ N/A", sunroof: "✗ None", airbags: "2", seat: "Fabric", fob: "Low" },
+    { name: "Long Range", range: "301 km", accel: "✗ N/A", sunroof: "✗ None", airbags: "2", seat: "Fabric", fob: "Mid ★", rec: true },
+    { name: "Deluxe", range: "301 km", accel: "✗ N/A", sunroof: "○ Optional", airbags: "2", seat: "Fabric/Leatherette", fob: "Premium" },
+  ],
+  trimNote: "* Current model year. All trims share: LFP battery · FWD · High-strength steel body · 8-yr battery warranty.<br />Pricing on request — varies by order volume & destination port.",
 };
 export default function Page() { return <VehicleDetail data={data} />; }

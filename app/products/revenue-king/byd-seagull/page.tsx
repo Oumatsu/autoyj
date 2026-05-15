@@ -430,7 +430,7 @@ export default function BydSeagullPage() {
                   {trimData.map((t) => (
                     <th key={t.name} className={`py-3.5 px-3.5 text-[10px] font-black tracking-[.15em] uppercase border-b border-white/[0.07] text-center ${t.rec ? "border-b-2 border-b-accent bg-accent/[0.07] rounded-t-xl text-white" : "text-[#6B7280]"}`}>
                       {t.range}<br /><span className="text-[9px] font-semibold">{t.name}</span>
-                      {t.rec && <span className="block mt-1 text-[8px] font-black tracking-[.12em] bg-accent text-black px-1.5 py-0.5 rounded inline-block">鈽?RECOMMENDED</span>}
+                      {t.rec && <span className="block mt-1 text-[8px] font-black tracking-[.12em] bg-accent text-theme px-1.5 py-0.5 rounded inline-block">★ RECOMMENDED</span>}
                     </th>
                   ))}
                 </tr>

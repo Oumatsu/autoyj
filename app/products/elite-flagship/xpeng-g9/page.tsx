@@ -53,5 +53,12 @@ const data = {
     { units: 10, display: "$124K - $170K" }, { units: 20, display: "$248K - $340K" }, { units: 50, display: "$620K - $850K" }, { units: 100, display: "$1.24M - $1.7M" },
   ],
   batchMargin: { low: "$12,400", high: "$17,000" },
+  trimData: [
+    { name: "Standard", range: "570 km", accel: "6.4 sec", sunroof: "✓ Panoramic", airbags: "6", seat: "Leatherette", fob: "Lowest" },
+    { name: "Comfort", range: "702 km", accel: "5.9 sec", sunroof: "✓ Panoramic", airbags: "6", seat: "Nappa Leather", fob: "Low" },
+    { name: "Premium", range: "702 km", accel: "5.5 sec", sunroof: "✓ Panoramic", airbags: "6", seat: "Nappa Leather", fob: "Mid ★", rec: true },
+    { name: "Performance AWD", range: "650 km", accel: "4.8 sec", sunroof: "✓ Panoramic", airbags: "6", seat: "Full Aniline", fob: "Premium" },
+  ],
+  trimNote: "* Current model year. All trims share: 800V · SiC platform · Dynaudio · XNGP smart driving.<br />Pricing on request — varies by order volume & destination port.",
 };
 export default function Page() { return <VehicleDetail data={data} />; }

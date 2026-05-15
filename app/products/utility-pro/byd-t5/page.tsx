@@ -54,5 +54,12 @@ const data = {
     { units: 10, display: "$77K - $82K" }, { units: 20, display: "$154K - $164K" }, { units: 50, display: "$385K - $410K" }, { units: 100, display: "$770K - $820K" },
   ],
   batchMargin: { low: "$7,700", high: "$8,200" },
+  trimData: [
+    { name: "Standard", range: "200 km", accel: "✗ N/A", sunroof: "✗ None", airbags: "2", seat: "Vinyl", fob: "Lowest" },
+    { name: "Comfort", range: "275 km", accel: "✗ N/A", sunroof: "✗ None", airbags: "2", seat: "Vinyl", fob: "Low" },
+    { name: "Long Range", range: "320 km", accel: "✗ N/A", sunroof: "✗ None", airbags: "2", seat: "Fabric", fob: "Mid ★", rec: true },
+    { name: "Refrigerated", range: "250 km", accel: "✗ N/A", sunroof: "✗ None", airbags: "2", seat: "Vinyl", fob: "Premium" },
+  ],
+  trimNote: "* Current model year. All trims share: LFP Blade battery · Reinforced frame · Super fast charge · FWD.<br />Pricing on request — varies by order volume & destination port.",
 };
 export default function Page() { return <VehicleDetail data={data} />; }

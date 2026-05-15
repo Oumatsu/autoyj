@@ -54,5 +54,12 @@ const data = {
     { units: 10, display: "$69K - $127K" }, { units: 20, display: "$138K - $254K" }, { units: 50, display: "$345K - $635K" }, { units: 100, display: "$690K - $1.27M" },
   ],
   batchMargin: { low: "$6,900", high: "$12,700" },
+  trimData: [
+    { name: "Standard", range: "400 km", accel: "8.5 sec", sunroof: "✗ None", airbags: "4", seat: "Fabric", fob: "Lowest" },
+    { name: "Comfort", range: "520 km", accel: "7.2 sec", sunroof: "○ Optional", airbags: "6", seat: "Leatherette", fob: "Low" },
+    { name: "Premium", range: "520 km", accel: "7.2 sec", sunroof: "✓ Panoramic", airbags: "6", seat: "Nappa Leather", fob: "Mid ★", rec: true },
+    { name: "Flagship", range: "480 km", accel: "6.8 sec", sunroof: "✓ Panoramic", airbags: "6", seat: "Full Leather", fob: "Premium" },
+  ],
+  trimNote: "* Current model year. All trims share: LFP battery · 6 kW V2L · SUV-grade comfort · Large frunk.<br />Pricing on request — varies by order volume & destination port.",
 };
 export default function Page() { return <VehicleDetail data={data} />; }

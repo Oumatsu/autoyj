@@ -53,5 +53,12 @@ const data = {
     { units: 10, display: "$80K - $108K" }, { units: 20, display: "$160K - $216K" }, { units: 50, display: "$400K - $540K" }, { units: 100, display: "$800K - $1.08M" },
   ],
   batchMargin: { low: "$8,000", high: "$10,800" },
+  trimData: [
+    { name: "Standard", range: "250 km", accel: "✗ N/A", sunroof: "✗ None", airbags: "2", seat: "Vinyl", fob: "Lowest" },
+    { name: "Comfort", range: "350 km", accel: "✗ N/A", sunroof: "✗ None", airbags: "2", seat: "Vinyl", fob: "Low" },
+    { name: "Long Range", range: "400 km", accel: "✗ N/A", sunroof: "✗ None", airbags: "2", seat: "Fabric", fob: "Mid ★", rec: true },
+    { name: "Refrigerated", range: "350 km", accel: "✗ N/A", sunroof: "✗ None", airbags: "2", seat: "Vinyl", fob: "Premium" },
+  ],
+  trimNote: "* Current model year. All trims share: LFP battery · Modular chassis · e-axle · Remote monitoring · FWD.<br />Pricing on request — varies by order volume & destination port.",
 };
 export default function Page() { return <VehicleDetail data={data} />; }

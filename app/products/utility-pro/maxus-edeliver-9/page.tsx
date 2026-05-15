@@ -54,5 +54,12 @@ const data = {
     { units: 10, display: "$114K - $137K" }, { units: 20, display: "$228K - $274K" }, { units: 50, display: "$570K - $685K" }, { units: 100, display: "$1.14M - $1.37M" },
   ],
   batchMargin: { low: "$11,400", high: "$13,700" },
+  trimData: [
+    { name: "Standard", range: "220 km", accel: "✗ N/A", sunroof: "✗ None", airbags: "2", seat: "Vinyl", fob: "Lowest" },
+    { name: "Comfort", range: "300 km", accel: "✗ N/A", sunroof: "✗ None", airbags: "2", seat: "Vinyl", fob: "Low" },
+    { name: "Long Range", range: "353 km", accel: "✗ N/A", sunroof: "✗ None", airbags: "4", seat: "Fabric", fob: "Mid ★", rec: true },
+    { name: "Crew Cab", range: "300 km", accel: "✗ N/A", sunroof: "✗ None", airbags: "4", seat: "Fabric", fob: "Premium" },
+  ],
+  trimNote: "* Current model year. All trims share: LFP/NCM battery · 11m³ cargo · Top safety rating · FWD.<br />Pricing on request — varies by order volume & destination port.",
 };
 export default function Page() { return <VehicleDetail data={data} />; }

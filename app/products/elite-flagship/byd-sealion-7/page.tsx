@@ -52,6 +52,13 @@ const data = {
   batchLevels: [
     { units: 10, display: "$90K - $114K" }, { units: 20, display: "$180K - $228K" }, { units: 50, display: "$450K - $570K" }, { units: 100, display: "$900K - $1.14M" },
   ],
-  batchMargin: { low: "$9,000", high: "$11,400" },
+  batchMargin: { low: "$8,500", high: "$11,500" },
+  trimData: [
+    { name: "Standard", range: "502 km", accel: "6.8 sec", sunroof: "✗ None", airbags: "6", seat: "Fabric", fob: "Lowest" },
+    { name: "Comfort", range: "610 km", accel: "6.3 sec", sunroof: "○ Panoramic", airbags: "6", seat: "Leatherette", fob: "Low" },
+    { name: "Premium", range: "610 km", accel: "5.8 sec", sunroof: "✓ Panoramic", airbags: "6", seat: "Nappa Leather", fob: "Mid ★", rec: true },
+    { name: "Flagship AWD", range: "550 km", accel: "4.5 sec", sunroof: "✓ Panoramic", airbags: "8", seat: "Full Leather", fob: "Premium" },
+  ],
+  trimNote: "* Current model year. All trims share: e-Platform 3.0 Evo · LFP Blade battery · 800V · Dual-gun fast charge.<br />Pricing on request — varies by order volume & destination port.",
 };
 export default function Page() { return <VehicleDetail data={data} />; }

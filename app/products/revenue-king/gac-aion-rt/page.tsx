@@ -55,5 +55,12 @@ const data = {
     { units: 10, display: "$48K - $78K" }, { units: 20, display: "$96K - $156K" }, { units: 50, display: "$240K - $390K" }, { units: 100, display: "$480K - $780K" },
   ],
   batchMargin: { low: "$4,800", high: "$7,800" },
+  trimData: [
+    { name: "Standard", range: "420 km", accel: "8.2 sec", sunroof: "✗ None", airbags: "4", seat: "Fabric", fob: "Lowest" },
+    { name: "Comfort", range: "520 km", accel: "7.5 sec", sunroof: "○ Optional", airbags: "6", seat: "Leatherette", fob: "Low" },
+    { name: "Smart", range: "520 km", accel: "7.5 sec", sunroof: "✓ Standard", airbags: "6", seat: "Leatherette", fob: "Mid ★", rec: true },
+    { name: "LiDAR", range: "520 km", accel: "6.9 sec", sunroof: "✓ Standard", airbags: "6", seat: "Nappa Leather", fob: "Premium" },
+  ],
+  trimNote: "* 2025 model year. All trims share: LFP battery · FWD · 400V fast charge · 150 kW motor.<br />Pricing on request — varies by order volume & destination port.",
 };
 export default function Page() { return <VehicleDetail data={data} />; }

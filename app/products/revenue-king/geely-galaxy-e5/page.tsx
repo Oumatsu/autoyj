@@ -1,4 +1,4 @@
-﻿import VehicleDetail from "../../_VehicleDetail";
+import VehicleDetail from "../../_VehicleDetail";
 
 const data = {
   vehicle: {
@@ -53,5 +53,12 @@ const data = {
     { units: 10, display: "$50K - $65K" }, { units: 20, display: "$100K - $130K" }, { units: 50, display: "$250K - $325K" }, { units: 100, display: "$500K - $650K" },
   ],
   batchMargin: { low: "$5,000", high: "$6,500" },
+  trimData: [
+    { name: "Standard", range: "440 km", accel: "7.5 sec", sunroof: "✗ None", airbags: "4", seat: "Fabric", fob: "Lowest" },
+    { name: "Comfort", range: "530 km", accel: "6.9 sec", sunroof: "○ Panoramic", airbags: "6", seat: "Fabric", fob: "Low" },
+    { name: "Premium", range: "530 km", accel: "6.9 sec", sunroof: "✓ Panoramic", airbags: "6", seat: "Leatherette", fob: "Mid ★", rec: true },
+    { name: "Flagship", range: "530 km", accel: "6.5 sec", sunroof: "✓ Panoramic", airbags: "6", seat: "Nappa Leather", fob: "Premium" },
+  ],
+  trimNote: "* Current model year. All trims share: Shield LFP battery · FWD · Galaxy OS · 6.5 kW V2L · Dual 5-star safety.<br />Pricing on request — varies by order volume & destination port.",
 };
 export default function Page() { return <VehicleDetail data={data} />; }

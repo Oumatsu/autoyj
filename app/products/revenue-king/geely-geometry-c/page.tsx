@@ -54,5 +54,12 @@ const data = {
     { units: 10, display: "$62K - $75K" }, { units: 20, display: "$124K - $150K" }, { units: 50, display: "$310K - $375K" }, { units: 100, display: "$620K - $750K" },
   ],
   batchMargin: { low: "$6,200", high: "$7,500" },
+  trimData: [
+    { name: "Standard", range: "400 km", accel: "7.8 sec", sunroof: "✗ None", airbags: "4", seat: "Fabric", fob: "Lowest" },
+    { name: "Comfort", range: "550 km", accel: "7.0 sec", sunroof: "○ Panoramic", airbags: "6", seat: "Fabric", fob: "Low" },
+    { name: "Premium", range: "550 km", accel: "7.0 sec", sunroof: "✓ Panoramic", airbags: "6", seat: "Leatherette", fob: "Mid ★", rec: true },
+    { name: "Executive", range: "550 km", accel: "6.5 sec", sunroof: "✓ Panoramic", airbags: "6", seat: "Nappa Leather", fob: "Premium" },
+  ],
+  trimNote: "* Current model year. All trims share: LFP battery · FWD · L2 driving assist · 8-yr battery warranty.<br />Pricing on request — varies by order volume & destination port.",
 };
 export default function Page() { return <VehicleDetail data={data} />; }

@@ -53,6 +53,13 @@ const data = {
   batchLevels: [
     { units: 5, display: "$125K - $125K" }, { units: 10, display: "$250K - $250K" }, { units: 20, display: "$500K - $500K" }, { units: 50, display: "$1.25M - $1.25M" },
   ],
-  batchMargin: { low: "$25,000", high: "$25,000" },
+  batchMargin: { low: "$24,000", high: "$25,500" },
+  trimData: [
+    { name: "Standard", range: "500 km", accel: "3.2 sec", sunroof: "✓ Panoramic", airbags: "6", seat: "Sport Leatherette", fob: "Lowest" },
+    { name: "Comfort", range: "630 km", accel: "2.8 sec", sunroof: "✓ Panoramic", airbags: "6", seat: "Nappa Leather", fob: "Low" },
+    { name: "Ultra", range: "630 km", accel: "1.9 sec", sunroof: "✓ Panoramic", airbags: "6", seat: "Alcantara + Carbon", fob: "Mid ★", rec: true },
+    { name: "Ultimate", range: "520 km", accel: "1.8 sec", sunroof: "✓ Panoramic", airbags: "6", seat: "Full Race Shell", fob: "Premium" },
+  ],
+  trimNote: "* Current model year. All trims share: 800V · Xiaomi HyperOS · Carbon-fibre aero kit · AWD.<br />Pricing on request — varies by order volume & destination port.",
 };
 export default function Page() { return <VehicleDetail data={data} />; }

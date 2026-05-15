@@ -54,5 +54,12 @@ const data = {
     { units: 10, display: "$125K - $155K" }, { units: 20, display: "$250K - $310K" }, { units: 50, display: "$625K - $775K" }, { units: 100, display: "$1.25M - $1.55M" },
   ],
   batchMargin: { low: "$12,500", high: "$15,500" },
+  trimData: [
+    { name: "Standard", range: "550 km", accel: "4.5 sec", sunroof: "✓ Panoramic", airbags: "6", seat: "Leatherette", fob: "Lowest" },
+    { name: "Comfort", range: "675 km", accel: "3.8 sec", sunroof: "✓ Panoramic", airbags: "6", seat: "Nappa Leather", fob: "Low" },
+    { name: "Premium", range: "750 km", accel: "3.5 sec", sunroof: "✓ Panoramic", airbags: "6", seat: "Nappa Leather", fob: "Mid ★", rec: true },
+    { name: "Flagship", range: "580 km", accel: "2.8 sec", sunroof: "✓ Panoramic", airbags: "8", seat: "Full Aniline", fob: "Premium" },
+  ],
+  trimNote: "* Current model year. All trims share: 800V architecture · LiDAR · in-house e-motor · AWD (higher trims).<br />Pricing on request — varies by order volume & destination port.",
 };
 export default function Page() { return <VehicleDetail data={data} />; }

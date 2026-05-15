@@ -53,5 +53,12 @@ const data = {
     { units: 10, display: "$118K - $132K" }, { units: 20, display: "$236K - $264K" }, { units: 50, display: "$590K - $660K" }, { units: 100, display: "$1.18M - $1.32M" },
   ],
   batchMargin: { low: "$11,800", high: "$13,200" },
+  trimData: [
+    { name: "Standard", range: "1,050 km", accel: "6.5 sec", sunroof: "✓ Panoramic", airbags: "6", seat: "Nappa Leather", fob: "Lowest" },
+    { name: "Comfort", range: "1,390 km", accel: "5.9 sec", sunroof: "✓ Panoramic", airbags: "6", seat: "Nappa Leather", fob: "Low" },
+    { name: "Premium", range: "1,390 km", accel: "5.4 sec", sunroof: "✓ Panoramic", airbags: "8", seat: "Semi-Aniline", fob: "Mid ★", rec: true },
+    { name: "Max", range: "1,390 km", accel: "5.4 sec", sunroof: "✓ Panoramic", airbags: "8", seat: "Full Aniline", fob: "Premium" },
+  ],
+  trimNote: "* Current model year. All trims share: LFP EREV · Air suspension · TV + fridge + sofa · AWD.<br />Pricing on request — varies by order volume & destination port.",
 };
 export default function Page() { return <VehicleDetail data={data} />; }

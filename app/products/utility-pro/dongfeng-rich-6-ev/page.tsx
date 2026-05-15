@@ -55,5 +55,12 @@ const data = {
     { units: 10, display: "$69K - $94K" }, { units: 20, display: "$138K - $188K" }, { units: 50, display: "$345K - $470K" }, { units: 100, display: "$690K - $940K" },
   ],
   batchMargin: { low: "$6,900", high: "$9,400" },
+  trimData: [
+    { name: "Standard", range: "260 km", accel: "12.0 sec", sunroof: "✗ None", airbags: "2", seat: "Vinyl", fob: "Lowest" },
+    { name: "Comfort", range: "350 km", accel: "10.5 sec", sunroof: "✗ None", airbags: "2", seat: "Fabric", fob: "Low" },
+    { name: "Premium", range: "350 km", accel: "10.5 sec", sunroof: "✗ None", airbags: "4", seat: "Leatherette", fob: "Mid ★", rec: true },
+    { name: "Flagship AWD", range: "320 km", accel: "9.8 sec", sunroof: "✗ None", airbags: "4", seat: "Leatherette", fob: "Premium" },
+  ],
+  trimNote: "* Current model year. All trims share: Nissan Navara platform · LFP battery · High clearance · FWD/RWD.<br />Pricing on request — varies by order volume & destination port.",
 };
 export default function Page() { return <VehicleDetail data={data} />; }

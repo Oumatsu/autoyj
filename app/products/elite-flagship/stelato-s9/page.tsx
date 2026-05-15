@@ -53,5 +53,12 @@ const data = {
     { units: 10, display: "$190K - $210K" }, { units: 20, display: "$380K - $420K" }, { units: 50, display: "$950K - $1.05M" }, { units: 100, display: "$1.9M - $2.1M" },
   ],
   batchMargin: { low: "$19,000", high: "$21,000" },
+  trimData: [
+    { name: "Standard", range: "600 km", accel: "5.5 sec", sunroof: "✓ Panoramic", airbags: "6", seat: "Nappa Leather", fob: "Lowest" },
+    { name: "Comfort", range: "800 km", accel: "4.9 sec", sunroof: "✓ Panoramic", airbags: "6", seat: "Semi-Aniline", fob: "Low" },
+    { name: "Smart", range: "800 km", accel: "4.3 sec", sunroof: "✓ Panoramic", airbags: "6", seat: "Full Aniline", fob: "Mid ★", rec: true },
+    { name: "Ultimate", range: "720 km", accel: "3.9 sec", sunroof: "✓ Panoramic", airbags: "8", seat: "Full Aniline", fob: "Premium" },
+  ],
+  trimNote: "* Current model year. All trims share: Huawei ADS 3.0 · Zero-gravity rear seats · Privacy screen · AWD.<br />Pricing on request — varies by order volume & destination port.",
 };
 export default function Page() { return <VehicleDetail data={data} />; }

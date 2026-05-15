@@ -25,6 +25,17 @@ interface VehicleFit {
   accent: string;
 }
 
+interface TrimItem {
+  name: string;
+  range: string;
+  accel: string;
+  sunroof: string;
+  airbags: string;
+  seat: string;
+  fob: string;
+  rec?: boolean;
+}
+
 interface DetailData {
   vehicle: {
     brand: string;
@@ -59,6 +70,8 @@ interface DetailData {
   galleryImages?: GalleryImage[];
   batchLevels?: { units: number; display: string }[];
   batchMargin?: { low: string; high: string };
+  trimData?: TrimItem[];
+  trimNote?: string;
 }
 
 const DEFAULT_GALLERY: GalleryImage[] = [
@@ -309,6 +322,71 @@ export default function VehicleDetail({ data }: { data: DetailData }) {
           </div>
         </div>
       </section>
+
+      {/* Trim Comparison */}
+      {data.trimData && data.trimData.length > 0 && (
+        <section className="py-10 md:py-14 bg-a">
+          <div className="container mx-auto px-6 md:px-12">
+            <div className="mb-10">
+              <div className="label mb-3">All Versions — Side by Side</div>
+              <h2 className="text-2xl font-black uppercase italic tracking-tight text-white">Choose Your Trim</h2>
+              <p className="text-gray-500 text-sm font-light mt-2">6 key decision factors — everything else is identical across all trims.</p>
+            </div>
+            <div className="overflow-x-auto pb-2 rounded-[1.5rem] border border-white/10 bg-white/[0.025]">
+              <table className="w-full border-collapse min-w-[720px]">
+                <thead>
+                  <tr>
+                    <th className="py-3.5 px-3.5 text-[10px] font-black tracking-[.15em] uppercase border-b border-white/[0.07] text-left w-[210px] text-[#4B5563]"></th>
+                    {data.trimData.map((t) => (
+                      <th key={t.name} className={`py-3.5 px-3.5 text-[10px] font-black tracking-[.15em] uppercase border-b border-white/[0.07] text-center ${t.rec ? "border-b-2 border-b-accent bg-accent/[0.07] rounded-t-xl text-white" : "text-[#6B7280]"}`}>
+                        {t.range}<br /><span className="text-[9px] font-semibold">{t.name}</span>
+                        {t.rec && <span className="block mt-1 text-[8px] font-black tracking-[.12em] bg-accent text-theme px-1.5 py-0.5 rounded inline-block">★ RECOMMENDED</span>}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { label: "Range (CLTC)", key: "range" as const, diff: true },
+                    { label: "0 – 100 km/h", key: "accel" as const, diff: true },
+                    { label: "Sunroof", key: "sunroof" as const, diff: true },
+                    { label: "Airbags", key: "airbags" as const, diff: true },
+                    { label: "Seat Material", key: "seat" as const, diff: true },
+                    { label: "Price Level", key: "fob" as const, diff: true },
+                  ].map((row) => (
+                    <tr key={row.label} className={row.diff ? "[&>td]:text-[#F3F4F6]" : ""}>
+                      <td className={`py-2.5 px-3.5 text-[10px] font-black tracking-[.08em] uppercase text-left ${row.diff ? "text-accent border-l-2 border-l-accent pl-2.5" : "text-[#6B7280]"}`}>{row.label}</td>
+                      {data.trimData!.map((t, j) => {
+                        const val = t[row.key as keyof TrimItem] as string;
+                        const isRec = t.rec;
+                        const topRange = [...data.trimData!].sort((a, b) => parseInt(b.range) - parseInt(a.range))[0].range;
+                        const isBestRange = row.key === "range" && val === topRange;
+                        return (
+                          <td key={j} className={`py-2.5 px-3.5 text-xs font-bold border-b border-white/[0.04] text-center align-middle ${isRec ? "bg-accent/[0.07]" : ""}`}>
+                            <span style={{ color: isBestRange ? "var(--color-green)" : val === "✗ None" ? "#F87171" : isRec ? "var(--color-green)" : undefined, fontWeight: isBestRange ? 900 : 700 }}>
+                              {val}
+                            </span>
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mt-5">
+              <p className="text-[10px] text-gray-700">
+                {(data.trimNote || `* Current model year. All trims share core platform specifications. Pricing on request — varies by order volume & destination port.`).split('<br />').map((line, i, arr) => (
+                   <span key={i}>{line}{i < arr.length - 1 ? <br /> : null}</span>
+                 ))}
+              </p>
+              <Link href="/contact" className="btn-primary px-7 py-3 rounded text-xs font-black tracking-widest uppercase italic flex-shrink-0">
+                Request Trim Pricing →
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* CTA + Related */}
       <div className="relative overflow-hidden">

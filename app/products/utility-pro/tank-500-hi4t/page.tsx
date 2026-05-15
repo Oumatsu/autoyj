@@ -55,5 +55,12 @@ const data = {
     { units: 10, display: "$158K - $186K" }, { units: 20, display: "$316K - $372K" }, { units: 50, display: "$790K - $930K" }, { units: 100, display: "$1.58M - $1.86M" },
   ],
   batchMargin: { low: "$15,800", high: "$18,600" },
+  trimData: [
+    { name: "Standard", range: "600 km", accel: "7.5 sec", sunroof: "✓ Panoramic", airbags: "6", seat: "Leatherette", fob: "Lowest" },
+    { name: "Comfort", range: "790 km", accel: "6.9 sec", sunroof: "✓ Panoramic", airbags: "6", seat: "Nappa Leather", fob: "Low" },
+    { name: "Premium", range: "790 km", accel: "6.5 sec", sunroof: "✓ Panoramic", airbags: "6", seat: "Semi-Aniline", fob: "Mid ★", rec: true },
+    { name: "Extreme OFF", range: "700 km", accel: "6.2 sec", sunroof: "✓ Panoramic", airbags: "8", seat: "Full Aniline", fob: "Premium" },
+  ],
+  trimNote: "* Current model year. All trims share: PHEV · Mechanical 4WD · Air suspension · Luxury interior · AWD.<br />Pricing on request — varies by order volume & destination port.",
 };
 export default function Page() { return <VehicleDetail data={data} />; }

@@ -53,5 +53,12 @@ const data = {
     { units: 10, display: "$100K - $120K" }, { units: 20, display: "$200K - $240K" }, { units: 50, display: "$500K - $600K" }, { units: 100, display: "$1M - $1.2M" },
   ],
   batchMargin: { low: "$10,000", high: "$12,000" },
+  trimData: [
+    { name: "Standard", range: "650 km", accel: "6.8 sec", sunroof: "✓ Panoramic", airbags: "6", seat: "Nappa Leather", fob: "Lowest" },
+    { name: "Comfort", range: "800 km", accel: "6.2 sec", sunroof: "✓ Panoramic", airbags: "6", seat: "Semi-Aniline", fob: "Low" },
+    { name: "Premium", range: "1,500 km", accel: "5.5 sec", sunroof: "✓ Panoramic", airbags: "6", seat: "Semi-Aniline", fob: "Mid ★", rec: true },
+    { name: "Flagship AWD", range: "1,400 km", accel: "4.8 sec", sunroof: "✓ Panoramic", airbags: "8", seat: "Full Aniline", fob: "Premium" },
+  ],
+  trimNote: "* Current model year. All trims share: LFP battery · Air suspension · Tri-motor AWD · AI cockpit.<br />Pricing on request — varies by order volume & destination port.",
 };
 export default function Page() { return <VehicleDetail data={data} />; }

@@ -53,5 +53,12 @@ const data = {
     { units: 10, display: "$57K - $65K" }, { units: 20, display: "$114K - $130K" }, { units: 50, display: "$285K - $325K" }, { units: 100, display: "$570K - $650K" },
   ],
   batchMargin: { low: "$5,700", high: "$6,500" },
+  trimData: [
+    { name: "Standard", range: "420 km", accel: "8.0 sec", sunroof: "✗ None", airbags: "4", seat: "Fabric", fob: "Lowest" },
+    { name: "Comfort", range: "510 km", accel: "7.3 sec", sunroof: "○ Optional", airbags: "6", seat: "Fabric", fob: "Low" },
+    { name: "Honor", range: "510 km", accel: "7.3 sec", sunroof: "✓ Standard", airbags: "6", seat: "Leatherette", fob: "Mid ★", rec: true },
+    { name: "Flagship", range: "510 km", accel: "7.3 sec", sunroof: "✓ Standard", airbags: "6", seat: "Full Leather", fob: "Premium" },
+  ],
+  trimNote: "* Current model year. All trims share: LFP Blade battery · FWD · 0.21 Cd drag · 8-yr battery warranty.<br />Pricing on request — varies by order volume & destination port.",
 };
 export default function Page() { return <VehicleDetail data={data} />; }
