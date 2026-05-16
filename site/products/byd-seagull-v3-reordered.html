@@ -24,8 +24,10 @@
 
     .glass {
       background: rgba(0,0,0,0.35);
-      backdrop-filter: blur(24px) saturate(1.3);
+      -webkit-backdrop-filter: blur(24px);
+      backdrop-filter: blur(24px);
       -webkit-backdrop-filter: blur(24px) saturate(1.3);
+      backdrop-filter: blur(24px) saturate(1.3);
       border: 1px solid rgba(197,160,89,0.25);
       box-shadow: 0 8px 32px rgba(0,0,0,0.4);
     }
@@ -232,8 +234,8 @@
     }
 
     /* ── Section gradient transitions ── */
-    .bg-a { background: linear-gradient(to bottom, var(--mid) 0%, var(--bg) 15%, var(--bg) 85%, var(--mid) 100%); }
-    .bg-b { background: linear-gradient(to bottom, var(--mid) 0%, var(--bg2) 15%, var(--bg2) 85%, var(--mid) 100%); }
+    .bg-a { background: linear-gradient(to bottom, var(--mid) 0%, var(--bg) 20%, var(--bg) 80%, var(--mid) 100%); }
+    .bg-b { background: linear-gradient(to bottom, var(--mid) 0%, var(--bg2) 20%, var(--bg2) 80%, var(--mid) 100%); }
 
     /* ── Section tab bar ── */
     #section-tabs {
@@ -391,8 +393,8 @@
   <div class="absolute inset-0">
     <img src="https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&w=2000&q=80"
          class="w-full h-full object-cover" style="filter:grayscale(100%) brightness(.95);" alt="BYD Seagull">
-    <div class="absolute inset-0" style="background:linear-gradient(to top, rgba(15,15,15,.95) 10%, rgba(15,15,15,.35) 42%, transparent 100%);"></div>
-    <div class="absolute inset-0" style="background:linear-gradient(to right, rgba(15,15,15,.5) 28%, transparent 75%);"></div>
+    <div class="absolute inset-0" style="background:linear-gradient(to top, var(--bg2) 0%, var(--bg2) 12%, rgba(35,35,35,.55) 32%, transparent 55%);"></div>
+    <div class="absolute inset-0" style="background:linear-gradient(to right, rgba(28,28,28,.5) 28%, transparent 75%);"></div>
   </div>
 
   <!-- Ambient glow -->
@@ -469,10 +471,12 @@
 </section>
 
 
+<div style="height:80px;margin-top:-80px;background:linear-gradient(to bottom,rgba(35,35,35,1) 0%,rgba(0,0,0,1) 100%);position:relative;z-index:5;pointer-events:none;"></div>
+
 <!-- ══════════════════════════════════════
      PHOTO GALLERY
 ══════════════════════════════════════ -->
-<section id="gallery" style="background:#000; padding:0; line-height:0;">
+<section id="gallery" style="background:#000; padding:0; line-height:0;position:relative;z-index:1;">
 
   <!-- Main viewer -->
   <div id="gallery-main-wrap">
@@ -501,6 +505,8 @@
   <div id="lb-counter"></div>
 </div>
 
+
+<div style="height:60px;margin-top:-60px;background:linear-gradient(to bottom,rgba(0,0,0,1) 0%,var(--mid) 100%);position:relative;z-index:5;pointer-events:none;"></div>
 
 <!-- ══════════════════════════════════════
      WHY IT SELLS  [1/6 — solid dark]
@@ -576,7 +582,7 @@
     <img src="https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&w=1600&q=80"
          class="w-full h-full object-cover" style="filter:brightness(.28) grayscale(20%);" alt="">
     <div class="absolute inset-0" style="background:linear-gradient(135deg, rgba(10,10,10,.80) 0%, rgba(10,10,10,.55) 100%);"></div>
-    <div class="absolute inset-0" style="background:linear-gradient(to bottom, rgba(22,22,22,.6) 0%, transparent 30%, transparent 70%, rgba(22,22,22,.7) 100%);"></div>
+    <div class="absolute inset-0" style="background:linear-gradient(to bottom, var(--mid) 0%, transparent 20%, transparent 80%, var(--mid) 100%);"></div>
   </div>
 
   <div class="relative z-10 container mx-auto px-6 md:px-12">
@@ -661,45 +667,6 @@
 
 
 <!-- ══════════════════════════════════════
-     FIT FOR  [3/6 — solid dark]
-══════════════════════════════════════ -->
-<section class="py-12 md:py-16 bg-b">
-  <div class="container mx-auto px-6 md:px-12">
-
-    <div class="text-center mb-12">
-      <div id="fit" class="label justify-center mb-3">Ideal Customer Profile</div>
-      <h2 class="text-2xl font-black uppercase italic tracking-tight text-white">Who Should Buy This Car?</h2>
-    </div>
-
-    <div class="grid md:grid-cols-3 gap-5">
-
-      <div class="fit-card">
-        <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-5 text-lg flex-shrink-0" style="background:rgba(16,185,129,.12);">🚖</div>
-        <h4 class="text-white font-black uppercase tracking-wider text-sm mb-3">Network Taxi Operator</h4>
-        <p class="text-gray-300 text-sm font-light leading-relaxed mb-5">High daily mileage makes the fuel saving dramatic. Drivers reduce costs by $200+/mo, improving retention and attracting new recruits to your fleet.</p>
-        <div class="text-[9px] font-black tracking-widest uppercase text-accent">Best ROI in category</div>
-      </div>
-
-      <div class="fit-card">
-        <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-5 text-lg flex-shrink-0" style="background:rgba(197,160,89,.1);">🏙️</div>
-        <h4 class="text-white font-black uppercase tracking-wider text-sm mb-3">Urban Family — 2nd Car</h4>
-        <p class="text-gray-300 text-sm font-light leading-relaxed mb-5">School runs, market trips, daily commutes under 80km/day. Charges overnight at home from a standard socket. Eliminates petrol spending entirely for weekday use.</p>
-        <div class="text-[9px] font-black tracking-widest uppercase" style="color:var(--gold);">Home charging compatible</div>
-      </div>
-
-      <div class="fit-card">
-        <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-5 text-lg flex-shrink-0" style="background:rgba(16,185,129,.12);">🏪</div>
-        <h4 class="text-white font-black uppercase tracking-wider text-sm mb-3">Entry-Level Fleet Dealer</h4>
-        <p class="text-gray-300 text-sm font-light leading-relaxed mb-5">Start with 5–10 units and the lowest possible per-unit risk. The Seagull's 1M+ validation record means minimal warranty claims and easy resale if needed.</p>
-        <div class="text-[9px] font-black tracking-widest uppercase text-accent">Lowest entry risk</div>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-
-<!-- ══════════════════════════════════════
      SPEC TABLE  [4/6 — image dark]
 ══════════════════════════════════════ -->
 <section class="py-12 md:py-16 relative overflow-hidden" id="specs">
@@ -709,6 +676,7 @@
     <img src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1600&q=80"
          class="w-full h-full object-cover" style="filter:brightness(.35) grayscale(20%);" alt="">
     <div class="absolute inset-0" style="background:rgba(10,10,10,.60);"></div>
+    <div class="absolute inset-0" style="background:linear-gradient(to bottom, var(--mid) 0%, transparent 20%, transparent 80%, var(--mid) 100%);"></div>
   </div>
 
   <div class="relative z-10 container mx-auto px-6 md:px-12">
@@ -931,6 +899,45 @@
 
 
 <!-- ══════════════════════════════════════
+     FIT FOR  [3/6 — solid dark]
+══════════════════════════════════════ -->
+<section class="py-12 md:py-16 bg-b">
+  <div class="container mx-auto px-6 md:px-12">
+
+    <div class="text-center mb-12">
+      <div id="fit" class="label justify-center mb-3">Ideal Customer Profile</div>
+      <h2 class="text-2xl font-black uppercase italic tracking-tight text-white">Who Should Buy This Car?</h2>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-5">
+
+      <div class="fit-card">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-5 text-lg flex-shrink-0" style="background:rgba(16,185,129,.12);">🚖</div>
+        <h4 class="text-white font-black uppercase tracking-wider text-sm mb-3">Network Taxi Operator</h4>
+        <p class="text-gray-300 text-sm font-light leading-relaxed mb-5">High daily mileage makes the fuel saving dramatic. Drivers reduce costs by $200+/mo, improving retention and attracting new recruits to your fleet.</p>
+        <div class="text-[9px] font-black tracking-widest uppercase text-accent">Best ROI in category</div>
+      </div>
+
+      <div class="fit-card">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-5 text-lg flex-shrink-0" style="background:rgba(197,160,89,.1);">🏙️</div>
+        <h4 class="text-white font-black uppercase tracking-wider text-sm mb-3">Urban Family — 2nd Car</h4>
+        <p class="text-gray-300 text-sm font-light leading-relaxed mb-5">School runs, market trips, daily commutes under 80km/day. Charges overnight at home from a standard socket. Eliminates petrol spending entirely for weekday use.</p>
+        <div class="text-[9px] font-black tracking-widest uppercase" style="color:var(--gold);">Home charging compatible</div>
+      </div>
+
+      <div class="fit-card">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-5 text-lg flex-shrink-0" style="background:rgba(16,185,129,.12);">🏪</div>
+        <h4 class="text-white font-black uppercase tracking-wider text-sm mb-3">Entry-Level Fleet Dealer</h4>
+        <p class="text-gray-300 text-sm font-light leading-relaxed mb-5">Start with 5–10 units and the lowest possible per-unit risk. The Seagull's 1M+ validation record means minimal warranty claims and easy resale if needed.</p>
+        <div class="text-[9px] font-black tracking-widest uppercase text-accent">Lowest entry risk</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════
      PARTS KIT + CTA + RELATED  [6/6 — image dark, shared bg]
 ══════════════════════════════════════ -->
 <div class="relative overflow-hidden">
@@ -939,8 +946,9 @@
   <div class="absolute inset-0">
     <img src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=1600&q=80"
          class="w-full h-full object-cover" style="filter:brightness(.28) grayscale(15%);" alt="">
-    <div class="absolute inset-0" style="background:linear-gradient(to bottom, rgba(10,10,10,.55) 0%, rgba(10,10,10,.28) 35%, rgba(10,10,10,.5) 75%, rgba(10,10,10,.88) 100%);"></div>
+    <div class="absolute inset-0" style="background:linear-gradient(to bottom, var(--mid) 0%, transparent 16%, transparent 75%, var(--mid) 100%);"></div>
     <div class="absolute inset-0" style="background:radial-gradient(ellipse 70% 50% at 50% 40%, rgba(197,160,89,.05) 0%, transparent 70%);"></div>
+    <div class="absolute inset-0" style="background:linear-gradient(135deg, rgba(10,10,10,.55) 0%, transparent 50%, rgba(10,10,10,.55) 100%);"></div>
   </div>
 
   <!-- Parts Kit -->
@@ -1000,47 +1008,6 @@
           </div>
         </div>
 
-      </div>
-    </div>
-  </section>
-
-  <!-- CTA -->
-  <section class="py-16 md:py-20 relative z-10" id="inquiry">
-    <div class="container mx-auto px-6 md:px-12">
-      <div class="rounded-[4rem] p-12 md:p-20 text-center" style="background:rgba(0,0,0,.38);border:1px solid rgba(197,160,89,.18);backdrop-filter:blur(24px) saturate(1.3);-webkit-backdrop-filter:blur(24px) saturate(1.3);box-shadow:0 8px 32px rgba(0,0,0,0.4);">
-        <div class="flex justify-center mb-5">
-          <div class="pulse-dot" style="width:10px;height:10px;"></div>
-        </div>
-        <div class="label justify-center mb-5">Ready to Order?</div>
-        <h2 class="sh mb-4" style="font-size:clamp(2rem,5vw,4rem);">
-          Get Your BYD Seagull<br><span class="text-accent">Batch FOB Quote.</span>
-        </h2>
-        <p class="text-gray-400 text-base font-light italic mb-10 max-w-md mx-auto">
-          Tell us your quantity and destination port. We respond within 2 hours with a transparent factory FOB price.
-        </p>
-        <div class="flex flex-wrap justify-center gap-4">
-          <a href="https://wa.me/qr/F7M2RQADCE3KN1" class="btn-primary px-12 py-5 rounded text-sm font-black tracking-widest uppercase italic shadow-lg">
-            WhatsApp Us Now
-          </a>
-          <a href="mailto:alan@youguard.cn" class="btn-green px-12 py-5 rounded text-sm font-black tracking-widest uppercase italic">
-            Send an Enquiry
-          </a>
-        </div>
-        <p class="text-[10px] text-gray-600 mt-8 font-black tracking-widest uppercase">Response within 2 hours · No commitment required</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- Related Vehicles -->
-  <section class="py-8 relative z-10">
-    <div class="container mx-auto px-6 md:px-12">
-      <div class="text-[9px] font-black tracking-widest uppercase text-gray-500 mb-5">Other Revenue King Models</div>
-      <div class="flex flex-wrap gap-3">
-        <a href="byd-qin-plus.html"    class="glass px-5 py-2.5 rounded-full text-xs font-black uppercase tracking-wider text-gray-400 hover:text-white transition glass-sm">BYD Qin PLUS EV</a>
-        <a href="byd-dolphin.html"     class="glass px-5 py-2.5 rounded-full text-xs font-black uppercase tracking-wider text-gray-400 hover:text-white transition glass-sm">BYD Dolphin</a>
-        <a href="gac-aion-rt.html"     class="glass px-5 py-2.5 rounded-full text-xs font-black uppercase tracking-wider text-gray-400 hover:text-white transition glass-sm">GAC Aion RT ★</a>
-        <a href="geely-galaxy-e5.html" class="glass px-5 py-2.5 rounded-full text-xs font-black uppercase tracking-wider text-gray-400 hover:text-white transition glass-sm">Geely Galaxy E5</a>
-        <a href="revenue-king.html"    class="btn-green px-5 py-2.5 rounded-full text-xs font-black uppercase tracking-wider">View All 10 Models →</a>
       </div>
     </div>
   </section>

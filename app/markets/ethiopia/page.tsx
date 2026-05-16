@@ -256,7 +256,7 @@ export default function EthiopiaMarketPage() {
             className="absolute inset-0"
             style={{
               background:
-                "linear-gradient(to bottom, var(--color-bg) 0%, transparent 15%)",
+                "linear-gradient(to bottom, var(--color-bg) 0%, transparent 20%)",
             }}
           />
         </div>

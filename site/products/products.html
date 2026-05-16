@@ -24,14 +24,16 @@
             -webkit-font-smoothing: antialiased; overflow-x: hidden; }
 
     /* ── Background Gradients (The Rhythm of Darkness) ── */
-    .bg-a { background: linear-gradient(to bottom, var(--mid) 0%, var(--bg)  15%, var(--bg)  85%, var(--mid) 100%); }
-    .bg-b { background: linear-gradient(to bottom, var(--mid) 0%, var(--bg2) 15%, var(--bg2) 85%, var(--mid) 100%); }
+    .bg-a { background: linear-gradient(to bottom, var(--mid) 0%, var(--bg)  20%, var(--bg)  80%, var(--mid) 100%); }
+    .bg-b { background: linear-gradient(to bottom, var(--mid) 0%, var(--bg2) 20%, var(--bg2) 80%, var(--mid) 100%); }
 
     /* ── Glass (V3: 0.09 opacity) ── */
     .glass {
       background: rgba(0,0,0,0.35);
-      backdrop-filter: blur(24px) saturate(1.3);
+      -webkit-backdrop-filter: blur(24px);
+      backdrop-filter: blur(24px);
       -webkit-backdrop-filter: blur(24px) saturate(1.3);
+      backdrop-filter: blur(24px) saturate(1.3);
       border: 1px solid rgba(197,160,89,0.25);
       box-shadow: 0 8px 32px rgba(0,0,0,0.4);
     }
@@ -167,7 +169,7 @@
          class="w-full h-full object-cover" style="filter: contrast(1.1);" alt="Curated Selection Background">
     <!-- Simplified thin overlay -->
     <div class="absolute inset-0" style="background: rgba(0, 0, 0, 0.45);"></div>
-    <div class="absolute inset-0" style="background: linear-gradient(to top, var(--bg) 0%, transparent 40%);"></div>
+    <div class="absolute inset-0" style="background: linear-gradient(to top, var(--mid) 0%, var(--mid) 12%, transparent 50%);"></div>
   </div>
 
   <div class="container relative z-10 mx-auto px-6 md:px-12 text-center pt-16">
@@ -225,7 +227,7 @@
         <!-- Card: BYD Seagull -->
         <a href="products/byd-seagull-v3-reordered.html" class="group relative bg-bg3/30 rounded-[2.5rem] overflow-hidden border border-white/5 hover:border-accent/30 transition-all duration-500 block">
           <div class="aspect-[4/5] overflow-hidden relative">
-            <img src="https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&w=800&q=80" alt="BYD Seagull" class="w-full h-full object-cover scale-100 group-hover:scale-110 transition-all duration-700">
+            <img src="https://6a0327d1fc46b5b25f3480d6.imgix.net/seagull%20display-Cut.png" alt="BYD Seagull" class="w-full h-full object-cover scale-100 group-hover:scale-110 transition-all duration-700">
             <div class="absolute inset-0 bg-gradient-to-t from-bg via-transparent to-transparent opacity-60"></div>
             <div class="absolute top-6 left-6 flex flex-col gap-2">
               <span class="text-[8px] font-black px-2.5 py-1.5 rounded-full bg-gold text-black uppercase tracking-wider">Global #1</span>
@@ -512,31 +514,10 @@
     <!-- General darkening layer -->
     <div class="absolute inset-0" style="background: rgba(10,10,10,.45);"></div>
     <!-- Top fade: blends with section above (must be topmost layer) -->
-    <div class="absolute inset-0" style="background: linear-gradient(to bottom, var(--bg) 0%, transparent 15%);"></div>
+    <div class="absolute inset-0" style="background: linear-gradient(to bottom, var(--bg) 0%, transparent 20%);"></div>
   </div>
 
-  <!-- CTA Section -->
-  <section class="py-24 relative z-10">
-    <div class="container mx-auto px-6 md:px-12">
-      <div class="glass rounded-[4rem] p-12 md:p-20 text-center" style="border-color:rgba(197,160,89,.25);">
-        <div class="label justify-center mb-6">Market-Ready Inventory</div>
-        <h2 class="sh mb-6" style="font-size:clamp(2.5rem,6.5vw,5.5rem);">
-          Secure Your <span class="text-accent">Batch</span> FOB<br><span class="text-theme">Pricing</span> Now.
-        </h2>
-        <p class="text-gray-500 text-lg font-light italic mb-10 max-w-lg mx-auto">
-          We respond to all professional batch inquiries with current factory lead times and FOB quotes within 2 hours.
-        </p>
-        <div class="flex flex-wrap justify-center gap-4">
-          <a href="https://wa.me/qr/F7M2RQADCE3KN1" class="btn-primary px-12 py-5 rounded text-sm font-black tracking-widest uppercase italic shadow-lg">
-            WhatsApp Batch Inquiry
-          </a>
-          <a href="contact.html" class="glass px-12 py-5 rounded text-sm font-black tracking-widest uppercase italic text-white hover:bg-white/5 transition">
-            Request Full Catalog PDF
-          </a>
-        </div>
-      </div>
-    </div>
-  </section>
+  <!-- CTA removed to avoid duplication with global footer -->
 
   <!-- Footer Nav -->
   <footer class="relative z-10">

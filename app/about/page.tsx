@@ -19,7 +19,7 @@ export default function AboutPage() {
             className="absolute inset-0"
             style={{
               background:
-                "linear-gradient(to top, var(--color-mid) 10%, rgba(15,15,15,0.5) 45%, transparent 100%)",
+                "linear-gradient(to top, var(--color-mid) 10%, rgba(28,28,28,0.5) 45%, transparent 100%)",
             }}
           />
         </div>

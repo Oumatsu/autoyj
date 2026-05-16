@@ -23,7 +23,7 @@ export default function ProductsPage() {
             className="absolute inset-0"
             style={{
               background:
-                "linear-gradient(to top, var(--color-bg) 0%, transparent 40%)",
+                "linear-gradient(to top, var(--color-mid) 0%, var(--color-mid) 12%, transparent 50%)",
             }}
           />
         </div>
@@ -82,7 +82,7 @@ export default function ProductsPage() {
                   badgeCls: "bg-gold text-black",
                   saving: "Save $250/mo",
                   tags: ["LFP Blade", "405km Range"],
-                  img: "https://6a0327d1fc46b5b25f3480d6.imgix.net/seagull/seagull%20display.png",
+                  img: "https://6a0327d1fc46b5b25f3480d6.imgix.net/seagull%20display-Cut.png",
                   link: "/products/revenue-king/byd-seagull",
                 },
                 {
@@ -438,67 +438,7 @@ export default function ProductsPage() {
         </div>
       </section>
 
-      {/* CTA */}
-      <div className="relative overflow-hidden">
-        <div className="absolute inset-0">
-          <img
-            src="https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=2000&q=80"
-            className="w-full h-full object-cover"
-            style={{ filter: "brightness(.28) grayscale(20%)" }}
-            alt=""
-          />
-          <div
-            className="absolute inset-0"
-            style={{ background: "rgba(10,10,10,.45)" }}
-          />
-          <div
-            className="absolute inset-0"
-            style={{
-              background:
-                "linear-gradient(to bottom, var(--color-bg) 0%, transparent 15%)",
-            }}
-          />
-        </div>
-
-        <section className="py-24 relative z-10">
-          <div className="container mx-auto px-6 md:px-12">
-            <div
-              className="glass rounded-[4rem] p-12 md:p-20 text-center"
-              style={{ borderColor: "rgba(197,160,89,.25)" }}
-            >
-              <div className="label justify-center mb-6">
-                Market-Ready Inventory
-              </div>
-              <h2
-                className="sh mb-6"
-                style={{ fontSize: "clamp(2.5rem,6.5vw,5.5rem)" }}
-              >
-                Secure Your <span className="text-accent">Batch</span> FOB
-                <br />
-                <span className="text-theme">Pricing</span> Now.
-              </h2>
-              <p className="text-gray-500 text-lg font-light italic mb-10 max-w-lg mx-auto">
-                We respond to all professional batch inquiries with current
-                factory lead times and FOB quotes within 2 hours.
-              </p>
-              <div className="flex flex-wrap justify-center gap-4">
-                <a
-                  href="https://wa.me/qr/F7M2RQADCE3KN1"
-                  className="btn-primary px-12 py-5 rounded text-sm font-black tracking-widest uppercase italic shadow-lg"
-                >
-                  WhatsApp Batch Inquiry
-                </a>
-                <Link
-                  href="/contact"
-                  className="glass px-12 py-5 rounded text-sm font-black tracking-widest uppercase italic text-white hover:bg-white/5 transition"
-                >
-                  Request Full Catalog PDF
-                </Link>
-              </div>
-            </div>
-          </div>
-        </section>
-      </div>
+      {/* CTA — removed to avoid duplication with global footer */}
     </>
   );
 }

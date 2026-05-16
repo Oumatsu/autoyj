@@ -116,8 +116,8 @@ export default function VehicleDetail({ data }: { data: DetailData }) {
       <section className="relative min-h-screen flex items-end overflow-hidden bg-bg2">
         <div className="absolute inset-0">
           <img src={v.img} className="w-full h-full object-cover" style={{ filter: "grayscale(100%) brightness(.6)" }} alt={v.name} />
-          <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(15,15,15,.95) 10%, rgba(15,15,15,.35) 42%, transparent 100%)" }} />
-          <div className="absolute inset-0" style={{ background: "linear-gradient(to right, rgba(15,15,15,.5) 28%, transparent 75%)" }} />
+          <div className="absolute inset-0" style={{ background: "linear-gradient(to top, var(--color-bg2) 0%, var(--color-bg2) 12%, rgba(35,35,35,.55) 32%, transparent 55%)" }} />
+          <div className="absolute inset-0" style={{ background: "linear-gradient(to right, rgba(28,28,28,.5) 28%, transparent 75%)" }} />
         </div>
         <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 40% 40% at 70% 40%, rgba(16,185,129,.06) 0%, transparent 70%)" }} />
 
@@ -161,7 +161,8 @@ export default function VehicleDetail({ data }: { data: DetailData }) {
       </section>
 
       {/* Photo Gallery */}
-      <section className="bg-black py-8 md:py-12">
+      <section className="bg-black py-8 md:py-12" style={{ position: "relative" }}>
+        <div style={{ position: "absolute", left: 0, right: 0, height: "80px", top: "-80px", background: "linear-gradient(to bottom, rgba(35,35,35,1) 0%, rgba(0,0,0,1) 100%)", pointerEvents: "none", zIndex: 2 }} />
         <style>{`@keyframes imgSwitchIn { from { opacity: 0.5; transform: scale(0.96); } to { opacity: 1; transform: scale(1); } } .img-switch-in { animation: imgSwitchIn 500ms cubic-bezier(0.4, 0, 0.2, 1) both; }`}</style>
         <div className="container mx-auto px-4 md:px-8 max-w-6xl">
           <div className="relative" style={{ height: "clamp(280px, 50vw, 540px)" }}>
@@ -189,8 +190,11 @@ export default function VehicleDetail({ data }: { data: DetailData }) {
         </div>
       </section>
 
+      {/* Transition: pure black → mid gradient */}
+      <div style={{ height: "80px", background: "linear-gradient(to bottom, #000 0%, var(--color-mid) 100%)", position: "relative", zIndex: 2, pointerEvents: "none", marginTop: "-80px" }} />
+
       {/* Buyer Logic / Key Features */}
-      <section className="py-12 md:py-16 bg-a">
+      <section className="py-12 md:py-16 bg-a" style={{ position: "relative" }}>
         <div className="container mx-auto px-6 md:px-12">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-start">
             <div>
@@ -218,7 +222,7 @@ export default function VehicleDetail({ data }: { data: DetailData }) {
         <div className="absolute inset-0">
           <img src="https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&w=1600&q=80" className="w-full h-full object-cover" style={{ filter: "brightness(.28) grayscale(20%)" }} alt="" />
           <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, rgba(10,10,10,.80) 0%, rgba(10,10,10,.55) 100%)" }} />
-          <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(22,22,22,.6) 0%, transparent 30%, transparent 70%, rgba(22,22,22,.7) 100%)" }} />
+          <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, var(--color-mid) 0%, transparent 20%, transparent 80%, var(--color-mid) 100%)" }} />
         </div>
         <div className="relative z-10 container mx-auto px-6 md:px-12">
           <div className="grid lg:grid-cols-2 gap-14 lg:gap-20 items-center">
@@ -263,6 +267,7 @@ export default function VehicleDetail({ data }: { data: DetailData }) {
         <div className="absolute inset-0">
           <img src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1600&q=80" className="w-full h-full object-cover" style={{ filter: "brightness(.35) grayscale(20%)" }} alt="" />
           <div className="absolute inset-0" style={{ background: "rgba(10,10,10,.60)" }} />
+          <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, var(--color-mid) 0%, transparent 20%, transparent 80%, var(--color-mid) 100%)" }} />
         </div>
         <div className="relative z-10 container mx-auto px-6 md:px-12">
           <div className="flex items-end justify-between mb-10 flex-wrap gap-4">
@@ -302,23 +307,6 @@ export default function VehicleDetail({ data }: { data: DetailData }) {
             </div>
           </div>
           <p className="text-[10px] text-gray-700 mt-5 text-center">Specifications shown for latest model year. Multiple trim levels available — contact us for full trim comparison.</p>
-        </div>
-      </section>
-
-      {/* Fit For */}
-      <section className="py-12 md:py-16 bg-b">
-        <div className="container mx-auto px-6 md:px-12">
-          <div className="text-center mb-12"><div className="label justify-center mb-3">Ideal Customer Profile</div><h2 className="text-2xl font-black uppercase italic tracking-tight text-white">Who Should Buy This Vehicle?</h2></div>
-          <div className="grid md:grid-cols-3 gap-5">
-            {data.fits.map((fit, i) => (
-              <div key={i} className="rounded-[2rem] p-7 bg-white/[0.015] border border-theme/10 hover:border-accent/25 hover:bg-accent/[0.03] transition-all">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-5 text-lg flex-shrink-0" style={i % 2 === 1 ? { background: "rgba(197,160,89,.1)" } : { background: "rgba(16,185,129,.12)" }}>{fit.icon}</div>
-                <h4 className="text-white font-black uppercase tracking-wider text-sm mb-3">{fit.title}</h4>
-                <p className="text-gray-300 text-sm font-light leading-relaxed mb-5">{fit.desc}</p>
-                <div className="text-[9px] font-black tracking-widest uppercase" style={{ color: i % 2 === 1 ? "var(--color-gold)" : "var(--color-green)" }}>{fit.accent}</div>
-              </div>
-            ))}
-          </div>
         </div>
       </section>
 
@@ -387,34 +375,24 @@ export default function VehicleDetail({ data }: { data: DetailData }) {
         </section>
       )}
 
-      {/* CTA + Related */}
-      <div className="relative overflow-hidden">
-        <div className="absolute inset-0"><img src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=1600&q=80" className="w-full h-full object-cover" style={{ filter: "brightness(.28) grayscale(15%)" }} alt="" /><div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(10,10,10,.55) 0%, rgba(10,10,10,.28) 35%, rgba(10,10,10,.5) 75%, rgba(10,10,10,.88) 100%)" }} /></div>
-        <section className="py-16 md:py-20 relative z-10">
-          <div className="container mx-auto px-6 md:px-12">
-            <div className="rounded-[4rem] p-12 md:p-20 text-center" style={{ background: "rgba(0,0,0,.38)", border: "1px solid rgba(197,160,89,.18)", backdropFilter: "blur(24px) saturate(1.3)", WebkitBackdropFilter: "blur(24px) saturate(1.3)", boxShadow: "0 8px 32px rgba(0,0,0,0.4)" }}>
-              <div className="flex justify-center mb-5"><div className="pulse-dot w-2.5 h-2.5" /></div>
-              <div className="label justify-center mb-5">Ready to Order?</div>
-              <h2 className="sh mb-4" style={{ fontSize: "clamp(2rem,5vw,4rem)" }}>Get Your {v.brand} {v.name}<br /><span className="text-accent">Batch Quote.</span></h2>
-              <p className="text-gray-400 text-base font-light italic mb-10 max-w-md mx-auto">Tell us your quantity and destination port. We respond within 2 hours with a transparent factory price.</p>
-              <div className="flex flex-wrap justify-center gap-4">
-                <a href="https://wa.me/qr/F7M2RQADCE3KN1" className="btn-primary px-12 py-5 rounded text-sm font-black tracking-widest uppercase italic shadow-lg">WhatsApp Us Now</a>
-                <a href="mailto:alan@youguard.cn" className="px-12 py-5 rounded text-sm font-black tracking-widest uppercase italic border border-accent/40 text-accent hover:bg-accent hover:text-black transition">Send an Enquiry</a>
+      {/* Fit For */}
+      <section className="py-12 md:py-16 bg-b">
+        <div className="container mx-auto px-6 md:px-12">
+          <div className="text-center mb-12"><div className="label justify-center mb-3">Ideal Customer Profile</div><h2 className="text-2xl font-black uppercase italic tracking-tight text-white">Who Should Buy This Vehicle?</h2></div>
+          <div className="grid md:grid-cols-3 gap-5">
+            {data.fits.map((fit, i) => (
+              <div key={i} className="rounded-[2rem] p-7 bg-white/[0.015] border border-theme/10 hover:border-accent/25 hover:bg-accent/[0.03] transition-all">
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-5 text-lg flex-shrink-0" style={i % 2 === 1 ? { background: "rgba(197,160,89,.1)" } : { background: "rgba(16,185,129,.12)" }}>{fit.icon}</div>
+                <h4 className="text-white font-black uppercase tracking-wider text-sm mb-3">{fit.title}</h4>
+                <p className="text-gray-300 text-sm font-light leading-relaxed mb-5">{fit.desc}</p>
+                <div className="text-[9px] font-black tracking-widest uppercase" style={{ color: i % 2 === 1 ? "var(--color-gold)" : "var(--color-green)" }}>{fit.accent}</div>
               </div>
-              <p className="text-[10px] text-gray-600 mt-8 font-black tracking-widest uppercase">Response within 2 hours · No commitment required</p>
-            </div>
+            ))}
           </div>
-        </section>
-        <section className="py-8 relative z-10">
-          <div className="container mx-auto px-6 md:px-12">
-            <div className="text-[9px] font-black tracking-widest uppercase text-gray-500 mb-5">Other {data.category === "revenue-king" ? "Revenue King" : data.category === "elite-flagship" ? "Elite Flagship" : "Utility Pro"} Models</div>
-            <div className="flex flex-wrap gap-3">
-              {data.relatedModels.map((link) => (<Link key={link.name} href={link.href} className="glass px-5 py-2.5 rounded-full text-xs font-black uppercase tracking-wider text-gray-400 hover:text-white transition border-theme/15">{link.name}</Link>))}
-              <Link href={`/products/${data.category}`} className="px-5 py-2.5 rounded-full text-xs font-black uppercase tracking-wider border border-accent/40 text-accent hover:bg-accent hover:text-black transition">View All Models →</Link>
-            </div>
-          </div>
-        </section>
-      </div>
+        </div>
+      </section>
+
+      {/* CTA + Related — removed to avoid duplication with global footer */}
     </>
   );
 }

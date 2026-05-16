@@ -269,7 +269,7 @@ export default function HomePage() {
             className="absolute inset-0"
             style={{
               background:
-                "linear-gradient(to bottom, var(--color-mid) 0%, transparent 15%, transparent 85%, var(--color-mid) 100%)",
+                "linear-gradient(to bottom, var(--color-mid) 0%, transparent 20%, transparent 80%, var(--color-mid) 100%)",
             }}
           />
         </div>
@@ -564,7 +564,7 @@ export default function HomePage() {
             className="absolute inset-0"
             style={{
               background:
-                "linear-gradient(to bottom, var(--color-mid) 0%, transparent 15%, transparent 85%, var(--color-mid) 100%)",
+                "linear-gradient(to bottom, var(--color-mid) 0%, transparent 20%, transparent 80%, var(--color-mid) 100%)",
             }}
           />
         </div>

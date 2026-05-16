@@ -15,22 +15,22 @@ export default function SolutionsPage() {
           <div
             className="absolute inset-0"
             style={{
+                background:
+                  "linear-gradient(to top, var(--color-mid) 0%, var(--color-mid) 10%, rgba(28,28,28,.45) 35%, transparent 60%)",
+              }}
+          />
+          <div
+            className="absolute inset-0"
+            style={{
               background:
-                "linear-gradient(to top, rgba(15,15,15,.95) 15%, rgba(15,15,15,.35) 45%, transparent 100%)",
+                "linear-gradient(to right, rgba(28,28,28,.6) 28%, transparent 75%)",
             }}
           />
           <div
             className="absolute inset-0"
             style={{
               background:
-                "linear-gradient(to right, rgba(15,15,15,.6) 28%, transparent 75%)",
-            }}
-          />
-          <div
-            className="absolute inset-0"
-            style={{
-              background:
-                "linear-gradient(to bottom, rgba(15,15,15,1) 0%, rgba(15,15,15,1) 10%, transparent 32%)",
+                "linear-gradient(to bottom, rgba(28,28,28,1) 0%, rgba(28,28,28,1) 10%, transparent 32%)",
             }}
           />
         </div>
@@ -163,7 +163,7 @@ export default function SolutionsPage() {
             className="absolute inset-0"
             style={{
               background:
-                "linear-gradient(to bottom, var(--color-mid) 0%, transparent 15%, transparent 85%, var(--color-mid) 100%)",
+                "linear-gradient(to bottom, var(--color-mid) 0%, transparent 20%, transparent 80%, var(--color-mid) 100%)",
             }}
           />
         </div>
@@ -370,7 +370,7 @@ export default function SolutionsPage() {
             className="absolute inset-0"
             style={{
               background:
-                "linear-gradient(to bottom, var(--color-mid) 0%, transparent 15%, transparent 85%, var(--color-mid) 100%)",
+                "linear-gradient(to bottom, var(--color-mid) 0%, transparent 20%, transparent 80%, var(--color-mid) 100%)",
             }}
           />
         </div>

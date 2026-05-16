@@ -13,7 +13,7 @@
     html { scroll-behavior: smooth; }
     body { font-family: 'Inter', sans-serif; background: var(--bg); color: #E5E7EB; -webkit-font-smoothing: antialiased; }
     
-    .glass { background: rgba(0,0,0,0.35); backdrop-filter: blur(24px) saturate(1.3); -webkit-backdrop-filter: blur(24px) saturate(1.3); border: 1px solid rgba(197,160,89,0.25); box-shadow: 0 8px 32px rgba(0,0,0,0.4); }
+    .glass { background: rgba(0,0,0,0.35); -webkit-backdrop-filter: blur(24px); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px) saturate(1.3); backdrop-filter: blur(24px) saturate(1.3); border: 1px solid rgba(197,160,89,0.25); box-shadow: 0 8px 32px rgba(0,0,0,0.4); }
     .bg-b .glass { background: rgba(0,0,0,0.18); }
     .sh { font-size: clamp(2.4rem, 5.5vw, 4.5rem); font-weight: 900; line-height: .95; letter-spacing: -.03em; text-transform: uppercase; font-style: italic; color: #fff; }
     .label { font-size: 10px; font-weight: 900; letter-spacing: .3em; text-transform: uppercase; color: var(--green); display: flex; align-items: center; gap: 8px; }
@@ -23,8 +23,8 @@
     .text-theme { color: var(--gold); }
     .text-accent { color: var(--green); }
     
-    .bg-a { background: linear-gradient(to bottom, var(--mid) 0%, var(--bg)  15%, var(--bg)  85%, var(--mid) 100%); }
-    .bg-b { background: linear-gradient(to bottom, var(--mid) 0%, var(--bg2) 15%, var(--bg2) 85%, var(--mid) 100%); }
+    .bg-a { background: linear-gradient(to bottom, var(--mid) 0%, var(--bg)  20%, var(--bg)  80%, var(--mid) 100%); }
+    .bg-b { background: linear-gradient(to bottom, var(--mid) 0%, var(--bg2) 20%, var(--bg2) 80%, var(--mid) 100%); }
 
     /* ── Nav Link ── */
     .nav-link { font-size:11px; font-weight:700; letter-spacing:.18em; text-transform:uppercase; color:var(--gold); transition:color .2s; }
@@ -118,7 +118,7 @@
     <img src="https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=2000&q=80" class="w-full h-full object-cover" style="filter: brightness(.35) grayscale(15%);" alt="EV Sourcing">
     <div class="absolute inset-0" style="background: rgba(10,10,10,.25);"></div>
     <div class="absolute inset-0" style="background: linear-gradient(to top, var(--mid) 0%, transparent 25%);"></div>
-    <div class="absolute inset-0" style="background: linear-gradient(to bottom, rgba(15,15,15,1) 0%, rgba(15,15,15,1) 10%, transparent 30%);"></div>
+    <div class="absolute inset-0" style="background: linear-gradient(to bottom, rgba(28,28,28,1) 0%, rgba(28,28,28,1) 10%, transparent 30%);"></div>
   </div>
   <div class="container relative z-10 mx-auto px-6 md:px-12 text-center pt-24">
     <div class="label justify-center mb-6">Expert Selection Index</div>
@@ -172,7 +172,7 @@
   <div class="absolute inset-0 z-0">
     <img src="https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=2000&q=80" class="w-full h-full object-cover" style="filter: brightness(.2) contrast(1.1) grayscale(40%);">
     <div class="absolute inset-0" style="background: rgba(10,10,10,0.65);"></div>
-    <div class="absolute inset-0" style="background: linear-gradient(to bottom, var(--mid) 0%, transparent 15%, transparent 85%, var(--mid) 100%);"></div>
+    <div class="absolute inset-0" style="background: linear-gradient(to bottom, var(--mid) 0%, transparent 20%, transparent 80%, var(--mid) 100%);"></div>
   </div>
   <div class="container relative z-10 mx-auto px-6 md:px-12">
     <div class="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6"><div class="max-w-xl md:ml-auto md:text-right"><div class="label label-gold mb-4 justify-end">Category 02</div><h2 class="text-5xl font-black italic text-white uppercase tracking-tighter mb-4">Elite <span class="text-theme">Flagship</span> Hub</h2><p class="text-gray-400 text-sm font-light italic text-right">Executive luxury and intelligence assets.</p></div></div>

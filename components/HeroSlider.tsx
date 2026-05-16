@@ -84,14 +84,14 @@ export function HeroSlider() {
             className="absolute inset-0"
             style={{
               background:
-                "linear-gradient(to top, rgba(15,15,15,.95) 10%, rgba(15,15,15,.35) 42%, transparent 100%)",
+                "linear-gradient(to top, rgba(28,28,28,.95) 10%, rgba(28,28,28,.35) 42%, transparent 100%)",
             }}
           />
           <div
             className="absolute inset-0"
             style={{
               background:
-                "linear-gradient(to right, rgba(15,15,15,.5) 28%, transparent 75%)",
+                "linear-gradient(to right, rgba(28,28,28,.5) 28%, transparent 75%)",
             }}
           />
         </div>
