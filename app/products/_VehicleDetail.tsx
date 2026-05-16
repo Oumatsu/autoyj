@@ -172,7 +172,6 @@ export default function VehicleDetail({ data }: { data: DetailData }) {
               </div>
               <div className="relative mx-auto w-[85%] h-full cursor-zoom-in" style={{ zIndex: 1 }} onClick={() => {}}>
                 <img key={`center-img-${galIdx}`} src={gallery[galIdx].src} className="w-full h-full object-cover rounded-xl img-switch-in" alt={gallery[galIdx].label} />
-                <div className="absolute bottom-4 left-4 bg-black/65 border border-accent/30 text-accent text-[9px] font-black tracking-[.3em] uppercase px-3 py-1 rounded-full z-10">{gallery[galIdx].cat}</div>
               </div>
               <div className="absolute right-0 top-0 w-[7%] h-full cursor-pointer overflow-hidden" onClick={() => goGallery(1)}>
                 <img src={gallery[nextIdx].src} className="w-full h-full object-cover transition-opacity duration-700" alt={gallery[nextIdx].label} style={{ opacity: 0.4, borderRadius: "0.75rem 0 0 0.75rem" }} />

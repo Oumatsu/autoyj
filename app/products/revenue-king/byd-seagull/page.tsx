@@ -161,9 +161,6 @@ export default function BydSeagullPage() {
                   className="w-full h-full object-cover rounded-xl img-switch-in"
                   alt={galleryImages[galIdx].label}
                 />
-                <div className="absolute bottom-4 left-4 bg-black/65 border border-accent/30 text-accent text-[9px] font-black tracking-[.3em] uppercase px-3 py-1 rounded-full z-10">
-                  {galleryImages[galIdx].cat}
-                </div>
               </div>
 
               {/* Right peek — pinned to right screen edge */}

@@ -372,7 +372,7 @@ export default function ProductsPage() {
                   desc: "The future of city cargo. Steer-by-wire with flat-floor cargo optimization for 11m³+ volume.",
                   label: "Digital Cargo",
                   sub: "Next-Gen Van",
-                  img: "https://6a0327d1fc46b5b25f3480d6.imgix.net/supervan/supervan%20display.png",
+                  img: "https://6a0327d1fc46b5b25f3480d6.imgix.net/supervan/supervan%20display.avif",
                   link: "/products/utility-pro/farizon-super-van",
                 },
               ].map((car, i) => {
