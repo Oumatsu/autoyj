@@ -68,7 +68,7 @@ export default function HomePage() {
               <Link href="/products/revenue-king" className="block">
                 <div className="v-card aspect-[4/5] border border-accent/20">
                   <img
-                    src="https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&w=800&q=80"
+                    src="https://6a0327d1fc46b5b25f3480d6.imgix.net/Ti3/Ti3%20display.webp"
                     className="w-full h-full object-cover absolute inset-0"
                     alt="Revenue King"
                   />
@@ -130,7 +130,7 @@ export default function HomePage() {
                   style={{ boxShadow: "0 0 40px rgba(197,160,89,.07)" }}
                 >
                   <img
-                    src="https://images.unsplash.com/photo-1563720360172-67b8f3dce741?auto=format&fit=crop&w=800&q=80"
+                    src="https://6a0327d1fc46b5b25f3480d6.imgix.net/E-HS9/E-HS9%20display.jpg"
                     className="w-full h-full object-cover absolute inset-0"
                     alt="Elite Flagship"
                   />
@@ -192,7 +192,7 @@ export default function HomePage() {
               <Link href="/products/utility-pro" className="block">
                 <div className="v-card aspect-[4/5] border border-accent/20">
                   <img
-                    src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=800&q=80"
+                    src="https://6a0327d1fc46b5b25f3480d6.imgix.net/9x/9x%20display.webp"
                     className="w-full h-full object-cover absolute inset-0"
                     alt="Utility Pro"
                   />
