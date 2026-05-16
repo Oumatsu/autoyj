@@ -20,7 +20,7 @@ export default function AcademyPage() {
             className="absolute inset-0"
             style={{
               background:
-                "linear-gradient(to top, var(--color-bg) 0%, transparent 40%)",
+                "linear-gradient(to top, var(--color-mid) 0%, var(--color-mid) 12%, transparent 45%)",
             }}
           />
         </div>
