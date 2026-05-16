@@ -36,11 +36,13 @@ export default function AboutPage() {
               className="sh mb-8"
               style={{ fontSize: "clamp(3rem, 7vw, 6rem)" }}
             >
-              We Don&apos;t Just
+              Not Only
               <br />
-              <span className="text-theme">Sell Cars</span>.
+              <span className="text-theme">Selling Cars</span>.
               <br />
-              We Build Dealerships.
+              But Also
+              <br />
+              <span className="text-accent">Empowering Dealerships.</span>
             </h1>
             <p
               className="text-xl text-gray-400 font-light italic border-l-2 pl-8 leading-relaxed max-w-xl"
@@ -63,7 +65,7 @@ export default function AboutPage() {
             <div>
               <div className="label label-gold mb-6">Our Heritage</div>
               <h2 className="sh mb-8">
-                15+ Years of
+                10+ Years of
                 <br />
                 <span className="text-theme">Combined</span> Expertise.
               </h2>
