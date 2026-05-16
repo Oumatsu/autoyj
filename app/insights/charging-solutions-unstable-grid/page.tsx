@@ -1,0 +1,164 @@
+import Link from "next/link";
+
+const content = `<p>The most common objection to EV adoption in East African commercial markets is not price, range, or technology — it is charging: "Where will we charge it? The electricity cuts out for hours every day."</p>
+<p>This objection is legitimate. Ethiopia's grid reliability is a real operational constraint. Addis Ababa experiences load-shedding periods that vary from occasional to multiple hours daily, depending on the season and the city district. Nairobi's outer zones experience similar issues, though the city centre grid is more stable.</p>
+<p>What this guide demonstrates is that the charging challenge is not an inherent barrier to EV adoption — it is a <strong>solvable infrastructure problem</strong> with commercial solutions that have been deployed in similar markets. Dealers who help their commercial customers solve the charging problem close more sales.</p>
+<h2>The Four Charging Approaches for Unreliable Grid Markets</h2>
+<h3>Approach 1: Overnight AC Charging (Depot-Based)</h3>
+<p>The most practical and lowest-cost charging solution for commercial fleet operators is <strong>overnight AC charging at a depot or parking facility</strong>.</p>
+<p>Most Chinese EVs accept 6.6 kW onboard AC charging as standard. At this rate, a fully depleted 30 kWh battery (BYD Seagull standard) charges in approximately 5 hours. A partially depleted battery (30-40% depleted at end of day from 150 km of commercial use) charges in 2–3 hours.</p>
+<p>- A 3-socket single-phase 240V power supply (standard residential connection in Ethiopia and Kenya)</p>
+<p>- A Type 2 EVSE (Electric Vehicle Supply Equipment) wallbox — approximately $150–$300 USD; some vehicles include a Type 2 cable</p>
+<p>- A circuit breaker upgrade if the existing circuit cannot support 32A continuous draw</p>
+<p>This is the entry-level charging solution. It costs less than $500 USD per vehicle connection and works reliably for commercial fleet operators who can establish overnight depot parking.</p>
+<div class="rounded-[1.5rem] overflow-hidden my-10">
+  <img src="images/charging-solutions-unstable-grid/ev-charger.jpg" alt="EV charging station with DC fast charger representing the higher-speed charging infrastructure being installed at commercial locations in East Africa" class="w-full h-auto object-cover" style="max-height:450px;">
+  <div class="px-6 py-4 bg-white/[0.02] border-t border-white/5">
+    <p class="text-xs text-gray-500 font-light italic leading-relaxed">DC fast charging (typically 40–100 kW) is the solution for vehicles that cannot charge overnight — but with only approximately 2 DC fast-chargers confirmed in Addis Ababa as of early 2026 (Africa E-Mobility Alliance, 2025), route planning around DC charger availability is not yet viable for most commercial operators.</p>
+  </div>
+</div>
+<h3>Approach 2: Solar + Battery Storage System</h3>
+<p>For operators whose grid supply is too unreliable even for overnight AC charging — or for commercial facilities that want to charge during daylight hours — a solar photovoltaic system with battery storage is the solution.</p>
+<p>Ethiopia's solar irradiance is excellent: Addis Ababa averages approximately 5.5–6.0 peak sun hours per day year-round, among the highest in East Africa.</p>
+<p>- 10 kW solar array (approximately 25 x 400W panels): generates ~55–60 kWh per day in Addis Ababa conditions</p>
+<p>- 30 kWh battery storage: stores daytime generation for night use</p>
+<p>- 7.4 kW AC EVSE: charges one vehicle per slot overnight</p>
+<p>Several NGOs and development finance institutions — including UNEP and GIZ — have deployed solar EV charging pilot systems in Addis Ababa and Nairobi that provide reference installations and, in some cases, co-financing opportunities.</p>
+<h3>Approach 3: Vehicle-to-Load (V2L) for Grid Independence</h3>
+<p>A subset of Chinese EVs supports <strong>Vehicle-to-Load (V2L)</strong> — the ability to use the vehicle's battery as a power source, running external appliances or other devices through a standard 220V outlet built into the vehicle.</p>
+<p>V2L is relevant to East African operators not as a charging solution, but as a <strong>grid resilience tool</strong> at their facility. A BYD Atto 3 or similar V2L-capable EV can power a small commercial operation during load-shedding — running lights, computers, or low-draw equipment from its battery at no fuel cost.</p>
+<p>This converts a perceived liability (EV is dependent on electricity) into an asset (EV provides electricity when the grid fails). This reframing is commercially significant in markets where diesel generator costs are a real operational expense.</p>
+<p>Chinese EVs with confirmed V2L capability available in African markets:</p>
+<div class="overflow-x-auto my-8"><table class="w-full border-collapse text-sm"><tr><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Model</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">V2L Output</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Notes</th></tr>
+<tr><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">BYD Atto 3</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">2.2 kW</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Rear socket, 10A</th></tr>
+<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">BYD Seal</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">3.3 kW</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Requires export variant confirmation</td></tr>
+<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Chery Tiggo 7e PHEV</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Varies</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">PHEV generator capability different from V2L</td></tr>
+<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Hyundai Ioniq 5 (non-Chinese, reference)</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">3.6 kW</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Strongest market V2L example</td></tr>
+</table></div>
+<p>V2L capability should be on the feature checklist when evaluating Chinese EV models for fleet deployment in markets with unreliable grid supply.</p>
+<div class="rounded-[1.5rem] overflow-hidden my-10">
+  <img src="images/charging-solutions-unstable-grid/solar-charging.jpg" alt="Stable solar energy infrastructure representing the renewable energy investment that supports reliable EV charging in markets where grid electricity is intermittent" class="w-full h-auto object-cover" style="max-height:450px;">
+  <div class="px-6 py-4 bg-white/[0.02] border-t border-white/5">
+    <p class="text-xs text-gray-500 font-light italic leading-relaxed">A 10 kW solar installation in Addis Ababa generates approximately 55–60 kWh per day — enough to charge one full Seagull battery (30.1 kWh) and partially charge a second vehicle daily, entirely off-grid.</p>
+  </div>
+</div>
+<h3>Approach 4: PHEVs as a Bridge Technology</h3>
+<p>Where grid reliability cannot be guaranteed and solar investment is not immediate, plug-in hybrid EVs (PHEVs) represent a pragmatic bridge.</p>
+<p>A PHEV like the BYD Shark or Chery Tiggo 7e PHEV charges its battery from AC overnight but retains a petrol engine as backup for days when charging was incomplete or the battery is fully depleted. The vehicle never requires an emergency DC fast-charge that the market cannot provide.</p>
+<p>For commercial fleet operators in Ethiopia — particularly those operating vehicles outside Addis Ababa — PHEVs eliminate the range/charging anxiety that makes pure BEV adoption feel risky. As the grid becomes more reliable and solar charging becomes more affordable, fleet operators can transition to pure BEVs while PHEVs serve as the fleet backbone in the interim.</p>
+<h2>What Dealers Should Offer Their Customers</h2>
+<p>A Chinese EV dealer who sells a vehicle and does nothing about charging is selling half the product. The commercial customers who drive EV adoption in Ethiopia and Kenya want a turnkey solution — not just a vehicle.</p>
+<p>- Include a Type 2 charging cable in every vehicle sale</p>
+<p>- Provide written guidance on the minimum electrical requirements for home/depot AC charging</p>
+<p>- Recommend a specific electrical contractor in the buyer's city who can install the EVSE correctly</p>
+<p>- Provide an assessment of the buyer's facility's charging capacity before the sale completes</p>
+<p>- Connect the buyer with a solar integrator for a depot solar proposal</p>
+<p>- Offer a first-year servicing agreement that includes a battery health check at 12 months</p>
+<p>Dealers who offer this package are solving the real problem the commercial buyer has. Dealers who only offer a vehicle are leaving the hardest part of the buying decision unresolved.</p>
+<h2>Sources</h2>
+<p>- Ethiopian Electric Power (EEP) — grid reliability data and load-shedding schedules (2025)</p>
+<p>- IRENA — *Africa Solar Resource Map* (irradiance data for Ethiopia)</p>
+<p>- UNEP/GIZ — Africa EV charging infrastructure pilot programmes (Addis Ababa, Nairobi, 2024–2025)</p>
+<p>- BYD official — V2L specifications for Atto 3 and Seal (2025)</p>
+<p>- Africa E-Mobility Alliance — *Africa E-Mobility Report 2025* (charging infrastructure chapter)</p>
+<p>- EV24.Africa — *"Charging EVs in Africa: Infrastructure Guide"* (2025)</p>
+<ul>
+  <li>Published by Evexport Intelligence Desk · February 2026*</li>
+</ul>
+`;
+
+export default function ArticlePage() {
+  return (
+    <>
+      <main className="pt-32 pb-24 relative z-10">
+        <div className="container mx-auto px-6 md:px-12">
+          <div className="mb-10 text-[10px] font-black uppercase tracking-widest text-gray-500">
+            <Link href="/" className="hover:text-gold transition">Home</Link>
+            <span className="mx-2">/</span>
+            <Link href="/insights" className="hover:text-gold transition">Insights</Link>
+            <span className="mx-2">/</span>
+            <span className="text-white">Operator</span>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 xl:gap-20">
+            <div className="lg:col-span-8 xl:col-span-8">
+              <header className="mb-12">
+                <span className="inline-block px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-wider mb-6 border bg-accent/10 text-accent border border-accent/30" style={{ background: "rgba(16,185,129,.1)", color: "var(--color-green)", borderColor: "rgba(16,185,129,.3)" }}>
+                  Operator Hub
+                </span>
+                <h1 className="text-4xl md:text-5xl lg:text-6xl font-black italic text-white uppercase tracking-tighter leading-[1.05] mb-6">
+                  Charging EVs When the Grid Is Unreliable: A Practical Guide for East African Operators
+                </h1>
+                <p className="text-xl text-gray-400 font-light italic border-l-2 border-theme/30 pl-6 mb-8 max-w-2xl">
+                  The most common objection to EV adoption in East African commercial markets is not price, range, or technology — it is charging: &quot;Where will we charge it? 
+                </p>
+                <div className="flex items-center gap-6 text-[10px] font-black uppercase tracking-widest text-gray-500 border-t border-white/10 pt-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-mid flex items-center justify-center border border-white/5">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gold"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                    </div>
+                    <span className="text-white">autoYJ Intelligence</span>
+                  </div>
+                  <div>February 28, 2026</div>
+                  <div className="flex items-center gap-2 text-gold">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    7 min
+                  </div>
+                </div>
+              </header>
+
+              <div className="w-full aspect-[21/9] rounded-[2rem] overflow-hidden mb-16 relative">
+                <img src="/insights/images/charging-solutions-unstable-grid/hero.jpg" alt="Charging EVs When the Grid Is Unreliable: A Practical Guide for East African Operators" className="w-full h-full object-cover" />
+                <div className="absolute inset-0 border border-white/10 rounded-[2rem] pointer-events-none"></div>
+              </div>
+
+              <article className="article-body max-w-3xl" dangerouslySetInnerHTML={{ __html: content.replace(/images\//g, '/insights/images/') }} />
+
+              <div className="mt-16 pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="flex flex-wrap gap-2">
+                  <span className="px-4 py-1.5 rounded-full bg-white/5 border border-white/5 text-[10px] font-black uppercase text-gray-400">Charging Infrastructure</span>
+                  <span className="px-4 py-1.5 rounded-full bg-white/5 border border-white/5 text-[10px] font-black uppercase text-gray-400">Solar EV Charging</span>
+                  <span className="px-4 py-1.5 rounded-full bg-white/5 border border-white/5 text-[10px] font-black uppercase text-gray-400">Ethiopia</span>
+                  <span className="px-4 py-1.5 rounded-full bg-white/5 border border-white/5 text-[10px] font-black uppercase text-gray-400">Grid Stability</span>
+                </div>
+              </div>
+            </div>
+
+            <aside className="lg:col-span-4 xl:col-span-4">
+              <div className="sticky top-[120px] space-y-6">
+                <div className="glass rounded-[2rem] p-8 relative overflow-hidden group">
+                  <div className="absolute -top-20 -right-20 w-40 h-40 bg-gold/20 rounded-full blur-3xl group-hover:bg-gold/30 transition-all"></div>
+                  <div className="relative z-10">
+                    <div className="w-12 h-12 rounded-xl bg-gold/10 flex items-center justify-center mb-6 text-gold">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                    </div>
+                    <div className="text-[10px] font-black tracking-[.2em] uppercase text-gray-500 mb-2">Free Download</div>
+                    <h3 className="text-xl font-black italic text-white mb-4">The 50-Point Factory PDI Checklist</h3>
+                    <p className="text-gray-400 text-xs font-light leading-relaxed mb-8">Don't import blind. Download the exact technical inspection checklist our engineers use before loading any vehicle in Shanghai.</p>
+                    <a href="https://wa.me/qr/F7M2RQADCE3KN1" className="w-full btn-primary py-3 rounded text-[10px] font-black tracking-widest uppercase flex items-center justify-center gap-2">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.72.938 3.659 1.434 5.705 1.435h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                      Get PDF via WhatsApp
+                    </a>
+                  </div>
+                </div>
+                <div className="glass rounded-[2rem] p-8 bg-mid/50 border-white/5 hover:border-green/30 transition-all duration-300 group">
+                  <div className="flex items-center gap-4 mb-6">
+                    <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80" alt="Consultant" className="w-12 h-12 rounded-full border-2 border-green/50 object-cover group-hover:border-green transition-colors" />
+                    <div>
+                      <div className="text-sm font-bold text-white group-hover:text-green transition-colors">Speak to an Expert</div>
+                      <div className="text-[10px] text-green flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-green animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]"></span> Available Now</div>
+                    </div>
+                  </div>
+                  <p className="text-gray-400 text-xs font-light leading-relaxed mb-6">Have specific questions about vehicle models or wholesale pricing? Our procurement team responds in 15 minutes.</p>
+                  <Link href="/contact" className="w-full block text-center btn-outline py-3 rounded text-[10px] font-black tracking-widest uppercase hover:bg-green hover:text-black hover:border-green transition-colors">
+                    Book a Consultation
+                  </Link>
+                </div>
+              </div>
+            </aside>
+          </div>
+        </div>
+      </main>
+    </>
+  );
+}
