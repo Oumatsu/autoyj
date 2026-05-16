@@ -392,7 +392,7 @@ export default function VehicleDetail({ data }: { data: DetailData }) {
         <div className="absolute inset-0"><img src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=1600&q=80" className="w-full h-full object-cover" style={{ filter: "brightness(.28) grayscale(15%)" }} alt="" /><div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(10,10,10,.55) 0%, rgba(10,10,10,.28) 35%, rgba(10,10,10,.5) 75%, rgba(10,10,10,.88) 100%)" }} /></div>
         <section className="py-16 md:py-20 relative z-10">
           <div className="container mx-auto px-6 md:px-12">
-            <div className="rounded-[4rem] p-12 md:p-20 text-center" style={{ background: "rgba(0,0,0,.38)", border: "1px solid rgba(197,160,89,.18)", backdropFilter: "blur(20px)" }}>
+            <div className="rounded-[4rem] p-12 md:p-20 text-center" style={{ background: "rgba(0,0,0,.38)", border: "1px solid rgba(197,160,89,.18)", backdropFilter: "blur(24px) saturate(1.3)", WebkitBackdropFilter: "blur(24px) saturate(1.3)", boxShadow: "0 8px 32px rgba(0,0,0,0.4)" }}>
               <div className="flex justify-center mb-5"><div className="pulse-dot w-2.5 h-2.5" /></div>
               <div className="label justify-center mb-5">Ready to Order?</div>
               <h2 className="sh mb-4" style={{ fontSize: "clamp(2rem,5vw,4rem)" }}>Get Your {v.brand} {v.name}<br /><span className="text-accent">Batch Quote.</span></h2>

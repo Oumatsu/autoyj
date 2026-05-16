@@ -526,7 +526,9 @@ export default function SolutionsPage() {
             style={{
               background: "rgba(0,0,0,.38)",
               border: "1px solid rgba(197,160,89,.2)",
-              backdropFilter: "blur(20px)",
+              backdropFilter: "blur(24px) saturate(1.3)",
+              WebkitBackdropFilter: "blur(24px) saturate(1.3)",
+              boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
             }}
           >
             <div className="label justify-center mb-6">
