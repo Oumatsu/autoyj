@@ -498,71 +498,7 @@ export default function SolutionsPage() {
         </div>
       </section>
 
-      {/* CTA */}
-      <div className="relative overflow-hidden">
-        <div className="absolute inset-0">
-          <img
-            src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=2000&q=80"
-            className="w-full h-full object-cover"
-            style={{ filter: "brightness(.28) grayscale(20%)" }}
-            alt=""
-          />
-          <div
-            className="absolute inset-0"
-            style={{ background: "rgba(10,10,10,.45)" }}
-          />
-          <div
-            className="absolute inset-0"
-            style={{
-              background:
-                "linear-gradient(to bottom, var(--color-mid) 0%, transparent 12%)",
-            }}
-          />
-        </div>
-
-        <section className="relative z-10 container mx-auto px-6 md:px-12 pt-24 pb-20">
-          <div
-            className="rounded-[4rem] p-12 md:p-20 text-center"
-            style={{
-              background: "rgba(0,0,0,.38)",
-              border: "1px solid rgba(197,160,89,.2)",
-              backdropFilter: "blur(24px) saturate(1.3)",
-              WebkitBackdropFilter: "blur(24px) saturate(1.3)",
-              boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
-            }}
-          >
-            <div className="label justify-center mb-6">
-              Scale Your Operations
-            </div>
-            <h2
-              className="sh mb-6"
-              style={{ fontSize: "clamp(2.5rem,6.5vw,5.5rem)" }}
-            >
-              Professional <span className="text-accent">Sourcing</span>.
-              <br />
-              Predictable Growth.
-            </h2>
-            <p className="text-gray-500 text-lg font-light italic mb-10 max-w-lg mx-auto">
-              Request a consultation for your next batch shipment and explore
-              our turnkey support.
-            </p>
-            <div className="flex flex-wrap justify-center gap-4">
-              <a
-                href="https://wa.me/qr/F7M2RQADCE3KN1"
-                className="btn-primary px-12 py-5 rounded text-sm font-black tracking-widest uppercase italic shadow-lg"
-              >
-                WhatsApp Us Now
-              </a>
-              <Link
-                href="/contact"
-                className="btn-outline px-12 py-5 rounded text-sm font-black tracking-widest uppercase italic"
-              >
-                Get Quote
-              </Link>
-            </div>
-          </div>
-        </section>
-      </div>
+      {/* CTA removed to avoid duplication with Start the Conversation section */}
     </>
   );
 }
