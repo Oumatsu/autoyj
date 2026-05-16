@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Course 3: Dealership Digital Marketing — autoYJ Academy</title>
+  <meta name="description" content="Launch your EV showroom online: Facebook ad templates, WhatsApp Business automation, and local SEO for African markets.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,600;0,700;0,800;0,900;1,300;1,400;1,700;1,800;1,900&display=swap" rel="stylesheet">
+  <style>
+    :root { --gold:#C5A059; --gold-lt:#D4AF37; --green:#10B981; --bg:#161616; --bg2:#232323; --bg3:#2a2a2a; --mid:#1c1c1c; }
+    *,*::before,*::after{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:#E5E7EB;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+    .bg-a{background:linear-gradient(to bottom,var(--mid) 0%,var(--bg) 20%,var(--bg) 80%,var(--mid) 100%)}
+    .bg-b{background:linear-gradient(to bottom,var(--mid) 0%,var(--bg2) 20%,var(--bg2) 80%,var(--mid) 100%)}
+    .glass{background:rgba(0,0,0,0.35);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px) saturate(1.3);backdrop-filter:blur(24px) saturate(1.3);border:1px solid rgba(197,160,89,0.15);box-shadow:0 8px 32px rgba(0,0,0,0.4)}
+    .btn-primary{background:linear-gradient(135deg,#D4AF37 0%,#C5A059 100%);color:#000;transition:transform .25s,box-shadow .25s;display:inline-flex;justify-content:center;align-items:center}
+    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 24px -6px rgba(197,160,89,.45)}
+    .btn-outline{border:1px solid rgba(197,160,89,.4);color:var(--gold);transition:background .2s,color .2s}
+    .btn-outline:hover{background:var(--gold);color:#000}
+    .text-theme{color:var(--gold)}
+    .text-accent{color:var(--green)}
+    .sh{font-size:clamp(2.4rem,5.5vw,4.5rem);font-weight:900;line-height:.95;letter-spacing:-.03em;text-transform:uppercase;font-style:italic;color:#fff}
+    .label{font-size:10px;font-weight:900;letter-spacing:.3em;text-transform:uppercase;color:var(--green);display:flex;align-items:center;gap:8px}
+    .label::before{content:'';width:20px;height:1px;background:var(--green);flex-shrink:0}
+    .label-gold{color:var(--gold)}
+    .label-gold::before{background:var(--gold)}
+    .nav-link{font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);transition:color .2s}
+    .nav-link:hover{color:#fff}
+    .nav-link.green{color:var(--green)}
+    .dot-gold{width:5px;height:5px;border-radius:50%;background:var(--gold);flex-shrink:0;margin-top:6px}
+    img{max-width:100%;height:auto}
+    ::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:var(--bg2)}::-webkit-scrollbar-thumb{background:var(--gold);border-radius:2px}
+  </style>
+</head>
+<body class="antialiased">
+
+<!-- NAVBAR -->
+<nav id="navbar" class="fixed top-0 left-0 right-0 z-50 glass px-6 md:px-10 py-4 flex items-center justify-between transition-all duration-300">
+  <a href="../index.html" class="flex items-center gap-2.5">
+    <div class="w-8 h-8 rounded flex items-center justify-center font-black italic text-black" style="background:linear-gradient(135deg,#D4AF37,#C5A059);">A</div>
+    <span class="text-lg font-black tracking-tighter uppercase italic"><span class="text-gray-400">auto</span><span class="text-theme">YJ</span></span>
+  </a>
+  <div class="hidden lg:flex items-center gap-10">
+    <a href="../products/products-index-v5.html" class="nav-link">Vehicles</a>
+    <a href="../solutions/solutions.html" class="nav-link">Solutions</a>
+    <a href="../index.html#insights" class="nav-link">Insights</a>
+    <a href="academy.html" class="nav-link green active" style="color:#10B981;">Academy</a>
+    <a href="../about.html" class="nav-link">About</a>
+  </div>
+  <a href="../contact/contact.html" class="hidden lg:block btn-primary px-7 py-2.5 rounded-full text-xs font-black tracking-widest uppercase shadow-lg">Contact Us</a>
+  <button id="mob-open" class="lg:hidden p-2 flex flex-col gap-1.5">
+    <span class="w-6 h-0.5 bg-white block"></span>
+    <span class="w-6 h-0.5 bg-white block"></span>
+    <span class="w-4 h-0.5 bg-white block"></span>
+  </button>
+</nav>
+
+<div id="mob-menu" class="fixed inset-0 z-[60] flex flex-col items-center justify-center gap-8 text-2xl font-black uppercase italic tracking-tight hidden" style="background:rgba(5,5,5,.97);">
+  <button id="mob-close" class="absolute top-5 right-6 text-3xl text-gray-600">✕</button>
+  <a href="../products/products-index-v5.html" onclick="closeMob()" class="text-white hover:text-theme transition">Vehicles</a>
+  <a href="../solutions/solutions.html" onclick="closeMob()" class="text-white hover:text-theme transition">Solutions</a>
+  <a href="../index.html#insights" onclick="closeMob()" class="text-white hover:text-theme transition">Insights</a>
+  <a href="academy.html" onclick="closeMob()" class="text-accent">Academy</a>
+  <a href="../about.html" onclick="closeMob()" class="text-white hover:text-theme transition">About</a>
+  <a href="../contact/contact.html" onclick="closeMob()" class="mt-4 btn-primary px-12 py-4 rounded text-sm tracking-widest">Contact Us</a>
+</div>
+
+<!-- HERO -->
+<section class="relative min-h-[50vh] flex items-end overflow-hidden">
+  <div class="absolute inset-0">
+    <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=2000&q=80" class="w-full h-full object-cover" style="filter:brightness(.35) grayscale(20%);" alt="Digital Marketing">
+    <div class="absolute inset-0" style="background:linear-gradient(to top, var(--bg) 0%, var(--bg) 12%, rgba(0,0,0,.55) 35%, transparent 50%);"></div>
+    <div class="absolute inset-0" style="background:linear-gradient(to right, rgba(0,0,0,.5) 20%, transparent 60%);"></div>
+  </div>
+  <div class="relative z-10 container mx-auto px-6 md:px-12 pb-16 pt-40">
+    <nav class="flex items-center gap-2 text-[10px] font-black tracking-widest uppercase mb-8 text-gray-600">
+      <a href="academy.html" class="hover:text-gray-400 transition">Academy</a>
+      <span>/</span>
+      <span class="text-gray-500">Course 3</span>
+    </nav>
+    <div class="max-w-3xl">
+      <div class="flex items-center gap-3 mb-5">
+        <span class="text-[10px] font-black px-3 py-1.5 rounded-full bg-white/10 text-white uppercase tracking-wider">4 Modules</span>
+        <span class="text-[10px] font-black px-3 py-1.5 rounded-full bg-white/5 text-white border border-white/10 uppercase tracking-wider">All Levels</span>
+      </div>
+      <h1 class="font-black italic uppercase tracking-tighter text-white leading-none mb-4" style="font-size:clamp(2.5rem,6vw,5rem);">
+        Dealership Digital<br><span class="text-theme">Marketing Playbook</span>
+      </h1>
+      <p class="text-gray-400 text-lg font-light italic leading-relaxed max-w-xl">
+        Launch your EV showroom online: Facebook ad templates, WhatsApp Business automation, and local SEO for African markets.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- OBJECTIVE -->
+<section class="py-16 bg-a">
+  <div class="container mx-auto px-6 md:px-12">
+    <div class="glass rounded-[2.5rem] p-10 md:p-14 max-w-4xl mx-auto" style="border-color:rgba(255,255,255,.1);">
+      <div class="label mb-4" style="color:var(--gold);">Objective</div>
+      <p class="text-gray-300 text-lg font-light leading-relaxed">
+        Launch and manage a successful EV showroom online, leveraging Facebook ads, WhatsApp Business, local SEO, and internal management systems.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- CURRICULUM -->
+<section class="py-16 bg-b">
+  <div class="container mx-auto px-6 md:px-12">
+    <div class="max-w-4xl mx-auto">
+      <div class="mb-12">
+        <div class="label label-gold mb-4">Curriculum</div>
+        <h2 class="text-3xl font-black italic text-white uppercase tracking-tight">Course <span class="text-theme">Modules</span></h2>
+      </div>
+
+      <div class="space-y-16">
+
+        <!-- Module 1 -->
+        <div id="online-showroom">
+          <div class="flex items-center gap-3 mb-6">
+            <span class="text-[10px] font-black text-gray-600 uppercase tracking-widest">Module 01</span>
+            <span class="w-8 h-px bg-white/10"></span>
+          </div>
+          <h3 class="font-black italic text-white uppercase tracking-tight mb-8" style="font-size:clamp(1.5rem,3.5vw,2.5rem);">Online Showroom Setup</h3>
+
+          <h4 class="text-xl font-black text-white mb-4 mt-8">Overview</h4>
+          <p class="text-gray-400 text-base font-light leading-relaxed mb-5">Your online showroom is the first impression most customers will have of your dealership. In African markets where mobile internet penetration is high but physical dealerships may be concentrated in capital cities, a well-crafted digital presence is your most cost-effective customer acquisition channel.</p>
+
+          <ul class="space-y-2 mb-6">
+            <li class="flex items-start gap-3 text-gray-400 text-sm font-light"><span class="dot-gold"></span>Create a localized website and product catalog tailored to African markets.</li>
+            <li class="flex items-start gap-3 text-gray-400 text-sm font-light"><span class="dot-gold"></span>Showcase key vehicle specifications, features, and promotions with high-quality imagery.</li>
+            <li class="flex items-start gap-3 text-gray-400 text-sm font-light"><span class="dot-gold"></span>Integrate real-time inventory management so customers see accurate stock levels.</li>
+          </ul>
+
+          <h4 class="text-xl font-black text-white mb-4 mt-8">Case Example</h4>
+          <p class="text-gray-400 text-base font-light leading-relaxed mb-5">A South African dealership increased leads by 35% after launching a mobile-friendly catalog with real-time inventory updates, WhatsApp click-to-chat integration, and customer testimonials.</p>
+
+          <div class="rounded-[1.5rem] overflow-hidden mb-8">
+            <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1000&q=80" alt="Digital showroom" class="w-full" style="max-height:400px;object-fit:cover;">
+          </div>
+
+          <div class="glass rounded-[1.5rem] p-6 md:p-8 mb-8" style="border-color:rgba(197,160,89,.15);">
+            <div class="flex items-start gap-3">
+              <span class="text-theme text-lg flex-shrink-0 mt-0.5">✦</span>
+              <p class="text-gray-300 text-sm font-light leading-relaxed">Service Integration Point: We provide internal EV management systems to track inventory, leads, and customer interactions — fully integrated with your online showroom.</p>
+            </div>
+          </div>
+
+          <div class="border-t border-white/5 pt-6 mt-8 flex justify-end">
+            <a href="#online-showroom" class="text-[10px] font-black tracking-widest uppercase text-theme hover:text-white transition">Back to Top ↑</a>
+          </div>
+        </div>
+
+        <!-- Module 2 -->
+        <div id="facebook-advertising">
+          <div class="flex items-center gap-3 mb-6">
+            <span class="text-[10px] font-black text-gray-600 uppercase tracking-widest">Module 02</span>
+            <span class="w-8 h-px bg-white/10"></span>
+          </div>
+          <h3 class="font-black italic text-white uppercase tracking-tight mb-8" style="font-size:clamp(1.5rem,3.5vw,2.5rem);">Facebook Advertising</h3>
+
+          <h4 class="text-xl font-black text-white mb-4 mt-8">Overview</h4>
+          <p class="text-gray-400 text-base font-light leading-relaxed mb-5">Facebook remains the dominant social platform across most African markets, making it the ideal channel for EV dealership advertising. With precise demographic and interest-based targeting, you can reach potential buyers at a fraction of traditional advertising costs.</p>
+
+          <ul class="space-y-2 mb-6">
+            <li class="flex items-start gap-3 text-gray-400 text-sm font-light"><span class="dot-gold"></span>Use pre-designed ad templates targeting local demographics and interests.</li>
+            <li class="flex items-start gap-3 text-gray-400 text-sm font-light"><span class="dot-gold"></span>Optimize campaigns for impressions, clicks, and conversions based on your sales funnel stage.</li>
+            <li class="flex items-start gap-3 text-gray-400 text-sm font-light"><span class="dot-gold"></span>Retarget website visitors with dynamic vehicle inventory ads.</li>
+          </ul>
+
+          <h4 class="text-xl font-black text-white mb-4 mt-8">Case Example</h4>
+          <p class="text-gray-400 text-base font-light leading-relaxed mb-5">Targeting Nairobi residents aged 25-45 with mid-range EV ads increased showroom visits by 20% within the first month of campaign launch.</p>
+
+          <div class="rounded-[1.5rem] overflow-hidden mb-8">
+            <img src="https://images.unsplash.com/photo-1556157382-97eda2f9e2bf?auto=format&fit=crop&w=1000&q=80" alt="Facebook advertising" class="w-full" style="max-height:400px;object-fit:cover;">
+          </div>
+
+          <div class="glass rounded-[1.5rem] p-6 md:p-8 mb-8" style="border-color:rgba(197,160,89,.15);">
+            <div class="flex items-start gap-3">
+              <span class="text-theme text-lg flex-shrink-0 mt-0.5">✦</span>
+              <p class="text-gray-300 text-sm font-light leading-relaxed">Service Integration Point: Ready-to-use ad templates, creative assets, and campaign setup guidance are provided to all dealer partners.</p>
+            </div>
+          </div>
+
+          <div class="border-t border-white/5 pt-6 mt-8 flex justify-end">
+            <a href="#facebook-advertising" class="text-[10px] font-black tracking-widest uppercase text-theme hover:text-white transition">Back to Top ↑</a>
+          </div>
+        </div>
+
+        <!-- Module 3 -->
+        <div id="whatsapp-automation">
+          <div class="flex items-center gap-3 mb-6">
+            <span class="text-[10px] font-black text-gray-600 uppercase tracking-widest">Module 03</span>
+            <span class="w-8 h-px bg-white/10"></span>
+          </div>
+          <h3 class="font-black italic text-white uppercase tracking-tight mb-8" style="font-size:clamp(1.5rem,3.5vw,2.5rem);">WhatsApp Business Automation</h3>
+
+          <h4 class="text-xl font-black text-white mb-4 mt-8">Overview</h4>
+          <p class="text-gray-400 text-base font-light leading-relaxed mb-5">WhatsApp is the de facto communication platform across Africa. Automating your WhatsApp Business account transforms it from a simple messaging tool into a 24/7 sales engine that nurtures leads, shares inventory, and books test drives without additional staff.</p>
+
+          <ul class="space-y-2 mb-6">
+            <li class="flex items-start gap-3 text-gray-400 text-sm font-light"><span class="dot-gold"></span>Automate customer engagement with welcome messages, vehicle catalog sharing, and booking reminders.</li>
+            <li class="flex items-start gap-3 text-gray-400 text-sm font-light"><span class="dot-gold"></span>Set up quick replies for frequently asked questions about range, pricing, and delivery.</li>
+            <li class="flex items-start gap-3 text-gray-400 text-sm font-light"><span class="dot-gold"></span>Use broadcast lists to notify prospects about new arrivals and promotions.</li>
+          </ul>
+
+          <h4 class="text-xl font-black text-white mb-4 mt-8">Case Example</h4>
+          <p class="text-gray-400 text-base font-light leading-relaxed mb-5">A dealership in Lagos reduced response time to inquiries from 24 hours to under 30 minutes after implementing WhatsApp Business automation with catalog integration.</p>
+
+          <div class="rounded-[1.5rem] overflow-hidden mb-8">
+            <img src="https://images.unsplash.com/photo-1611605698335-8b1569810432?auto=format&fit=crop&w=1000&q=80" alt="WhatsApp Business" class="w-full" style="max-height:400px;object-fit:cover;">
+          </div>
+
+          <div class="glass rounded-[1.5rem] p-6 md:p-8 mb-8" style="border-color:rgba(197,160,89,.15);">
+            <div class="flex items-start gap-3">
+              <span class="text-theme text-lg flex-shrink-0 mt-0.5">✦</span>
+              <p class="text-gray-300 text-sm font-light leading-relaxed">Service Integration Point: Automation setup and training for WhatsApp Business integrated with your management system are included in our dealer enablement package.</p>
+            </div>
+          </div>
+
+          <div class="border-t border-white/5 pt-6 mt-8 flex justify-end">
+            <a href="#whatsapp-automation" class="text-[10px] font-black tracking-widest uppercase text-theme hover:text-white transition">Back to Top ↑</a>
+          </div>
+        </div>
+
+        <!-- Module 4 -->
+        <div id="local-seo">
+          <div class="flex items-center gap-3 mb-6">
+            <span class="text-[10px] font-black text-gray-600 uppercase tracking-widest">Module 04</span>
+            <span class="w-8 h-px bg-white/10"></span>
+          </div>
+          <h3 class="font-black italic text-white uppercase tracking-tight mb-8" style="font-size:clamp(1.5rem,3.5vw,2.5rem);">Local SEO for African Markets</h3>
+
+          <h4 class="text-xl font-black text-white mb-4 mt-8">Overview</h4>
+          <p class="text-gray-400 text-base font-light leading-relaxed mb-5">When African buyers search for EVs, they turn to Google Maps and local search. Optimizing for these platforms ensures your dealership appears when potential customers are actively looking, making local SEO one of the highest-ROI digital investments you can make.</p>
+
+          <ul class="space-y-2 mb-6">
+            <li class="flex items-start gap-3 text-gray-400 text-sm font-light"><span class="dot-gold"></span>Optimize Google Maps and local search listings to improve visibility.</li>
+            <li class="flex items-start gap-3 text-gray-400 text-sm font-light"><span class="dot-gold"></span>Include relevant keywords, local contact information, and operational hours.</li>
+            <li class="flex items-start gap-3 text-gray-400 text-sm font-light"><span class="dot-gold"></span>Collect and respond to customer reviews to build trust and improve rankings.</li>
+          </ul>
+
+          <h4 class="text-xl font-black text-white mb-4 mt-8">Case Example</h4>
+          <p class="text-gray-400 text-base font-light leading-relaxed mb-5">SEO improvements helped a Kenyan dealer rank top for 'EV for sale Nairobi', increasing web leads by 50% within three months of implementation.</p>
+
+          <div class="rounded-[1.5rem] overflow-hidden mb-8">
+            <img src="https://images.unsplash.com/photo-1571721795195-a2ca2d3370a9?auto=format&fit=crop&w=1000&q=80" alt="Local SEO" class="w-full" style="max-height:400px;object-fit:cover;">
+          </div>
+
+          <div class="glass rounded-[1.5rem] p-6 md:p-8 mb-8" style="border-color:rgba(197,160,89,.15);">
+            <div class="flex items-start gap-3">
+              <span class="text-theme text-lg flex-shrink-0 mt-0.5">✦</span>
+              <p class="text-gray-300 text-sm font-light leading-relaxed">Service Integration Point: SEO audit reports, content templates, and guidance for local market optimization are provided to help you dominate your local search results.</p>
+            </div>
+          </div>
+
+          <div class="border-t border-white/5 pt-6 mt-8 flex justify-end">
+            <a href="#local-seo" class="text-[10px] font-black tracking-widest uppercase text-theme hover:text-white transition">Back to Top ↑</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- NEXT STEPS -->
+<section class="py-16 bg-a">
+  <div class="container mx-auto px-6 md:px-12 text-center">
+    <div class="max-w-2xl mx-auto">
+      <div class="label justify-center mb-4" style="color:var(--gold);">Continue Learning</div>
+      <h2 class="text-2xl font-black italic text-white uppercase tracking-tight mb-6">Ready for <span class="text-theme">Module 04</span>?</h2>
+      <p class="text-gray-500 text-base font-light italic mb-8">Proceed to the next course in the Academy curriculum.</p>
+      <div class="flex flex-wrap justify-center gap-4">
+        <a href="academy.html" class="btn-outline px-9 py-4 rounded text-xs font-black tracking-widest uppercase italic">← Back to Academy</a>
+        <a href="https://wa.me/qr/F7M2RQADCE3KN1" class="btn-primary px-9 py-4 rounded text-xs font-black tracking-widest uppercase italic shadow-lg">Ask a Question</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+const mobOpen = document.getElementById('mob-open');
+const mobClose = document.getElementById('mob-close');
+const mobMenu = document.getElementById('mob-menu');
+if (mobOpen && mobClose && mobMenu) {
+  mobOpen.addEventListener('click', () => { mobMenu.classList.remove('hidden'); });
+  mobClose.addEventListener('click', () => { mobMenu.classList.add('hidden'); });
+}
+function closeMob() { if (mobMenu) mobMenu.classList.add('hidden'); }
+</script>
+</body>
+</html>

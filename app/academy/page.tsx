@@ -69,7 +69,7 @@ export default function AcademyPage() {
                 num: "03",
                 title: "Dealership Digital Marketing Playbook",
                 desc: "Launch your EV showroom online: Facebook ad templates, WhatsApp Business automation, and local SEO for African markets.",
-                modules: "5 Modules",
+                modules: "4 Modules",
                 level: "All Levels",
                 levelCls: "bg-white/5 text-white border border-white/10",
                 img: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=600&q=80",
@@ -78,7 +78,7 @@ export default function AcademyPage() {
                 num: "04",
                 title: "Battery Maintenance & Safety Protocols",
                 desc: "High-voltage safety, thermal management, and diagnostic tools. Essential for any service centre handling Chinese EVs.",
-                modules: "6 Modules",
+                modules: "3 Modules",
                 level: "Advanced",
                 levelCls: "bg-red-500/10 text-red-400 border border-red-500/30",
                 img: "https://6a0327d1fc46b5b25f3480d6.imgix.net/academy/DIY-Battery-Maintenance-Tips-and-Safety-Precautions.jpg",
@@ -96,52 +96,54 @@ export default function AcademyPage() {
                 num: "06",
                 title: "After-Sales Service Centre Setup Guide",
                 desc: "Step-by-step blueprint: equipment procurement, technician training, parts inventory management, and warranty claim processes.",
-                modules: "8 Modules",
+                modules: "4 Modules",
                 level: "Advanced",
                 levelCls: "bg-red-500/10 text-red-400 border border-red-500/30",
                 img: "https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&w=600&q=80",
               },
-            ].map((course, i) => (
-              <div
-                key={i}
-                className="glass rounded-[2.5rem] overflow-hidden border border-white/5 hover:border-gold/30 transition-all duration-500 group cursor-pointer"
-              >
-                <div className="aspect-[16/10] overflow-hidden relative">
-                  <img
-                    src={course.img}
-                    alt={course.title}
-                    className="w-full h-full object-cover scale-100 group-hover:scale-105 transition-all duration-700"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-bg via-transparent to-transparent opacity-60" />
-                  <div className="absolute top-4 left-4">
-                    <span className="text-[10px] font-black px-3 py-1.5 rounded-full bg-black/60 text-white uppercase tracking-wider">
-                      {course.modules}
-                    </span>
+            ].map((course, i) => {
+              const courseHref = i === 0 ? "/academy/course-1" : i === 1 ? "/academy/course-2" : i === 2 ? "/academy/course-3" : i === 3 ? "/academy/course-4" : i === 4 ? "/academy/course-5" : i === 5 ? "/academy/course-6" : null;
+              const isOpen = courseHref !== null;
+              return isOpen ? (
+                <Link key={i} href={courseHref!} className="glass rounded-[2.5rem] overflow-hidden border border-white/5 hover:border-gold/30 transition-all duration-500 group block">
+                  <div className="aspect-[16/10] overflow-hidden relative">
+                    <img src={course.img} alt={course.title} className="w-full h-full object-cover scale-100 group-hover:scale-105 transition-all duration-700" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-bg via-transparent to-transparent opacity-60" />
+                    <div className="absolute top-4 left-4">
+                      <span className="text-[10px] font-black px-3 py-1.5 rounded-full bg-black/60 text-white uppercase tracking-wider">{course.modules}</span>
+                    </div>
+                  </div>
+                  <div className="p-8">
+                    <div className="flex items-center gap-3 mb-4">
+                      <span className="text-[10px] font-black text-gray-600 uppercase tracking-widest">Course {course.num}</span>
+                      <span className={`text-[8px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider ${course.levelCls}`}>{course.level}</span>
+                    </div>
+                    <h3 className="text-lg font-black italic text-white uppercase tracking-tight mb-3">{course.title}</h3>
+                    <p className="text-gray-500 text-xs font-light leading-relaxed mb-6">{course.desc}</p>
+                    <span className="flex items-center gap-2 text-[10px] font-black text-gray-600 uppercase tracking-widest group-hover:text-white transition">Enroll Now →</span>
+                  </div>
+                </Link>
+              ) : (
+                <div key={i} className="glass rounded-[2.5rem] overflow-hidden border border-white/5 hover:border-gold/30 transition-all duration-500 group cursor-pointer">
+                  <div className="aspect-[16/10] overflow-hidden relative">
+                    <img src={course.img} alt={course.title} className="w-full h-full object-cover scale-100 group-hover:scale-105 transition-all duration-700" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-bg via-transparent to-transparent opacity-60" />
+                    <div className="absolute top-4 left-4">
+                      <span className="text-[10px] font-black px-3 py-1.5 rounded-full bg-black/60 text-white uppercase tracking-wider">{course.modules}</span>
+                    </div>
+                  </div>
+                  <div className="p-8">
+                    <div className="flex items-center gap-3 mb-4">
+                      <span className="text-[10px] font-black text-gray-600 uppercase tracking-widest">Course {course.num}</span>
+                      <span className={`text-[8px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider ${course.levelCls}`}>{course.level}</span>
+                    </div>
+                    <h3 className="text-lg font-black italic text-white uppercase tracking-tight mb-3">{course.title}</h3>
+                    <p className="text-gray-500 text-xs font-light leading-relaxed mb-6">{course.desc}</p>
+                    <div className="flex items-center gap-2 text-[10px] font-black text-gray-600 uppercase tracking-widest">Coming Soon</div>
                   </div>
                 </div>
-                <div className="p-8">
-                  <div className="flex items-center gap-3 mb-4">
-                    <span className="text-[10px] font-black text-gray-600 uppercase tracking-widest">
-                      Course {course.num}
-                    </span>
-                    <span
-                      className={`text-[8px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider ${course.levelCls}`}
-                    >
-                      {course.level}
-                    </span>
-                  </div>
-                  <h3 className="text-lg font-black italic text-white uppercase tracking-tight mb-3">
-                    {course.title}
-                  </h3>
-                  <p className="text-gray-500 text-xs font-light leading-relaxed mb-6">
-                    {course.desc}
-                  </p>
-                  <div className="flex items-center gap-2 text-[10px] font-black text-gray-600 uppercase tracking-widest">
-                    Enroll Now(Not open yet) →
-                  </div>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
