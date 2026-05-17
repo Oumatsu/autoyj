@@ -50,7 +50,7 @@ export default function BydSeagullPage() {
   return (
     <>
       {/* Hero */}
-      <section className="relative min-h-screen flex items-end overflow-hidden bg-bg2">
+      <section className="relative min-h-screen flex items-end overflow-hidden bg-black">
         <div className="absolute inset-0">
           <img
             src="https://6a0327d1fc46b5b25f3480d6.imgix.net/seagull/seagull%20display.png"
@@ -120,9 +120,11 @@ export default function BydSeagullPage() {
         </div>
       </section>
 
+      {/* Transition: Hero → Gallery (matches hero's bottom gradient + left-to-right darkening) */}
+      <div style={{ height: "80px", background: "linear-gradient(to bottom, transparent 0%, #000 100%), linear-gradient(to right, #1f1f1f 28%, #232323 75%)", pointerEvents: "none" }} />
+
       {/* Photo Gallery */}
-      <section className="bg-black py-8 md:py-12" style={{ position: "relative" }}>
-        <div style={{ position: "absolute", left: 0, right: 0, height: "80px", top: "-80px", background: "linear-gradient(to bottom, rgba(35,35,35,1) 0%, rgba(0,0,0,1) 100%)", pointerEvents: "none", zIndex: 2 }} />
+      <section className="bg-black py-8 md:py-12">
         <style>{`
           @keyframes imgSwitchIn {
             from { opacity: 0.5; transform: scale(0.96); }
