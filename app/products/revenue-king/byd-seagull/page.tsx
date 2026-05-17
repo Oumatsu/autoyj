@@ -476,48 +476,7 @@ export default function BydSeagullPage() {
         </div>
       </section>
 
-      {/* Parts Kit + CTA */}
-      <div className="relative overflow-hidden">
-        <div className="absolute inset-0">
-          <img src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=1600&q=80" className="w-full h-full object-cover" style={{ filter: "brightness(.28) grayscale(15%)" }} alt="" />
-          <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, var(--color-mid) 0%, transparent 16%, transparent 75%, var(--color-mid) 100%)" }} />
-          <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, rgba(10,10,10,.55) 0%, transparent 50%, rgba(10,10,10,.55) 100%)" }} />
-        </div>
 
-        <section className="py-10 md:py-14 relative z-10">
-          <div className="container mx-auto px-6 md:px-12">
-            <div className="grid lg:grid-cols-2 gap-12 items-center">
-              <div>
-                <div className="label label-gold mb-5">Add-On Option</div>
-                <h2 className="sh mb-5" style={{ fontSize: "clamp(1.8rem,4vw,3rem)" }}>Class A<br /><span className="text-theme">Parts Kit</span>.</h2>
-                <p className="text-gray-400 text-base font-light leading-relaxed mb-6">
-                  If your market has limited BYD parts availability, we can source and bundle a starter spare-parts package with your vehicle shipment — one logistics move, zero extra hassle.
-                </p>
-                <div className="glass rounded-[1.5rem] p-5 mb-6 inline-flex items-start gap-3 border-theme/15">
-                  <span className="text-[9px] font-black tracking-[.2em] uppercase text-gray-600 pt-0.5">Note:</span>
-                  <span className="text-[11px] font-light text-gray-300 leading-relaxed">This is an <strong className="text-white font-black">optional purchase</strong>, not included in the base price.</span>
-                </div>
-                <Link href="/solutions/configure-kit" className="btn-outline inline-block px-9 py-4 rounded text-xs font-black tracking-widest uppercase italic">
-                  Ask About Parts Kit →</Link>
-              </div>
-              <div className="glass rounded-[2rem] p-8" style={{ background: "rgba(0,0,0,.42)", borderColor: "rgba(197,160,89,.18)" }}>
-                <div className="text-[9px] font-black tracking-widest uppercase text-theme mb-6">Class A Kit — Typical Contents</div>
-                <div className="space-y-3">
-                  {["Brake pads (front + rear set)", "Wiper blades (pair)", "Cabin air filter", "Fuse assortment kit", "Portable AC charging cable (Type 2 / GB-T)", "Tyre repair kit", "12V auxiliary battery", "OBD diagnostic dongle (BYD compatible)"].map((item) => (
-                    <div key={item} className="flex items-center gap-3 text-sm text-gray-400 font-light">
-                      <span className="text-accent font-black">✦</span> {item}
-                    </div>
-                  ))}
-                </div>
-                <div className="mt-6 pt-5 border-t border-white/5">
-                  <p className="text-[10px] text-gray-600 font-light">Contents may vary by vehicle trim and your specific market requirements.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-      </div>
     </>
   );
 }
