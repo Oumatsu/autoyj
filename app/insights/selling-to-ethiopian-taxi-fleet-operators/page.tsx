@@ -24,12 +24,12 @@ const content = `<p>Ethiopia's EV market is not primarily a consumer market. It 
 </div>
 <h2>How Fleet Buyers Make Decisions</h2>
 <p>Commercial fleet buyers do not buy on emotion or brand preference. They make spreadsheet decisions. The data points they require:</p>
-<p>This is the headline number. At ETB 85–95/litre petrol (2026 prices) and 150 km/day commercial use, a petrol vehicle costs approximately ETB 750–950/day in fuel. An equivalent EV costs approximately ETB 50–100/day in electricity. The ETB 700–850/day saving — ETB 21,000–25,000/month — is what closes the commercial decision.</p>
+<p>This is the headline number. At ETB 85–95/litre petrol (2026 prices) and <span class="hl-gold">150 km</span>/day commercial use, a petrol vehicle costs approximately ETB 750–950/day in fuel. An equivalent EV costs approximately ETB 50–100/day in electricity. The ETB 700–850/day saving — ETB 21,000–25,000/month — is what closes the commercial decision.</p>
 <p>Present this calculation early. Don't wait for the buyer to ask. Show your work.</p>
 <p>Purchase price differential, fuel savings, maintenance cost difference (EVs have fewer moving parts; lower maintenance cost), and expected resale value. Fleet buyers think in 3–5 year cycles.</p>
-<p>Fleet buyers fear downtime more than purchase price. A fleet vehicle that is off the road for 8 weeks waiting for a part costs more in lost revenue than the vehicle purchase price premium. This is why your after-sales commitment is the most critical sales argument, not the vehicle specification.</p>
+<p>Fleet buyers fear downtime more than purchase price. A fleet vehicle that is off the road for 8 weeks waiting for a part costs more in lost revenue than the vehicle purchase price premium. This is why your after-sales commitment is the most <span class="hl-green">critical</span> sales argument, not the vehicle specification.</p>
 <p>Quantify it: "If your driver earns ETB 800/day on Feres and their vehicle is off the road for one month, that is ETB 24,000 in lost income. Our parts are in stock; maximum wait time for a Tier 1 part is one week."</p>
-<p>Ethiopian commercial vehicle buyers — particularly independent taxi drivers — rarely have the capital to purchase an EV outright. Financing access is the second most important enabler of fleet sales after after-sales confidence.</p>
+<p>Ethiopian commercial vehicle buyers — particularly independent taxi drivers — rarely have the capital to purchase an EV outright. Financing access is the second most <span class="hl-green">important</span> enabler of fleet sales after after-sales confidence.</p>
 <p>If you can offer financing (through an Ethiopian bank partner), hire-purchase, or connect buyers to microfinance institutions offering EV loans, you will close deals that price-only competitors cannot reach. Development Finance Institutions are actively seeking Ethiopian EV dealers to partner with for green mobility financing programmes.</p>
 <div class="rounded-[1.5rem] overflow-hidden my-10">
   <img src="images/selling-to-ethiopian-taxi-fleet-operators/ride-hailing.jpg" alt="Ride-hailing driver with smartphone in vehicle representing the Feres and ZayRide driver community that represents the largest single EV fleet opportunity in Ethiopia" class="w-full h-auto object-cover" style="max-height:450px;">
@@ -52,7 +52,7 @@ const content = `<p>Ethiopia's EV market is not primarily a consumer market. It 
 <h3>Step 2: Provide a Charging Solution, Not Just a Vehicle</h3>
 <p>No commercial fleet buyer wants to figure out charging themselves. Present a clear charging option as part of the sale:</p>
 <p>- Single-phase overnight AC charging requirements (can use existing power at a depot or residential parking)</p>
-<p>- Cost of a basic wallbox installation ($150–$300 USD)</p>
+<p>- Cost of a basic wallbox installation ($150–$<span class="hl-gold">300 USD</span>)</p>
 <p>- Whether a solar supplement is appropriate for their facility</p>
 <h3>Step 3: Demonstrate After-Sales Capability</h3>
 <p>For fleet buyers, this is the deal-maker. Show, don't tell:</p>

@@ -22,13 +22,16 @@
     .text-accent{color:var(--green)}
     .nav-link{font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);transition:color .2s}
     .nav-link:hover{color:#fff}
-    .article-body p{font-size:1.125rem;line-height:1.8;color:#9CA3AF;margin-bottom:2rem;font-weight:300}
+    .article-body p{font-size:1rem;line-height:1.9;color:#9CA3AF;margin-bottom:1.5rem;font-weight:300;text-indent:2em}
+    .article-body p:first-of-type{text-indent:0}
     .article-body h2{font-size:2rem;font-weight:900;font-style:italic;color:#fff;margin-top:3.5rem;margin-bottom:1.5rem;letter-spacing:-0.02em}
     .article-body h3{font-size:1.5rem;font-weight:700;color:#E5E7EB;margin-top:2.5rem;margin-bottom:1rem}
-    .article-body ul{margin-bottom:2rem;padding-left:1.5rem}
-    .article-body li{font-size:1.125rem;line-height:1.8;color:#9CA3AF;margin-bottom:0.75rem;font-weight:300}
+    .article-body ul{margin-bottom:1.5rem;padding-left:1.5rem}
+    .article-body li{font-size:1rem;line-height:1.8;color:#9CA3AF;margin-bottom:0.5rem;font-weight:300;position:relative}
     .article-body li::before{content:'•';color:var(--gold);position:absolute;left:-1.5rem;font-weight:bold}
     .article-body strong{color:#E5E7EB;font-weight:600}
+    .article-body .hl-gold{color:var(--gold);font-weight:600}
+    .article-body .hl-green{color:var(--green);font-weight:600}
     .article-body table{width:100%;border-collapse:collapse;margin:2rem 0}
     .article-body th{text-align:left;padding:12px 16px;font-size:10px;font-weight:900;letter-spacing:.15em;text-transform:uppercase;color:#9CA3AF;border-bottom:1px solid rgba(255,255,255,.1)}
     .article-body td{padding:12px 16px;font-size:14px;color:#D1D5DB;border-bottom:1px solid rgba(255,255,255,.05)}
@@ -113,9 +116,9 @@
 </div>
 <h2>Country-by-Country Highlights</h2>
 <h3>Kenya</h3>
-<p>The report identifies Kenya as the most advanced Sub-Saharan EV market by policy maturity. The combination of 0% import duty, an active ride-hailing sector, and Nairobi's urban density create the strongest commercial fleet EV economics on the continent. The report notes that Kenya's EV fleet is growing primarily through commercial channels — taxi operators, logistics companies, and government fleet managers — rather than retail consumer purchases.</p>
+<p>The report identifies Kenya as the most advanced Sub-Saharan EV market by policy maturity. The combination of <span class="hl-gold">0% </span>import duty, an active ride-hailing sector, and Nairobi's urban density create the strongest commercial fleet EV economics on the continent. The report notes that Kenya's EV fleet is growing primarily through commercial channels — taxi operators, logistics companies, and government fleet managers — rather than retail consumer purchases.</p>
 <h3>South Africa</h3>
-<p>South Africa has the continent's largest existing passenger vehicle market (approximately 500,000 new vehicles per year) and the most sophisticated dealer infrastructure. BYD's rapid network expansion is the dominant story, with the report noting that South Africa's Q1 2025 NEV share of 2.4% already exceeds the continental average by a factor of three. However, South Africa's high import duty on EVs (25%) remains the primary constraint on cost competitiveness.</p>
+<p>South Africa has the continent's largest existing passenger vehicle market (approximately 500,000 new vehicles per year) and the most sophisticated dealer infrastructure. BYD's rapid network expansion is the dominant story, with the report noting that South Africa's Q1 2025 NEV share of 2.<span class="hl-gold">4% </span>already exceeds the continental average by a factor of three. However, South Africa's high import duty on EVs (25%) remains the primary constraint on cost competitiveness.</p>
 <h3>Ethiopia</h3>
 <p>The report highlights Ethiopia's unique position as the only country globally with an active ICE import ban, while also noting the policy volatility that has characterised its EV incentive framework (VAT reinstatement, customs duty increase). Ethiopia's EV fleet tripled between 2023 and 2025, but primarily in the commercial taxi and ride-hailing sector — consumer purchases remain rare.</p>
 <h3>Nigeria</h3>

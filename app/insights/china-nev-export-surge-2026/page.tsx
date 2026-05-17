@@ -19,11 +19,11 @@ const content = `<p>Two policy events collided in January 2026 to create the mos
 </div>
 <h2>The Export Surge: What the Numbers Show</h2>
 <p>China's NEV export performance through 2025 was exceptional by any measure:</p>
-<p>- <strong>H1 2025</strong>: 1.06 million NEVs exported, up 75.2% year-on-year</p>
+<p>- <strong>H1 2025</strong>: 1.06 million NEVs exported, up 75.<span class="hl-gold">2% </span>year-on-year</p>
 <p>- <strong>Full-year 2025</strong>: Made-in-China vehicle exports approached the 2024 total through the first 10 months alone, tracking toward a new record</p>
-<p>- <strong>NEV share of total exports</strong>: 35.5% of all Chinese vehicle exports were new energy vehicles</p>
+<p>- <strong>NEV share of total exports</strong>: 35.<span class="hl-gold">5% </span>of all Chinese vehicle exports were new energy vehicles</p>
 <p>The primary driver of this surge was not Africa — it was Southeast Asia and Latin America, which absorbed the bulk of the redirected volume. But the trend is clear: as Western markets erected tariff walls, Chinese OEMs pivoted toward open markets with speed and commercial aggression.</p>
-<p>Africa is increasingly on that list. In 2024, Chinese imports accounted for <strong>75–85% of EV sales</strong> across key emerging markets — reaching 85% in Brazil and Thailand, according to IEA data. The African market, where Chinese brands have been active in ICE vehicles for over a decade, is a natural extension.</p>
+<p>Africa is increasingly on that list. In 2024, Chinese imports accounted for <strong>75–<span class="hl-gold">85% </span>of EV sales</strong> across key emerging markets — reaching <span class="hl-gold">85% </span>in Brazil and Thailand, according to IEA data. The African market, where Chinese brands have been active in ICE vehicles for over a decade, is a natural extension.</p>
 <div class="rounded-[1.5rem] overflow-hidden my-10">
   <img src="images/china-nev-export-surge-2026/price-data.jpg" alt="Data analysis screen showing market statistics representing the pricing intelligence available to informed dealers" class="w-full h-auto object-cover" style="max-height:450px;">
   <div class="px-6 py-4 bg-white/[0.02] border-t border-white/5">

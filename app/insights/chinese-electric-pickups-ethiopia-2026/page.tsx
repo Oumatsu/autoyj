@@ -4,7 +4,7 @@ const content = `<p>East Africa runs on pickup trucks. The Toyota Hilux has defi
 <p>Chinese electric pickups are now entering this conversation. The BYD Shark 6 launched in South Africa in April 2025 and in Kenya later the same year. The 2026 Beijing Auto Show hinted at additional Chinese PHEV and full BEV pickup entrants. This analysis evaluates the commercial case — and the limitations — for the East African market.</p>
 <h2>Why a Pickup Truck Can't Be a Pure BEV Yet</h2>
 <p>For urban taxis and short-route commercial vehicles, a pure BEV is operationally viable in markets like Addis Ababa and Nairobi, where daily distances are predictable and the vehicle returns to a charging point nightly.</p>
-<p>Pickups operate differently. They are used for inter-city routes, rural supply chains, and unpredictable-range commercial tasks. A commercial pickup that cannot reliably complete a Nairobi-to-Nakuru run (100 km each way) or a Mombasa-to-Malindi goods delivery (120 km each way) without range anxiety is not commercially viable for the majority of East African use cases.</p>
+<p>Pickups operate differently. They are used for inter-city routes, rural supply chains, and unpredictable-range commercial tasks. A commercial pickup that cannot reliably complete a Nairobi-to-Nakuru run (<span class="hl-gold">100 km</span> each way) or a Mombasa-to-Malindi goods delivery (<span class="hl-gold">120 km</span> each way) without range anxiety is not commercially viable for the majority of East African use cases.</p>
 <p>This is why every Chinese electric pickup currently viable for East African deployment is a <strong>plug-in hybrid (PHEV)</strong> — not a pure BEV. The PHEV architecture provides electric operation in urban conditions where fuel cost savings are maximised, with petrol backup for the range-variable long-distance use that defines commercial pickup use.</p>
 <div class="rounded-[1.5rem] overflow-hidden my-10">
   <img src="images/chinese-electric-pickups-ethiopia-2026/shark-phev.jpg" alt="BYD Shark PHEV pickup truck representing the plug-in hybrid commercial vehicle that bridges electric capability with petrol range for East African operating conditions" class="w-full h-auto object-cover" style="max-height:450px;">
@@ -13,9 +13,9 @@ const content = `<p>East Africa runs on pickup trucks. The Toyota Hilux has defi
   </div>
 </div>
 <h2>BYD Shark 6: The Current Market Leader</h2>
-<p>The BYD Shark 6 is a dual-cab pickup powered by a PHEV drivetrain integrating a 1.5T turbocharged petrol engine with a Freevoy battery system providing 100 km of pure electric range.</p>
-<p>- Pure EV range: 100 km CLTC</p>
-<p>- Total range (EV + petrol): 840 km</p>
+<p>The BYD Shark 6 is a dual-cab pickup powered by a PHEV drivetrain integrating a 1.5T turbocharged petrol engine with a Freevoy battery system providing <span class="hl-gold">100 km</span> of pure electric range.</p>
+<p>- Pure EV range: <span class="hl-gold">100 km</span> CLTC</p>
+<p>- Total range (EV + petrol): <span class="hl-gold">840 km</span></p>
 <p>- Payload: 1,000 kg</p>
 <p>- Towing capacity: 4,500 kg</p>
 <p>- Ground clearance: 224 mm</p>
@@ -28,9 +28,9 @@ const content = `<p>East Africa runs on pickup trucks. The Toyota Hilux has defi
 <h3>GWM/Haval (Great Wall Motors) — Upcoming EV Pickup</h3>
 <p>GWM — which already has an established dealer presence in South Africa and a growing presence in East Africa — has announced intentions to bring electric pickup variants of its commercial truck range to African markets. No confirmed 2026 launch date as of the Beijing Auto Show, but the GWM Poer PHEV is a relevant product to monitor.</p>
 <h3>BYD Shark Second Generation</h3>
-<p>BYD confirmed at the 2026 Beijing Auto Show that a successor to the Shark 6 is in development, targeting a 2027 production start. The 2nd-gen Shark is expected to incorporate CATL's Freevoy 2nd-generation battery system, which achieves 500 km of pure electric range in PHEV configurations. A Shark with 500 km EV range would represent a substantially different commercial proposition — handling most inter-city East African routes on electricity alone.</p>
+<p>BYD confirmed at the 2026 Beijing Auto Show that a successor to the Shark 6 is in development, targeting a 2027 production start. The 2nd-gen Shark is expected to incorporate CATL's Freevoy 2nd-generation battery system, which achieves <span class="hl-gold">500 km</span> of pure electric range in PHEV configurations. A Shark with <span class="hl-gold">500 km</span> EV range would represent a substantially different commercial proposition — handling most inter-city East African routes on electricity alone.</p>
 <h2>The Commercial Case: When It Works, When It Doesn't</h2>
-<p>- Operating pattern is primarily urban (daily mileage under 150 km, overnight return to charging point)</p>
+<p>- Operating pattern is primarily urban (daily mileage under <span class="hl-gold">150 km</span>, overnight return to charging point)</p>
 <p>- Fleet operator can install depot charging (3-phase AC sufficient for overnight charging)</p>
 <p>- Route includes significant highway driving where PHEV can pre-condition battery for urban segments</p>
 <p>- Routes require inter-city travel without charging access (the petrol backup mitigates range risk but increases complexity)</p>

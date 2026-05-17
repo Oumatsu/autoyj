@@ -39,8 +39,8 @@ const content = `<p>When a Chinese EV leaves a factory in Shenzhen, Tianjin, or 
 <p>Container is typically right when:</p>
 <h2>The EV-Specific Consideration: Battery State at Loading</h2>
 <p>This is the one area where EV shipping differs from ICE vehicle shipping and where importers consistently encounter unexpected costs or delays.</p>
-<p>Most RoRo terminals and container yards require EV batteries to be at <strong>30–50% state of charge at loading</strong>. Vehicles arriving at the terminal with depleted or fully charged batteries may be refused loading or subject to on-site charging/discharging that adds cost and delay.</p>
-<p>Chinese exporters working with legitimate OEM channels typically manage this — vehicles are parked at export yards for days to weeks, and charge levels are monitored. Grey-market traders moving vehicles directly from registrations to ports may deliver vehicles at 0% charge (never been driven, never been charged since factory). This creates a loading issue that is your problem to solve, not theirs.</p>
+<p>Most RoRo terminals and container yards require EV batteries to be at <strong>30–<span class="hl-gold">50% </span>state of charge at loading</strong>. Vehicles arriving at the terminal with depleted or fully charged batteries may be refused loading or subject to on-site charging/discharging that adds cost and delay.</p>
+<p>Chinese exporters working with legitimate OEM channels typically manage this — vehicles are parked at export yards for days to weeks, and charge levels are monitored. Grey-market traders moving vehicles directly from registrations to ports may deliver vehicles at <span class="hl-gold">0% </span>charge (never been driven, never been charged since factory). This creates a loading issue that is your problem to solve, not theirs.</p>
 <h2>Sources</h2>
 <p>- Grimaldi Lines — China–Africa RoRo service documentation (2025–2026)</p>
 <p>- Djibouti Ports & Free Zones Authority — Doraleh RoRo terminal specifications</p>

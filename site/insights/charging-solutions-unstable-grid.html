@@ -22,13 +22,16 @@
     .text-accent{color:var(--green)}
     .nav-link{font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);transition:color .2s}
     .nav-link:hover{color:#fff}
-    .article-body p{font-size:1.125rem;line-height:1.8;color:#9CA3AF;margin-bottom:2rem;font-weight:300}
+    .article-body p{font-size:1rem;line-height:1.9;color:#9CA3AF;margin-bottom:1.5rem;font-weight:300;text-indent:2em}
+    .article-body p:first-of-type{text-indent:0}
     .article-body h2{font-size:2rem;font-weight:900;font-style:italic;color:#fff;margin-top:3.5rem;margin-bottom:1.5rem;letter-spacing:-0.02em}
     .article-body h3{font-size:1.5rem;font-weight:700;color:#E5E7EB;margin-top:2.5rem;margin-bottom:1rem}
-    .article-body ul{margin-bottom:2rem;padding-left:1.5rem}
-    .article-body li{font-size:1.125rem;line-height:1.8;color:#9CA3AF;margin-bottom:0.75rem;font-weight:300}
+    .article-body ul{margin-bottom:1.5rem;padding-left:1.5rem}
+    .article-body li{font-size:1rem;line-height:1.8;color:#9CA3AF;margin-bottom:0.5rem;font-weight:300;position:relative}
     .article-body li::before{content:'•';color:var(--gold);position:absolute;left:-1.5rem;font-weight:bold}
     .article-body strong{color:#E5E7EB;font-weight:600}
+    .article-body .hl-gold{color:var(--gold);font-weight:600}
+    .article-body .hl-green{color:var(--green);font-weight:600}
     .article-body table{width:100%;border-collapse:collapse;margin:2rem 0}
     .article-body th{text-align:left;padding:12px 16px;font-size:10px;font-weight:900;letter-spacing:.15em;text-transform:uppercase;color:#9CA3AF;border-bottom:1px solid rgba(255,255,255,.1)}
     .article-body td{padding:12px 16px;font-size:14px;color:#D1D5DB;border-bottom:1px solid rgba(255,255,255,.05)}
@@ -102,11 +105,11 @@
 <h2>The Four Charging Approaches for Unreliable Grid Markets</h2>
 <h3>Approach 1: Overnight AC Charging (Depot-Based)</h3>
 <p>The most practical and lowest-cost charging solution for commercial fleet operators is <strong>overnight AC charging at a depot or parking facility</strong>.</p>
-<p>Most Chinese EVs accept 6.6 kW onboard AC charging as standard. At this rate, a fully depleted 30 kWh battery (BYD Seagull standard) charges in approximately 5 hours. A partially depleted battery (30-40% depleted at end of day from 150 km of commercial use) charges in 2–3 hours.</p>
+<p>Most Chinese EVs accept 6.6 kW onboard AC charging as standard. At this rate, a fully depleted <span class="hl-gold">30 kWh</span> battery (BYD Seagull standard) charges in approximately 5 hours. A partially depleted battery (30-<span class="hl-gold">40% </span>depleted at end of day from <span class="hl-gold">150 km</span> of commercial use) charges in 2–3 hours.</p>
 <p>- A 3-socket single-phase 240V power supply (standard residential connection in Ethiopia and Kenya)</p>
-<p>- A Type 2 EVSE (Electric Vehicle Supply Equipment) wallbox — approximately $150–$300 USD; some vehicles include a Type 2 cable</p>
+<p>- A Type 2 EVSE (Electric Vehicle Supply Equipment) wallbox — approximately $150–$<span class="hl-gold">300 USD</span>; some vehicles include a Type 2 cable</p>
 <p>- A circuit breaker upgrade if the existing circuit cannot support 32A continuous draw</p>
-<p>This is the entry-level charging solution. It costs less than $500 USD per vehicle connection and works reliably for commercial fleet operators who can establish overnight depot parking.</p>
+<p>This is the entry-level charging solution. It costs less than $<span class="hl-gold">500 USD</span> per vehicle connection and works reliably for commercial fleet operators who can establish overnight depot parking.</p>
 <div class="rounded-[1.5rem] overflow-hidden my-10">
   <img src="images/charging-solutions-unstable-grid/ev-charger.jpg" alt="EV charging station with DC fast charger representing the higher-speed charging infrastructure being installed at commercial locations in East Africa" class="w-full h-auto object-cover" style="max-height:450px;">
   <div class="px-6 py-4 bg-white/[0.02] border-t border-white/5">
@@ -116,8 +119,8 @@
 <h3>Approach 2: Solar + Battery Storage System</h3>
 <p>For operators whose grid supply is too unreliable even for overnight AC charging — or for commercial facilities that want to charge during daylight hours — a solar photovoltaic system with battery storage is the solution.</p>
 <p>Ethiopia's solar irradiance is excellent: Addis Ababa averages approximately 5.5–6.0 peak sun hours per day year-round, among the highest in East Africa.</p>
-<p>- 10 kW solar array (approximately 25 x 400W panels): generates ~55–60 kWh per day in Addis Ababa conditions</p>
-<p>- 30 kWh battery storage: stores daytime generation for night use</p>
+<p>- 10 kW solar array (approximately 25 x 400W panels): generates ~55–<span class="hl-gold">60 kWh</span> per day in Addis Ababa conditions</p>
+<p>- <span class="hl-gold">30 kWh</span> battery storage: stores daytime generation for night use</p>
 <p>- 7.4 kW AC EVSE: charges one vehicle per slot overnight</p>
 <p>Several NGOs and development finance institutions — including UNEP and GIZ — have deployed solar EV charging pilot systems in Addis Ababa and Nairobi that provide reference installations and, in some cases, co-financing opportunities.</p>
 <h3>Approach 3: Vehicle-to-Load (V2L) for Grid Independence</h3>

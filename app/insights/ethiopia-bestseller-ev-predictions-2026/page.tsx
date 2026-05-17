@@ -3,8 +3,8 @@ import Link from "next/link";
 const content = `<p>Ethiopia's EV market has structural characteristics unlike any other African market — and unlike any other market globally. The world's only nationwide ICE import ban means that all newly imported passenger vehicles must be electric. A floating currency and high tax burden shape the price sensitivity of every purchasing decision. A commercial taxi sector that adopted EVs earlier than consumer markets creates a different product hierarchy than what Western analysts would predict.</p>
 <p>This analysis predicts the EV models most likely to dominate Ethiopian sales in 2026 — based on pricing, operational fit, available import channels, and the specific purchasing patterns that have emerged from Ethiopia's EV adoption history.</p>
 <h2>The Ethiopian Market Context</h2>
-<p>Before predicting bestsellers, understanding the buyer segments is essential.</p>
-<p>Feres and ZayRide together represent over 60,000 active drivers in Addis Ababa. A significant proportion of these drivers are transitioning from ICE to EV — motivated by fuel cost savings that exceed ETB 28,000/month per vehicle at typical daily mileage. This segment prioritises: lowest acquisition cost, lowest daily operating cost, urban range sufficiency (150–200 km/day), and ease of maintenance.</p>
+<p>Before predicting bestsellers, understanding the buyer segments is <span class="hl-green">essential</span>.</p>
+<p>Feres and ZayRide together represent over 60,000 active drivers in Addis Ababa. A significant proportion of these drivers are transitioning from ICE to EV — motivated by fuel cost savings that exceed ETB 28,000/month per vehicle at typical daily mileage. This segment prioritises: lowest acquisition cost, lowest daily operating cost, urban range sufficiency (150–<span class="hl-gold">200 km</span>/day), and ease of maintenance.</p>
 <p>Ministry vehicle procurement, government agencies, and quasi-government entities represent a block purchasing segment. These buyers are price-sensitive (procurement rules) but influenced by brand visibility and government-to-government trade relationships with China.</p>
 <p>Still a small segment. Price-sensitive, influenced by what taxis and government fleets are buying (social proof), and increasingly sophisticated about range and charging requirements after watching first-generation EV adoption challenges.</p>
 <div class="rounded-[1.5rem] overflow-hidden my-10">
@@ -15,7 +15,7 @@ const content = `<p>Ethiopia's EV market has structural characteristics unlike a
 </div>
 <h2>Predicted Bestsellers: 2026</h2>
 <h3>1. BYD Seagull — Volume Leader</h3>
-<p>The Seagull is the almost certain volume leader for 2026. Its dominant advantage is price: at approximately $23,000 USD landed in Addis Ababa (full tax-inclusive), it represents the lowest feasible landed cost for a credible new Chinese BEV in Ethiopia.</p>
+<p>The Seagull is the almost certain volume leader for 2026. Its dominant advantage is price: at approximately $<span class="hl-gold">23,000 USD</span> landed in Addis Ababa (full tax-inclusive), it represents the lowest feasible landed cost for a credible new Chinese BEV in Ethiopia.</p>
 <p>The TCO argument closes for ride-hailing operators: fuel savings of ETB 28,000+ per month versus an equivalent ICE vehicle recover the purchase price premium within 24–36 months of commercial operation.</p>
 <h3>2. Chinese Commercial EVs — MiniEV / Microbus Segment</h3>
 <p>Ethiopia's demand for small commercial vehicles — used as taxis, minibuses, and shared mobility vehicles — creates demand for a category that doesn't always feature in global EV bestseller discussions: mini-EVs and electric minibuses.</p>

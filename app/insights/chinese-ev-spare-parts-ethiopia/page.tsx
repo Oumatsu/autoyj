@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-const content = `<p>The Africa E-Mobility Alliance's 2025 report identified spare parts availability — specifically, parts within 30 days — as the single most important factor in commercial fleet buyer decision-making. More important than purchase price. More important than range. More important than brand.</p>
+const content = `<p>The Africa E-Mobility Alliance's 2025 report identified spare parts availability — specifically, parts within 30 days — as the single most <span class="hl-green">important</span> factor in commercial fleet buyer decision-making. More <span class="hl-green">important</span> than purchase price. More <span class="hl-green">important</span> than range. More <span class="hl-green">important</span> than brand.</p>
 <p>For Ethiopian EV dealers operating without official OEM franchise relationships — which is the current reality for virtually all Chinese EV importers in Ethiopia — this creates an operational challenge that is also a competitive differentiation opportunity. The dealer who solves the parts supply problem gains a durable advantage that cannot be matched by price competition alone.</p>
 <p>This guide outlines the practical architecture for building a spare parts supply chain in Ethiopia without an OEM parts distribution agreement.</p>
 <h2>The Parts Priority Hierarchy</h2>
@@ -40,7 +40,7 @@ const content = `<p>The Africa E-Mobility Alliance's 2025 report identified spar
 <h3>Step 2: Establish a Chinese Parts Supplier</h3>
 <p>For Chinese EV parts, you have three sourcing options:</p>
 <h3>Step 3: Build a Consignment Inventory</h3>
-<p>A consignment inventory — parts held in your warehouse against anticipated future demand — eliminates the waiting time for your most critical items. The upfront cost is real, but so is the customer retention value.</p>
+<p>A consignment inventory — parts held in your warehouse against anticipated future demand — eliminates the waiting time for your most <span class="hl-green">critical</span> items. The upfront cost is real, but so is the customer retention value.</p>
 <p>A practical starter consignment inventory for an Ethiopian dealer maintaining 20–30 vehicles *（以下建议数量为参考值，基于行业实践经验，实际根据车队规模和车型组合调整）*：</p>
 <div class="overflow-x-auto my-8"><table class="w-full border-collapse text-sm"><tr><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Part Category</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Recommended Stock Level</th></tr>
 <tr><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">12V auxiliary batteries (matched to fleet models)</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">4–6 units</th></tr>

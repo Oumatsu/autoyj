@@ -11,7 +11,7 @@ const content = `<p>In June 2025, BYD confirmed it would expand its South Africa
 <tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Q1 2026</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">~35</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Revised target, met ahead of schedule</td></tr>
 <tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">End of 2026 target</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">**60–70**</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Current confirmed target</td></tr>
 </table></div>
-<p>South Africa's new energy vehicle registrations reached <strong>3,487 units in Q1 2025</strong> alone — a 2.4% market share, up from 1.4% in 2023. BYD is not expanding into an abstract future market; it is responding to documented demand growth.</p>
+<p>South Africa's new energy vehicle registrations reached <strong>3,487 units in Q1 2025</strong> alone — a 2.<span class="hl-gold">4% </span>market share, up from 1.<span class="hl-gold">4% </span>in 2023. BYD is not expanding into an abstract future market; it is responding to documented demand growth.</p>
 <div class="rounded-[1.5rem] overflow-hidden my-10">
   <img src="images/byd-south-africa-expansion-2026/dealership.jpg" alt="Modern car dealership showroom representing the retail infrastructure BYD is building across South Africa" class="w-full h-auto object-cover" style="max-height:450px;">
   <div class="px-6 py-4 bg-white/[0.02] border-t border-white/5">

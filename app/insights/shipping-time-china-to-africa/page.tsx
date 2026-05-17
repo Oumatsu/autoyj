@@ -2,7 +2,7 @@ import Link from "next/link";
 
 const content = `<p>"How long does shipping from China to Africa take?" is the most searched question among first-time African EV importers — and the most consistently underestimated in the answers that circulate online.</p>
 <p>Freight marketing materials quote ocean transit times of 20–28 days. This is technically accurate for the ship-at-sea phase. The complete journey — from the moment a vehicle leaves a Chinese factory gate to the moment it is available for sale at your dealership — typically takes <strong>45 to 90 days</strong>, with the longer end of that range applying to Ethiopia-bound shipments and periods of elevated port congestion.</p>
-<p>Understanding each phase of this timeline is essential for managing working capital, setting customer expectations, and planning inventory cycles.</p>
+<p>Understanding each phase of this timeline is <span class="hl-green">essential</span> for managing working capital, setting customer expectations, and planning inventory cycles.</p>
 <h2>The Five Phases of China-to-Africa Vehicle Transit</h2>
 <h3>Phase 1: Factory Gate to Chinese Export Port</h3>
 <p>After a vehicle leaves the production line, it moves to a holding yard at or near the export port. In China, the major vehicle export ports are:</p>
@@ -77,7 +77,7 @@ const content = `<p>"How long does shipping from China to Africa take?" is the m
 </table></div>
 <h2>Working Capital Implication</h2>
 <p>At the typical mid-point timeline of 50–60 days:</p>
-<p>- Payment terms with Chinese suppliers are typically 30–50% deposit at order, balance before BL release</p>
+<p>- Payment terms with Chinese suppliers are typically 30–<span class="hl-gold">50% </span>deposit at order, balance before BL release</p>
 <p>- Working capital is committed 50–60 days before a vehicle is available for sale</p>
 <p>- For dealers operating on thin margins, this is the single largest operational cash flow challenge</p>
 <p>Options to compress the cash cycle:</p>

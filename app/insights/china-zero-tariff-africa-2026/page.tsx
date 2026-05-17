@@ -3,7 +3,7 @@ import Link from "next/link";
 const content = `<p>On May 1, 2026, China formally implemented zero-tariff treatment for all 53 African nations with which it maintains diplomatic relations. The announcement, made through China's official government channels, extends a policy previously limited to 33 of Africa's least developed countries (LDCs) into a continent-wide framework.</p>
 <p>The policy primarily concerns <strong>African exports to China</strong> — coffee, cocoa, citrus, avocados — rather than Chinese exports to Africa. But for EV dealers and fleet operators on the continent, the strategic signal matters as much as the direct mechanics: China is deepening its economic relationship with Africa at precisely the moment its automotive industry needs new markets most.</p>
 <h2>What the Policy Actually Does</h2>
-<p>The zero-tariff framework eliminates Chinese import duties on eligible African goods, which previously faced tariffs ranging from 8% to 30%. The May 2026 expansion means:</p>
+<p>The zero-tariff framework eliminates Chinese import duties on eligible African goods, which previously faced tariffs ranging from <span class="hl-gold">8% </span>to 30%. The May 2026 expansion means:</p>
 <p>- All 53 African nations with PRC diplomatic ties now qualify (the sole exception is Eswatini, which maintains ties with Taiwan)</p>
 <p>- African agricultural and manufactured products enter China duty-free</p>
 <p>- The policy is <strong>unilateral</strong> — China does not require reciprocal market opening from African governments</p>

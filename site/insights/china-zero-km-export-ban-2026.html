@@ -22,13 +22,16 @@
     .text-accent{color:var(--green)}
     .nav-link{font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);transition:color .2s}
     .nav-link:hover{color:#fff}
-    .article-body p{font-size:1.125rem;line-height:1.8;color:#9CA3AF;margin-bottom:2rem;font-weight:300}
+    .article-body p{font-size:1rem;line-height:1.9;color:#9CA3AF;margin-bottom:1.5rem;font-weight:300;text-indent:2em}
+    .article-body p:first-of-type{text-indent:0}
     .article-body h2{font-size:2rem;font-weight:900;font-style:italic;color:#fff;margin-top:3.5rem;margin-bottom:1.5rem;letter-spacing:-0.02em}
     .article-body h3{font-size:1.5rem;font-weight:700;color:#E5E7EB;margin-top:2.5rem;margin-bottom:1rem}
-    .article-body ul{margin-bottom:2rem;padding-left:1.5rem}
-    .article-body li{font-size:1.125rem;line-height:1.8;color:#9CA3AF;margin-bottom:0.75rem;font-weight:300}
+    .article-body ul{margin-bottom:1.5rem;padding-left:1.5rem}
+    .article-body li{font-size:1rem;line-height:1.8;color:#9CA3AF;margin-bottom:0.5rem;font-weight:300;position:relative}
     .article-body li::before{content:'•';color:var(--gold);position:absolute;left:-1.5rem;font-weight:bold}
     .article-body strong{color:#E5E7EB;font-weight:600}
+    .article-body .hl-gold{color:var(--gold);font-weight:600}
+    .article-body .hl-green{color:var(--green);font-weight:600}
     .article-body table{width:100%;border-collapse:collapse;margin:2rem 0}
     .article-body th{text-align:left;padding:12px 16px;font-size:10px;font-weight:900;letter-spacing:.15em;text-transform:uppercase;color:#9CA3AF;border-bottom:1px solid rgba(255,255,255,.1)}
     .article-body td{padding:12px 16px;font-size:14px;color:#D1D5DB;border-bottom:1px solid rgba(255,255,255,.05)}
@@ -105,7 +108,7 @@
 <p>- <strong>Sales quota gaming</strong> — Manufacturers registered vehicles to meet monthly or quarterly targets, even when no real end buyer existed. Registration equalled a "sold" unit in the books.</p>
 <p>- <strong>Subsidy capture</strong> — During China's peak NEV subsidy era (2020–2023), registering an electric vehicle was sufficient to trigger government purchase incentives, regardless of whether a consumer ever took ownership.</p>
 <p>- <strong>Price floor circumvention</strong> — By routing excess inventory through "used car" export channels, OEMs could offer deep discounts without officially cutting new-car sticker prices in the domestic market, protecting brand positioning at home while clearing stock abroad.</p>
-<p>The result: a parallel supply of near-new vehicles entered markets like Kenya, Nigeria, Ethiopia, and Tanzania at prices <strong>15–25% below official new-car import rates</strong> — but with no manufacturer warranty, no OEM after-sales support, and a title chain that regulators in both China and the destination country could not cleanly trace.</p>
+<p>The result: a parallel supply of near-new vehicles entered markets like Kenya, Nigeria, Ethiopia, and Tanzania at prices <strong>15–<span class="hl-gold">25% </span>below official new-car import rates</strong> — but with no manufacturer warranty, no OEM after-sales support, and a title chain that regulators in both China and the destination country could not cleanly trace.</p>
 <div class="rounded-[1.5rem] overflow-hidden my-10">
   <img src="images/china-zero-km-export-ban-2026/vehicles.jpg" alt="Rows of new Chinese EVs in a staging lot, still wrapped in factory protective film" class="w-full h-auto object-cover" style="max-height:450px;">
   <div class="px-6 py-4 bg-white/[0.02] border-t border-white/5">

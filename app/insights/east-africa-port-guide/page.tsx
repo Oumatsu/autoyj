@@ -58,7 +58,7 @@ const content = `<p>The choice of East African port is not simply a logistics qu
 <tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">DRC (Eastern)</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Dar es Salaam or Mombasa</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Via Rwanda or Tanzania</td></tr>
 </table></div>
 <h2>Red Sea Routing Note (2025–2026)</h2>
-<p>Since the escalation of Houthi attacks on Red Sea shipping in late 2023, several major carriers have been routing via the Cape of Good Hope rather than the Suez Canal. This adds approximately <strong>14–21 days</strong> to China–East Africa transit times and <strong>$200–$500 USD per vehicle</strong> in additional freight cost depending on the carrier and route.</p>
+<p>Since the escalation of Houthi attacks on Red Sea shipping in late 2023, several major carriers have been routing via the Cape of Good Hope rather than the Suez Canal. This adds approximately <strong>14–21 days</strong> to China–East Africa transit times and <strong>$200–$<span class="hl-gold">500 USD</span> per vehicle</strong> in additional freight cost depending on the carrier and route.</p>
 <p>As of mid-2026, some carriers have resumed partial Red Sea routing; others maintain Cape routing. When booking China–East Africa freight, confirm with your freight forwarder which routing is in use for your specific sailing — this affects your ETA calculation materially.</p>
 <h2>Sources</h2>
 <p>- Kenya Ports Authority — Kilindini Harbour vehicle import procedures and statistics (2025)</p>

@@ -13,15 +13,15 @@ const content = `<p>The International Energy Agency's <strong>Global EV Outlook 
   </div>
 </div>
 <h2>The Global Context: Why Africa's Timing Is Right</h2>
-<p>The IEA report's broader findings set a critical context for understanding why African dealers are entering this market at an advantageous moment.</p>
+<p>The IEA report's broader findings set a <span class="hl-green">critical</span> context for understanding why African dealers are entering this market at an advantageous moment.</p>
 <h3>Global EV Sales Exceeded 17 Million in 2024</h3>
-<p>Total global EV sales surpassed 17 million units in 2024, with the EV share of new car sales reaching approximately 20% globally. China alone accounted for more than 11 million of those sales — meaning China's domestic market is not just large, it is the production and technology base from which African imports draw.</p>
+<p>Total global EV sales surpassed 17 million units in 2024, with the EV share of new car sales reaching approximately <span class="hl-gold">20% </span>globally. China alone accounted for more than 11 million of those sales — meaning China's domestic market is not just large, it is the production and technology base from which African imports draw.</p>
 <h3>Chinese Imports Drive 75% of Emerging Market EV Growth</h3>
-<p>Across all emerging economies outside of China, <strong>Chinese imports accounted for 75% of the increase in EV sales in 2024</strong>. In Brazil and Thailand — the most advanced emerging EV markets — Chinese vehicles represented 85% of all EV sales.</p>
+<p>Across all emerging economies outside of China, <strong>Chinese imports accounted for <span class="hl-gold">75% </span>of the increase in EV sales in 2024</strong>. In Brazil and Thailand — the most advanced emerging EV markets — Chinese vehicles represented <span class="hl-gold">85% </span>of all EV sales.</p>
 <p>This is not a coincidence. Chinese OEMs have built the most cost-competitive EV supply chain in the world, and they are pricing aggressively in markets where they are building brand presence. African dealers who work with Chinese manufacturers are accessing this global cost leadership directly.</p>
 <h3>The Emerging Market Surge: 60%+ Growth in 2024</h3>
-<p>In emerging and developing economies across Asia, Latin America, and Africa combined, EV sales grew by over <strong>60% year-on-year in 2024</strong>, with the EV sales share nearly doubling from 2.5% to 4%.</p>
-<p>Africa's sub-1% share means it is significantly behind this emerging market average — which is either a problem or an opportunity, depending on your time horizon. Dealers building market position today are doing so before the adoption curve inflects upward.</p>
+<p>In emerging and developing economies across Asia, Latin America, and Africa combined, EV sales grew by over <strong><span class="hl-gold">60% </span>year-on-year in 2024</strong>, with the EV sales share nearly doubling from 2.<span class="hl-gold">5% </span>to 4%.</p>
+<p>Africa's sub-<span class="hl-gold">1% </span>share means it is significantly behind this emerging market average — which is either a problem or an opportunity, depending on your time horizon. Dealers building market position today are doing so before the adoption curve inflects upward.</p>
 <div class="rounded-[1.5rem] overflow-hidden my-10">
   <img src="images/iea-global-ev-outlook-2025/africa-roads.jpg" alt="African road infrastructure representing the physical context in which EV adoption must develop" class="w-full h-auto object-cover" style="max-height:450px;">
   <div class="px-6 py-4 bg-white/[0.02] border-t border-white/5">

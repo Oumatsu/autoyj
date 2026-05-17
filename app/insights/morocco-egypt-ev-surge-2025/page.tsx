@@ -1,10 +1,10 @@
 import Link from "next/link";
 
-const content = `<p>When the IEA reported that African EV sales more than doubled in 2024, reaching nearly 11,000 units, that headline obscured a critical geographic reality: <strong>the vast majority of that growth happened in two countries</strong> — Morocco and Egypt — each of which exceeded 2,000 EV sales for the first time.</p>
+const content = `<p>When the IEA reported that African EV sales more than doubled in 2024, reaching nearly 11,000 units, that headline obscured a <span class="hl-green">critical</span> geographic reality: <strong>the vast majority of that growth happened in two countries</strong> — Morocco and Egypt — each of which exceeded 2,000 EV sales for the first time.</p>
 <p>For Sub-Saharan African dealers, this is not irrelevant geography. North Africa consistently leads Sub-Saharan adoption curves by two to three years in automotive trends, and understanding what drove Morocco and Egypt's acceleration illuminates what Sub-Saharan markets will look like by 2027–2028.</p>
 <h2>Morocco: The Most EV-Friendly Import Regime on the Continent</h2>
 <p>Morocco has constructed the most attractive EV import environment in Africa:</p>
-<p>- <strong>0% import duty</strong> on qualifying electric vehicles</p>
+<p>- <strong><span class="hl-gold">0% </span>import duty</strong> on qualifying electric vehicles</p>
 <p>- <strong>Minimal VAT treatment</strong> — a $30,000 EV incurs approximately $750 in tariffs under Morocco's qualifying criteria</p>
 <p>- <strong>VAT exemption</strong> for EVs meeting specific technical standards</p>
 <p>- Active government fleet electrification programme for public administration vehicles</p>

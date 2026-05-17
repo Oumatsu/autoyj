@@ -1,17 +1,17 @@
 import Link from "next/link";
 
-const content = `<p>On July 29, 2024, the National Bank of Ethiopia announced that the Birr would shift to a market-determined exchange rate — ending two decades of managed peg that had kept the official rate artificially stable. The immediate effect was dramatic: the Birr moved from approximately 57 ETB/USD to over 110 ETB/USD within weeks, and has continued to weaken to approximately 150 ETB/USD by late 2025.</p>
-<p>For Ethiopian EV importers, this represents a fundamental structural change to the business. Payment for Chinese EVs happens in USD (or RMB). Revenue is collected in ETB. The business sits across a currency pair that has moved 160% in 18 months.</p>
+const content = `<p>On July 29, 2024, the National Bank of Ethiopia announced that the Birr would shift to a market-determined exchange rate — ending two decades of managed peg that had kept the official rate artificially stable. The immediate effect was dramatic: the Birr moved from approximately <span class="hl-gold">57 ETB</span>/USD to over <span class="hl-gold">110 ETB</span>/USD within weeks, and has continued to weaken to approximately <span class="hl-gold">150 ETB</span>/USD by late 2025.</p>
+<p>For Ethiopian EV importers, this represents a fundamental structural change to the business. Payment for Chinese EVs happens in USD (or RMB). Revenue is collected in ETB. The business sits across a currency pair that has moved <span class="hl-gold">160% </span>in 18 months.</p>
 <p>This article provides a practical framework for understanding the currency risk and structuring pricing to protect margins.</p>
 <h2>The Three-Phase Currency Story</h2>
 <h3>Phase 1: The Peg Era (Pre-July 2024)</h3>
-<p>The National Bank of Ethiopia maintained a managed exchange rate that moved slowly and predictably — approximately 2–5% per year in annual adjustments. For EV dealers, this meant that USD-denominated costs could be planned against ETB revenue with reasonable confidence.</p>
+<p>The National Bank of Ethiopia maintained a managed exchange rate that moved slowly and predictably — approximately 2–<span class="hl-gold">5% </span>per year in annual adjustments. For EV dealers, this meant that USD-denominated costs could be planned against ETB revenue with reasonable confidence.</p>
 <p>The peg created distortions: the official ETB/USD rate was significantly stronger than the parallel market rate. For dealers accessing forex through official banking channels, the peg provided USD at below-market rates. For those relying on the parallel market, the gap between official and parallel rates created both risk and opportunity.</p>
 <h3>Phase 2: The Float and Initial Shock (July 2024–December 2024)</h3>
 <p>The July 2024 float removed the managed rate. The official exchange rate aligned with (and partially overtook) the parallel market rate within days. Importers who had planned USD costs using the old official rate found their ETB-denominated margins compressed immediately.</p>
 <p>The IMF and World Bank supported the float as part of Ethiopia's broader economic reform package, which included debt restructuring discussions and budget support — the policy shift was not reversed.</p>
 <h3>Phase 3: Continued Weakening and New Normal (2025–2026)</h3>
-<p>The Birr has continued to weaken from the initial float. By late 2025, the rate had reached approximately 150 ETB/USD. Some stabilisation has occurred, but currency analysts and the IMF program documents do not project a return to the pre-float rate. The 150 ETB/USD range, with continued gradual weakening, is the operating assumption for EV importers planning 2026 business.</p>
+<p>The Birr has continued to weaken from the initial float. By late 2025, the rate had reached approximately <span class="hl-gold">150 ETB</span>/USD. Some stabilisation has occurred, but currency analysts and the IMF program documents do not project a return to the pre-float rate. The <span class="hl-gold">150 ETB</span>/USD range, with continued gradual weakening, is the operating assumption for EV importers planning 2026 business.</p>
 <div class="rounded-[1.5rem] overflow-hidden my-10">
   <img src="images/ethiopia-birr-depreciation-pricing-strategy/exchange-rate.jpg" alt="Currency exchange rate analysis representing the financial modeling that Ethiopian EV importers must use to protect against Birr depreciation risk" class="w-full h-auto object-cover" style="max-height:450px;">
   <div class="px-6 py-4 bg-white/[0.02] border-t border-white/5">
@@ -20,13 +20,13 @@ const content = `<p>On July 29, 2024, the National Bank of Ethiopia announced th
 </div>
 <h2>The Impact on EV Dealer Economics</h2>
 <p>A concrete example illustrates the scale of the problem:</p>
-<p>By the time those vehicles were sold (3–4 months later, after shipping, clearance, and dealer setup), the rate was 110 ETB/USD. Their replacement cost for the next batch was approximately $20,000 USD × 110 = ETB 2,200,000 — nearly double the original ETB pricing. Their ETB 1.35 million selling price was now below their replacement cost.</p>
+<p>By the time those vehicles were sold (3–4 months later, after shipping, clearance, and dealer setup), the rate was <span class="hl-gold">110 ETB</span>/USD. Their replacement cost for the next batch was approximately $<span class="hl-gold">20,000 USD</span> × 110 = ETB 2,200,000 — nearly double the original ETB pricing. Their ETB 1.35 million selling price was now below their replacement cost.</p>
 <p>This scenario played out for dealers across Ethiopia in H2 2024. Those who had not built currency protection into their model, or who had priced inventory before the float without hedging, suffered significant losses.</p>
 <h2>The Pricing Framework for 2026</h2>
 <p>Three principles define a sustainable pricing strategy in a weakening currency environment.</p>
 <h3>Principle 1: Price in USD, Collect in ETB at Spot</h3>
 <p>Rather than setting an ETB price that becomes stale as the exchange rate moves, price each vehicle at the USD equivalent cost-plus-margin, and convert to ETB at the prevailing NBE rate on the day of the sales contract.</p>
-<p>In practice: state your vehicle price as <strong>"ETB equivalent of $26,500 USD at the prevailing NBE rate on the date of agreement"</strong>. This transfers the currency movement risk to the buyer for the period between quotation and purchase — which is fair and transparent, and increasingly standard practice among Ethiopian EV dealers.</p>
+<p>In practice: state your vehicle price as <strong>"ETB equivalent of $<span class="hl-gold">26,500 USD</span> at the prevailing NBE rate on the date of agreement"</strong>. This transfers the currency movement risk to the buyer for the period between quotation and purchase — which is fair and transparent, and increasingly standard practice among Ethiopian EV dealers.</p>
 <p>Resistance from buyers who want a fixed ETB price is normal. The counter-argument: a fixed ETB price that embeds a large currency depreciation buffer is more expensive than a USD-pegged price, because you must price conservatively to protect yourself.</p>
 <h3>Principle 2: Minimise the Gap Between USD Payment and ETB Collection</h3>
 <p>The longer the gap between when you pay USD for a vehicle and when you collect ETB from the buyer, the longer your currency exposure window. The operational goal is to <strong>compress the gap</strong> — ideally, collect payment in ETB before or simultaneously with your USD payment clearing for the inventory.</p>

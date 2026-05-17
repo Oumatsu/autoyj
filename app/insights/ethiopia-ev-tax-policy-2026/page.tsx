@@ -1,14 +1,14 @@
 import Link from "next/link";
 
 const content = `<p>In September 2022, Ethiopia made international headlines as one of the first African nations to completely waive VAT, excise tax, and surtax on electric vehicle imports. Eighteen months later, it became the first country in the world to outright ban the import of internal combustion engine (ICE) vehicles. The narrative looked clean: a bold green leap by a developing economy.</p>
-<p>The reality, for importers on the ground, is considerably messier. A series of policy reversals between 2024 and 2025 has quietly unwound some of those headline-grabbing incentives — while the ICE ban remains firmly in place. Understanding what is still in effect, what has changed, and what the actual landed cost looks like today is essential for any dealer considering Ethiopia as a target market.</p>
+<p>The reality, for importers on the ground, is considerably messier. A series of policy reversals between 2024 and 2025 has quietly unwound some of those headline-grabbing incentives — while the ICE ban remains firmly in place. Understanding what is still in effect, what has changed, and what the actual landed cost looks like today is <span class="hl-green">essential</span> for any dealer considering Ethiopia as a target market.</p>
 <h2>The Policy Timeline</h2>
 <h3>2022: The Breakthrough</h3>
 <p>In September 2022, Ethiopia's Ministry of Finance issued a directive exempting all electric vehicles from:</p>
 <p>- <strong>VAT</strong> (Value Added Tax) — standard rate 15%</p>
 <p>- <strong>Excise Tax</strong> (Consumption Tax) — applied at various rates depending on vehicle type</p>
 <p>- <strong>Surtax</strong> — an additional levy on top of customs</p>
-<p>Customs duty was reduced to <strong>15% for fully assembled EVs</strong> (CBU) and <strong>5% for semi-knocked-down units</strong> (SKD). Completely Knocked Down (CKD) kits for local assembly were duty-free.</p>
+<p>Customs duty was reduced to <strong><span class="hl-gold">15% </span>for fully assembled EVs</strong> (CBU) and <strong><span class="hl-gold">5% </span>for semi-knocked-down units</strong> (SKD). Completely Knocked Down (CKD) kits for local assembly were duty-free.</p>
 <p>This was a genuine breakthrough. For the first time, an African government had made electric vehicles structurally cheaper to import than petrol equivalents on a total tax basis.</p>
 <h3>January 2024: The ICE Ban</h3>
 <p>Ethiopia doubled down, becoming the <strong>first nation globally to ban ICE vehicle imports</strong> entirely. The ban initially covered fully built units (CBU). In May 2025, the government expanded the ban to include SKD and CKD kits for ICE vehicles, closing the local-assembly loophole.</p>
@@ -21,10 +21,10 @@ const content = `<p>In September 2022, Ethiopia made international headlines as 
 </div>
 <h3>August 2024: The Silent Reversal</h3>
 <p>Here is where the story diverges from the headlines.</p>
-<p>In August 2024, Ethiopia's Ministry of Finance issued <strong>Directive No. 1006/2024</strong>, introducing a new consolidated VAT framework. A critical clause within the directive revoked all previous VAT exemptions that had been granted through separate ministerial directives — including the 2022 EV exemption.</p>
-<p>The Ethiopian government did not announce this as an EV policy change. It was framed as a tidying exercise to consolidate the VAT exemption list. The practical effect, however, was that <strong>EVs were no longer automatically exempt from the standard 15% VAT</strong>.</p>
+<p>In August 2024, Ethiopia's Ministry of Finance issued <strong>Directive No. 1006/2024</strong>, introducing a new consolidated VAT framework. A <span class="hl-green">critical</span> clause within the directive revoked all previous VAT exemptions that had been granted through separate ministerial directives — including the 2022 EV exemption.</p>
+<p>The Ethiopian government did not announce this as an EV policy change. It was framed as a tidying exercise to consolidate the VAT exemption list. The practical effect, however, was that <strong>EVs were no longer automatically exempt from the standard <span class="hl-gold">15% </span>VAT</strong>.</p>
 <h3>November 2024: Customs Duty Increase</h3>
-<p>Separately, under pressure from the International Monetary Fund to broaden the national tax base, the customs duty on imported EVs was raised from <strong>15% to 20%</strong> for CBU units. SKD rates were also adjusted upward.</p>
+<p>Separately, under pressure from the International Monetary Fund to broaden the national tax base, the customs duty on imported EVs was raised from <strong><span class="hl-gold">15% </span>to 20%</strong> for CBU units. SKD rates were also adjusted upward.</p>
 <h2>What the Real Landed Cost Looks Like Today</h2>
 <p>As of early 2026, the effective tax structure for a fully assembled EV imported into Ethiopia is:</p>
 <div class="overflow-x-auto my-8"><table class="w-full border-collapse text-sm"><tr><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Tax Type</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">2022 (Original)</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Current (2026)</th></tr>

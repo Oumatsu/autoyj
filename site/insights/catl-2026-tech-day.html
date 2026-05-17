@@ -22,13 +22,16 @@
     .text-accent{color:var(--green)}
     .nav-link{font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);transition:color .2s}
     .nav-link:hover{color:#fff}
-    .article-body p{font-size:1.125rem;line-height:1.8;color:#9CA3AF;margin-bottom:2rem;font-weight:300}
+    .article-body p{font-size:1rem;line-height:1.9;color:#9CA3AF;margin-bottom:1.5rem;font-weight:300;text-indent:2em}
+    .article-body p:first-of-type{text-indent:0}
     .article-body h2{font-size:2rem;font-weight:900;font-style:italic;color:#fff;margin-top:3.5rem;margin-bottom:1.5rem;letter-spacing:-0.02em}
     .article-body h3{font-size:1.5rem;font-weight:700;color:#E5E7EB;margin-top:2.5rem;margin-bottom:1rem}
-    .article-body ul{margin-bottom:2rem;padding-left:1.5rem}
-    .article-body li{font-size:1.125rem;line-height:1.8;color:#9CA3AF;margin-bottom:0.75rem;font-weight:300}
+    .article-body ul{margin-bottom:1.5rem;padding-left:1.5rem}
+    .article-body li{font-size:1rem;line-height:1.8;color:#9CA3AF;margin-bottom:0.5rem;font-weight:300;position:relative}
     .article-body li::before{content:'•';color:var(--gold);position:absolute;left:-1.5rem;font-weight:bold}
     .article-body strong{color:#E5E7EB;font-weight:600}
+    .article-body .hl-gold{color:var(--gold);font-weight:600}
+    .article-body .hl-green{color:var(--green);font-weight:600}
     .article-body table{width:100%;border-collapse:collapse;margin:2rem 0}
     .article-body th{text-align:left;padding:12px 16px;font-size:10px;font-weight:900;letter-spacing:.15em;text-transform:uppercase;color:#9CA3AF;border-bottom:1px solid rgba(255,255,255,.1)}
     .article-body td{padding:12px 16px;font-size:14px;color:#D1D5DB;border-bottom:1px solid rgba(255,255,255,.05)}
@@ -100,8 +103,8 @@
 <p>The announcements were not incremental. Across six product lines, CATL laid out a technology roadmap that will filter into vehicles reaching African markets from late 2026 through 2028. For dealers sourcing Chinese EVs, this briefing matters: it defines which battery technologies to look for, which specifications are now achievable, and which vehicles will carry meaningful charging and range advantages over the competition.</p>
 <h2>Six Announcements, Translated for African Dealers</h2>
 <h3>1. Shenxing 3rd Generation: 6-Minute Charging Is Here</h3>
-<p>CATL's Shenxing supercharging battery reached its third generation at Tech Day 2026. The headline specification: a charge from 10% to 80% in <strong>6 minutes</strong> under optimal conditions, enabled by a new electrolyte formulation and cell architecture that reduces internal resistance at ultra-high charge rates.</p>
-<p>For context: the 2nd-generation Shenxing (launched in late 2023) achieved 10-80% in approximately 10 minutes. The 3rd generation closes the gap with petrol refuelling in a way that changes the commercial calculus for fleet operators.</p>
+<p>CATL's Shenxing supercharging battery reached its third generation at Tech Day 2026. The headline specification: a charge from <span class="hl-gold">10% </span>to <span class="hl-gold">80% </span>in <strong>6 minutes</strong> under optimal conditions, enabled by a new electrolyte formulation and cell architecture that reduces internal resistance at ultra-high charge rates.</p>
+<p>For context: the 2nd-generation Shenxing (launched in late 2023) achieved 10-<span class="hl-gold">80% </span>in approximately 10 minutes. The 3rd generation closes the gap with petrol refuelling in a way that changes the commercial calculus for fleet operators.</p>
 <p>The practical implication for African market deployment: <strong>vehicles equipped with 3rd-gen Shenxing cells can charge in the time it takes to conduct a driver handover</strong> at a taxi rank or a logistics hub delivery stop — a genuine operational change, not a showroom spec.</p>
 <p>Which vehicles will carry it: BYD's 2026 generation flagship models, several Geely/Zeekr premium models, and NIO vehicles from H2 2026 onwards. Expect these specifications to appear in Africa-facing models from Q1 2027.</p>
 <div class="rounded-[1.5rem] overflow-hidden my-10">
@@ -114,7 +117,7 @@
 <p>The 3rd-generation Qilin battery's headline specification is a <strong>15C peak discharge rate</strong> — the highest ever achieved in a mass-production automotive cell. This matters less for range than for performance under stress: high-temperature fast charging, sustained hill climbing, and heavy payload operation.</p>
 <p>For equatorial African markets — where ambient temperatures regularly exceed 35°C and battery thermal management is a real operational concern — the Qilin 3rd gen's improved thermal architecture addresses a genuine market-specific challenge. Chinese EVs have occasionally received criticism for reduced range and charging speed in high-temperature environments; the Qilin's chemistry improvements are explicitly designed to reduce this degradation.</p>
 <h3>3. Condensed Matter Battery: 350 Wh/kg, 1,500 km</h3>
-<p>The most ambitious announcement was the <strong>condensed matter battery</strong> — a semi-solid electrolyte technology that achieves <strong>350 Wh/kg</strong> at the cell level, enabling vehicles with ranges exceeding <strong>1,500 km</strong> on a single charge.</p>
+<p>The most ambitious announcement was the <strong>condensed matter battery</strong> — a semi-solid electrolyte technology that achieves <strong>350 Wh/kg</strong> at the cell level, enabling vehicles with ranges exceeding <strong><span class="hl-gold">1,500 km</span></strong> on a single charge.</p>
 <p>For perspective: current mainstream LFP batteries achieve roughly 150-180 Wh/kg. Current NCM batteries achieve 250-280 Wh/kg. Condensed matter technology sits above everything in the current production landscape.</p>
 <p>CATL confirmed production ramp-up for the condensed matter battery is underway, initially targeting premium segments and aviation applications, before broadening to commercial automotive in 2027–2028.</p>
 <p>For African dealers, this technology is <strong>not immediately actionable</strong> — it will appear first in premium Chinese models (Yangwang U8, NIO ET9) at price points above the Africa-focused market. The relevance is strategic: watch for condensed matter specifications to appear in mid-range vehicles by 2028, at which point the range anxiety argument against EVs in markets with sparse charging infrastructure largely dissolves.</p>
@@ -130,9 +133,9 @@
 <p>The first vehicles using Naxtra sodium-ion cells are expected in the entry-level segment from Chinese manufacturers in H2 2026. CATL positioned these cells as optimal for <strong>short-range urban and commercial use</strong> — the precise segment that dominates African EV market demand.</p>
 <p>For Africa-facing dealers: <strong>sodium-ion vehicles are a category to watch</strong> in the sub-$15,000 import price range from 2027 onwards. They will offer a lower-cost, simpler-chemistry alternative to LFP, particularly relevant for markets where after-sales simplicity matters.</p>
 <h3>5. Freevoy 2nd Generation: 500 km EV-Only Range in PHEVs</h3>
-<p>CATL's Freevoy system powers plug-in hybrid vehicles (PHEVs) by acting as a large-capacity supplementary battery integrated with the vehicle's combustion powertrain. The 2nd-generation Freevoy achieves <strong>500 km of pure EV-only range</strong> — a figure previously achievable only in full BEVs.</p>
-<p>This is directly relevant to African markets where charging infrastructure remains uneven. A PHEV with 500 km EV-only range can operate in full-electric mode in urban areas — where most kilometres accumulate — while retaining combustion capability for inter-city routes where charging is not yet reliable.</p>
-<p>The vehicles most likely to carry Freevoy 2nd gen in Africa-facing configurations: BYD Shark 6 successor variants, Chery crossover PHEVs, and several Geely brands targeting the 2027 Africa export push. The BYD Shark (already launched in South Africa and Kenya) uses Freevoy 1st generation — a 2nd-gen Shark derivative with 500 km EV range would substantially change the commercial vehicle calculus for Ethiopian and Kenyan markets.</p>
+<p>CATL's Freevoy system powers plug-in hybrid vehicles (PHEVs) by acting as a large-capacity supplementary battery integrated with the vehicle's combustion powertrain. The 2nd-generation Freevoy achieves <strong><span class="hl-gold">500 km</span> of pure EV-only range</strong> — a figure previously achievable only in full BEVs.</p>
+<p>This is directly relevant to African markets where charging infrastructure remains uneven. A PHEV with <span class="hl-gold">500 km</span> EV-only range can operate in full-electric mode in urban areas — where most kilometres accumulate — while retaining combustion capability for inter-city routes where charging is not yet reliable.</p>
+<p>The vehicles most likely to carry Freevoy 2nd gen in Africa-facing configurations: BYD Shark 6 successor variants, Chery crossover PHEVs, and several Geely brands targeting the 2027 Africa export push. The BYD Shark (already launched in South Africa and Kenya) uses Freevoy 1st generation — a 2nd-gen Shark derivative with <span class="hl-gold">500 km</span> EV range would substantially change the commercial vehicle calculus for Ethiopian and Kenyan markets.</p>
 <h3>6. Ultra-Swap: 4,000 Stations by End of 2026</h3>
 <p>CATL's battery swapping network — <strong>Ultra-Swap</strong> — is targeting <strong>4,000 operational swap stations across China by end of 2026</strong>, following a confirmed deal with several commercial fleet operators to use swappable cell packs rather than fixed-battery EVs.</p>
 <p>Battery swapping is relevant context for African dealers for a structural reason: in markets where charging infrastructure is thin, swapping-capable vehicles shift the charging constraint from the operator to the network operator. In Ethiopia, Kenya, and Nigeria, the economics of shared swap networks for commercial fleets are significantly more attractive than individual vehicle charging.</p>
@@ -153,7 +156,7 @@
 <p>- CnEVPost — *"CATL Tech Day 2026: Shenxing 3rd Gen, Naxtra Sodium-Ion, Condensed Matter Battery"* (April 2026)</p>
 <p>- Electrive.com — *"CATL presents 2026 battery technology roadmap"* (April 2026)</p>
 <p>- InsideEVs — *"CATL 2026 Tech Day: Everything Announced"* (April 2026)</p>
-<p>- CleanTechnica — *"CATL's Freevoy 2nd Generation: 500 km EV range in PHEVs"* (April 2026)</p>
+<p>- CleanTechnica — *"CATL's Freevoy 2nd Generation: <span class="hl-gold">500 km</span> EV range in PHEVs"* (April 2026)</p>
 <ul>
   <li>Published by Evexport Intelligence Desk · May 2026*</li>
 </ul>

@@ -24,7 +24,7 @@ const content = `<p>In September 2024, Nigeria's federal government quietly enac
 <tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Standard import duty</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Varies by HS code</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Unchanged</td></tr>
 </table></div>
 <h2>What Has Not Changed</h2>
-<p>It is important to be precise about what the Order does and does not cover:</p>
+<p>It is <span class="hl-green">important</span> to be precise about what the Order does and does not cover:</p>
 <p>- <strong>Standard customs import duties</strong> on vehicles remain unchanged and must still be paid</p>
 <p>- <strong>Excise duties</strong> on certain luxury vehicle categories may still apply depending on classification</p>
 <p>- The exemption applies to <strong>electric vehicles specifically</strong> — hybrid vehicles that do not meet the full-electric classification threshold may not qualify</p>

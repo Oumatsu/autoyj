@@ -1,8 +1,8 @@
 import Link from "next/link";
 
 const content = `<p>China's EV price war is not a media narrative — it is a documented, sustained market phenomenon that has reshaped the economics of Chinese EV exports to emerging markets. Since early 2023, the average selling price of new energy vehicles in China has been on a sustained downward trend — with industry media reporting consecutive months of decline exceeding two years — driven by intense domestic competition between more than 30 active EV brands fighting for market share.</p>
-<p>The cumulative effect has been significant: multiple media trackers and industry analysts report that BYD's average selling price has fallen substantially between 2023 and 2026, with some estimates citing declines exceeding 30% across its product range. Across the sector, entry-level EV price points that once required a premium have migrated to mainstream pricing.</p>
-<p>For African importers, understanding this price trend — and its driving forces — is essential for both sourcing strategy and pricing conversations with Chinese suppliers.</p>
+<p>The cumulative effect has been significant: multiple media trackers and industry analysts report that BYD's average selling price has fallen substantially between 2023 and 2026, with some estimates citing declines exceeding <span class="hl-gold">30% </span>across its product range. Across the sector, entry-level EV price points that once required a premium have migrated to mainstream pricing.</p>
+<p>For African importers, understanding this price trend — and its driving forces — is <span class="hl-green">essential</span> for both sourcing strategy and pricing conversations with Chinese suppliers.</p>
 <h2>What Is Driving the Price War</h2>
 <h3>Overcapacity in Chinese Manufacturing</h3>
 <p>China's government-supported EV investment created manufacturing capacity that significantly exceeded domestic demand. More than 30 EV brands entered production between 2020 and 2024. Not all can survive — the price war is partly an attrition exercise, with brands cutting prices to maintain volume and cash flow while weaker competitors are forced out.</p>

@@ -178,7 +178,12 @@ function mdToHtml(md, slug) {
     }
 
     if (line.trim() && !line.startsWith('![') && !line.startsWith('*') && !line.match(/^\d+\.\s/)) {
-      const processed = line.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>').replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
+      // Highlight key patterns with gold/green spans, then process bold
+      let processed = line
+        .replace(/\b(\d{1,3}(?:,\d{3})*\+?\s*(?:%\s|percent|km|kWh|ETB|\$|USD|EUR))\b/g, '<span class="hl-gold">$1</span>')
+        .replace(/\b(important|crucial|essential|critical|key takeaway)\b/gi, '<span class="hl-green">$1</span>')
+        .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+        .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
       html += `<p>${processed}</p>\n`;
     }
   }
@@ -320,13 +325,16 @@ function genStaticHTML(article, bodyHtml) {
     .text-accent{color:var(--green)}
     .nav-link{font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);transition:color .2s}
     .nav-link:hover{color:#fff}
-    .article-body p{font-size:1.125rem;line-height:1.8;color:#9CA3AF;margin-bottom:2rem;font-weight:300}
+    .article-body p{font-size:1rem;line-height:1.9;color:#9CA3AF;margin-bottom:1.5rem;font-weight:300;text-indent:2em}
+    .article-body p:first-of-type{text-indent:0}
     .article-body h2{font-size:2rem;font-weight:900;font-style:italic;color:#fff;margin-top:3.5rem;margin-bottom:1.5rem;letter-spacing:-0.02em}
     .article-body h3{font-size:1.5rem;font-weight:700;color:#E5E7EB;margin-top:2.5rem;margin-bottom:1rem}
-    .article-body ul{margin-bottom:2rem;padding-left:1.5rem}
-    .article-body li{font-size:1.125rem;line-height:1.8;color:#9CA3AF;margin-bottom:0.75rem;font-weight:300}
+    .article-body ul{margin-bottom:1.5rem;padding-left:1.5rem}
+    .article-body li{font-size:1rem;line-height:1.8;color:#9CA3AF;margin-bottom:0.5rem;font-weight:300;position:relative}
     .article-body li::before{content:'\u2022';color:var(--gold);position:absolute;left:-1.5rem;font-weight:bold}
     .article-body strong{color:#E5E7EB;font-weight:600}
+    .article-body .hl-gold{color:var(--gold);font-weight:600}
+    .article-body .hl-green{color:var(--green);font-weight:600}
     .article-body table{width:100%;border-collapse:collapse;margin:2rem 0}
     .article-body th{text-align:left;padding:12px 16px;font-size:10px;font-weight:900;letter-spacing:.15em;text-transform:uppercase;color:#9CA3AF;border-bottom:1px solid rgba(255,255,255,.1)}
     .article-body td{padding:12px 16px;font-size:14px;color:#D1D5DB;border-bottom:1px solid rgba(255,255,255,.05)}

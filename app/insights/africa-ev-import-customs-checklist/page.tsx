@@ -30,7 +30,7 @@ const content = `<p>African customs clearance for imported vehicles has always b
 </div>
 <h3>4. Certificate of Origin (COO)</h3>
 <p>Certifies that the vehicle was manufactured in China. Issued by the China Council for the Promotion of International Trade (CCPIT) or the relevant Chinese Chamber of Commerce.</p>
-<p>Important for African markets: COO determines which trade agreement duty rates apply. Ethiopia, Kenya, Nigeria, and Ghana are all members of COMESA or ECOWAS, but these regional agreements do not extend preferences to Chinese imports. Standard MFN duty rates apply in all four markets unless a bilateral arrangement applies.</p>
+<p><span class="hl-green">Important</span> for African markets: COO determines which trade agreement duty rates apply. Ethiopia, Kenya, Nigeria, and Ghana are all members of COMESA or ECOWAS, but these regional agreements do not extend preferences to Chinese imports. Standard MFN duty rates apply in all four markets unless a bilateral arrangement applies.</p>
 <h3>5. Vehicle Inspection Certificate / Pre-Shipment Inspection Report (PSI)</h3>
 <p>Several African countries (including Ethiopia and Nigeria) require a Pre-Shipment Inspection certificate from an approved inspection company (Bureau Veritas, SGS, Intertek) confirming the vehicle matches the stated specifications, VIN, and condition.</p>
 <p>For Ethiopia: QSAE (Quality and Standards Authority of Ethiopia) has approved several inspection entities. Confirm current approved inspectors before shipment.</p>

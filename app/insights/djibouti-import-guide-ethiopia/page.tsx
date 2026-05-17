@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-const content = `<p>There is no choice of port for Ethiopian importers. Ethiopia is landlocked. Eritrea's Massawa — once Ethiopia's primary port — has been inaccessible since the 1998–2000 war. Somalia's Berbera is occasionally used but lacks the infrastructure volume. <strong>Djibouti handles over 95% of Ethiopia's seaborne trade</strong>, including all vehicle imports of any volume.</p>
+const content = `<p>There is no choice of port for Ethiopian importers. Ethiopia is landlocked. Eritrea's Massawa — once Ethiopia's primary port — has been inaccessible since the 1998–2000 war. Somalia's Berbera is occasionally used but lacks the infrastructure volume. <strong>Djibouti handles over <span class="hl-gold">95% </span>of Ethiopia's seaborne trade</strong>, including all vehicle imports of any volume.</p>
 <p>This is not a disadvantage the market has not adapted to. Djibouti's port infrastructure, particularly the Doraleh Multi-Purpose Port developed in partnership with DP World, is one of the most modern in East Africa. The Addis-Djibouti transport corridor — road and rail — is well-established. The question is not whether to use Djibouti, but how to use it efficiently.</p>
 <h2>The Djibouti Port System</h2>
 <p>Djibouti has four major port facilities relevant to vehicle imports:</p>
@@ -36,7 +36,7 @@ const content = `<p>There is no choice of port for Ethiopian importers. Ethiopia
 <p>Once duties are paid and any inspection is complete, ERCA issues the release note. The vehicle is cleared for transport to Ethiopia under an ERCA transit declaration. The transport declaration accompanies the vehicle to the border crossing and to the destination in Ethiopia.</p>
 <h2>The Addis-Djibouti Corridor: Road vs Rail</h2>
 <h3>Road Transport (Dominant Method)</h3>
-<p>The Addis Ababa–Djibouti road corridor is approximately 900 km, passing through Dire Dawa and the Afar region. Transit time is typically 1–3 days depending on the vehicle type, carrier, and road conditions.</p>
+<p>The Addis Ababa–Djibouti road corridor is approximately <span class="hl-gold">900 km</span>, passing through Dire Dawa and the Afar region. Transit time is typically 1–3 days depending on the vehicle type, carrier, and road conditions.</p>
 <p>Vehicle-specific transport:</p>
 <p>- <strong>Low-loader or car carrier trucks</strong> are used for individual or small-batch vehicle transport (2–8 vehicles)</p>
 <p>- <strong>Drive-off (self-drive) under escort</strong> is possible but uncommon for Chinese EVs (requires confirmed battery state and EV-trained driver)</p>
@@ -45,7 +45,7 @@ const content = `<p>There is no choice of port for Ethiopian importers. Ethiopia
 <p>- Road quality varies on the Addis-Djibouti route; some sections are unpaved or under repair</p>
 <p>- Crossing the Ethiopia-Djibouti border at Galafi requires carrier documentation and transit permits</p>
 <h3>Addis-Djibouti Railway (Alternative)</h3>
-<p>The Addis Ababa–Djibouti Railway (ADR) — a 756 km electrified standard-gauge railway completed in 2017 — provides an alternative to road transport for containerised freight. The railway connects Djibouti port directly to the Lebu ICD (Inland Container Depot) in Addis Ababa.</p>
+<p>The Addis Ababa–Djibouti Railway (ADR) — a <span class="hl-gold">756 km</span> electrified standard-gauge railway completed in 2017 — provides an alternative to road transport for containerised freight. The railway connects Djibouti port directly to the Lebu ICD (Inland Container Depot) in Addis Ababa.</p>
 <p>For vehicle imports: container freight moves by rail if the importer opts for container shipping. RoRo vehicles are typically transported by road carrier, as rail requires vehicles to be container-loaded at Djibouti — adding cost and complexity.</p>
 <p>Rail transit time: 12–18 hours Djibouti to Addis Ababa (versus 1–3 days by road), but scheduling and availability constraints mean the effective door-to-door time advantage is smaller than the transit time difference suggests.</p>
 <h2>The Customs Broker: Your Most Important Local Partner</h2>

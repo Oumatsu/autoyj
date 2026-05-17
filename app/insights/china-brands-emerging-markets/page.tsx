@@ -1,10 +1,10 @@
 import Link from "next/link";
 
-const content = `<p>The IEA's Global EV Outlook 2025 contains a data point that deserves more attention than it has received: <strong>across all emerging economies outside China, Chinese-manufactured EVs accounted for 75% of the total increase in electric car sales in 2024</strong>.</p>
-<p>In Brazil and Thailand — currently the most advanced emerging EV markets outside China — Chinese imports represented <strong>85% of all EV sales</strong>. In Indonesia, Malaysia, and Mexico, the figure was 60%.</p>
+const content = `<p>The IEA's Global EV Outlook 2025 contains a data point that deserves more attention than it has received: <strong>across all emerging economies outside China, Chinese-manufactured EVs accounted for <span class="hl-gold">75% </span>of the total increase in electric car sales in 2024</strong>.</p>
+<p>In Brazil and Thailand — currently the most advanced emerging EV markets outside China — Chinese imports represented <strong><span class="hl-gold">85% </span>of all EV sales</strong>. In Indonesia, Malaysia, and Mexico, the figure was 60%.</p>
 <p>Africa is still in earlier stages of this transition, but the directional signal is clear. When emerging markets electrify, they do so overwhelmingly with Chinese vehicles. African dealers who build their sourcing relationships and technical competency around Chinese OEMs are not taking a bet on the unknown — they are positioning for the dominant outcome that has already materialised everywhere else.</p>
 <h2>Why Chinese OEMs Win in Emerging Markets</h2>
-<p>The 75% figure is not a coincidence or a temporary market anomaly. It reflects structural advantages that have compounded over a decade of policy-driven investment.</p>
+<p>The <span class="hl-gold">75% </span>figure is not a coincidence or a temporary market anomaly. It reflects structural advantages that have compounded over a decade of policy-driven investment.</p>
 <h3>Price Leadership</h3>
 <p>The domestic price competition in China's NEV market — where more than 30 brands are competing aggressively — has driven vehicle costs to levels that no other country's manufacturers can match. A capable urban EV from a credible Chinese brand can be sourced for $10,000–$18,000 FOB, a price point that is simply unavailable from Korean, Japanese, or European manufacturers.</p>
 <h3>LFP Battery Cost Advantage</h3>
@@ -18,7 +18,7 @@ const content = `<p>The IEA's Global EV Outlook 2025 contains a data point that 
   </div>
 </div>
 <h2>The Brand Landscape: Who Is Active in Africa</h2>
-<p>Not all Chinese OEMs are equally committed to the African market. Understanding which brands have genuine Africa strategies — versus those treating the continent as an overflow destination for unsold inventory — is critical for dealers choosing long-term partners.</p>
+<p>Not all Chinese OEMs are equally committed to the African market. Understanding which brands have genuine Africa strategies — versus those treating the continent as an overflow destination for unsold inventory — is <span class="hl-green">critical</span> for dealers choosing long-term partners.</p>
 <h3>BYD</h3>
 <p>The world's largest EV manufacturer by volume is the most actively Africa-focused Chinese brand. South Africa has been the primary anchor market, with BYD planning to expand its dealer network from 13 to 60–70 by end of 2026. BYD's Africa strategy is explicitly long-term — they are building service infrastructure, not just selling units.</p>
 <h3>Chery</h3>
@@ -28,7 +28,7 @@ const content = `<p>The IEA's Global EV Outlook 2025 contains a data point that 
 <h3>Geely / Geometry</h3>
 <p>Geely's Geometry brand is specifically positioned for emerging markets at competitive price points. Less visible in Africa currently than BYD or Chery, but has a manufacturing base and supply chain that supports RHD production for right-hand-drive African markets.</p>
 <h2>What Dealers Should Evaluate</h2>
-<p>When choosing which Chinese OEM to partner with for long-term sourcing, the 75% market share figure is useful context — but the operational questions matter more:</p>
+<p>When choosing which Chinese OEM to partner with for long-term sourcing, the <span class="hl-gold">75% </span>market share figure is useful context — but the operational questions matter more:</p>
 <p>- <strong>Does the OEM produce native RHD units</strong>, or are vehicles converted after production? (Warranty and safety implications)</p>
 <p>- <strong>What is the after-sales parts supply chain for your specific market?</strong> Spare parts availability within 30 days is a minimum viable standard for a dealership.</p>
 <p>- <strong>Does the brand have a regional export office</strong> that can provide documentation, technical support, and priority production allocation?</p>

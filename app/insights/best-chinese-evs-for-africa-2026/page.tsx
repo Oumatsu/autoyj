@@ -15,7 +15,7 @@ const content = `<p>"Which Chinese EV should I import?" is the defining question
 <p>Key advantages:</p>
 <p>- BYD's most documented Africa-facing model for reliability data</p>
 <p>- Fully native RHD available — no conversion required for Kenya, Tanzania, South Africa</p>
-<p>- Extensive 420 km WLTP range; estimated 300-330 km in mixed East African driving conditions</p>
+<p>- Extensive <span class="hl-gold">420 km</span> WLTP range; estimated 300-<span class="hl-gold">330 km</span> in mixed East African driving conditions</p>
 <p>- LFP blade battery with proven thermal stability in equatorial environments</p>
 <p>Limitations:</p>
 <p>- Not the cheapest option; more competitive pricing available in the pure urban segment</p>
@@ -31,16 +31,16 @@ const content = `<p>"Which Chinese EV should I import?" is the defining question
 <p>Key advantages:</p>
 <p>- Lowest FOB price of any credible Chinese OEM BEV</p>
 <p>- LFP Blade Battery — no thermal runaway risk; simpler chemistry for service markets with limited EV technical expertise</p>
-<p>- Real-world range of ~230-260 km in urban conditions — matches typical daily mileage for Addis Ababa and Lagos commercial use</p>
+<p>- Real-world range of ~230-<span class="hl-gold">260 km</span> in urban conditions — matches typical daily mileage for Addis Ababa and Lagos commercial use</p>
 <p>- Strong structural sales case in high-fuel-cost markets (Ethiopia, Nigeria)</p>
 <p>Limitations:</p>
 <p>- LHD only — not suitable for Kenya, Tanzania, South Africa without conversion (which voids warranty)</p>
 <p>- No BYD official after-sales network in most Sub-Saharan markets</p>
 <p>- Post-180-day rule: ensure OEM documentation for recently manufactured units</p>
 <h2>3. BYD Shark 6 — The Infrastructure Gap Solution</h2>
-<p>The Shark 6 is the most strategically important vehicle on this list for East African markets. It is the only product that simultaneously addresses:</p>
+<p>The Shark 6 is the most strategically <span class="hl-green">important</span> vehicle on this list for East African markets. It is the only product that simultaneously addresses:</p>
 <p>- The utility vehicle preference of East African commercial buyers (pickup truck body)</p>
-<p>- The charging infrastructure gap (100 km pure EV for urban use, petrol for inter-city)</p>
+<p>- The charging infrastructure gap (<span class="hl-gold">100 km</span> pure EV for urban use, petrol for inter-city)</p>
 <p>- The RHD requirement of Kenya and Tanzania</p>
 <p>The Shark's dual-mode capability means buyers in markets with two fast chargers in the entire capital city (such as Addis Ababa as of 2025) can still operate primarily on electricity in urban conditions while retaining full range capability for any journey.</p>
 <p>South Africa and Kenya launches in 2025 have generated early sales data: the Shark has been particularly well-received by fleet operators running mixed urban/inter-city routes.</p>

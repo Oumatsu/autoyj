@@ -5,7 +5,7 @@ const content = `<p>Auto China 2026 — the Beijing International Automotive Exh
 <h2>The Three Trends That Matter for Africa</h2>
 <h3>Trend 1: The Sub-$12,000 FOB EV Is Arriving</h3>
 <p>The clearest signal from Auto China 2026 was continued downward pressure on entry-level EV pricing. Multiple Chinese OEMs — including BYD's Ocean series and several challenger brands — exhibited vehicles positioned below the RMB 80,000 domestic retail threshold.</p>
-<p>The commercial implication for African importers: the FOB export price for a credible Chinese BEV with a 300+ km CLTC range is moving toward the $11,000–$13,000 range. This is the price point at which the landed cost in Ethiopia and Nigeria, after taxes and freight, begins to compete directly with equivalent used ICE vehicles on a total cost of ownership basis.</p>
+<p>The commercial implication for African importers: the FOB export price for a credible Chinese BEV with a <span class="hl-gold">300+ km</span> CLTC range is moving toward the $11,000–$13,000 range. This is the price point at which the landed cost in Ethiopia and Nigeria, after taxes and freight, begins to compete directly with equivalent used ICE vehicles on a total cost of ownership basis.</p>
 <p>Dealers who built their business case on Chinese EVs being inherently expensive relative to the secondhand Japanese market should revisit that assumption. The arithmetic is shifting.</p>
 <div class="rounded-[1.5rem] overflow-hidden my-10">
   <img src="images/beijing-auto-show-2026-africa-picks/ev-lineup.jpg" alt="Row of Chinese electric vehicles lined up representing the scale and diversity of Chinese OEM EV lineups at Auto China 2026" class="w-full h-auto object-cover" style="max-height:450px;">
@@ -14,7 +14,7 @@ const content = `<p>Auto China 2026 — the Beijing International Automotive Exh
   </div>
 </div>
 <h3>Trend 2: PHEVs With 100+ km Pure EV Range Are the Infrastructure-Gap Answer</h3>
-<p>The second major signal: plug-in hybrid vehicles with extended pure electric range dominated the commercial vehicle debut category. Multiple brands exhibited PHEV SUVs and pickups with 100–150 km declared pure EV range alongside conventional petrol backup.</p>
+<p>The second major signal: plug-in hybrid vehicles with extended pure electric range dominated the commercial vehicle debut category. Multiple brands exhibited PHEV SUVs and pickups with 100–<span class="hl-gold">150 km</span> declared pure EV range alongside conventional petrol backup.</p>
 <p>This configuration directly addresses the most common commercial objection to EV adoption in African markets: charging infrastructure uncertainty. A vehicle that covers daily urban mileage on electricity while retaining petrol capability for inter-city routes is not a compromise — it is the product that matches how commercial fleets in Addis Ababa, Nairobi, and Lagos actually operate.</p>
 <p>BYD's PHEV lineup — anchored by the Shark 6 already launched in South Africa and Kenya — is the reference product in this category. The show signals that multiple Chinese brands are converging on the same configuration, which means competitive pricing pressure in the PHEV commercial segment is likely by 2027.</p>
 <h3>Trend 3: Right-Hand Drive Commitments Are Multiplying</h3>
