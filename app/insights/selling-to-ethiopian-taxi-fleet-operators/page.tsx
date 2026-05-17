@@ -5,9 +5,9 @@ const content = `<p>Ethiopia's EV market is not primarily a consumer market. It 
 <h2>Who the Commercial Buyers Are</h2>
 <h3>Feres (ፈረስ) — The Platform That Defines the Market</h3>
 <p>Feres is Ethiopia's dominant ride-hailing platform, reportedly operating with 60,000+ registered drivers in Addis Ababa. The platform has been an explicit catalyst for EV adoption — Feres drivers who switch to EVs significantly reduce their operating costs, improving their per-trip take-home income.</p>
-<p>- Feres has expressed institutional interest in facilitating driver access to EVs — through financing partnerships, dealer referrals, and platform incentives for EV drivers</p>
-<p>- A sales relationship with Feres or a Feres-affiliated financing entity is effectively a pipeline to tens of thousands of potential buyers</p>
-<p>- Feres drivers who adopt EVs become brand advocates within their driver network — word-of-mouth referral from EV-operating drivers is the most effective sales channel for the next wave of driver adoption</p>
+<p>Feres has expressed institutional interest in facilitating driver access to EVs — through financing partnerships, dealer referrals, and platform incentives for EV drivers</p>
+<p>A sales relationship with Feres or a Feres-affiliated financing entity is effectively a pipeline to tens of thousands of potential buyers</p>
+<p>Feres drivers who adopt EVs become brand advocates within their driver network — word-of-mouth referral from EV-operating drivers is the most effective sales channel for the next wave of driver adoption</p>
 <h3>ZayRide — The Growing Competitor</h3>
 <p>ZayRide is a growing Ethiopian ride-hailing platform that has been specifically focused on EV integration as a market differentiation strategy. Their EV adoption commitment creates buying occasions for fleet dealers.</p>
 <h3>Traditional Taxi Associations</h3>
@@ -40,25 +40,25 @@ const content = `<p>Ethiopia's EV market is not primarily a consumer market. It 
 <h2>The Fleet Sales Process</h2>
 <h3>Step 1: Build the TCO Presentation</h3>
 <p>Before any commercial fleet meeting, prepare a vehicle-specific TCO model for the buyer's operating profile:</p>
-<p>- Their daily mileage (ask; don't assume)</p>
-<p>- Current fuel consumption and monthly fuel cost</p>
-<p>- Current maintenance spend</p>
-<p>- EV alternative purchase price (landed, all-in)</p>
-<p>- EV operating cost at their daily mileage</p>
-<p>- Monthly net saving</p>
-<p>- Payback period on purchase premium</p>
-<p>- 3-year cumulative saving</p>
+<p>Their daily mileage (ask; don't assume)</p>
+<p>Current fuel consumption and monthly fuel cost</p>
+<p>Current maintenance spend</p>
+<p>EV alternative purchase price (landed, all-in)</p>
+<p>EV operating cost at their daily mileage</p>
+<p>Monthly net saving</p>
+<p>Payback period on purchase premium</p>
+<p>3-year cumulative saving</p>
 <p>This presentation takes 45 minutes to build and separates you from every other dealer who leads with a brochure.</p>
 <h3>Step 2: Provide a Charging Solution, Not Just a Vehicle</h3>
 <p>No commercial fleet buyer wants to figure out charging themselves. Present a clear charging option as part of the sale:</p>
-<p>- Single-phase overnight AC charging requirements (can use existing power at a depot or residential parking)</p>
-<p>- Cost of a basic wallbox installation ($150–$<span class="hl-gold">300 USD</span>)</p>
-<p>- Whether a solar supplement is appropriate for their facility</p>
+<p>Single-phase overnight AC charging requirements (can use existing power at a depot or residential parking)</p>
+<p>Cost of a basic wallbox installation ($150–$<span class="hl-gold">300 USD</span>)</p>
+<p>Whether a solar supplement is appropriate for their facility</p>
 <h3>Step 3: Demonstrate After-Sales Capability</h3>
 <p>For fleet buyers, this is the deal-maker. Show, don't tell:</p>
-<p>- Bring them to your parts inventory (if you have one) or tell them specifically what Tier 1 parts you stock</p>
-<p>- Provide the name and contact of your senior EV technician</p>
-<p>- Show them a maximum wait time commitment in writing</p>
+<p>Bring them to your parts inventory (if you have one) or tell them specifically what Tier 1 parts you stock</p>
+<p>Provide the name and contact of your senior EV technician</p>
+<p>Show them a maximum wait time commitment in writing</p>
 <h3>Step 4: Offer a Trial Vehicle</h3>
 <p>For fleet buyers committing to 10+ units, a trial vehicle — one unit on a 30-day evaluation — reduces their risk perception significantly. If the trial vehicle performs as the TCO model predicted, the fleet order follows.</p>
 <p>This requires you to have at least one demonstrator vehicle. The demonstrator vehicle is your single most effective selling tool for fleet sales.</p>
@@ -68,15 +68,13 @@ const content = `<p>Ethiopia's EV market is not primarily a consumer market. It 
 <p>→ Return to the TCO model. Ask what their current monthly fuel spend is. Show them when the cumulative fuel savings cover the purchase price premium.</p>
 <p>→ Ask what they're waiting for — specifically. Is it infrastructure, financing, or price? Each has a specific answer. "Waiting and seeing" is often code for "I haven't been shown a compelling enough reason to decide now." That is a sales process failure, not a market readiness issue.</p>
 <h2>Sources</h2>
-<p>- Feres platform — driver fleet size and EV transition reporting (2025)</p>
-<p>- ZayRide — platform EV strategy statements (2025)</p>
-<p>- Africa E-Mobility Alliance — *Africa E-Mobility Report 2025* (commercial fleet adoption chapter)</p>
-<p>- Ethiopian Petroleum Supply Enterprise (EPSE) — petrol retail price data (2026)</p>
-<p>- Ethiopian Electric Power — commercial electricity tariff schedule (2025)</p>
-<p>- GIZ Ethiopia — green mobility financing programme documentation (2024–2025)</p>
-<ul>
-  <li>Published by Evexport Intelligence Desk · April 2026*</li>
-</ul>
+<p>Feres platform — driver fleet size and EV transition reporting (2025)</p>
+<p>ZayRide — platform EV strategy statements (2025)</p>
+<p>Africa E-Mobility Alliance — <em>Africa E-Mobility Report 2025</em> (commercial fleet adoption chapter)</p>
+<p>Ethiopian Petroleum Supply Enterprise (EPSE) — petrol retail price data (2026)</p>
+<p>Ethiopian Electric Power — commercial electricity tariff schedule (2025)</p>
+<p>GIZ Ethiopia — green mobility financing programme documentation (2024–2025)</p>
+<p class="text-gray-500 text-xs font-light italic mt-8">Published by Evexport Intelligence Desk · April 2026</p>
 `;
 
 export default function ArticlePage() {

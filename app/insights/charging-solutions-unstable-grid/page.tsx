@@ -7,9 +7,9 @@ const content = `<p>The most common objection to EV adoption in East African com
 <h3>Approach 1: Overnight AC Charging (Depot-Based)</h3>
 <p>The most practical and lowest-cost charging solution for commercial fleet operators is <strong>overnight AC charging at a depot or parking facility</strong>.</p>
 <p>Most Chinese EVs accept 6.6 kW onboard AC charging as standard. At this rate, a fully depleted <span class="hl-gold">30 kWh</span> battery (BYD Seagull standard) charges in approximately 5 hours. A partially depleted battery (30-<span class="hl-gold">40% </span>depleted at end of day from <span class="hl-gold">150 km</span> of commercial use) charges in 2–3 hours.</p>
-<p>- A 3-socket single-phase 240V power supply (standard residential connection in Ethiopia and Kenya)</p>
-<p>- A Type 2 EVSE (Electric Vehicle Supply Equipment) wallbox — approximately $150–$<span class="hl-gold">300 USD</span>; some vehicles include a Type 2 cable</p>
-<p>- A circuit breaker upgrade if the existing circuit cannot support 32A continuous draw</p>
+<p>A 3-socket single-phase 240V power supply (standard residential connection in Ethiopia and Kenya)</p>
+<p>A Type 2 EVSE (Electric Vehicle Supply Equipment) wallbox — approximately $150–$<span class="hl-gold">300 USD</span>; some vehicles include a Type 2 cable</p>
+<p>A circuit breaker upgrade if the existing circuit cannot support 32A continuous draw</p>
 <p>This is the entry-level charging solution. It costs less than $<span class="hl-gold">500 USD</span> per vehicle connection and works reliably for commercial fleet operators who can establish overnight depot parking.</p>
 <div class="rounded-[1.5rem] overflow-hidden my-10">
   <img src="images/charging-solutions-unstable-grid/ev-charger.jpg" alt="EV charging station with DC fast charger representing the higher-speed charging infrastructure being installed at commercial locations in East Africa" class="w-full h-auto object-cover" style="max-height:450px;">
@@ -20,9 +20,9 @@ const content = `<p>The most common objection to EV adoption in East African com
 <h3>Approach 2: Solar + Battery Storage System</h3>
 <p>For operators whose grid supply is too unreliable even for overnight AC charging — or for commercial facilities that want to charge during daylight hours — a solar photovoltaic system with battery storage is the solution.</p>
 <p>Ethiopia's solar irradiance is excellent: Addis Ababa averages approximately 5.5–6.0 peak sun hours per day year-round, among the highest in East Africa.</p>
-<p>- 10 kW solar array (approximately 25 x 400W panels): generates ~55–<span class="hl-gold">60 kWh</span> per day in Addis Ababa conditions</p>
-<p>- <span class="hl-gold">30 kWh</span> battery storage: stores daytime generation for night use</p>
-<p>- 7.4 kW AC EVSE: charges one vehicle per slot overnight</p>
+<p>10 kW solar array (approximately 25 x 400W panels): generates ~55–<span class="hl-gold">60 kWh</span> per day in Addis Ababa conditions</p>
+<p><span class="hl-gold">30 kWh</span> battery storage: stores daytime generation for night use</p>
+<p>7.4 kW AC EVSE: charges one vehicle per slot overnight</p>
 <p>Several NGOs and development finance institutions — including UNEP and GIZ — have deployed solar EV charging pilot systems in Addis Ababa and Nairobi that provide reference installations and, in some cases, co-financing opportunities.</p>
 <h3>Approach 3: Vehicle-to-Load (V2L) for Grid Independence</h3>
 <p>A subset of Chinese EVs supports <strong>Vehicle-to-Load (V2L)</strong> — the ability to use the vehicle's battery as a power source, running external appliances or other devices through a standard 220V outlet built into the vehicle.</p>
@@ -48,23 +48,21 @@ const content = `<p>The most common objection to EV adoption in East African com
 <p>For commercial fleet operators in Ethiopia — particularly those operating vehicles outside Addis Ababa — PHEVs eliminate the range/charging anxiety that makes pure BEV adoption feel risky. As the grid becomes more reliable and solar charging becomes more affordable, fleet operators can transition to pure BEVs while PHEVs serve as the fleet backbone in the interim.</p>
 <h2>What Dealers Should Offer Their Customers</h2>
 <p>A Chinese EV dealer who sells a vehicle and does nothing about charging is selling half the product. The commercial customers who drive EV adoption in Ethiopia and Kenya want a turnkey solution — not just a vehicle.</p>
-<p>- Include a Type 2 charging cable in every vehicle sale</p>
-<p>- Provide written guidance on the minimum electrical requirements for home/depot AC charging</p>
-<p>- Recommend a specific electrical contractor in the buyer's city who can install the EVSE correctly</p>
-<p>- Provide an assessment of the buyer's facility's charging capacity before the sale completes</p>
-<p>- Connect the buyer with a solar integrator for a depot solar proposal</p>
-<p>- Offer a first-year servicing agreement that includes a battery health check at 12 months</p>
+<p>Include a Type 2 charging cable in every vehicle sale</p>
+<p>Provide written guidance on the minimum electrical requirements for home/depot AC charging</p>
+<p>Recommend a specific electrical contractor in the buyer's city who can install the EVSE correctly</p>
+<p>Provide an assessment of the buyer's facility's charging capacity before the sale completes</p>
+<p>Connect the buyer with a solar integrator for a depot solar proposal</p>
+<p>Offer a first-year servicing agreement that includes a battery health check at 12 months</p>
 <p>Dealers who offer this package are solving the real problem the commercial buyer has. Dealers who only offer a vehicle are leaving the hardest part of the buying decision unresolved.</p>
 <h2>Sources</h2>
-<p>- Ethiopian Electric Power (EEP) — grid reliability data and load-shedding schedules (2025)</p>
-<p>- IRENA — *Africa Solar Resource Map* (irradiance data for Ethiopia)</p>
-<p>- UNEP/GIZ — Africa EV charging infrastructure pilot programmes (Addis Ababa, Nairobi, 2024–2025)</p>
-<p>- BYD official — V2L specifications for Atto 3 and Seal (2025)</p>
-<p>- Africa E-Mobility Alliance — *Africa E-Mobility Report 2025* (charging infrastructure chapter)</p>
-<p>- EV24.Africa — *"Charging EVs in Africa: Infrastructure Guide"* (2025)</p>
-<ul>
-  <li>Published by Evexport Intelligence Desk · February 2026*</li>
-</ul>
+<p>Ethiopian Electric Power (EEP) — grid reliability data and load-shedding schedules (2025)</p>
+<p>IRENA — <em>Africa Solar Resource Map</em> (irradiance data for Ethiopia)</p>
+<p>UNEP/GIZ — Africa EV charging infrastructure pilot programmes (Addis Ababa, Nairobi, 2024–2025)</p>
+<p>BYD official — V2L specifications for Atto 3 and Seal (2025)</p>
+<p>Africa E-Mobility Alliance — <em>Africa E-Mobility Report 2025</em> (charging infrastructure chapter)</p>
+<p>EV24.Africa — <em>"Charging EVs in Africa: Infrastructure Guide"</em> (2025)</p>
+<p class="text-gray-500 text-xs font-light italic mt-8">Published by Evexport Intelligence Desk · February 2026</p>
 `;
 
 export default function ArticlePage() {

@@ -41,27 +41,25 @@ const content = `<p>Africa's major vehicle markets divide cleanly on steering co
 <p>For dealers sourcing into LHD markets (Ethiopia, Nigeria, West Africa): the entire Chinese EV catalogue is available in its native form. No conversion risk applies.</p>
 <p>For dealers sourcing into RHD markets (Kenya, Tanzania, South Africa, East African interior landlocked states): apply this filter before any sourcing commitment:</p>
 <ol>
-  <li>**Confirm whether the specific model has factory RHD production.** Manufacturer websites, OEM regional export offices, and VIN-level production records are the reliable sources. Trader assurances are not.</li>
+  <li><strong>Confirm whether the specific model has factory RHD production.</strong> Manufacturer websites, OEM regional export offices, and VIN-level production records are the reliable sources. Trader assurances are not.</li>
 </ol>
 <ol>
-  <li>**Request production documentation confirming RHD configuration.** For BYD models, this is available through the South Africa distribution office. For MG, through SAIC's regional export desk.</li>
+  <li><strong>Request production documentation confirming RHD configuration.</strong> For BYD models, this is available through the South Africa distribution office. For MG, through SAIC's regional export desk.</li>
 </ol>
 <ol>
-  <li>**For converted vehicles, factor in the warranty void.** Price accordingly — a converted vehicle should trade at a discount to a native RHD equivalent, not at parity.</li>
+  <li><strong>For converted vehicles, factor in the warranty void.</strong> Price accordingly — a converted vehicle should trade at a discount to a native RHD equivalent, not at parity.</li>
 </ol>
 <ol>
-  <li>**For fleet buyers**, native RHD is non-negotiable. Insurance providers in Kenya and South Africa are increasingly scrutinising conversion documentation, and some are excluding converted EV coverage from commercial fleet policies.</li>
+  <li><strong>For fleet buyers</strong>, native RHD is non-negotiable. Insurance providers in Kenya and South Africa are increasingly scrutinising conversion documentation, and some are excluding converted EV coverage from commercial fleet policies.</li>
 </ol>
 <h2>Sources</h2>
-<p>- BYD South Africa — official model specifications and RHD confirmation (2025–2026)</p>
-<p>- GWM South Africa — Ora 07 product documentation (2025)</p>
-<p>- SAIC (MG) — MG4 and ZS EV production specification sheets (RHD variants, 2025)</p>
-<p>- Geely Global — Galaxy E8 RHD announcement, Beijing Auto Show 2026</p>
-<p>- African Insurance Institute — fleet vehicle compliance guidelines (Kenya, South Africa)</p>
-<p>- CarNewsChina — *"Which Chinese EVs are available in right-hand drive?"* (2025)</p>
-<ul>
-  <li>Published by Evexport Intelligence Desk · April 2026*</li>
-</ul>
+<p>BYD South Africa — official model specifications and RHD confirmation (2025–2026)</p>
+<p>GWM South Africa — Ora 07 product documentation (2025)</p>
+<p>SAIC (MG) — MG4 and ZS EV production specification sheets (RHD variants, 2025)</p>
+<p>Geely Global — Galaxy E8 RHD announcement, Beijing Auto Show 2026</p>
+<p>African Insurance Institute — fleet vehicle compliance guidelines (Kenya, South Africa)</p>
+<p>CarNewsChina — <em>"Which Chinese EVs are available in right-hand drive?"</em> (2025)</p>
+<p class="text-gray-500 text-xs font-light italic mt-8">Published by Evexport Intelligence Desk · April 2026</p>
 `;
 
 export default function ArticlePage() {

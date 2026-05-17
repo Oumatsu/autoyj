@@ -5,9 +5,9 @@ const content = `<p>In September 2022, Ethiopia made international headlines as 
 <h2>The Policy Timeline</h2>
 <h3>2022: The Breakthrough</h3>
 <p>In September 2022, Ethiopia's Ministry of Finance issued a directive exempting all electric vehicles from:</p>
-<p>- <strong>VAT</strong> (Value Added Tax) — standard rate 15%</p>
-<p>- <strong>Excise Tax</strong> (Consumption Tax) — applied at various rates depending on vehicle type</p>
-<p>- <strong>Surtax</strong> — an additional levy on top of customs</p>
+<p><strong>VAT</strong> (Value Added Tax) — standard rate 15%</p>
+<p><strong>Excise Tax</strong> (Consumption Tax) — applied at various rates depending on vehicle type</p>
+<p><strong>Surtax</strong> — an additional levy on top of customs</p>
 <p>Customs duty was reduced to <strong><span class="hl-gold">15% </span>for fully assembled EVs</strong> (CBU) and <strong><span class="hl-gold">5% </span>for semi-knocked-down units</strong> (SKD). Completely Knocked Down (CKD) kits for local assembly were duty-free.</p>
 <p>This was a genuine breakthrough. For the first time, an African government had made electric vehicles structurally cheaper to import than petrol equivalents on a total tax basis.</p>
 <h3>January 2024: The ICE Ban</h3>
@@ -28,8 +28,8 @@ const content = `<p>In September 2022, Ethiopia made international headlines as 
 <h2>What the Real Landed Cost Looks Like Today</h2>
 <p>As of early 2026, the effective tax structure for a fully assembled EV imported into Ethiopia is:</p>
 <div class="overflow-x-auto my-8"><table class="w-full border-collapse text-sm"><tr><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Tax Type</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">2022 (Original)</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Current (2026)</th></tr>
-<tr><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Customs Duty (CBU)</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">15%</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">**20%**</th></tr>
-<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">VAT</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">0% (exempted)</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">**15% (reinstated)**</td></tr>
+<tr><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Customs Duty (CBU)</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">15%</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left"><strong>20%</strong></th></tr>
+<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">VAT</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">0% (exempted)</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5"><strong>15% (reinstated)</strong></td></tr>
 <tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Excise / Consumption Tax</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">0% (exempted)</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Unclear — under review</td></tr>
 <tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Surtax</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">0% (exempted)</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Unclear — under review</td></tr>
 </table></div>
@@ -43,26 +43,22 @@ const content = `<p>In September 2022, Ethiopia made international headlines as 
 <h2>What This Means for Dealers</h2>
 <p>However, three lessons apply:</p>
 <ol>
-  <li>**Price based on current tax reality, not 2022 incentive announcements.** Many traders in the market are still quoting landed costs that do not reflect the VAT reinstatement or the customs duty increase.</li>
+  <li><strong>Price based on current tax reality, not 2022 incentive announcements.</strong> Many traders in the market are still quoting landed costs that do not reflect the VAT reinstatement or the customs duty increase.</li>
 </ol>
 <ol>
-  <li>**Monitor excise and surtax status actively.** These exemptions may still be in effect for some categories of EV — but their legal basis needs current verification, not reliance on the original 2022 directive.</li>
+  <li><strong>Monitor excise and surtax status actively.</strong> These exemptions may still be in effect for some categories of EV — but their legal basis needs current verification, not reliance on the original 2022 directive.</li>
 </ol>
 <ol>
-  <li>**SKD and local assembly remain the most tax-efficient route.** CKD/SKD kits for EV assembly retain favourable treatment and are not subject to the ICE ban, making local partnership models worth exploring for volume players.</li>
+  <li><strong>SKD and local assembly remain the most tax-efficient route.</strong> CKD/SKD kits for EV assembly retain favourable treatment and are not subject to the ICE ban, making local partnership models worth exploring for volume players.</li>
 </ol>
 <h2>Sources</h2>
-<p>- CleanTechnica — *"All EVs In Ethiopia Now Exempted From VAT, Surtax & Excise Tax"* (October 2022)</p>
-<p>- Addis Insight — *"Ethiopian Government Raises Customs Duty on Imported Electric Vehicles"* (November 2024)</p>
-<p>- EY Global Tax Alerts — *"Ethiopia issues directive to review list of goods exempt from VAT"* (2024)</p>
-<p>- Orbitax — *"Ethiopia Limits VAT Exemptions"* (2024)</p>
-<p>- FurtherAfrica — *"Ethiopia's EV Fleet Triples in Two Years After Fuel Car Ban"* (June 2025)</p>
-<ul>
-  <li>本文税率基于埃塞俄比亚2024年第1006号指令（2024年8月生效）整理。埃塞俄比亚EV进口税政策已于2022年及2024年两度重大调整，建议在正式下单前向ERCA及持牌清关行确认当前有效税率，以当局最新公告为准。*</li>
-</ul>
-<ul>
-  <li>Published by Evexport Intelligence Desk · February 2026*</li>
-</ul>
+<p>CleanTechnica — <em>"All EVs In Ethiopia Now Exempted From VAT, Surtax & Excise Tax"</em> (October 2022)</p>
+<p>Addis Insight — <em>"Ethiopian Government Raises Customs Duty on Imported Electric Vehicles"</em> (November 2024)</p>
+<p>EY Global Tax Alerts — <em>"Ethiopia issues directive to review list of goods exempt from VAT"</em> (2024)</p>
+<p>Orbitax — <em>"Ethiopia Limits VAT Exemptions"</em> (2024)</p>
+<p>FurtherAfrica — <em>"Ethiopia's EV Fleet Triples in Two Years After Fuel Car Ban"</em> (June 2025)</p>
+<p class="text-gray-500 text-xs font-light italic mt-8">本文税率基于埃塞俄比亚2024年第1006号指令（2024年8月生效）整理。埃塞俄比亚EV进口税政策已于2022年及2024年两度重大调整，建议在正式下单前向ERCA及持牌清关行确认当前有效税率，以当局最新公告为准。</p>
+<p class="text-gray-500 text-xs font-light italic mt-8">Published by Evexport Intelligence Desk · February 2026</p>
 `;
 
 export default function ArticlePage() {

@@ -33,14 +33,12 @@ const content = `<p>Auto China 2026 — the Beijing International Automotive Exh
 <p>Trade press coverage of Auto China 2026 includes detailed specifications for numerous debuted models. Where those specifications are from OEM press releases and have been independently confirmed by multiple automotive media outlets, they can be used for planning purposes.</p>
 <p>However, specifications announced at a motor show — particularly for models that are still in production ramp-up — frequently change before export variants reach your market. <strong>Do not finalise purchase commitments based on show-floor specifications alone.</strong> Request the confirmed export variant spec sheet from your supplier when the model enters production, and verify RHD configuration, battery warranty terms, and after-sales documentation before signing.</p>
 <h2>Sources</h2>
-<p>- Auto China 2026 — official exhibition statistics (April 24–May 3, 2026): 1,451 vehicles, 181 premieres, 1.28M visitors</p>
-<p>- CnEVPost — Auto China 2026 brand-by-brand coverage (April–May 2026)</p>
-<p>- CarNewsChina — Beijing Auto Show 2026 floor reports (April–May 2026)</p>
-<p>- BYD official — Shark 6 South Africa and Kenya launch documentation (2025)</p>
-<p>- CATL — Freevoy PHEV battery system specifications (2025–2026)</p>
-<ul>
-  <li>Published by Evexport Intelligence Desk · May 2026*</li>
-</ul>
+<p>Auto China 2026 — official exhibition statistics (April 24–May 3, 2026): 1,451 vehicles, 181 premieres, 1.28M visitors</p>
+<p>CnEVPost — Auto China 2026 brand-by-brand coverage (April–May 2026)</p>
+<p>CarNewsChina — Beijing Auto Show 2026 floor reports (April–May 2026)</p>
+<p>BYD official — Shark 6 South Africa and Kenya launch documentation (2025)</p>
+<p>CATL — Freevoy PHEV battery system specifications (2025–2026)</p>
+<p class="text-gray-500 text-xs font-light italic mt-8">Published by Evexport Intelligence Desk · May 2026</p>
 `;
 
 export default function ArticlePage() {

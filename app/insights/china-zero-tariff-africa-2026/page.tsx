@@ -4,9 +4,9 @@ const content = `<p>On May 1, 2026, China formally implemented zero-tariff treat
 <p>The policy primarily concerns <strong>African exports to China</strong> — coffee, cocoa, citrus, avocados — rather than Chinese exports to Africa. But for EV dealers and fleet operators on the continent, the strategic signal matters as much as the direct mechanics: China is deepening its economic relationship with Africa at precisely the moment its automotive industry needs new markets most.</p>
 <h2>What the Policy Actually Does</h2>
 <p>The zero-tariff framework eliminates Chinese import duties on eligible African goods, which previously faced tariffs ranging from <span class="hl-gold">8% </span>to 30%. The May 2026 expansion means:</p>
-<p>- All 53 African nations with PRC diplomatic ties now qualify (the sole exception is Eswatini, which maintains ties with Taiwan)</p>
-<p>- African agricultural and manufactured products enter China duty-free</p>
-<p>- The policy is <strong>unilateral</strong> — China does not require reciprocal market opening from African governments</p>
+<p>All 53 African nations with PRC diplomatic ties now qualify (the sole exception is Eswatini, which maintains ties with Taiwan)</p>
+<p>African agricultural and manufactured products enter China duty-free</p>
+<p>The policy is <strong>unilateral</strong> — China does not require reciprocal market opening from African governments</p>
 <p>This last point is diplomatically significant. Unlike WTO-framework trade deals or the EU's Economic Partnership Agreements, China's zero-tariff offer imposes no conditions on African nations' own import policies.</p>
 <div class="rounded-[1.5rem] overflow-hidden my-10">
   <img src="images/china-zero-tariff-africa-2026/africa-trade.jpg" alt="African market traders representing the agricultural and commercial exports that benefit from China's zero-tariff framework" class="w-full h-auto object-cover" style="max-height:450px;">
@@ -22,13 +22,11 @@ const content = `<p>On May 1, 2026, China formally implemented zero-tariff treat
 <p>The May 2026 announcement does not change landed costs for African EV imports directly. Chinese EV exports to Africa were already not subject to Chinese export tariffs. The significance is structural and relational rather than immediately transactional.</p>
 <p>Dealers should understand it as confirmation of a medium-term trend: the China-Africa commercial relationship is being formalised and deepened at the highest governmental level. That creates a more stable operating environment for importers building long-term sourcing partnerships with Chinese manufacturers — and it should inform how dealers frame their own market positioning when speaking with OEM partners in China.</p>
 <h2>Sources</h2>
-<p>- China's official government portal — *"China implements historic zero tariffs for all African nations with diplomatic ties"* (May 1, 2026)</p>
-<p>- Xinhua News — *"China implements zero-tariff treatment for 53 African countries"* (May 1, 2026)</p>
-<p>- Brookings Institution — *"Can zero-tariff policy rebalance China-Africa trade?"*</p>
-<p>- China Global South Project — *"China's Zero-Tariff Promise to Africa Masks a Deepening Trade Imbalance"*</p>
-<ul>
-  <li>Published by Evexport Intelligence Desk · May 2026*</li>
-</ul>
+<p>China's official government portal — <em>"China implements historic zero tariffs for all African nations with diplomatic ties"</em> (May 1, 2026)</p>
+<p>Xinhua News — <em>"China implements zero-tariff treatment for 53 African countries"</em> (May 1, 2026)</p>
+<p>Brookings Institution — <em>"Can zero-tariff policy rebalance China-Africa trade?"</em></p>
+<p>China Global South Project — <em>"China's Zero-Tariff Promise to Africa Masks a Deepening Trade Imbalance"</em></p>
+<p class="text-gray-500 text-xs font-light italic mt-8">Published by Evexport Intelligence Desk · May 2026</p>
 `;
 
 export default function ArticlePage() {

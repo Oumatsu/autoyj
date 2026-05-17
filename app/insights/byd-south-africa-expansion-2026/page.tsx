@@ -1,52 +1,50 @@
 import Link from "next/link";
 
-const content = `<p>In June 2025, BYD confirmed it would expand its South Africa dealer network from approximately 13 locations to <strong>60–70 dealerships by the end of 2026</strong>. That is a more than five-fold increase in 18 months, in a market where BYD only launched its first model (the Atto 3) in 2023.</p>
-<p>The announcement is not simply a South Africa story. South Africa is the proving ground for BYD's Africa continental strategy — the market where it is stress-testing its dealer model, its after-sales infrastructure, its financing partnerships, and its brand positioning. What succeeds in South Africa typically rolls north to East and West Africa within 18–24 months.</p>
-<h2>The Numbers Behind the Expansion</h2>
-<p>BYD's South Africa trajectory illustrates the pace at which the world's largest EV manufacturer can move when it commits to a market:</p>
+const content = `<p>In June 2025, BYD confirmed it would expand its South Africa dealer network from approximately 13 locations to <strong>60–70 dealerships by the end of 2026</strong>. That is a more than five-fold increase in 18 months, in a market where BYD only launched its first model (the Atto 3) in 2023.</p>
+<p>The announcement is not simply a South Africa story. South Africa is the proving ground for BYD's Africa continental strategy — the market where it is stress-testing its dealer model, its after-sales infrastructure, its financing partnerships, and its brand positioning. What succeeds in South Africa typically rolls north to East and West Africa within 18–24 months.</p>
+<h2>The Numbers Behind the Expansion</h2>
+<p>BYD's South Africa trajectory illustrates the pace at which the world's largest EV manufacturer can move when it commits to a market:</p>
 <div class="overflow-x-auto my-8"><table class="w-full border-collapse text-sm"><tr><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Timeline</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">BYD SA Dealer Count</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Notes</th></tr>
 <tr><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">2023</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">6</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Atto 3 launch year</th></tr>
 <tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Early 2025</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">13</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Confirmed active dealers</td></tr>
 <tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">End of 2025 target</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">~20</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Initial expansion target</td></tr>
 <tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Q1 2026</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">~35</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Revised target, met ahead of schedule</td></tr>
-<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">End of 2026 target</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">**60–70**</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Current confirmed target</td></tr>
+<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">End of 2026 target</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5"><strong>60–70</strong></td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Current confirmed target</td></tr>
 </table></div>
-<p>South Africa's new energy vehicle registrations reached <strong>3,487 units in Q1 2025</strong> alone — a 2.<span class="hl-gold">4% </span>market share, up from 1.<span class="hl-gold">4% </span>in 2023. BYD is not expanding into an abstract future market; it is responding to documented demand growth.</p>
+<p>South Africa's new energy vehicle registrations reached <strong>3,487 units in Q1 2025</strong> alone — a 2.<span class="hl-gold">4% </span>market share, up from 1.<span class="hl-gold">4% </span>in 2023. BYD is not expanding into an abstract future market; it is responding to documented demand growth.</p>
 <div class="rounded-[1.5rem] overflow-hidden my-10">
   <img src="images/byd-south-africa-expansion-2026/dealership.jpg" alt="Modern car dealership showroom representing the retail infrastructure BYD is building across South Africa" class="w-full h-auto object-cover" style="max-height:450px;">
   <div class="px-6 py-4 bg-white/[0.02] border-t border-white/5">
-    <p class="text-xs text-gray-500 font-light italic leading-relaxed">BYD's South Africa expansion follows the same playbook used in Europe and Southeast Asia: rapid dealer network build-out, standardised showroom design, and a multi-model product lineup covering entry to premium segments.*</p>
+    <p class="text-xs text-gray-500 font-light italic leading-relaxed">BYD's South Africa expansion follows the same playbook used in Europe and Southeast Asia: rapid dealer network build-out, standardised showroom design, and a multi-model product lineup covering entry to premium segments.</p>
   </div>
 </div>
-<h2>The Product Lineup in South Africa</h2>
-<p>BYD currently offers six models in South Africa, covering a broader range than most Chinese manufacturers have launched on the continent:</p>
-<p>- <strong>Seagull</strong> — entry-level urban EV, positioned for commercial and ride-hailing use</p>
-<p>- <strong>Dolphin</strong> — compact hatchback, mid-range pricing</p>
-<p>- <strong>Atto 3</strong> — compact SUV, the launch model and highest volume seller</p>
-<p>- <strong>Seal</strong> — sports sedan, premium positioning</p>
-<p>- <strong>Sealion 7</strong> — large SUV</p>
-<p>- <strong>Shark 6</strong> — plug-in hybrid pickup truck (relevant for markets where charging infrastructure is limited)</p>
-<p>The breadth of this lineup is strategically deliberate. BYD is not targeting a single buyer segment — it is attempting to establish category dominance across commercial, private, and mixed-use applications simultaneously.</p>
+<h2>The Product Lineup in South Africa</h2>
+<p>BYD currently offers six models in South Africa, covering a broader range than most Chinese manufacturers have launched on the continent:</p>
+<p><strong>Seagull</strong> — entry-level urban EV, positioned for commercial and ride-hailing use</p>
+<p><strong>Dolphin</strong> — compact hatchback, mid-range pricing</p>
+<p><strong>Atto 3</strong> — compact SUV, the launch model and highest volume seller</p>
+<p><strong>Seal</strong> — sports sedan, premium positioning</p>
+<p><strong>Sealion 7</strong> — large SUV</p>
+<p><strong>Shark 6</strong> — plug-in hybrid pickup truck (relevant for markets where charging infrastructure is limited)</p>
+<p>The breadth of this lineup is strategically deliberate. BYD is not targeting a single buyer segment — it is attempting to establish category dominance across commercial, private, and mixed-use applications simultaneously.</p>
 <div class="rounded-[1.5rem] overflow-hidden my-10">
   <img src="images/byd-south-africa-expansion-2026/byd-ev.jpg" alt="BYD electric vehicle representing the product lineup the brand is deploying in the African market" class="w-full h-auto object-cover" style="max-height:450px;">
   <div class="px-6 py-4 bg-white/[0.02] border-t border-white/5">
-    <p class="text-xs text-gray-500 font-light italic leading-relaxed">BYD's Africa-facing lineup includes both full BEV and plug-in hybrid (PHEV) options — a pragmatic acknowledgement that charging infrastructure remains uneven across the continent.*</p>
+    <p class="text-xs text-gray-500 font-light italic leading-relaxed">BYD's Africa-facing lineup includes both full BEV and plug-in hybrid (PHEV) options — a pragmatic acknowledgement that charging infrastructure remains uneven across the continent.</p>
   </div>
 </div>
-<h2>Chery: The Second Major Mover</h2>
-<p>BYD is not alone. Chery — China's largest private automotive group by export volume — announced the rollout of eight hybrid and plug-in hybrid models in South Africa in 2025–2026, with a commitment to introduce its full EV range (iCar brand) and the Lepas brand in the near future.</p>
-<p>Chery's advantage is an existing ICE dealer network in multiple African markets. Where BYD must build dealer relationships from scratch, Chery can leverage established importers who already understand local compliance, financing, and after-sales requirements and are transitioning their existing customer base from ICE to EV.</p>
-<h2>What This Means Beyond South Africa</h2>
-<p>The South Africa expansion blueprint is significant for dealers in Kenya, Nigeria, Ethiopia, and other Sub-Saharan markets for three reasons:</p>
-<h2>Sources</h2>
-<p>- CnEVPost — *"BYD to nearly triple dealer network in South Africa by 2026"* (June 2025)</p>
-<p>- Times Live — *"BYD accelerates SA expansion with more dealerships planned in 2026"* (December 2025)</p>
-<p>- CNBC Africa — *"China's BYD to nearly triple South Africa dealers' network"* (2025)</p>
-<p>- Ecofin Agency — *"BYD Accelerates Expansion in South Africa as EV Market Grows"*</p>
-<p>- Asia Financial — *"Chinese EV-Makers Eyeing South Africa Amid Global Trade Rows"*</p>
-<ul>
-  <li>Published by Evexport Intelligence Desk · June 2026*</li>
-</ul>
+<h2>Chery: The Second Major Mover</h2>
+<p>BYD is not alone. Chery — China's largest private automotive group by export volume — announced the rollout of eight hybrid and plug-in hybrid models in South Africa in 2025–2026, with a commitment to introduce its full EV range (iCar brand) and the Lepas brand in the near future.</p>
+<p>Chery's advantage is an existing ICE dealer network in multiple African markets. Where BYD must build dealer relationships from scratch, Chery can leverage established importers who already understand local compliance, financing, and after-sales requirements and are transitioning their existing customer base from ICE to EV.</p>
+<h2>What This Means Beyond South Africa</h2>
+<p>The South Africa expansion blueprint is significant for dealers in Kenya, Nigeria, Ethiopia, and other Sub-Saharan markets for three reasons:</p>
+<h2>Sources</h2>
+<p>CnEVPost — <em>"BYD to nearly triple dealer network in South Africa by 2026"</em> (June 2025)</p>
+<p>Times Live — <em>"BYD accelerates SA expansion with more dealerships planned in 2026"</em> (December 2025)</p>
+<p>CNBC Africa — <em>"China's BYD to nearly triple South Africa dealers' network"</em> (2025)</p>
+<p>Ecofin Agency — <em>"BYD Accelerates Expansion in South Africa as EV Market Grows"</em></p>
+<p>Asia Financial — <em>"Chinese EV-Makers Eyeing South Africa Amid Global Trade Rows"</em></p>
+<p class="text-gray-500 text-xs font-light italic mt-8">Published by Evexport Intelligence Desk · June 2026</p>
 `;
 
 export default function ArticlePage() {

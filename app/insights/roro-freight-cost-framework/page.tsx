@@ -1,43 +1,43 @@
 import Link from "next/link";
 
-const content = `<p>Most African EV importers receive a single freight quote from their forwarder and treat it as a fixed cost. The reality is more complex: RoRo freight pricing is composed of multiple components, each of which can vary based on carrier, lane, timing, vehicle type, and market conditions.</p>
-<p>Understanding the structure of RoRo freight costs — rather than just the bottom-line number — allows importers to identify the factors within their control, benchmark quotes from different providers, and anticipate cost changes before they affect margins.</p>
-<p>This is a framework article. It explains how RoRo costs are built up, what each component represents, and what variables affect each. It does not quote current rates, which change frequently and must be obtained from your freight forwarder or carrier directly.</p>
-<h2>The RoRo Freight Cost Components</h2>
-<h3>1. Base Ocean Freight (BOF)</h3>
-<p>The base freight rate is the core charge for moving a vehicle from the Chinese loading port to the African destination port on the RoRo vessel. It is quoted in USD per vehicle, based on a CEU (Car Equivalent Unit) classification.</p>
-<p>CEU classification reflects the physical footprint of the vehicle on the car deck:</p>
+const content = `<p>Most African EV importers receive a single freight quote from their forwarder and treat it as a fixed cost. The reality is more complex: RoRo freight pricing is composed of multiple components, each of which can vary based on carrier, lane, timing, vehicle type, and market conditions.</p>
+<p>Understanding the structure of RoRo freight costs — rather than just the bottom-line number — allows importers to identify the factors within their control, benchmark quotes from different providers, and anticipate cost changes before they affect margins.</p>
+<p>This is a framework article. It explains how RoRo costs are built up, what each component represents, and what variables affect each. It does not quote current rates, which change frequently and must be obtained from your freight forwarder or carrier directly.</p>
+<h2>The RoRo Freight Cost Components</h2>
+<h3>1. Base Ocean Freight (BOF)</h3>
+<p>The base freight rate is the core charge for moving a vehicle from the Chinese loading port to the African destination port on the RoRo vessel. It is quoted in USD per vehicle, based on a CEU (Car Equivalent Unit) classification.</p>
+<p>CEU classification reflects the physical footprint of the vehicle on the car deck:</p>
 <div class="overflow-x-auto my-8"><table class="w-full border-collapse text-sm"><tr><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Vehicle Type</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">CEU</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Relative Base Rate</th></tr>
 <tr><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Small hatchback (BYD Seagull, MG4)</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">1.0</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Lowest</th></tr>
 <tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Compact SUV (BYD Atto 3, Chery Tiggo)</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">1.0–1.2</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Low-Medium</td></tr>
 <tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Large SUV / pickup (BYD Shark 6)</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">1.3–1.6</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Medium-High</td></tr>
 <tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Electric bus / commercial van</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">2.5–4.0</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">High</td></tr>
 </table></div>
-<p>Base freight rates reflect the lane supply-demand balance, fuel costs, and carrier capacity utilisation. China–East Africa rates have historically been lower than China–Europe or China–US rates due to lower lane volume, but have been elevated in 2024–2026 due to Red Sea disruptions.</p>
-<h3>2. Bunker Adjustment Factor (BAF)</h3>
-<p>The BAF is a fuel surcharge that carriers adjust periodically (typically quarterly) to reflect changes in marine fuel costs. When oil prices rise, BAF rises. When they fall, BAF falls.</p>
-<p>BAF is typically quoted as a USD amount per CEU and is <strong>separate from the base freight</strong>. A common mistake is to compare freight quotes that include BAF against quotes that exclude it — ensure you are comparing apples to apples.</p>
+<p>Base freight rates reflect the lane supply-demand balance, fuel costs, and carrier capacity utilisation. China–East Africa rates have historically been lower than China–Europe or China–US rates due to lower lane volume, but have been elevated in 2024–2026 due to Red Sea disruptions.</p>
+<h3>2. Bunker Adjustment Factor (BAF)</h3>
+<p>The BAF is a fuel surcharge that carriers adjust periodically (typically quarterly) to reflect changes in marine fuel costs. When oil prices rise, BAF rises. When they fall, BAF falls.</p>
+<p>BAF is typically quoted as a USD amount per CEU and is <strong>separate from the base freight</strong>. A common mistake is to compare freight quotes that include BAF against quotes that exclude it — ensure you are comparing apples to apples.</p>
 <div class="rounded-[1.5rem] overflow-hidden my-10">
   <img src="images/roro-freight-cost-framework/shipping-route.jpg" alt="Global shipping route map representing the China-to-Africa RoRo lane and the routing decisions that affect freight cost and transit time" class="w-full h-auto object-cover" style="max-height:450px;">
   <div class="px-6 py-4 bg-white/[0.02] border-t border-white/5">
-    <p class="text-xs text-gray-500 font-light italic leading-relaxed">The Red Sea disruptions since late 2023 have bifurcated China–East Africa freight into Suez Canal routing (faster, lower fuel cost but higher risk surcharges) and Cape of Good Hope routing (safer but 14–21 days longer and higher fuel cost). Both routes carry different cost structures.*</p>
+    <p class="text-xs text-gray-500 font-light italic leading-relaxed">The Red Sea disruptions since late 2023 have bifurcated China–East Africa freight into Suez Canal routing (faster, lower fuel cost but higher risk surcharges) and Cape of Good Hope routing (safer but 14–21 days longer and higher fuel cost). Both routes carry different cost structures.</p>
   </div>
 </div>
-<h3>3. Port Surcharges</h3>
-<p>Carriers add port-specific surcharges that reflect the cost of handling at each port. These typically include:</p>
-<p>These surcharges are often quoted separately from base freight. A complete freight cost comparison must include all port surcharges at both origin and destination.</p>
-<h3>4. War Risk / Security Premium (Red Sea context)</h3>
-<p>Since late 2023, carriers operating through the Red Sea / Suez Canal route have imposed a war risk surcharge on shipments transiting this zone, reflecting elevated insurance costs and risk premiums. Carriers routing via the Cape of Good Hope do not impose this surcharge but have higher base freight and BAF due to the longer distance.</p>
-<p>In 2025–2026, some carriers have resumed Suez Canal routing for certain sailings while others maintain Cape routing. The surcharge status changes with the security situation and is typically disclosed at booking.</p>
-<h3>5. EV-Specific Surcharges</h3>
-<p>Pure BEV and PHEV vehicles may attract <strong>battery hazardous materials surcharges</strong> from some carriers, reflecting the additional safety requirements for transporting lithium-ion battery vehicles. This surcharge is not universal — it varies by carrier and is applied differently to assembled vehicles (where batteries are installed in the vehicle) versus batteries shipped separately.</p>
-<p>Carriers typically require:</p>
-<p>- EV battery state of charge documentation at loading</p>
-<p>- Dangerous goods declaration under IMDG Code</p>
-<p>- UN38.3 test certification for the battery type</p>
-<p>Some carriers do not differentiate EV surcharges from standard vehicle rates for assembled vehicles, treating the lithium battery as part of the normal vehicle rather than a separate dangerous goods item. Clarify with your specific carrier at booking.</p>
-<h2>How Route Choice Affects Total Cost</h2>
-<p>The Red Sea disruption has created a meaningful choice between two routing options, each with different cost structures:</p>
+<h3>3. Port Surcharges</h3>
+<p>Carriers add port-specific surcharges that reflect the cost of handling at each port. These typically include:</p>
+<p>These surcharges are often quoted separately from base freight. A complete freight cost comparison must include all port surcharges at both origin and destination.</p>
+<h3>4. War Risk / Security Premium (Red Sea context)</h3>
+<p>Since late 2023, carriers operating through the Red Sea / Suez Canal route have imposed a war risk surcharge on shipments transiting this zone, reflecting elevated insurance costs and risk premiums. Carriers routing via the Cape of Good Hope do not impose this surcharge but have higher base freight and BAF due to the longer distance.</p>
+<p>In 2025–2026, some carriers have resumed Suez Canal routing for certain sailings while others maintain Cape routing. The surcharge status changes with the security situation and is typically disclosed at booking.</p>
+<h3>5. EV-Specific Surcharges</h3>
+<p>Pure BEV and PHEV vehicles may attract <strong>battery hazardous materials surcharges</strong> from some carriers, reflecting the additional safety requirements for transporting lithium-ion battery vehicles. This surcharge is not universal — it varies by carrier and is applied differently to assembled vehicles (where batteries are installed in the vehicle) versus batteries shipped separately.</p>
+<p>Carriers typically require:</p>
+<p>EV battery state of charge documentation at loading</p>
+<p>Dangerous goods declaration under IMDG Code</p>
+<p>UN38.3 test certification for the battery type</p>
+<p>Some carriers do not differentiate EV surcharges from standard vehicle rates for assembled vehicles, treating the lithium battery as part of the normal vehicle rather than a separate dangerous goods item. Clarify with your specific carrier at booking.</p>
+<h2>How Route Choice Affects Total Cost</h2>
+<p>The Red Sea disruption has created a meaningful choice between two routing options, each with different cost structures:</p>
 <div class="overflow-x-auto my-8"><table class="w-full border-collapse text-sm"><tr><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Factor</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Suez Canal Route</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Cape of Good Hope Route</th></tr>
 <tr><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Transit time (China → Djibouti)</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">20–28 days</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">35–48 days</th></tr>
 <tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Base freight level</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Lower</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Higher (longer distance)</td></tr>
@@ -45,30 +45,28 @@ const content = `<p>Most African EV importers receive a single freight quote fro
 <tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">War risk surcharge</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Yes (variable)</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">No</td></tr>
 <tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Total cost comparison</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Variable; must calculate for specific sailings</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Variable; typically 15–25% higher total</td></tr>
 </table></div>
-<p>The Suez route is generally cheaper when war risk surcharges are moderate; the Cape route becomes more competitive when war risk surcharges are high or when you have flexibility to absorb longer transit times.</p>
-<h2>Benchmarking and Negotiation</h2>
-<p>RoRo freight is not a fixed commodity price — it is negotiable, particularly for committed volumes.</p>
-<h2>The Complete Cost Checklist</h2>
-<p>When obtaining a freight quote, ensure the following are explicitly included or excluded with separate costs provided:</p>
-<p>- [ ] Base ocean freight (per vehicle, per CEU)</p>
-<p>- [ ] Bunker Adjustment Factor (BAF) — current quarter rate</p>
-<p>- [ ] Port congestion surcharge (PCS) — origin and destination</p>
-<p>- [ ] Terminal handling charges (THC) — destination port</p>
-<p>- [ ] War risk / security surcharge (if applicable)</p>
-<p>- [ ] EV battery surcharge (if applicable)</p>
-<p>- [ ] Documentation fees</p>
-<p>- [ ] Marine insurance (typically separate from freight)</p>
-<p>- [ ] Inland transport (destination port to your location — typically separate)</p>
-<h2>Sources</h2>
-<p>- BIMCO — *"Pure Car and Truck Carrier market overview"* (Q1 2026)</p>
-<p>- Grimaldi Lines — China-Africa RoRo service documentation and surcharge schedules (2025–2026)</p>
-<p>- Höegh Autoliners — carrier rate structure and EV shipping requirements (2025)</p>
-<p>- UNCTAD — *Review of Maritime Transport 2025*</p>
-<p>- Freightos — *"Understanding RoRo freight rates: a guide for importers"* (2025)</p>
-<p>- IMO — IMDG Code: lithium battery transport requirements</p>
-<ul>
-  <li>Published by Evexport Intelligence Desk · February 2026*</li>
-</ul>
+<p>The Suez route is generally cheaper when war risk surcharges are moderate; the Cape route becomes more competitive when war risk surcharges are high or when you have flexibility to absorb longer transit times.</p>
+<h2>Benchmarking and Negotiation</h2>
+<p>RoRo freight is not a fixed commodity price — it is negotiable, particularly for committed volumes.</p>
+<h2>The Complete Cost Checklist</h2>
+<p>When obtaining a freight quote, ensure the following are explicitly included or excluded with separate costs provided:</p>
+<p>[ ] Base ocean freight (per vehicle, per CEU)</p>
+<p>[ ] Bunker Adjustment Factor (BAF) — current quarter rate</p>
+<p>[ ] Port congestion surcharge (PCS) — origin and destination</p>
+<p>[ ] Terminal handling charges (THC) — destination port</p>
+<p>[ ] War risk / security surcharge (if applicable)</p>
+<p>[ ] EV battery surcharge (if applicable)</p>
+<p>[ ] Documentation fees</p>
+<p>[ ] Marine insurance (typically separate from freight)</p>
+<p>[ ] Inland transport (destination port to your location — typically separate)</p>
+<h2>Sources</h2>
+<p>BIMCO — <em>"Pure Car and Truck Carrier market overview"</em> (Q1 2026)</p>
+<p>Grimaldi Lines — China-Africa RoRo service documentation and surcharge schedules (2025–2026)</p>
+<p>Höegh Autoliners — carrier rate structure and EV shipping requirements (2025)</p>
+<p>UNCTAD — <em>Review of Maritime Transport 2025</em></p>
+<p>Freightos — <em>"Understanding RoRo freight rates: a guide for importers"</em> (2025)</p>
+<p>IMO — IMDG Code: lithium battery transport requirements</p>
+<p class="text-gray-500 text-xs font-light italic mt-8">Published by Evexport Intelligence Desk · February 2026</p>
 `;
 
 export default function ArticlePage() {

@@ -1,46 +1,44 @@
 import Link from "next/link";
 
-const content = `<p>When the IEA reported that African EV sales more than doubled in 2024, reaching nearly 11,000 units, that headline obscured a <span class="hl-green">critical</span> geographic reality: <strong>the vast majority of that growth happened in two countries</strong> — Morocco and Egypt — each of which exceeded 2,000 EV sales for the first time.</p>
-<p>For Sub-Saharan African dealers, this is not irrelevant geography. North Africa consistently leads Sub-Saharan adoption curves by two to three years in automotive trends, and understanding what drove Morocco and Egypt's acceleration illuminates what Sub-Saharan markets will look like by 2027–2028.</p>
-<h2>Morocco: The Most EV-Friendly Import Regime on the Continent</h2>
-<p>Morocco has constructed the most attractive EV import environment in Africa:</p>
-<p>- <strong><span class="hl-gold">0% </span>import duty</strong> on qualifying electric vehicles</p>
-<p>- <strong>Minimal VAT treatment</strong> — a $30,000 EV incurs approximately $750 in tariffs under Morocco's qualifying criteria</p>
-<p>- <strong>VAT exemption</strong> for EVs meeting specific technical standards</p>
-<p>- Active government fleet electrification programme for public administration vehicles</p>
-<p>The result is a landed cost advantage that makes EVs directly price-competitive with equivalent ICE vehicles in several segments for the first time. Morocco's EV market grew from a negligible base to over 2,000 sales in 2024 — with Chinese brands capturing the majority of that growth.</p>
-<p>Morocco's geographic position also makes it significant beyond its own market. As a manufacturing hub with proximity to Europe (and currently building relationships with several Chinese OEM assembly projects), Morocco is emerging as a potential regional distribution point for North and West African EV supply chains.</p>
+const content = `<p>When the IEA reported that African EV sales more than doubled in 2024, reaching nearly 11,000 units, that headline obscured a <span class="hl-green">critical</span> geographic reality: <strong>the vast majority of that growth happened in two countries</strong> — Morocco and Egypt — each of which exceeded 2,000 EV sales for the first time.</p>
+<p>For Sub-Saharan African dealers, this is not irrelevant geography. North Africa consistently leads Sub-Saharan adoption curves by two to three years in automotive trends, and understanding what drove Morocco and Egypt's acceleration illuminates what Sub-Saharan markets will look like by 2027–2028.</p>
+<h2>Morocco: The Most EV-Friendly Import Regime on the Continent</h2>
+<p>Morocco has constructed the most attractive EV import environment in Africa:</p>
+<p><strong><span class="hl-gold">0% </span>import duty</strong> on qualifying electric vehicles</p>
+<p><strong>Minimal VAT treatment</strong> — a $30,000 EV incurs approximately $750 in tariffs under Morocco's qualifying criteria</p>
+<p><strong>VAT exemption</strong> for EVs meeting specific technical standards</p>
+<p>Active government fleet electrification programme for public administration vehicles</p>
+<p>The result is a landed cost advantage that makes EVs directly price-competitive with equivalent ICE vehicles in several segments for the first time. Morocco's EV market grew from a negligible base to over 2,000 sales in 2024 — with Chinese brands capturing the majority of that growth.</p>
+<p>Morocco's geographic position also makes it significant beyond its own market. As a manufacturing hub with proximity to Europe (and currently building relationships with several Chinese OEM assembly projects), Morocco is emerging as a potential regional distribution point for North and West African EV supply chains.</p>
 <div class="rounded-[1.5rem] overflow-hidden my-10">
   <img src="images/morocco-egypt-ev-surge-2025/cairo.jpg" alt="Cairo, Egypt urban landscape representing the scale of the automotive market that Egypt's EV policy is beginning to capture" class="w-full h-auto object-cover" style="max-height:450px;">
   <div class="px-6 py-4 bg-white/[0.02] border-t border-white/5">
-    <p class="text-xs text-gray-500 font-light italic leading-relaxed">Cairo — home to over 20 million residents and one of Africa's largest urban vehicle fleets. Egypt's 20,000 EV target by 2030 has been backed by concrete import incentives that are already driving results.*</p>
+    <p class="text-xs text-gray-500 font-light italic leading-relaxed">Cairo — home to over 20 million residents and one of Africa's largest urban vehicle fleets. Egypt's 20,000 EV target by 2030 has been backed by concrete import incentives that are already driving results.</p>
   </div>
 </div>
-<h2>Egypt: Scale Market With a 2030 Target</h2>
-<p>Egypt's EV market development follows a different model from Morocco's. Where Morocco's growth is primarily driven by import incentives, Egypt has paired import policy changes with a <strong>national 20,000 EV by 2030 target</strong> backed by government fleet procurement commitments.</p>
-<p>Egypt's EV import framework includes:</p>
-<p>- Reduced customs duties for qualifying EVs (specific rates vary by vehicle class and country of origin)</p>
-<p>- Government procurement targets driving public sector EV adoption</p>
-<p>- Pilot charging infrastructure deployment in Cairo and Alexandria</p>
-<p>Egypt exceeded 2,000 EV sales in 2024, matching Morocco's milestone. Given Egypt's much larger vehicle market (annual new car sales of 200,000–300,000 units versus Morocco's 150,000), the penetration rate remains lower — but the absolute growth trajectory is significant.</p>
-<p>Chinese brands are particularly well-positioned in Egypt because China and Egypt have an existing strong trade relationship, and Chinese vehicles already have significant brand recognition in the Egyptian market through prior ICE imports.</p>
-<h2>The Sub-Saharan Parallel: What Comes Next</h2>
-<p>The North Africa experience provides a clear pattern for Sub-Saharan market development:</p>
-<p>Kenya, South Africa, and Nigeria are approximately 18–24 months behind Morocco and Egypt on this curve. Dealers establishing market presence now are entering at the Phase 1-to-2 transition — the optimal moment to build brand and infrastructure before Phase 3 demand arrives.</p>
-<h2>What Both Markets Have in Common</h2>
-<p>Despite their different policy approaches, Morocco and Egypt share characteristics that explain their relative success:</p>
-<p>- <strong>Urban density</strong> — both have major metropolitan centres where the limited charging infrastructure challenge is manageable</p>
-<p>- <strong>Existing Chinese trade relationships</strong> — Chinese vehicles were already familiar to consumers before the EV wave arrived</p>
-<p>- <strong>Government as a first mover</strong> — public sector fleet electrification created visible, trusted early deployments that built consumer confidence</p>
-<p>- <strong>Regulatory clarity</strong> — both markets have relatively clear import classification processes, reducing the compliance risk that deters dealers in some Sub-Saharan markets</p>
-<h2>Sources</h2>
-<p>- IEA — *Global EV Outlook 2025*: Africa sales data</p>
-<p>- EV24.Africa — *"EV Market Forecast in Africa to 2030"*</p>
-<p>- Africa E-Mobility Alliance — *Africa E-Mobility Report 2025*</p>
-<p>- EV24.Africa — *"EV Import Duty in Africa Explained: Country-by-Country Guide"* (Morocco and Egypt sections)</p>
-<ul>
-  <li>Published by Evexport Intelligence Desk · July 2026*</li>
-</ul>
+<h2>Egypt: Scale Market With a 2030 Target</h2>
+<p>Egypt's EV market development follows a different model from Morocco's. Where Morocco's growth is primarily driven by import incentives, Egypt has paired import policy changes with a <strong>national 20,000 EV by 2030 target</strong> backed by government fleet procurement commitments.</p>
+<p>Egypt's EV import framework includes:</p>
+<p>Reduced customs duties for qualifying EVs (specific rates vary by vehicle class and country of origin)</p>
+<p>Government procurement targets driving public sector EV adoption</p>
+<p>Pilot charging infrastructure deployment in Cairo and Alexandria</p>
+<p>Egypt exceeded 2,000 EV sales in 2024, matching Morocco's milestone. Given Egypt's much larger vehicle market (annual new car sales of 200,000–300,000 units versus Morocco's 150,000), the penetration rate remains lower — but the absolute growth trajectory is significant.</p>
+<p>Chinese brands are particularly well-positioned in Egypt because China and Egypt have an existing strong trade relationship, and Chinese vehicles already have significant brand recognition in the Egyptian market through prior ICE imports.</p>
+<h2>The Sub-Saharan Parallel: What Comes Next</h2>
+<p>The North Africa experience provides a clear pattern for Sub-Saharan market development:</p>
+<p>Kenya, South Africa, and Nigeria are approximately 18–24 months behind Morocco and Egypt on this curve. Dealers establishing market presence now are entering at the Phase 1-to-2 transition — the optimal moment to build brand and infrastructure before Phase 3 demand arrives.</p>
+<h2>What Both Markets Have in Common</h2>
+<p>Despite their different policy approaches, Morocco and Egypt share characteristics that explain their relative success:</p>
+<p><strong>Urban density</strong> — both have major metropolitan centres where the limited charging infrastructure challenge is manageable</p>
+<p><strong>Existing Chinese trade relationships</strong> — Chinese vehicles were already familiar to consumers before the EV wave arrived</p>
+<p><strong>Government as a first mover</strong> — public sector fleet electrification created visible, trusted early deployments that built consumer confidence</p>
+<p><strong>Regulatory clarity</strong> — both markets have relatively clear import classification processes, reducing the compliance risk that deters dealers in some Sub-Saharan markets</p>
+<h2>Sources</h2>
+<p>IEA — <em>Global EV Outlook 2025</em>: Africa sales data</p>
+<p>EV24.Africa — <em>"EV Market Forecast in Africa to 2030"</em></p>
+<p>Africa E-Mobility Alliance — <em>Africa E-Mobility Report 2025</em></p>
+<p>EV24.Africa — <em>"EV Import Duty in Africa Explained: Country-by-Country Guide"</em> (Morocco and Egypt sections)</p>
+<p class="text-gray-500 text-xs font-light italic mt-8">Published by Evexport Intelligence Desk · July 2026</p>
 `;
 
 export default function ArticlePage() {

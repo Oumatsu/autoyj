@@ -31,15 +31,13 @@ const content = `<p>Ethiopia's EV market has structural characteristics unlike a
 <p>Ethiopia's EV market doubled between 2023 and 2025. The factors that drove this doubling — ICE import ban, rising fuel costs, Feres/ZayRide fleet electrification — have not changed. If anything, they have intensified: the Birr has continued to weaken, making imported fuel disproportionately expensive, while EV charging costs in ETB terms remain relatively stable (electricity tariffs are set domestically).</p>
 <p>The 2026 bestsellers will be the EVs that win the financial calculation for Ethiopian commercial buyers — not the vehicles with the most media coverage globally.</p>
 <h2>Sources</h2>
-<p>- Feres platform — driver fleet size and transition reporting (2025)</p>
-<p>- Ethiopian Customs Authority / ERCA — EV import statistics 2023–2025</p>
-<p>- Africa E-Mobility Alliance — *Africa E-Mobility Report 2025* (Ethiopia chapter)</p>
-<p>- EV24.Africa — *"EV Market in Ethiopia"* (2025–2026)</p>
-<p>- Addis Standard — reporting on Belayneh Kindie Golden Dragon assembly (2024–2025)</p>
-<p>- PwC Ethiopia — *Ethiopian Tax Guide 2024/2025*</p>
-<ul>
-  <li>Published by Evexport Intelligence Desk · January 2026*</li>
-</ul>
+<p>Feres platform — driver fleet size and transition reporting (2025)</p>
+<p>Ethiopian Customs Authority / ERCA — EV import statistics 2023–2025</p>
+<p>Africa E-Mobility Alliance — <em>Africa E-Mobility Report 2025</em> (Ethiopia chapter)</p>
+<p>EV24.Africa — <em>"EV Market in Ethiopia"</em> (2025–2026)</p>
+<p>Addis Standard — reporting on Belayneh Kindie Golden Dragon assembly (2024–2025)</p>
+<p>PwC Ethiopia — <em>Ethiopian Tax Guide 2024/2025</em></p>
+<p class="text-gray-500 text-xs font-light italic mt-8">Published by Evexport Intelligence Desk · January 2026</p>
 `;
 
 export default function ArticlePage() {

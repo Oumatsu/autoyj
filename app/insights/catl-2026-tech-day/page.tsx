@@ -53,14 +53,12 @@ const content = `<p>On April 21, 2026, CATL — the world's largest battery manu
 </table></div>
 <p>The most immediately actionable finding: <strong>Naxtra sodium-ion and Freevoy 2nd gen</strong> are the two technologies most relevant to the current African market realities — the first because it reduces long-run cost exposure, the second because it directly addresses the charging infrastructure gap that remains the primary commercial objection to EV fleet adoption.</p>
 <h2>Sources</h2>
-<p>- CATL Official — *2026 Technology Day press release* (April 21, 2026)</p>
-<p>- CnEVPost — *"CATL Tech Day 2026: Shenxing 3rd Gen, Naxtra Sodium-Ion, Condensed Matter Battery"* (April 2026)</p>
-<p>- Electrive.com — *"CATL presents 2026 battery technology roadmap"* (April 2026)</p>
-<p>- InsideEVs — *"CATL 2026 Tech Day: Everything Announced"* (April 2026)</p>
-<p>- CleanTechnica — *"CATL's Freevoy 2nd Generation: <span class="hl-gold">500 km</span> EV range in PHEVs"* (April 2026)</p>
-<ul>
-  <li>Published by Evexport Intelligence Desk · May 2026*</li>
-</ul>
+<p>CATL Official — <em>2026 Technology Day press release</em> (April 21, 2026)</p>
+<p>CnEVPost — <em>"CATL Tech Day 2026: Shenxing 3rd Gen, Naxtra Sodium-Ion, Condensed Matter Battery"</em> (April 2026)</p>
+<p>Electrive.com — <em>"CATL presents 2026 battery technology roadmap"</em> (April 2026)</p>
+<p>InsideEVs — <em>"CATL 2026 Tech Day: Everything Announced"</em> (April 2026)</p>
+<p>CleanTechnica — <em>"CATL's Freevoy 2nd Generation: <span class="hl-gold">500 km</span> EV range in PHEVs"</em> (April 2026)</p>
+<p class="text-gray-500 text-xs font-light italic mt-8">Published by Evexport Intelligence Desk · May 2026</p>
 `;
 
 export default function ArticlePage() {

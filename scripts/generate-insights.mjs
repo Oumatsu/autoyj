@@ -17,7 +17,7 @@ const CATEGORY_META = {
 };
 
 function parseArticle(mdPath) {
-  const content = readFileSync(mdPath, 'utf-8');
+  const content = readFileSync(mdPath, 'utf-8').replace(/\r/g, '');
   const lines = content.split('\n');
 
   let title = '', category = '', date = '', readTime = '', tag = '';
@@ -85,7 +85,7 @@ function copyImages(articleDir, slug) {
 
 function mdToHtml(md, slug) {
   let html = '';
-  const lines = md.split('\n');
+  const lines = md.replace(/\r/g, '').split('\n');
   let skipUntilOverview = true;
   let inTable = false;
   let tableHtml = '';
@@ -94,9 +94,23 @@ function mdToHtml(md, slug) {
     const line = lines[i];
 
     if (line.startsWith('## Overview')) { skipUntilOverview = false; continue; }
-    if (skipUntilOverview) continue;
+    if (skipUntilOverview) {
+      // Capture blockquote-style notes between front matter and Overview
+      if (line.startsWith('> ')) {
+        const blockText = line.replace(/^>\s*/, '').replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>').replace(/\*([^*]+)\*/g, '<em>$1</em>');
+        html += `<blockquote class="bq-note">${blockText}</blockquote>\n`;
+      }
+      continue;
+    }
 
-    if (line.startsWith('---') || line.startsWith('> **')) continue;
+    if (line.startsWith('---')) continue;
+
+    if (line.startsWith('> ')) {
+      if (inTable) { html += tableHtml + '</div></div>\n'; inTable = false; }
+      const blockText = line.replace(/^>\s*/, '').replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>').replace(/\*([^*]+)\*/g, '<em>$1</em>');
+      html += `<blockquote class="bq-note">${blockText}</blockquote>\n`;
+      continue;
+    }
 
     if (line.startsWith('## ') && !line.startsWith('## Overview')) {
       if (inTable) { html += tableHtml + '</div></div>\n'; inTable = false; }
@@ -117,7 +131,7 @@ function mdToHtml(md, slug) {
         const cells = line.split('|').filter(c => c.trim());
         const tag = i > 0 && lines[i-1].startsWith('|') && !lines[i-1].includes('---') ? 'td' : 'th';
         const cellClass = tag === 'th' ? 'py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left' : 'py-3 px-4 text-sm text-gray-300 border-b border-white/5';
-        tableHtml += `<tr>${cells.map(c => `<${tag} class="${cellClass}">${c.trim()}</${tag}>`).join('')}</tr>\n`;
+        tableHtml += `<tr>${cells.map(c => `<${tag} class="${cellClass}">${c.trim().replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>').replace(/\*([^*]+)\*/g, '<em>$1</em>')}</${tag}>`).join('')}</tr>\n`;
       }
       continue;
     } else if (inTable) {
@@ -153,10 +167,18 @@ function mdToHtml(md, slug) {
       continue;
     }
 
+    // Handle italic-only lines (e.g. *Published by...*) before list items
+    if (line.startsWith('*') && !line.startsWith('**') && line.trim().endsWith('*') && !line.match(/^\*\s/)) {
+      if (inTable) { html += tableHtml + '</div></div>\n'; inTable = false; }
+      const processed = line.replace(/^\*/, '').replace(/\*$/, '').trim().replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+      html += `<p class="text-gray-500 text-xs font-light italic mt-8">${processed}</p>\n`;
+      continue;
+    }
+
     if (line.startsWith('*') && !line.startsWith('**')) {
       html += `<ul>\n`;
       while (i < lines.length && lines[i].startsWith('*')) {
-        const item = lines[i].replace(/^\*\s*/, '');
+        const item = lines[i].replace(/^\*\s*/, '').replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>').replace(/\*([^*]+)\*/g, '<em>$1</em>');
         html += `  <li>${item}</li>\n`;
         i++;
       }
@@ -168,7 +190,7 @@ function mdToHtml(md, slug) {
     if (line.match(/^\d+\.\s/)) {
       html += `<ol>\n`;
       while (i < lines.length && lines[i].match(/^\d+\.\s/)) {
-        const item = lines[i].replace(/^\d+\.\s*/, '');
+        const item = lines[i].replace(/^\d+\.\s*/, '').replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>').replace(/\*([^*]+)\*/g, '<em>$1</em>');
         html += `  <li>${item}</li>\n`;
         i++;
       }
@@ -178,11 +200,13 @@ function mdToHtml(md, slug) {
     }
 
     if (line.trim() && !line.startsWith('![') && !line.startsWith('*') && !line.match(/^\d+\.\s/)) {
-      // Highlight key patterns with gold/green spans, then process bold
+      // Highlight key patterns with gold/green spans, then process bold & italic
       let processed = line
+        .replace(/^- /, '')
         .replace(/\b(\d{1,3}(?:,\d{3})*\+?\s*(?:%\s|percent|km|kWh|ETB|\$|USD|EUR))\b/g, '<span class="hl-gold">$1</span>')
         .replace(/\b(important|crucial|essential|critical|key takeaway)\b/gi, '<span class="hl-green">$1</span>')
         .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*([^*]+)\*/g, '<em>$1</em>')
         .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
       html += `<p>${processed}</p>\n`;
     }
@@ -333,6 +357,9 @@ function genStaticHTML(article, bodyHtml) {
     .article-body li{font-size:1rem;line-height:1.8;color:#9CA3AF;margin-bottom:0.5rem;font-weight:300;position:relative}
     .article-body li::before{content:'\u2022';color:var(--gold);position:absolute;left:-1.5rem;font-weight:bold}
     .article-body strong{color:#E5E7EB;font-weight:600}
+    .article-body em{color:#6B7280;font-style:italic}
+    .article-body .hl-source{color:#6B7280;font-style:italic}
+    .article-body .bq-note{border-left:4px solid var(--gold);background:linear-gradient(to right,rgba(197,160,89,.08),transparent);padding:1.25rem 1.5rem;margin:2rem 0;border-radius:0 1rem 1rem 0;color:#9CA3AF;font-size:.95rem;line-height:1.7}
     .article-body .hl-gold{color:var(--gold);font-weight:600}
     .article-body .hl-green{color:var(--green);font-weight:600}
     .article-body table{width:100%;border-collapse:collapse;margin:2rem 0}

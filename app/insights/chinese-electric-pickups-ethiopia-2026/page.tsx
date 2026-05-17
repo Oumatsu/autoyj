@@ -14,52 +14,50 @@ const content = `<p>East Africa runs on pickup trucks. The Toyota Hilux has defi
 </div>
 <h2>BYD Shark 6: The Current Market Leader</h2>
 <p>The BYD Shark 6 is a dual-cab pickup powered by a PHEV drivetrain integrating a 1.5T turbocharged petrol engine with a Freevoy battery system providing <span class="hl-gold">100 km</span> of pure electric range.</p>
-<p>- Pure EV range: <span class="hl-gold">100 km</span> CLTC</p>
-<p>- Total range (EV + petrol): <span class="hl-gold">840 km</span></p>
-<p>- Payload: 1,000 kg</p>
-<p>- Towing capacity: 4,500 kg</p>
-<p>- Ground clearance: 224 mm</p>
-<p>- Drive system: 4WD available</p>
+<p>Pure EV range: <span class="hl-gold">100 km</span> CLTC</p>
+<p>Total range (EV + petrol): <span class="hl-gold">840 km</span></p>
+<p>Payload: 1,000 kg</p>
+<p>Towing capacity: 4,500 kg</p>
+<p>Ground clearance: 224 mm</p>
+<p>Drive system: 4WD available</p>
 <p>BYD South Africa confirmed positive initial reception in the pickup segment, with the Shark targeting fleet operators running predictable urban/suburban routes. Early Kenya adopters have used the Shark in mixed urban commercial applications.</p>
-<p>- South Africa retail: approximately R950,000–R1,050,000 (depending on variant)</p>
-<p>- Kenya (estimated 2025 retail): approximately KES 4.2–4.8 million</p>
-<p>- Ethiopian landed cost (LHD): will be higher per unit given tax structure — estimated ETB 2.5–3.2 million for a standard Shark imported without duty exemptions under Directive 1006/2024</p>
+<p>South Africa retail: approximately R950,000–R1,050,000 (depending on variant)</p>
+<p>Kenya (estimated 2025 retail): approximately KES 4.2–4.8 million</p>
+<p>Ethiopian landed cost (LHD): will be higher per unit given tax structure — estimated ETB 2.5–3.2 million for a standard Shark imported without duty exemptions under Directive 1006/2024</p>
 <h2>Other Chinese Electric Pickups to Watch</h2>
 <h3>GWM/Haval (Great Wall Motors) — Upcoming EV Pickup</h3>
 <p>GWM — which already has an established dealer presence in South Africa and a growing presence in East Africa — has announced intentions to bring electric pickup variants of its commercial truck range to African markets. No confirmed 2026 launch date as of the Beijing Auto Show, but the GWM Poer PHEV is a relevant product to monitor.</p>
 <h3>BYD Shark Second Generation</h3>
 <p>BYD confirmed at the 2026 Beijing Auto Show that a successor to the Shark 6 is in development, targeting a 2027 production start. The 2nd-gen Shark is expected to incorporate CATL's Freevoy 2nd-generation battery system, which achieves <span class="hl-gold">500 km</span> of pure electric range in PHEV configurations. A Shark with <span class="hl-gold">500 km</span> EV range would represent a substantially different commercial proposition — handling most inter-city East African routes on electricity alone.</p>
 <h2>The Commercial Case: When It Works, When It Doesn't</h2>
-<p>- Operating pattern is primarily urban (daily mileage under <span class="hl-gold">150 km</span>, overnight return to charging point)</p>
-<p>- Fleet operator can install depot charging (3-phase AC sufficient for overnight charging)</p>
-<p>- Route includes significant highway driving where PHEV can pre-condition battery for urban segments</p>
-<p>- Routes require inter-city travel without charging access (the petrol backup mitigates range risk but increases complexity)</p>
-<p>- Parts and service for the electric drivetrain components are not locally available</p>
-<p>- Buyer is replacing a working Hilux at an ICE price point — the price premium requires a financial case that total cost of ownership analysis must justify</p>
+<p>Operating pattern is primarily urban (daily mileage under <span class="hl-gold">150 km</span>, overnight return to charging point)</p>
+<p>Fleet operator can install depot charging (3-phase AC sufficient for overnight charging)</p>
+<p>Route includes significant highway driving where PHEV can pre-condition battery for urban segments</p>
+<p>Routes require inter-city travel without charging access (the petrol backup mitigates range risk but increases complexity)</p>
+<p>Parts and service for the electric drivetrain components are not locally available</p>
+<p>Buyer is replacing a working Hilux at an ICE price point — the price premium requires a financial case that total cost of ownership analysis must justify</p>
 <p>For Ethiopian commercial operators: the primary constraint is not the product — it is the charging infrastructure and the after-sales service access for the electric drivetrain. Operators considering the Shark should budget for their own depot charging installation and identify a competent EV technician before committing.</p>
 <h2>What to Ask Before Buying a Chinese Electric Pickup</h2>
 <ol>
-  <li>**What is the warranty coverage for the PHEV battery specifically?** Some exporters' warranty terms cover the battery for 8 years / 120,000 km in domestic China but offer shorter coverage on export sales.</li>
+  <li><strong>What is the warranty coverage for the PHEV battery specifically?</strong> Some exporters' warranty terms cover the battery for 8 years / 120,000 km in domestic China but offer shorter coverage on export sales.</li>
 </ol>
 <ol>
-  <li>**Are parts — specifically the high-voltage battery pack and power electronics — stocked locally, or are they China-order items?** A high-voltage battery replacement from China takes 6–12 weeks. During that period, your PHEV is an ICE-only vehicle.</li>
+  <li><strong>Are parts — specifically the high-voltage battery pack and power electronics — stocked locally, or are they China-order items?</strong> A high-voltage battery replacement from China takes 6–12 weeks. During that period, your PHEV is an ICE-only vehicle.</li>
 </ol>
 <ol>
-  <li>**Is the ground clearance and suspension configuration appropriate for unpaved roads in your specific operating area?** The Shark's 224 mm ground clearance is adequate for most graded roads; extreme off-road applications should be evaluated specifically.</li>
+  <li><strong>Is the ground clearance and suspension configuration appropriate for unpaved roads in your specific operating area?</strong> The Shark's 224 mm ground clearance is adequate for most graded roads; extreme off-road applications should be evaluated specifically.</li>
 </ol>
 <ol>
-  <li>**Does the RHD requirement apply?** Kenya and Tanzania require RHD — the BYD Shark has RHD variants. Ethiopia, Nigeria, and West Africa do not require RHD.</li>
+  <li><strong>Does the RHD requirement apply?</strong> Kenya and Tanzania require RHD — the BYD Shark has RHD variants. Ethiopia, Nigeria, and West Africa do not require RHD.</li>
 </ol>
 <h2>Sources</h2>
-<p>- BYD South Africa — Shark 6 launch announcement and specifications (April 2025)</p>
-<p>- CnEVPost — *"BYD Shark 6 launches in South Africa: specs and pricing"* (April 2025)</p>
-<p>- CarNewsChina — *"BYD Shark second generation confirmed for 2027"* (May 2026)</p>
-<p>- CATL — Freevoy 2nd generation specifications, 2026 Tech Day</p>
-<p>- GWM South Africa — product and network updates (2025–2026)</p>
-<p>- Ethiopian Customs Authority / ERCA — PHEV classification guidance</p>
-<ul>
-  <li>Published by Evexport Intelligence Desk · April 2026*</li>
-</ul>
+<p>BYD South Africa — Shark 6 launch announcement and specifications (April 2025)</p>
+<p>CnEVPost — <em>"BYD Shark 6 launches in South Africa: specs and pricing"</em> (April 2025)</p>
+<p>CarNewsChina — <em>"BYD Shark second generation confirmed for 2027"</em> (May 2026)</p>
+<p>CATL — Freevoy 2nd generation specifications, 2026 Tech Day</p>
+<p>GWM South Africa — product and network updates (2025–2026)</p>
+<p>Ethiopian Customs Authority / ERCA — PHEV classification guidance</p>
+<p class="text-gray-500 text-xs font-light italic mt-8">Published by Evexport Intelligence Desk · April 2026</p>
 `;
 
 export default function ArticlePage() {

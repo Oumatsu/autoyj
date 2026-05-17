@@ -1,49 +1,47 @@
 import Link from "next/link";
 
-const content = `<p>Published in September 2025, the <strong>Africa E-Mobility Report 2025</strong> by the Africa E-Mobility Alliance (AEA) is the most comprehensive continent-specific analysis of EV market development currently available. Unlike global reports that treat Africa as a footnote, the AEA report goes country-by-country, segment-by-segment, and policy-by-policy across the continent's most active EV markets.</p>
-<p>This analysis draws on the report's key findings and translates them into actionable intelligence for dealers and fleet operators.</p>
-<h2>The Continent-Wide Picture</h2>
-<p>The report's headline findings confirm and expand on IEA data, adding Africa-specific depth:</p>
-<p>- <strong>EV sales more than doubled in 2024</strong> versus 2023, driven primarily by Morocco and Egypt</p>
-<p>- <strong>Sales penetration remains below 1%</strong> continent-wide — the lowest of any region globally</p>
-<p>- <strong>Three- and two-wheelers</strong> are the fastest-growing EV segment by unit volume in East and West Africa, though outside the scope of this analysis for commercial fleet dealers</p>
-<p>- <strong>Government fleet electrification</strong> is the primary demand driver in Sub-Saharan Africa, with commercial consumer purchases lagging behind by 18–24 months</p>
-<p>The gap between the headline growth rate (doubling) and the absolute penetration (under 1%) is the defining tension of the African EV market — and the source of both the opportunity and the risk for early-stage dealers.</p>
+const content = `<p>Published in September 2025, the <strong>Africa E-Mobility Report 2025</strong> by the Africa E-Mobility Alliance (AEA) is the most comprehensive continent-specific analysis of EV market development currently available. Unlike global reports that treat Africa as a footnote, the AEA report goes country-by-country, segment-by-segment, and policy-by-policy across the continent's most active EV markets.</p>
+<p>This analysis draws on the report's key findings and translates them into actionable intelligence for dealers and fleet operators.</p>
+<h2>The Continent-Wide Picture</h2>
+<p>The report's headline findings confirm and expand on IEA data, adding Africa-specific depth:</p>
+<p><strong>EV sales more than doubled in 2024</strong> versus 2023, driven primarily by Morocco and Egypt</p>
+<p><strong>Sales penetration remains below 1%</strong> continent-wide — the lowest of any region globally</p>
+<p><strong>Three- and two-wheelers</strong> are the fastest-growing EV segment by unit volume in East and West Africa, though outside the scope of this analysis for commercial fleet dealers</p>
+<p><strong>Government fleet electrification</strong> is the primary demand driver in Sub-Saharan Africa, with commercial consumer purchases lagging behind by 18–24 months</p>
+<p>The gap between the headline growth rate (doubling) and the absolute penetration (under 1%) is the defining tension of the African EV market — and the source of both the opportunity and the risk for early-stage dealers.</p>
 <div class="rounded-[1.5rem] overflow-hidden my-10">
   <img src="images/africa-emobility-report-2025/report-data.jpg" alt="Data report and analytics interface representing the depth of country-by-country market intelligence in the Africa E-Mobility Report 2025" class="w-full h-auto object-cover" style="max-height:450px;">
   <div class="px-6 py-4 bg-white/[0.02] border-t border-white/5">
-    <p class="text-xs text-gray-500 font-light italic leading-relaxed">The AEA report covers over 30 African countries with specific data on EV registrations, charging infrastructure, policy frameworks, and OEM presence — the most granular Africa-specific dataset currently published.*</p>
+    <p class="text-xs text-gray-500 font-light italic leading-relaxed">The AEA report covers over 30 African countries with specific data on EV registrations, charging infrastructure, policy frameworks, and OEM presence — the most granular Africa-specific dataset currently published.</p>
   </div>
 </div>
-<h2>Country-by-Country Highlights</h2>
-<h3>Kenya</h3>
-<p>The report identifies Kenya as the most advanced Sub-Saharan EV market by policy maturity. The combination of <span class="hl-gold">0% </span>import duty, an active ride-hailing sector, and Nairobi's urban density create the strongest commercial fleet EV economics on the continent. The report notes that Kenya's EV fleet is growing primarily through commercial channels — taxi operators, logistics companies, and government fleet managers — rather than retail consumer purchases.</p>
-<h3>South Africa</h3>
-<p>South Africa has the continent's largest existing passenger vehicle market (approximately 500,000 new vehicles per year) and the most sophisticated dealer infrastructure. BYD's rapid network expansion is the dominant story, with the report noting that South Africa's Q1 2025 NEV share of 2.<span class="hl-gold">4% </span>already exceeds the continental average by a factor of three. However, South Africa's high import duty on EVs (25%) remains the primary constraint on cost competitiveness.</p>
-<h3>Ethiopia</h3>
-<p>The report highlights Ethiopia's unique position as the only country globally with an active ICE import ban, while also noting the policy volatility that has characterised its EV incentive framework (VAT reinstatement, customs duty increase). Ethiopia's EV fleet tripled between 2023 and 2025, but primarily in the commercial taxi and ride-hailing sector — consumer purchases remain rare.</p>
-<h3>Nigeria</h3>
-<p>Noted as a market with significant structural potential (largest economy in Africa, population over 200 million, high urban density in Lagos and Abuja) but limited current EV activity. The 2024 VAT Modification Order is identified as a meaningful policy signal, though implementation challenges and infrastructure constraints are flagged as near-term barriers.</p>
-<h3>Rwanda</h3>
-<p>Flagged as an interesting outlier — a small market with a comprehensive EV exemption framework (full tax exemption on EVs) and a government that has used EV deployment as a deliberate urban image strategy. Rwanda's EV fleet is disproportionately large relative to its economy and is primarily composed of two- and three-wheelers alongside a small passenger car segment.</p>
+<h2>Country-by-Country Highlights</h2>
+<h3>Kenya</h3>
+<p>The report identifies Kenya as the most advanced Sub-Saharan EV market by policy maturity. The combination of <span class="hl-gold">0% </span>import duty, an active ride-hailing sector, and Nairobi's urban density create the strongest commercial fleet EV economics on the continent. The report notes that Kenya's EV fleet is growing primarily through commercial channels — taxi operators, logistics companies, and government fleet managers — rather than retail consumer purchases.</p>
+<h3>South Africa</h3>
+<p>South Africa has the continent's largest existing passenger vehicle market (approximately 500,000 new vehicles per year) and the most sophisticated dealer infrastructure. BYD's rapid network expansion is the dominant story, with the report noting that South Africa's Q1 2025 NEV share of 2.<span class="hl-gold">4% </span>already exceeds the continental average by a factor of three. However, South Africa's high import duty on EVs (25%) remains the primary constraint on cost competitiveness.</p>
+<h3>Ethiopia</h3>
+<p>The report highlights Ethiopia's unique position as the only country globally with an active ICE import ban, while also noting the policy volatility that has characterised its EV incentive framework (VAT reinstatement, customs duty increase). Ethiopia's EV fleet tripled between 2023 and 2025, but primarily in the commercial taxi and ride-hailing sector — consumer purchases remain rare.</p>
+<h3>Nigeria</h3>
+<p>Noted as a market with significant structural potential (largest economy in Africa, population over 200 million, high urban density in Lagos and Abuja) but limited current EV activity. The 2024 VAT Modification Order is identified as a meaningful policy signal, though implementation challenges and infrastructure constraints are flagged as near-term barriers.</p>
+<h3>Rwanda</h3>
+<p>Flagged as an interesting outlier — a small market with a comprehensive EV exemption framework (full tax exemption on EVs) and a government that has used EV deployment as a deliberate urban image strategy. Rwanda's EV fleet is disproportionately large relative to its economy and is primarily composed of two- and three-wheelers alongside a small passenger car segment.</p>
 <div class="rounded-[1.5rem] overflow-hidden my-10">
   <img src="images/africa-emobility-report-2025/africa-mobility.jpg" alt="Africa transportation and mobility infrastructure representing the physical context in which EV adoption must scale" class="w-full h-auto object-cover" style="max-height:450px;">
   <div class="px-6 py-4 bg-white/[0.02] border-t border-white/5">
-    <p class="text-xs text-gray-500 font-light italic leading-relaxed">The AEA report notes that Africa's variable infrastructure — particularly electricity grid reliability and road quality — is the primary physical constraint on EV adoption, distinct from policy or pricing factors.*</p>
+    <p class="text-xs text-gray-500 font-light italic leading-relaxed">The AEA report notes that Africa's variable infrastructure — particularly electricity grid reliability and road quality — is the primary physical constraint on EV adoption, distinct from policy or pricing factors.</p>
   </div>
 </div>
-<h2>The Infrastructure Reality Check</h2>
-<p>The report is unusually candid about the barriers that policy analysis alone often understates:</p>
-<h2>The Strategic Summary</h2>
-<p>The Africa E-Mobility Report 2025 paints a picture of a market that is unambiguously real and growing — but one where execution quality matters more than market entry timing. The dealers who will build durable businesses in African EV markets are those who solve the after-sales equation, not just the procurement equation.</p>
-<p>The report is available as a free PDF download from the Africa E-Mobility Alliance website at africaema.org — required reading for any dealer building a serious Africa EV strategy.</p>
-<h2>Sources</h2>
-<p>- Africa E-Mobility Alliance — *Africa E-Mobility Report 2025* (September 2025), available at africaema.org</p>
-<p>- IEA — *Global EV Outlook 2025*</p>
-<p>- EV24.Africa — multiple country-specific policy guides (2025–2026)</p>
-<ul>
-  <li>Published by Evexport Intelligence Desk · October 2025*</li>
-</ul>
+<h2>The Infrastructure Reality Check</h2>
+<p>The report is unusually candid about the barriers that policy analysis alone often understates:</p>
+<h2>The Strategic Summary</h2>
+<p>The Africa E-Mobility Report 2025 paints a picture of a market that is unambiguously real and growing — but one where execution quality matters more than market entry timing. The dealers who will build durable businesses in African EV markets are those who solve the after-sales equation, not just the procurement equation.</p>
+<p>The report is available as a free PDF download from the Africa E-Mobility Alliance website at africaema.org — required reading for any dealer building a serious Africa EV strategy.</p>
+<h2>Sources</h2>
+<p>Africa E-Mobility Alliance — <em>Africa E-Mobility Report 2025</em> (September 2025), available at africaema.org</p>
+<p>IEA — <em>Global EV Outlook 2025</em></p>
+<p>EV24.Africa — multiple country-specific policy guides (2025–2026)</p>
+<p class="text-gray-500 text-xs font-light italic mt-8">Published by Evexport Intelligence Desk · October 2025</p>
 `;
 
 export default function ArticlePage() {

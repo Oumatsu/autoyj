@@ -61,18 +61,14 @@ const content = `<p>The choice of East African port is not simply a logistics qu
 <p>Since the escalation of Houthi attacks on Red Sea shipping in late 2023, several major carriers have been routing via the Cape of Good Hope rather than the Suez Canal. This adds approximately <strong>14–21 days</strong> to China–East Africa transit times and <strong>$200–$<span class="hl-gold">500 USD</span> per vehicle</strong> in additional freight cost depending on the carrier and route.</p>
 <p>As of mid-2026, some carriers have resumed partial Red Sea routing; others maintain Cape routing. When booking China–East Africa freight, confirm with your freight forwarder which routing is in use for your specific sailing — this affects your ETA calculation materially.</p>
 <h2>Sources</h2>
-<p>- Kenya Ports Authority — Kilindini Harbour vehicle import procedures and statistics (2025)</p>
-<p>- Djibouti Ports & Free Zones Authority — Doraleh Multi-Purpose Port specifications (2025)</p>
-<p>- Tanzania Ports Authority — Dar es Salaam port infrastructure and procedures (2025)</p>
-<p>- Ethiopian Customs Authority — ASYCUDA system and pre-clearance procedures</p>
-<p>- UNCTAD — *Review of Maritime Transport 2025* (East Africa port traffic data)</p>
-<p>- Freightos — Red Sea disruption impact on East Africa shipping lanes (2024–2025)</p>
-<ul>
-  <li>本文港口数据基于2026年3月行业报告及港务局公开信息。港口拥堵状况、清关时效及费率随季节和运量变化，请在安排货运前向货代确认当前实际清关周期及收费标准。*</li>
-</ul>
-<ul>
-  <li>Published by Evexport Intelligence Desk · March 2026*</li>
-</ul>
+<p>Kenya Ports Authority — Kilindini Harbour vehicle import procedures and statistics (2025)</p>
+<p>Djibouti Ports & Free Zones Authority — Doraleh Multi-Purpose Port specifications (2025)</p>
+<p>Tanzania Ports Authority — Dar es Salaam port infrastructure and procedures (2025)</p>
+<p>Ethiopian Customs Authority — ASYCUDA system and pre-clearance procedures</p>
+<p>UNCTAD — <em>Review of Maritime Transport 2025</em> (East Africa port traffic data)</p>
+<p>Freightos — Red Sea disruption impact on East Africa shipping lanes (2024–2025)</p>
+<p class="text-gray-500 text-xs font-light italic mt-8">本文港口数据基于2026年3月行业报告及港务局公开信息。港口拥堵状况、清关时效及费率随季节和运量变化，请在安排货运前向货代确认当前实际清关周期及收费标准。</p>
+<p class="text-gray-500 text-xs font-light italic mt-8">Published by Evexport Intelligence Desk · March 2026</p>
 `;
 
 export default function ArticlePage() {

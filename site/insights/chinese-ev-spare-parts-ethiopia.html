@@ -30,6 +30,9 @@
     .article-body li{font-size:1rem;line-height:1.8;color:#9CA3AF;margin-bottom:0.5rem;font-weight:300;position:relative}
     .article-body li::before{content:'•';color:var(--gold);position:absolute;left:-1.5rem;font-weight:bold}
     .article-body strong{color:#E5E7EB;font-weight:600}
+    .article-body em{color:#6B7280;font-style:italic}
+    .article-body .hl-source{color:#6B7280;font-style:italic}
+    .article-body .bq-note{border-left:4px solid var(--gold);background:linear-gradient(to right,rgba(197,160,89,.08),transparent);padding:1.25rem 1.5rem;margin:2rem 0;border-radius:0 1rem 1rem 0;color:#9CA3AF;font-size:.95rem;line-height:1.7}
     .article-body .hl-gold{color:var(--gold);font-weight:600}
     .article-body .hl-green{color:var(--green);font-weight:600}
     .article-body table{width:100%;border-collapse:collapse;margin:2rem 0}
@@ -104,23 +107,23 @@
 <p>This guide outlines the practical architecture for building a spare parts supply chain in Ethiopia without an OEM parts distribution agreement.</p>
 <h2>The Parts Priority Hierarchy</h2>
 <p>Not all EV parts carry the same supply urgency. The starting point for any parts strategy is understanding which categories create the most customer exposure risk.</p>
-<p>- High-voltage fuses and contactors</p>
-<p>- 12V auxiliary battery</p>
-<p>- Charging port and inlet assembly</p>
-<p>- Brake pad sets and brake fluid</p>
-<p>- Cabin air filters and pollen filters</p>
-<p>- Wiper blades</p>
+<p>High-voltage fuses and contactors</p>
+<p>12V auxiliary battery</p>
+<p>Charging port and inlet assembly</p>
+<p>Brake pad sets and brake fluid</p>
+<p>Cabin air filters and pollen filters</p>
+<p>Wiper blades</p>
 <p>These are high-frequency consumable and safety items. Running out of brake pads or having a faulty charging inlet creates immediate operational downtime for a commercial vehicle.</p>
-<p>- BMS (Battery Management System) control module</p>
-<p>- Onboard charger module</p>
-<p>- DC-DC converter</p>
-<p>- Suspension components (shock absorbers, control arm bushings)</p>
-<p>- Cooling system components (water pump, coolant lines for battery thermal management)</p>
-<p>- Tyres (local sourcing usually possible but size availability varies)</p>
-<p>- High-voltage battery pack (full or cell-level replacement)</p>
-<p>- Main drive motor or motor controller</p>
-<p>- Power distribution unit (PDU)</p>
-<p>- Body panels and structural components</p>
+<p>BMS (Battery Management System) control module</p>
+<p>Onboard charger module</p>
+<p>DC-DC converter</p>
+<p>Suspension components (shock absorbers, control arm bushings)</p>
+<p>Cooling system components (water pump, coolant lines for battery thermal management)</p>
+<p>Tyres (local sourcing usually possible but size availability varies)</p>
+<p>High-voltage battery pack (full or cell-level replacement)</p>
+<p>Main drive motor or motor controller</p>
+<p>Power distribution unit (PDU)</p>
+<p>Body panels and structural components</p>
 <p>The Tier 3 list is where most EV dealers get into trouble. A dealer whose customer's vehicle is immobilised waiting for a drive motor from China — with a 10-week lead time — has a retention problem that price competition cannot solve.</p>
 <div class="rounded-[1.5rem] overflow-hidden my-10">
   <img src="images/chinese-ev-spare-parts-ethiopia/parts-workshop.jpg" alt="Auto repair workshop with vehicle on a lift representing the technical infrastructure and parts inventory needed for Chinese EV maintenance in Ethiopia" class="w-full h-auto object-cover" style="max-height:450px;">
@@ -132,15 +135,15 @@
 <h3>Step 1: Identify Your Core Fleet Models and Map Their Parts</h3>
 <p>Start with the specific vehicles in your customer fleet — or the specific models you import. Parts are model-specific. A BYD Seagull charging port does not fit a BYD Atto 3. A Chery Tiggo suspension component does not cross to a BYD Dolphin.</p>
 <p>For each model you service, map:</p>
-<p>- The full service interval parts list (from the OEM service manual — obtain from your Chinese supplier)</p>
-<p>- The most common failure modes reported by other operators of that model</p>
-<p>- The fast-wear consumables specific to Ethiopian conditions (dust ingress, heat, road conditions)</p>
+<p>The full service interval parts list (from the OEM service manual — obtain from your Chinese supplier)</p>
+<p>The most common failure modes reported by other operators of that model</p>
+<p>The fast-wear consumables specific to Ethiopian conditions (dust ingress, heat, road conditions)</p>
 <p>Ethiopian conditions are harder on certain components than Chinese conditions. Dusty roads affect air filtration systems more aggressively. Unpaved surfaces increase suspension component wear. High ambient temperatures stress cooling systems. Your parts inventory should weight toward categories where Ethiopian conditions accelerate wear.</p>
 <h3>Step 2: Establish a Chinese Parts Supplier</h3>
 <p>For Chinese EV parts, you have three sourcing options:</p>
 <h3>Step 3: Build a Consignment Inventory</h3>
 <p>A consignment inventory — parts held in your warehouse against anticipated future demand — eliminates the waiting time for your most <span class="hl-green">critical</span> items. The upfront cost is real, but so is the customer retention value.</p>
-<p>A practical starter consignment inventory for an Ethiopian dealer maintaining 20–30 vehicles *（以下建议数量为参考值，基于行业实践经验，实际根据车队规模和车型组合调整）*：</p>
+<p>A practical starter consignment inventory for an Ethiopian dealer maintaining 20–30 vehicles <em>（以下建议数量为参考值，基于行业实践经验，实际根据车队规模和车型组合调整）</em>：</p>
 <div class="overflow-x-auto my-8"><table class="w-full border-collapse text-sm"><tr><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Part Category</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Recommended Stock Level</th></tr>
 <tr><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">12V auxiliary batteries (matched to fleet models)</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">4–6 units</th></tr>
 <tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Charging cables (Type 2, matching fleet inlets)</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">3–4 units</td></tr>
@@ -157,22 +160,20 @@
 <h3>Step 4: Develop an Ethiopian Technical Capability</h3>
 <p>Parts supply is necessary but not sufficient. Parts must be installed correctly. In Addis Ababa, EV-trained technicians exist in growing numbers — trained through manufacturer training programmes, YouTube-mediated self-learning, and formal TVET programmes that began incorporating EV content from 2023 onwards.</p>
 <p>Invest in:</p>
-<p>- Sending 1–2 mechanics to a formal Chinese EV technical training programme (several Chinese OEMs offer this in Guangzhou or through African partners)</p>
-<p>- Purchasing a basic EV diagnostic tool compatible with your fleet models (most Chinese EVs use OBD2 with brand-specific diagnostic apps)</p>
-<p>- Joining or establishing an informal network with other Ethiopian EV dealers for parts sharing and technical knowledge exchange</p>
+<p>Sending 1–2 mechanics to a formal Chinese EV technical training programme (several Chinese OEMs offer this in Guangzhou or through African partners)</p>
+<p>Purchasing a basic EV diagnostic tool compatible with your fleet models (most Chinese EVs use OBD2 with brand-specific diagnostic apps)</p>
+<p>Joining or establishing an informal network with other Ethiopian EV dealers for parts sharing and technical knowledge exchange</p>
 <h2>The Competitive Advantage Calculation</h2>
 <p>A dealer who can resolve a customer's EV issue in 3 days — versus a competitor who quotes 10 weeks — does not need to compete on price. That service differential is worth thousands of USD in customer lifetime value.</p>
 <p>Commercial fleet buyers — taxi operators, NGOs, government entities — make repeat vehicle purchase decisions. The fleet operator whose 30 Seagulls were reliably serviced by your team becomes your customer for the next 30 vehicles. The fleet operator whose vehicles sat idle waiting for parts goes to whoever promises them they've solved the problem.</p>
 <p>Parts supply is not a logistics problem. It is a customer retention strategy.</p>
 <h2>Sources</h2>
-<p>- Africa E-Mobility Alliance — *Africa E-Mobility Report 2025* (after-sales infrastructure section)</p>
-<p>- Alibaba / 1688 — Chinese auto parts B2B marketplace (reference for sourcing methodology)</p>
-<p>- BYD official — service manual and parts catalogue availability policy</p>
-<p>- Ethiopian Technical and Vocational Education and Training (TVET) Agency — EV curriculum status (2023–2025)</p>
-<p>- 迪拜汽车零件集散市场 — 迪拜是中国EV零件在中东/非洲地区的主要转运集散地，部分经销商通过迪拜中间商可将到货周期压缩至3-4周（编辑注：基于行业实践，非特定机构数据）</p>
-<ul>
-  <li>Published by Evexport Intelligence Desk · March 2026*</li>
-</ul>
+<p>Africa E-Mobility Alliance — <em>Africa E-Mobility Report 2025</em> (after-sales infrastructure section)</p>
+<p>Alibaba / 1688 — Chinese auto parts B2B marketplace (reference for sourcing methodology)</p>
+<p>BYD official — service manual and parts catalogue availability policy</p>
+<p>Ethiopian Technical and Vocational Education and Training (TVET) Agency — EV curriculum status (2023–2025)</p>
+<p>迪拜汽车零件集散市场 — 迪拜是中国EV零件在中东/非洲地区的主要转运集散地，部分经销商通过迪拜中间商可将到货周期压缩至3-4周（编辑注：基于行业实践，非特定机构数据）</p>
+<p class="text-gray-500 text-xs font-light italic mt-8">Published by Evexport Intelligence Desk · March 2026</p>
 
         </article>
         <div class="mt-16 pt-8 border-t border-white/10 flex flex-wrap gap-2">

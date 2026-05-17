@@ -7,19 +7,19 @@ const content = `<p>African customs clearance for imported vehicles has always b
 <h3>1. Bill of Lading (BL)</h3>
 <p>The fundamental ocean freight document. For RoRo shipments, this is typically a <strong>RoRo Bill of Lading</strong> issued by the shipping line. For container shipments, a standard container BL applies.</p>
 <p>The BL must state:</p>
-<p>- Consignee name and address (your entity in the destination country)</p>
-<p>- Vessel name and voyage number</p>
-<p>- Port of loading and port of discharge</p>
-<p>- Vehicle description (make, model, year)</p>
-<p>- Container or RoRo slot number</p>
-<p>- Freight terms (FOB, CIF, etc.)</p>
+<p>Consignee name and address (your entity in the destination country)</p>
+<p>Vessel name and voyage number</p>
+<p>Port of loading and port of discharge</p>
+<p>Vehicle description (make, model, year)</p>
+<p>Container or RoRo slot number</p>
+<p>Freight terms (FOB, CIF, etc.)</p>
 <h3>2. Commercial Invoice</h3>
 <p>Issued by the seller. Must show:</p>
-<p>- Seller and buyer details</p>
-<p>- VIN number</p>
-<p>- Vehicle description (make, model, year, engine/motor type)</p>
-<p>- Transaction price in USD (or agreed currency)</p>
-<p>- Payment terms</p>
+<p>Seller and buyer details</p>
+<p>VIN number</p>
+<p>Vehicle description (make, model, year, engine/motor type)</p>
+<p>Transaction price in USD (or agreed currency)</p>
+<p>Payment terms</p>
 <h3>3. Packing List</h3>
 <p>A supporting document confirming the vehicle contents and accessories. For EVs, should explicitly list the charging cable type(s) included.</p>
 <div class="rounded-[1.5rem] overflow-hidden my-10">
@@ -36,20 +36,20 @@ const content = `<p>African customs clearance for imported vehicles has always b
 <p>For Ethiopia: QSAE (Quality and Standards Authority of Ethiopia) has approved several inspection entities. Confirm current approved inspectors before shipment.</p>
 <h3>6. OEM After-Sales Service Confirmation Document</h3>
 <p>This document must:</p>
-<p>- Be issued by the vehicle manufacturer (not a dealer or trader)</p>
-<p>- Carry the manufacturer's official seal (公章)</p>
-<p>- Specify the destination country</p>
-<p>- Reference the VIN number</p>
+<p>Be issued by the vehicle manufacturer (not a dealer or trader)</p>
+<p>Carry the manufacturer's official seal (公章)</p>
+<p>Specify the destination country</p>
+<p>Reference the VIN number</p>
 <p>If your vehicle was manufactured or first registered in 2025 or 2026 and was exported within 180 days of its registration date, absence of this document means the vehicle cannot legally leave China. Any supplier who cannot provide this document for a recently-manufactured vehicle is a compliance red flag.</p>
 <h2>Part 2: Technical Documents for EVs</h2>
 <p>Standard ICE vehicle imports require an engine number. EVs require a different set of technical identifiers.</p>
 <h3>7. Battery Specification Sheet</h3>
 <p>A technical document from the battery manufacturer (CATL, BYD, SVOLT, or the OEM) specifying:</p>
-<p>- Battery chemistry (LFP, NCM, sodium-ion)</p>
-<p>- Nominal capacity (kWh)</p>
-<p>- Voltage</p>
-<p>- UN number for dangerous goods classification</p>
-<p>- Battery serial number</p>
+<p>Battery chemistry (LFP, NCM, sodium-ion)</p>
+<p>Nominal capacity (kWh)</p>
+<p>Voltage</p>
+<p>UN number for dangerous goods classification</p>
+<p>Battery serial number</p>
 <p>Many African customs authorities now require UN38.3 dangerous goods transport documentation for EV battery shipments. This is increasingly enforced at Djibouti and Mombasa.</p>
 <h3>8. UN38.3 Test Summary (Dangerous Goods Transport Certificate)</h3>
 <p>EV batteries are classified as dangerous goods under international transport regulations. The UN38.3 test summary is the document proving the battery has been certified for safe transport.</p>
@@ -59,21 +59,21 @@ const content = `<p>African customs clearance for imported vehicles has always b
 <p>For vehicles without home-country type approval documentation, importers sometimes use an independent inspection certificate as a substitute. Confirm the current requirements with a licensed clearing agent before finalising the shipment.</p>
 <h2>Part 3: Destination-Specific Additional Requirements</h2>
 <h3>Ethiopia</h3>
-<p>- <strong>ERCA Import Declaration (Customs Form)</strong>: filed at the port of entry (typically Djibouti, cleared by Ethiopian customs liaison officers stationed there)</p>
-<p>- <strong>Letter of Credit or Bank Transfer Proof</strong>: ERCA requires evidence of payment channel (wire transfer through licensed Ethiopian bank or an approved forex mechanism)</p>
-<p>- <strong>QSAE Pre-Shipment Inspection Report</strong>: from an approved inspector (see above)</p>
+<p><strong>ERCA Import Declaration (Customs Form)</strong>: filed at the port of entry (typically Djibouti, cleared by Ethiopian customs liaison officers stationed there)</p>
+<p><strong>Letter of Credit or Bank Transfer Proof</strong>: ERCA requires evidence of payment channel (wire transfer through licensed Ethiopian bank or an approved forex mechanism)</p>
+<p><strong>QSAE Pre-Shipment Inspection Report</strong>: from an approved inspector (see above)</p>
 <h3>Kenya</h3>
-<p>- <strong>Kenya Revenue Authority Single Customs Territory (SCT) declaration</strong>: applies to vehicles entering through EAC partner state ports (Djibouti, Dar es Salaam)</p>
-<p>- <strong>Kenya Bureau of Standards (KEBS) Permit</strong>: required for vehicles that have not previously been approved under a recognised international type approval scheme</p>
-<p>- <strong>Age restriction documentation</strong>: Kenya restricts import of vehicles over 8 years old; for Chinese EVs, manufacture date confirmation is required</p>
+<p><strong>Kenya Revenue Authority Single Customs Territory (SCT) declaration</strong>: applies to vehicles entering through EAC partner state ports (Djibouti, Dar es Salaam)</p>
+<p><strong>Kenya Bureau of Standards (KEBS) Permit</strong>: required for vehicles that have not previously been approved under a recognised international type approval scheme</p>
+<p><strong>Age restriction documentation</strong>: Kenya restricts import of vehicles over 8 years old; for Chinese EVs, manufacture date confirmation is required</p>
 <h3>Nigeria</h3>
-<p>- <strong>NAFDAC / SON permits for EV batteries</strong>: Nigeria Standards Organisation (SON) has developed inspection protocols for imported EV batteries; requirements were expanding in 2025</p>
-<p>- <strong>Form M (Import licence)</strong>: issued by Nigerian banks; required before goods can be shipped</p>
-<p>- <strong>Combined Certificate of Value and Origin (CCVO)</strong>: required for Nigeria customs valuation</p>
+<p><strong>NAFDAC / SON permits for EV batteries</strong>: Nigeria Standards Organisation (SON) has developed inspection protocols for imported EV batteries; requirements were expanding in 2025</p>
+<p><strong>Form M (Import licence)</strong>: issued by Nigerian banks; required before goods can be shipped</p>
+<p><strong>Combined Certificate of Value and Origin (CCVO)</strong>: required for Nigeria customs valuation</p>
 <h3>Ghana</h3>
-<p>- <strong>Customs Declaration (CD)</strong>: filed through Ghana Revenue Authority's Integrated Customs Management System (ICUMS)</p>
-<p>- <strong>Road Traffic Authority (DVLA) vehicle inspection</strong>: for used and reconditioned imports; new vehicles may be exempt</p>
-<p>- <strong>2024 zero-tariff eligibility documentation</strong>: since Ghana's 2024 automotive import tariff revision, EVs meeting specific technical criteria qualify for zero import duty — documentation of those criteria is required to claim the exemption</p>
+<p><strong>Customs Declaration (CD)</strong>: filed through Ghana Revenue Authority's Integrated Customs Management System (ICUMS)</p>
+<p><strong>Road Traffic Authority (DVLA) vehicle inspection</strong>: for used and reconditioned imports; new vehicles may be exempt</p>
+<p><strong>2024 zero-tariff eligibility documentation</strong>: since Ghana's 2024 automotive import tariff revision, EVs meeting specific technical criteria qualify for zero import duty — documentation of those criteria is required to claim the exemption</p>
 <h2>The Master Checklist</h2>
 <div class="overflow-x-auto my-8"><table class="w-full border-collapse text-sm"><tr><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">#</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Document</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Always Required</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">EV-Specific</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Notes</th></tr>
 <tr><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">1</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Bill of Lading</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">✓</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Match consignee name exactly</th></tr>
@@ -88,18 +88,14 @@ const content = `<p>African customs clearance for imported vehicles has always b
 <tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">10</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Country-specific permits</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Per destination</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">See Part 3 above</td></tr>
 </table></div>
 <h2>Sources</h2>
-<p>- Ethiopian Revenues and Customs Authority (ERCA) — import documentation requirements (2025–2026)</p>
-<p>- Kenya Revenue Authority — Single Customs Territory procedures and vehicle import guidelines</p>
-<p>- Nigeria Customs Service — Form M and CCVO requirements</p>
-<p>- Ghana Revenue Authority — ICUMS vehicle import declaration guidance</p>
-<p>- China Council for the Promotion of International Trade (CCPIT) — Certificate of Origin issuance procedures</p>
-<p>- IMO — IMDG Code: UN38.3 dangerous goods classification for lithium batteries</p>
-<ul>
-  <li>本文清单基于2026年2月各市场清关实践整理。各国海关文件要求及新规（包括埃塞俄比亚OEM售后确认函等）可随政策调整变化，建议在出运前向目标市场持牌清关行确认最新有效文件要求。*</li>
-</ul>
-<ul>
-  <li>Published by Evexport Intelligence Desk · February 2026*</li>
-</ul>
+<p>Ethiopian Revenues and Customs Authority (ERCA) — import documentation requirements (2025–2026)</p>
+<p>Kenya Revenue Authority — Single Customs Territory procedures and vehicle import guidelines</p>
+<p>Nigeria Customs Service — Form M and CCVO requirements</p>
+<p>Ghana Revenue Authority — ICUMS vehicle import declaration guidance</p>
+<p>China Council for the Promotion of International Trade (CCPIT) — Certificate of Origin issuance procedures</p>
+<p>IMO — IMDG Code: UN38.3 dangerous goods classification for lithium batteries</p>
+<p class="text-gray-500 text-xs font-light italic mt-8">本文清单基于2026年2月各市场清关实践整理。各国海关文件要求及新规（包括埃塞俄比亚OEM售后确认函等）可随政策调整变化，建议在出运前向目标市场持牌清关行确认最新有效文件要求。</p>
+<p class="text-gray-500 text-xs font-light italic mt-8">Published by Evexport Intelligence Desk · February 2026</p>
 `;
 
 export default function ArticlePage() {

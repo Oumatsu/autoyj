@@ -42,14 +42,12 @@ const content = `<p>When a Chinese EV leaves a factory in Shenzhen, Tianjin, or 
 <p>Most RoRo terminals and container yards require EV batteries to be at <strong>30–<span class="hl-gold">50% </span>state of charge at loading</strong>. Vehicles arriving at the terminal with depleted or fully charged batteries may be refused loading or subject to on-site charging/discharging that adds cost and delay.</p>
 <p>Chinese exporters working with legitimate OEM channels typically manage this — vehicles are parked at export yards for days to weeks, and charge levels are monitored. Grey-market traders moving vehicles directly from registrations to ports may deliver vehicles at <span class="hl-gold">0% </span>charge (never been driven, never been charged since factory). This creates a loading issue that is your problem to solve, not theirs.</p>
 <h2>Sources</h2>
-<p>- Grimaldi Lines — China–Africa RoRo service documentation (2025–2026)</p>
-<p>- Djibouti Ports & Free Zones Authority — Doraleh RoRo terminal specifications</p>
-<p>- Kenya Ports Authority — Mombasa RoRo and container import procedures (2025)</p>
-<p>- Freightos — *"RoRo vs Container: Auto Shipping Explained"* (2025)</p>
-<p>- BIMCO — *"Pure Car and Truck Carrier Market Update"* (Q1 2026)</p>
-<ul>
-  <li>Published by Evexport Intelligence Desk · March 2026*</li>
-</ul>
+<p>Grimaldi Lines — China–Africa RoRo service documentation (2025–2026)</p>
+<p>Djibouti Ports & Free Zones Authority — Doraleh RoRo terminal specifications</p>
+<p>Kenya Ports Authority — Mombasa RoRo and container import procedures (2025)</p>
+<p>Freightos — <em>"RoRo vs Container: Auto Shipping Explained"</em> (2025)</p>
+<p>BIMCO — <em>"Pure Car and Truck Carrier Market Update"</em> (Q1 2026)</p>
+<p class="text-gray-500 text-xs font-light italic mt-8">Published by Evexport Intelligence Desk · March 2026</p>
 `;
 
 export default function ArticlePage() {

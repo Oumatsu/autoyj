@@ -1,40 +1,41 @@
 import Link from "next/link";
 
-const content = `<p>The International Energy Agency's <strong>Global EV Outlook 2025</strong>, published in May 2025, is the most comprehensive annual survey of electric vehicle markets worldwide. Drawing on data from governments, manufacturers, and energy system operators across more than 50 countries, it provides the closest thing the industry has to a definitive market benchmark.</p>
-<p>For African EV dealers and fleet operators, the report contains both sobering baseline data and genuinely exciting trajectory projections. This analysis extracts the most commercially relevant findings.</p>
-<h2>The Africa Headline: Doubled, But Still Under 1%</h2>
-<p>The most-cited Africa data point from the IEA 2025 report:</p>
-<p>That combination — strong growth rate, tiny absolute penetration — defines the Africa opportunity. A market that sold fewer than 11,000 EVs in 2024 across a continent of 1.4 billion people, in a vehicle sector dominated by second-hand imports, is not yet a scale market. But it is moving.</p>
-<p>The growth was geographically concentrated. <strong>Morocco and Egypt</strong> each exceeded 2,000 EV sales in 2024, together accounting for the majority of the continent's growth. Sub-Saharan Africa — where Evexportweb operates — remains in earlier-stage territory, with Kenya, South Africa, and Ethiopia as the primary active markets.</p>
+const content = `<p>The International Energy Agency's <strong>Global EV Outlook 2025</strong>, published in May 2025, is the most comprehensive annual survey of electric vehicle markets worldwide. Drawing on data from governments, manufacturers, and energy system operators across more than 50 countries, it provides the closest thing the industry has to a definitive market benchmark.</p>
+<p>For African EV dealers and fleet operators, the report contains both sobering baseline data and genuinely exciting trajectory projections. This analysis extracts the most commercially relevant findings.</p>
+<h2>The Africa Headline: Doubled, But Still Under 1%</h2>
+<p>The most-cited Africa data point from the IEA 2025 report:</p>
+<blockquote class="bq-note"><strong>Electric car sales in Africa more than doubled in 2024, reaching nearly 11,000 units. The EV sales share remains below 1% of total new vehicle sales.</strong></blockquote>
+<p>That combination — strong growth rate, tiny absolute penetration — defines the Africa opportunity. A market that sold fewer than 11,000 EVs in 2024 across a continent of 1.4 billion people, in a vehicle sector dominated by second-hand imports, is not yet a scale market. But it is moving.</p>
+<p>The growth was geographically concentrated. <strong>Morocco and Egypt</strong> each exceeded 2,000 EV sales in 2024, together accounting for the majority of the continent's growth. Sub-Saharan Africa — where Evexportweb operates — remains in earlier-stage territory, with Kenya, South Africa, and Ethiopia as the primary active markets.</p>
 <div class="rounded-[1.5rem] overflow-hidden my-10">
   <img src="images/iea-global-ev-outlook-2025/data-chart.jpg" alt="Data analytics dashboard representing the statistical intelligence contained in the IEA's annual Global EV Outlook" class="w-full h-auto object-cover" style="max-height:450px;">
   <div class="px-6 py-4 bg-white/[0.02] border-t border-white/5">
-    <p class="text-xs text-gray-500 font-light italic leading-relaxed">The IEA report draws on data from over 50 countries. For African markets specifically, it provides the most reliable benchmark for understanding where the continent sits in the global EV adoption curve.*</p>
+    <p class="text-xs text-gray-500 font-light italic leading-relaxed">The IEA report draws on data from over 50 countries. For African markets specifically, it provides the most reliable benchmark for understanding where the continent sits in the global EV adoption curve.</p>
   </div>
 </div>
-<h2>The Global Context: Why Africa's Timing Is Right</h2>
-<p>The IEA report's broader findings set a <span class="hl-green">critical</span> context for understanding why African dealers are entering this market at an advantageous moment.</p>
-<h3>Global EV Sales Exceeded 17 Million in 2024</h3>
-<p>Total global EV sales surpassed 17 million units in 2024, with the EV share of new car sales reaching approximately <span class="hl-gold">20% </span>globally. China alone accounted for more than 11 million of those sales — meaning China's domestic market is not just large, it is the production and technology base from which African imports draw.</p>
-<h3>Chinese Imports Drive 75% of Emerging Market EV Growth</h3>
-<p>Across all emerging economies outside of China, <strong>Chinese imports accounted for <span class="hl-gold">75% </span>of the increase in EV sales in 2024</strong>. In Brazil and Thailand — the most advanced emerging EV markets — Chinese vehicles represented <span class="hl-gold">85% </span>of all EV sales.</p>
-<p>This is not a coincidence. Chinese OEMs have built the most cost-competitive EV supply chain in the world, and they are pricing aggressively in markets where they are building brand presence. African dealers who work with Chinese manufacturers are accessing this global cost leadership directly.</p>
-<h3>The Emerging Market Surge: 60%+ Growth in 2024</h3>
-<p>In emerging and developing economies across Asia, Latin America, and Africa combined, EV sales grew by over <strong><span class="hl-gold">60% </span>year-on-year in 2024</strong>, with the EV sales share nearly doubling from 2.<span class="hl-gold">5% </span>to 4%.</p>
-<p>Africa's sub-<span class="hl-gold">1% </span>share means it is significantly behind this emerging market average — which is either a problem or an opportunity, depending on your time horizon. Dealers building market position today are doing so before the adoption curve inflects upward.</p>
+<h2>The Global Context: Why Africa's Timing Is Right</h2>
+<p>The IEA report's broader findings set a <span class="hl-green">critical</span> context for understanding why African dealers are entering this market at an advantageous moment.</p>
+<h3>Global EV Sales Exceeded 17 Million in 2024</h3>
+<p>Total global EV sales surpassed 17 million units in 2024, with the EV share of new car sales reaching approximately <span class="hl-gold">20% </span>globally. China alone accounted for more than 11 million of those sales — meaning China's domestic market is not just large, it is the production and technology base from which African imports draw.</p>
+<h3>Chinese Imports Drive 75% of Emerging Market EV Growth</h3>
+<p>Across all emerging economies outside of China, <strong>Chinese imports accounted for <span class="hl-gold">75% </span>of the increase in EV sales in 2024</strong>. In Brazil and Thailand — the most advanced emerging EV markets — Chinese vehicles represented <span class="hl-gold">85% </span>of all EV sales.</p>
+<p>This is not a coincidence. Chinese OEMs have built the most cost-competitive EV supply chain in the world, and they are pricing aggressively in markets where they are building brand presence. African dealers who work with Chinese manufacturers are accessing this global cost leadership directly.</p>
+<h3>The Emerging Market Surge: 60%+ Growth in 2024</h3>
+<p>In emerging and developing economies across Asia, Latin America, and Africa combined, EV sales grew by over <strong><span class="hl-gold">60% </span>year-on-year in 2024</strong>, with the EV sales share nearly doubling from 2.<span class="hl-gold">5% </span>to 4%.</p>
+<p>Africa's sub-<span class="hl-gold">1% </span>share means it is significantly behind this emerging market average — which is either a problem or an opportunity, depending on your time horizon. Dealers building market position today are doing so before the adoption curve inflects upward.</p>
 <div class="rounded-[1.5rem] overflow-hidden my-10">
   <img src="images/iea-global-ev-outlook-2025/africa-roads.jpg" alt="African road infrastructure representing the physical context in which EV adoption must develop" class="w-full h-auto object-cover" style="max-height:450px;">
   <div class="px-6 py-4 bg-white/[0.02] border-t border-white/5">
-    <p class="text-xs text-gray-500 font-light italic leading-relaxed">Africa's transport infrastructure varies dramatically by country. The IEA report notes that two- and three-wheelers — not passenger cars — are the fastest-growing EV segment in emerging markets overall, driven by ride-hailing and cargo delivery use cases.*</p>
+    <p class="text-xs text-gray-500 font-light italic leading-relaxed">Africa's transport infrastructure varies dramatically by country. The IEA report notes that two- and three-wheelers — not passenger cars — are the fastest-growing EV segment in emerging markets overall, driven by ride-hailing and cargo delivery use cases.</p>
   </div>
 </div>
-<h2>The Battery Chemistry Finding</h2>
-<p>The IEA report confirms a finding that directly validates sourcing strategy: <strong>LFP (Lithium Iron Phosphate) battery chemistry is increasingly dominant in commercial and emerging market applications</strong>, driven by its lower cost, thermal stability, and longer cycle life.</p>
-<p>Chinese manufacturers — BYD, CATL, SAIC, and others — produce the majority of the world's LFP battery capacity. This means African dealers sourcing Chinese EVs are automatically accessing the most durable and cost-effective chemistry for equatorial operating conditions.</p>
-<h2>The 2030 Projection: A Useful Caution</h2>
-<p>The IEA's projections for African EV market growth to 2030 vary significantly depending on policy assumptions. Under optimistic scenarios with sustained government incentives, Africa's EV fleet could reach several hundred thousand units by 2030. Under conservative scenarios with limited policy support, growth remains slow.</p>
-<p>The key variable is policy stability — exactly the theme this Insights series addresses. Dealers who monitor policy environments closely and build diversified market exposure across multiple African countries are best positioned to benefit from whichever scenario unfolds.</p>
-<h2>Key Takeaways for African Dealers</h2>
+<h2>The Battery Chemistry Finding</h2>
+<p>The IEA report confirms a finding that directly validates sourcing strategy: <strong>LFP (Lithium Iron Phosphate) battery chemistry is increasingly dominant in commercial and emerging market applications</strong>, driven by its lower cost, thermal stability, and longer cycle life.</p>
+<p>Chinese manufacturers — BYD, CATL, SAIC, and others — produce the majority of the world's LFP battery capacity. This means African dealers sourcing Chinese EVs are automatically accessing the most durable and cost-effective chemistry for equatorial operating conditions.</p>
+<h2>The 2030 Projection: A Useful Caution</h2>
+<p>The IEA's projections for African EV market growth to 2030 vary significantly depending on policy assumptions. Under optimistic scenarios with sustained government incentives, Africa's EV fleet could reach several hundred thousand units by 2030. Under conservative scenarios with limited policy support, growth remains slow.</p>
+<p>The key variable is policy stability — exactly the theme this Insights series addresses. Dealers who monitor policy environments closely and build diversified market exposure across multiple African countries are best positioned to benefit from whichever scenario unfolds.</p>
+<h2>Key Takeaways for African Dealers</h2>
 <div class="overflow-x-auto my-8"><table class="w-full border-collapse text-sm"><tr><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">IEA Finding</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Dealer Implication</th></tr>
 <tr><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Africa EV sales doubled in 2024</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">The adoption curve has started — early movers are not too early</th></tr>
 <tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Sub-1% penetration</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Market is still in formation — brand and dealer relationships matter more than in mature markets</td></tr>
@@ -42,14 +43,12 @@ const content = `<p>The International Energy Agency's <strong>Global EV Outlook 
 <tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">LFP dominates emerging market deployments</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Chinese OEM EV specs align well with African operating conditions</td></tr>
 <tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Morocco and Egypt lead Sub-Saharan Africa</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">North African growth often precedes Sub-Saharan follow-through by 2–3 years</td></tr>
 </table></div>
-<h2>Sources</h2>
-<p>- IEA — *Global EV Outlook 2025* (May 2025) — available at iea.org</p>
-<p>- IEA — *"Trends in electric car markets"* (chapter of above report)</p>
-<p>- IEA — *"Executive Summary — Global EV Outlook 2025"*</p>
-<p>- Virta — *"The future of electromobility — IEA's Global EV Outlook 2025"*</p>
-<ul>
-  <li>Published by Evexport Intelligence Desk · May 2026*</li>
-</ul>
+<h2>Sources</h2>
+<p>IEA — <em>Global EV Outlook 2025</em> (May 2025) — available at iea.org</p>
+<p>IEA — <em>"Trends in electric car markets"</em> (chapter of above report)</p>
+<p>IEA — <em>"Executive Summary — Global EV Outlook 2025"</em></p>
+<p>Virta — <em>"The future of electromobility — IEA's Global EV Outlook 2025"</em></p>
+<p class="text-gray-500 text-xs font-light italic mt-8">Published by Evexport Intelligence Desk · May 2026</p>
 `;
 
 export default function ArticlePage() {
