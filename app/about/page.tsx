@@ -264,69 +264,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* CTA */}
-      <div className="relative overflow-hidden">
-        <div className="absolute inset-0">
-          <img
-            src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=2000&q=80"
-            className="w-full h-full object-cover"
-            style={{ filter: "brightness(.28) grayscale(20%)" }}
-            alt=""
-          />
-          <div
-            className="absolute inset-0"
-            style={{ background: "rgba(10,10,10,.65)" }}
-          />
-          <div
-            className="absolute inset-0"
-            style={{
-              background:
-                "linear-gradient(to bottom, var(--color-mid) 0%, transparent 12%)",
-            }}
-          />
-        </div>
 
-        <section className="relative z-10 container mx-auto px-6 md:px-12 pt-24 pb-20">
-          <div
-            className="rounded-[4rem] p-12 md:p-20 text-center"
-            style={{
-              background: "rgba(255,255,255,0.06)",
-              border: "1px solid rgba(197,160,89,0.25)",
-              backdropFilter: "blur(25px)",
-              WebkitBackdropFilter: "blur(25px)",
-            }}
-          >
-            <div className="label justify-center mb-6">
-              Ready to Partner?
-            </div>
-            <h2
-              className="sh mb-6"
-              style={{ fontSize: "clamp(2.5rem,6.5vw,5.5rem)" }}
-            >
-              Join the <span className="text-accent">Green</span>{" "}
-              <span className="text-theme">Network</span>.
-            </h2>
-            <p className="text-gray-500 text-lg font-light italic mb-10 max-w-lg mx-auto">
-              Scale your dealership with China&apos;s most transparent EV
-              sourcing partner.
-            </p>
-            <div className="flex flex-wrap justify-center gap-4">
-              <a
-                href="https://wa.me/qr/F7M2RQADCE3KN1"
-                className="btn-primary px-12 py-5 rounded text-sm font-black tracking-widest uppercase italic shadow-lg"
-              >
-                WhatsApp Us Now
-              </a>
-              <Link
-                href="/contact"
-                className="btn-outline px-12 py-5 rounded text-sm font-black tracking-widest uppercase italic"
-              >
-                Get Dealer Pricing
-              </Link>
-            </div>
-          </div>
-        </section>
-      </div>
     </>
   );
 }
