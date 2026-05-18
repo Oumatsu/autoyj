@@ -96,6 +96,7 @@ export default function VehicleDetail({ data }: { data: DetailData }) {
   const batchMargin = data.batchMargin || DEFAULT_BATCH_MARGIN;
   const [galIdx, setGalIdx] = useState(0);
   const [animating, setAnimating] = useState(false);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
   const [batchIdx, setBatchIdx] = useState(0);
 
   const goGallery = useCallback((dir: number) => {
@@ -104,6 +105,9 @@ export default function VehicleDetail({ data }: { data: DetailData }) {
     setGalIdx((prev) => (prev + dir + gallery.length) % gallery.length);
     setTimeout(() => setAnimating(false), 600);
   }, [animating, gallery.length]);
+
+  const openLightbox = useCallback(() => setLightboxOpen(true), []);
+  const closeLightbox = useCallback(() => setLightboxOpen(false), []);
 
   const prevIdx = (galIdx - 1 + gallery.length) % gallery.length;
   const nextIdx = (galIdx + 1) % gallery.length;
@@ -173,7 +177,7 @@ export default function VehicleDetail({ data }: { data: DetailData }) {
                 <img src={gallery[prevIdx].src} className="w-full h-full object-cover transition-opacity duration-700" alt={gallery[prevIdx].label} style={{ opacity: 0.4, borderRadius: "0 0.75rem 0.75rem 0" }} />
                 <div className="absolute inset-0 bg-black/35" style={{ borderRadius: "0 0.75rem 0.75rem 0" }} />
               </div>
-              <div className="relative mx-auto w-[85%] h-full cursor-zoom-in" style={{ zIndex: 1 }} onClick={() => {}}>
+              <div className="relative mx-auto w-[85%] h-full cursor-zoom-in" style={{ zIndex: 1 }} onClick={openLightbox}>
                 <img key={`center-img-${galIdx}`} src={gallery[galIdx].src} className="w-full h-full object-cover rounded-xl img-switch-in" alt={gallery[galIdx].label} />
               </div>
               <div className="absolute right-0 top-0 w-[7%] h-full cursor-pointer overflow-hidden" onClick={() => goGallery(1)}>
@@ -191,6 +195,16 @@ export default function VehicleDetail({ data }: { data: DetailData }) {
           </div>
         </div>
       </section>
+
+      {lightboxOpen && (
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/95" onClick={closeLightbox}>
+          <button className="absolute top-5 right-6 w-10 h-10 rounded-full bg-white/7 border border-white/15 text-white text-lg flex items-center justify-center hover:bg-white/15 transition z-10" onClick={closeLightbox}>&times;</button>
+          <button className="absolute top-1/2 -translate-y-1/2 left-5 w-12 h-12 rounded-full bg-white/5 border border-white/10 text-white text-2xl flex items-center justify-center hover:bg-gold/60 hover:text-black transition" onClick={(e) => { e.stopPropagation(); goGallery(-1); }}>&lsaquo;</button>
+          <img src={gallery[galIdx].src} className="max-w-[92vw] max-h-[88vh] object-contain rounded-md" alt="" onClick={(e) => e.stopPropagation()} />
+          <button className="absolute top-1/2 -translate-y-1/2 right-5 w-12 h-12 rounded-full bg-white/5 border border-white/10 text-white text-2xl flex items-center justify-center hover:bg-gold/60 hover:text-black transition" onClick={(e) => { e.stopPropagation(); goGallery(1); }}>&rsaquo;</button>
+          <div className="absolute bottom-5 left-1/2 -translate-x-1/2 text-white/30 text-[11px] font-black tracking-[.2em]">{galIdx + 1} / {gallery.length}</div>
+        </div>
+      )}
 
       {/* Transition: pure black → mid gradient */}
       <div style={{ height: "80px", background: "linear-gradient(to bottom, #000 0%, var(--color-mid) 100%)", position: "relative", zIndex: 2, pointerEvents: "none", marginTop: "-80px" }} />

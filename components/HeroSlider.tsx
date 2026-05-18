@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 
 const slidesData = [
   {
-    img: "https://6a0327d1fc46b5b25f3480d6.imgix.net/hero/title1.png",
+    img: "https://6a0327d1fc46b5b25f3480d6.imgix.net/banner/ChatGPT%20Image%202026%E5%B9%B45%E6%9C%8818%E6%97%A5%2019_47_04.png",
     alt: "Expert Buyer",
     label: "Expert Buyer Network",
     h1: 'Your Dedicated<br><span class="text-theme">EV Sourcing</span><br>Expert.',
