@@ -42,6 +42,54 @@ export default function AcademyPage() {
         </div>
       </section>
 
+      {/* Article Categories */}
+      <section className="py-16 bg-a">
+        <div className="container mx-auto px-6 md:px-12">
+          <div className="text-center mb-12">
+            <div className="label justify-center mb-3">Browse by Topic</div>
+            <h2 className="text-2xl font-black uppercase italic tracking-tight text-white">Article <span className="text-theme">Library</span></h2>
+          </div>
+          <div className="grid md:grid-cols-3 gap-10 max-w-5xl mx-auto">
+            <Link href="/academy/ev-fundamentals" className="glass rounded-[2rem] p-10 text-center hover:border-green/40 transition-all duration-300 group relative overflow-hidden">
+              <img src="https://images.unsplash.com/photo-1559136555-9303baea8ebd?auto=format&fit=crop&w=600&q=80" className="absolute inset-0 w-full h-full object-cover z-0 transition-transform duration-500 group-hover:scale-105" style={{ filter: "brightness(0.35)" }} alt="" />
+              <div className="absolute inset-0 bg-gradient-to-t from-bg via-bg/60 to-transparent z-[1]" />
+              <div className="relative z-10">
+                <div className="w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6 text-2xl" style={{ background: "rgba(16,185,129,.15)" }}>
+                  <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--color-green)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                </div>
+                <h3 className="text-white font-black uppercase tracking-wider text-sm mb-3 group-hover:text-accent transition-colors">EV Fundamentals</h3>
+                <p className="text-gray-300 text-xs font-light mb-5">Core technology and concepts for sales teams</p>
+                <span className="text-[9px] font-black tracking-widest uppercase text-gray-400">3 Articles</span>
+              </div>
+            </Link>
+            <Link href="/academy/dealer-playbook" className="glass rounded-[2rem] p-10 text-center hover:border-theme/40 transition-all duration-300 group relative overflow-hidden">
+              <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=600&q=80" className="absolute inset-0 w-full h-full object-cover z-0 transition-transform duration-500 group-hover:scale-105" style={{ filter: "brightness(0.35)" }} alt="" />
+              <div className="absolute inset-0 bg-gradient-to-t from-bg via-bg/60 to-transparent z-[1]" />
+              <div className="relative z-10">
+                <div className="w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6 text-2xl" style={{ background: "rgba(197,160,89,.15)" }}>
+                  <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--color-gold)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                </div>
+                <h3 className="text-white font-black uppercase tracking-wider text-sm mb-3 group-hover:text-theme transition-colors">Dealer Playbook</h3>
+                <p className="text-gray-300 text-xs font-light mb-5">Sales techniques, objection handling, TCO</p>
+                <span className="text-[9px] font-black tracking-widest uppercase text-gray-400">3 Articles</span>
+              </div>
+            </Link>
+            <Link href="/academy/technical-workshop" className="glass rounded-[2rem] p-10 text-center hover:border-red-400/40 transition-all duration-300 group relative overflow-hidden">
+              <img src="https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&w=600&q=80" className="absolute inset-0 w-full h-full object-cover z-0 transition-transform duration-500 group-hover:scale-105" style={{ filter: "brightness(0.35)" }} alt="" />
+              <div className="absolute inset-0 bg-gradient-to-t from-bg via-bg/60 to-transparent z-[1]" />
+              <div className="relative z-10">
+                <div className="w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6 text-2xl" style={{ background: "rgba(239,68,68,.15)" }}>
+                  <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#F87171" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                </div>
+                <h3 className="text-white font-black uppercase tracking-wider text-sm mb-3 group-hover:text-red-400 transition-colors">Technical Workshop</h3>
+                <p className="text-gray-300 text-xs font-light mb-5">Diagnostics, safety, and fault patterns</p>
+                <span className="text-[9px] font-black tracking-widest uppercase text-gray-400">6 Articles</span>
+              </div>
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* Course Grid */}
       <section className="py-24 bg-a">
         <div className="container mx-auto px-6 md:px-12">
@@ -147,66 +195,6 @@ export default function AcademyPage() {
           </div>
         </div>
       </section>
-
-      {/* CTA */}
-      <div className="relative overflow-hidden">
-        <div className="absolute inset-0">
-          <img
-            src="https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=2000&q=80"
-            className="w-full h-full object-cover"
-            style={{ filter: "brightness(.28) grayscale(20%)" }}
-            alt=""
-          />
-          <div
-            className="absolute inset-0"
-            style={{ background: "rgba(10,10,10,.45)" }}
-          />
-          <div
-            className="absolute inset-0"
-            style={{
-              background:
-                "linear-gradient(to bottom, var(--color-bg) 0%, transparent 20%)",
-            }}
-          />
-        </div>
-
-        <section className="py-24 relative z-10">
-          <div className="container mx-auto px-6 md:px-12">
-            <div
-              className="glass rounded-[4rem] p-12 md:p-20 text-center"
-              style={{ borderColor: "rgba(197,160,89,.25)" }}
-            >
-              <div className="label justify-center mb-6">
-                Partner Exclusive
-              </div>
-              <h2
-                className="sh mb-6"
-                style={{ fontSize: "clamp(2.5rem,6.5vw,5.5rem)" }}
-              >
-                Full <span className="text-accent">Curriculum</span> Access.
-              </h2>
-              <p className="text-gray-500 text-lg font-light italic mb-10 max-w-lg mx-auto">
-                Active dealer partners receive complimentary access to all
-                Academy courses and certification tracks.
-              </p>
-              <div className="flex flex-wrap justify-center gap-4">
-                <Link
-                  href="/contact"
-                  className="btn-primary px-12 py-5 rounded text-sm font-black tracking-widest uppercase italic shadow-lg"
-                >
-                  Become a Partner
-                </Link>
-                <a
-                  href="https://wa.me/qr/F7M2RQADCE3KN1"
-                  className="btn-outline px-12 py-5 rounded text-sm font-black tracking-widest uppercase italic"
-                >
-                  WhatsApp Inquiry
-                </a>
-              </div>
-            </div>
-          </div>
-        </section>
-      </div>
     </>
   );
 }
