@@ -359,7 +359,7 @@ export default function HomePage() {
             {[
               { num: "50+", label: "PDI Checkpoints", cls: "text-theme" },
               { num: "2h", label: "Quote Response", cls: "text-accent" },
-              { num: "15+", label: "Years Pedigree", cls: "text-white" },
+              { num: "10+", label: "Years Pedigree", cls: "text-white" },
               { num: "100%", label: "Transparent", cls: "text-accent" },
             ].map((stat, i) => (
               <div
@@ -674,7 +674,7 @@ export default function HomePage() {
 
             <div className="grid grid-cols-2 gap-6">
               {[
-                { num: "15+", label: "Years Pedigree", cls: "text-theme" },
+                { num: "10+", label: "Years Pedigree", cls: "text-theme" },
                 {
                   num: "100%",
                   label: "Transparent",
