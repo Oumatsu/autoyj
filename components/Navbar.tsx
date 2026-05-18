@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
+import { QrDropdown } from "./QrDropdown";
 
 export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -133,12 +134,14 @@ export function Navbar() {
           </Link>
         </div>
 
-        <Link
-          href="/#contact"
-          className="hidden lg:block btn-primary px-7 py-2.5 rounded-full text-xs font-black tracking-widest uppercase shadow-lg"
-        >
-          Contact Us
-        </Link>
+        <QrDropdown>
+          <Link
+            href="/#contact"
+            className="hidden lg:block btn-primary px-7 py-2.5 rounded-full text-xs font-black tracking-widest uppercase shadow-lg"
+          >
+            Contact Us
+          </Link>
+        </QrDropdown>
 
         <button
           onClick={() => setMobileOpen(true)}

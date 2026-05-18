@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { QrDropdown } from "./QrDropdown";
 
 export function Footer() {
   return (
@@ -49,12 +50,14 @@ export function Footer() {
             Response within 2 hours. No commitment required.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
-            <a
-              href="https://wa.me/qr/F7M2RQADCE3KN1"
-              className="btn-primary px-12 py-5 rounded text-sm font-black tracking-widest uppercase italic shadow-lg"
-            >
-              WhatsApp Us Now
-            </a>
+            <QrDropdown>
+              <a
+                href="https://wa.me/qr/F7M2RQADCE3KN1"
+                className="btn-primary px-12 py-5 rounded text-sm font-black tracking-widest uppercase italic shadow-lg"
+              >
+                WhatsApp Us Now
+              </a>
+            </QrDropdown>
             <a
               href="mailto:alan@youguard.cn"
               className="btn-outline px-12 py-5 rounded text-sm font-black tracking-widest uppercase italic"
