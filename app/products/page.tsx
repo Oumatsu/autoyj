@@ -7,7 +7,7 @@ export default function ProductsPage() {
   return (
     <>
       {/* Hero */}
-      <section className="relative min-h-[70vh] flex items-center overflow-hidden">
+      <section className="relative min-h-[85vh] flex items-center overflow-hidden">
         <div className="absolute inset-0">
           <img
             src="https://6a0327d1fc46b5b25f3480d6.imgix.net/Our-solutions-durability-and-fatigue.avif"
