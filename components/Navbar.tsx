@@ -134,14 +134,23 @@ export function Navbar() {
           </Link>
         </div>
 
-        <QrDropdown>
+        <div className="hidden lg:flex items-center gap-3">
+          <Link
+            href="/register"
+            className="px-7 py-2.5 rounded-full text-xs font-black tracking-widest uppercase transition"
+            style={{ background: "#fff", color: "#000" }}
+          >
+            Register
+          </Link>
+          <QrDropdown>
           <Link
             href="/#contact"
-            className="hidden lg:block btn-primary px-7 py-2.5 rounded-full text-xs font-black tracking-widest uppercase shadow-lg"
+            className="btn-primary px-7 py-2.5 rounded-full text-xs font-black tracking-widest uppercase shadow-lg"
           >
             Contact Us
           </Link>
         </QrDropdown>
+        </div>
 
         <button
           onClick={() => setMobileOpen(true)}
@@ -198,6 +207,14 @@ export function Navbar() {
             className="text-white hover:text-theme transition"
           >
             About
+          </Link>
+          <Link
+            href="/register"
+            onClick={closeMobile}
+            className="mt-4 px-12 py-4 rounded text-sm tracking-widest font-black uppercase"
+            style={{ background: "#fff", color: "#000" }}
+          >
+            Register
           </Link>
           <Link
             href="/#contact"
