@@ -116,14 +116,20 @@ export default function VehicleDetail({ data }: { data: DetailData }) {
 
   return (
     <>
-      {/* Hero */}
+      {/* Hero — bottom gradient (transparent → black) bridges into Gallery's pure black */}
       <section className="relative min-h-screen flex items-end bg-black">
         <div className="absolute inset-0">
           <img src={v.img} className="w-full h-full object-cover" style={{ filter: "grayscale(100%) brightness(.6)" }} alt={v.name} />
-          <div className="absolute inset-0" style={{ background: "linear-gradient(to top, var(--color-bg2) 0%, var(--color-bg2) 28%, rgba(35,35,35,.55) 45%, transparent 62%)" }} />
           <div className="absolute inset-0" style={{ background: "linear-gradient(to right, rgba(28,28,28,.5) 28%, transparent 75%)" }} />
         </div>
         <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 40% 40% at 70% 40%, rgba(16,185,129,.06) 0%, transparent 70%)" }} />
+        <div
+          className="absolute bottom-0 left-0 right-0 pointer-events-none z-10"
+          style={{
+            height: "clamp(40px, 6vh, 80px)",
+            background: "linear-gradient(to top, #000 0%, transparent 100%)",
+          }}
+        />
 
         <div className="relative z-10 container mx-auto px-6 md:px-12 pb-20 pt-36">
           <nav className="flex items-center gap-2 text-[10px] font-black tracking-widest uppercase mb-8 text-gray-600">
@@ -164,11 +170,17 @@ export default function VehicleDetail({ data }: { data: DetailData }) {
         </div>
       </section>
 
-      {/* Transition: Hero → Gallery (matches hero's bottom gradient + left-to-right darkening) */}
-      <div style={{ height: "80px", background: "linear-gradient(to bottom, transparent 0%, #000 100%), linear-gradient(to right, #1f1f1f 28%, #232323 75%)", pointerEvents: "none" }} />
+      {/* Bridge: Hero (black) → Gallery (black) — same color, no bridge needed */}
 
-      {/* Photo Gallery */}
-      <section className="bg-black py-8 md:py-12">
+      {/* Gallery — bottom overlay (black → mid) bridges into bg-a's natural mid top-edge */}
+      <section className="bg-black py-8 md:py-12 relative">
+        <div
+          className="absolute bottom-0 left-0 right-0 pointer-events-none z-10"
+          style={{
+            height: "clamp(60px, 8vw, 100px)",
+            background: "linear-gradient(to top, var(--color-mid) 0%, transparent 100%)",
+          }}
+        />
         <style>{`@keyframes imgSwitchIn { from { opacity: 0.5; transform: scale(0.96); } to { opacity: 1; transform: scale(1); } } .img-switch-in { animation: imgSwitchIn 500ms cubic-bezier(0.4, 0, 0.2, 1) both; }`}</style>
         <div className="container mx-auto px-4 md:px-8 max-w-6xl">
           <div className="relative" style={{ height: "clamp(280px, 50vw, 540px)" }}>
@@ -205,9 +217,6 @@ export default function VehicleDetail({ data }: { data: DetailData }) {
           <div className="absolute bottom-5 left-1/2 -translate-x-1/2 text-white/30 text-[11px] font-black tracking-[.2em]">{galIdx + 1} / {gallery.length}</div>
         </div>
       )}
-
-      {/* Transition: pure black → mid gradient */}
-      <div style={{ height: "80px", background: "linear-gradient(to bottom, #000 0%, var(--color-mid) 100%)", position: "relative", zIndex: 2, pointerEvents: "none", marginTop: "-80px" }} />
 
       {/* Buyer Logic / Key Features */}
       <section className="py-12 md:py-16 bg-a" style={{ position: "relative" }}>

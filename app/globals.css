@@ -658,3 +658,37 @@ body {
   color: #000;
   transform: scale(1.1);
 }
+
+/* ── Section Gradient Bridge System ── */
+/*
+ * 自适应背景渐变过渡系统
+ *
+ * 设计原理：
+ *   页面 Section 之间的视觉过渡由 SectionGradientBridge 组件自动管理。
+ *   该组件基于两个 Section 边缘颜色的亮度差，动态生成最佳渐变桥梁。
+ *
+ * 视觉判断逻辑（自动）：
+ *   1. 相同颜色（亮度差 < 5）   → 不生成桥梁，节省 DOM
+ *   2. 相近颜色（亮度差 < 15）  → 短桥梁 50px，标准 linear-gradient
+ *   3. 中对比度（亮度差 < 30）  → 中桥梁 65px，中间色阶过渡
+ *   4. 高对比度（亮度差 ≥ 30）  → 长桥梁 80px，多层色阶
+ *
+ * 主题色亮度映射（0-255）：
+ *   #000000 (black) = 0     — Hero / Gallery
+ *   #161616 (bg)     = 22   — bg-a 主色
+ *   #1c1c1c (mid)    = 28   — bg-a/bg-b 边缘，图片 overlay
+ *   #232323 (bg2)    = 35   — bg-b 主色
+ *   #2a2a2a (bg3)    = 42   — 次要色
+ *
+ * 为什么大多数 Section 之间不需要桥梁：
+ *   bg-a 和 bg-b 的 CSS 定义为：
+ *     linear-gradient(to bottom, mid 0%, 主色 20%, 主色 80%, mid 100%)
+ *   图片 Section 的 overlay 为：
+ *     linear-gradient(to bottom, mid 0%, transparent 20%, ...)
+ *   因此所有非黑色 Section 的上下边缘都是 mid (#1c1c1c)，
+ *   只有从黑色 Section (Hero/Gallery) 过渡到其他 Section 时才需要桥梁。
+ *
+ * 进阶技巧：
+ *   如需手动覆盖，使用 SectionGradientBridge 的 height / type 参数：
+ *   <SectionGradientBridge from="black" to="mid" height={100} />
+ */
