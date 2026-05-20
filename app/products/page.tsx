@@ -354,7 +354,7 @@ export default function ProductsPage() {
                   desc: "PHEV Pickup with DMO off-road platform. 1000km+ total range for the hardest jobs.",
                   label: "Hybrid Power",
                   sub: "Pickup Pro",
-                  img: "https://6a0327d1fc46b5b25f3480d6.imgix.net/shark/shark%20display.png",
+                  img: "https://6a0327d1fc46b5b25f3480d6.imgix.net/shark/shark%20display0.png",
                   link: "/products/utility-pro/byd-shark",
                 },
                 {
@@ -363,7 +363,7 @@ export default function ProductsPage() {
                   desc: "Pure electric efficiency for urban logistics and farms. 6kW external discharge capacity.",
                   label: "Production Power",
                   sub: "Eco Logistics",
-                  img: "https://6a0327d1fc46b5b25f3480d6.imgix.net/RD6/RD6%20display.webp",
+                  img: "https://6a0327d1fc46b5b25f3480d6.imgix.net/RD6/RD6%20display0.jpeg",
                   link: "/products/utility-pro/radar-rd6",
                 },
                 {
@@ -372,7 +372,7 @@ export default function ProductsPage() {
                   desc: "The future of city cargo. Steer-by-wire with flat-floor cargo optimization for 11m³+ volume.",
                   label: "Digital Cargo",
                   sub: "Next-Gen Van",
-                  img: "https://6a0327d1fc46b5b25f3480d6.imgix.net/supervan/supervan%20display.avif",
+                  img: "https://6a0327d1fc46b5b25f3480d6.imgix.net/supervan/supervan%20display.jpg",
                   link: "/products/utility-pro/farizon-super-van",
                 },
               ].map((car, i) => {
