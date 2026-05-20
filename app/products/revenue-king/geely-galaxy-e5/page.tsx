@@ -43,11 +43,11 @@ const data = {
   ],
   tags: ["Compact SUV", "Dual 5-Star"],
   galleryImages: [
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/Galaxye5/Galaxye5%20detail%20(2).jpg", cat: "Interior", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/Galaxye5/Galaxye5%20detail%20(1).jpg", cat: "Detail", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/Galaxye5/Galaxye5%20detail%20(5).jpg", cat: "Exterior", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/Galaxye5/Galaxye5%20detail%20(4).jpg", cat: "Exterior", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/Galaxye5/Galaxye5%20detail%20(3).jpg", cat: "Interior", label: "" },
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/Galaxye5/Galaxye5%20detail%20(2).jpg", cat: "Interior", label: "" },
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/Galaxye5/Galaxye5%20detail%20(1).jpg", cat: "Detail", label: "" },
   ],
   batchLevels: [
     { units: 10, display: "$50K - $65K" }, { units: 20, display: "$100K - $130K" }, { units: 50, display: "$250K - $325K" }, { units: 100, display: "$500K - $650K" },

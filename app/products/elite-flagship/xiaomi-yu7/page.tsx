@@ -43,13 +43,13 @@ const data = {
   ],
   tags: ["Premium SUV", "800V Platform"],
   galleryImages: [
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/YU7/YU7%20detail%20(4).png", cat: "Exterior", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/YU7/YU7%20detail%20(3).png", cat: "Exterior", label: "" },
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/YU7/YU7%20detail%20(2).png", cat: "Exterior", label: "" },
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/YU7/YU7%20detail%20(2).jpg", cat: "Interior", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/YU7/YU7%20detail%20(1).webp", cat: "Interior", label: "" },
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/YU7/YU7%20detail%20(1).png", cat: "Interior", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/YU7/YU7%20detail%20(1).jpg", cat: "Detail", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/YU7/YU7%20detail%20(1).png", cat: "Interior", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/YU7/YU7%20detail%20(2).jpg", cat: "Interior", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/YU7/YU7%20detail%20(4).png", cat: "Exterior", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/YU7/YU7%20detail%20(2).png", cat: "Exterior", label: "" },
   ],
   batchLevels: [
     { units: 10, display: "$120K - $155K" }, { units: 20, display: "$240K - $310K" }, { units: 50, display: "$600K - $775K" }, { units: 100, display: "$1.2M - $1.55M" },

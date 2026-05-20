@@ -43,11 +43,11 @@ const data = {
   ],
   tags: ["Hatchback", "510 km Range"],
   galleryImages: [
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/bingoplus/bingo%20detail%20(4).jpg", cat: "Exterior", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/bingoplus/bingo%20detail%20(3).jpg", cat: "Exterior", label: "" },
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/bingoplus/bingo%20detail%20(2).jpg", cat: "Interior", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/bingoplus/bingo%20detail%20(1).webp", cat: "Interior", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/bingoplus/bingo%20detail%20(1).jpg", cat: "Detail", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/bingoplus/bingo%20detail%20(2).jpg", cat: "Interior", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/bingoplus/bingo%20detail%20(4).jpg", cat: "Exterior", label: "" },
   ],
   batchLevels: [
     { units: 10, display: "$42K - $45K" }, { units: 20, display: "$84K - $90K" }, { units: 50, display: "$210K - $225K" }, { units: 100, display: "$420K - $450K" },

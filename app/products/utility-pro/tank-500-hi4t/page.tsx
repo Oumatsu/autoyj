@@ -45,11 +45,11 @@ const data = {
   galleryImages: [
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/Hi4-T/Hi4-T%20detail%20(7).jpg", cat: "Exterior", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/Hi4-T/Hi4-T%20detail%20(6).jpg", cat: "Exterior", label: "" },
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/Hi4-T/Hi4-T%20detail%20(5).jpg", cat: "Interior", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/Hi4-T/Hi4-T%20detail%20(4).jpg", cat: "Interior", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/Hi4-T/Hi4-T%20detail%20(3).jpg", cat: "Detail", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/Hi4-T/Hi4-T%20detail%20(2).jpg", cat: "Detail", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/Hi4-T/Hi4-T%20detail%20(1).jpg", cat: "Detail", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/Hi4-T/Hi4-T%20detail%20(5).jpg", cat: "Interior", label: "" },
   ],
   batchLevels: [
     { units: 10, display: "$158K - $186K" }, { units: 20, display: "$316K - $372K" }, { units: 50, display: "$790K - $930K" }, { units: 100, display: "$1.58M - $1.86M" },

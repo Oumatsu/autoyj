@@ -43,11 +43,11 @@ const data = {
   ],
   tags: ["Premium SUV", "New Launch"],
   galleryImages: [
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/sealion/sealion%20detail%20(1).webp", cat: "Detail", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/sealion/sealion%20detail%20(2).webp", cat: "Interior", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/sealion/sealion%20detail%20(3).webp", cat: "Interior", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/sealion/sealion%20detail%20(5).webp", cat: "Exterior", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/sealion/sealion%20detail%20(4).webp", cat: "Exterior", label: "" },
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/sealion/sealion%20detail%20(3).webp", cat: "Interior", label: "" },
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/sealion/sealion%20detail%20(2).webp", cat: "Interior", label: "" },
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/sealion/sealion%20detail%20(1).webp", cat: "Detail", label: "" },
   ],
   batchLevels: [
     { units: 10, display: "$90K - $114K" }, { units: 20, display: "$180K - $228K" }, { units: 50, display: "$450K - $570K" }, { units: 100, display: "$900K - $1.14M" },

@@ -43,13 +43,13 @@ const data = {
   ],
   tags: ["Pickup Truck", "Military Grade"],
   galleryImages: [
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/cannonev/cannonev%20detail%20(7).jpg", cat: "Exterior", label: "" },
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/cannonev/cannonev%20detail%20(6).jpg", cat: "Exterior", label: "" },
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/cannonev/cannonev%20detail%20(5).jpg", cat: "Interior", label: "" },
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/cannonev/cannonev%20detail%20(3).jpg", cat: "Interior", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/cannonev/cannonev%20detail%20(2).jpg", cat: "Detail", label: "" },
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/cannonev/cannonev%20detail%20(1).jpg", cat: "Detail", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/cannonev/cannonev%20detail%20(3).jpg", cat: "Interior", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/cannonev/cannonev%20detail%20(4).jpg", cat: "Detail", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/cannonev/cannonev%20detail%20(1).jpg", cat: "Detail", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/cannonev/cannonev%20detail%20(6).jpg", cat: "Exterior", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/cannonev/cannonev%20detail%20(7).jpg", cat: "Exterior", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/cannonev/cannonev%20detail%20(5).jpg", cat: "Interior", label: "" },
   ],
   batchLevels: [
     { units: 10, display: "$108K - $146K" }, { units: 20, display: "$216K - $292K" }, { units: 50, display: "$540K - $730K" }, { units: 100, display: "$1.08M - $1.46M" },

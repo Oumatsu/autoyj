@@ -44,10 +44,10 @@ const data = {
   tags: ["Premium SUV", "EREV Value"],
   galleryImages: [
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/Galaxym9/Galaxym9%20detail%20(5).jpg", cat: "Exterior", label: "" },
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/Galaxym9/Galaxym9%20detail%20(4).jpg", cat: "Exterior", label: "" },
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/Galaxym9/Galaxym9%20detail%20(3).jpg", cat: "Interior", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/Galaxym9/Galaxym9%20detail%20(2).jpg", cat: "Interior", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/Galaxym9/Galaxym9%20detail%20(1).jpg", cat: "Detail", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/Galaxym9/Galaxym9%20detail%20(4).jpg", cat: "Exterior", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/Galaxym9/Galaxym9%20detail%20(3).jpg", cat: "Interior", label: "" },
   ],
   batchLevels: [
     { units: 10, display: "$100K - $120K" }, { units: 20, display: "$200K - $240K" }, { units: 50, display: "$500K - $600K" }, { units: 100, display: "$1M - $1.2M" },

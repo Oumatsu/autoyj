@@ -43,12 +43,12 @@ const data = {
   ],
   tags: ["Premium SUV", "Ultra Luxury"],
   galleryImages: [
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/E-HS9/E-HS9%20detail%20(1).jpg", cat: "Detail", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/E-HS9/E-HS9%20detail%20(1).png", cat: "Detail", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/E-HS9/E-HS9%20detail%20(5).jpg", cat: "Exterior", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/E-HS9/E-HS9%20detail%20(2).jpg", cat: "Interior", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/E-HS9/E-HS9%20detail%20(4).jpg", cat: "Exterior", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/E-HS9/E-HS9%20detail%20(3).jpg", cat: "Interior", label: "" },
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/E-HS9/E-HS9%20detail%20(2).jpg", cat: "Interior", label: "" },
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/E-HS9/E-HS9%20detail%20(1).png", cat: "Detail", label: "" },
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/E-HS9/E-HS9%20detail%20(1).jpg", cat: "Detail", label: "" },
   ],
   batchLevels: [
     { units: 5, display: "$125K - $165K" }, { units: 10, display: "$250K - $330K" }, { units: 20, display: "$500K - $660K" }, { units: 50, display: "$1.25M - $1.65M" },

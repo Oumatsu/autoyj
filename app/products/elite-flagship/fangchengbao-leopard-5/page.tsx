@@ -43,13 +43,13 @@ const data = {
   ],
   tags: ["Premium SUV", "DMO Off-Road"],
   galleryImages: [
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/leopard5/leopard5%20detail%20(1).webp", cat: "Detail", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/leopard5/leopard5%20detail%20(7).webp", cat: "Exterior", label: "" },
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/leopard5/leopard5%20detail%20(6).webp", cat: "Exterior", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/leopard5/leopard5%20detail%20(5).webp", cat: "Exterior", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/leopard5/leopard5%20detail%20(6).webp", cat: "Exterior", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/leopard5/leopard5%20detail%20(4).webp", cat: "Exterior", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/leopard5/leopard5%20detail%20(3).webp", cat: "Interior", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/leopard5/leopard5%20detail%20(2).webp", cat: "Interior", label: "" },
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/leopard5/leopard5%20detail%20(1).webp", cat: "Detail", label: "" },
   ],
   batchLevels: [
     { units: 10, display: "$112K - $155K" }, { units: 20, display: "$224K - $310K" }, { units: 50, display: "$560K - $775K" }, { units: 100, display: "$1.12M - $1.55M" },

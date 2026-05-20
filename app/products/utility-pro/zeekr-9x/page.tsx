@@ -43,12 +43,12 @@ const data = {
   ],
   tags: ["Pickup Truck", "Ultra-Luxury PHEV"],
   galleryImages: [
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/9x/9x%20detail%20(5).webp", cat: "Exterior", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/9x/9x%20detail%20(1).webp", cat: "Interior", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/9x/9x%20detail%20(4).webp", cat: "Exterior", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/9x/9x%20detail%20(5).webp", cat: "Exterior", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/9x/9x%20detail%20(1).jpeg", cat: "Detail", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/9x/9x%20detail%20(3).webp", cat: "Interior", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/9x/9x%20detail%20(2).webp", cat: "Interior", label: "" },
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/9x/9x%20detail%20(1).webp", cat: "Interior", label: "" },
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/9x/9x%20detail%20(1).jpeg", cat: "Detail", label: "" },
   ],
   batchLevels: [
     { units: 5, display: "$215K - $280K" }, { units: 10, display: "$430K - $560K" }, { units: 20, display: "$860K - $1.12M" }, { units: 50, display: "$2.15M - $2.8M" },

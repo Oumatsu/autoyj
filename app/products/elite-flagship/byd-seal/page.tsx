@@ -44,10 +44,10 @@ const data = {
   tags: ["Executive Sedan", "800V Platform"],
   galleryImages: [
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/seal/seal%20detail%20(5).webp", cat: "Exterior", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/seal/seal%20detail%20(1).webp", cat: "Detail", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/seal/seal%20detail%20(2).webp", cat: "Interior", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/seal/seal%20detail%20(4).webp", cat: "Exterior", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/seal/seal%20detail%20(3).webp", cat: "Interior", label: "" },
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/seal/seal%20detail%20(2).webp", cat: "Interior", label: "" },
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/seal/seal%20detail%20(1).webp", cat: "Detail", label: "" },
   ],
   batchLevels: [
     { units: 10, display: "$85K - $118K" }, { units: 20, display: "$170K - $236K" }, { units: 50, display: "$425K - $590K" }, { units: 100, display: "$850K - $1.18M" },

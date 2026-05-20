@@ -44,11 +44,11 @@ const data = {
   tags: ["Pickup Truck", "Industrial"],
   galleryImages: [
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/rich6ev/rich6ev%20detail%20(6).jpg", cat: "Exterior", label: "" },
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/rich6ev/rich6ev%20detail%20(5).jpg", cat: "Exterior", label: "" },
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/rich6ev/rich6ev%20detail%20(4).jpg", cat: "Interior", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/rich6ev/rich6ev%20detail%20(3).jpg", cat: "Interior", label: "" },
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/rich6ev/rich6ev%20detail%20(2).jpg", cat: "Detail", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/rich6ev/rich6ev%20detail%20(1).png", cat: "Detail", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/rich6ev/rich6ev%20detail%20(4).jpg", cat: "Interior", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/rich6ev/rich6ev%20detail%20(2).jpg", cat: "Detail", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/rich6ev/rich6ev%20detail%20(5).jpg", cat: "Exterior", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/rich6ev/rich6ev%20detail%20(1).jpg", cat: "Detail", label: "" },
   ],
   batchLevels: [

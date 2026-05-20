@@ -43,11 +43,11 @@ const data = {
   ],
   tags: ["Compact SUV", "Mobile Office"],
   galleryImages: [
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/T03/Yplus%20detail%20(3).jpeg", cat: "Exterior", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/T03/Yplus%20detail%20(2).jpeg", cat: "Exterior", label: "" },
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/T03/Yplus%20detail%20(1).png", cat: "Interior", label: "" },
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/T03/Yplus%20detail%20(1).jpg", cat: "Interior", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/T03/Yplus%20detail%20(1).jpeg", cat: "Detail", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/T03/Yplus%20detail%20(1).jpg", cat: "Interior", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/T03/Yplus%20detail%20(3).jpeg", cat: "Exterior", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/T03/Yplus%20detail%20(1).png", cat: "Interior", label: "" },
   ],
   batchLevels: [
     { units: 10, display: "$48K - $75K" }, { units: 20, display: "$96K - $150K" }, { units: 50, display: "$240K - $375K" }, { units: 100, display: "$480K - $750K" },

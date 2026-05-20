@@ -45,11 +45,11 @@ const data = {
   galleryImages: [
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/leopard8/leopard8%20detail%20(7).webp", cat: "Exterior", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/leopard8/leopard8%20detail%20(6).webp", cat: "Exterior", label: "" },
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/leopard8/leopard8%20detail%20(5).webp", cat: "Exterior", label: "" },
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/leopard8/leopard8%20detail%20(4).webp", cat: "Exterior", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/leopard8/leopard8%20detail%20(3).webp", cat: "Interior", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/leopard8/leopard8%20detail%20(2).webp", cat: "Interior", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/leopard8/leopard8%20detail%20(1).webp", cat: "Detail", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/leopard8/leopard8%20detail%20(5).webp", cat: "Exterior", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/leopard8/leopard8%20detail%20(4).webp", cat: "Exterior", label: "" },
   ],
   batchLevels: [
     { units: 5, display: "$190K - $200K" }, { units: 10, display: "$380K - $400K" }, { units: 20, display: "$760K - $800K" }, { units: 50, display: "$1.9M - $2.0M" },

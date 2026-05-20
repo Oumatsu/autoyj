@@ -43,12 +43,12 @@ const data = {
   ],
   tags: ["Pickup Truck", "PHEV"],
   galleryImages: [
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/shark/shark%20detail%20(4).webp", cat: "Exterior", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/shark/shark%20detail%20(3).webp", cat: "Exterior", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/shark/shark%20detail%20(2).webp", cat: "Interior", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/shark/shark%20detail%20(2).jpeg", cat: "Interior", label: "" },
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/shark/shark%20detail%20(1).webp", cat: "Detail", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/shark/shark%20detail%20(1).jpeg", cat: "Detail", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/shark/shark%20detail%20(4).webp", cat: "Exterior", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/shark/shark%20detail%20(1).webp", cat: "Detail", label: "" },
   ],
   batchLevels: [
     { units: 10, display: "$182K - $197K" }, { units: 20, display: "$364K - $394K" }, { units: 50, display: "$910K - $985K" }, { units: 100, display: "$1.82M - $1.97M" },

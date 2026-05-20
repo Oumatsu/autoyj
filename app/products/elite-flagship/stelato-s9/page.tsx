@@ -43,11 +43,11 @@ const data = {
   ],
   tags: ["Executive Sedan", "Huawei Inside"],
   galleryImages: [
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/S9/S9%20detail%20(3).webp", cat: "Exterior", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/S9/S9%20detail%20(2).webp", cat: "Exterior", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/S9/S9%20detail%20(2).png", cat: "Interior", label: "" },
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/S9/S9%20detail%20(1).webp", cat: "Interior", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/S9/S9%20detail%20(1).png", cat: "Detail", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/S9/S9%20detail%20(3).webp", cat: "Exterior", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/S9/S9%20detail%20(1).webp", cat: "Interior", label: "" },
   ],
   batchLevels: [
     { units: 10, display: "$190K - $210K" }, { units: 20, display: "$380K - $420K" }, { units: 50, display: "$950K - $1.05M" }, { units: 100, display: "$1.9M - $2.1M" },

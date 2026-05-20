@@ -6,10 +6,10 @@ import Link from "next/link";
 const galleryImages = [
   { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/seagull/seagull%20detail%20(2).webp", cat: "Exterior", label: "" },
   { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/seagull/seagull%20detail%20(2).jpg", cat: "Exterior", label: "" },
-  { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/seagull/seagull%20detail%20(1).webp", cat: "Interior", label: "" },
   { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/seagull/seagull%20detail%20(1).png", cat: "Interior", label: "" },
-  { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/seagull/seagull%20detail%20(1).jpg", cat: "Detail", label: "" },
   { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/seagull/seagull%20detail%20(1).jpeg", cat: "Detail", label: "" },
+  { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/seagull/seagull%20detail%20(1).webp", cat: "Interior", label: "" },
+  { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/seagull/seagull%20detail%20(1).jpg", cat: "Detail", label: "" },
 ];
 
 const trimData = [

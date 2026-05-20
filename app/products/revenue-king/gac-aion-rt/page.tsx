@@ -43,13 +43,13 @@ const data = {
   ],
   tags: ["Sedan", "LiDAR Smart"],
   galleryImages: [
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/RT/RT%20detail%20(2).jpg", cat: "Interior", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/RT/RT%20detail%20(1).jpg", cat: "Detail", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/RT/RT%20detail%20(5).webp", cat: "Exterior", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/RT/RT%20detail%20(1).webp", cat: "Detail", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/RT/RT%20detail%20(2).webp", cat: "Interior", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/RT/RT%20detail%20(4).webp", cat: "Exterior", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/RT/RT%20detail%20(3).webp", cat: "Interior", label: "" },
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/RT/RT%20detail%20(2).webp", cat: "Interior", label: "" },
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/RT/RT%20detail%20(2).jpg", cat: "Interior", label: "" },
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/RT/RT%20detail%20(1).webp", cat: "Detail", label: "" },
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/RT/RT%20detail%20(1).jpg", cat: "Detail", label: "" },
   ],
   batchLevels: [
     { units: 10, display: "$48K - $78K" }, { units: 20, display: "$96K - $156K" }, { units: 50, display: "$240K - $390K" }, { units: 100, display: "$480K - $780K" },

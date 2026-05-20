@@ -43,11 +43,11 @@ const data = {
   ],
   tags: ["Micro EV", "European Standard"],
   galleryImages: [
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/T03/T03%20detail%20(4).jpg", cat: "Exterior", label: "" },
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/T03/T03%20detail%20(3).jpg", cat: "Exterior", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/T03/T03%20detail%20(2).jpg", cat: "Interior", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/T03/T03%20detail%20(1).png", cat: "Interior", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/T03/T03%20detail%20(1).jpg", cat: "Detail", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/T03/T03%20detail%20(3).jpg", cat: "Exterior", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/T03/T03%20detail%20(4).jpg", cat: "Exterior", label: "" },
   ],
   batchLevels: [
     { units: 10, display: "$24K - $33K" }, { units: 20, display: "$48K - $66K" }, { units: 50, display: "$120K - $165K" }, { units: 100, display: "$240K - $330K" },

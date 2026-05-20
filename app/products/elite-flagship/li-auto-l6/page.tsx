@@ -43,11 +43,11 @@ const data = {
   ],
   tags: ["Premium SUV", "EREV Leader"],
   galleryImages: [
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/L6/L6%20detail%20(1).png", cat: "Interior", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/L6/L6%20detail%20(2).jpg", cat: "Interior", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/L6/L6%20detail%20(1).jpg", cat: "Detail", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/L6/L6%20detail%20(3).png", cat: "Exterior", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/L6/L6%20detail%20(2).png", cat: "Exterior", label: "" },
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/L6/L6%20detail%20(2).jpg", cat: "Interior", label: "" },
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/L6/L6%20detail%20(1).png", cat: "Interior", label: "" },
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/L6/L6%20detail%20(1).jpg", cat: "Detail", label: "" },
   ],
   batchLevels: [
     { units: 10, display: "$118K - $132K" }, { units: 20, display: "$236K - $264K" }, { units: 50, display: "$590K - $660K" }, { units: 100, display: "$1.18M - $1.32M" },

@@ -43,11 +43,11 @@ const data = {
   ],
   tags: ["Premium SUV", "Flash Charge"],
   galleryImages: [
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/Ti7/Ti7%20detail%20(5).webp", cat: "Exterior", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/Ti7/Ti7%20detail%20(4).webp", cat: "Exterior", label: "" },
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/Ti7/Ti7%20detail%20(3).webp", cat: "Interior", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/Ti7/Ti7%20detail%20(2).webp", cat: "Interior", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/Ti7/Ti7%20detail%20(1).webp", cat: "Detail", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/Ti7/Ti7%20detail%20(5).webp", cat: "Exterior", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/Ti7/Ti7%20detail%20(3).webp", cat: "Interior", label: "" },
   ],
   batchLevels: [
     { units: 10, display: "$95K - $115K" }, { units: 20, display: "$190K - $230K" }, { units: 50, display: "$475K - $575K" }, { units: 100, display: "$950K - $1.15M" },

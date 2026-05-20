@@ -43,12 +43,12 @@ const data = {
   ],
   tags: ["Executive Sedan", "800V Shooting Brake"],
   galleryImages: [
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/001/001%20detail%20(3).webp", cat: "Exterior", label: "" },
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/001/001%20detail%20(3).png", cat: "Exterior", label: "" },
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/001/001%20detail%20(2).webp", cat: "Interior", label: "" },
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/001/001%20detail%20(2).png", cat: "Interior", label: "" },
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/001/001%20detail%20(1).webp", cat: "Detail", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/001/001%20detail%20(1).png", cat: "Detail", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/001/001%20detail%20(3).png", cat: "Exterior", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/001/001%20detail%20(2).png", cat: "Interior", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/001/001%20detail%20(3).webp", cat: "Exterior", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/001/001%20detail%20(1).webp", cat: "Detail", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/001/001%20detail%20(2).webp", cat: "Interior", label: "" },
   ],
   batchLevels: [
     { units: 10, display: "$125K - $155K" }, { units: 20, display: "$250K - $310K" }, { units: 50, display: "$625K - $775K" }, { units: 100, display: "$1.25M - $1.55M" },

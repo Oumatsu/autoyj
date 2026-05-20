@@ -44,9 +44,9 @@ const data = {
   tags: ["Compact SUV", "LFP Blade"],
   galleryImages: [
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/yuanup/yuanup%20detail%20(3).png", cat: "Exterior", label: "" },
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/yuanup/yuanup%20detail%20(2).png", cat: "Exterior", label: "" },
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/yuanup/yuanup%20detail%20(1).webp", cat: "Interior", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/yuanup/yuanup%20detail%20(1).jpeg", cat: "Interior", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/yuanup/yuanup%20detail%20(1).webp", cat: "Interior", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/yuanup/yuanup%20detail%20(2).png", cat: "Exterior", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/yuanup/yuanup%20detail%20(4).png", cat: "Detail", label: "" },
   ],
   batchLevels: [

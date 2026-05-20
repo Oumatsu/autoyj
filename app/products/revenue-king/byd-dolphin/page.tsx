@@ -43,11 +43,11 @@ const data = {
   ],
   tags: ["Hatchback", "LFP Blade"],
   galleryImages: [
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/dolphin/dolphin%20detail%20(3).webp", cat: "Exterior", label: "" },
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/dolphin/dolphin%20detail%20(2).webp", cat: "Exterior", label: "" },
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/dolphin/dolphin%20detail%20(2).jpg", cat: "Interior", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/dolphin/dolphin%20detail%20(1).webp", cat: "Interior", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/dolphin/dolphin%20detail%20(2).jpg", cat: "Interior", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/dolphin/dolphin%20detail%20(2).webp", cat: "Exterior", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/dolphin/dolphin%20detail%20(1).jpg", cat: "Detail", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/dolphin/dolphin%20detail%20(3).webp", cat: "Exterior", label: "" },
   ],
   batchLevels: [
     { units: 10, display: "$48K - $60K" }, { units: 20, display: "$96K - $120K" }, { units: 50, display: "$240K - $300K" }, { units: 100, display: "$480K - $600K" },

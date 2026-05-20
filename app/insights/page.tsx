@@ -49,6 +49,10 @@ export default function InsightsPage() {
   const [sortBy, setSortBy] = useState<SortMode>("recommended");
   const [page, setPage] = useState(0);
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   const sorted = [...articles].sort((a, b) => {
     if (sortBy === "newest") return b.sortDate.localeCompare(a.sortDate);
     if (sortBy === "oldest") return a.sortDate.localeCompare(b.sortDate);

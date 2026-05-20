@@ -44,9 +44,9 @@ const data = {
   tags: ["Micro EV", "Budget Hero"],
   galleryImages: [
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/lumin/lumin%20detail%20(2).jpeg", cat: "Exterior", label: "" },
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/lumin/lumin%20detail%20(1).webp", cat: "Exterior", label: "" },
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/lumin/lumin%20detail%20(1).png", cat: "Interior", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/lumin/lumin%20detail%20(1).jpg", cat: "Interior", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/lumin/lumin%20detail%20(1).png", cat: "Interior", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/lumin/lumin%20detail%20(1).webp", cat: "Exterior", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/lumin/lumin%20detail%20(1).jpeg", cat: "Detail", label: "" },
   ],
   batchLevels: [

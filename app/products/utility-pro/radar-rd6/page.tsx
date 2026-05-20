@@ -43,12 +43,12 @@ const data = {
   ],
   tags: ["Pickup Truck", "Lifestyle"],
   galleryImages: [
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/RD6/RD6%20detail%20(3).webp", cat: "Exterior", label: "" },
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/RD6/RD6%20detail%20(2).webp", cat: "Exterior", label: "" },
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/RD6/RD6%20detail%20(1).webp", cat: "Interior", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/RD6/RD6%20detail%20(1).jpeg", cat: "Detail", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/RD6/RD6%20detail%20(1).png", cat: "Interior", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/RD6/RD6%20detail%20(1).jpg", cat: "Detail", label: "" },
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/RD6/RD6%20detail%20(1).jpeg", cat: "Detail", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/RD6/RD6%20detail%20(1).webp", cat: "Interior", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/RD6/RD6%20detail%20(3).webp", cat: "Exterior", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/RD6/RD6%20detail%20(2).webp", cat: "Exterior", label: "" },
   ],
   batchLevels: [
     { units: 10, display: "$69K - $127K" }, { units: 20, display: "$138K - $254K" }, { units: 50, display: "$345K - $635K" }, { units: 100, display: "$690K - $1.27M" },

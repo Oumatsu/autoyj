@@ -43,11 +43,11 @@ const data = {
   ],
   tags: ["Premium SUV", "7-Seat Family"],
   galleryImages: [
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/tanglev/tanglev%20detail%20(1).png", cat: "Detail", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/tanglev/tanglev%20detail%20(2).png", cat: "Interior", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/tanglev/tanglev%20detail%20(5).png", cat: "Exterior", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/tanglev/tanglev%20detail%20(4).png", cat: "Exterior", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/tanglev/tanglev%20detail%20(3).png", cat: "Interior", label: "" },
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/tanglev/tanglev%20detail%20(2).png", cat: "Interior", label: "" },
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/tanglev/tanglev%20detail%20(1).png", cat: "Detail", label: "" },
   ],
   batchLevels: [
     { units: 10, display: "$108K - $138K" }, { units: 20, display: "$216K - $276K" }, { units: 50, display: "$540K - $690K" }, { units: 100, display: "$1.08M - $1.38M" },

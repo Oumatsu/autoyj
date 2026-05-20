@@ -43,12 +43,12 @@ const data = {
   ],
   tags: ["Premium SUV", "Huawei ADS"],
   galleryImages: [
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/M9/M9%20detail%20(1).webp", cat: "Detail", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/M9/M9%20detail%20(4).webp", cat: "Exterior", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/M9/M9%20detail%20(2).png", cat: "Interior", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/M9/M9%20detail%20(1).png", cat: "Detail", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/M9/M9%20detail%20(3).webp", cat: "Exterior", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/M9/M9%20detail%20(2).webp", cat: "Interior", label: "" },
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/M9/M9%20detail%20(2).png", cat: "Interior", label: "" },
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/M9/M9%20detail%20(1).webp", cat: "Detail", label: "" },
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/M9/M9%20detail%20(1).png", cat: "Detail", label: "" },
   ],
   batchLevels: [
     { units: 5, display: "$220K - $280K" }, { units: 10, display: "$440K - $560K" }, { units: 20, display: "$880K - $1.12M" }, { units: 50, display: "$2.2M - $2.8M" },

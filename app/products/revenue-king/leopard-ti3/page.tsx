@@ -43,12 +43,12 @@ const data = {
   ],
   tags: ["Compact SUV", "AWD Performance"],
   galleryImages: [
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/Ti3/Ti3%20detail%20(2).webp", cat: "Interior", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/Ti3/Ti3%20detail%20(1).webp", cat: "Detail", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/Ti3/Ti3%20detail%20(3).webp", cat: "Interior", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/Ti3/Ti3%20detail%20(6).webp", cat: "Exterior", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/Ti3/Ti3%20detail%20(5).webp", cat: "Exterior", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/Ti3/Ti3%20detail%20(4).webp", cat: "Exterior", label: "" },
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/Ti3/Ti3%20detail%20(3).webp", cat: "Interior", label: "" },
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/Ti3/Ti3%20detail%20(2).webp", cat: "Interior", label: "" },
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/Ti3/Ti3%20detail%20(1).webp", cat: "Detail", label: "" },
   ],
   batchLevels: [
     { units: 10, display: "$62K - $90K" }, { units: 20, display: "$124K - $180K" }, { units: 50, display: "$310K - $450K" }, { units: 100, display: "$620K - $900K" },

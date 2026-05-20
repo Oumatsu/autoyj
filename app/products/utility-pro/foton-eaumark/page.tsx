@@ -44,10 +44,10 @@ const data = {
   tags: ["Micro Truck", "Modular"],
   galleryImages: [
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/eaumark/eaumark%20detail%20(5).jpg", cat: "Exterior", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/eaumark/eaumark%20detail%20(1).jpg", cat: "Detail", label: "" },
+    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/eaumark/eaumark%20detail%20(2).jpg", cat: "Interior", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/eaumark/eaumark%20detail%20(4).jpg", cat: "Exterior", label: "" },
     { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/eaumark/eaumark%20detail%20(3).jpg", cat: "Interior", label: "" },
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/eaumark/eaumark%20detail%20(2).jpg", cat: "Interior", label: "" },
-    { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/eaumark/eaumark%20detail%20(1).jpg", cat: "Detail", label: "" },
   ],
   batchLevels: [
     { units: 10, display: "$80K - $108K" }, { units: 20, display: "$160K - $216K" }, { units: 50, display: "$400K - $540K" }, { units: 100, display: "$800K - $1.08M" },
