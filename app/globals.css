@@ -558,3 +558,103 @@ body {
   letter-spacing: 0.1em;
   font-weight: 900;
 }
+
+/* ── Academy Article Card ── */
+.article-card {
+  border-radius: 1.5rem;
+  overflow: hidden;
+  position: relative;
+  cursor: pointer;
+  background: #1c1c1c;
+  border: 1px solid rgba(255,255,255,0.03);
+  transition: all 0.4s ease;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.article-card:hover {
+  transform: translateY(-8px);
+  border-color: rgba(197,160,89,0.5);
+  box-shadow: 0 20px 40px -10px rgba(0,0,0,0.5);
+}
+.article-img-wrap {
+  width: 100%;
+  aspect-ratio: 16/9;
+  overflow: hidden;
+  position: relative;
+}
+.article-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.8s ease;
+  filter: brightness(0.8);
+}
+.article-card:hover .article-img {
+  transform: scale(1.05);
+  filter: brightness(1);
+}
+.article-content {
+  padding: 1.5rem;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+.tag {
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 99px;
+  display: inline-block;
+  margin-bottom: 1rem;
+  width: fit-content;
+}
+.tag-basics {
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+}
+.tag-sales {
+  background: rgba(197,160,89,0.15);
+  color: var(--color-gold);
+}
+.tag-maintenance {
+  background: rgba(16,185,129,0.15);
+  color: var(--color-green);
+}
+
+/* ── Vault Card ── */
+.vault-card {
+  border-radius: 2rem;
+  background: linear-gradient(to bottom, #1c1c1c, #111);
+  border: 1px solid rgba(197,160,89,0.2);
+  padding: 2.5rem;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s ease;
+  cursor: pointer;
+}
+.vault-card:hover {
+  border-color: var(--color-gold);
+  background: linear-gradient(to bottom, #232323, #161616);
+}
+.vault-lock {
+  position: absolute;
+  top: 2rem;
+  right: 2rem;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(197,160,89,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-gold);
+  transition: all 0.3s;
+}
+.vault-card:hover .vault-lock {
+  background: var(--color-gold);
+  color: #000;
+  transform: scale(1.1);
+}
