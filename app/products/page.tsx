@@ -23,7 +23,7 @@ export default function ProductsPage() {
             className="absolute inset-0"
             style={{
               background:
-                "linear-gradient(to top, var(--color-mid) 0%, var(--color-mid) 12%, transparent 50%)",
+                "linear-gradient(to top, var(--color-mid) 0%, var(--color-mid) 8%, transparent 30%)",
             }}
           />
         </div>
