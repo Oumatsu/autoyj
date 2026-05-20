@@ -97,7 +97,7 @@ export function HeroSlider() {
         </div>
       ))}
 
-      <div className="absolute inset-0 z-10 flex items-center px-6 md:px-12 lg:px-20 pt-20">
+      <div className="absolute inset-0 z-10 flex flex-col justify-start px-6 md:px-12 lg:px-20" style={{ paddingTop: "clamp(8rem, 16vh, 10rem)" }}>
         <div className="max-w-3xl w-full">
           <div className="flex items-center gap-2.5 mb-6">
             <div className="pulse-dot" />
