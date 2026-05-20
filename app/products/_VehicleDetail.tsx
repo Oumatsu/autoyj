@@ -124,10 +124,20 @@ export default function VehicleDetail({ data }: { data: DetailData }) {
         </div>
         <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 40% 40% at 70% 40%, rgba(16,185,129,.06) 0%, transparent 70%)" }} />
         <div
-          className="absolute bottom-0 left-0 right-0 pointer-events-none z-10"
+          className="absolute bottom-0 left-0 right-0 pointer-events-none z-0"
           style={{
-            height: "clamp(40px, 6vh, 80px)",
-            background: "linear-gradient(to top, #000 0%, transparent 100%)",
+            height: "clamp(120px, 14vh, 220px)",
+            background: [
+              `linear-gradient(`,
+              `  to top,`,
+              `  rgba(0,0,0,1) 0%,`,
+              `  rgba(0,0,0,0.92) 18%,`,
+              `  rgba(0,0,0,0.72) 38%,`,
+              `  rgba(0,0,0,0.38) 62%,`,
+              `  rgba(0,0,0,0.12) 82%,`,
+              `  rgba(0,0,0,0) 100%`,
+              `)`,
+            ].join("\n"),
           }}
         />
 
@@ -172,13 +182,23 @@ export default function VehicleDetail({ data }: { data: DetailData }) {
 
       {/* Bridge: Hero (black) → Gallery (black) — same color, no bridge needed */}
 
-      {/* Gallery — bottom overlay (black → mid) bridges into bg-a's natural mid top-edge */}
+      {/* Gallery — bottom overlay (mid → black-buffer → transparent)  */}
       <section className="bg-black py-8 md:py-12 relative">
         <div
-          className="absolute bottom-0 left-0 right-0 pointer-events-none z-10"
+          className="absolute bottom-0 left-0 right-0 pointer-events-none z-0"
           style={{
-            height: "clamp(60px, 8vw, 100px)",
-            background: "linear-gradient(to top, var(--color-mid) 0%, transparent 100%)",
+            height: "clamp(140px, 16vh, 260px)",
+            background: [
+              `linear-gradient(`,
+              `  to top,`,
+              `  var(--color-mid) 0%,`,
+              `  rgba(28,28,28,0.96) 18%,`,
+              `  rgba(20,20,20,0.88) 36%,`,
+              `  rgba(10,10,10,0.68) 58%,`,
+              `  rgba(0,0,0,0.42) 78%,`,
+              `  rgba(0,0,0,0) 100%`,
+              `)`,
+            ].join("\n"),
           }}
         />
         <style>{`@keyframes imgSwitchIn { from { opacity: 0.5; transform: scale(0.96); } to { opacity: 1; transform: scale(1); } } .img-switch-in { animation: imgSwitchIn 500ms cubic-bezier(0.4, 0, 0.2, 1) both; }`}</style>
@@ -200,7 +220,7 @@ export default function VehicleDetail({ data }: { data: DetailData }) {
             <button onClick={(e) => { e.stopPropagation(); goGallery(-1); }} className="absolute top-1/2 -translate-y-1/2 left-3 md:left-5 w-10 h-10 md:w-11 md:h-11 rounded-full bg-black/55 border border-white/10 text-white text-xl flex items-center justify-center hover:bg-gold/85 hover:text-black transition z-20">&lsaquo;</button>
             <button onClick={(e) => { e.stopPropagation(); goGallery(1); }} className="absolute top-1/2 -translate-y-1/2 right-3 md:right-5 w-10 h-10 md:w-11 md:h-11 rounded-full bg-black/55 border border-white/10 text-white text-xl flex items-center justify-center hover:bg-gold/85 hover:text-black transition z-20">&rsaquo;</button>
           </div>
-          <div className="flex items-center justify-center gap-2 mt-6">
+          <div className="flex items-center justify-center gap-2 mt-6 relative z-10">
             {gallery.map((_, i) => (
               <button key={i} onClick={() => { if (i !== galIdx) goGallery(i - galIdx); }} className={`w-2 h-2 rounded-full transition-all ${i === galIdx ? "bg-gold w-5" : "bg-white/20 hover:bg-white/40"}`} />
             ))}

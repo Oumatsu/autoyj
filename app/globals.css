@@ -143,11 +143,29 @@ body {
 }
 
 .bg-a {
-  background: linear-gradient(to bottom, var(--color-mid) 0%, var(--color-bg) 20%, var(--color-bg) 80%, var(--color-mid) 100%);
+  background:
+    linear-gradient(
+      to bottom,
+      var(--color-mid) 0%,
+      #1a1a1a 10%,
+      var(--color-bg) 28%,
+      var(--color-bg) 72%,
+      #1a1a1a 90%,
+      var(--color-mid) 100%
+    );
 }
 
 .bg-b {
-  background: linear-gradient(to bottom, var(--color-mid) 0%, var(--color-bg2) 20%, var(--color-bg2) 80%, var(--color-mid) 100%);
+  background:
+    linear-gradient(
+      to bottom,
+      var(--color-mid) 0%,
+      #1f1f1f 10%,
+      var(--color-bg2) 28%,
+      var(--color-bg2) 72%,
+      #1f1f1f 90%,
+      var(--color-mid) 100%
+    );
 }
 
 .glass {
