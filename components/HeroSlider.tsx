@@ -47,7 +47,41 @@ const slidesData = [
 
 export function HeroSlider() {
   const [cur, setCur] = useState(0);
+  const [dotsOnRight, setDotsOnRight] = useState(false);
+  const [fontSizeScale, setFontSizeScale] = useState(1);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const btnRowRef = useRef<HTMLDivElement>(null);
+  const dotsRef = useRef<HTMLDivElement>(null);
+  const h1Ref = useRef<HTMLHeadingElement>(null);
+
+  const checkOverlap = useCallback(() => {
+    const btnRow = btnRowRef.current;
+    const dots = dotsRef.current;
+    if (!btnRow || !dots) return;
+    const btnRect = btnRow.getBoundingClientRect();
+    const dotsRect = dots.getBoundingClientRect();
+    const overlap = !(
+      btnRect.right < dotsRect.left ||
+      btnRect.left > dotsRect.right ||
+      btnRect.bottom < dotsRect.top ||
+      btnRect.top > dotsRect.bottom
+    );
+    setDotsOnRight(overlap);
+  }, []);
+
+  const checkTitleLines = useCallback(() => {
+    const el = h1Ref.current;
+    if (!el) return;
+    const lineHeight = parseFloat(getComputedStyle(el).lineHeight);
+    if (isNaN(lineHeight) || lineHeight === 0) return;
+    const lines = Math.round(el.scrollHeight / lineHeight);
+    if (lines > 4) {
+      const scales = [1, 1, 1, 1, 0.82, 0.70, 0.60, 0.52, 0.46];
+      setFontSizeScale(scales[lines - 1] || 0.46);
+    } else {
+      setFontSizeScale(1);
+    }
+  }, []);
 
   const resetTimer = useCallback(() => {
     if (timerRef.current) clearInterval(timerRef.current);
@@ -62,6 +96,14 @@ export function HeroSlider() {
       if (timerRef.current) clearInterval(timerRef.current);
     };
   }, [resetTimer]);
+
+  useEffect(() => {
+    checkOverlap();
+    checkTitleLines();
+    const onResize = () => { checkOverlap(); checkTitleLines(); };
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, [cur, checkOverlap, checkTitleLines]);
 
   const goSlide = (n: number) => {
     setCur(n);
@@ -97,7 +139,7 @@ export function HeroSlider() {
         </div>
       ))}
 
-      <div className="absolute inset-0 z-10 flex flex-col justify-start px-6 md:px-12 lg:px-20" style={{ paddingTop: "clamp(8rem, 16vh, 10rem)" }}>
+      <div className="absolute inset-0 z-10 flex flex-col justify-center px-6 md:px-12 lg:px-20 pt-20 pb-24">
         <div className="max-w-3xl w-full">
           <div className="flex items-center gap-2.5 mb-6">
             <div className="pulse-dot" />
@@ -107,8 +149,9 @@ export function HeroSlider() {
           </div>
 
           <h1
+            ref={h1Ref}
             className="sh mb-8"
-            style={{ fontSize: "clamp(3rem,8vw,6.5rem)" }}
+            style={{ fontSize: `calc(clamp(3rem, 8vw, 6.5rem) * ${fontSizeScale})` }}
             dangerouslySetInnerHTML={{ __html: d.h1 }}
           />
 
@@ -119,7 +162,7 @@ export function HeroSlider() {
             {d.sub}
           </p>
 
-          <div className="flex flex-wrap gap-4">
+          <div ref={btnRowRef} className="flex flex-wrap gap-4">
             <a
               href="#products"
               className="btn-primary px-10 py-5 rounded text-sm font-black tracking-widest uppercase italic"
@@ -136,7 +179,10 @@ export function HeroSlider() {
         </div>
       </div>
 
-      <div className="absolute bottom-10 left-6 md:left-20 z-10 flex gap-3 items-center">
+      <div
+        ref={dotsRef}
+        className={`absolute bottom-10 z-10 flex gap-3 items-center transition-all duration-300 ${dotsOnRight ? "right-6 md:right-20" : "left-6 md:left-20"}`}
+      >
         {slidesData.map((_, i) => (
           <div
             key={i}
@@ -146,7 +192,7 @@ export function HeroSlider() {
         ))}
       </div>
 
-      <div className="absolute bottom-10 right-6 md:right-20 z-10 text-[10px] font-black tracking-widest text-gray-700 uppercase">
+      <div className={`absolute bottom-10 z-10 text-[10px] font-black tracking-widest text-gray-700 uppercase transition-all duration-300 ${dotsOnRight ? "left-6 md:left-20" : "right-6 md:right-20"}`}>
         <span className="text-theme">
           {String(cur + 1).padStart(2, "0")}
         </span>{" "}
