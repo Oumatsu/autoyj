@@ -354,7 +354,7 @@ export default function ProductsPage() {
                   desc: "PHEV Pickup with DMO off-road platform. 1000km+ total range for the hardest jobs.",
                   label: "Hybrid Power",
                   sub: "Pickup Pro",
-                  img: "https://6a0327d1fc46b5b25f3480d6.imgix.net/shark/shark%20display0.png",
+                  img: "https://6a0327d1fc46b5b25f3480d6.imgix.net/neo%20products/shark%20display0.png",
                   link: "/products/utility-pro/byd-shark",
                 },
                 {
@@ -363,7 +363,7 @@ export default function ProductsPage() {
                   desc: "Pure electric efficiency for urban logistics and farms. 6kW external discharge capacity.",
                   label: "Production Power",
                   sub: "Eco Logistics",
-                  img: "https://6a0327d1fc46b5b25f3480d6.imgix.net/RD6/RD6%20display0.jpeg",
+                  img: "https://6a0327d1fc46b5b25f3480d6.imgix.net/neo/RD6%20display0.jpeg",
                   link: "/products/utility-pro/radar-rd6",
                 },
                 {
