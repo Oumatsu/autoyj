@@ -15,9 +15,10 @@ export default function SolutionsPage() {
           <div
             className="absolute inset-0"
             style={{
-                background:
-                  "linear-gradient(to top, var(--color-mid) 0%, var(--color-mid) 10%, rgba(28,28,28,.45) 35%, transparent 60%)",
-              }}
+              background:
+                "linear-gradient(to bottom, transparent 50%, rgba(128,128,128,0.45) 100%)",
+              mixBlendMode: "saturation",
+            }}
           />
           <div
             className="absolute inset-0"
@@ -31,6 +32,13 @@ export default function SolutionsPage() {
             style={{
               background:
                 "linear-gradient(to bottom, rgba(28,28,28,1) 0%, rgba(28,28,28,1) 10%, transparent 32%)",
+            }}
+          />
+          <div
+            className="absolute inset-0"
+            style={{
+              background:
+                "linear-gradient(to bottom, transparent 60%, var(--color-mid) 100%)",
             }}
           />
         </div>
