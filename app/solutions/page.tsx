@@ -7,7 +7,7 @@ export default function SolutionsPage() {
       <section className="relative min-h-[75vh] flex items-end overflow-hidden">
         <div className="absolute inset-0">
           <img
-            src="https://6a0327d1fc46b5b25f3480d6.imgix.net/hero/solutions.jpeg"
+            src="/pic/hero/0.webp"
             className="w-full h-full object-cover"
             style={{ filter: "brightness(.95)" }}
             alt="Export Logistics"

@@ -40,7 +40,7 @@ export function QrDropdown({ children }: { children: React.ReactNode }) {
         }}
       >
         <img
-          src="/qrcode.jpg"
+          src="/pic/0.webp"
           alt="Scan to contact us on WhatsApp"
           className="w-full block rounded-lg"
           style={{ aspectRatio: "1 / 1" }}
