@@ -16,7 +16,7 @@ const data = {
   category: "revenue-king" as const,
   title: "BYD Qin PLUS EV",
   subtitle: "The Million-Unit King",
-  heroDesc: "The most mature supply chain in the industry. Over one million units validated with ultra-low drag and cavernous boot.",
+  heroDesc: "The most mature supply chain in the industry. Over one million units validated with ultra-low drag and cavernous boot",
   stat1Label: "km CLTC Range", stat1Value: "510",
   stat2Label: "Monthly Saving", stat2Value: "$350",
   stat3Label: "Million+", stat3Value: "Built",

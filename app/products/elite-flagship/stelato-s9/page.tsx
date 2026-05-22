@@ -16,7 +16,7 @@ const data = {
   category: "elite-flagship" as const,
   title: "Stelato S9",
   subtitle: "Huawei S-Class Rival",
-  heroDesc: "Huawei and BAIC's joint flagship sedan targets the Mercedes S-Class. Zero-gravity rear seats, electrochromic privacy screen, and Huawei ADS 3.0.",
+  heroDesc: "Huawei and BAIC's joint flagship sedan targets the Mercedes S-Class. Zero-gravity rear seats, electrochromic privacy screen, and Huawei ADS 3.0",
   stat1Label: "km CLTC Range", stat1Value: "800",
   stat2Label: "Monthly Saving", stat2Value: "$350",
   stat3Label: "ADS", stat3Value: "3.0",

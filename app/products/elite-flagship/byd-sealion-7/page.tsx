@@ -16,7 +16,7 @@ const data = {
   category: "elite-flagship" as const,
   title: "BYD Sealion 7",
   subtitle: "2025 Global Flagship SUV",
-  heroDesc: "BYD's newest global flagship SUV targets the Model Y premium segment. e-Platform 3.0 Evo, 23,000 rpm world-leading motor, and dual-gun fast charging technology.",
+  heroDesc: "BYD's newest global flagship SUV targets the Model Y premium segment. e-Platform 3.0 Evo, 23,000 rpm world-leading motor, and dual-gun fast charging technology",
   stat1Label: "km CLTC Range", stat1Value: "610",
   stat2Label: "Motor RPM", stat2Value: "23K",
   stat3Label: "800V", stat3Value: "Platform",

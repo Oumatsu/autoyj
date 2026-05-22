@@ -16,7 +16,7 @@ const data = {
   category: "elite-flagship" as const,
   title: "Fangchengbao Ti 7",
   subtitle: "Flash-Charging Boxy SUV",
-  heroDesc: "BYD's phenomenon boxy SUV now with EV flash charging. 5-min charge for 400 km range, 755 km total range, and a massive 201L front trunk. The ultimate family adventure vehicle.",
+  heroDesc: "BYD's phenomenon boxy SUV now with EV flash charging. 5-min charge for 400 km range, 755 km total range, and a massive 201L front trunk. The ultimate family adventure vehicle",
   stat1Label: "km CLTC Range", stat1Value: "755",
   stat2Label: "Flash Charge", stat2Value: "5min",
   stat3Label: "201L", stat3Value: "Frunk",

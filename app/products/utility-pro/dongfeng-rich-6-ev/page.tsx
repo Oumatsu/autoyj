@@ -16,7 +16,7 @@ const data = {
   category: "utility-pro" as const,
   title: "Dongfeng Rich 6 EV",
   subtitle: "The Rugged Workhorse",
-  heroDesc: "Built on the proven Nissan Navara platform, the Rich 6 EV brings legendary reliability to electric power.",
+  heroDesc: "Built on the proven Nissan Navara platform, the Rich 6 EV brings legendary reliability to electric power",
   stat1Label: "km NEDC Range", stat1Value: "350",
   stat2Label: "Platform", stat2Value: "Navara",
   stat3Label: "Mining", stat3Value: "Proven",

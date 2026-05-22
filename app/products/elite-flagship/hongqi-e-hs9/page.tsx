@@ -16,7 +16,7 @@ const data = {
   category: "elite-flagship" as const,
   title: "Hongqi E-HS9",
   subtitle: "China's Rolls-Royce",
-  heroDesc: "Unmatched road presence with Hongqi's flagship DNA. Air suspension, opulent 4-seat configuration, and the strongest status signal in Middle East and Central Asian markets.",
+  heroDesc: "Unmatched road presence with Hongqi's flagship DNA. Air suspension, opulent 4-seat configuration, and the strongest status signal in Middle East and Central Asian markets",
   stat1Label: "km Range", stat1Value: "690",
   stat2Label: "Monthly Saving", stat2Value: "$500",
   stat3Label: "4/6/7", stat3Value: "Seats",

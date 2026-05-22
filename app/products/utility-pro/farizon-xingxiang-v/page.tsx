@@ -16,7 +16,7 @@ const data = {
   category: "utility-pro" as const,
   title: "Farizon Xingxiang V",
   subtitle: "Urban Delivery Champion",
-  heroDesc: "Geely Farizon's urban delivery champion. 6 m3 cargo bay, nearly zero failure rate in real-world fleet operations.",
+  heroDesc: "Geely Farizon's urban delivery champion. 6 m3 cargo bay, nearly zero failure rate in real-world fleet operations",
   stat1Label: "km NEDC Range", stat1Value: "260",
   stat2Label: "Cargo", stat2Value: "6 m3",
   stat3Label: "Monthly Saving", stat3Value: "$425",

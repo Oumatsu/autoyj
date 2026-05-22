@@ -38,7 +38,7 @@ export default function ProductsPage() {
           >
             Proven <span className="text-theme">Market</span>
             <br />
-            <span className="text-accent">Champions</span>.
+            <span className="text-accent">Champions</span>
           </h1>
           <p className="text-gray-300 text-lg font-light italic max-w-2xl mx-auto leading-relaxed">
             The world&apos;s best-selling electric vehicles, hand-picked by

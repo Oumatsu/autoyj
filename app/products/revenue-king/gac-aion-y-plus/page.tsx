@@ -16,7 +16,7 @@ const data = {
   category: "revenue-king" as const,
   title: "GAC Aion Y Plus",
   subtitle: "The Space Box",
-  heroDesc: "Unique boxy design maximises interior volume. Wide-opening doors, configurable rear seats, and camping-friendly features.",
+  heroDesc: "Unique boxy design maximises interior volume. Wide-opening doors, configurable rear seats, and camping-friendly features",
   stat1Label: "km NEDC Range", stat1Value: "430",
   stat2Label: "Monthly Saving", stat2Value: "$300",
   stat3Label: "Box", stat3Value: "Design",

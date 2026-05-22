@@ -38,17 +38,17 @@ export default function AboutPage() {
             >
               Not Only
               <br />
-              <span className="text-theme">Selling Cars</span>.
+              <span className="text-theme">Selling Cars</span>
               <br />
               But Also
               <br />
-              <span className="text-accent">Empowering Dealerships.</span>
+              <span className="text-accent">Empowering Dealerships</span>
             </h1>
             <p
               className="text-xl text-gray-400 font-light italic border-l-2 pl-8 leading-relaxed max-w-xl"
               style={{ borderColor: "rgba(197,160,89,.3)" }}
             >
-              Most exporters simply ship cars. We architect dealerships. Our
+              Most exporters simply ship cars We architect dealerships Our
               comprehensive ecosystem equips African importers with curated
               vehicles, specialized maintenance tools, technical guidance,
               starter parts, and marketing assets to dominate their local

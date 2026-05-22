@@ -16,7 +16,7 @@ const data = {
   category: "utility-pro" as const,
   title: "GWM Cannon EV",
   subtitle: "The Rugged Hybrid",
-  heroDesc: "Great Wall Motors' legendary pickup platform goes hybrid. Tank-derived chassis, combat-proven reliability, and 1,000 km extended range.",
+  heroDesc: "Great Wall Motors' legendary pickup platform goes hybrid. Tank-derived chassis, combat-proven reliability, and 1,000 km extended range",
   stat1Label: "km Range (Ext)", stat1Value: "1,000",
   stat2Label: "Tank", stat2Value: "Chassis",
   stat3Label: "Overseas", stat3Value: "Proven",

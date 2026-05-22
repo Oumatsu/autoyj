@@ -16,7 +16,7 @@ const data = {
   category: "elite-flagship" as const,
   title: "BYD Tang L EV",
   subtitle: "Family Flagship SUV",
-  heroDesc: "BYD's most advanced family SUV on the Super e-Platform. Tri-motor AWD with 810 kW, 3.6s 0-100, and Megawatt flash charging for the whole family.",
+  heroDesc: "BYD's most advanced family SUV on the Super e-Platform. Tri-motor AWD with 810 kW, 3.6s 0-100, and Megawatt flash charging for the whole family",
   stat1Label: "km CLTC Range", stat1Value: "670",
   stat2Label: "0-100 km/h", stat2Value: "3.6s",
   stat3Label: "810kW", stat3Value: "Tri-Motor",

@@ -24,7 +24,7 @@ export default function DealerPlaybookPage() {
             <span className="text-gray-600">/</span>
             <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white">Dealer Playbook</span>
           </div>
-          <h1 className="text-5xl md:text-6xl font-black italic text-white uppercase tracking-tighter mb-4">Dealer <span className="text-theme">Playbook</span>.</h1>
+          <h1 className="text-5xl md:text-6xl font-black italic text-white uppercase tracking-tighter mb-4">Dealer <span className="text-theme">Playbook</span></h1>
           <p className="text-gray-400 text-lg font-light max-w-2xl">Practical sales techniques, objection handling, and conversation frameworks to help dealers close more EV deals.</p>
         </div>
       </header>

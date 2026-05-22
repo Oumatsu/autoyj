@@ -175,7 +175,7 @@ export default function UtilityProPage() {
               The{" "}
               <span className="text-accent">Utility</span>{" "}
               <span className="text-theme">Pro</span>{" "}
-              Fleet.
+              Fleet
             </h1>
             <p className="text-xl text-gray-400 font-light italic border-l-2 border-accent/30 pl-6 leading-relaxed max-w-2xl">
               All-terrain EVs built for logistics, construction, and off-grid

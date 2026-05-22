@@ -16,7 +16,7 @@ const data = {
   category: "utility-pro" as const,
   title: "BYD T5",
   subtitle: "Electric Light Truck",
-  heroDesc: "Purpose-built for bulk urban delivery. Blade Battery safety, reinforced ladder frame, and super-fast DC charging.",
+  heroDesc: "Purpose-built for bulk urban delivery. Blade Battery safety, reinforced ladder frame, and super-fast DC charging",
   stat1Label: "km NEDC Range", stat1Value: "275",
   stat2Label: "Monthly Saving", stat2Value: "$600",
   stat3Label: "Blade", stat3Value: "Battery",

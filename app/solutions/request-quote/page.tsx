@@ -33,7 +33,7 @@ export default function RequestQuotePage() {
             >
               Request a{" "}
               <span className="text-theme">Service Centre</span>{" "}
-              Setup Quote.
+              Setup Quote
             </h1>
             <p className="text-xl text-gray-400 font-light italic border-l-2 border-theme/30 pl-6 leading-relaxed max-w-2xl">
               From diagnostics to high-voltage tooling — get a complete

@@ -16,7 +16,7 @@ const data = {
   category: "utility-pro" as const,
   title: "Zeekr 9X",
   subtitle: "Hyper-Luxury SUV",
-  heroDesc: "Zeekr's flagship hyper-luxury SUV based on the浩瀚-S architecture. 1,030 kW tri-motor, 3.1s 0-100, 900V 6C super-fast charging, and a 6-seat ultra-luxury cabin.",
+  heroDesc: "Zeekr's flagship hyper-luxury SUV based on the浩瀚-S architecture. 1,030 kW tri-motor, 3.1s 0-100, 900V 6C super-fast charging, and a 6-seat ultra-luxury cabin",
   stat1Label: "Range (Ext)", stat1Value: "1,250km",
   stat2Label: "0-100 km/h", stat2Value: "3.1s",
   stat3Label: "900V", stat3Value: "6C Charge",

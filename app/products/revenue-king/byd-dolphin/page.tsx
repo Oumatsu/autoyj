@@ -16,7 +16,7 @@ const data = {
   category: "revenue-king" as const,
   title: "BYD Dolphin",
   subtitle: "2025 Edition",
-  heroDesc: "Global brand recognition with 2025 upgraded comfort suspension. e-Platform 3.0 with standard heat pump.",
+  heroDesc: "Global brand recognition with 2025 upgraded comfort suspension. e-Platform 3.0 with standard heat pump",
   stat1Label: "km CLTC Range", stat1Value: "420",
   stat2Label: "Monthly Saving", stat2Value: "$280",
   stat3Label: "e-Platform", stat3Value: "3.0",

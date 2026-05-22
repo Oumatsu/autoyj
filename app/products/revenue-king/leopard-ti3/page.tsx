@@ -16,7 +16,7 @@ const data = {
   category: "revenue-king" as const,
   title: "Fangchengbao Ti 3",
   subtitle: "Formula Leopard EV SUV",
-  heroDesc: "BYD's Formula Leopard brand brings the rugged Ti 3 — a Star Wars-inspired compact SUV with 4.9s acceleration, AWD capability, and a massive 151L front trunk.",
+  heroDesc: "BYD's Formula Leopard brand brings the rugged Ti 3 — a Star Wars-inspired compact SUV with 4.9s acceleration, AWD capability, and a massive 151L front trunk",
   stat1Label: "km CLTC Range", stat1Value: "501",
   stat2Label: "0-100 km/h", stat2Value: "4.9s",
   stat3Label: "151L", stat3Value: "Frunk",

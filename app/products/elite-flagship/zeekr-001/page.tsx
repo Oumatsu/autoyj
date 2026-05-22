@@ -16,7 +16,7 @@ const data = {
   category: "elite-flagship" as const,
   title: "Zeekr 001",
   subtitle: "The Shooting Brake Icon",
-  heroDesc: "The vehicle that defined the premium Chinese EV segment. Full-range 800V architecture, LiDAR, and that iconic shooting brake design.",
+  heroDesc: "The vehicle that defined the premium Chinese EV segment. Full-range 800V architecture, LiDAR, and that iconic shooting brake design",
   stat1Label: "km CLTC Range", stat1Value: "750",
   stat2Label: "800V", stat2Value: "Platform",
   stat3Label: "LiDAR", stat3Value: "Smart",

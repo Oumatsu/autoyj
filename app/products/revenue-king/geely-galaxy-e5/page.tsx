@@ -16,7 +16,7 @@ const data = {
   category: "revenue-king" as const,
   title: "Geely Galaxy E5",
   subtitle: "The Battle-Tested SUV",
-  heroDesc: "Geely's global export pillar with exceptional mechanical quality. Shield Short-Blade battery, Galaxy OS, and global safety certification make this the all-rounder compact SUV.",
+  heroDesc: "Geely's global export pillar with exceptional mechanical quality. Shield Short-Blade battery, Galaxy OS, and global safety certification make this the all-rounder compact SUV",
   stat1Label: "km CLTC Range", stat1Value: "530",
   stat2Label: "Monthly Saving", stat2Value: "$220",
   stat3Label: "Aegis", stat3Value: "Battery",

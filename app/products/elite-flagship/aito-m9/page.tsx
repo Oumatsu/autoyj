@@ -16,7 +16,7 @@ const data = {
   category: "elite-flagship" as const,
   title: "AITO M9",
   subtitle: "China's Tech Pinnacle",
-  heroDesc: "The definitive Chinese luxury SUV powered by Huawei ADS 3.0. Projection headlights, Turing intelligent chassis, and the full Huawei ecosystem.",
+  heroDesc: "The definitive Chinese luxury SUV powered by Huawei ADS 3.0. Projection headlights, Turing intelligent chassis, and the full Huawei ecosystem",
   stat1Label: "km Range (Ext)", stat1Value: "1,474",
   stat2Label: "Monthly Saving", stat2Value: "$500",
   stat3Label: "Huawei", stat3Value: "ADS 3.0",

@@ -16,7 +16,7 @@ const data = {
   category: "elite-flagship" as const,
   title: "Li Auto L6",
   subtitle: "China's #1 EREV SUV",
-  heroDesc: "2024's best-selling Chinese luxury EREV SUV. The 'mobile living room' formula combined with extremely efficient range extension.",
+  heroDesc: "2024's best-selling Chinese luxury EREV SUV. The 'mobile living room' formula combined with extremely efficient range extension",
   stat1Label: "km Range (Ext)", stat1Value: "1,390",
   stat2Label: "Saving vs ICE", stat2Value: "60%",
   stat3Label: "#1 EREV", stat3Value: "SUV",

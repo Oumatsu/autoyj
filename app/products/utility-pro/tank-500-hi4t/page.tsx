@@ -16,7 +16,7 @@ const data = {
   category: "utility-pro" as const,
   title: "Tank 500 Hi4-T",
   subtitle: "Off-Road Luxury PHEV",
-  heroDesc: "GWM's Tank brand delivers genuine off-road capability with luxury interior - now PHEV. Mechanical 4WD with locking differentials.",
+  heroDesc: "GWM's Tank brand delivers genuine off-road capability with luxury interior - now PHEV. Mechanical 4WD with locking differentials",
   stat1Label: "km Range (Ext)", stat1Value: "790",
   stat2Label: "Mechanical", stat2Value: "4WD",
   stat3Label: "Off-Road", stat3Value: "Proven",

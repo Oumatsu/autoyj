@@ -16,7 +16,7 @@ const data = {
   category: "elite-flagship" as const,
   title: "Geely Galaxy M9",
   subtitle: "The Value Bombshell",
-  heroDesc: "The only vehicle under $40K with air suspension, tri-motor AWD, and a full-size 6-seat layout. Geely's answer to the Li Auto L9 - at nearly half the price.",
+  heroDesc: "The only vehicle under $40K with air suspension, tri-motor AWD, and a full-size 6-seat layout. Geely's answer to the Li Auto L9 - at nearly half the price",
   stat1Label: "km Range (Ext)", stat1Value: "1,500",
   stat2Label: "Air Susp", stat2Value: "Standard",
   stat3Label: "6-Seat", stat3Value: "Full-Size",

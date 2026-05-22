@@ -52,7 +52,7 @@ export default function SolutionsPage() {
               className="sh mb-8"
               style={{ fontSize: "clamp(3rem, 7.5vw, 6.5rem)" }}
             >
-              Quality <span className="text-accent">Verified</span>.
+              Quality <span className="text-accent">Verified</span>
               <br />
               Delivered Transparently.
             </h1>

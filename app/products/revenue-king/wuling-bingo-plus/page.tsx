@@ -16,7 +16,7 @@ const data = {
   category: "revenue-king" as const,
   title: "Wuling Bingo Plus",
   subtitle: "Retro Charm, Modern Range",
-  heroDesc: "Retro-inspired design that turns heads, with 510 km of practical range that eliminates anxiety.",
+  heroDesc: "Retro-inspired design that turns heads, with 510 km of practical range that eliminates anxiety",
   stat1Label: "km NEDC Range", stat1Value: "510",
   stat2Label: "Monthly Saving", stat2Value: "$180",
   stat3Label: "Retro", stat3Value: "Design",

@@ -16,7 +16,7 @@ const data = {
   category: "revenue-king" as const,
   title: "Geely Geometry C",
   subtitle: "Middle East Champion",
-  heroDesc: "The veteran that conquered Middle East markets. Exceptional real-world range accuracy and extreme climate optimisation.",
+  heroDesc: "The veteran that conquered Middle East markets. Exceptional real-world range accuracy and extreme climate optimisation",
   stat1Label: "km NEDC Range", stat1Value: "550",
   stat2Label: "Monthly Saving", stat2Value: "$320",
   stat3Label: "Heat", stat3Value: "Optimised",

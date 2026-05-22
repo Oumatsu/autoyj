@@ -175,7 +175,7 @@ export default function EliteFlagshipPage() {
               The{" "}
               <span className="text-theme">Elite</span>{" "}
               <span style={{ color: "var(--color-gold)" }}>Flagship</span>{" "}
-              Circle.
+              Circle
             </h1>
             <p className="text-xl text-gray-400 font-light italic border-l-2 border-theme/30 pl-6 leading-relaxed max-w-2xl">
               Premium EVs crafted for government fleets, diplomatic corps, and

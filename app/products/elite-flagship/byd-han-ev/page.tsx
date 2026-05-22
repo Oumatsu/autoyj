@@ -16,7 +16,7 @@ const data = {
   category: "elite-flagship" as const,
   title: "BYD Han EV",
   subtitle: "Chinese Flagship Sedan",
-  heroDesc: "BYD's flagship executive sedan combining Dragon Face design language with Blade Battery safety, now upgraded with LiDAR smart driving and Dynaudio premium audio.",
+  heroDesc: "BYD's flagship executive sedan combining Dragon Face design language with Blade Battery safety, now upgraded with LiDAR smart driving and Dynaudio premium audio",
   stat1Label: "km CLTC Range", stat1Value: "701",
   stat2Label: "0-100 km/h", stat2Value: "3.9s",
   stat3Label: "Blade", stat3Value: "Battery",

@@ -175,7 +175,7 @@ export default function RevenueKingPage() {
             >
               The{" "}
               <span className="text-theme">Revenue King</span>{" "}
-              <span className="text-accent">Matrix</span>.
+              <span className="text-accent">Matrix</span>
             </h1>
             <p className="text-xl text-gray-400 font-light italic border-l-2 border-theme/30 pl-6 leading-relaxed max-w-2xl">
               High-yield EVs engineered for ride-hailing networks and urban

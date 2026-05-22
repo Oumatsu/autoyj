@@ -16,7 +16,7 @@ const data = {
   category: "utility-pro" as const,
   title: "Maxus eDeliver 9",
   subtitle: "Flagship EV Van",
-  heroDesc: "SAIC Maxus's battle-tested flagship EV van. 11 m3 cargo space, top Euro NCAP safety rating, and proven export success.",
+  heroDesc: "SAIC Maxus's battle-tested flagship EV van. 11 m3 cargo space, top Euro NCAP safety rating, and proven export success",
   stat1Label: "km NEDC Range", stat1Value: "353",
   stat2Label: "Cargo", stat2Value: "11 m3",
   stat3Label: "Euro", stat3Value: "NCAP",

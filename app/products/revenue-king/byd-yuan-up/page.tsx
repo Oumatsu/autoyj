@@ -16,7 +16,7 @@ const data = {
   category: "revenue-king" as const,
   title: "BYD Yuan UP",
   subtitle: "Bestselling Compact SUV",
-  heroDesc: "BYD's popular compact electric SUV combining Blade Battery safety with DiLink smart systems. The perfect package for first-time EV buyers and urban fleets.",
+  heroDesc: "BYD's popular compact electric SUV combining Blade Battery safety with DiLink smart systems. The perfect package for first-time EV buyers and urban fleets",
   stat1Label: "km CLTC Range", stat1Value: "401",
   stat2Label: "Monthly Saving", stat2Value: "$250",
   stat3Label: "e-Platform", stat3Value: "3.0",

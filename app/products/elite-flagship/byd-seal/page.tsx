@@ -16,7 +16,7 @@ const data = {
   category: "elite-flagship" as const,
   title: "BYD Seal",
   subtitle: "The Tesla Fighter",
-  heroDesc: "2025 upgrade adds LiDAR and 800V fast charging to BYD's most beautiful sedan. CTB (Cell-to-Body) technology and DiPilot 300 autonomous driving.",
+  heroDesc: "2025 upgrade adds LiDAR and 800V fast charging to BYD's most beautiful sedan. CTB (Cell-to-Body) technology and DiPilot 300 autonomous driving",
   stat1Label: "km CLTC Range", stat1Value: "700",
   stat2Label: "800V", stat2Value: "Platform",
   stat3Label: "LiDAR", stat3Value: "Smart",

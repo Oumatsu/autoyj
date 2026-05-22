@@ -16,7 +16,7 @@ const data = {
   category: "revenue-king" as const,
   title: "GAC Aion RT",
   subtitle: "2025 New King",
-  heroDesc: "Aion's latest global strategic vehicle bringing LiDAR autonomous driving to the affordable segment. Executive-grade rear legroom with 400V fast charging.",
+  heroDesc: "Aion's latest global strategic vehicle bringing LiDAR autonomous driving to the affordable segment. Executive-grade rear legroom with 400V fast charging",
   stat1Label: "km CLTC Range", stat1Value: "520",
   stat2Label: "Monthly Saving", stat2Value: "$380",
   stat3Label: "LiDAR", stat3Value: "Smart",

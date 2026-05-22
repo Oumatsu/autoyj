@@ -37,11 +37,11 @@ export default function EthiopiaMarketPage() {
               className="sh mb-8"
               style={{ fontSize: "clamp(3rem, 7vw, 6rem)" }}
             >
-              Ethiopia.
+              Ethiopia
               <br />
               <span className="text-theme">Africa&apos;s</span> Next EV
               <br />
-              <span className="text-accent">Powerhouse</span>.
+              <span className="text-accent">Powerhouse</span>
             </h1>
             <p className="text-xl text-gray-400 font-light italic border-l-2 pl-8 leading-relaxed max-w-xl" style={{ borderColor: "rgba(197,160,89,.3)" }}>
               With zero-tariff EV imports, the world&apos;s cheapest renewable

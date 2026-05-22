@@ -11,7 +11,7 @@ export default function ContactPage() {
               <div className="label label-gold mb-6">Initiate Partnership</div>
               <h1 className="sh mb-6 leading-tight">
                 The <span className="text-theme">Deal</span>{" "}
-                <span className="text-accent">Room</span>.
+                <span className="text-accent">Room</span>
               </h1>
               <p
                 className="text-gray-400 text-lg font-light leading-relaxed mb-12 border-l-2 border-theme/30 pl-5"

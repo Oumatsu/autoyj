@@ -16,7 +16,7 @@ const data = {
   category: "utility-pro" as const,
   title: "BYD Shark",
   subtitle: "The PHEV Pickup King",
-  heroDesc: "The pickup that changes everything. DMO off-road platform, 3.3 kW V2L mobile power station, and 840 km+ range with 50-60% fuel savings.",
+  heroDesc: "The pickup that changes everything. DMO off-road platform, 3.3 kW V2L mobile power station, and 840 km+ range with 50-60% fuel savings",
   stat1Label: "km Range (Ext)", stat1Value: "840",
   stat2Label: "Fuel Saved", stat2Value: "60%",
   stat3Label: "V2L", stat3Value: "3.3 kW",

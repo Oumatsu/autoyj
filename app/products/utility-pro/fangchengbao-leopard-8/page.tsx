@@ -16,7 +16,7 @@ const data = {
   category: "utility-pro" as const,
   title: "Fangchengbao Leopard 8",
   subtitle: "Flagship Off-Road SUV",
-  heroDesc: "BYD's flagship off-road SUV combining DMO super hybrid with Huawei ADS 4.1.5 dual LiDAR smart driving. 1,380 km combined range, 4.8s acceleration, and genuine 4WD capability.",
+  heroDesc: "BYD's flagship off-road SUV combining DMO super hybrid with Huawei ADS 4.1.5 dual LiDAR smart driving. 1,380 km combined range, 4.8s acceleration, and genuine 4WD capability",
   stat1Label: "Range (Ext)", stat1Value: "1,380km",
   stat2Label: "0-100 km/h", stat2Value: "4.8s",
   stat3Label: "Huawei ADS", stat3Value: "Dual LiDAR",

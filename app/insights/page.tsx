@@ -91,7 +91,7 @@ export default function InsightsPage() {
             <div className="w-1.5 h-1.5 rounded-full bg-theme" />
             <span className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-500">Market <span className="text-accent">Intelligence</span></span>
           </div>
-          <h1 className="text-5xl md:text-6xl font-black italic text-white uppercase tracking-tighter mb-4">The <span className="text-theme">Insights</span> <span className="text-accent">Desk</span>.</h1>
+          <h1 className="text-5xl md:text-6xl font-black italic text-white uppercase tracking-tighter mb-4">The <span className="text-theme">Insights</span> <span className="text-accent">Desk</span></h1>
           <p className="text-gray-400 text-lg font-light max-w-2xl">Real-time policy updates, tariff analyses, and export logistics tracking for the African EV sector.</p>
         </div>
       </header>

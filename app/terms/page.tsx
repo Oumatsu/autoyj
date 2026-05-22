@@ -4,7 +4,7 @@ export default function TermsPage() {
       <div className="container mx-auto px-6 md:px-12 max-w-3xl">
         <div className="label label-gold mb-6">Legal</div>
         <h1 className="sh mb-4">
-          Terms of <span className="text-theme">Service</span>.
+          Terms of <span className="text-theme">Service</span>
         </h1>
         <p className="text-gray-500 text-sm font-light mb-12">
           Last Updated: January 2026

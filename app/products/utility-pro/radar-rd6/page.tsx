@@ -16,7 +16,7 @@ const data = {
   category: "utility-pro" as const,
   title: "Radar RD6",
   subtitle: "Premium EV Pickup",
-  heroDesc: "Geely's Radar brand redefines the pickup as a premium EV. 6 kW V2L export, SUV-quality ride comfort.",
+  heroDesc: "Geely's Radar brand redefines the pickup as a premium EV. 6 kW V2L export, SUV-quality ride comfort",
   stat1Label: "km NEDC Range", stat1Value: "520",
   stat2Label: "Op Cost vs Diesel", stat2Value: "80% less",
   stat3Label: "V2L", stat3Value: "6 kW",

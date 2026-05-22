@@ -16,7 +16,7 @@ const data = {
   category: "elite-flagship" as const,
   title: "Xiaomi SU7 Ultra",
   subtitle: "1,548 Horsepower",
-  heroDesc: "1,548 hp, carbon-fibre aero package, and Xiaomi's ecosystem integration make this the ultimate tech executive's social currency.",
+  heroDesc: "1,548 hp, carbon-fibre aero package, and Xiaomi's ecosystem integration make this the ultimate tech executive's social currency",
   stat1Label: "Horsepower", stat1Value: "1,548",
   stat2Label: "0-100 km/h", stat2Value: "1.98s",
   stat3Label: "CLTC", stat3Value: "630 km",

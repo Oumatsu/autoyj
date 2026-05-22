@@ -24,7 +24,7 @@ export default function EvFundamentalsPage() {
             <span className="text-gray-600">/</span>
             <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white">EV Fundamentals</span>
           </div>
-          <h1 className="text-5xl md:text-6xl font-black italic text-white uppercase tracking-tighter mb-4">EV <span className="text-accent">Fundamentals</span>.</h1>
+          <h1 className="text-5xl md:text-6xl font-black italic text-white uppercase tracking-tighter mb-4">EV <span className="text-accent">Fundamentals</span></h1>
           <p className="text-gray-400 text-lg font-light max-w-2xl">Master the core technology: LFP vs NMC batteries, motor types, charging standards, and how African conditions affect EV performance.</p>
         </div>
       </header>

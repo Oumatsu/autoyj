@@ -30,7 +30,7 @@ export default function TechnicalWorkshopPage() {
             <span className="text-gray-600">/</span>
             <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white">Technical Workshop</span>
           </div>
-          <h1 className="text-5xl md:text-6xl font-black italic text-white uppercase tracking-tighter mb-4">Technical <span className="text-red-400">Workshop</span>.</h1>
+          <h1 className="text-5xl md:text-6xl font-black italic text-white uppercase tracking-tighter mb-4">Technical <span className="text-red-400">Workshop</span></h1>
           <p className="text-gray-400 text-lg font-light max-w-2xl">Hands-on guides for EV technicians — safety, diagnostics, charging, and common faults in African operating conditions.</p>
         </div>
       </header>

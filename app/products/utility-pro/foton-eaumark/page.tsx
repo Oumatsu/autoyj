@@ -16,7 +16,7 @@ const data = {
   category: "utility-pro" as const,
   title: "Foton eAumark",
   subtitle: "Global Light Truck Leader",
-  heroDesc: "Foton's global light truck platform delivers modular chassis versatility, high-efficiency e-axle, and fleet remote monitoring.",
+  heroDesc: "Foton's global light truck platform delivers modular chassis versatility, high-efficiency e-axle, and fleet remote monitoring",
   stat1Label: "km NEDC Range", stat1Value: "400",
   stat2Label: "Monthly Saving", stat2Value: "$800",
   stat3Label: "Modular", stat3Value: "Chassis",

@@ -3,7 +3,7 @@ export default function PrivacyPage() {
     <main className="pt-32 pb-24 bg-a min-h-screen">
       <div className="container mx-auto px-6 md:px-12 max-w-3xl">
         <div className="label label-gold mb-6">Legal</div>
-        <h1 className="sh mb-4">Privacy <span className="text-theme">Policy</span>.</h1>
+        <h1 className="sh mb-4">Privacy <span className="text-theme">Policy</span></h1>
         <p className="text-gray-500 text-sm font-light mb-12">
           Last Updated: January 2026
         </p>

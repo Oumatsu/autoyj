@@ -16,7 +16,7 @@ const data = {
   category: "utility-pro" as const,
   title: "Farizon Super Van",
   subtitle: "2025 Digital Cargo Van",
-  heroDesc: "Geely Farizon's flagship digital cargo van. Steer-by-wire technology enables a completely flat cargo floor.",
+  heroDesc: "Geely Farizon's flagship digital cargo van. Steer-by-wire technology enables a completely flat cargo floor",
   stat1Label: "km NEDC Range", stat1Value: "350",
   stat2Label: "Space", stat2Value: "+20%",
   stat3Label: "Digital", stat3Value: "Cargo",

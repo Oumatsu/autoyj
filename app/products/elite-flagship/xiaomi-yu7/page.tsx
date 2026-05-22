@@ -16,7 +16,7 @@ const data = {
   category: "elite-flagship" as const,
   title: "Xiaomi YU7",
   subtitle: "Premium Performance SUV",
-  heroDesc: "Xiaomi's first SUV — a high-performance luxury SUV with up to 835 km range, 3.2s 0-100 time, and the full Xiaomi HyperOS ecosystem.",
+  heroDesc: "Xiaomi's first SUV — a high-performance luxury SUV with up to 835 km range, 3.2s 0-100 time, and the full Xiaomi HyperOS ecosystem",
   stat1Label: "km CLTC Range", stat1Value: "835",
   stat2Label: "0-100 km/h", stat2Value: "3.2s",
   stat3Label: "800V", stat3Value: "Platform",

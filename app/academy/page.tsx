@@ -218,7 +218,7 @@ export default function AcademyPage() {
             className="sh mb-8"
             style={{ fontSize: "clamp(3rem, 7vw, 6rem)" }}
           >
-            The EV <span className="text-accent">Academy</span>.
+            The EV <span className="text-accent">Academy</span>
           </h1>
           <p className="text-xl text-gray-400 font-light italic leading-relaxed max-w-2xl mx-auto mb-10">
             Master the transition from ICE to EV. Technical playbooks, sales SOPs, and maintenance

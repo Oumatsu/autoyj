@@ -32,7 +32,7 @@ export default function ConfigureKitPage() {
               style={{ fontSize: "clamp(2.5rem, 6vw, 4.5rem)" }}
             >
               Configure Your{" "}
-              <span className="text-accent">Starter Parts Kit</span>.
+              <span className="text-accent">Starter Parts Kit</span>
             </h1>
             <p className="text-xl text-gray-400 font-light italic border-l-2 border-accent/30 pl-6 leading-relaxed max-w-2xl">
               Tailor a maintenance bundle to your exact fleet models. Ship

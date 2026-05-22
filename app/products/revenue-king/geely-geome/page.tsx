@@ -16,7 +16,7 @@ const data = {
   category: "revenue-king" as const,
   title: "Geely Geome",
   subtitle: "Smart Urban Hatch",
-  heroDesc: "A cleverly designed electric hatchback with Flyme Auto smart connectivity, generous interior space, and 36 clever storage compartments.",
+  heroDesc: "A cleverly designed electric hatchback with Flyme Auto smart connectivity, generous interior space, and 36 clever storage compartments",
   stat1Label: "km CLTC Range", stat1Value: "410",
   stat2Label: "Monthly Saving", stat2Value: "$200",
   stat3Label: "70L", stat3Value: "Frunk",

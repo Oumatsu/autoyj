@@ -16,7 +16,7 @@ const data = {
   category: "elite-flagship" as const,
   title: "Fangchengbao Leopard 5",
   subtitle: "DMO Off-Road SUV",
-  heroDesc: "BYD's DMO super hybrid off-road SUV combining 4.8s performance with genuine off-road capability. Tank Turn, dual lockers, and a 35-degree approach angle.",
+  heroDesc: "BYD's DMO super hybrid off-road SUV combining 4.8s performance with genuine off-road capability. Tank Turn, dual lockers, and a 35-degree approach angle",
   stat1Label: "0-100 km/h", stat1Value: "4.8s",
   stat2Label: "Range (Ext)", stat2Value: "1,310km",
   stat3Label: "DMO", stat3Value: "Platform",

@@ -16,7 +16,7 @@ const data = {
   category: "revenue-king" as const,
   title: "Leapmotor Lafa 5",
   subtitle: "Tech Disruptor",
-  heroDesc: "Leapmotor's latest strategic model bringing 800V architecture, LiDAR autonomous driving, and 605km range to the mass market at an incredible price.",
+  heroDesc: "Leapmotor's latest strategic model bringing 800V architecture, LiDAR autonomous driving, and 605km range to the mass market at an incredible price",
   stat1Label: "km CLTC Range", stat1Value: "605",
   stat2Label: "Monthly Saving", stat2Value: "$300",
   stat3Label: "800V", stat3Value: "Platform",

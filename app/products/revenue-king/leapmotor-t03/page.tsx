@@ -16,7 +16,7 @@ const data = {
   category: "revenue-king" as const,
   title: "Leapmotor T03",
   subtitle: "European Standard, Chinese Price",
-  heroDesc: "Stellantis Group backing assures European quality standards. Dual screens and voice control at an unbeatable price.",
+  heroDesc: "Stellantis Group backing assures European quality standards. Dual screens and voice control at an unbeatable price",
   stat1Label: "km NEDC Range", stat1Value: "403",
   stat2Label: "Monthly Saving", stat2Value: "$200",
   stat3Label: "Stellantis", stat3Value: "Backed",

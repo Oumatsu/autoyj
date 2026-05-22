@@ -16,7 +16,7 @@ const data = {
   category: "revenue-king" as const,
   title: "Changan Lumin",
   subtitle: "Premium Micro EV",
-  heroDesc: "Ultra-affordable without feeling cheap. High-strength steel body, cute design, and flexible charging options.",
+  heroDesc: "Ultra-affordable without feeling cheap. High-strength steel body, cute design, and flexible charging options",
   stat1Label: "km Range", stat1Value: "301",
   stat2Label: "Monthly Saving", stat2Value: "$150",
   stat3Label: "From", stat3Value: "$5.4K",

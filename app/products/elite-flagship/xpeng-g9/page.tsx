@@ -16,7 +16,7 @@ const data = {
   category: "elite-flagship" as const,
   title: "XPENG G9",
   subtitle: "The 800V Smart-Driving Benchmark",
-  heroDesc: "XPENG's flagship SUV sets the standard for 800V charging and autonomous driving. Strong reputation in Nordic and Southeast Asian markets.",
+  heroDesc: "XPENG's flagship SUV sets the standard for 800V charging and autonomous driving. Strong reputation in Nordic and Southeast Asian markets",
   stat1Label: "km CLTC Range", stat1Value: "702",
   stat2Label: "800V SiC", stat2Value: "Platform",
   stat3Label: "N. Europe", stat3Value: "Approved",
