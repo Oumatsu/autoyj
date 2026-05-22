@@ -1,7 +1,7 @@
 import Link from "next/link";
 
-const content = `<p>There is no choice of port for Ethiopian importers. Ethiopia is landlocked. Eritrea's Massawa â€” once Ethiopia's primary port â€” has been inaccessible since the 1998â€“2000 war. Somalia's Berbera is occasionally used but lacks the infrastructure volume. <strong>Djibouti handles over <span class="hl-gold">95% </span>of Ethiopia's seaborne trade</strong>, including all vehicle imports of any volume.</p>
-<p>This is not a disadvantage the market has not adapted to. Djibouti's port infrastructure, particularly the Doraleh Multi-Purpose Port developed in partnership with DP World, is one of the most modern in East Africa. The Addis-Djibouti transport corridor â€” road and rail â€” is well-established. The question is not whether to use Djibouti, but how to use it efficiently.</p>
+const content = `<p>There is no choice of port for Ethiopian importers. Ethiopia is landlocked. Eritrea's Massawa â€?once Ethiopia's primary port â€?has been inaccessible since the 1998â€?000 war. Somalia's Berbera is occasionally used but lacks the infrastructure volume. <strong>Djibouti handles over <span class="hl-gold">95% </span>of Ethiopia's seaborne trade</strong>, including all vehicle imports of any volume.</p>
+<p>This is not a disadvantage the market has not adapted to. Djibouti's port infrastructure, particularly the Doraleh Multi-Purpose Port developed in partnership with DP World, is one of the most modern in East Africa. The Addis-Djibouti transport corridor â€?road and rail â€?is well-established. The question is not whether to use Djibouti, but how to use it efficiently.</p>
 <h2>The Djibouti Port System</h2>
 <p>Djibouti has four major port facilities relevant to vehicle imports:</p>
 <h3>Doraleh Multi-Purpose Port (DMPP)</h3>
@@ -15,48 +15,48 @@ const content = `<p>There is no choice of port for Ethiopian importers. Ethiopia
 <div class="rounded-[1.5rem] overflow-hidden my-10">
   <img src="images/djibouti-import-guide-ethiopia/customs-docs.jpg" alt="Ethiopian customs documentation and import compliance paperwork representing the clearance process at Djibouti for Ethiopian-bound vehicle imports" class="w-full h-auto object-cover" style="max-height:450px;">
   <div class="px-6 py-4 bg-white/[0.02] border-t border-white/5">
-    <p class="text-xs text-gray-500 font-light italic leading-relaxed">Ethiopian customs officers are stationed permanently at Djibouti port â€” not at the Ethiopia-Djibouti border. Clearance for Ethiopian-bound goods happens at the port, not at Galafi or Dewele border crossings. Documents submitted before vessel arrival significantly accelerate release.</p>
+    <p class="text-xs text-gray-500 font-light italic leading-relaxed">Ethiopian customs officers are stationed permanently at Djibouti port â€?not at the Ethiopia-Djibouti border. Clearance for Ethiopian-bound goods happens at the port, not at Galafi or Dewele border crossings. Documents submitted before vessel arrival significantly accelerate release.</p>
   </div>
 </div>
 <h2>The Ethiopian Customs Process at Djibouti</h2>
-<p>This matters operationally: once a vehicle has been released by Ethiopian customs at Djibouti, it moves to Ethiopia under a transit declaration â€” it does not face substantive re-clearance at the Galafi or Dewele border crossings. The border crossings are documentary checks, not a second customs clearance.</p>
+<p>This matters operationally: once a vehicle has been released by Ethiopian customs at Djibouti, it moves to Ethiopia under a transit declaration â€?it does not face substantive re-clearance at the Galafi or Dewele border crossings. The border crossings are documentary checks, not a second customs clearance.</p>
 <h3>The Clearance Sequence</h3>
-<p>ERCA uses the ASYCUDA World system for customs declarations. Ethiopian importers (or their customs clearing agents in Djibouti) can submit an import declaration and supporting documents before the vessel arrives. Pre-arrival processing compresses clearance time significantly â€” vehicles with complete, pre-submitted documentation can be released within 5â€“7 working days of arrival; those processed only after arrival typically take 10â€“15 working days.</p>
+<p>ERCA uses the ASYCUDA World system for customs declarations. Ethiopian importers (or their customs clearing agents in Djibouti) can submit an import declaration and supporting documents before the vessel arrives. Pre-arrival processing compresses clearance time significantly â€?vehicles with complete, pre-submitted documentation can be released within 5â€? working days of arrival; those processed only after arrival typically take 10â€?5 working days.</p>
 <p>Documents to submit pre-arrival:</p>
 <p>Bill of Lading (telex release or original)</p>
 <p>Commercial Invoice</p>
 <p>Packing List</p>
 <p>Certificate of Origin</p>
 <p>Pre-Shipment Inspection certificate (if required by ERCA for the specific vehicle type)</p>
-<p>OEM After-Sales Confirmation Document (for vehicles <180 days old â€” new January 2026 requirement)</p>
+<p>OEM After-Sales Confirmation Document (for vehicles <180 days old â€?new January 2026 requirement)</p>
 <p>Bank transfer documentation / Letter of Credit evidence</p>
-<p>ERCA calculates duties based on the CIF value (Cost + Insurance + Freight at Djibouti). Disputes about CIF valuation are the most common cause of clearance delays. Under-invoiced commercial invoices are flagged against ERCA's reference price database â€” bring this to the correct CIF value before submission, not as a response to a query.</p>
-<p>Duties are paid through an ERCA-designated bank in Ethiopia or through the Ethiopian banking system's forex mechanism. Payment clearance confirmation is required before physical release. This step introduces banking processing time â€” typically 2â€“5 business days if initiated promptly.</p>
-<p>ERCA performs physical inspection on a random or risk-based selection of vehicles. If your vehicle is selected, expect 1â€“3 additional days for inspection scheduling and execution. Inspection checks VIN against documentation, general condition, and compliance with stated specifications.</p>
+<p>ERCA calculates duties based on the CIF value (Cost + Insurance + Freight at Djibouti). Disputes about CIF valuation are the most common cause of clearance delays. Under-invoiced commercial invoices are flagged against ERCA's reference price database â€?bring this to the correct CIF value before submission, not as a response to a query.</p>
+<p>Duties are paid through an ERCA-designated bank in Ethiopia or through the Ethiopian banking system's forex mechanism. Payment clearance confirmation is required before physical release. This step introduces banking processing time â€?typically 2â€? business days if initiated promptly.</p>
+<p>ERCA performs physical inspection on a random or risk-based selection of vehicles. If your vehicle is selected, expect 1â€? additional days for inspection scheduling and execution. Inspection checks VIN against documentation, general condition, and compliance with stated specifications.</p>
 <p>Once duties are paid and any inspection is complete, ERCA issues the release note. The vehicle is cleared for transport to Ethiopia under an ERCA transit declaration. The transport declaration accompanies the vehicle to the border crossing and to the destination in Ethiopia.</p>
 <h2>The Addis-Djibouti Corridor: Road vs Rail</h2>
 <h3>Road Transport (Dominant Method)</h3>
-<p>The Addis Ababaâ€“Djibouti road corridor is approximately <span class="hl-gold">900 km</span>, passing through Dire Dawa and the Afar region. Transit time is typically 1â€“3 days depending on the vehicle type, carrier, and road conditions.</p>
+<p>The Addis Ababaâ€“Djibouti road corridor is approximately <span class="hl-gold">900 km</span>, passing through Dire Dawa and the Afar region. Transit time is typically 1â€? days depending on the vehicle type, carrier, and road conditions.</p>
 <p>Vehicle-specific transport:</p>
-<p><strong>Low-loader or car carrier trucks</strong> are used for individual or small-batch vehicle transport (2â€“8 vehicles)</p>
+<p><strong>Low-loader or car carrier trucks</strong> are used for individual or small-batch vehicle transport (2â€? vehicles)</p>
 <p><strong>Drive-off (self-drive) under escort</strong> is possible but uncommon for Chinese EVs (requires confirmed battery state and EV-trained driver)</p>
 <p>Key considerations:</p>
 <p>Fuel for the transport truck is a cost component; rates vary with diesel prices</p>
 <p>Road quality varies on the Addis-Djibouti route; some sections are unpaved or under repair</p>
 <p>Crossing the Ethiopia-Djibouti border at Galafi requires carrier documentation and transit permits</p>
 <h3>Addis-Djibouti Railway (Alternative)</h3>
-<p>The Addis Ababaâ€“Djibouti Railway (ADR) â€” a <span class="hl-gold">756 km</span> electrified standard-gauge railway completed in 2017 â€” provides an alternative to road transport for containerised freight. The railway connects Djibouti port directly to the Lebu ICD (Inland Container Depot) in Addis Ababa.</p>
-<p>For vehicle imports: container freight moves by rail if the importer opts for container shipping. RoRo vehicles are typically transported by road carrier, as rail requires vehicles to be container-loaded at Djibouti â€” adding cost and complexity.</p>
-<p>Rail transit time: 12â€“18 hours Djibouti to Addis Ababa (versus 1â€“3 days by road), but scheduling and availability constraints mean the effective door-to-door time advantage is smaller than the transit time difference suggests.</p>
+<p>The Addis Ababaâ€“Djibouti Railway (ADR) â€?a <span class="hl-gold">756 km</span> electrified standard-gauge railway completed in 2017 â€?provides an alternative to road transport for containerised freight. The railway connects Djibouti port directly to the Lebu ICD (Inland Container Depot) in Addis Ababa.</p>
+<p>For vehicle imports: container freight moves by rail if the importer opts for container shipping. RoRo vehicles are typically transported by road carrier, as rail requires vehicles to be container-loaded at Djibouti â€?adding cost and complexity.</p>
+<p>Rail transit time: 12â€?8 hours Djibouti to Addis Ababa (versus 1â€? days by road), but scheduling and availability constraints mean the effective door-to-door time advantage is smaller than the transit time difference suggests.</p>
 <h2>The Customs Broker: Your Most Important Local Partner</h2>
-<p>Ethiopian importers without deep experience in Djibouti-based clearance should retain a licensed Djibouti customs clearing agent (agent en douane). This is not optional â€” it is the difference between a 7-day clearance and a 30-day clearance.</p>
+<p>Ethiopian importers without deep experience in Djibouti-based clearance should retain a licensed Djibouti customs clearing agent (agent en douane). This is not optional â€?it is the difference between a 7-day clearance and a 30-day clearance.</p>
 <p>What to look for in a Djibouti clearing agent:</p>
 <p>Licensed by Djibouti Customs Authority (Direction des Douanes)</p>
-<p>Experience specifically with vehicle imports â€” not just general freight</p>
+<p>Experience specifically with vehicle imports â€?not just general freight</p>
 <p>Established relationship with ERCA's Djibouti liaison office</p>
-<p>Transparent fee structure (clearing agent fees typically range from $150â€“$400 per vehicle)</p>
+<p>Transparent fee structure (clearing agent fees typically range from $150â€?400 per vehicle)</p>
 <p>Your Chinese freight forwarder may recommend a clearing agent. This is a viable starting point, but verify the agent's track record independently if possible. A poorly performing clearing agent creates delays that are invisible to your Chinese supplier but very visible to you.</p>
-<h2>Common Causes of Clearance Delays â€” and How to Avoid Them</h2>
+<h2>Common Causes of Clearance Delays â€?and How to Avoid Them</h2>
 <div class="overflow-x-auto my-8"><table class="w-full border-collapse text-sm"><tr><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Cause</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Prevention</th></tr>
 <tr><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">CIF value dispute</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Submit invoices at accurate CIF; do not under-invoice</th></tr>
 <tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Missing OEM document (post Jan 2026)</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Obtain before vessel sails; cannot be sourced retroactively</td></tr>
@@ -66,19 +66,19 @@ const content = `<p>There is no choice of port for Ethiopian importers. Ethiopia
 <tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">PSI report missing or from unapproved inspector</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Confirm ERCA-approved inspector list before shipment</td></tr>
 </table></div>
 <h2>Sources</h2>
-<p>Djibouti Ports & Free Zones Authority â€” DMPP and DCT specifications and procedures (2025)</p>
-<p>Ethiopian Revenues and Customs Authority (ERCA) â€” ASYCUDA World and pre-clearance documentation guidelines</p>
-<p>Addis Ababa Djibouti Railway S.C. â€” freight service schedules and container tariffs (2025)</p>
-<p>UNCTAD â€” <em>Review of Maritime Transport 2025</em> (Djibouti chapter)</p>
-<p>World Bank â€” <em>Ethiopia Trade Logistics Study</em> (2024)</p>
-<p>Djibouti Chamber of Commerce â€” licensed customs clearing agents register</p>
+<p>Djibouti Ports & Free Zones Authority â€?DMPP and DCT specifications and procedures (2025)</p>
+<p>Ethiopian Revenues and Customs Authority (ERCA) â€?ASYCUDA World and pre-clearance documentation guidelines</p>
+<p>Addis Ababa Djibouti Railway S.C. â€?freight service schedules and container tariffs (2025)</p>
+<p>UNCTAD â€?<em>Review of Maritime Transport 2025</em> (Djibouti chapter)</p>
+<p>World Bank â€?<em>Ethiopia Trade Logistics Study</em> (2024)</p>
+<p>Djibouti Chamber of Commerce â€?licensed customs clearing agents register</p>
 <p class="text-gray-500 text-xs font-light italic mt-8">Published by Evexport Intelligence Desk Â· January 2026</p>
 `;
 
 export default function ArticlePage() {
   return (
     <>
-      <main className="pt-32 pb-24 relative z-10">
+      <main className="pt-32 pb-24 relative z-10 bg-a">
         <div className="container mx-auto px-6 md:px-12">
           <div className="mb-10 text-[10px] font-black uppercase tracking-widest text-gray-500">
             <Link href="/" className="hover:text-gold transition">Home</Link>

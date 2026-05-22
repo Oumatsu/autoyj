@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-const content = `<p>Ghana's EV import policy is deliberately narrow — and that specificity is what makes it commercially interesting. Unlike blanket exemptions that apply to all EV categories regardless of use, Ghana's zero-tariff framework introduced in 2024 targets <strong>public transport electric vehicles</strong> and <strong>local assembly operations</strong> with an incentive window running through 2032.</p>
+const content = `<p>Ghana's EV import policy is deliberately narrow �?and that specificity is what makes it commercially interesting. Unlike blanket exemptions that apply to all EV categories regardless of use, Ghana's zero-tariff framework introduced in 2024 targets <strong>public transport electric vehicles</strong> and <strong>local assembly operations</strong> with an incentive window running through 2032.</p>
 <p>For dealers and assemblers positioned to serve Ghana's formal public transit sector, or those exploring CKD/SKD assembly as a business model, this policy offers the most concrete long-term certainty of any EV incentive currently active in West Africa.</p>
 <h2>What the Policy Covers</h2>
 <p>According to EV24.Africa's reporting on Ghana's automotive import framework, the following exemption structure applies:</p>
@@ -14,22 +14,22 @@ const content = `<p>Ghana's EV import policy is deliberately narrow — and that
 <div class="rounded-[1.5rem] overflow-hidden my-10">
   <img src="images/ghana-zero-tariff-2024/bus-transport.jpg" alt="Public bus transportation in West Africa, illustrating the fleet-scale opportunity Ghana's policy creates" class="w-full h-auto object-cover" style="max-height:450px;">
   <div class="px-6 py-4 bg-white/[0.02] border-t border-white/5">
-    <p class="text-xs text-gray-500 font-light italic leading-relaxed">Ghana's zero-tariff benefit applies to EVs operating in the formal public transport sector — creating a fleet-scale import opportunity for credentialled operators.</p>
+    <p class="text-xs text-gray-500 font-light italic leading-relaxed">Ghana's zero-tariff benefit applies to EVs operating in the formal public transport sector �?creating a fleet-scale import opportunity for credentialled operators.</p>
   </div>
 </div>
 <h2>The Local Assembly Angle</h2>
-<p>The SKD and CKD exemption is the most strategically significant element for the medium term. Ghana has an established history of vehicle assembly — Kantanka Automobile has been producing vehicles locally since 2017 — and the government's stated objective is to develop domestic EV manufacturing capability, not simply to maximise imported vehicle volumes.</p>
+<p>The SKD and CKD exemption is the most strategically significant element for the medium term. Ghana has an established history of vehicle assembly �?Kantanka Automobile has been producing vehicles locally since 2017 �?and the government's stated objective is to develop domestic EV manufacturing capability, not simply to maximise imported vehicle volumes.</p>
 <p>For Chinese OEM partners with the capacity to supply CKD kits rather than CBU units, this creates a compelling proposal:</p>
 <p><strong>Lower landed cost</strong> via the zero-tariff CKD route</p>
 <p><strong>Legitimate "made in Ghana" positioning</strong> for fleet procurement tenders</p>
 <p><strong>First-mover advantage</strong> in a market where local assembly capacity for EVs is still essentially zero</p>
-<p>The registration requirement — importing assemblers must be formally registered with Ghana's automotive industry body — is the primary compliance step, and one that signals the government's intent to build a traceable, accountable supply chain rather than simply waiving tariffs for any operator.</p>
+<p>The registration requirement �?importing assemblers must be formally registered with Ghana's automotive industry body �?is the primary compliance step, and one that signals the government's intent to build a traceable, accountable supply chain rather than simply waiving tariffs for any operator.</p>
 <h2>What This Means for Fleet Dealers</h2>
-<p>The 2032 horizon gives operators eight years of cost certainty — a long enough window to build a viable public transport fleet business and amortise the investment in charging infrastructure, workshop training, and spare parts inventory.</p>
+<p>The 2032 horizon gives operators eight years of cost certainty �?a long enough window to build a viable public transport fleet business and amortise the investment in charging infrastructure, workshop training, and spare parts inventory.</p>
 <p>Key commercial targets within Ghana's public transport EV market:</p>
-<p><strong>Urban minibus (tro-tro) electrification</strong> — the dominant informal transit mode in Accra; several electrification pilots are under way</p>
-<p><strong>Government fleet procurement</strong> — the Ministry of Transport has signalled interest in EV adoption for official vehicle pools</p>
-<p><strong>Airport and port shuttle services</strong> — high-frequency, fixed-route operations where EV economics are strongest</p>
+<p><strong>Urban minibus (tro-tro) electrification</strong> �?the dominant informal transit mode in Accra; several electrification pilots are under way</p>
+<p><strong>Government fleet procurement</strong> �?the Ministry of Transport has signalled interest in EV adoption for official vehicle pools</p>
+<p><strong>Airport and port shuttle services</strong> �?high-frequency, fixed-route operations where EV economics are strongest</p>
 <h2>Practical Steps</h2>
 <p>Dealers looking to access the zero-tariff benefit for public transport EV imports must:</p>
 <ol>
@@ -37,19 +37,19 @@ const content = `<p>Ghana's EV import policy is deliberately narrow — and that
   <li>Confirm intended vehicle use as public transport at point of customs entry</li>
   <li>Ensure the vehicle HS code clearly classifies the unit as a battery electric vehicle (BEV)</li>
 </ol>
-<p>For the CKD/SKD route, additional registration as an approved assembler is required — a more complex process, but one that unlocks both the zero-tariff benefit and eligibility for future government procurement programmes.</p>
+<p>For the CKD/SKD route, additional registration as an approved assembler is required �?a more complex process, but one that unlocks both the zero-tariff benefit and eligibility for future government procurement programmes.</p>
 <h2>Sources</h2>
-<p>EV24.Africa — <em>"Ghana EV Import Guide 2025: Tariffs, Registration & Customs Clearance"</em></p>
-<p>EV24.Africa — <em>"EV Import Duties in Africa (2026): The Countries With the Best Incentives"</em></p>
-<p>Africa E-Mobility Alliance — <em>Africa E-Mobility Report 2025</em></p>
-<p class="text-gray-500 text-xs font-light italic mt-8">本文关税豁免信息基于EV24.Africa的行业报道。建议在执行前向加纳税务局（GRA）官方渠道或持牌清关行核实当前有效文件编号及注册要求。</p>
+<p>EV24.Africa �?<em>"Ghana EV Import Guide 2025: Tariffs, Registration & Customs Clearance"</em></p>
+<p>EV24.Africa �?<em>"EV Import Duties in Africa (2026): The Countries With the Best Incentives"</em></p>
+<p>Africa E-Mobility Alliance �?<em>Africa E-Mobility Report 2025</em></p>
+<p class="text-gray-500 text-xs font-light italic mt-8">本文关税豁免信息基于EV24.Africa的行业报道。建议在执行前向加纳税务局（GRA）官方渠道或持牌清关行核实当前有效文件编号及注册要求�?/p>
 <p class="text-gray-500 text-xs font-light italic mt-8">Published by Evexport Intelligence Desk · April 2026</p>
 `;
 
 export default function ArticlePage() {
   return (
     <>
-      <main className="pt-32 pb-24 relative z-10">
+      <main className="pt-32 pb-24 relative z-10 bg-a">
         <div className="container mx-auto px-6 md:px-12">
           <div className="mb-10 text-[10px] font-black uppercase tracking-widest text-gray-500">
             <Link href="/" className="hover:text-gold transition">Home</Link>
@@ -69,7 +69,7 @@ export default function ArticlePage() {
                   Ghana\'s 8-Year Zero-Tariff Window: The Best Local Assembly Deal in West Africa
                 </h1>
                 <p className="text-xl text-gray-400 font-light italic border-l-2 border-theme/30 pl-6 mb-8 max-w-2xl">
-                  Ghana\'s EV import policy is deliberately narrow — and that specificity is what makes it commercially interesting.
+                  Ghana\'s EV import policy is deliberately narrow �?and that specificity is what makes it commercially interesting.
                 </p>
                 <div className="flex items-center gap-6 text-[10px] font-black uppercase tracking-widest text-gray-500 border-t border-white/10 pt-6">
                   <div className="flex items-center gap-3">

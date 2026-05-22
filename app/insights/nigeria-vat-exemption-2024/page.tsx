@@ -1,22 +1,22 @@
 import Link from "next/link";
 
-const content = `<p>In September 2024, Nigeria's federal government quietly enacted one of the most significant EV import policy changes on the continent. The <strong>VAT Modification Order 2024</strong> exempted electric vehicles and their assembly components from Value Added Tax â€” while simultaneously removing the Import Adjustment Tax (IAT) that had previously applied to larger-engine ICE vehicles.</p>
+const content = `<p>In September 2024, Nigeria's federal government quietly enacted one of the most significant EV import policy changes on the continent. The <strong>VAT Modification Order 2024</strong> exempted electric vehicles and their assembly components from Value Added Tax â€?while simultaneously removing the Import Adjustment Tax (IAT) that had previously applied to larger-engine ICE vehicles.</p>
 <p>The change received limited press coverage relative to its commercial significance. For dealers importing EVs into Nigeria, it directly reduces the landed cost on every unit and every spare part order.</p>
 <h2>What the VAT Modification Order 2024 Actually Covers</h2>
 <p>The Order, which took effect in September 2024, applies VAT exemption to:</p>
 <p><strong>Fully assembled electric vehicles</strong> (CBU imports)</p>
-<p><strong>EV assembly parts and components</strong> â€” covering SKD and CKD kits</p>
+<p><strong>EV assembly parts and components</strong> â€?covering SKD and CKD kits</p>
 <p><strong>Services directly related to EV manufacturing, assembly, and sales</strong></p>
-<p>Simultaneously, the <strong>Import Adjustment Tax (IAT)</strong> â€” which was previously levied on ICE vehicles according to engine displacement â€” no longer applies to electric vehicles. EVs do not have an engine, so they were not subject to the IAT in any case, but the Order clarifies this explicitly, removing any ambiguity in customs classification.</p>
+<p>Simultaneously, the <strong>Import Adjustment Tax (IAT)</strong> â€?which was previously levied on ICE vehicles according to engine displacement â€?no longer applies to electric vehicles. EVs do not have an engine, so they were not subject to the IAT in any case, but the Order clarifies this explicitly, removing any ambiguity in customs classification.</p>
 <div class="rounded-[1.5rem] overflow-hidden my-10">
   <img src="images/nigeria-vat-exemption-2024/policy-doc.jpg" alt="Official government policy documents representing the VAT Modification Order 2024" class="w-full h-auto object-cover" style="max-height:450px;">
   <div class="px-6 py-4 bg-white/[0.02] border-t border-white/5">
-    <p class="text-xs text-gray-500 font-light italic leading-relaxed">The VAT Modification Order 2024 was published in Nigeria's Federal Gazette in September 2024 â€” the legal instrument that dealers should reference in any customs dispute.</p>
+    <p class="text-xs text-gray-500 font-light italic leading-relaxed">The VAT Modification Order 2024 was published in Nigeria's Federal Gazette in September 2024 â€?the legal instrument that dealers should reference in any customs dispute.</p>
   </div>
 </div>
 <h2>The Cost Impact</h2>
 <p>Nigeria's standard VAT rate is <strong>7.5%</strong>. On a $25,000 EV (a reasonable baseline for a commercial-grade Chinese import), the exemption saves approximately <strong>$1,875 per unit</strong> versus a non-exempt import. Across a batch of 20 vehicles, that is a $37,500 cost reduction.</p>
-<p>For spare parts orders â€” where Nigerian dealers have historically faced significant landed cost pressure â€” the exemption on components provides meaningful ongoing savings throughout the vehicle's service life.</p>
+<p>For spare parts orders â€?where Nigerian dealers have historically faced significant landed cost pressure â€?the exemption on components provides meaningful ongoing savings throughout the vehicle's service life.</p>
 <div class="overflow-x-auto my-8"><table class="w-full border-collapse text-sm"><tr><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Cost Component</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Pre-September 2024</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Post-September 2024</th></tr>
 <tr><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">VAT on CBU EV</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">7.5%</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left"><strong>0%</strong></th></tr>
 <tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">VAT on EV assembly parts</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">7.5%</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5"><strong>0%</strong></td></tr>
@@ -27,22 +27,22 @@ const content = `<p>In September 2024, Nigeria's federal government quietly enac
 <p>It is <span class="hl-green">important</span> to be precise about what the Order does and does not cover:</p>
 <p><strong>Standard customs import duties</strong> on vehicles remain unchanged and must still be paid</p>
 <p><strong>Excise duties</strong> on certain luxury vehicle categories may still apply depending on classification</p>
-<p>The exemption applies to <strong>electric vehicles specifically</strong> â€” hybrid vehicles that do not meet the full-electric classification threshold may not qualify</p>
+<p>The exemption applies to <strong>electric vehicles specifically</strong> â€?hybrid vehicles that do not meet the full-electric classification threshold may not qualify</p>
 <p>Dealers should ensure that their customs agent is correctly classifying imported EVs under the appropriate HS code to benefit from the exemption. Misclassification remains a common source of unexpected duty bills in Nigerian ports.</p>
 <h2>Strategic Implications</h2>
-<p>Nigeria represents one of the largest automotive markets in Sub-Saharan Africa â€” and one of the most challenging, given infrastructure constraints, currency volatility, and the dominance of used-vehicle imports. The VAT exemption does not resolve those structural challenges, but it meaningfully improves the economics of building a new-EV dealership.</p>
-<p>Combined with the rapidly expanding network of Chinese OEM brands entering West Africa â€” including BYD, Chery, and SAIC â€” the policy creates a window for early movers to establish themselves in a market that is still largely unserved by legitimate EV retailers.</p>
+<p>Nigeria represents one of the largest automotive markets in Sub-Saharan Africa â€?and one of the most challenging, given infrastructure constraints, currency volatility, and the dominance of used-vehicle imports. The VAT exemption does not resolve those structural challenges, but it meaningfully improves the economics of building a new-EV dealership.</p>
+<p>Combined with the rapidly expanding network of Chinese OEM brands entering West Africa â€?including BYD, Chery, and SAIC â€?the policy creates a window for early movers to establish themselves in a market that is still largely unserved by legitimate EV retailers.</p>
 <h2>Sources</h2>
-<p>Nigeria Federal Inland Revenue Service â€” <em>VAT Modification Order 2024</em> (September 2024)</p>
-<p>EV24.Africa â€” <em>"EV Import Duty in Africa Explained: Country-by-Country Guide"</em> (2025)</p>
-<p>Africa E-Mobility Alliance â€” <em>Africa E-Mobility Report 2025</em></p>
+<p>Nigeria Federal Inland Revenue Service â€?<em>VAT Modification Order 2024</em> (September 2024)</p>
+<p>EV24.Africa â€?<em>"EV Import Duty in Africa Explained: Country-by-Country Guide"</em> (2025)</p>
+<p>Africa E-Mobility Alliance â€?<em>Africa E-Mobility Report 2025</em></p>
 <p class="text-gray-500 text-xs font-light italic mt-8">Published by Evexport Intelligence Desk Â· March 2026</p>
 `;
 
 export default function ArticlePage() {
   return (
     <>
-      <main className="pt-32 pb-24 relative z-10">
+      <main className="pt-32 pb-24 relative z-10 bg-a">
         <div className="container mx-auto px-6 md:px-12">
           <div className="mb-10 text-[10px] font-black uppercase tracking-widest text-gray-500">
             <Link href="/" className="hover:text-gold transition">Home</Link>

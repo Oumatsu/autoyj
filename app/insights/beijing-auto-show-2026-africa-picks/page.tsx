@@ -1,11 +1,11 @@
 import Link from "next/link";
 
-const content = `<p>Auto China 2026 â€” the Beijing International Automotive Exhibition â€” closed on May 3 as the largest automotive show of the year by product volume. The exhibit floor was dominated by new energy vehicles: Chinese OEMs brought their most competitive NEV lineups, while established Western brands largely conceded the marquee unveiling space.</p>
-<p>For African EV dealers, the show's relevance is not the spectacle â€” it is the product pipeline signal. Vehicles debuted or confirmed at Beijing in Aprilâ€“May 2026 typically reach African export markets within 12â€“18 months. This analysis focuses on the strategic trends most relevant to East and West African sourcing, rather than model-by-model specifications that will be confirmed closer to export availability.</p>
+const content = `<p>Auto China 2026 â€?the Beijing International Automotive Exhibition â€?closed on May 3 as the largest automotive show of the year by product volume. The exhibit floor was dominated by new energy vehicles: Chinese OEMs brought their most competitive NEV lineups, while established Western brands largely conceded the marquee unveiling space.</p>
+<p>For African EV dealers, the show's relevance is not the spectacle â€?it is the product pipeline signal. Vehicles debuted or confirmed at Beijing in Aprilâ€“May 2026 typically reach African export markets within 12â€?8 months. This analysis focuses on the strategic trends most relevant to East and West African sourcing, rather than model-by-model specifications that will be confirmed closer to export availability.</p>
 <h2>The Three Trends That Matter for Africa</h2>
 <h3>Trend 1: The Sub-$12,000 FOB EV Is Arriving</h3>
-<p>The clearest signal from Auto China 2026 was continued downward pressure on entry-level EV pricing. Multiple Chinese OEMs â€” including BYD's Ocean series and several challenger brands â€” exhibited vehicles positioned below the RMB 80,000 domestic retail threshold.</p>
-<p>The commercial implication for African importers: the FOB export price for a credible Chinese BEV with a <span class="hl-gold">300+ km</span> CLTC range is moving toward the $11,000â€“$13,000 range. This is the price point at which the landed cost in Ethiopia and Nigeria, after taxes and freight, begins to compete directly with equivalent used ICE vehicles on a total cost of ownership basis.</p>
+<p>The clearest signal from Auto China 2026 was continued downward pressure on entry-level EV pricing. Multiple Chinese OEMs â€?including BYD's Ocean series and several challenger brands â€?exhibited vehicles positioned below the RMB 80,000 domestic retail threshold.</p>
+<p>The commercial implication for African importers: the FOB export price for a credible Chinese BEV with a <span class="hl-gold">300+ km</span> CLTC range is moving toward the $11,000â€?13,000 range. This is the price point at which the landed cost in Ethiopia and Nigeria, after taxes and freight, begins to compete directly with equivalent used ICE vehicles on a total cost of ownership basis.</p>
 <p>Dealers who built their business case on Chinese EVs being inherently expensive relative to the secondhand Japanese market should revisit that assumption. The arithmetic is shifting.</p>
 <div class="rounded-[1.5rem] overflow-hidden my-10">
   <img src="images/beijing-auto-show-2026-africa-picks/ev-lineup.jpg" alt="Row of Chinese electric vehicles lined up representing the scale and diversity of Chinese OEM EV lineups at Auto China 2026" class="w-full h-auto object-cover" style="max-height:450px;">
@@ -14,16 +14,16 @@ const content = `<p>Auto China 2026 â€” the Beijing International Automotive Exh
   </div>
 </div>
 <h3>Trend 2: PHEVs With 100+ km Pure EV Range Are the Infrastructure-Gap Answer</h3>
-<p>The second major signal: plug-in hybrid vehicles with extended pure electric range dominated the commercial vehicle debut category. Multiple brands exhibited PHEV SUVs and pickups with 100â€“<span class="hl-gold">150 km</span> declared pure EV range alongside conventional petrol backup.</p>
-<p>This configuration directly addresses the most common commercial objection to EV adoption in African markets: charging infrastructure uncertainty. A vehicle that covers daily urban mileage on electricity while retaining petrol capability for inter-city routes is not a compromise â€” it is the product that matches how commercial fleets in Addis Ababa, Nairobi, and Lagos actually operate.</p>
-<p>BYD's PHEV lineup â€” anchored by the Shark 6 already launched in South Africa and Kenya â€” is the reference product in this category. The show signals that multiple Chinese brands are converging on the same configuration, which means competitive pricing pressure in the PHEV commercial segment is likely by 2027.</p>
+<p>The second major signal: plug-in hybrid vehicles with extended pure electric range dominated the commercial vehicle debut category. Multiple brands exhibited PHEV SUVs and pickups with 100â€?span class="hl-gold">150 km</span> declared pure EV range alongside conventional petrol backup.</p>
+<p>This configuration directly addresses the most common commercial objection to EV adoption in African markets: charging infrastructure uncertainty. A vehicle that covers daily urban mileage on electricity while retaining petrol capability for inter-city routes is not a compromise â€?it is the product that matches how commercial fleets in Addis Ababa, Nairobi, and Lagos actually operate.</p>
+<p>BYD's PHEV lineup â€?anchored by the Shark 6 already launched in South Africa and Kenya â€?is the reference product in this category. The show signals that multiple Chinese brands are converging on the same configuration, which means competitive pricing pressure in the PHEV commercial segment is likely by 2027.</p>
 <h3>Trend 3: Right-Hand Drive Commitments Are Multiplying</h3>
 <p>The third trend: more Chinese OEMs made explicit RHD production commitments at Auto China 2026 than at any previous show. South Africa's growing market, Australia's established volumes, and the UK's brand positioning requirements are collectively creating enough RHD demand that OEMs are treating it as a standard production configuration rather than a special order.</p>
-<p>For East African dealers (Kenya, Tanzania, Uganda): the RHD vehicle catalogue from China is expanding. Vehicles that were previously available only in converted form â€” or not available at all â€” are entering native RHD production. This eliminates the warranty void and safety concerns associated with post-production conversions.</p>
+<p>For East African dealers (Kenya, Tanzania, Uganda): the RHD vehicle catalogue from China is expanding. Vehicles that were previously available only in converted form â€?or not available at all â€?are entering native RHD production. This eliminates the warranty void and safety concerns associated with post-production conversions.</p>
 <div class="rounded-[1.5rem] overflow-hidden my-10">
   <img src="images/beijing-auto-show-2026-africa-picks/auto-show.jpg" alt="Modern auto show floor with vehicle displays representing the scale and strategic importance of Auto China 2026 for the global EV market" class="w-full h-auto object-cover" style="max-height:450px;">
   <div class="px-6 py-4 bg-white/[0.02] border-t border-white/5">
-    <p class="text-xs text-gray-500 font-light italic leading-relaxed">At Auto China 2026, Chinese OEM booths occupied the majority of premium exhibition space â€” a reversal from five years ago when Western brands held those positions. The shift reflects where EV product competitiveness now sits.</p>
+    <p class="text-xs text-gray-500 font-light italic leading-relaxed">At Auto China 2026, Chinese OEM booths occupied the majority of premium exhibition space â€?a reversal from five years ago when Western brands held those positions. The shift reflects where EV product competitiveness now sits.</p>
   </div>
 </div>
 <h2>What This Means for Your Sourcing Timeline</h2>
@@ -31,20 +31,20 @@ const content = `<p>Auto China 2026 â€” the Beijing International Automotive Exh
 <p>Dealers building 2027 sourcing plans should:</p>
 <h2>A Note on Specific Model Specifications</h2>
 <p>Trade press coverage of Auto China 2026 includes detailed specifications for numerous debuted models. Where those specifications are from OEM press releases and have been independently confirmed by multiple automotive media outlets, they can be used for planning purposes.</p>
-<p>However, specifications announced at a motor show â€” particularly for models that are still in production ramp-up â€” frequently change before export variants reach your market. <strong>Do not finalise purchase commitments based on show-floor specifications alone.</strong> Request the confirmed export variant spec sheet from your supplier when the model enters production, and verify RHD configuration, battery warranty terms, and after-sales documentation before signing.</p>
+<p>However, specifications announced at a motor show â€?particularly for models that are still in production ramp-up â€?frequently change before export variants reach your market. <strong>Do not finalise purchase commitments based on show-floor specifications alone.</strong> Request the confirmed export variant spec sheet from your supplier when the model enters production, and verify RHD configuration, battery warranty terms, and after-sales documentation before signing.</p>
 <h2>Sources</h2>
-<p>Auto China 2026 â€” official exhibition statistics (April 24â€“May 3, 2026): 1,451 vehicles, 181 premieres, 1.28M visitors</p>
-<p>CnEVPost â€” Auto China 2026 brand-by-brand coverage (Aprilâ€“May 2026)</p>
-<p>CarNewsChina â€” Beijing Auto Show 2026 floor reports (Aprilâ€“May 2026)</p>
-<p>BYD official â€” Shark 6 South Africa and Kenya launch documentation (2025)</p>
-<p>CATL â€” Freevoy PHEV battery system specifications (2025â€“2026)</p>
+<p>Auto China 2026 â€?official exhibition statistics (April 24â€“May 3, 2026): 1,451 vehicles, 181 premieres, 1.28M visitors</p>
+<p>CnEVPost â€?Auto China 2026 brand-by-brand coverage (Aprilâ€“May 2026)</p>
+<p>CarNewsChina â€?Beijing Auto Show 2026 floor reports (Aprilâ€“May 2026)</p>
+<p>BYD official â€?Shark 6 South Africa and Kenya launch documentation (2025)</p>
+<p>CATL â€?Freevoy PHEV battery system specifications (2025â€?026)</p>
 <p class="text-gray-500 text-xs font-light italic mt-8">Published by Evexport Intelligence Desk Â· May 2026</p>
 `;
 
 export default function ArticlePage() {
   return (
     <>
-      <main className="pt-32 pb-24 relative z-10">
+      <main className="pt-32 pb-24 relative z-10 bg-a">
         <div className="container mx-auto px-6 md:px-12">
           <div className="mb-10 text-[10px] font-black uppercase tracking-widest text-gray-500">
             <Link href="/" className="hover:text-gold transition">Home</Link>
@@ -64,7 +64,7 @@ export default function ArticlePage() {
                   Auto China 2026 Just Closed. Here Are the Signals African Dealers Should Act On.
                 </h1>
                 <p className="text-xl text-gray-400 font-light italic border-l-2 border-theme/30 pl-6 mb-8 max-w-2xl">
-                  Auto China 2026 â€” the Beijing International Automotive Exhibition â€” closed on May 3 as the largest automotive show of the year by product volume.
+                  Auto China 2026 â€?the Beijing International Automotive Exhibition â€?closed on May 3 as the largest automotive show of the year by product volume.
                 </p>
                 <div className="flex items-center gap-6 text-[10px] font-black uppercase tracking-widest text-gray-500 border-t border-white/10 pt-6">
                   <div className="flex items-center gap-3">

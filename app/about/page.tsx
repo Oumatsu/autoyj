@@ -149,10 +149,7 @@ export default function AboutPage() {
           />
           <div
             className="absolute inset-0"
-            style={{
-              background:
-                "linear-gradient(to bottom, var(--color-mid) 0%, transparent 20%, transparent 80%, var(--color-mid) 100%)",
-            }}
+            style={{ background: "linear-gradient(to bottom, var(--color-mid) 0%, transparent 20%, transparent 80%, var(--color-mid) 100%)" }}
           />
         </div>
 

@@ -1,7 +1,7 @@
 import Link from "next/link";
 
-const content = `<p>"How long does shipping from China to Africa take?" is the most searched question among first-time African EV importers — and the most consistently underestimated in the answers that circulate online.</p>
-<p>Freight marketing materials quote ocean transit times of 20–28 days. This is technically accurate for the ship-at-sea phase. The complete journey — from the moment a vehicle leaves a Chinese factory gate to the moment it is available for sale at your dealership — typically takes <strong>45 to 90 days</strong>, with the longer end of that range applying to Ethiopia-bound shipments and periods of elevated port congestion.</p>
+const content = `<p>"How long does shipping from China to Africa take?" is the most searched question among first-time African EV importers �?and the most consistently underestimated in the answers that circulate online.</p>
+<p>Freight marketing materials quote ocean transit times of 20�?8 days. This is technically accurate for the ship-at-sea phase. The complete journey �?from the moment a vehicle leaves a Chinese factory gate to the moment it is available for sale at your dealership �?typically takes <strong>45 to 90 days</strong>, with the longer end of that range applying to Ethiopia-bound shipments and periods of elevated port congestion.</p>
 <p>Understanding each phase of this timeline is <span class="hl-green">essential</span> for managing working capital, setting customer expectations, and planning inventory cycles.</p>
 <h2>The Five Phases of China-to-Africa Vehicle Transit</h2>
 <h3>Phase 1: Factory Gate to Chinese Export Port</h3>
@@ -15,25 +15,25 @@ const content = `<p>"How long does shipping from China to Africa take?" is the m
 <p>Battery state of charge is confirmed</p>
 <p>Pre-shipment inspection (if required) is conducted</p>
 <p>Export customs declaration is filed and approved</p>
-<p>For vehicles purchased through grey-market channels, this phase can extend significantly — particularly after China's January 2026 180-day rule, which requires OEM documentation that may take time to obtain or verify.</p>
+<p>For vehicles purchased through grey-market channels, this phase can extend significantly �?particularly after China's January 2026 180-day rule, which requires OEM documentation that may take time to obtain or verify.</p>
 <div class="rounded-[1.5rem] overflow-hidden my-10">
   <img src="images/shipping-time-china-to-africa/route-map.jpg" alt="World map and shipping route diagram representing the China-to-East Africa ocean transit lane from major Chinese export ports" class="w-full h-auto object-cover" style="max-height:450px;">
   <div class="px-6 py-4 bg-white/[0.02] border-t border-white/5">
-    <p class="text-xs text-gray-500 font-light italic leading-relaxed">The China–East Africa ocean route passes through the South China Sea, Malacca Strait, Indian Ocean, and (depending on Red Sea security conditions in 2025–2026) either the Suez Canal or around the Cape of Good Hope.</p>
+    <p class="text-xs text-gray-500 font-light italic leading-relaxed">The China–East Africa ocean route passes through the South China Sea, Malacca Strait, Indian Ocean, and (depending on Red Sea security conditions in 2025�?026) either the Suez Canal or around the Cape of Good Hope.</p>
   </div>
 </div>
-<h3>Phase 2: Ocean Transit (China → African Port)</h3>
+<h3>Phase 2: Ocean Transit (China �?African Port)</h3>
 <p>The ocean transit phase is the most quoted and the most variable. Under normal routing via the Suez Canal:</p>
 <div class="overflow-x-auto my-8"><table class="w-full border-collapse text-sm"><tr><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Origin Port</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Destination Port</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Estimated Transit</th></tr>
-<tr><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Tianjin</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Djibouti</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">22–28 days</th></tr>
-<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Shanghai</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Djibouti</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">20–26 days</td></tr>
-<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Guangzhou</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Djibouti</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">19–25 days</td></tr>
-<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Tianjin</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Mombasa</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">25–32 days</td></tr>
-<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Shanghai</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Mombasa</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">23–30 days</td></tr>
-<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Guangzhou</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Mombasa</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">22–28 days</td></tr>
-<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Shanghai</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Dar es Salaam</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">25–32 days</td></tr>
+<tr><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Tianjin</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Djibouti</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">22�?8 days</th></tr>
+<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Shanghai</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Djibouti</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">20�?6 days</td></tr>
+<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Guangzhou</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Djibouti</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">19�?5 days</td></tr>
+<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Tianjin</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Mombasa</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">25�?2 days</td></tr>
+<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Shanghai</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Mombasa</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">23�?0 days</td></tr>
+<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Guangzhou</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Mombasa</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">22�?8 days</td></tr>
+<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Shanghai</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Dar es Salaam</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">25�?2 days</td></tr>
 </table></div>
-<p>Transit times are <strong>port-to-port</strong> — they do not include berth waiting time at the destination port, which can add 1–5 days during peak periods.</p>
+<p>Transit times are <strong>port-to-port</strong> �?they do not include berth waiting time at the destination port, which can add 1�? days during peak periods.</p>
 <h3>Phase 3: Port Clearance at African Destination</h3>
 <p>Port clearance is the phase most frequently underestimated by importers. The time from vessel berthing to vehicle release depends on:</p>
 <p>Completeness and accuracy of documentation submitted</p>
@@ -42,19 +42,19 @@ const content = `<p>"How long does shipping from China to Africa take?" is the m
 <p>Whether the importer has submitted documents pre-arrival (recommended)</p>
 <p>Approximate clearance times by port:</p>
 <div class="overflow-x-auto my-8"><table class="w-full border-collapse text-sm"><tr><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Port</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Documentation Complete</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">With Physical Inspection</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Peak Congestion</th></tr>
-<tr><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Djibouti</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">5–8 days</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">10–14 days</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">+3–5 days</th></tr>
-<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Mombasa</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">5–10 days</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">10–15 days</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">+3–7 days</td></tr>
-<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Dar es Salaam</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">7–12 days</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">12–18 days</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">+5–10 days</td></tr>
+<tr><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Djibouti</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">5�? days</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">10�?4 days</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">+3�? days</th></tr>
+<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Mombasa</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">5�?0 days</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">10�?5 days</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">+3�? days</td></tr>
+<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Dar es Salaam</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">7�?2 days</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">12�?8 days</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">+5�?0 days</td></tr>
 </table></div>
 <h3>Phase 4: Port to Destination (Inland Transit)</h3>
 <p>For vehicles not destined for port cities:</p>
 <div class="overflow-x-auto my-8"><table class="w-full border-collapse text-sm"><tr><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Origin Port</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Destination</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Mode</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Estimated Transit</th></tr>
-<tr><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Djibouti</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Addis Ababa</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Road (900 km)</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">1–3 days</th></tr>
-<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Djibouti</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Addis Ababa</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Rail (756 km)</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">2–3 days</td></tr>
-<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Mombasa</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Nairobi</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Road / SGR (480 km)</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">1–2 days</td></tr>
-<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Mombasa</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Kampala</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Road (800 km)</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">2–3 days</td></tr>
-<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Mombasa</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Kigali</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Road (1,300 km)</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">3–5 days</td></tr>
-<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Dar es Salaam</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Lusaka</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Road (1,900 km)</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">3–5 days</td></tr>
+<tr><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Djibouti</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Addis Ababa</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Road (900 km)</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">1�? days</th></tr>
+<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Djibouti</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Addis Ababa</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Rail (756 km)</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">2�? days</td></tr>
+<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Mombasa</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Nairobi</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Road / SGR (480 km)</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">1�? days</td></tr>
+<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Mombasa</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Kampala</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Road (800 km)</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">2�? days</td></tr>
+<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Mombasa</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Kigali</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Road (1,300 km)</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">3�? days</td></tr>
+<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Dar es Salaam</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Lusaka</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Road (1,900 km)</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">3�? days</td></tr>
 </table></div>
 <p>Road trucking is the dominant mode for vehicle transport. The Standard Gauge Railway (SGR) Mombasa–Nairobi is used for container freight but not commonly for individual vehicle transport.</p>
 <h3>Phase 5: Pre-Delivery Inspection (PDI) and Dealer Preparation</h3>
@@ -76,29 +76,29 @@ const content = `<p>"How long does shipping from China to Africa take?" is the m
 <tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5"><strong>Total (Cape)</strong></td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5"><strong>45 days</strong></td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5"><strong>55 days</strong></td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5"><strong>91 days</strong></td></tr>
 </table></div>
 <h2>Working Capital Implication</h2>
-<p>At the typical mid-point timeline of 50–60 days:</p>
-<p>Payment terms with Chinese suppliers are typically 30–<span class="hl-gold">50% </span>deposit at order, balance before BL release</p>
-<p>Working capital is committed 50–60 days before a vehicle is available for sale</p>
+<p>At the typical mid-point timeline of 50�?0 days:</p>
+<p>Payment terms with Chinese suppliers are typically 30�?span class="hl-gold">50% </span>deposit at order, balance before BL release</p>
+<p>Working capital is committed 50�?0 days before a vehicle is available for sale</p>
 <p>For dealers operating on thin margins, this is the single largest operational cash flow challenge</p>
 <p>Options to compress the cash cycle:</p>
 <p><strong>Pre-order from a local importer</strong> with existing inventory (adds margin but eliminates the waiting period)</p>
 <p><strong>Negotiate BL-against-payment terms</strong> to delay final payment to port arrival rather than loading</p>
 <p><strong>Submit documents pre-arrival</strong> to cut clearance time by up to a week</p>
 <h2>Sources</h2>
-<p>Grimaldi Lines — China–East Africa RoRo service schedules and transit times (2025–2026)</p>
-<p>Djibouti Ports & Free Zones Authority — vessel arrival and clearance time data</p>
-<p>Kenya Ports Authority — Mombasa clearance time statistics (2025)</p>
-<p>UNCTAD — <em>Review of Maritime Transport 2025</em></p>
-<p>Freightos — Red Sea disruption data and Cape routing impact (2024–2025)</p>
-<p>Ethiopian Customs Authority — pre-arrival submission procedures, ASYCUDA</p>
-<p class="text-gray-500 text-xs font-light italic mt-8">本文时间框架基于2026年初红海改道及当前市场条件估算。实际在途时间受航线状况、港口拥堵及船期影响，请向货代确认当前实际时效，尤其关注红海航线最新动态。</p>
+<p>Grimaldi Lines �?China–East Africa RoRo service schedules and transit times (2025�?026)</p>
+<p>Djibouti Ports & Free Zones Authority �?vessel arrival and clearance time data</p>
+<p>Kenya Ports Authority �?Mombasa clearance time statistics (2025)</p>
+<p>UNCTAD �?<em>Review of Maritime Transport 2025</em></p>
+<p>Freightos �?Red Sea disruption data and Cape routing impact (2024�?025)</p>
+<p>Ethiopian Customs Authority �?pre-arrival submission procedures, ASYCUDA</p>
+<p class="text-gray-500 text-xs font-light italic mt-8">本文时间框架基于2026年初红海改道及当前市场条件估算。实际在途时间受航线状况、港口拥堵及船期影响，请向货代确认当前实际时效，尤其关注红海航线最新动态�?/p>
 <p class="text-gray-500 text-xs font-light italic mt-8">Published by Evexport Intelligence Desk · April 2026</p>
 `;
 
 export default function ArticlePage() {
   return (
     <>
-      <main className="pt-32 pb-24 relative z-10">
+      <main className="pt-32 pb-24 relative z-10 bg-a">
         <div className="container mx-auto px-6 md:px-12">
           <div className="mb-10 text-[10px] font-black uppercase tracking-widest text-gray-500">
             <Link href="/" className="hover:text-gold transition">Home</Link>
@@ -118,7 +118,7 @@ export default function ArticlePage() {
                   How Long Does It Take to Ship a Car from China to Africa? A Complete Timeline Guide
                 </h1>
                 <p className="text-xl text-gray-400 font-light italic border-l-2 border-theme/30 pl-6 mb-8 max-w-2xl">
-                  &quot;How long does shipping from China to Africa take?&quot; is the most searched question among first-time African EV importers — and the most consistently un
+                  &quot;How long does shipping from China to Africa take?&quot; is the most searched question among first-time African EV importers �?and the most consistently un
                 </p>
                 <div className="flex items-center gap-6 text-[10px] font-black uppercase tracking-widest text-gray-500 border-t border-white/10 pt-6">
                   <div className="flex items-center gap-3">

@@ -1,51 +1,51 @@
 import Link from "next/link";
 
-const content = `<p>The choice of East African port is not simply a logistics question — it determines your duty liability jurisdiction, your customs clearance timeline, your road transit costs to destination, and your exposure to port congestion delays. For EV importers sourcing from China, all three major East African vehicle ports are relevant, but for different markets and use cases.</p>
-<p>This guide covers the operational characteristics of Mombasa, Djibouti, and Dar es Salaam as of early 2026 — including the specific advantages and limitations of each for Chinese EV imports.</p>
+const content = `<p>The choice of East African port is not simply a logistics question �?it determines your duty liability jurisdiction, your customs clearance timeline, your road transit costs to destination, and your exposure to port congestion delays. For EV importers sourcing from China, all three major East African vehicle ports are relevant, but for different markets and use cases.</p>
+<p>This guide covers the operational characteristics of Mombasa, Djibouti, and Dar es Salaam as of early 2026 �?including the specific advantages and limitations of each for Chinese EV imports.</p>
 <h2>Mombasa, Kenya: East Africa's Dominant Vehicle Gateway</h2>
 <p>For vehicle imports specifically, Mombasa handles both RoRo and container traffic through dedicated vehicle-processing zones at the Container Terminal and the adjacent RoRo berth.</p>
 <h3>Mombasa Vehicle Import Characteristics</h3>
 <div class="overflow-x-auto my-8"><table class="w-full border-collapse text-sm"><tr><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Factor</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Detail</th></tr>
 <tr><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">RoRo service</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Regular; multiple carriers including Grimaldi, MOL, and K-Line</th></tr>
 <tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Container handling</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">High-volume; crane capacity allows rapid container throughput</td></tr>
-<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Typical clearance time</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">5–10 working days for documentation-complete shipments</td></tr>
+<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Typical clearance time</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">5�?0 working days for documentation-complete shipments</td></tr>
 <tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Peak congestion period</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">October–December (pre-Christmas import surge)</td></tr>
 <tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Storage (Free Time)</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">7 days free storage; demurrage rates escalate steeply after</td></tr>
-<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Pre-clearance option</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Yes — documents can be processed before vessel arrival</td></tr>
+<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Pre-clearance option</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Yes �?documents can be processed before vessel arrival</td></tr>
 </table></div>
 <div class="rounded-[1.5rem] overflow-hidden my-10">
   <img src="images/east-africa-port-guide/mombasa-port.jpg" alt="Mombasa port waterfront representing Kenya's major vehicle import gateway serving East and Central Africa" class="w-full h-auto object-cover" style="max-height:450px;">
   <div class="px-6 py-4 bg-white/[0.02] border-t border-white/5">
-    <p class="text-xs text-gray-500 font-light italic leading-relaxed">Mombasa's Kilindini Harbour — the largest port by volume on the East African coast — handles RoRo and container vehicle traffic for Kenya and six inland markets. The SCT arrangement allows single-clearance transit to Uganda, Rwanda, and beyond.</p>
+    <p class="text-xs text-gray-500 font-light italic leading-relaxed">Mombasa's Kilindini Harbour �?the largest port by volume on the East African coast �?handles RoRo and container vehicle traffic for Kenya and six inland markets. The SCT arrangement allows single-clearance transit to Uganda, Rwanda, and beyond.</p>
   </div>
 </div>
 <h2>Djibouti: The Only Gateway for Ethiopia, and a Regional Hub</h2>
-<p>All Ethiopian imports transit through Djibouti. There is no viable alternative: Eritrea's Massawa port (Ethiopia's former gateway) has been closed to Ethiopian trade since the 1998–2000 Eritrea-Ethiopia war, and Somalia's Berbera port (used occasionally) lacks the infrastructure for vehicle import volumes.</p>
+<p>All Ethiopian imports transit through Djibouti. There is no viable alternative: Eritrea's Massawa port (Ethiopia's former gateway) has been closed to Ethiopian trade since the 1998�?000 Eritrea-Ethiopia war, and Somalia's Berbera port (used occasionally) lacks the infrastructure for vehicle import volumes.</p>
 <h3>Djibouti Vehicle Import Characteristics</h3>
 <div class="overflow-x-auto my-8"><table class="w-full border-collapse text-sm"><tr><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Factor</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Detail</th></tr>
 <tr><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">RoRo service</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Dedicated RoRo berth at DMPP; services from Grimaldi, Höegh, PCTC operators</th></tr>
 <tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Container handling</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Doraleh Container Terminal (managed by DP World); high-capacity cranes</td></tr>
 <tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Ethiopia clearance process</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Ethiopian Customs Authority liaisons stationed at Djibouti; customs pre-clearance available</td></tr>
-<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Transit to Addis Ababa</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Road: 900 km, 1–3 days. Rail: Addis-Djibouti Railway (operational but limited capacity)</td></tr>
-<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Typical total transit (port to Addis)</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">7–14 days port clearance + 2–3 days road = 10–17 days</td></tr>
+<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Transit to Addis Ababa</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Road: 900 km, 1�? days. Rail: Addis-Djibouti Railway (operational but limited capacity)</td></tr>
+<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Typical total transit (port to Addis)</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">7�?4 days port clearance + 2�? days road = 10�?7 days</td></tr>
 <tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Storage (Free Time)</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">7 days at DCT; DMPP may vary by operator</td></tr>
-<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Red Sea surcharges (2025–2026)</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Elevated due to Houthi disruptions; add $200–$400 per vehicle depending on routing</td></tr>
+<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Red Sea surcharges (2025�?026)</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Elevated due to Houthi disruptions; add $200�?400 per vehicle depending on routing</td></tr>
 </table></div>
 <div class="rounded-[1.5rem] overflow-hidden my-10">
   <img src="images/east-africa-port-guide/djibouti-port.jpg" alt="Djibouti port and Red Sea shipping representing the strategic gateway for all Ethiopian vehicle imports via the Horn of Africa" class="w-full h-auto object-cover" style="max-height:450px;">
   <div class="px-6 py-4 bg-white/[0.02] border-t border-white/5">
-    <p class="text-xs text-gray-500 font-light italic leading-relaxed">Djibouti's Doraleh Multi-Purpose Port — the exclusive gateway for Ethiopian vehicle imports. The 900 km Addis-Djibouti road corridor and the electrified railway provide the two transit options after port clearance.</p>
+    <p class="text-xs text-gray-500 font-light italic leading-relaxed">Djibouti's Doraleh Multi-Purpose Port �?the exclusive gateway for Ethiopian vehicle imports. The 900 km Addis-Djibouti road corridor and the electrified railway provide the two transit options after port clearance.</p>
   </div>
 </div>
 <h2>Dar es Salaam: Tanzania and the Southern Corridor</h2>
 <h3>Dar es Salaam Vehicle Import Characteristics</h3>
 <div class="overflow-x-auto my-8"><table class="w-full border-collapse text-sm"><tr><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Factor</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Detail</th></tr>
 <tr><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">RoRo service</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Available but less frequent than Mombasa; some carriers bypass DSM for Mombasa</th></tr>
-<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Container handling</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">High-volume; ongoing infrastructure investment as of 2025–2026</td></tr>
-<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Clearance time</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">7–14 working days; congestion has been a recurring issue</td></tr>
+<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Container handling</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">High-volume; ongoing infrastructure investment as of 2025�?026</td></tr>
+<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Clearance time</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">7�?4 working days; congestion has been a recurring issue</td></tr>
 <tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Tanzania Revenue Authority</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">TANCIS system for customs declaration</td></tr>
 <tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Storage</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">7 days free; demurrage escalates after</td></tr>
-<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Transit to Lusaka (Zambia)</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">~1,900 km; 3–5 days road</td></tr>
+<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Transit to Lusaka (Zambia)</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">~1,900 km; 3�? days road</td></tr>
 </table></div>
 <h2>Port Selection Decision Guide</h2>
 <div class="overflow-x-auto my-8"><table class="w-full border-collapse text-sm"><tr><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">If your destination is...</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Recommended port</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Notes</th></tr>
@@ -57,24 +57,24 @@ const content = `<p>The choice of East African port is not simply a logistics qu
 <tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Zambia (Lusaka)</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Dar es Salaam</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Southern Corridor; some use Durban</td></tr>
 <tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">DRC (Eastern)</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Dar es Salaam or Mombasa</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Via Rwanda or Tanzania</td></tr>
 </table></div>
-<h2>Red Sea Routing Note (2025–2026)</h2>
-<p>Since the escalation of Houthi attacks on Red Sea shipping in late 2023, several major carriers have been routing via the Cape of Good Hope rather than the Suez Canal. This adds approximately <strong>14–21 days</strong> to China–East Africa transit times and <strong>$200–$<span class="hl-gold">500 USD</span> per vehicle</strong> in additional freight cost depending on the carrier and route.</p>
-<p>As of mid-2026, some carriers have resumed partial Red Sea routing; others maintain Cape routing. When booking China–East Africa freight, confirm with your freight forwarder which routing is in use for your specific sailing — this affects your ETA calculation materially.</p>
+<h2>Red Sea Routing Note (2025�?026)</h2>
+<p>Since the escalation of Houthi attacks on Red Sea shipping in late 2023, several major carriers have been routing via the Cape of Good Hope rather than the Suez Canal. This adds approximately <strong>14�?1 days</strong> to China–East Africa transit times and <strong>$200�?<span class="hl-gold">500 USD</span> per vehicle</strong> in additional freight cost depending on the carrier and route.</p>
+<p>As of mid-2026, some carriers have resumed partial Red Sea routing; others maintain Cape routing. When booking China–East Africa freight, confirm with your freight forwarder which routing is in use for your specific sailing �?this affects your ETA calculation materially.</p>
 <h2>Sources</h2>
-<p>Kenya Ports Authority — Kilindini Harbour vehicle import procedures and statistics (2025)</p>
-<p>Djibouti Ports & Free Zones Authority — Doraleh Multi-Purpose Port specifications (2025)</p>
-<p>Tanzania Ports Authority — Dar es Salaam port infrastructure and procedures (2025)</p>
-<p>Ethiopian Customs Authority — ASYCUDA system and pre-clearance procedures</p>
-<p>UNCTAD — <em>Review of Maritime Transport 2025</em> (East Africa port traffic data)</p>
-<p>Freightos — Red Sea disruption impact on East Africa shipping lanes (2024–2025)</p>
-<p class="text-gray-500 text-xs font-light italic mt-8">本文港口数据基于2026年3月行业报告及港务局公开信息。港口拥堵状况、清关时效及费率随季节和运量变化，请在安排货运前向货代确认当前实际清关周期及收费标准。</p>
+<p>Kenya Ports Authority �?Kilindini Harbour vehicle import procedures and statistics (2025)</p>
+<p>Djibouti Ports & Free Zones Authority �?Doraleh Multi-Purpose Port specifications (2025)</p>
+<p>Tanzania Ports Authority �?Dar es Salaam port infrastructure and procedures (2025)</p>
+<p>Ethiopian Customs Authority �?ASYCUDA system and pre-clearance procedures</p>
+<p>UNCTAD �?<em>Review of Maritime Transport 2025</em> (East Africa port traffic data)</p>
+<p>Freightos �?Red Sea disruption impact on East Africa shipping lanes (2024�?025)</p>
+<p class="text-gray-500 text-xs font-light italic mt-8">本文港口数据基于2026�?月行业报告及港务局公开信息。港口拥堵状况、清关时效及费率随季节和运量变化，请在安排货运前向货代确认当前实际清关周期及收费标准�?/p>
 <p class="text-gray-500 text-xs font-light italic mt-8">Published by Evexport Intelligence Desk · March 2026</p>
 `;
 
 export default function ArticlePage() {
   return (
     <>
-      <main className="pt-32 pb-24 relative z-10">
+      <main className="pt-32 pb-24 relative z-10 bg-a">
         <div className="container mx-auto px-6 md:px-12">
           <div className="mb-10 text-[10px] font-black uppercase tracking-widest text-gray-500">
             <Link href="/" className="hover:text-gold transition">Home</Link>
@@ -94,7 +94,7 @@ export default function ArticlePage() {
                   Mombasa, Djibouti, or Dar es Salaam? The East Africa Port Guide for EV Importers
                 </h1>
                 <p className="text-xl text-gray-400 font-light italic border-l-2 border-theme/30 pl-6 mb-8 max-w-2xl">
-                  The choice of East African port is not simply a logistics question — it determines your duty liability jurisdiction, your customs clearance timeline, your road 
+                  The choice of East African port is not simply a logistics question �?it determines your duty liability jurisdiction, your customs clearance timeline, your road 
                 </p>
                 <div className="flex items-center gap-6 text-[10px] font-black uppercase tracking-widest text-gray-500 border-t border-white/10 pt-6">
                   <div className="flex items-center gap-3">

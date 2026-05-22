@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 const content = `<p>African customs clearance for imported vehicles has always been document-intensive. Chinese EVs add two new layers of complexity: <strong>battery-specific technical requirements</strong> that existing ICE vehicle documentation frameworks were not designed for, and the <strong>new OEM documentation requirements</strong> introduced by China's January 2026 export regulations.</p>
-<p>This checklist is based on the documented requirements of the four largest African EV import markets by volume: Ethiopia, Kenya, Nigeria, and Ghana. Country-specific variations are noted where they apply. For any individual shipment, work with a licensed customs clearing agent in the destination country — this guide provides the framework, not the legal instrument.</p>
+<p>This checklist is based on the documented requirements of the four largest African EV import markets by volume: Ethiopia, Kenya, Nigeria, and Ghana. Country-specific variations are noted where they apply. For any individual shipment, work with a licensed customs clearing agent in the destination country �?this guide provides the framework, not the legal instrument.</p>
 <h2>Part 1: China-Side Export Documents</h2>
 <p>These documents are generated before the vehicle leaves China. Missing any of them creates a problem that cannot be resolved at the African port.</p>
 <h3>1. Bill of Lading (BL)</h3>
@@ -25,7 +25,7 @@ const content = `<p>African customs clearance for imported vehicles has always b
 <div class="rounded-[1.5rem] overflow-hidden my-10">
   <img src="images/africa-ev-import-customs-checklist/port-inspection.jpg" alt="Port inspection and vehicle clearance operations representing the customs examination process at East African ports" class="w-full h-auto object-cover" style="max-height:450px;">
   <div class="px-6 py-4 bg-white/[0.02] border-t border-white/5">
-    <p class="text-xs text-gray-500 font-light italic leading-relaxed">Physical inspection at Djibouti or Mombasa is routine. Vehicles selected for examination are checked against documentation — VIN plate, engine number (or motor serial number for EVs), and general condition. Discrepancies between document descriptions and physical vehicle generate holds.</p>
+    <p class="text-xs text-gray-500 font-light italic leading-relaxed">Physical inspection at Djibouti or Mombasa is routine. Vehicles selected for examination are checked against documentation �?VIN plate, engine number (or motor serial number for EVs), and general condition. Discrepancies between document descriptions and physical vehicle generate holds.</p>
   </div>
 </div>
 <h3>4. Certificate of Origin (COO)</h3>
@@ -73,35 +73,35 @@ const content = `<p>African customs clearance for imported vehicles has always b
 <h3>Ghana</h3>
 <p><strong>Customs Declaration (CD)</strong>: filed through Ghana Revenue Authority's Integrated Customs Management System (ICUMS)</p>
 <p><strong>Road Traffic Authority (DVLA) vehicle inspection</strong>: for used and reconditioned imports; new vehicles may be exempt</p>
-<p><strong>2024 zero-tariff eligibility documentation</strong>: since Ghana's 2024 automotive import tariff revision, EVs meeting specific technical criteria qualify for zero import duty — documentation of those criteria is required to claim the exemption</p>
+<p><strong>2024 zero-tariff eligibility documentation</strong>: since Ghana's 2024 automotive import tariff revision, EVs meeting specific technical criteria qualify for zero import duty �?documentation of those criteria is required to claim the exemption</p>
 <h2>The Master Checklist</h2>
 <div class="overflow-x-auto my-8"><table class="w-full border-collapse text-sm"><tr><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">#</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Document</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Always Required</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">EV-Specific</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Notes</th></tr>
-<tr><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">1</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Bill of Lading</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">✓</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Match consignee name exactly</th></tr>
-<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">2</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Commercial Invoice</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">✓</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Realistic CIF values</td></tr>
-<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">3</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Packing List</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">✓</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Include charging cable</td></tr>
-<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">4</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Certificate of Origin</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">✓</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">CCPIT-issued</td></tr>
+<tr><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">1</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Bill of Lading</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">�?/th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Match consignee name exactly</th></tr>
+<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">2</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Commercial Invoice</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">�?/td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Realistic CIF values</td></tr>
+<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">3</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Packing List</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">�?/td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Include charging cable</td></tr>
+<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">4</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Certificate of Origin</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">�?/td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">CCPIT-issued</td></tr>
 <tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">5</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Pre-Shipment Inspection</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Most markets</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Bureau Veritas / SGS / Intertek</td></tr>
 <tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">6</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">OEM After-Sales Confirmation</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">If <180 days old</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">2026 requirement; OEM seal mandatory</td></tr>
-<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">7</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Battery Specification Sheet</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">✓</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Chemistry, kWh, serial number</td></tr>
-<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">8</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">UN38.3 Test Summary</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">✓</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Increasingly enforced</td></tr>
-<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">9</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Type Approval / Homologation</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">SA mandatory</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">✓</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">KE/ET increasingly required</td></tr>
+<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">7</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Battery Specification Sheet</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">�?/td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Chemistry, kWh, serial number</td></tr>
+<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">8</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">UN38.3 Test Summary</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">�?/td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Increasingly enforced</td></tr>
+<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">9</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Type Approval / Homologation</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">SA mandatory</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">�?/td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">KE/ET increasingly required</td></tr>
 <tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">10</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Country-specific permits</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Per destination</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">See Part 3 above</td></tr>
 </table></div>
 <h2>Sources</h2>
-<p>Ethiopian Revenues and Customs Authority (ERCA) — import documentation requirements (2025–2026)</p>
-<p>Kenya Revenue Authority — Single Customs Territory procedures and vehicle import guidelines</p>
-<p>Nigeria Customs Service — Form M and CCVO requirements</p>
-<p>Ghana Revenue Authority — ICUMS vehicle import declaration guidance</p>
-<p>China Council for the Promotion of International Trade (CCPIT) — Certificate of Origin issuance procedures</p>
-<p>IMO — IMDG Code: UN38.3 dangerous goods classification for lithium batteries</p>
-<p class="text-gray-500 text-xs font-light italic mt-8">本文清单基于2026年2月各市场清关实践整理。各国海关文件要求及新规（包括埃塞俄比亚OEM售后确认函等）可随政策调整变化，建议在出运前向目标市场持牌清关行确认最新有效文件要求。</p>
+<p>Ethiopian Revenues and Customs Authority (ERCA) �?import documentation requirements (2025�?026)</p>
+<p>Kenya Revenue Authority �?Single Customs Territory procedures and vehicle import guidelines</p>
+<p>Nigeria Customs Service �?Form M and CCVO requirements</p>
+<p>Ghana Revenue Authority �?ICUMS vehicle import declaration guidance</p>
+<p>China Council for the Promotion of International Trade (CCPIT) �?Certificate of Origin issuance procedures</p>
+<p>IMO �?IMDG Code: UN38.3 dangerous goods classification for lithium batteries</p>
+<p class="text-gray-500 text-xs font-light italic mt-8">本文清单基于2026�?月各市场清关实践整理。各国海关文件要求及新规（包括埃塞俄比亚OEM售后确认函等）可随政策调整变化，建议在出运前向目标市场持牌清关行确认最新有效文件要求�?/p>
 <p class="text-gray-500 text-xs font-light italic mt-8">Published by Evexport Intelligence Desk · February 2026</p>
 `;
 
 export default function ArticlePage() {
   return (
     <>
-      <main className="pt-32 pb-24 relative z-10">
+      <main className="pt-32 pb-24 relative z-10 bg-a">
         <div className="container mx-auto px-6 md:px-12">
           <div className="mb-10 text-[10px] font-black uppercase tracking-widest text-gray-500">
             <Link href="/" className="hover:text-gold transition">Home</Link>
