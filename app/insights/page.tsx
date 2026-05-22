@@ -96,7 +96,9 @@ export default function InsightsPage() {
         </div>
       </header>
 
-      <main className="py-12 bg-bg min-h-screen">
+      <main className="py-12 min-h-screen" style={{
+        background: "linear-gradient(to bottom, var(--color-mid) 0%, var(--color-bg) 6%, var(--color-bg) 92%, var(--color-mid) 100%)",
+      }}>
         <div className="container mx-auto px-6 md:px-12">
           {heroArticle && (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-16">
