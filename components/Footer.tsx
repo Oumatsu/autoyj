@@ -80,17 +80,7 @@ export function Footer() {
           <div className="grid md:grid-cols-4 gap-10 mb-14">
             <div>
               <div className="flex items-center gap-2.5 mb-5">
-                <div
-                  className="w-8 h-8 rounded flex items-center justify-center font-black italic text-black"
-                  style={{
-                    background: "linear-gradient(135deg,#D4AF37,#C5A059)",
-                  }}
-                >
-                  A
-                </div>
-                <span className="text-base font-black tracking-tighter uppercase italic">
-                    <span className="text-gray-400">auto</span><span className="text-theme">YJ</span>
-                  </span>
+                <img src="/favicon.png" className="h-8 w-auto" alt="autoYJ" />
               </div>
               <p className="text-gray-600 text-xs font-light leading-relaxed">
                 China&apos;s trusted EV sourcing partner for African dealers.

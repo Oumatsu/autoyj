@@ -22,7 +22,7 @@ const content = `<p>The 12V auxiliary battery in Chinese EVs is the most overloo
 <h2>12V Failure vs HV Battery Failure</h2>
 <div class="rounded-[1.5rem] overflow-hidden my-10 border border-white/5">
   <table class="w-full border-collapse"><thead><tr class="bg-white/[0.03]"><th class="text-left p-4 text-[10px] font-black uppercase tracking-wider text-gray-400">Symptom</th><th class="text-left p-4 text-[10px] font-black uppercase tracking-wider text-gray-400">12V failure</th><th class="text-left p-4 text-[10px] font-black uppercase tracking-wider text-gray-400">HV failure</th></tr></thead>
-  <tbody><tr class="border-t border-white/5"><td class="p-4 text-sm text-gray-300">Vehicle completely unresponsive</td><td class="p-4 text-sm text-gray-300">Yes</td><td class="p-4 text-sm text-gray-300">Rarer</td></tr><tr class="border-t border-white/5"><td class="p-4 text-sm text-gray-300">Charging port light not activating</td><td class="p-4 text-sm text-gold">Yes</td><td class="p-4 text-sm text-gray-300">No</td></tr><tr class="border-t border-white/5"><td class="p-4 text-sm text-gray-300">Repair cost</td><td class="p-4 text-sm text-gold">Low</td><td class="p-4 text-sm text-red-400">Very high</td></tr></tbody></table>
+  <tbody><tr class="border-t border-white/5"><td class="p-4 text-sm text-gray-300">Vehicle completely unresponsive</td><td class="p-4 text-sm text-gray-300">Yes</td><td class="p-4 text-sm text-gray-300">Rarer</td></tr><tr class="border-t border-white/5"><td class="p-4 text-sm text-gray-300">Charging port light not activating</td><td class="p-4 text-sm text-gold">Yes</td><td class="p-4 text-sm text-gray-300">No</td></tr><tr class="border-t border-white/5"><td class="p-4 text-sm text-gray-300">Repair cost</td><td class="p-4 text-sm text-gold">Low</td><td class="p-4 text-sm text-accent">Very high</td></tr></tbody></table>
 </div>
 <h2>Sources</h2>
 <p>Battery Council International — AGM Battery Technical Manual (2024)</p>
@@ -42,7 +42,7 @@ export default function AuxiliaryBatteryPage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 xl:gap-20">
           <div className="lg:col-span-8 xl:col-span-8">
             <header className="mb-12">
-              <span className="inline-block px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-wider mb-6 border" style={{ background: "rgba(239,68,68,.1)", color: "#F87171", borderColor: "rgba(239,68,68,.3)" }}>Technical Workshop</span>
+              <span className="inline-block px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-wider mb-6 border" style={{ background: "rgba(16,185,129,.1)", color: "#10B981", borderColor: "rgba(16,185,129,.3)" }}>Technical Workshop</span>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-black italic text-white uppercase tracking-tighter leading-[1.05] mb-6">The 12V Auxiliary Battery in Chinese EVs: Why It Fails, How to Test It, How to Replace It</h1>
               <p className="text-xl text-gray-400 font-light italic border-l-2 border-theme/30 pl-6 mb-8 max-w-2xl">The 12V auxiliary battery is the single most common cause of "dead EV" complaints — and the easiest to fix correctly.</p>
               <div className="flex items-center gap-6 text-[10px] font-black uppercase tracking-widest text-gray-500 border-t border-white/10 pt-6">
@@ -52,7 +52,7 @@ export default function AuxiliaryBatteryPage() {
               </div>
             </header>
             <div className="w-full aspect-[21/9] rounded-[2rem] overflow-hidden mb-16 relative bg-mid">
-              <img src="https://images.unsplash.com/photo-1558618666-fcd25c85f82e?auto=format&fit=crop&w=1600&q=80" alt="12V Battery" className="w-full h-full object-cover" />
+              <img src="/pic/academy/0.webp" alt="12V Battery" className="w-full h-full object-cover" />
               <div className="absolute inset-0 border border-white/10 rounded-[2rem] pointer-events-none"></div>
             </div>
             <article className="article-body max-w-3xl" dangerouslySetInnerHTML={{ __html: content }} />

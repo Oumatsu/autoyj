@@ -50,7 +50,7 @@ export default function CommonFaultPatternsPage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 xl:gap-20">
           <div className="lg:col-span-8 xl:col-span-8">
             <header className="mb-12">
-              <span className="inline-block px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-wider mb-6 border" style={{ background: "rgba(239,68,68,.1)", color: "#F87171", borderColor: "rgba(239,68,68,.3)" }}>Technical Workshop</span>
+              <span className="inline-block px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-wider mb-6 border" style={{ background: "rgba(16,185,129,.1)", color: "#10B981", borderColor: "rgba(16,185,129,.3)" }}>Technical Workshop</span>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-black italic text-white uppercase tracking-tighter leading-[1.05] mb-6">Common Fault Patterns in Chinese EVs Operating in Ethiopia: A Field Reference</h1>
               <p className="text-xl text-gray-400 font-light italic border-l-2 border-theme/30 pl-6 mb-8 max-w-2xl">Ethiopian operating conditions create fault patterns that don't appear in OEM technical documentation.</p>
               <div className="flex items-center gap-6 text-[10px] font-black uppercase tracking-widest text-gray-500 border-t border-white/10 pt-6">

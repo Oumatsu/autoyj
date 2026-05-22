@@ -1,8 +1,8 @@
 import Link from "next/link";
 
 const content = `<p>High voltage safety rules for EV technicians are the non-negotiable foundation of any electric vehicle workshop operation. Unlike ICE vehicles where most risks are mechanical or involve hot fluids, EVs carry 200–800V DC electrical systems that can cause cardiac arrest from a single contact.</p>
-<div class="rounded-[1.5rem] p-6 my-10" style="background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.2);">
-  <p class="text-sm font-bold text-red-400 mb-2">CRITICAL SAFETY NOTICE</p>
+<div class="rounded-[1.5rem] p-6 my-10" style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);">
+  <p class="text-sm font-bold text-accent mb-2">CRITICAL SAFETY NOTICE</p>
   <p class="text-xs text-gray-400 leading-relaxed">High voltage (HV) systems in EVs operate at 200–800 volts DC. Direct contact can cause cardiac arrest, severe burns, or death. Never work on HV components without completing the isolation procedure described in this guide.</p>
 </div>
 <h2>Understanding the EV High Voltage System</h2>
@@ -46,7 +46,7 @@ export default function HighVoltageSafetyPage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 xl:gap-20">
           <div className="lg:col-span-8 xl:col-span-8">
             <header className="mb-12">
-              <span className="inline-block px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-wider mb-6 border" style={{ background: "rgba(239,68,68,.1)", color: "#F87171", borderColor: "rgba(239,68,68,.3)" }}>Technical Workshop</span>
+              <span className="inline-block px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-wider mb-6 border" style={{ background: "rgba(16,185,129,.1)", color: "#10B981", borderColor: "rgba(16,185,129,.3)" }}>Technical Workshop</span>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-black italic text-white uppercase tracking-tighter leading-[1.05] mb-6">High Voltage Safety Rules for EV Technicians: What You Must Know Before Opening the Bonnet</h1>
               <p className="text-xl text-gray-400 font-light italic border-l-2 border-theme/30 pl-6 mb-8 max-w-2xl">High voltage safety is not optional in EV service. The risks are different from ICE vehicles — and the consequences of mistakes are immediate and severe.</p>
               <div className="flex items-center gap-6 text-[10px] font-black uppercase tracking-widest text-gray-500 border-t border-white/10 pt-6">

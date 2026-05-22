@@ -50,15 +50,7 @@ export function Navbar() {
         className="fixed top-0 left-0 right-0 z-50 glass px-6 md:px-10 py-4 flex items-center justify-between transition-all duration-300"
       >
         <Link href="/" className="flex items-center gap-2.5">
-          <div
-            className="w-8 h-8 rounded flex items-center justify-center font-black italic text-black text-base"
-            style={{ background: "linear-gradient(135deg,#D4AF37,#C5A059)" }}
-          >
-            A
-          </div>
-          <span className="text-lg font-black tracking-tighter uppercase italic">
-            <span className="text-gray-400">auto</span><span className="text-theme">YJ</span>
-          </span>
+          <img src="/favicon.png" className="h-8 w-auto" alt="autoYJ" />
         </Link>
 
         <div className="hidden lg:flex items-center gap-10">
