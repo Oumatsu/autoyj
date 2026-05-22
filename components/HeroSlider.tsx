@@ -20,7 +20,7 @@ const slidesData = [
     cta: "Explore Our Process",
   },
   {
-    img: "/pic/hero/2.webp",
+    img: "/pic/hero/title3 (2).webp",
     alt: "African Roads",
     label: "Built for African Roads",
     h1: 'Selected for<br>Your <span class="text-accent">Eco</span> <span class="text-theme">Profit</span>.',
