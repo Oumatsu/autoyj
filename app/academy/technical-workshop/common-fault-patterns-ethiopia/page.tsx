@@ -39,7 +39,7 @@ const content = `<p>Ethiopian operating conditions — altitude, dust, grid inst
 
 export default function CommonFaultPatternsPage() {
   return (
-    <><main className="pt-32 pb-24 relative z-10">
+    <><main className="pt-32 pb-24 relative z-10 bg-a">
       <div className="container mx-auto px-6 md:px-12">
         <div className="mb-10 text-[10px] font-black uppercase tracking-widest text-gray-500">
           <Link href="/" className="hover:text-gold transition">Home</Link><span className="mx-2">/</span>
