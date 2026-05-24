@@ -134,6 +134,19 @@ html {
   scroll-behavior: smooth;
 }
 
+/* ── Scroll Snap (Homepage) ── */
+html.scroll-snap {
+  scroll-snap-type: y mandatory;
+  scroll-padding-top: 0;
+}
+
+.snap-section {
+   scroll-snap-align: start;
+   scroll-snap-stop: always;
+   min-height: 100vh;
+   min-height: 100dvh;
+ }
+
 body {
   font-family: 'Inter', sans-serif;
   background: var(--color-bg);

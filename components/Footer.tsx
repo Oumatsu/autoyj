@@ -3,7 +3,7 @@ import { QrDropdown } from "./QrDropdown";
 
 export function Footer() {
   return (
-    <div className="relative overflow-hidden">
+    <div className="snap-section relative overflow-hidden">
       <div className="absolute inset-0">
         <img
           src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=2000&q=80"
