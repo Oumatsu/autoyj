@@ -19,7 +19,7 @@ export function Footer() {
           className="absolute inset-0"
           style={{
             background:
-              "linear-gradient(to bottom, var(--color-mid) 0%, transparent 12%)",
+              "linear-gradient(to bottom, var(--color-mid) 0%, transparent 20%)",
           }}
         />
       </div>
