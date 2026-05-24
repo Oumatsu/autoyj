@@ -1,16 +1,16 @@
 import Link from "next/link";
 
 const content = `<p>Two policy events collided in January 2026 to create the most favourable conditions ever seen for African dealers sourcing EVs from China.</p>
-<p>The result of these two forces converging: Chinese OEMs are entering 2026 with both a domestic demand headwind and a closed Western export door. Africa â€?with no retaliatory tariffs, a growing dealer base, and improving policy environments â€?is the logical beneficiary.</p>
+<p>The result of these two forces converging: Chinese OEMs are entering 2026 with both a domestic demand headwind and a closed Western export door. Africa â€”with no retaliatory tariffs, a growing dealer base, and improving policy environments â€”is the logical beneficiary.</p>
 <h2>Understanding the Purchase Tax Change</h2>
-<p>China's vehicle purchase tax is levied at <strong>10%</strong> of the vehicle's pre-tax price. During the peak subsidy years (2024â€?025), this was waived entirely for qualifying NEVs â€?saving buyers up to Â¥30,000 ($4,100) per vehicle.</p>
+<p>China's vehicle purchase tax is levied at <strong>10%</strong> of the vehicle's pre-tax price. During the peak subsidy years (2024â€”025), this was waived entirely for qualifying NEVs â€”saving buyers up to Â¥30,000 ($4,100) per vehicle.</p>
 <p>From January 1, 2026, the exemption was restructured:</p>
 <div class="overflow-x-auto my-8"><table class="w-full border-collapse text-sm"><tr><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Period</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Purchase Tax Treatment</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Maximum Benefit</th></tr>
-<tr><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">2024â€?025</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">100% exemption</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Â¥30,000 per vehicle</th></tr>
-<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5"><strong>2026â€?027</strong></td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5"><strong>50% exemption</strong></td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5"><strong>Â¥15,000 per vehicle</strong></td></tr>
-<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">2028+</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">To be determined</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">â€?/td></tr>
+<tr><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">2024â€”025</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">100% exemption</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Â¥30,000 per vehicle</th></tr>
+<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5"><strong>2026â€”027</strong></td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5"><strong>50% exemption</strong></td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5"><strong>Â¥15,000 per vehicle</strong></td></tr>
+<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">2028+</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">To be determined</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">â€”/td></tr>
 </table></div>
-<p>The halving of the benefit affects primarily the domestic Chinese consumer. For the export market, the direct impact on pricing is indirect â€?but the strategic implications are significant.</p>
+<p>The halving of the benefit affects primarily the domestic Chinese consumer. For the export market, the direct impact on pricing is indirect â€”but the strategic implications are significant.</p>
 <div class="rounded-[1.5rem] overflow-hidden my-10">
   <img src="images/china-nev-export-surge-2026/export-port.jpg" alt="RoRo car export terminal showing thousands of vehicles awaiting shipment overseas" class="w-full h-auto object-cover" style="max-height:450px;">
   <div class="px-6 py-4 bg-white/[0.02] border-t border-white/5">
@@ -22,32 +22,32 @@ const content = `<p>Two policy events collided in January 2026 to create the mos
 <p><strong>H1 2025</strong>: 1.06 million NEVs exported, up 75.<span class="hl-gold">2% </span>year-on-year</p>
 <p><strong>Full-year 2025</strong>: Made-in-China vehicle exports approached the 2024 total through the first 10 months alone, tracking toward a new record</p>
 <p><strong>NEV share of total exports</strong>: 35.<span class="hl-gold">5% </span>of all Chinese vehicle exports were new energy vehicles</p>
-<p>The primary driver of this surge was not Africa â€?it was Southeast Asia and Latin America, which absorbed the bulk of the redirected volume. But the trend is clear: as Western markets erected tariff walls, Chinese OEMs pivoted toward open markets with speed and commercial aggression.</p>
-<p>Africa is increasingly on that list. In 2024, Chinese imports accounted for <strong>75â€?span class="hl-gold">85% </span>of EV sales</strong> across key emerging markets â€?reaching <span class="hl-gold">85% </span>in Brazil and Thailand, according to IEA data. The African market, where Chinese brands have been active in ICE vehicles for over a decade, is a natural extension.</p>
+<p>The primary driver of this surge was not Africa â€”it was Southeast Asia and Latin America, which absorbed the bulk of the redirected volume. But the trend is clear: as Western markets erected tariff walls, Chinese OEMs pivoted toward open markets with speed and commercial aggression.</p>
+<p>Africa is increasingly on that list. In 2024, Chinese imports accounted for <strong>75â€”span class="hl-gold">85% </span>of EV sales</strong> across key emerging markets â€”reaching <span class="hl-gold">85% </span>in Brazil and Thailand, according to IEA data. The African market, where Chinese brands have been active in ICE vehicles for over a decade, is a natural extension.</p>
 <div class="rounded-[1.5rem] overflow-hidden my-10">
   <img src="images/china-nev-export-surge-2026/price-data.jpg" alt="Data analysis screen showing market statistics representing the pricing intelligence available to informed dealers" class="w-full h-auto object-cover" style="max-height:450px;">
   <div class="px-6 py-4 bg-white/[0.02] border-t border-white/5">
-    <p class="text-xs text-gray-500 font-light italic leading-relaxed">Chinese OEM pricing for export markets has become more negotiable as domestic sales stimulants are reduced â€?dealers who understand this dynamic are in a stronger position.</p>
+    <p class="text-xs text-gray-500 font-light italic leading-relaxed">Chinese OEM pricing for export markets has become more negotiable as domestic sales stimulants are reduced â€”dealers who understand this dynamic are in a stronger position.</p>
   </div>
 </div>
 <h2>The Negotiating Implication for African Dealers</h2>
 <p>Here is the practical translation of these macro forces into a dealership conversation:</p>
 <h2>Three Things to Do Before Your Next Order</h2>
 <ol>
-  <li><strong>Request competitive quotes from at least three OEM exporters</strong> for the same model. The spread between the highest and lowest legitimate quote in the current environment is often 8â€?5% â€?directly attributable to individual manufacturers' export hunger.</li>
+  <li><strong>Request competitive quotes from at least three OEM exporters</strong> for the same model. The spread between the highest and lowest legitimate quote in the current environment is often 8â€”5% â€”directly attributable to individual manufacturers' export hunger.</li>
 </ol>
 <ol>
   <li><strong>Ask about factory production slots</strong>, not just stock on hand. Manufacturers with excess capacity are offering dedicated production slots with custom specifications (right-hand drive, specific colour, optional equipment) at lead times that would have been impossible two years ago.</li>
 </ol>
 <ol>
-  <li><strong>Negotiate payment terms, not just unit price.</strong> Deferred payment terms of 60â€?0 days, previously available only to the largest volume buyers, are increasingly being offered to mid-tier African dealers as Chinese OEMs compete for market share outside their home market.</li>
+  <li><strong>Negotiate payment terms, not just unit price.</strong> Deferred payment terms of 60â€”0 days, previously available only to the largest volume buyers, are increasingly being offered to mid-tier African dealers as Chinese OEMs compete for market share outside their home market.</li>
 </ol>
 <h2>Sources</h2>
-<p>SMM News / Metal.com â€?<em>"Review of 2025H1 China's NEV Market: Dual New Policies + Purchase Tax Exemptions + Price Wars"</em></p>
-<p>Automobility â€?<em>"State of China's Auto Market â€?September 2025"</em></p>
-<p>CarnewsChina â€?<em>"China ends full EV tax exemption in 2026, dealerships report year-end sales rush"</em> (November 2025)</p>
-<p>IEA â€?<em>Global EV Outlook 2025</em></p>
-<p>SCMP â€?<em>"Chinese EV makers bypass EU and US tariff roadblock by turning towards Africa"</em></p>
+<p>SMM News / Metal.com â€”<em>"Review of 2025H1 China's NEV Market: Dual New Policies + Purchase Tax Exemptions + Price Wars"</em></p>
+<p>Automobility â€”<em>"State of China's Auto Market â€”September 2025"</em></p>
+<p>CarnewsChina â€”<em>"China ends full EV tax exemption in 2026, dealerships report year-end sales rush"</em> (November 2025)</p>
+<p>IEA â€”<em>Global EV Outlook 2025</em></p>
+<p>SCMP â€”<em>"Chinese EV makers bypass EU and US tariff roadblock by turning towards Africa"</em></p>
 <p class="text-gray-500 text-xs font-light italic mt-8">Published by Evexport Intelligence Desk Â· April 2026</p>
 `;
 
@@ -71,7 +71,7 @@ export default function ArticlePage() {
                   Policy & Tariffs
                 </span>
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-black italic text-white uppercase tracking-tighter leading-[1.05] mb-6">
-                  China Halves Its EV Purchase Tax â€?And African Dealers Are the Unexpected Winners
+                  China Halves Its EV Purchase Tax â€”And African Dealers Are the Unexpected Winners
                 </h1>
                 <p className="text-xl text-gray-400 font-light italic border-l-2 border-theme/30 pl-6 mb-8 max-w-2xl">
                   Two policy events collided in January 2026 to create the most favourable conditions ever seen for African dealers sourcing EVs from China.
@@ -92,7 +92,7 @@ export default function ArticlePage() {
               </header>
 
               <div className="w-full aspect-[21/9] rounded-[2rem] overflow-hidden mb-16 relative">
-                <img src="/insights/images/china-nev-export-surge-2026/hero.jpg" alt="China Halves Its EV Purchase Tax â€?And African Dealers Are the Unexpected Winners" className="w-full h-full object-cover" />
+                <img src="/insights/images/china-nev-export-surge-2026/hero.jpg" alt="China Halves Its EV Purchase Tax â€”And African Dealers Are the Unexpected Winners" className="w-full h-full object-cover" />
                 <div className="absolute inset-0 border border-white/10 rounded-[2rem] pointer-events-none"></div>
               </div>
 

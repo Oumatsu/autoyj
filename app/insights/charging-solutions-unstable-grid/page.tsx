@@ -1,32 +1,32 @@
 import Link from "next/link";
 
-const content = `<p>The most common objection to EV adoption in East African commercial markets is not price, range, or technology â€?it is charging: "Where will we charge it? The electricity cuts out for hours every day."</p>
+const content = `<p>The most common objection to EV adoption in East African commercial markets is not price, range, or technology â€”it is charging: "Where will we charge it? The electricity cuts out for hours every day."</p>
 <p>This objection is legitimate. Ethiopia's grid reliability is a real operational constraint. Addis Ababa experiences load-shedding periods that vary from occasional to multiple hours daily, depending on the season and the city district. Nairobi's outer zones experience similar issues, though the city centre grid is more stable.</p>
-<p>What this guide demonstrates is that the charging challenge is not an inherent barrier to EV adoption â€?it is a <strong>solvable infrastructure problem</strong> with commercial solutions that have been deployed in similar markets. Dealers who help their commercial customers solve the charging problem close more sales.</p>
+<p>What this guide demonstrates is that the charging challenge is not an inherent barrier to EV adoption â€”it is a <strong>solvable infrastructure problem</strong> with commercial solutions that have been deployed in similar markets. Dealers who help their commercial customers solve the charging problem close more sales.</p>
 <h2>The Four Charging Approaches for Unreliable Grid Markets</h2>
 <h3>Approach 1: Overnight AC Charging (Depot-Based)</h3>
 <p>The most practical and lowest-cost charging solution for commercial fleet operators is <strong>overnight AC charging at a depot or parking facility</strong>.</p>
-<p>Most Chinese EVs accept 6.6 kW onboard AC charging as standard. At this rate, a fully depleted <span class="hl-gold">30 kWh</span> battery (BYD Seagull standard) charges in approximately 5 hours. A partially depleted battery (30-<span class="hl-gold">40% </span>depleted at end of day from <span class="hl-gold">150 km</span> of commercial use) charges in 2â€? hours.</p>
+<p>Most Chinese EVs accept 6.6 kW onboard AC charging as standard. At this rate, a fully depleted <span class="hl-gold">30 kWh</span> battery (BYD Seagull standard) charges in approximately 5 hours. A partially depleted battery (30-<span class="hl-gold">40% </span>depleted at end of day from <span class="hl-gold">150 km</span> of commercial use) charges in 2â€” hours.</p>
 <p>A 3-socket single-phase 240V power supply (standard residential connection in Ethiopia and Kenya)</p>
-<p>A Type 2 EVSE (Electric Vehicle Supply Equipment) wallbox â€?approximately $150â€?<span class="hl-gold">300 USD</span>; some vehicles include a Type 2 cable</p>
+<p>A Type 2 EVSE (Electric Vehicle Supply Equipment) wallbox â€”approximately $150â€”<span class="hl-gold">300 USD</span>; some vehicles include a Type 2 cable</p>
 <p>A circuit breaker upgrade if the existing circuit cannot support 32A continuous draw</p>
 <p>This is the entry-level charging solution. It costs less than $<span class="hl-gold">500 USD</span> per vehicle connection and works reliably for commercial fleet operators who can establish overnight depot parking.</p>
 <div class="rounded-[1.5rem] overflow-hidden my-10">
   <img src="images/charging-solutions-unstable-grid/ev-charger.jpg" alt="EV charging station with DC fast charger representing the higher-speed charging infrastructure being installed at commercial locations in East Africa" class="w-full h-auto object-cover" style="max-height:450px;">
   <div class="px-6 py-4 bg-white/[0.02] border-t border-white/5">
-    <p class="text-xs text-gray-500 font-light italic leading-relaxed">DC fast charging (typically 40â€?00 kW) is the solution for vehicles that cannot charge overnight â€?but with only approximately 2 DC fast-chargers confirmed in Addis Ababa as of early 2026 (Africa E-Mobility Alliance, 2025), route planning around DC charger availability is not yet viable for most commercial operators.</p>
+    <p class="text-xs text-gray-500 font-light italic leading-relaxed">DC fast charging (typically 40â€”00 kW) is the solution for vehicles that cannot charge overnight â€”but with only approximately 2 DC fast-chargers confirmed in Addis Ababa as of early 2026 (Africa E-Mobility Alliance, 2025), route planning around DC charger availability is not yet viable for most commercial operators.</p>
   </div>
 </div>
 <h3>Approach 2: Solar + Battery Storage System</h3>
-<p>For operators whose grid supply is too unreliable even for overnight AC charging â€?or for commercial facilities that want to charge during daylight hours â€?a solar photovoltaic system with battery storage is the solution.</p>
-<p>Ethiopia's solar irradiance is excellent: Addis Ababa averages approximately 5.5â€?.0 peak sun hours per day year-round, among the highest in East Africa.</p>
-<p>10 kW solar array (approximately 25 x 400W panels): generates ~55â€?span class="hl-gold">60 kWh</span> per day in Addis Ababa conditions</p>
+<p>For operators whose grid supply is too unreliable even for overnight AC charging â€”or for commercial facilities that want to charge during daylight hours â€”a solar photovoltaic system with battery storage is the solution.</p>
+<p>Ethiopia's solar irradiance is excellent: Addis Ababa averages approximately 5.5â€”.0 peak sun hours per day year-round, among the highest in East Africa.</p>
+<p>10 kW solar array (approximately 25 x 400W panels): generates ~55â€”span class="hl-gold">60 kWh</span> per day in Addis Ababa conditions</p>
 <p><span class="hl-gold">30 kWh</span> battery storage: stores daytime generation for night use</p>
 <p>7.4 kW AC EVSE: charges one vehicle per slot overnight</p>
-<p>Several NGOs and development finance institutions â€?including UNEP and GIZ â€?have deployed solar EV charging pilot systems in Addis Ababa and Nairobi that provide reference installations and, in some cases, co-financing opportunities.</p>
+<p>Several NGOs and development finance institutions â€”including UNEP and GIZ â€”have deployed solar EV charging pilot systems in Addis Ababa and Nairobi that provide reference installations and, in some cases, co-financing opportunities.</p>
 <h3>Approach 3: Vehicle-to-Load (V2L) for Grid Independence</h3>
-<p>A subset of Chinese EVs supports <strong>Vehicle-to-Load (V2L)</strong> â€?the ability to use the vehicle's battery as a power source, running external appliances or other devices through a standard 220V outlet built into the vehicle.</p>
-<p>V2L is relevant to East African operators not as a charging solution, but as a <strong>grid resilience tool</strong> at their facility. A BYD Atto 3 or similar V2L-capable EV can power a small commercial operation during load-shedding â€?running lights, computers, or low-draw equipment from its battery at no fuel cost.</p>
+<p>A subset of Chinese EVs supports <strong>Vehicle-to-Load (V2L)</strong> â€”the ability to use the vehicle's battery as a power source, running external appliances or other devices through a standard 220V outlet built into the vehicle.</p>
+<p>V2L is relevant to East African operators not as a charging solution, but as a <strong>grid resilience tool</strong> at their facility. A BYD Atto 3 or similar V2L-capable EV can power a small commercial operation during load-shedding â€”running lights, computers, or low-draw equipment from its battery at no fuel cost.</p>
 <p>This converts a perceived liability (EV is dependent on electricity) into an asset (EV provides electricity when the grid fails). This reframing is commercially significant in markets where diesel generator costs are a real operational expense.</p>
 <p>Chinese EVs with confirmed V2L capability available in African markets:</p>
 <div class="overflow-x-auto my-8"><table class="w-full border-collapse text-sm"><tr><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Model</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">V2L Output</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Notes</th></tr>
@@ -39,15 +39,15 @@ const content = `<p>The most common objection to EV adoption in East African com
 <div class="rounded-[1.5rem] overflow-hidden my-10">
   <img src="images/charging-solutions-unstable-grid/solar-charging.jpg" alt="Stable solar energy infrastructure representing the renewable energy investment that supports reliable EV charging in markets where grid electricity is intermittent" class="w-full h-auto object-cover" style="max-height:450px;">
   <div class="px-6 py-4 bg-white/[0.02] border-t border-white/5">
-    <p class="text-xs text-gray-500 font-light italic leading-relaxed">A 10 kW solar installation in Addis Ababa generates approximately 55â€?0 kWh per day â€?enough to charge one full Seagull battery (30.1 kWh) and partially charge a second vehicle daily, entirely off-grid.</p>
+    <p class="text-xs text-gray-500 font-light italic leading-relaxed">A 10 kW solar installation in Addis Ababa generates approximately 55â€”0 kWh per day â€”enough to charge one full Seagull battery (30.1 kWh) and partially charge a second vehicle daily, entirely off-grid.</p>
   </div>
 </div>
 <h3>Approach 4: PHEVs as a Bridge Technology</h3>
 <p>Where grid reliability cannot be guaranteed and solar investment is not immediate, plug-in hybrid EVs (PHEVs) represent a pragmatic bridge.</p>
 <p>A PHEV like the BYD Shark or Chery Tiggo 7e PHEV charges its battery from AC overnight but retains a petrol engine as backup for days when charging was incomplete or the battery is fully depleted. The vehicle never requires an emergency DC fast-charge that the market cannot provide.</p>
-<p>For commercial fleet operators in Ethiopia â€?particularly those operating vehicles outside Addis Ababa â€?PHEVs eliminate the range/charging anxiety that makes pure BEV adoption feel risky. As the grid becomes more reliable and solar charging becomes more affordable, fleet operators can transition to pure BEVs while PHEVs serve as the fleet backbone in the interim.</p>
+<p>For commercial fleet operators in Ethiopia â€”particularly those operating vehicles outside Addis Ababa â€”PHEVs eliminate the range/charging anxiety that makes pure BEV adoption feel risky. As the grid becomes more reliable and solar charging becomes more affordable, fleet operators can transition to pure BEVs while PHEVs serve as the fleet backbone in the interim.</p>
 <h2>What Dealers Should Offer Their Customers</h2>
-<p>A Chinese EV dealer who sells a vehicle and does nothing about charging is selling half the product. The commercial customers who drive EV adoption in Ethiopia and Kenya want a turnkey solution â€?not just a vehicle.</p>
+<p>A Chinese EV dealer who sells a vehicle and does nothing about charging is selling half the product. The commercial customers who drive EV adoption in Ethiopia and Kenya want a turnkey solution â€”not just a vehicle.</p>
 <p>Include a Type 2 charging cable in every vehicle sale</p>
 <p>Provide written guidance on the minimum electrical requirements for home/depot AC charging</p>
 <p>Recommend a specific electrical contractor in the buyer's city who can install the EVSE correctly</p>
@@ -56,12 +56,12 @@ const content = `<p>The most common objection to EV adoption in East African com
 <p>Offer a first-year servicing agreement that includes a battery health check at 12 months</p>
 <p>Dealers who offer this package are solving the real problem the commercial buyer has. Dealers who only offer a vehicle are leaving the hardest part of the buying decision unresolved.</p>
 <h2>Sources</h2>
-<p>Ethiopian Electric Power (EEP) â€?grid reliability data and load-shedding schedules (2025)</p>
-<p>IRENA â€?<em>Africa Solar Resource Map</em> (irradiance data for Ethiopia)</p>
-<p>UNEP/GIZ â€?Africa EV charging infrastructure pilot programmes (Addis Ababa, Nairobi, 2024â€?025)</p>
-<p>BYD official â€?V2L specifications for Atto 3 and Seal (2025)</p>
-<p>Africa E-Mobility Alliance â€?<em>Africa E-Mobility Report 2025</em> (charging infrastructure chapter)</p>
-<p>EV24.Africa â€?<em>"Charging EVs in Africa: Infrastructure Guide"</em> (2025)</p>
+<p>Ethiopian Electric Power (EEP) â€”grid reliability data and load-shedding schedules (2025)</p>
+<p>IRENA â€”<em>Africa Solar Resource Map</em> (irradiance data for Ethiopia)</p>
+<p>UNEP/GIZ â€”Africa EV charging infrastructure pilot programmes (Addis Ababa, Nairobi, 2024â€”025)</p>
+<p>BYD official â€”V2L specifications for Atto 3 and Seal (2025)</p>
+<p>Africa E-Mobility Alliance â€”<em>Africa E-Mobility Report 2025</em> (charging infrastructure chapter)</p>
+<p>EV24.Africa â€”<em>"Charging EVs in Africa: Infrastructure Guide"</em> (2025)</p>
 <p class="text-gray-500 text-xs font-light italic mt-8">Published by Evexport Intelligence Desk Â· February 2026</p>
 `;
 
@@ -88,7 +88,7 @@ export default function ArticlePage() {
                   Charging EVs When the Grid Is Unreliable: A Practical Guide for East African Operators
                 </h1>
                 <p className="text-xl text-gray-400 font-light italic border-l-2 border-theme/30 pl-6 mb-8 max-w-2xl">
-                  The most common objection to EV adoption in East African commercial markets is not price, range, or technology â€?it is charging: &quot;Where will we charge it? 
+                  The most common objection to EV adoption in East African commercial markets is not price, range, or technology â€”it is charging: &quot;Where will we charge it? 
                 </p>
                 <div className="flex items-center gap-6 text-[10px] font-black uppercase tracking-widest text-gray-500 border-t border-white/10 pt-6">
                   <div className="flex items-center gap-3">

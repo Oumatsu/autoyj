@@ -1,42 +1,42 @@
 import Link from "next/link";
 
-const content = `<p>Ethiopia's EV market has structural characteristics unlike any other African market â€?and unlike any other market globally. The world's only nationwide ICE import ban means that all newly imported passenger vehicles must be electric. A floating currency and high tax burden shape the price sensitivity of every purchasing decision. A commercial taxi sector that adopted EVs earlier than consumer markets creates a different product hierarchy than what Western analysts would predict.</p>
-<p>This analysis predicts the EV models most likely to dominate Ethiopian sales in 2026 â€?based on pricing, operational fit, available import channels, and the specific purchasing patterns that have emerged from Ethiopia's EV adoption history.</p>
+const content = `<p>Ethiopia's EV market has structural characteristics unlike any other African market â€”and unlike any other market globally. The world's only nationwide ICE import ban means that all newly imported passenger vehicles must be electric. A floating currency and high tax burden shape the price sensitivity of every purchasing decision. A commercial taxi sector that adopted EVs earlier than consumer markets creates a different product hierarchy than what Western analysts would predict.</p>
+<p>This analysis predicts the EV models most likely to dominate Ethiopian sales in 2026 â€”based on pricing, operational fit, available import channels, and the specific purchasing patterns that have emerged from Ethiopia's EV adoption history.</p>
 <h2>The Ethiopian Market Context</h2>
 <p>Before predicting bestsellers, understanding the buyer segments is <span class="hl-green">essential</span>.</p>
-<p>Feres and ZayRide together represent over 60,000 active drivers in Addis Ababa. A significant proportion of these drivers are transitioning from ICE to EV â€?motivated by fuel cost savings that exceed ETB 28,000/month per vehicle at typical daily mileage. This segment prioritises: lowest acquisition cost, lowest daily operating cost, urban range sufficiency (150â€?span class="hl-gold">200 km</span>/day), and ease of maintenance.</p>
+<p>Feres and ZayRide together represent over 60,000 active drivers in Addis Ababa. A significant proportion of these drivers are transitioning from ICE to EV â€”motivated by fuel cost savings that exceed ETB 28,000/month per vehicle at typical daily mileage. This segment prioritises: lowest acquisition cost, lowest daily operating cost, urban range sufficiency (150â€”span class="hl-gold">200 km</span>/day), and ease of maintenance.</p>
 <p>Ministry vehicle procurement, government agencies, and quasi-government entities represent a block purchasing segment. These buyers are price-sensitive (procurement rules) but influenced by brand visibility and government-to-government trade relationships with China.</p>
 <p>Still a small segment. Price-sensitive, influenced by what taxis and government fleets are buying (social proof), and increasingly sophisticated about range and charging requirements after watching first-generation EV adoption challenges.</p>
 <div class="rounded-[1.5rem] overflow-hidden my-10">
   <img src="images/ethiopia-bestseller-ev-predictions-2026/ev-market.jpg" alt="Chinese electric vehicles parked in an urban setting representing the product diversity available for Ethiopian EV market importers to choose from" class="w-full h-auto object-cover" style="max-height:450px;">
   <div class="px-6 py-4 bg-white/[0.02] border-t border-white/5">
-    <p class="text-xs text-gray-500 font-light italic leading-relaxed">Ethiopia's EV market is primarily commercial â€?taxi operators and institutional fleets drive adoption, with private consumers following 12â€?4 months behind. The bestselling EVs in 2026 will be those that win the commercial buyer calculation first.</p>
+    <p class="text-xs text-gray-500 font-light italic leading-relaxed">Ethiopia's EV market is primarily commercial â€”taxi operators and institutional fleets drive adoption, with private consumers following 12â€”4 months behind. The bestselling EVs in 2026 will be those that win the commercial buyer calculation first.</p>
   </div>
 </div>
 <h2>Predicted Bestsellers: 2026</h2>
-<h3>1. BYD Seagull â€?Volume Leader</h3>
+<h3>1. BYD Seagull â€”Volume Leader</h3>
 <p>The Seagull is the almost certain volume leader for 2026. Its dominant advantage is price: at approximately $<span class="hl-gold">23,000 USD</span> landed in Addis Ababa (full tax-inclusive), it represents the lowest feasible landed cost for a credible new Chinese BEV in Ethiopia.</p>
-<p>The TCO argument closes for ride-hailing operators: fuel savings of ETB 28,000+ per month versus an equivalent ICE vehicle recover the purchase price premium within 24â€?6 months of commercial operation.</p>
-<h3>2. Chinese Commercial EVs â€?MiniEV / Microbus Segment</h3>
-<p>Ethiopia's demand for small commercial vehicles â€?used as taxis, minibuses, and shared mobility vehicles â€?creates demand for a category that doesn't always feature in global EV bestseller discussions: mini-EVs and electric minibuses.</p>
+<p>The TCO argument closes for ride-hailing operators: fuel savings of ETB 28,000+ per month versus an equivalent ICE vehicle recover the purchase price premium within 24â€”6 months of commercial operation.</p>
+<h3>2. Chinese Commercial EVs â€”MiniEV / Microbus Segment</h3>
+<p>Ethiopia's demand for small commercial vehicles â€”used as taxis, minibuses, and shared mobility vehicles â€”creates demand for a category that doesn't always feature in global EV bestseller discussions: mini-EVs and electric minibuses.</p>
 <p>Belayneh Kindie Import-Export has been assembling Golden Dragon electric minibuses locally from Chinese CKD kits, and similar CKD assembly arrangements have been discussed with other Ethiopian companies. In 2026, small electric buses and passenger vans serving the short-distance shuttle market in Addis Ababa are predicted to grow significantly.</p>
 <h3>3. Chery Tiggo PHEV Variants</h3>
-<p>The Tiggo 4 Pro and Tiggo 7e PHEV are attractive for an Ethiopian buyer segment that is nervous about pure-EV range and wants petrol backup â€?particularly for dealers and institutional buyers who travel outside Addis Ababa, where charging infrastructure is essentially absent.</p>
+<p>The Tiggo 4 Pro and Tiggo 7e PHEV are attractive for an Ethiopian buyer segment that is nervous about pure-EV range and wants petrol backup â€”particularly for dealers and institutional buyers who travel outside Addis Ababa, where charging infrastructure is essentially absent.</p>
 <p>Chery's existing Ethiopia trade relationships (through import companies that previously handled Chery ICE vehicles) provide distribution infrastructure that allows faster market penetration than brands entering from scratch.</p>
 <h3>4. BYD Yuan Plus / Atto 3 (Institutional Fleet)</h3>
 <p>For government and institutional fleet procurement, the Atto 3 / Yuan Plus carries brand credibility advantages over smaller models. It represents "serious" EV adoption for institutional buyers conscious of optics, while remaining within a budget that procurement frameworks can accommodate.</p>
 <p>Government fleet purchases in Ethiopia have historically followed Chinese diplomatic and trade relationship signals. BYD's status as the world's largest EV manufacturer by volume, and China's active engagement with Ethiopia at a government level, makes BYD the institutional default.</p>
 <h2>What Won't Sell Well in 2026</h2>
 <h2>The Market Trajectory</h2>
-<p>Ethiopia's EV market doubled between 2023 and 2025. The factors that drove this doubling â€?ICE import ban, rising fuel costs, Feres/ZayRide fleet electrification â€?have not changed. If anything, they have intensified: the Birr has continued to weaken, making imported fuel disproportionately expensive, while EV charging costs in ETB terms remain relatively stable (electricity tariffs are set domestically).</p>
-<p>The 2026 bestsellers will be the EVs that win the financial calculation for Ethiopian commercial buyers â€?not the vehicles with the most media coverage globally.</p>
+<p>Ethiopia's EV market doubled between 2023 and 2025. The factors that drove this doubling â€”ICE import ban, rising fuel costs, Feres/ZayRide fleet electrification â€”have not changed. If anything, they have intensified: the Birr has continued to weaken, making imported fuel disproportionately expensive, while EV charging costs in ETB terms remain relatively stable (electricity tariffs are set domestically).</p>
+<p>The 2026 bestsellers will be the EVs that win the financial calculation for Ethiopian commercial buyers â€”not the vehicles with the most media coverage globally.</p>
 <h2>Sources</h2>
-<p>Feres platform â€?driver fleet size and transition reporting (2025)</p>
-<p>Ethiopian Customs Authority / ERCA â€?EV import statistics 2023â€?025</p>
-<p>Africa E-Mobility Alliance â€?<em>Africa E-Mobility Report 2025</em> (Ethiopia chapter)</p>
-<p>EV24.Africa â€?<em>"EV Market in Ethiopia"</em> (2025â€?026)</p>
-<p>Addis Standard â€?reporting on Belayneh Kindie Golden Dragon assembly (2024â€?025)</p>
-<p>PwC Ethiopia â€?<em>Ethiopian Tax Guide 2024/2025</em></p>
+<p>Feres platform â€”driver fleet size and transition reporting (2025)</p>
+<p>Ethiopian Customs Authority / ERCA â€”EV import statistics 2023â€”025</p>
+<p>Africa E-Mobility Alliance â€”<em>Africa E-Mobility Report 2025</em> (Ethiopia chapter)</p>
+<p>EV24.Africa â€”<em>"EV Market in Ethiopia"</em> (2025â€”026)</p>
+<p>Addis Standard â€”reporting on Belayneh Kindie Golden Dragon assembly (2024â€”025)</p>
+<p>PwC Ethiopia â€”<em>Ethiopian Tax Guide 2024/2025</em></p>
 <p class="text-gray-500 text-xs font-light italic mt-8">Published by Evexport Intelligence Desk Â· January 2026</p>
 `;
 
@@ -63,7 +63,7 @@ export default function ArticlePage() {
                   Which EVs Will Sell Best in Ethiopia in 2026? A Dealer\'s Prediction Guide
                 </h1>
                 <p className="text-xl text-gray-400 font-light italic border-l-2 border-theme/30 pl-6 mb-8 max-w-2xl">
-                  Ethiopia\'s EV market has structural characteristics unlike any other African market â€?and unlike any other market globally.
+                  Ethiopia\'s EV market has structural characteristics unlike any other African market â€”and unlike any other market globally.
                 </p>
                 <div className="flex items-center gap-6 text-[10px] font-black uppercase tracking-widest text-gray-500 border-t border-white/10 pt-6">
                   <div className="flex items-center gap-3">

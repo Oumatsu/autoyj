@@ -1,41 +1,41 @@
 import Link from "next/link";
 
-const content = `<p>For years, a quiet arbitrage existed at the edges of China's automotive export machine. Vehicles would roll off the production line, get registered in a Chinese city to meet a monthly sales quota or unlock a government subsidy, and then �?having never been driven �?get routed through used-car channels to buyers in Southeast Asia, Central Asia, and Africa.</p>
+const content = `<p>For years, a quiet arbitrage existed at the edges of China's automotive export machine. Vehicles would roll off the production line, get registered in a Chinese city to meet a monthly sales quota or unlock a government subsidy, and then —having never been driven —get routed through used-car channels to buyers in Southeast Asia, Central Asia, and Africa.</p>
 <p>These are <strong>"zero-kilometre used cars"</strong> (零公里二手车): technically "used" on paper, but practically brand new, often with protective film, floor mats, and interior covers still intact.</p>
 <p>Starting <strong>January 1, 2026</strong>, Beijing moved to close this channel permanently. The impact on how African dealers source vehicles from China is direct and immediate.</p>
 <h2>What Is a Zero-Kilometre Used Car?</h2>
 <p>A zero-kilometre used car is a vehicle with either zero mileage or only a few hundred kilometres accumulated during factory transport and dealer storage. It is exported under the classification of a "used vehicle" despite being mechanically and cosmetically identical to a new unit off the showroom floor.</p>
 <p>The practice served multiple commercial purposes simultaneously:</p>
-<p><strong>Sales quota gaming</strong> �?Manufacturers registered vehicles to meet monthly or quarterly targets, even when no real end buyer existed. Registration equalled a "sold" unit in the books.</p>
-<p><strong>Subsidy capture</strong> �?During China's peak NEV subsidy era (2020�?023), registering an electric vehicle was sufficient to trigger government purchase incentives, regardless of whether a consumer ever took ownership.</p>
-<p><strong>Price floor circumvention</strong> �?By routing excess inventory through "used car" export channels, OEMs could offer deep discounts without officially cutting new-car sticker prices in the domestic market, protecting brand positioning at home while clearing stock abroad.</p>
-<p>The result: a parallel supply of near-new vehicles entered markets like Kenya, Nigeria, Ethiopia, and Tanzania at prices <strong>15�?span class="hl-gold">25% </span>below official new-car import rates</strong> �?but with no manufacturer warranty, no OEM after-sales support, and a title chain that regulators in both China and the destination country could not cleanly trace.</p>
+<p><strong>Sales quota gaming</strong> —Manufacturers registered vehicles to meet monthly or quarterly targets, even when no real end buyer existed. Registration equalled a "sold" unit in the books.</p>
+<p><strong>Subsidy capture</strong> —During China's peak NEV subsidy era (2020—023), registering an electric vehicle was sufficient to trigger government purchase incentives, regardless of whether a consumer ever took ownership.</p>
+<p><strong>Price floor circumvention</strong> —By routing excess inventory through "used car" export channels, OEMs could offer deep discounts without officially cutting new-car sticker prices in the domestic market, protecting brand positioning at home while clearing stock abroad.</p>
+<p>The result: a parallel supply of near-new vehicles entered markets like Kenya, Nigeria, Ethiopia, and Tanzania at prices <strong>15—span class="hl-gold">25% </span>below official new-car import rates</strong> —but with no manufacturer warranty, no OEM after-sales support, and a title chain that regulators in both China and the destination country could not cleanly trace.</p>
 <div class="rounded-[1.5rem] overflow-hidden my-10">
   <img src="images/china-zero-km-export-ban-2026/vehicles.jpg" alt="Rows of new Chinese EVs in a staging lot, still wrapped in factory protective film" class="w-full h-auto object-cover" style="max-height:450px;">
   <div class="px-6 py-4 bg-white/[0.02] border-t border-white/5">
-    <p class="text-xs text-gray-500 font-light italic leading-relaxed">"Zero-km used cars" left the factory looking exactly like this �?and were exported as "used vehicles" through trader channels.</p>
+    <p class="text-xs text-gray-500 font-light italic leading-relaxed">"Zero-km used cars" left the factory looking exactly like this —and were exported as "used vehicles" through trader channels.</p>
   </div>
 </div>
 <blockquote class="bq-note"><em>"The vehicle had 47 kilometres on the odometer and still had the factory plastic on the steering wheel. My supplier insisted it was 'used.' I had no idea I was buying into a grey market until the warranty claim was rejected."</em></blockquote>
 <p>></p>
-<blockquote class="bq-note">�?African importer, Nigeria, 2025</blockquote>
+<blockquote class="bq-note">—African importer, Nigeria, 2025</blockquote>
 <h2>The New 180-Day Rule, Explained</h2>
-<p>Under China's updated vehicle export regulations effective <strong>January 1, 2026</strong>, any vehicle exported within <strong>180 days of its initial registration date</strong> must now be accompanied by an official <strong>After-Sales Service Confirmation Document</strong> (售后服务确认�?, issued directly by the vehicle manufacturer.</p>
+<p>Under China's updated vehicle export regulations effective <strong>January 1, 2026</strong>, any vehicle exported within <strong>180 days of its initial registration date</strong> must now be accompanied by an official <strong>After-Sales Service Confirmation Document</strong> (售后服务确认也, issued directly by the vehicle manufacturer.</p>
 <h3>Document Requirements</h3>
 <div class="overflow-x-auto my-8"><table class="w-full border-collapse text-sm"><tr><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Requirement</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Detail</th></tr>
 <tr><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Export destination</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Must specify the exact destination country</th></tr>
 <tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Vehicle information</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">VIN, model, registration number</td></tr>
-<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Issuing authority</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Official OEM seal �?not a dealer, trader, or logistics agent</td></tr>
+<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Issuing authority</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Official OEM seal —not a dealer, trader, or logistics agent</td></tr>
 <tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Enforcement point</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Chinese customs at port of departure</td></tr>
 </table></div>
 <p>Without this document, customs will <strong>refuse export clearance</strong> for any vehicle registered less than six months prior. The vehicle cannot legally leave China.</p>
-<p>The 180-day threshold was chosen to precisely target the shortest-cycle grey market operations �?where vehicles were registered and re-exported within weeks of rolling off the production line.</p>
+<p>The 180-day threshold was chosen to precisely target the shortest-cycle grey market operations —where vehicles were registered and re-exported within weeks of rolling off the production line.</p>
 <h2>What This Means for African Dealers</h2>
 <p>The impact concentrates in two areas.</p>
 <h2>How to Verify Your Vehicle Before Buying</h2>
-<p>Three verification steps every African importer should apply as standard practice when sourcing vehicles manufactured or registered in 2025�?026:</p>
+<p>Three verification steps every African importer should apply as standard practice when sourcing vehicles manufactured or registered in 2025—026:</p>
 <ol>
-  <li><strong>Request the registration certificate</strong> (行驶�?or 机动车登记证�? and cross-check the registration date against the manufacture date printed on the VIN plate inside the door jamb. A significant gap �?or a registration date that precedes your order date �?warrants investigation.</li>
+  <li><strong>Request the registration certificate</strong> (行驶说or 机动车登记证也 and cross-check the registration date against the manufacture date printed on the VIN plate inside the door jamb. A significant gap —or a registration date that precedes your order date —warrants investigation.</li>
 </ol>
 <ol>
   <li><strong>For any vehicle registered within the last six months:</strong> require the OEM After-Sales Service Confirmation Document before signing any purchase agreement or transferring any deposit. A legitimate seller sourcing through official OEM channels will have this document readily available.</li>
@@ -51,14 +51,14 @@ const content = `<p>For years, a quiet arbitrage existed at the edges of China's
 </div>
 <h2>The Compliance Advantage for Authorized Partners</h2>
 <p>Paradoxically, this regulation creates a cleaner competitive landscape for dealers who have always sourced through official channels.</p>
-<p>When grey-market supply of discounted zero-km inventory tightens, the price gap between unofficial and official sourcing narrows. Dealers who built proper OEM relationships �?with documented supply chains, genuine warranties, and manufacturer support �?are no longer systematically undercut by traders delivering a near-identical product through an opaque loophole.</p>
-<p>For the African EV market, still in its formative stage, this shift matters beyond pricing. Consumer trust in Chinese EVs is directly tied to after-sales experience. A vehicle sold without warranty, without OEM documentation, and without proper service history is a liability that can damage the reputation of an entire product category in a local market �?not just one dealership.</p>
+<p>When grey-market supply of discounted zero-km inventory tightens, the price gap between unofficial and official sourcing narrows. Dealers who built proper OEM relationships —with documented supply chains, genuine warranties, and manufacturer support —are no longer systematically undercut by traders delivering a near-identical product through an opaque loophole.</p>
+<p>For the African EV market, still in its formative stage, this shift matters beyond pricing. Consumer trust in Chinese EVs is directly tied to after-sales experience. A vehicle sold without warranty, without OEM documentation, and without proper service history is a liability that can damage the reputation of an entire product category in a local market —not just one dealership.</p>
 <p>The dealers who will lead the next phase of African EV growth are those who can demonstrate <strong>transparent, traceable, fully-compliant supply chains</strong> from Chinese factory to local showroom floor. The 180-day rule, whatever its enforcement friction in the short term, moves the market firmly in that direction.</p>
 <h2>Sources</h2>
-<p>CarnewsChina �?<em>"China targets zero-kilometre used cars with new 180-day export rule effective 2026"</em> (December 2025)</p>
-<p>ChinaEVHome �?<em>"China Moves to Regulate Used-Car Exports, Restricts Zero-Mileage Used Cars"</em> (November 2025)</p>
-<p>AutoCango �?<em>"China's New 180-Day Rule for Auto Exports: Key Changes Effective Jan 1, 2026"</em></p>
-<p>ForexLive / TradingView �?<em>"China cracks down on zero-mileage auto exports used to inflate sales and claim tax perks"</em></p>
+<p>CarnewsChina —<em>"China targets zero-kilometre used cars with new 180-day export rule effective 2026"</em> (December 2025)</p>
+<p>ChinaEVHome —<em>"China Moves to Regulate Used-Car Exports, Restricts Zero-Mileage Used Cars"</em> (November 2025)</p>
+<p>AutoCango —<em>"China's New 180-Day Rule for Auto Exports: Key Changes Effective Jan 1, 2026"</em></p>
+<p>ForexLive / TradingView —<em>"China cracks down on zero-mileage auto exports used to inflate sales and claim tax perks"</em></p>
 <p class="text-gray-500 text-xs font-light italic mt-8">Published by Evexport Intelligence Desk · January 2026</p>
 `;
 

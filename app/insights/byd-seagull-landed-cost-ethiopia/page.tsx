@@ -1,8 +1,8 @@
 import Link from "next/link";
 
-const content = `<blockquote class="bq-note"><strong>时效提示�?/strong> 本文测算基于2026�?月汇率（�?50 ETB/USD）及现行税率估算。埃塞俄比亚比尔汇率持续变动，消费税（excise）适用税率以ERCA实际征税口径为准，与本文所用估算值可能存在差异。请在正式下单前向持牌清关行确认当前有效税率及汇率�?/blockquote>
+const content = `<blockquote class="bq-note"><strong>时效提示，/strong> 本文测算基于2026年月汇率（约50 ETB/USD）及现行税率估算。埃塞俄比亚比尔汇率持续变动，消费税（excise）适用税率以ERCA实际征税口径为准，与本文所用估算值可能存在差异。请在正式下单前向持牌清关行确认当前有效税率及汇率　/blockquote>
 <p>The BYD Seagull has become the reference vehicle for African EV importers asking the same foundational question: what does a credible, mass-market Chinese EV actually cost to land in my country?</p>
-<p>The Seagull's China domestic price of approximately RMB 69,800�?9,800 ($9,600�?<span class="hl-gold">11,000 USD</span>) has been widely quoted in trade media and has driven significant importer interest across East Africa. What has not been widely explained is what happens between that factory-gate price and the moment a Seagull sits in a dealer's lot in Addis Ababa �?ready for sale.</p>
+<p>The Seagull's China domestic price of approximately RMB 69,800—9,800 ($9,600—<span class="hl-gold">11,000 USD</span>) has been widely quoted in trade media and has driven significant importer interest across East Africa. What has not been widely explained is what happens between that factory-gate price and the moment a Seagull sits in a dealer's lot in Addis Ababa —ready for sale.</p>
 <p>This article provides a complete, sourced cost breakdown for 2026, reflecting Ethiopia's current tax regime following the August 2024 reversal of EV incentives under Directive 1006/2024.</p>
 <h2>Starting Point: Understanding the Seagull's Specifications</h2>
 <p>The BYD Seagull is a four-seat urban hatchback designed explicitly for short-range city use. Before calculating import costs, understanding its specifications matters for assessing fit for the Ethiopian market.</p>
@@ -14,30 +14,30 @@ const content = `<blockquote class="bq-note"><strong>时效提示�?/strong> 本
 <tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">0-100 km/h</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">12.3 sec</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">10.9 sec</td></tr>
 <tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">China price (2026)</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">RMB 69,800 (~$9,600 USD)</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">RMB 79,800 (~$11,000 USD)</td></tr>
 </table></div>
-<p>The <span class="hl-gold">305 km</span> CLTC range translates to approximately 220�?span class="hl-gold">250 km</span> in real-world mixed driving �?sufficient for Addis Ababa urban use, where average daily taxi distances are reported at 100�?span class="hl-gold">150 km</span> by Feres platform data.</p>
+<p>The <span class="hl-gold">305 km</span> CLTC range translates to approximately 220—span class="hl-gold">250 km</span> in real-world mixed driving —sufficient for Addis Ababa urban use, where average daily taxi distances are reported at 100—span class="hl-gold">150 km</span> by Feres platform data.</p>
 <div class="rounded-[1.5rem] overflow-hidden my-10">
   <img src="images/byd-seagull-landed-cost-ethiopia/addis-ababa.jpg" alt="Addis Ababa street scene representing the urban taxi and ride-hailing environment where the BYD Seagull would operate commercially" class="w-full h-auto object-cover" style="max-height:450px;">
   <div class="px-6 py-4 bg-white/[0.02] border-t border-white/5">
-    <p class="text-xs text-gray-500 font-light italic leading-relaxed">Addis Ababa �?where Feres, ZayRide, and independent taxi operators collectively move over 60,000 drivers daily. The Seagull's urban range profile is well-matched to this operating environment.</p>
+    <p class="text-xs text-gray-500 font-light italic leading-relaxed">Addis Ababa —where Feres, ZayRide, and independent taxi operators collectively move over 60,000 drivers daily. The Seagull's urban range profile is well-matched to this operating environment.</p>
   </div>
 </div>
 <h2>The Cost Layers: China to Addis Ababa</h2>
 <h3>Layer 1: FOB Price (China Export)</h3>
-<p>The Seagull's China domestic price is a retail figure. Export pricing adds manufacturing costs for export compliance, OEM documentation, and margin to the exporting entity. In 2026, a Seagull bought through legitimate OEM export channels carries a <strong>FOB Tianjin or FOB Shanghai</strong> price in the range of <strong>$11,500�?<span class="hl-gold">13,500 USD</span></strong> for the standard range variant.</p>
-<p>The gap between domestic retail ($9,600) and FOB export ($11,500�?13,500) reflects:</p>
+<p>The Seagull's China domestic price is a retail figure. Export pricing adds manufacturing costs for export compliance, OEM documentation, and margin to the exporting entity. In 2026, a Seagull bought through legitimate OEM export channels carries a <strong>FOB Tianjin or FOB Shanghai</strong> price in the range of <strong>$11,500—<span class="hl-gold">13,500 USD</span></strong> for the standard range variant.</p>
+<p>The gap between domestic retail ($9,600) and FOB export ($11,500—13,500) reflects:</p>
 <p>Export documentation and compliance costs (now mandatory post-180-day rule)</p>
 <p>OEM export channel margin</p>
 <p>Currency conversion at prevailing rates</p>
 <p>Traders offering Seagulls at below-FOB prices in 2026 should be treated as a compliance red flag under China's new 180-day export rule.</p>
-<h3>Layer 2: Ocean Freight (FOB �?Djibouti)</h3>
-<p>Ethiopia's primary vehicle import port is <strong>Djibouti Port</strong> �?all landlocked Ethiopian imports clear Djibouti and transit by road or rail to Addis Ababa.</p>
-<p>RoRo (Roll-on Roll-off) freight from Tianjin or Shanghai to Djibouti: <strong>$750�?<span class="hl-gold">950 USD</span> per vehicle</strong> (2026 rates; lane-specific and subject to surcharges). Container shipping is typically 10�?span class="hl-gold">20% </span>higher per vehicle due to loading and unloading costs.</p>
-<p>Transit from Djibouti to Addis Ababa (road): approximately <strong>$150�?<span class="hl-gold">250 USD</span></strong> for standard trucking, varying with fuel surcharges and operator.</p>
+<h3>Layer 2: Ocean Freight (FOB →Djibouti)</h3>
+<p>Ethiopia's primary vehicle import port is <strong>Djibouti Port</strong> —all landlocked Ethiopian imports clear Djibouti and transit by road or rail to Addis Ababa.</p>
+<p>RoRo (Roll-on Roll-off) freight from Tianjin or Shanghai to Djibouti: <strong>$750—<span class="hl-gold">950 USD</span> per vehicle</strong> (2026 rates; lane-specific and subject to surcharges). Container shipping is typically 10—span class="hl-gold">20% </span>higher per vehicle due to loading and unloading costs.</p>
+<p>Transit from Djibouti to Addis Ababa (road): approximately <strong>$150—<span class="hl-gold">250 USD</span></strong> for standard trucking, varying with fuel surcharges and operator.</p>
 <h3>Layer 3: Marine Insurance</h3>
-<p>Standard CIF marine insurance for an EV shipment: <strong>0.3�?.<span class="hl-gold">5% </span>of vehicle value</strong>. On a $12,500 FOB value: approximately <strong>$40�?<span class="hl-gold">65 USD</span></strong>.</p>
+<p>Standard CIF marine insurance for an EV shipment: <strong>0.3—.<span class="hl-gold">5% </span>of vehicle value</strong>. On a $12,500 FOB value: approximately <strong>$40—<span class="hl-gold">65 USD</span></strong>.</p>
 <h3>Layer 4: Ethiopian Customs Duties and Taxes</h3>
-<p>This is the most significant cost layer �?and the one that changed materially in August 2024.</p>
-<p>Ethiopia's current tax regime for imported EVs (as of Directive 1006/2024, August 2024) reintroduced taxes that had been exempted during the 2022�?024 incentive period.</p>
+<p>This is the most significant cost layer —and the one that changed materially in August 2024.</p>
+<p>Ethiopia's current tax regime for imported EVs (as of Directive 1006/2024, August 2024) reintroduced taxes that had been exempted during the 2022—024 incentive period.</p>
 <div class="overflow-x-auto my-8"><table class="w-full border-collapse text-sm"><tr><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Tax Component</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Rate</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Applies To</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Amount (on $13,000 CIF)</th></tr>
 <tr><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Customs Duty</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">5%</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">CIF value</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">~$650</th></tr>
 <tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Excise Tax</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">30%</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">CIF + Duty</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">~$4,095</td></tr>
@@ -49,17 +49,17 @@ const content = `<blockquote class="bq-note"><strong>时效提示�?/strong> 本
 <div class="rounded-[1.5rem] overflow-hidden my-10">
   <img src="images/byd-seagull-landed-cost-ethiopia/cost-breakdown.jpg" alt="Cost calculation and financial analysis representing the import cost breakdown process for Ethiopian EV dealers" class="w-full h-auto object-cover" style="max-height:450px;">
   <div class="px-6 py-4 bg-white/[0.02] border-t border-white/5">
-    <p class="text-xs text-gray-500 font-light italic leading-relaxed">Ethiopia's layered tax structure �?customs duty, excise, VAT, sur-tax, and withholding �?means that taxes represent a larger component of the landed cost than the vehicle's FOB export price.</p>
+    <p class="text-xs text-gray-500 font-light italic leading-relaxed">Ethiopia's layered tax structure —customs duty, excise, VAT, sur-tax, and withholding —means that taxes represent a larger component of the landed cost than the vehicle's FOB export price.</p>
   </div>
 </div>
 <h3>Layer 5: Port and Clearing Costs</h3>
-<p>Djibouti port handling and clearing fees: <strong>$300�?<span class="hl-gold">500 USD</span></strong> (varies with congestion surcharges, which have been elevated in 2025�?026 during Red Sea routing disruptions).</p>
-<p>Ethiopian customs clearance and agent fees: <strong>$150�?<span class="hl-gold">300 USD</span></strong>.</p>
+<p>Djibouti port handling and clearing fees: <strong>$300—<span class="hl-gold">500 USD</span></strong> (varies with congestion surcharges, which have been elevated in 2025—026 during Red Sea routing disruptions).</p>
+<p>Ethiopian customs clearance and agent fees: <strong>$150—<span class="hl-gold">300 USD</span></strong>.</p>
 <h2>Total Landed Cost: The Full Calculation</h2>
 <p>Using mid-range estimates for a <strong>BYD Seagull Standard Range (30.<span class="hl-gold">1 kWh</span>)</strong> landed in Addis Ababa, 2026:</p>
 <div class="overflow-x-auto my-8"><table class="w-full border-collapse text-sm"><tr><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Cost Component</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Low</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Mid</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">High</th></tr>
 <tr><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">FOB price (China)</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">$11,500</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">$12,500</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">$13,500</th></tr>
-<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Ocean freight (Tianjin �?Djibouti)</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">$750</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">$850</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">$950</td></tr>
+<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Ocean freight (Tianjin →Djibouti)</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">$750</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">$850</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">$950</td></tr>
 <tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Marine insurance</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">$40</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">$55</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">$65</td></tr>
 <tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5"><strong>CIF value</strong></td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5"><strong>$12,290</strong></td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5"><strong>$13,405</strong></td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5"><strong>$14,515</strong></td></tr>
 <tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Ethiopian customs duty (5%)</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">$615</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">$670</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">$726</td></tr>
@@ -71,23 +71,23 @@ const content = `<blockquote class="bq-note"><strong>时效提示�?/strong> 本
 <tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5"><strong>Total landed cost</strong></td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5"><strong>$21,420</strong></td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5"><strong>$23,123</strong></td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5"><strong>$25,570</strong></td></tr>
 </table></div>
 <h2>What This Means for Dealer Pricing</h2>
-<p>A BYD Seagull landed at $<span class="hl-gold">23,000 USD</span> requires a dealer to price at <strong>$26,000�?<span class="hl-gold">30,000 USD</span></strong> to achieve a workable 15�?span class="hl-gold">25% </span>gross margin after showroom costs, warranty reserves, and working capital carrying costs.</p>
-<p>At <span class="hl-gold">150 ETB</span>/USD (the approximate market rate as of late 2025, following the Birr's managed float since July 2024), this translates to a <strong>retail price range of ETB 3.9 million �?ETB 4.5 million</strong> ($26,000�?<span class="hl-gold">30,000 USD</span>).</p>
-<p>For comparison: a Toyota Corolla 2022 model in Ethiopia retails at approximately ETB 3.2�?.8 million. The Seagull, at current landed cost, is priced competitively with a late-model used Japanese ICE sedan �?which is a reasonable market positioning given the Seagull's new-vehicle status and EV operating cost advantages.</p>
+<p>A BYD Seagull landed at $<span class="hl-gold">23,000 USD</span> requires a dealer to price at <strong>$26,000—<span class="hl-gold">30,000 USD</span></strong> to achieve a workable 15—span class="hl-gold">25% </span>gross margin after showroom costs, warranty reserves, and working capital carrying costs.</p>
+<p>At <span class="hl-gold">150 ETB</span>/USD (the approximate market rate as of late 2025, following the Birr's managed float since July 2024), this translates to a <strong>retail price range of ETB 3.9 million —ETB 4.5 million</strong> ($26,000—<span class="hl-gold">30,000 USD</span>).</p>
+<p>For comparison: a Toyota Corolla 2022 model in Ethiopia retails at approximately ETB 3.2—.8 million. The Seagull, at current landed cost, is priced competitively with a late-model used Japanese ICE sedan —which is a reasonable market positioning given the Seagull's new-vehicle status and EV operating cost advantages.</p>
 <h2>The Operating Cost Offset</h2>
-<p>The case for the Seagull is not purely about purchase price �?it is about total cost of ownership over three to five years of commercial operation.</p>
-<p>Ethiopian electricity costs average approximately ETB 1.40�?.50 per kWh (commercial rate, 2025 figures). At 30.<span class="hl-gold">1 kWh</span> battery capacity and <span class="hl-gold">250 km</span> real-world range, the energy cost per kilometre is approximately <strong>ETB 0.17�?.30/km</strong>.</p>
-<p>A comparable petrol sedan consuming 8 litres/<span class="hl-gold">100 km</span> at Ethiopia's 2026 pump price of approximately ETB 85�?5/litre costs approximately <strong>ETB 6.80�?.60/km</strong> in fuel alone.</p>
-<p>The operating cost advantage: <strong>ETB 6.50�?.30/km in fuel savings</strong>. At <span class="hl-gold">150 km</span>/day for a commercial taxi operator, this represents <strong>ETB 975�?,095/day</strong> in fuel savings �?roughly <strong>ETB 28,000�?2,000/month</strong>.</p>
-<p>Against a price premium of approximately ETB 0.7�?.0 million over an equivalent used ICE vehicle, <strong>the Seagull's operating cost advantage recovers the price differential in approximately 24�?6 months</strong> under typical commercial taxi operating conditions.</p>
+<p>The case for the Seagull is not purely about purchase price —it is about total cost of ownership over three to five years of commercial operation.</p>
+<p>Ethiopian electricity costs average approximately ETB 1.40—.50 per kWh (commercial rate, 2025 figures). At 30.<span class="hl-gold">1 kWh</span> battery capacity and <span class="hl-gold">250 km</span> real-world range, the energy cost per kilometre is approximately <strong>ETB 0.17—.30/km</strong>.</p>
+<p>A comparable petrol sedan consuming 8 litres/<span class="hl-gold">100 km</span> at Ethiopia's 2026 pump price of approximately ETB 85—5/litre costs approximately <strong>ETB 6.80—.60/km</strong> in fuel alone.</p>
+<p>The operating cost advantage: <strong>ETB 6.50—.30/km in fuel savings</strong>. At <span class="hl-gold">150 km</span>/day for a commercial taxi operator, this represents <strong>ETB 975—,095/day</strong> in fuel savings —roughly <strong>ETB 28,000—2,000/month</strong>.</p>
+<p>Against a price premium of approximately ETB 0.7—.0 million over an equivalent used ICE vehicle, <strong>the Seagull's operating cost advantage recovers the price differential in approximately 24—6 months</strong> under typical commercial taxi operating conditions.</p>
 <h2>Sourcing Considerations</h2>
 <h2>Sources</h2>
-<p>BYD official pricing �?Seagull domestic China retail, 2026 update</p>
-<p>Ethiopian Revenues and Customs Authority (ERCA) �?Directive 1006/2024 (August 2024), EV tax reclassification</p>
-<p>Djibouti Port Authority �?RoRo handling rates and surcharge schedules (2025�?026)</p>
-<p>PwC Ethiopia �?<em>Ethiopian Tax Guide 2024/2025</em> (for excise, VAT, surtax schedule)</p>
-<p>Feres platform data �?Addis Ababa commercial taxi daily mileage estimates</p>
-<p>Ethiopian Electric Power �?Commercial electricity tariff schedule (2025)</p>
+<p>BYD official pricing —Seagull domestic China retail, 2026 update</p>
+<p>Ethiopian Revenues and Customs Authority (ERCA) —Directive 1006/2024 (August 2024), EV tax reclassification</p>
+<p>Djibouti Port Authority —RoRo handling rates and surcharge schedules (2025—026)</p>
+<p>PwC Ethiopia —<em>Ethiopian Tax Guide 2024/2025</em> (for excise, VAT, surtax schedule)</p>
+<p>Feres platform data —Addis Ababa commercial taxi daily mileage estimates</p>
+<p>Ethiopian Electric Power —Commercial electricity tariff schedule (2025)</p>
 <p class="text-gray-500 text-xs font-light italic mt-8">Published by Evexport Intelligence Desk · May 2026</p>
 `;
 

@@ -1,35 +1,35 @@
 import Link from "next/link";
 
-const content = `<p>China's EV price war is not a media narrative �?it is a documented, sustained market phenomenon that has reshaped the economics of Chinese EV exports to emerging markets. Since early 2023, the average selling price of new energy vehicles in China has been on a sustained downward trend �?with industry media reporting consecutive months of decline exceeding two years �?driven by intense domestic competition between more than 30 active EV brands fighting for market share.</p>
+const content = `<p>China's EV price war is not a media narrative —it is a documented, sustained market phenomenon that has reshaped the economics of Chinese EV exports to emerging markets. Since early 2023, the average selling price of new energy vehicles in China has been on a sustained downward trend —with industry media reporting consecutive months of decline exceeding two years —driven by intense domestic competition between more than 30 active EV brands fighting for market share.</p>
 <p>The cumulative effect has been significant: multiple media trackers and industry analysts report that BYD's average selling price has fallen substantially between 2023 and 2026, with some estimates citing declines exceeding <span class="hl-gold">30% </span>across its product range. Across the sector, entry-level EV price points that once required a premium have migrated to mainstream pricing.</p>
-<p>For African importers, understanding this price trend �?and its driving forces �?is <span class="hl-green">essential</span> for both sourcing strategy and pricing conversations with Chinese suppliers.</p>
+<p>For African importers, understanding this price trend —and its driving forces —is <span class="hl-green">essential</span> for both sourcing strategy and pricing conversations with Chinese suppliers.</p>
 <h2>What Is Driving the Price War</h2>
 <h3>Overcapacity in Chinese Manufacturing</h3>
-<p>China's government-supported EV investment created manufacturing capacity that significantly exceeded domestic demand. More than 30 EV brands entered production between 2020 and 2024. Not all can survive �?the price war is partly an attrition exercise, with brands cutting prices to maintain volume and cash flow while weaker competitors are forced out.</p>
-<p>Consequence for African importers: the brands that survive this price war are the structurally stronger ones �?BYD, Geely, Chery, SAIC (MG), Changan. These are also the brands with the most credible Africa-facing export infrastructure.</p>
+<p>China's government-supported EV investment created manufacturing capacity that significantly exceeded domestic demand. More than 30 EV brands entered production between 2020 and 2024. Not all can survive —the price war is partly an attrition exercise, with brands cutting prices to maintain volume and cash flow while weaker competitors are forced out.</p>
+<p>Consequence for African importers: the brands that survive this price war are the structurally stronger ones —BYD, Geely, Chery, SAIC (MG), Changan. These are also the brands with the most credible Africa-facing export infrastructure.</p>
 <h3>Battery Cost Decline</h3>
-<p>LFP battery cells, which power the majority of China's mainstream EV output, declined in cost from approximately $150/kWh in 2022 to approximately $70�?80/kWh by early 2026. This is driven by CATL and BYD's manufacturing scale and supply chain integration. Lower battery costs directly reduce vehicle manufacturing costs, enabling lower selling prices without sacrificing margin at the same rate.</p>
+<p>LFP battery cells, which power the majority of China's mainstream EV output, declined in cost from approximately $150/kWh in 2022 to approximately $70—80/kWh by early 2026. This is driven by CATL and BYD's manufacturing scale and supply chain integration. Lower battery costs directly reduce vehicle manufacturing costs, enabling lower selling prices without sacrificing margin at the same rate.</p>
 <h3>Subsidy Phase-Out and Competitive Response</h3>
 <p>China's national NEV purchase subsidies ended in January 2023. Manufacturers faced a choice: allow demand to decline as the subsidy-adjusted price rose, or cut prices to maintain the effective purchase cost for buyers. Most chose the latter.</p>
 <div class="rounded-[1.5rem] overflow-hidden my-10">
   <img src="images/chinese-ev-factory-price-trends-h1-2026/price-data.jpg" alt="Data analytics and price trend charts representing the financial analysis of Chinese EV pricing trends in 2025-2026" class="w-full h-auto object-cover" style="max-height:450px;">
   <div class="px-6 py-4 bg-white/[0.02] border-t border-white/5">
-    <p class="text-xs text-gray-500 font-light italic leading-relaxed">China's average NEV transaction price fell significantly between Q1 2023 and Q1 2026, with the largest absolute declines in the RMB 100,000�?00,000 ($13,700�?27,400 USD) segment �?exactly the range that defines most Africa-facing export models.</p>
+    <p class="text-xs text-gray-500 font-light italic leading-relaxed">China's average NEV transaction price fell significantly between Q1 2023 and Q1 2026, with the largest absolute declines in the RMB 100,000—00,000 ($13,700—27,400 USD) segment —exactly the range that defines most Africa-facing export models.</p>
   </div>
 </div>
 <h2>The Segment-Level Price Movement</h2>
 <p>The price decline has not been uniform across segments. Understanding where the biggest reductions have occurred helps African importers identify the best sourcing windows.</p>
-<blockquote class="bq-note"><strong>数据说明：以下表格为编辑基于行业媒体报道（CnEVPost、乘联会月报摘要）构建的参考估算区间，非乘联会（CPCA）或中汽协官方统计数据，仅供趋势方向参考。各细分市场实际成交价因品牌、车型差异显著，请以实际供应商报价为准�?/strong></blockquote>
-<div class="overflow-x-auto my-8"><table class="w-full border-collapse text-sm"><tr><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Segment</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">RMB Range</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">2023 参考均�?/th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">2026 参考均�?/th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">趋势</th></tr>
-<tr><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Micro / Urban</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Under 80,000</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">~RMB 58,000</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">~RMB 48,000</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">下行�?5-20%</th></tr>
-<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Compact</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">80,000�?50,000</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">~RMB 118,000</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">~RMB 89,000</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">下行�?0-28%</td></tr>
-<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Mid-range</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">150,000�?50,000</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">~RMB 196,000</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">~RMB 142,000</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">下行�?5-30%</td></tr>
-<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Premium</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">250,000+</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">~RMB 310,000</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">~RMB 245,000</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">下行�?8-22%</td></tr>
+<blockquote class="bq-note"><strong>数据说明：以下表格为编辑基于行业媒体报道（CnEVPost、乘联会月报摘要）构建的参考估算区间，非乘联会（CPCA）或中汽协官方统计数据，仅供趋势方向参考。各细分市场实际成交价因品牌、车型差异显著，请以实际供应商报价为准　/strong></blockquote>
+<div class="overflow-x-auto my-8"><table class="w-full border-collapse text-sm"><tr><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Segment</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">RMB Range</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">2023 参考均倍/th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">2026 参考均倍/th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">趋势</th></tr>
+<tr><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Micro / Urban</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Under 80,000</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">~RMB 58,000</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">~RMB 48,000</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">下行约5-20%</th></tr>
+<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Compact</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">80,000—50,000</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">~RMB 118,000</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">~RMB 89,000</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">下行约0-28%</td></tr>
+<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Mid-range</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">150,000—50,000</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">~RMB 196,000</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">~RMB 142,000</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">下行约5-30%</td></tr>
+<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Premium</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">250,000+</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">~RMB 310,000</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">~RMB 245,000</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">下行约8-22%</td></tr>
 </table></div>
-<p class="text-gray-500 text-xs font-light italic mt-8">以上均为参考估算，非官方统计。趋势方向有行业报道支撑，具体数字仅供量级参考�?/p>
-<p>The compact segment �?which includes the BYD Atto 3, MG4, Chery Tiggo 7e PHEV, and similar Africa-relevant models �?has seen the largest proportional decline. These are the vehicles most likely to produce the most favourable FOB sourcing conditions for African importers over the next 12�?8 months.</p>
+<p class="text-gray-500 text-xs font-light italic mt-8">以上均为参考估算，非官方统计。趋势方向有行业报道支撑，具体数字仅供量级参考　/p>
+<p>The compact segment —which includes the BYD Atto 3, MG4, Chery Tiggo 7e PHEV, and similar Africa-relevant models —has seen the largest proportional decline. These are the vehicles most likely to produce the most favourable FOB sourcing conditions for African importers over the next 12—8 months.</p>
 <h2>How China's Domestic Price War Translates to FOB Export Pricing</h2>
-<p>The relationship between China domestic retail price and FOB export price is not direct, but it is correlated. When domestic prices fall, export pricing typically follows within 6�?2 months as export channel margins compress.</p>
+<p>The relationship between China domestic retail price and FOB export price is not direct, but it is correlated. When domestic prices fall, export pricing typically follows within 6—2 months as export channel margins compress.</p>
 <p>The mechanism: Chinese export traders compete for orders from African importers in the same way Chinese domestic dealers compete for retail buyers. When BYD cuts its Chinese domestic price by 10%, it creates margin pressure on export traders who are offering the same vehicle at a fixed FOB price. Over time, this compresses FOB pricing.</p>
 <p>Chinese export rebates (tax rebate on exports): changed by Chinese government policy</p>
 <p>Currency movements (RMB vs USD)</p>
@@ -39,12 +39,12 @@ const content = `<p>China's EV price war is not a media narrative �?it is a doc
 <h2>Which Brands Have Cut Most Aggressively</h2>
 <h2>What This Means for Your Procurement Strategy</h2>
 <h2>Sources</h2>
-<p>China Passenger Car Association (CPCA) �?monthly average NEV transaction price data (2023�?026)</p>
-<p>CATL �?battery cell cost trajectory, annual reports (2022�?026)</p>
-<p>BloombergNEF �?<em>"Electric Vehicle Outlook 2025"</em>: China NEV pricing analysis</p>
-<p>CnEVPost �?BYD price reduction announcement tracking (2023�?026)</p>
-<p>IEA �?<em>"Global EV Outlook 2025"</em>: China domestic market pricing chapter</p>
-<p>S&P Global Mobility �?<em>"China Auto Price War: Causes and Implications"</em> (2024)</p>
+<p>China Passenger Car Association (CPCA) —monthly average NEV transaction price data (2023—026)</p>
+<p>CATL —battery cell cost trajectory, annual reports (2022—026)</p>
+<p>BloombergNEF —<em>"Electric Vehicle Outlook 2025"</em>: China NEV pricing analysis</p>
+<p>CnEVPost —BYD price reduction announcement tracking (2023—026)</p>
+<p>IEA —<em>"Global EV Outlook 2025"</em>: China domestic market pricing chapter</p>
+<p>S&P Global Mobility —<em>"China Auto Price War: Causes and Implications"</em> (2024)</p>
 <p class="text-gray-500 text-xs font-light italic mt-8">Published by Evexport Intelligence Desk · April 2026</p>
 `;
 
@@ -71,7 +71,7 @@ export default function ArticlePage() {
                   Chinese EV Prices Have Fallen for 32 Consecutive Months. What African Importers Need to Understand.
                 </h1>
                 <p className="text-xl text-gray-400 font-light italic border-l-2 border-theme/30 pl-6 mb-8 max-w-2xl">
-                  China\'s EV price war is not a media narrative �?it is a documented, sustained market phenomenon that has reshaped the economics of Chinese EV exports to emergi
+                  China\'s EV price war is not a media narrative —it is a documented, sustained market phenomenon that has reshaped the economics of Chinese EV exports to emergi
                 </p>
                 <div className="flex items-center gap-6 text-[10px] font-black uppercase tracking-widest text-gray-500 border-t border-white/10 pt-6">
                   <div className="flex items-center gap-3">

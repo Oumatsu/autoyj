@@ -1,14 +1,14 @@
 import Link from "next/link";
 
 const content = `<p>When a Chinese EV leaves a factory in Shenzhen, Tianjin, or Chongqing headed for East or West Africa, it will move by one of two ocean freight methods: <strong>RoRo (Roll-on Roll-off)</strong> or <strong>container</strong>. Both deliver vehicles. They differ substantially in cost, risk profile, loading process, transit time, and the type of port infrastructure they require at the receiving end.</p>
-<p>Understanding this choice is not an abstraction â€?it affects your per-unit landed cost, your insurance exposure, and the condition of vehicles when they arrive. This article provides the framework for making the right decision based on shipment size, destination port, and vehicle type.</p>
+<p>Understanding this choice is not an abstraction â€”it affects your per-unit landed cost, your insurance exposure, and the condition of vehicles when they arrive. This article provides the framework for making the right decision based on shipment size, destination port, and vehicle type.</p>
 <h2>How RoRo Works</h2>
-<p>RoRo ships are purpose-built vehicle carriers â€?also called Pure Car and Truck Carriers (PCTCs). Vehicles drive onto the vessel under their own power or are towed using low-profile trailers, then secured to the deck with straps and wheel chocks. At the destination port, vehicles drive or are towed off.</p>
+<p>RoRo ships are purpose-built vehicle carriers â€”also called Pure Car and Truck Carriers (PCTCs). Vehicles drive onto the vessel under their own power or are towed using low-profile trailers, then secured to the deck with straps and wheel chocks. At the destination port, vehicles drive or are towed off.</p>
 <p>RoRo is the dominant method for new vehicle manufacturer export worldwide, including virtually all Japanese used vehicle exports to East Africa that have defined the industry for 30 years. The largest RoRo ships carry up to 7,000 CEUs (Car Equivalent Units).</p>
 <div class="rounded-[1.5rem] overflow-hidden my-10">
   <img src="images/roro-vs-container/container-ship.jpg" alt="Large container ship at sea representing the alternative ocean freight method using standard ISO containers for vehicle shipment" class="w-full h-auto object-cover" style="max-height:450px;">
   <div class="px-6 py-4 bg-white/[0.02] border-t border-white/5">
-    <p class="text-xs text-gray-500 font-light italic leading-relaxed">Container shipping requires vehicles to be placed inside 20- or 40-foot ISO containers â€?either one vehicle per 40ft container or two smaller vehicles in a single container with careful blocking and bracing.</p>
+    <p class="text-xs text-gray-500 font-light italic leading-relaxed">Container shipping requires vehicles to be placed inside 20- or 40-foot ISO containers â€”either one vehicle per 40ft container or two smaller vehicles in a single container with careful blocking and bracing.</p>
   </div>
 </div>
 <h2>How Container Shipping Works</h2>
@@ -18,10 +18,10 @@ const content = `<p>When a Chinese EV leaves a factory in Shenzhen, Tianjin, or 
 <h2>Side-by-Side Comparison</h2>
 <div class="overflow-x-auto my-8"><table class="w-full border-collapse text-sm"><tr><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Factor</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">RoRo</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Container</th></tr>
 <tr><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Cost per vehicle</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Lower (no container rental, simpler handling)</th><th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-white/10 text-left">Higher (container rental + lashing + handling)</th></tr>
-<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Transit time</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Typically 20â€?5 days China â†?East Africa</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Similar; +2â€? days for container port logistics</td></tr>
+<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Transit time</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Typically 20â€”5 days China â†’East Africa</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Similar; +2â€” days for container port logistics</td></tr>
 <tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Vehicle exposure</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Open deck; weather and salt spray exposure</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Enclosed; fully protected from elements</td></tr>
 <tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Minimum shipment</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Single vehicle (most RoRo operators)</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Single vehicle (one container)</td></tr>
-<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Bulk discount</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Yes â€?significant savings at 10+ units</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Less pronounced</td></tr>
+<tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Bulk discount</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Yes â€”significant savings at 10+ units</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Less pronounced</td></tr>
 <tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">EV battery risk</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Battery at 30-50% charge required</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Same restriction applies</td></tr>
 <tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Port compatibility</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Requires dedicated RoRo berth</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Any container terminal</td></tr>
 <tr><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Theft risk in transit</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Low (vessels are managed)</td><td class="py-3 px-4 text-sm text-gray-300 border-b border-white/5">Low (containers are sealed)</td></tr>
@@ -30,7 +30,7 @@ const content = `<p>When a Chinese EV leaves a factory in Shenzhen, Tianjin, or 
 <div class="rounded-[1.5rem] overflow-hidden my-10">
   <img src="images/roro-vs-container/port-logistics.jpg" alt="Port logistics operations representing the vehicle clearance process at East African ports including Mombasa and Djibouti" class="w-full h-auto object-cover" style="max-height:450px;">
   <div class="px-6 py-4 bg-white/[0.02] border-t border-white/5">
-    <p class="text-xs text-gray-500 font-light italic leading-relaxed">Port infrastructure matters: Djibouti has a dedicated RoRo terminal (Doraleh Multi-Purpose Port). Mombasa handles both RoRo and container vehicles. Dar es Salaam's RoRo capacity is more limited â€?container may be preferable for Tanzania-bound shipments.</p>
+    <p class="text-xs text-gray-500 font-light italic leading-relaxed">Port infrastructure matters: Djibouti has a dedicated RoRo terminal (Doraleh Multi-Purpose Port). Mombasa handles both RoRo and container vehicles. Dar es Salaam's RoRo capacity is more limited â€”container may be preferable for Tanzania-bound shipments.</p>
   </div>
 </div>
 <h2>When to Choose RoRo</h2>
@@ -39,14 +39,14 @@ const content = `<p>When a Chinese EV leaves a factory in Shenzhen, Tianjin, or 
 <p>Container is typically right when:</p>
 <h2>The EV-Specific Consideration: Battery State at Loading</h2>
 <p>This is the one area where EV shipping differs from ICE vehicle shipping and where importers consistently encounter unexpected costs or delays.</p>
-<p>Most RoRo terminals and container yards require EV batteries to be at <strong>30â€?span class="hl-gold">50% </span>state of charge at loading</strong>. Vehicles arriving at the terminal with depleted or fully charged batteries may be refused loading or subject to on-site charging/discharging that adds cost and delay.</p>
-<p>Chinese exporters working with legitimate OEM channels typically manage this â€?vehicles are parked at export yards for days to weeks, and charge levels are monitored. Grey-market traders moving vehicles directly from registrations to ports may deliver vehicles at <span class="hl-gold">0% </span>charge (never been driven, never been charged since factory). This creates a loading issue that is your problem to solve, not theirs.</p>
+<p>Most RoRo terminals and container yards require EV batteries to be at <strong>30â€”span class="hl-gold">50% </span>state of charge at loading</strong>. Vehicles arriving at the terminal with depleted or fully charged batteries may be refused loading or subject to on-site charging/discharging that adds cost and delay.</p>
+<p>Chinese exporters working with legitimate OEM channels typically manage this â€”vehicles are parked at export yards for days to weeks, and charge levels are monitored. Grey-market traders moving vehicles directly from registrations to ports may deliver vehicles at <span class="hl-gold">0% </span>charge (never been driven, never been charged since factory). This creates a loading issue that is your problem to solve, not theirs.</p>
 <h2>Sources</h2>
-<p>Grimaldi Lines â€?Chinaâ€“Africa RoRo service documentation (2025â€?026)</p>
-<p>Djibouti Ports & Free Zones Authority â€?Doraleh RoRo terminal specifications</p>
-<p>Kenya Ports Authority â€?Mombasa RoRo and container import procedures (2025)</p>
-<p>Freightos â€?<em>"RoRo vs Container: Auto Shipping Explained"</em> (2025)</p>
-<p>BIMCO â€?<em>"Pure Car and Truck Carrier Market Update"</em> (Q1 2026)</p>
+<p>Grimaldi Lines â€”Chinaâ€“Africa RoRo service documentation (2025â€”026)</p>
+<p>Djibouti Ports & Free Zones Authority â€”Doraleh RoRo terminal specifications</p>
+<p>Kenya Ports Authority â€”Mombasa RoRo and container import procedures (2025)</p>
+<p>Freightos â€”<em>"RoRo vs Container: Auto Shipping Explained"</em> (2025)</p>
+<p>BIMCO â€”<em>"Pure Car and Truck Carrier Market Update"</em> (Q1 2026)</p>
 <p class="text-gray-500 text-xs font-light italic mt-8">Published by Evexport Intelligence Desk Â· March 2026</p>
 `;
 
