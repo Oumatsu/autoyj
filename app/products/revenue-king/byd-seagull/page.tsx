@@ -138,25 +138,38 @@ export default function BydSeagullPage() {
 
       {/* Bridge: Hero (black) → Gallery (black) — same color, no bridge needed */}
 
-      {/* Gallery — bottom overlay (mid → black-buffer → transparent)  */}
-      <section className="bg-black py-8 md:py-12 relative">
-        <div
-          className="absolute bottom-0 left-0 right-0 pointer-events-none z-0"
-          style={{
-            height: "clamp(140px, 16vh, 260px)",
-            background: [
-              `linear-gradient(`,
-              `  to top,`,
-              `  var(--color-mid) 0%,`,
-              `  rgba(28,28,28,0.96) 18%,`,
-              `  rgba(20,20,20,0.88) 36%,`,
-              `  rgba(10,10,10,0.68) 58%,`,
-              `  rgba(0,0,0,0.42) 78%,`,
-              `  rgba(0,0,0,0) 100%`,
-              `)`,
-            ].join("\n"),
-          }}
-        />
+      {/* Gallery — 21-stop fine gradient: #000 → mid at 2% intervals */}
+      <section
+        className="py-8 md:py-12 relative"
+        style={{
+          background: [
+            `linear-gradient(to bottom,`,
+            `  #000 0%,`,
+            `  #000 60%,`,
+            `  #010101 62%,`,
+            `  #030303 64%,`,
+            `  #040404 66%,`,
+            `  #060606 68%,`,
+            `  #070707 70%,`,
+            `  #080808 72%,`,
+            `  #0a0a0a 74%,`,
+            `  #0b0b0b 76%,`,
+            `  #0d0d0d 78%,`,
+            `  #0e0e0e 80%,`,
+            `  #0f0f0f 82%,`,
+            `  #111111 84%,`,
+            `  #121212 86%,`,
+            `  #141414 88%,`,
+            `  #151515 90%,`,
+            `  #161616 92%,`,
+            `  #181818 94%,`,
+            `  #191919 96%,`,
+            `  #1b1b1b 98%,`,
+            `  #1c1c1c 100%`,
+            `)`,
+          ].join("\n"),
+        }}
+      >
         <style>{`
           @keyframes imgSwitchIn {
             from { opacity: 0.5; transform: scale(0.96); }
@@ -166,29 +179,28 @@ export default function BydSeagullPage() {
             animation: imgSwitchIn 500ms cubic-bezier(0.4, 0, 0.2, 1) both;
           }
         `}</style>
-        <div className="container mx-auto px-4 md:px-8 max-w-6xl">
-          <div className="relative" style={{ height: "clamp(280px, 50vw, 540px)" }}>
-            <div className="relative h-full rounded-2xl overflow-hidden bg-black">
+        <div className="container mx-auto px-2 md:px-6 max-w-7xl">
+          <div className="relative">
+            <div className="relative rounded-2xl overflow-hidden">
 
               {/* Left peek — pinned to left screen edge */}
               <div
-                className="absolute left-0 top-0 w-[7%] h-full cursor-pointer overflow-hidden"
+                className="absolute left-0 inset-y-0 w-[18%] cursor-pointer overflow-hidden"
                 onClick={() => goGallery(-1)}
               >
                 <img
                   src={galleryImages[prevIdx].src}
-                  className="w-full h-full object-cover transition-opacity duration-700"
+                  className="h-full object-cover transition-opacity duration-700"
                   alt={galleryImages[prevIdx].label}
-                  style={{ opacity: 0.4, borderRadius: "0 0.75rem 0.75rem 0" }}
+                  style={{ width: "200%", opacity: 0.4, borderRadius: "0 0.75rem 0.75rem 0", objectPosition: "right" }}
                 />
-                <div className="absolute inset-0 bg-black/35" style={{ borderRadius: "0 0.75rem 0.75rem 0" }} />
               </div>
 
-              {/* Center image — centered with space on both sides */}
+              {/* Center image — 16:9 aspect ratio drives the height */}
               <div
-                className="relative mx-auto w-[85%] h-full cursor-zoom-in"
+                className="relative mx-auto w-[60%] cursor-zoom-in"
                 onClick={openLightbox}
-                style={{ zIndex: 1 }}
+                style={{ zIndex: 1, aspectRatio: "16/9" }}
               >
                 <img
                   key={`center-img-${galIdx}`}
@@ -200,16 +212,15 @@ export default function BydSeagullPage() {
 
               {/* Right peek — pinned to right screen edge */}
               <div
-                className="absolute right-0 top-0 w-[7%] h-full cursor-pointer overflow-hidden"
+                className="absolute right-0 inset-y-0 w-[18%] cursor-pointer overflow-hidden"
                 onClick={() => goGallery(1)}
               >
                 <img
                   src={galleryImages[nextIdx].src}
-                  className="w-full h-full object-cover transition-opacity duration-700"
+                  className="h-full object-cover transition-opacity duration-700"
                   alt={galleryImages[nextIdx].label}
-                  style={{ opacity: 0.4, borderRadius: "0.75rem 0 0 0.75rem" }}
+                  style={{ width: "200%", opacity: 0.4, borderRadius: "0.75rem 0 0 0.75rem", objectPosition: "left" }}
                 />
-                <div className="absolute inset-0 bg-black/35" style={{ borderRadius: "0.75rem 0 0 0.75rem" }} />
               </div>
 
             </div>
@@ -254,7 +265,7 @@ export default function BydSeagullPage() {
       )}
 
       {/* Why It Sells */}
-      <section className="py-12 md:py-16 bg-a">
+      <section className="py-12 md:py-16" style={{ background: "var(--color-mid)" }}>
         <div className="container mx-auto px-6 md:px-12">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-start">
             <div>
