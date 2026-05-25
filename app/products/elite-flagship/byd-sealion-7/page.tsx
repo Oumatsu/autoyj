@@ -9,7 +9,7 @@ const data = {
     batteryType: "LFP",
     range: "610 km",
     charging: "[2025 Flagship SUV] e-Platform 3.0 Evo - 23,000 rpm motor + dual-gun fast charge + global flagship",
-    img: "https://6a0327d1fc46b5b25f3480d6.imgix.net/sealion/sealion%20display.webp",
+    img: "/pic/elite-flagship/sealion/13.webp",
     status: "in-stock",
     statusText: "In Stock: Shenzhen",
   },

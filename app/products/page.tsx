@@ -118,7 +118,7 @@ export default function ProductsPage() {
                   badgeCls: "bg-gold text-black",
                   saving: "Save $250/mo",
                   tags: ["LFP Blade", "405km Range"],
-                  img: "https://6a0327d1fc46b5b25f3480d6.imgix.net/seagull%20display-Cut.png",
+                  img: "/pic/revenue-king/seagull/7cut.jpeg",
                   link: "/products/revenue-king/byd-seagull",
                 },
                 {
@@ -127,7 +127,7 @@ export default function ProductsPage() {
                   badgeCls: "bg-accent/20 text-accent border border-accent/30",
                   saving: "Save $380/mo",
                   tags: ["LiDAR ADAS", "520km Range"],
-                  img: "https://6a0327d1fc46b5b25f3480d6.imgix.net/RT/RT%20display.jpg",
+                  img: "/pic/revenue-king/RT/7cut.webp",
                   link: "/products/revenue-king/gac-aion-rt",
                 },
                 {
@@ -136,7 +136,7 @@ export default function ProductsPage() {
                   badgeCls: "",
                   saving: "Save $350/mo",
                   tags: ["Million-Unit Proof", "510km Range"],
-                  img: "https://6a0327d1fc46b5b25f3480d6.imgix.net/qinplusev/qinplusev%20display.webp",
+                  img: "/pic/revenue-king/qinplusev/5cut.webp",
                   link: "/products/revenue-king/byd-qin-plus",
                 },
                 {
@@ -288,7 +288,7 @@ export default function ProductsPage() {
                   tag: "800V Ultra-Fast Charge",
                   desc: "Extreme handling and range. The fastest charging executive shooting brake in the market.",
                   label: "Tech Icon",
-                  img: "https://6a0327d1fc46b5b25f3480d6.imgix.net/001/001%20display.png",
+                  img: "/pic/elite-flagship/001/0.webp",
                   link: "/products/elite-flagship/zeekr-001",
                 },
                 {
@@ -390,7 +390,7 @@ export default function ProductsPage() {
                   desc: "PHEV Pickup with DMO off-road platform. 1000km+ total range for the hardest jobs.",
                   label: "Hybrid Power",
                   sub: "Pickup Pro",
-                  img: "https://6a0327d1fc46b5b25f3480d6.imgix.net/neo%20products/shark%20display0.png",
+                  img: "/pic/utility-pro/shark/4cut.webp",
                   link: "/products/utility-pro/byd-shark",
                 },
                 {

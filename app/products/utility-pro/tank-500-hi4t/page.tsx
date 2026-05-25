@@ -9,7 +9,7 @@ const data = {
     batteryType: "NCM (PHEV)",
     range: "790 km (Ext)",
     charging: "Hardcore off-road PHEV - mechanical 4WD + luxury interior",
-    img: "https://6a0327d1fc46b5b25f3480d6.imgix.net/Hi4-T/Hi4-T%20display.jpg",
+    img: "/pic/utility-pro/Hi4-T/3.webp",
     status: "factory",
     statusText: "Factory Order: 28 Days",
   },

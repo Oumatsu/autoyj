@@ -9,7 +9,7 @@ const data = {
     batteryType: "NCM / LFP",
     range: "750 km",
     charging: "Full-range 800V + LiDAR - ultra-fast charging + in-house motor + top-tier shooting brake design",
-    img: "https://6a0327d1fc46b5b25f3480d6.imgix.net/001/001%20display.png",
+    img: "/pic/elite-flagship/001/10cut.webp",
     status: "in-stock",
     statusText: "In Stock: Shanghai",
   },

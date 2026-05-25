@@ -9,7 +9,7 @@ const data = {
     batteryType: "LFP Blade",
     range: "510 km",
     charging: "1M+ units validated - ultra-low drag + large boot + lowest after-sales costs",
-    img: "https://6a0327d1fc46b5b25f3480d6.imgix.net/qinplusev/qinplusev%20display.webp",
+    img: "/pic/revenue-king/qinplusev/7.webp",
     status: "in-stock",
     statusText: "In Stock: Shenzhen",
   },

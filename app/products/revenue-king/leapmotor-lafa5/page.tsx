@@ -9,7 +9,7 @@ const data = {
     batteryType: "LFP",
     range: "605 km",
     charging: "Next-gen LEAP 3.5 platform — 800V architecture + LiDAR smart driving + 2.5K cockpit",
-    img: "https://6a0327d1fc46b5b25f3480d6.imgix.net/lafa5-deultra/lafa5%20display.png",
+    img: "/pic/revenue-king/lafa5/8cut.jpeg",
     status: "factory",
     statusText: "Factory Order: 14 Days",
   },

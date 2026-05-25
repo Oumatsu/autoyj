@@ -9,7 +9,7 @@ const data = {
     batteryType: "LFP (PHEV)",
     range: "840 km (Ext)",
     charging: "[2025 Global Spotlight] DMO off-road platform - high-power V2L export + 1,000 km+ range, 50-60% fuel savings",
-    img: "https://6a0327d1fc46b5b25f3480d6.imgix.net/shark/shark%20display.png",
+    img: "/pic/utility-pro/shark/4.webp",
     status: "factory",
     statusText: "Factory Order: 21 Days",
   },

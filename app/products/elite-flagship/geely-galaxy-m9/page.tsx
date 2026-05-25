@@ -9,7 +9,7 @@ const data = {
     batteryType: "LFP",
     range: "1,500 km (Ext)",
     charging: "[Value Bombshell] Only air suspension + tri-motor AWD in class - 5.2m full-size 6-seat SUV + AI cockpit",
-    img: "https://6a0327d1fc46b5b25f3480d6.imgix.net/Galaxym9/Galaxym9%20display.jpg",
+    img: "/pic/elite-flagship/M9/7.webp",
     status: "factory",
     statusText: "Factory Order: 21 Days",
   },

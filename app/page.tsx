@@ -130,7 +130,7 @@ export default function HomePage() {
                   style={{ boxShadow: "0 0 40px rgba(197,160,89,.07)" }}
                 >
                   <img
-                    src="https://6a0327d1fc46b5b25f3480d6.imgix.net/E-HS9/E-HS9%20display.jpg"
+                    src="/pic/elite-flagship/E-HS9/6cut.jpeg"
                     className="w-full h-full object-cover absolute inset-0"
                     alt="Elite Flagship"
                   />
@@ -192,7 +192,7 @@ export default function HomePage() {
               <Link href="/products/utility-pro" className="block">
                 <div className="v-card aspect-[4/5] border border-accent/20">
                   <img
-                    src="https://6a0327d1fc46b5b25f3480d6.imgix.net/9x/9x%20display.webp"
+                    src="/pic/utility-pro/9x/6cut.webp"
                     className="w-full h-full object-cover absolute inset-0"
                     alt="Utility Pro"
                   />

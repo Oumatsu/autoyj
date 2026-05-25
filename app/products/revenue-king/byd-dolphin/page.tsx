@@ -9,7 +9,7 @@ const data = {
     batteryType: "LFP Blade",
     range: "420 km",
     charging: "2025 comfort suspension - e-Platform 3.0 + heat pump across all trims",
-    img: "https://6a0327d1fc46b5b25f3480d6.imgix.net/dolphin/dolphin%20display.webp",
+    img: "/pic/revenue-king/dolphin/7cut.jpg",
     status: "in-stock",
     statusText: "In Stock: Shenzhen",
   },
