@@ -2,12 +2,10 @@ import Link from "next/link";
 import { HeroSlider } from "@/components/HeroSlider";
 import { SectionTabs } from "@/components/SectionTabs";
 import { TcoCounter } from "@/components/TcoCounter";
-import { ScrollSnapEnabler } from "@/components/ScrollSnapEnabler";
 
 export default function HomePage() {
   return (
     <>
-      <ScrollSnapEnabler />
       <HeroSlider />
       <SectionTabs />
 
@@ -46,7 +44,7 @@ export default function HomePage() {
       </div>
 
       {/* Curated Vehicles */}
-      <section className="snap-section py-20 md:py-28 bg-b" id="products">
+      <section className="py-20 md:py-28 bg-b" id="products">
         <div className="container mx-auto px-6 md:px-12">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16">
             <div>
@@ -254,7 +252,7 @@ export default function HomePage() {
       {/* How It Works — 4 Steps */}
       <section
         id="solutions"
-        className="snap-section py-20 md:py-28 relative overflow-hidden"
+        className="py-20 md:py-28 relative overflow-hidden"
       >
         <div className="absolute inset-0">
           <img
@@ -381,7 +379,7 @@ export default function HomePage() {
       </section>
 
       {/* EV vs ICE TCO */}
-      <section className="snap-section py-20 md:py-28 bg-a" id="tco">
+      <section className="py-20 md:py-28 bg-a" id="tco">
         <div className="container mx-auto px-6 md:px-12">
           <div className="grid lg:grid-cols-2 gap-16 lg:gap-24 items-center">
             <div>
@@ -549,7 +547,7 @@ export default function HomePage() {
       {/* Insights + Academy */}
       <section
         id="insights"
-        className="snap-section py-20 md:py-28 relative overflow-hidden"
+        className="py-20 md:py-28 relative overflow-hidden"
       >
         <div className="absolute inset-0">
           <img
@@ -648,7 +646,7 @@ export default function HomePage() {
       </section>
 
       {/* About Teaser */}
-      <section className="snap-section py-20 md:py-28 bg-b" id="about">
+      <section className="py-20 md:py-28 bg-b" id="about">
         <div className="container mx-auto px-6 md:px-12">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div>
@@ -714,7 +712,7 @@ export default function HomePage() {
       </section>
 
       {/* Lead Magnet */}
-      <section className="snap-section py-20 md:py-28 bg-a" id="lead-magnet">
+      <section className="py-20 md:py-28 bg-a" id="lead-magnet">
         <div className="container mx-auto px-6 md:px-12">
           <div className="max-w-xl mx-auto text-center">
             <div className="label justify-center mb-5">

@@ -113,7 +113,7 @@ export function HeroSlider() {
   const d = slidesData[cur];
 
   return (
-    <section id="hero" className="snap-section relative h-screen w-full overflow-hidden">
+    <section id="hero" className="relative h-screen w-full overflow-hidden">
       {slidesData.map((slide, i) => (
         <div key={i} className={`slide ${i === cur ? "active" : ""}`}>
           <img
