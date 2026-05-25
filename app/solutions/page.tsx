@@ -4,46 +4,28 @@ export default function SolutionsPage() {
   return (
     <>
       {/* Hero */}
-      <section className="relative min-h-[75vh] flex items-end overflow-hidden">
-        <div className="absolute inset-0">
-          <img
-            src="/pic/hero/0.webp"
-            className="w-full h-full object-cover"
-            style={{ filter: "brightness(.95)" }}
-            alt="Export Logistics"
-          />
-          <div
-            className="absolute inset-0"
-            style={{
-              background:
-                "linear-gradient(to bottom, transparent 50%, rgba(128,128,128,0.45) 100%)",
-              mixBlendMode: "saturation",
-            }}
-          />
-          <div
-            className="absolute inset-0"
-            style={{
-              background:
-                "linear-gradient(to right, rgba(28,28,28,.6) 28%, transparent 75%)",
-            }}
-          />
-          <div
-            className="absolute inset-0"
-            style={{
-              background:
-                "linear-gradient(to bottom, rgba(28,28,28,1) 0%, rgba(28,28,28,1) 10%, transparent 32%)",
-            }}
-          />
-          <div
-            className="absolute inset-0"
-            style={{
-              background:
-                "linear-gradient(to bottom, transparent 60%, var(--color-mid) 100%)",
-            }}
-          />
-        </div>
+      <section className="relative overflow-hidden">
+        <img
+          src="/pic/hero/0.webp"
+          className="w-full block"
+          style={{ filter: "brightness(.95)", marginBottom: "-7.5%" }}
+          alt="Export Logistics"
+        />
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(to right, rgba(28,28,28,.6) 28%, transparent 75%)",
+          }}
+        />
+        <div
+          className="absolute inset-0"
+          style={{
+            background: "linear-gradient(to bottom, rgba(28,28,28,0.00) 0%, rgba(28,28,28,0.02) 2%, rgba(28,28,28,0.04) 4%, rgba(28,28,28,0.06) 6%, rgba(28,28,28,0.08) 8%, rgba(28,28,28,0.10) 10%, rgba(28,28,28,0.12) 12%, rgba(28,28,28,0.14) 14%, rgba(28,28,28,0.16) 16%, rgba(28,28,28,0.18) 18%, rgba(28,28,28,0.20) 20%, rgba(28,28,28,0.22) 22%, rgba(28,28,28,0.24) 24%, rgba(28,28,28,0.26) 26%, rgba(28,28,28,0.28) 28%, rgba(28,28,28,0.30) 30%, rgba(28,28,28,0.32) 32%, rgba(28,28,28,0.34) 34%, rgba(28,28,28,0.36) 36%, rgba(28,28,28,0.38) 38%, rgba(28,28,28,0.40) 40%, rgba(28,28,28,0.42) 42%, rgba(28,28,28,0.44) 44%, rgba(28,28,28,0.46) 46%, rgba(28,28,28,0.48) 48%, rgba(28,28,28,0.50) 50%, rgba(28,28,28,0.52) 52%, rgba(28,28,28,0.54) 54%, rgba(28,28,28,0.56) 56%, rgba(28,28,28,0.58) 58%, rgba(28,28,28,0.60) 60%, rgba(28,28,28,0.62) 62%, rgba(28,28,28,0.64) 64%, rgba(28,28,28,0.66) 66%, rgba(28,28,28,0.68) 68%, rgba(28,28,28,0.70) 70%, rgba(28,28,28,0.72) 72%, rgba(28,28,28,0.74) 74%, rgba(28,28,28,0.76) 76%, rgba(28,28,28,0.78) 78%, rgba(28,28,28,0.80) 80%, rgba(28,28,28,0.82) 82%, rgba(28,28,28,0.84) 84%, rgba(28,28,28,0.86) 86%, rgba(28,28,28,0.88) 88%, rgba(28,28,28,0.90) 90%, rgba(28,28,28,0.92) 92%, rgba(28,28,28,0.94) 94%, rgba(28,28,28,0.96) 96%, rgba(28,28,28,0.98) 98%, rgba(28,28,28,1.00) 100%)"
+          }}
+        />
 
-        <div className="relative z-10 container mx-auto px-6 md:px-12 pt-20 pb-20 md:pb-28">
+        <div className="container absolute inset-0 z-10 flex flex-col items-center justify-center px-6 md:px-12">
           <div className="max-w-3xl">
             <div className="label label-gold mb-6 text-[11px]">
               Precision Export Solutions
