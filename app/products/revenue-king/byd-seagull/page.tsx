@@ -4,12 +4,21 @@ import { useState, useCallback } from "react";
 import Link from "next/link";
 
 const galleryImages = [
-  { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/seagull/seagull%20detail%20(2).webp", cat: "Exterior", label: "" },
-  { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/seagull/seagull%20detail%20(2).jpg", cat: "Exterior", label: "" },
-  { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/seagull/seagull%20detail%20(1).png", cat: "Interior", label: "" },
-  { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/seagull/seagull%20detail%20(1).jpeg", cat: "Detail", label: "" },
-  { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/seagull/seagull%20detail%20(1).webp", cat: "Interior", label: "" },
-  { src: "https://6a0327d1fc46b5b25f3480d6.imgix.net/seagull/seagull%20detail%20(1).jpg", cat: "Detail", label: "" },
+  { src: "/pic/revenue-king/seagull/0.webp", cat: "Exterior", label: "" },
+  { src: "/pic/revenue-king/seagull/1.webp", cat: "Exterior", label: "" },
+  { src: "/pic/revenue-king/seagull/2.webp", cat: "Exterior", label: "" },
+  { src: "/pic/revenue-king/seagull/3.webp", cat: "Exterior", label: "" },
+  { src: "/pic/revenue-king/seagull/4.webp", cat: "Interior", label: "" },
+  { src: "/pic/revenue-king/seagull/5.webp", cat: "Interior", label: "" },
+  { src: "/pic/revenue-king/seagull/6.webp", cat: "Interior", label: "" },
+  { src: "/pic/revenue-king/seagull/9.webp", cat: "Interior", label: "" },
+  { src: "/pic/revenue-king/seagull/10.webp", cat: "Detail", label: "" },
+  { src: "/pic/revenue-king/seagull/11.webp", cat: "Detail", label: "" },
+  { src: "/pic/revenue-king/seagull/12.webp", cat: "Detail", label: "" },
+  { src: "/pic/revenue-king/seagull/13.webp", cat: "Detail", label: "" },
+  { src: "/pic/revenue-king/seagull/14.webp", cat: "Detail", label: "" },
+  { src: "/pic/revenue-king/seagull/15.webp", cat: "Detail", label: "" },
+  { src: "/pic/revenue-king/seagull/16.webp", cat: "Detail", label: "" },
 ];
 
 const trimData = [
@@ -53,7 +62,7 @@ export default function BydSeagullPage() {
       <section className="relative min-h-screen flex items-end overflow-hidden bg-black">
         <div className="absolute inset-0">
           <img
-            src="https://6a0327d1fc46b5b25f3480d6.imgix.net/seagull/seagull%20display.png"
+            src="/pic/revenue-king/seagull/8.webp"
             className="w-full h-full object-cover"
             style={{ filter: "grayscale(100%) brightness(.95)" }}
             alt="BYD Seagull"

@@ -118,7 +118,7 @@ export default function ProductsPage() {
                   badgeCls: "bg-gold text-black",
                   saving: "Save $250/mo",
                   tags: ["LFP Blade", "405km Range"],
-                  img: "/pic/revenue-king/seagull/7cut.jpeg",
+                  img: "/pic/revenue-king/seagull/7cut.webp",
                   link: "/products/revenue-king/byd-seagull",
                 },
                 {
