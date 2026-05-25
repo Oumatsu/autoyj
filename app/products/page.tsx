@@ -6,29 +6,65 @@ import { vehicles as utilityVehicles } from "./utility-pro/data";
 export default function ProductsPage() {
   return (
     <>
-      {/* Hero */}
-      <section className="relative min-h-[85vh] flex items-center overflow-hidden">
-        <div className="absolute inset-0">
-          <img
-            src="https://6a0327d1fc46b5b25f3480d6.imgix.net/Our-solutions-durability-and-fatigue.avif"
-            className="w-full h-full object-cover"
-            style={{ filter: "contrast(1.1)" }}
-            alt="Curated Selection Background"
-          />
-          <div
-            className="absolute inset-0"
-            style={{ background: "rgba(0, 0, 0, 0.45)" }}
-          />
-          <div
-            className="absolute inset-0"
-            style={{
-              background:
-                "linear-gradient(to top, var(--color-mid) 0%, var(--color-mid) 8%, transparent 30%)",
-            }}
-          />
-        </div>
+      {/* Hero — image drives height, bottom 7.5% clipped, fades to mid */}
+      <section className="relative overflow-hidden">
+        <img
+          src="https://6a0327d1fc46b5b25f3480d6.imgix.net/Our-solutions-durability-and-fatigue.avif"
+          className="w-full block"
+          style={{ filter: "contrast(1.1)", marginBottom: "-7.5%" }}
+          alt="Curated Selection Background"
+        />
+        <div
+          className="absolute inset-0"
+          style={{ background: "rgba(0, 0, 0, 0.45)" }}
+        />
+        {/* Vertical vignette: center clear → edges fade 35% */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background: [
+              `linear-gradient(to bottom,`,
+              `  rgba(0,0,0,0.35) 0%,`,
+              `  transparent 35%,`,
+              `  transparent 65%,`,
+              `  rgba(0,0,0,0.35) 100%`,
+              `)`,
+            ].join("\n"),
+          }}
+        />
+        <div
+          className="absolute bottom-0 left-0 right-0"
+          style={{
+            top: "60%",
+            background: [
+              `linear-gradient(to bottom,`,
+              `  transparent 0%,`,
+              `  rgba(28,28,28,0.05) 5%,`,
+              `  rgba(28,28,28,0.10) 10%,`,
+              `  rgba(28,28,28,0.15) 15%,`,
+              `  rgba(28,28,28,0.20) 20%,`,
+              `  rgba(28,28,28,0.25) 25%,`,
+              `  rgba(28,28,28,0.30) 30%,`,
+              `  rgba(28,28,28,0.35) 35%,`,
+              `  rgba(28,28,28,0.40) 40%,`,
+              `  rgba(28,28,28,0.45) 45%,`,
+              `  rgba(28,28,28,0.50) 50%,`,
+              `  rgba(28,28,28,0.55) 55%,`,
+              `  rgba(28,28,28,0.60) 60%,`,
+              `  rgba(28,28,28,0.65) 65%,`,
+              `  rgba(28,28,28,0.70) 70%,`,
+              `  rgba(28,28,28,0.75) 75%,`,
+              `  rgba(28,28,28,0.80) 80%,`,
+              `  rgba(28,28,28,0.85) 85%,`,
+              `  rgba(28,28,28,0.90) 90%,`,
+              `  rgba(28,28,28,0.95) 95%,`,
+              `  rgba(28,28,28,1.00) 100%`,
+              `)`,
+            ].join("\n"),
+          }}
+        />
 
-        <div className="container relative z-10 mx-auto px-6 md:px-12 text-center pt-16">
+        <div className="container absolute inset-0 z-10 mx-auto px-6 md:px-12 flex flex-col items-center justify-center text-center">
           <div className="label justify-center mb-6">
             Expertly Curated Selection
           </div>
