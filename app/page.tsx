@@ -589,7 +589,7 @@ export default function HomePage() {
                   Market Intelligence
                 </div>
                 <h3 className="text-3xl font-black uppercase italic text-white tracking-tight mb-4">
-                  2026 Africa EV
+                  2025 Africa EV
                   <br />
                   Export Report
                 </h3>
@@ -719,7 +719,7 @@ export default function HomePage() {
               Free Insider Report
             </div>
             <h2 className="sh mb-4">
-              2026 China EV
+              2025 China EV
               <br />
               <span className="text-theme">Export Report</span>.
             </h2>
