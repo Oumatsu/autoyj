@@ -247,10 +247,46 @@ export default function ProductsPage() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-              {/* AITO M9 - Large Card */}
+              {/* AITO M9 - Mobile Card (matches Zeekr 001 style) */}
               <Link
                 href="/products/elite-flagship/aito-m9"
-                className="group relative bg-bg3/30 rounded-[3rem] overflow-hidden border border-white/5 hover:border-theme/30 transition-all duration-500 cursor-pointer col-span-1 lg:col-span-2"
+                className="lg:hidden group relative bg-bg3/30 rounded-[2.5rem] overflow-hidden border border-white/5 hover:border-theme/30 transition-all duration-500 cursor-pointer"
+              >
+                <div className="aspect-[16/10] overflow-hidden relative">
+                  <img
+                    src="https://6a0327d1fc46b5b25f3480d6.imgix.net/M9/M9%20display.webp"
+                    alt="AITO M9"
+                    className="w-full h-full object-cover scale-100 group-hover:scale-105 transition-all duration-700"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-bg via-transparent to-transparent opacity-60" />
+                  <div className="absolute bottom-6 left-6 right-6">
+                    <div className="text-[9px] font-black text-theme uppercase tracking-[0.2em] mb-1">
+                      Performance King
+                    </div>
+                    <h3 className="text-2xl font-black italic text-white uppercase tracking-tight">
+                      AITO M9
+                    </h3>
+                  </div>
+                </div>
+                <div className="p-5 sm:p-8">
+                  <p className="text-gray-500 text-xs font-light leading-relaxed mb-4 sm:mb-6">
+                    Huawei&apos;s ADS 3.0 tech masterpiece. Executive projection headlights and the most advanced chassis in the industry.
+                  </p>
+                  <div className="flex items-center justify-between pt-4 sm:pt-6 border-t border-white/5">
+                    <div className="text-[10px] font-black text-theme uppercase tracking-widest">
+                      Tech Pinnacle
+                    </div>
+                    <div className="text-[10px] font-black text-gray-600 uppercase">
+                      View Details →
+                    </div>
+                  </div>
+                </div>
+              </Link>
+
+              {/* AITO M9 - Desktop Large Card */}
+              <Link
+                href="/products/elite-flagship/aito-m9"
+                className="hidden lg:block group relative bg-bg3/30 rounded-[3rem] overflow-hidden border border-white/5 hover:border-theme/30 transition-all duration-500 cursor-pointer col-span-1 lg:col-span-2"
               >
                 <div className="aspect-[21/9] overflow-hidden relative">
                   <img

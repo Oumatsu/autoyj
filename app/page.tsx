@@ -2,6 +2,7 @@ import Link from "next/link";
 import { HeroSlider } from "@/components/HeroSlider";
 import { SectionTabs } from "@/components/SectionTabs";
 import { TcoCounter } from "@/components/TcoCounter";
+import { ScrollColorCard } from "@/components/ScrollColorCard";
 
 export default function HomePage() {
   return (
@@ -67,7 +68,7 @@ export default function HomePage() {
             {/* Revenue King */}
             <div>
               <Link href="/products/revenue-king" className="block">
-                <div className="v-card aspect-[4/5] border border-accent/20">
+                <ScrollColorCard className="v-card aspect-[4/5] border border-accent/20">
                   <img
                     src="https://6a0327d1fc46b5b25f3480d6.imgix.net/Ti3/Ti3%20display.webp"
                     className="w-full h-full object-cover absolute inset-0"
@@ -91,7 +92,7 @@ export default function HomePage() {
                       Ride-hailing &amp; urban fleets. Up to $350/mo saved.
                     </p>
                   </div>
-                </div>
+                </ScrollColorCard>
               </Link>
               <div className="mt-5 flex items-center justify-between px-1">
                 <div className="flex flex-wrap gap-2">
@@ -126,7 +127,7 @@ export default function HomePage() {
             {/* Elite Flagship */}
             <div>
               <Link href="/products/elite-flagship" className="block">
-                <div
+                <ScrollColorCard
                   className="v-card aspect-[4/5] border border-theme/25"
                   style={{ boxShadow: "0 0 40px rgba(197,160,89,.07)" }}
                 >
@@ -156,7 +157,7 @@ export default function HomePage() {
                       Government &amp; corporate. The B2B social currency.
                     </p>
                   </div>
-                </div>
+                </ScrollColorCard>
               </Link>
               <div className="mt-5 flex items-center justify-between px-1">
                 <div className="flex flex-wrap gap-2">
@@ -191,7 +192,7 @@ export default function HomePage() {
             {/* Utility Pro */}
             <div>
               <Link href="/products/utility-pro" className="block">
-                <div className="v-card aspect-[4/5] border border-accent/20">
+                <ScrollColorCard className="v-card aspect-[4/5] border border-accent/20">
                   <img
                     src="/pic/utility-pro/9x/6cut.webp"
                     className="w-full h-full object-cover absolute inset-0"
@@ -215,7 +216,7 @@ export default function HomePage() {
                       All-terrain &amp; logistics. Fuel costs cut 50–60%.
                     </p>
                   </div>
-                </div>
+                </ScrollColorCard>
               </Link>
               <div className="mt-5 flex items-center justify-between px-1">
                 <div className="flex flex-wrap gap-2">

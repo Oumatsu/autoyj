@@ -50,10 +50,16 @@ export function Footer() {
             Response within 2 hours. No commitment required.
           </p>
           <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-3 sm:gap-4">
+            <Link
+              href="/qr"
+              className="sm:hidden btn-primary px-8 py-4 rounded text-xs font-black tracking-widest uppercase italic shadow-lg w-full text-center"
+            >
+              WhatsApp Us Now
+            </Link>
             <QrDropdown>
               <a
                 href="https://wa.me/qr/F7M2RQADCE3KN1"
-                className="btn-primary px-8 sm:px-12 py-4 sm:py-5 rounded text-xs sm:text-sm font-black tracking-widest uppercase italic shadow-lg w-full sm:w-auto text-center"
+                className="hidden sm:inline-flex btn-primary px-8 sm:px-12 py-4 sm:py-5 rounded text-xs sm:text-sm font-black tracking-widest uppercase italic shadow-lg"
               >
                 WhatsApp Us Now
               </a>

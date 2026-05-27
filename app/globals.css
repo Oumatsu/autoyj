@@ -356,6 +356,9 @@ body {
   filter: grayscale(0%);
   transform: scale(1.06);
 }
+.v-card.colored img {
+  filter: grayscale(0%);
+}
 
 .v-card-overlay {
   position: absolute;
