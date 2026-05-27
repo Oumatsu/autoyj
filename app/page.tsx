@@ -6,6 +6,7 @@ import { TcoCounter } from "@/components/TcoCounter";
 export default function HomePage() {
   return (
     <>
+      <div className="h-14 sm:hidden bg-black w-full" />
       <HeroSlider />
       <SectionTabs />
 

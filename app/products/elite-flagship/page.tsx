@@ -133,6 +133,7 @@ export default function EliteFlagshipPage() {
 
   return (
     <>
+      <div className="h-14 sm:hidden bg-black w-full" />
       <header className="pt-32 pb-20 relative z-10 overflow-hidden min-h-[50vh] flex items-center">
         <div className="absolute inset-0 z-0">
           <img

@@ -58,6 +58,7 @@ export default function BydSeagullPage() {
 
   return (
     <>
+      <div className="h-14 sm:hidden bg-black w-full" />
       {/* Hero */}
       <section className="relative min-h-screen flex items-end overflow-hidden bg-black">
         <div className="absolute inset-0">

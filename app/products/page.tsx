@@ -6,6 +6,7 @@ import { vehicles as utilityVehicles } from "./utility-pro/data";
 export default function ProductsPage() {
   return (
     <>
+      <div className="h-14 sm:hidden bg-black w-full" />
       {/* Hero — image drives height, bottom 7.5% clipped, fades to mid */}
       <section className="relative overflow-hidden">
         <img
