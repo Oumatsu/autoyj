@@ -145,12 +145,18 @@ export function Navbar() {
         </div>
 
         <button
-          onClick={() => setMobileOpen(true)}
+          onClick={() => setMobileOpen((prev) => !prev)}
           className="lg:hidden p-2 flex flex-col gap-1.5"
         >
-          <span className="w-6 h-0.5 bg-white block" />
-          <span className="w-6 h-0.5 bg-white block" />
-          <span className="w-4 h-0.5 bg-white block" />
+          {mobileOpen ? (
+            <span className="text-2xl leading-none text-white">✕</span>
+          ) : (
+            <>
+              <span className="w-6 h-0.5 bg-white block" />
+              <span className="w-6 h-0.5 bg-white block" />
+              <span className="w-4 h-0.5 bg-white block" />
+            </>
+          )}
         </button>
       </nav>
 
