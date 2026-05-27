@@ -113,7 +113,8 @@ export function HeroSlider() {
   const d = slidesData[cur];
 
   return (
-    <section id="hero" className="relative h-screen w-full overflow-hidden">
+    <section id="hero" className="relative w-full overflow-hidden" style={{ aspectRatio: "4/3" }}>
+      <style>{`@media (min-width: 640px) { #hero { aspect-ratio: auto; height: 100vh; } }`}</style>
       {slidesData.map((slide, i) => (
         <div key={i} className={`slide ${i === cur ? "active" : ""}`}>
           <img
@@ -126,7 +127,7 @@ export function HeroSlider() {
             className="absolute inset-0"
             style={{
               background:
-                "linear-gradient(to top, rgba(28,28,28,.95) 10%, rgba(28,28,28,.35) 42%, transparent 100%)",
+                "linear-gradient(to top, rgba(28,28,28,.95) 0%, rgba(28,28,28,.45) 35%, transparent 100%)",
             }}
           />
           <div
@@ -139,39 +140,39 @@ export function HeroSlider() {
         </div>
       ))}
 
-      <div className="absolute inset-0 z-10 flex flex-col justify-center px-6 md:px-12 lg:px-20 pt-20 pb-24">
+      <div className="absolute inset-0 z-10 flex flex-col justify-center px-4 sm:px-6 md:px-12 lg:px-20 pt-4 sm:pt-20 pb-8 sm:pb-24">
         <div className="max-w-3xl w-full">
-          <div className="flex items-center gap-2.5 mb-6">
+          <div className="flex items-center gap-2 mb-3 sm:mb-6">
             <div className="pulse-dot" />
-            <span className="text-accent text-[10px] font-black uppercase tracking-[.3em]">
+            <span className="text-accent text-[8px] sm:text-[10px] font-black uppercase tracking-[.2em] sm:tracking-[.3em]">
               {d.label}
             </span>
           </div>
 
           <h1
             ref={h1Ref}
-            className="sh mb-8"
-            style={{ fontSize: `calc(clamp(3rem, 8vw, 6.5rem) * ${fontSizeScale})` }}
+            className="sh mb-3 sm:mb-8"
+            style={{ fontSize: `calc(clamp(1.8rem, 7vw, 6.5rem) * ${fontSizeScale})` }}
             dangerouslySetInnerHTML={{ __html: d.h1 }}
           />
 
           <p
-            className="text-lg md:text-xl text-gray-500 mb-12 max-w-xl leading-relaxed italic border-l-2 pl-8"
+            className="text-xs sm:text-lg md:text-xl text-gray-500 mb-6 sm:mb-12 max-w-xl leading-relaxed italic border-l-2 pl-4 sm:pl-8"
             style={{ borderColor: "rgba(197,160,89,.3)" }}
           >
             {d.sub}
           </p>
 
-          <div ref={btnRowRef} className="flex flex-wrap gap-4">
+          <div ref={btnRowRef} className="flex flex-wrap gap-2 sm:gap-4">
             <a
               href="#products"
-              className="btn-primary px-10 py-5 rounded text-sm font-black tracking-widest uppercase italic"
+              className="btn-primary px-6 sm:px-10 py-3 sm:py-5 rounded text-[10px] sm:text-sm font-black tracking-widest uppercase italic"
             >
               {d.cta}
             </a>
             <a
               href="#solutions"
-              className="btn-outline px-10 py-5 rounded text-sm font-black tracking-widest uppercase italic"
+              className="btn-outline px-6 sm:px-10 py-3 sm:py-5 rounded text-[10px] sm:text-sm font-black tracking-widest uppercase italic"
             >
               Our Process
             </a>
@@ -181,7 +182,7 @@ export function HeroSlider() {
 
       <div
         ref={dotsRef}
-        className={`absolute bottom-10 z-10 flex gap-3 items-center transition-all duration-300 ${dotsOnRight ? "right-6 md:right-20" : "left-6 md:left-20"}`}
+        className={`absolute bottom-4 sm:bottom-10 z-10 flex gap-2 sm:gap-3 items-center transition-all duration-300 ${dotsOnRight ? "right-4 sm:right-6 md:right-20" : "left-4 sm:left-6 md:left-20"}`}
       >
         {slidesData.map((_, i) => (
           <div
@@ -192,7 +193,7 @@ export function HeroSlider() {
         ))}
       </div>
 
-      <div className={`absolute bottom-10 z-10 text-[10px] font-black tracking-widest text-gray-700 uppercase transition-all duration-300 ${dotsOnRight ? "left-6 md:left-20" : "right-6 md:right-20"}`}>
+      <div className={`absolute bottom-4 sm:bottom-10 z-10 text-[9px] sm:text-[10px] font-black tracking-widest text-gray-700 uppercase transition-all duration-300 ${dotsOnRight ? "left-4 sm:left-6 md:left-20" : "right-4 sm:right-6 md:right-20"}`}>
         <span className="text-theme">
           {String(cur + 1).padStart(2, "0")}
         </span>{" "}
