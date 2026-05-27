@@ -113,7 +113,7 @@ export function HeroSlider() {
   const d = slidesData[cur];
 
   return (
-    <section id="hero" className="relative w-full overflow-hidden pt-14 sm:pt-0" style={{ aspectRatio: "4/3" }}>
+    <section id="hero" className="relative w-full overflow-hidden pt-28 sm:pt-0" style={{ aspectRatio: "4/3" }}>
       <style>{`@media (min-width: 640px) { #hero { aspect-ratio: auto; height: 100vh; } }`}</style>
       {slidesData.map((slide, i) => (
         <div key={i} className={`slide ${i === cur ? "active" : ""}`}>
