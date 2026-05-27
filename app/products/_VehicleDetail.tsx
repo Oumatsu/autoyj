@@ -162,9 +162,9 @@ export default function VehicleDetail({ data }: { data: DetailData }) {
               <h1 className="font-black italic uppercase tracking-tighter text-white leading-none mb-2" style={{ fontSize: "clamp(3rem,8vw,7rem)" }}>{v.brand}<br />{v.name}</h1>
               <p className="text-2xl font-light italic text-gray-500 mb-8">{data.subtitle}</p>
               <p className="text-gray-300 text-base font-light leading-relaxed mb-10 max-w-lg italic border-l-2 pl-6" style={{ borderColor: "rgba(16,185,129,.45)" }}>{data.heroDesc}</p>
-              <div className="flex flex-wrap gap-4">
-                <a href="https://wa.me/qr/F7M2RQADCE3KN1" className="btn-primary px-9 py-4 rounded text-xs font-black tracking-widest uppercase italic shadow-lg">WhatsApp Inquiry</a>
-                <Link href="#specs" className="px-9 py-4 rounded text-xs font-black tracking-widest uppercase italic border border-accent/40 text-accent hover:bg-accent hover:text-black transition">View Full Specs ↓</Link>
+              <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4">
+                <a href="https://wa.me/qr/F7M2RQADCE3KN1" className="btn-primary px-6 sm:px-9 py-3 sm:py-4 rounded text-xs sm:text-sm font-black tracking-widest uppercase italic shadow-lg text-center">WhatsApp Inquiry</a>
+                <Link href="#specs" className="px-6 sm:px-9 py-3 sm:py-4 rounded text-xs sm:text-sm font-black tracking-widest uppercase italic border border-accent/40 text-accent hover:bg-accent hover:text-black transition text-center">View Full Specs ↓</Link>
               </div>
             </div>
             <div className="grid grid-cols-3 gap-3">
@@ -218,18 +218,18 @@ export default function VehicleDetail({ data }: { data: DetailData }) {
         <div className="container mx-auto px-2 md:px-6 max-w-7xl">
           <div className="relative">
             <div className="relative rounded-2xl overflow-hidden">
-              <div className="absolute left-0 inset-y-0 w-[18%] cursor-pointer overflow-hidden" onClick={() => goGallery(-1)}>
+              <div className="absolute left-0 inset-y-0 w-[9%] sm:w-[14%] md:w-[18%] cursor-pointer overflow-hidden hidden sm:block" onClick={() => goGallery(-1)}>
                 <img src={gallery[prevIdx].src} className="h-full object-cover transition-opacity duration-700" alt={gallery[prevIdx].label} style={{ width: "200%", opacity: 0.4, borderRadius: "0 0.75rem 0.75rem 0", objectPosition: "right" }} />
               </div>
-              <div className="relative mx-auto w-[60%] cursor-zoom-in" style={{ zIndex: 1, aspectRatio: "16/9" }} onClick={openLightbox}>
+              <div className="relative mx-auto w-[90%] sm:w-[70%] md:w-[64%] lg:w-[60%] cursor-zoom-in" style={{ zIndex: 1, aspectRatio: "16/9" }} onClick={openLightbox}>
                 <img key={`center-img-${galIdx}`} src={gallery[galIdx].src} className="w-full h-full object-cover rounded-xl img-switch-in" alt={gallery[galIdx].label} />
               </div>
-              <div className="absolute right-0 inset-y-0 w-[18%] cursor-pointer overflow-hidden" onClick={() => goGallery(1)}>
+              <div className="absolute right-0 inset-y-0 w-[9%] sm:w-[14%] md:w-[18%] cursor-pointer overflow-hidden hidden sm:block" onClick={() => goGallery(1)}>
                 <img src={gallery[nextIdx].src} className="h-full object-cover transition-opacity duration-700" alt={gallery[nextIdx].label} style={{ width: "200%", opacity: 0.4, borderRadius: "0.75rem 0 0 0.75rem", objectPosition: "left" }} />
               </div>
             </div>
-            <button onClick={(e) => { e.stopPropagation(); goGallery(-1); }} className="absolute top-1/2 -translate-y-1/2 left-3 md:left-5 w-10 h-10 md:w-11 md:h-11 rounded-full bg-black/55 border border-white/10 text-white text-xl flex items-center justify-center hover:bg-gold/85 hover:text-black transition z-20">&lsaquo;</button>
-            <button onClick={(e) => { e.stopPropagation(); goGallery(1); }} className="absolute top-1/2 -translate-y-1/2 right-3 md:right-5 w-10 h-10 md:w-11 md:h-11 rounded-full bg-black/55 border border-white/10 text-white text-xl flex items-center justify-center hover:bg-gold/85 hover:text-black transition z-20">&rsaquo;</button>
+            <button onClick={(e) => { e.stopPropagation(); goGallery(-1); }} className="absolute top-1/2 -translate-y-1/2 left-1 sm:left-3 md:left-5 w-8 h-8 sm:w-10 sm:h-10 md:w-11 md:h-11 rounded-full bg-black/55 border border-white/10 text-white text-lg sm:text-xl flex items-center justify-center hover:bg-gold/85 hover:text-black transition z-20">&lsaquo;</button>
+            <button onClick={(e) => { e.stopPropagation(); goGallery(1); }} className="absolute top-1/2 -translate-y-1/2 right-1 sm:right-3 md:right-5 w-8 h-8 sm:w-10 sm:h-10 md:w-11 md:h-11 rounded-full bg-black/55 border border-white/10 text-white text-lg sm:text-xl flex items-center justify-center hover:bg-gold/85 hover:text-black transition z-20">&rsaquo;</button>
           </div>
           <div className="flex items-center justify-center gap-2 mt-6 relative z-10">
             {gallery.map((_, i) => (
@@ -418,12 +418,12 @@ export default function VehicleDetail({ data }: { data: DetailData }) {
               </table>
             </div>
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mt-5">
-              <p className="text-[10px] text-gray-700">
+              <p className="text-[9px] sm:text-[10px] text-gray-700">
                 {(data.trimNote || `* Current model year. All trims share core platform specifications. Pricing on request — varies by order volume & destination port.`).split('<br />').map((line, i, arr) => (
                    <span key={i}>{line}{i < arr.length - 1 ? <br /> : null}</span>
                  ))}
               </p>
-              <Link href="/contact" className="btn-primary px-7 py-3 rounded text-xs font-black tracking-widest uppercase italic flex-shrink-0">
+              <Link href="/contact" className="btn-primary px-5 sm:px-7 py-2.5 sm:py-3 rounded text-[10px] sm:text-xs font-black tracking-widest uppercase italic flex-shrink-0 whitespace-nowrap">
                 Request Trim Pricing →
               </Link>
             </div>

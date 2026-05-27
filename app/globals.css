@@ -11,6 +11,37 @@
 }
 
 /* ── Article Body Typography ── */
+@media (max-width: 640px) {
+  .article-body p {
+    font-size: 0.9rem;
+    line-height: 1.7;
+    text-indent: 1.2em;
+    margin-bottom: 1rem;
+  }
+  .article-body h2 {
+    font-size: 1.5rem;
+    margin-top: 2.5rem;
+    margin-bottom: 1rem;
+  }
+  .article-body h3 {
+    font-size: 1.2rem;
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+  }
+  .article-body li {
+    font-size: 0.9rem;
+    line-height: 1.7;
+  }
+  .article-body .bq-note {
+    padding: 1rem 1.25rem;
+    margin: 1.5rem 0;
+    font-size: 0.85rem;
+  }
+  .article-body table { font-size: 0.75rem; }
+  .article-body th { font-size: 8px; padding: 8px 10px; }
+  .article-body td { font-size: 12px; padding: 8px 10px; }
+}
+
 .article-body p {
   font-size: 1rem;
   line-height: 1.9;
@@ -710,3 +741,42 @@ body {
  *   如需手动覆盖，使用 SectionGradientBridge 的 height / type 参数：
  *   <SectionGradientBridge from="black" to="mid" height={100} />
  */
+
+/* ── Mobile Responsive Utilities ── */
+
+/* SectionTabs mobile: ensure tabs are scrollable and compact */
+@media (max-width: 640px) {
+  .tab-btn {
+    padding: 8px 10px;
+    font-size: 8px;
+    letter-spacing: 0.15em;
+  }
+  .tab-wa {
+    padding: 5px 10px;
+    font-size: 8px;
+  }
+  .tab-inner {
+    padding: 0 10px;
+  }
+}
+
+/* Fix horizontal overflow on mobile */
+@media (max-width: 640px) {
+  body {
+    overflow-x: hidden;
+  }
+}
+
+/* Responsive v-card aspect ratio */
+@media (max-width: 640px) {
+  .v-card {
+    aspect-ratio: 3/4;
+  }
+}
+
+/* Navbar mobile styles */
+@media (max-width: 1023px) {
+  .glass {
+    backdrop-filter: blur(16px);
+  }
+}

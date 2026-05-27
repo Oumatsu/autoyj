@@ -162,12 +162,12 @@ export function Navbar() {
 
       {mobileOpen && (
         <div
-          className="fixed inset-0 z-40 flex flex-col items-center justify-center gap-8 text-2xl font-black uppercase italic tracking-tight"
+          className="fixed inset-0 z-40 flex flex-col items-center justify-center gap-6 sm:gap-8 text-xl sm:text-2xl font-black uppercase italic tracking-tight overflow-y-auto pt-16 pb-8 px-6"
           style={{ background: "rgba(5,5,5,.97)" }}
         >
           <button
             onClick={closeMobile}
-            className="absolute top-5 right-6 text-3xl text-gray-600"
+            className="absolute top-5 right-5 sm:right-6 w-10 h-10 flex items-center justify-center text-2xl sm:text-3xl text-gray-400 hover:text-white transition rounded-full"
           >
             ✕
           </button>
@@ -209,7 +209,7 @@ export function Navbar() {
           <Link
             href="/register"
             onClick={closeMobile}
-            className="mt-4 px-12 py-4 rounded text-sm tracking-widest font-black uppercase"
+            className="mt-4 px-10 sm:px-12 py-3 sm:py-4 rounded text-xs sm:text-sm tracking-widest font-black uppercase w-48 sm:w-auto text-center"
             style={{ background: "#fff", color: "#000" }}
           >
             Register
@@ -217,7 +217,7 @@ export function Navbar() {
           <Link
             href="/#contact"
             onClick={closeMobile}
-            className="mt-4 btn-primary px-12 py-4 rounded text-sm tracking-widest"
+            className="mt-4 btn-primary px-10 sm:px-12 py-3 sm:py-4 rounded text-xs sm:text-sm tracking-widest w-48 sm:w-auto text-center"
           >
             Contact Us
           </Link>

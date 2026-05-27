@@ -59,8 +59,8 @@ export default function AboutPage() {
       </section>
 
       {/* Heritage */}
-      <section id="heritage" className="py-32 bg-a scroll-mt-48">
-        <div className="container mx-auto px-6 md:px-12">
+      <section className="py-24 sm:py-32 bg-a scroll-mt-48">
+        <div className="container mx-auto px-4 sm:px-6 md:px-12">
           <div className="grid lg:grid-cols-2 gap-16 lg:gap-24 items-center">
             <div>
               <div className="label label-gold mb-6">Our Heritage</div>
@@ -135,7 +135,7 @@ export default function AboutPage() {
       </section>
 
       {/* Global Logistics Network */}
-      <section className="relative py-48 scroll-mt-48 overflow-hidden">
+      <section className="relative py-24 sm:py-32 md:py-48 scroll-mt-48 overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img
             src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=2000&q=80"
@@ -207,8 +207,8 @@ export default function AboutPage() {
       </section>
 
       {/* SLA */}
-      <section id="sla" className="py-32 bg-b scroll-mt-48">
-        <div className="container mx-auto px-6 md:px-12">
+      <section id="sla" className="py-20 sm:py-32 bg-b scroll-mt-48">
+        <div className="container mx-auto px-4 sm:px-6 md:px-12">
           <div className="text-center mb-20">
             <div className="label justify-center mb-4">Our Commitment</div>
             <h2 className="sh">

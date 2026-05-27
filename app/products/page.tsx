@@ -64,19 +64,19 @@ export default function ProductsPage() {
           }}
         />
 
-        <div className="container absolute inset-0 z-10 mx-auto px-6 md:px-12 flex flex-col items-center justify-center text-center">
-          <div className="label justify-center mb-6">
+        <div className="container absolute inset-0 z-10 mx-auto px-4 sm:px-6 md:px-12 flex flex-col items-center justify-center text-center">
+          <div className="label justify-center mb-4 sm:mb-6">
             Expertly Curated Selection
           </div>
           <h1
-            className="sh mb-6"
-            style={{ fontSize: "clamp(3rem, 8vw, 6.5rem)" }}
+            className="sh mb-4 sm:mb-6"
+            style={{ fontSize: "clamp(2rem, 8vw, 6.5rem)" }}
           >
             Proven <span className="text-theme">Market</span>
             <br />
             <span className="text-accent">Champions</span>
           </h1>
-          <p className="text-gray-300 text-lg font-light italic max-w-2xl mx-auto leading-relaxed">
+          <p className="text-gray-300 text-sm sm:text-lg font-light italic max-w-2xl mx-auto leading-relaxed px-2">
             The world&apos;s best-selling electric vehicles, hand-picked by
             expert buyers for their reliability, durability, and proven
             performance on African roads.
@@ -85,10 +85,10 @@ export default function ProductsPage() {
       </section>
 
       {/* Product Gallery */}
-      <section className="py-24 bg-a overflow-hidden">
-        <div className="container mx-auto px-6 md:px-12">
+      <section className="py-16 sm:py-24 bg-a overflow-hidden">
+        <div className="container mx-auto px-4 sm:px-6 md:px-12">
           {/* Category 01: Revenue King */}
-          <div id="cat-01" className="mb-40 scroll-mt-40">
+          <div id="cat-01" className="mb-24 sm:mb-40 scroll-mt-40">
             <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
               <div className="max-w-xl">
                 <div className="label mb-4">Category 01</div>
@@ -176,8 +176,8 @@ export default function ProductsPage() {
                         </h3>
                       </div>
                     </div>
-                    <div className="p-6">
-                      <div className="flex flex-wrap gap-2 mb-4">
+                    <div className="p-5 sm:p-8">
+                      <div className="flex flex-wrap gap-2 mb-3 sm:mb-4">
                         {car.tags.map((tag, j) => (
                           <span
                             key={j}
@@ -209,12 +209,12 @@ export default function ProductsPage() {
             <div className="flex justify-center">
               <Link
                 href="/products/revenue-king"
-                className="group flex items-center gap-4 px-10 py-4 rounded-full border border-white/10 hover:border-accent/40 transition-all"
-              >
-                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-500 group-hover:text-white">
+                className="group flex items-center gap-3 sm:gap-4 px-6 sm:px-10 py-3 sm:py-4 rounded-full border border-white/10 hover:border-accent/40 transition-all"
+            >
+                <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] text-gray-500 group-hover:text-white">
                   Discover Full Revenue Matrix ({revenueVehicles.length}+ Models)
                 </span>
-                <span className="w-6 h-px bg-white/10 group-hover:bg-accent/50 transition-all" />
+                <span className="w-4 sm:w-6 h-px bg-white/10 group-hover:bg-accent/50 transition-all" />
                 <span className="text-accent group-hover:translate-x-1 transition-transform">
                   →
                 </span>
@@ -223,7 +223,7 @@ export default function ProductsPage() {
           </div>
 
           {/* Category 02: Elite Flagship */}
-          <div id="cat-02" className="mb-40 scroll-mt-40">
+          <div id="cat-02" className="mb-24 sm:mb-40 scroll-mt-40">
             <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
               <div className="max-w-xl">
                 <div className="label label-gold mb-4">Category 02</div>
@@ -318,11 +318,11 @@ export default function ProductsPage() {
                         </h3>
                       </div>
                     </div>
-                    <div className="p-8">
-                      <p className="text-gray-500 text-xs font-light leading-relaxed mb-6">
+                    <div className="p-5 sm:p-8">
+                      <p className="text-gray-500 text-xs font-light leading-relaxed mb-4 sm:mb-6">
                         {car.desc}
                       </p>
-                      <div className="flex items-center justify-between pt-6 border-t border-white/5">
+                      <div className="flex items-center justify-between pt-4 sm:pt-6 border-t border-white/5">
                         <div className="text-[10px] font-black text-theme uppercase tracking-widest">
                           {car.label}
                         </div>
@@ -347,12 +347,12 @@ export default function ProductsPage() {
             <div className="flex justify-center">
               <Link
                 href="/products/elite-flagship"
-                className="group flex items-center gap-4 px-10 py-4 rounded-full border border-white/10 hover:border-theme/40 transition-all"
-              >
-                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-500 group-hover:text-white">
+                className="group flex items-center gap-3 sm:gap-4 px-6 sm:px-10 py-3 sm:py-4 rounded-full border border-white/10 hover:border-theme/40 transition-all"
+            >
+                <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] text-gray-500 group-hover:text-white">
                   Discover Full Elite Series ({eliteVehicles.length}+ Models)
                 </span>
-                <span className="w-6 h-px bg-white/10 group-hover:bg-theme/50 transition-all" />
+                <span className="w-4 sm:w-6 h-px bg-white/10 group-hover:bg-theme/50 transition-all" />
                 <span className="text-theme group-hover:translate-x-1 transition-transform">
                   →
                 </span>
@@ -430,11 +430,11 @@ export default function ProductsPage() {
                         </h3>
                       </div>
                     </div>
-                    <div className="p-8">
-                      <p className="text-gray-500 text-xs font-light leading-relaxed mb-6">
+                    <div className="p-5 sm:p-8">
+                      <p className="text-gray-500 text-xs font-light leading-relaxed mb-4 sm:mb-6">
                         {car.desc}
                       </p>
-                      <div className="flex items-center justify-between pt-6 border-t border-white/5">
+                      <div className="flex items-center justify-between pt-4 sm:pt-6 border-t border-white/5">
                         <div className="text-[10px] font-black text-accent uppercase tracking-widest">
                           {car.label}
                         </div>
@@ -459,12 +459,12 @@ export default function ProductsPage() {
             <div className="flex justify-center">
               <Link
                 href="/products/utility-pro"
-                className="group flex items-center gap-4 px-10 py-4 rounded-full border border-white/10 hover:border-accent/40 transition-all"
-              >
-                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-500 group-hover:text-white">
+                className="group flex items-center gap-3 sm:gap-4 px-6 sm:px-10 py-3 sm:py-4 rounded-full border border-white/10 hover:border-accent/40 transition-all"
+            >
+                <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] text-gray-500 group-hover:text-white">
                   Discover Full Utility Matrix ({utilityVehicles.length}+ Models)
                 </span>
-                <span className="w-6 h-px bg-white/10 group-hover:bg-accent/50 transition-all" />
+                <span className="w-4 sm:w-6 h-px bg-white/10 group-hover:bg-accent/50 transition-all" />
                 <span className="text-accent group-hover:translate-x-1 transition-transform">
                   →
                 </span>

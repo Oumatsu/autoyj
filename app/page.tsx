@@ -11,31 +11,31 @@ export default function HomePage() {
 
       {/* Trust Bar */}
       <div
-        className="py-10 border-y"
+        className="py-8 sm:py-10 border-y"
         style={{ background: "#000", borderColor: "rgba(197,160,89,.08)" }}
       >
-        <div className="container mx-auto px-6">
-          <div className="flex flex-wrap items-center justify-between gap-6">
-            <span className="text-[9px] font-black tracking-[.3em] uppercase text-gray-700">
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="flex flex-wrap items-center justify-between gap-4 sm:gap-6">
+            <span className="text-[8px] sm:text-[9px] font-black tracking-[.2em] sm:tracking-[.3em] uppercase text-gray-700">
               Trusted Supply Chain Partners
             </span>
-            <div className="flex flex-wrap items-center gap-10 md:gap-14 opacity-25 grayscale">
-              <span className="text-sm font-black italic uppercase tracking-tight">
+            <div className="flex flex-wrap items-center gap-6 sm:gap-10 md:gap-14 opacity-25 grayscale">
+              <span className="text-xs sm:text-sm font-black italic uppercase tracking-tight">
                 Cosco
               </span>
-              <span className="text-sm font-black italic uppercase tracking-tight">
+              <span className="text-xs sm:text-sm font-black italic uppercase tracking-tight">
                 Maersk
               </span>
-              <span className="text-sm font-black italic uppercase tracking-tight">
+              <span className="text-xs sm:text-sm font-black italic uppercase tracking-tight">
                 SGS
               </span>
-              <span className="text-sm font-black italic uppercase tracking-tight">
+              <span className="text-xs sm:text-sm font-black italic uppercase tracking-tight">
                 TÜV Rheinland
               </span>
-              <span className="text-sm font-black italic uppercase tracking-tight">
+              <span className="text-xs sm:text-sm font-black italic uppercase tracking-tight">
                 Lloyd&apos;s Register
               </span>
-              <span className="text-sm font-black italic uppercase tracking-tight">
+              <span className="text-xs sm:text-sm font-black italic uppercase tracking-tight">
                 BV Group
               </span>
             </div>
@@ -44,11 +44,11 @@ export default function HomePage() {
       </div>
 
       {/* Curated Vehicles */}
-      <section className="py-20 md:py-28 bg-b" id="products">
-        <div className="container mx-auto px-6 md:px-12">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16">
+      <section className="py-16 sm:py-20 md:py-28 bg-b" id="products">
+        <div className="container mx-auto px-4 sm:px-6 md:px-12">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 sm:gap-6 mb-10 sm:mb-16">
             <div>
-              <div className="label label-gold mb-4">Curated for Profit</div>
+              <div className="label label-gold mb-3 sm:mb-4">Curated for Profit</div>
               <h2 className="sh">
                 The <span className="text-accent">Eco</span>{" "}
                 <span className="text-theme">Winners</span> Circle.
@@ -56,13 +56,13 @@ export default function HomePage() {
             </div>
             <Link
               href="/products"
-              className="btn-outline px-8 py-3 rounded text-[11px] font-black tracking-widest uppercase self-start md:self-auto whitespace-nowrap"
+              className="btn-outline px-6 sm:px-8 py-2.5 sm:py-3 rounded text-[10px] sm:text-[11px] font-black tracking-widest uppercase self-start sm:self-auto whitespace-nowrap"
             >
               Full Catalog →
             </Link>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-10">
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-10">
             {/* Revenue King */}
             <div>
               <Link href="/products/revenue-king" className="block">
@@ -252,7 +252,7 @@ export default function HomePage() {
       {/* How It Works — 4 Steps */}
       <section
         id="solutions"
-        className="py-20 md:py-28 relative overflow-hidden"
+        className="py-16 sm:py-20 md:py-28 relative overflow-hidden"
       >
         <div className="absolute inset-0">
           <img
@@ -274,8 +274,8 @@ export default function HomePage() {
           />
         </div>
 
-        <div className="relative z-10 container mx-auto px-6 md:px-12">
-          <div className="text-center mb-20">
+        <div className="relative z-10 container mx-auto px-4 sm:px-6 md:px-12">
+          <div className="text-center mb-14 sm:mb-20">
             <div className="label justify-center mb-4">
               Transparent Process
             </div>
@@ -285,7 +285,7 @@ export default function HomePage() {
             </h2>
           </div>
 
-          <div className="grid md:grid-cols-4 gap-6 mb-10">
+          <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-10">
             {[
               {
                 num: "01",
@@ -321,7 +321,7 @@ export default function HomePage() {
                 badgeClass: "text-accent",
               },
             ].map((step, i) => (
-              <div key={i} className="step-card glass rounded-3xl p-8">
+              <div key={i} className="step-card glass rounded-2xl sm:rounded-3xl p-5 sm:p-8">
                 <div className="flex items-start gap-4 mb-6">
                   <div
                     className={`num-circle border ${
@@ -379,8 +379,8 @@ export default function HomePage() {
       </section>
 
       {/* EV vs ICE TCO */}
-      <section className="py-20 md:py-28 bg-a" id="tco">
-        <div className="container mx-auto px-6 md:px-12">
+      <section className="py-16 sm:py-20 md:py-28 bg-a" id="tco">
+        <div className="container mx-auto px-4 sm:px-6 md:px-12">
           <div className="grid lg:grid-cols-2 gap-16 lg:gap-24 items-center">
             <div>
               <div className="label label-gold mb-5">
@@ -547,7 +547,7 @@ export default function HomePage() {
       {/* Insights + Academy */}
       <section
         id="insights"
-        className="py-20 md:py-28 relative overflow-hidden"
+        className="py-16 sm:py-20 md:py-28 relative overflow-hidden"
       >
         <div className="absolute inset-0">
           <img
@@ -569,9 +569,9 @@ export default function HomePage() {
           />
         </div>
 
-        <div className="relative z-10 container mx-auto px-6 md:px-12">
-          <div className="text-center mb-16">
-            <div className="label justify-center mb-4">
+        <div className="relative z-10 container mx-auto px-4 sm:px-6 md:px-12">
+          <div className="text-center mb-12 sm:mb-16">
+            <div className="label justify-center mb-3 sm:mb-4">
               Knowledge is Your Edge
             </div>
             <h2 className="sh">
@@ -581,9 +581,9 @@ export default function HomePage() {
             </h2>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8">
+          <div className="grid sm:grid-cols-2 gap-6 sm:gap-8">
             {/* Market Report */}
-            <div className="glass rounded-[3rem] p-10 md:p-14 flex flex-col justify-between min-h-[300px]">
+            <div className="glass rounded-[2rem] sm:rounded-[3rem] p-6 sm:p-10 md:p-14 flex flex-col justify-between min-h-[260px] sm:min-h-[300px]">
               <div>
                 <div className="label label-gold mb-5">
                   Market Intelligence
@@ -609,7 +609,7 @@ export default function HomePage() {
 
             {/* Academy */}
             <div
-              className="glass rounded-[3rem] p-10 md:p-14 flex flex-col justify-between min-h-[300px]"
+              className="glass rounded-[2rem] sm:rounded-[3rem] p-6 sm:p-10 md:p-14 flex flex-col justify-between min-h-[260px] sm:min-h-[300px]"
               id="academy"
               style={{ borderColor: "rgba(16,185,129,.2)" }}
             >
@@ -646,9 +646,9 @@ export default function HomePage() {
       </section>
 
       {/* About Teaser */}
-      <section className="py-20 md:py-28 bg-b" id="about">
-        <div className="container mx-auto px-6 md:px-12">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
+      <section className="py-16 sm:py-20 md:py-28 bg-b" id="about">
+        <div className="container mx-auto px-4 sm:px-6 md:px-12">
+          <div className="grid lg:grid-cols-2 gap-12 sm:gap-16 items-center">
             <div>
               <div className="label label-gold mb-6">Who We Are</div>
               <div className="text-5xl italic font-serif mb-3 text-theme">
@@ -712,8 +712,8 @@ export default function HomePage() {
       </section>
 
       {/* Lead Magnet */}
-      <section className="py-20 md:py-28 bg-a" id="lead-magnet">
-        <div className="container mx-auto px-6 md:px-12">
+      <section className="py-16 sm:py-20 md:py-28 bg-a" id="lead-magnet">
+        <div className="container mx-auto px-4 sm:px-6 md:px-12">
           <div className="max-w-xl mx-auto text-center">
             <div className="label justify-center mb-5">
               Free Insider Report
@@ -728,7 +728,7 @@ export default function HomePage() {
               by dealers across Ethiopia to source smarter.
             </p>
 
-            <div className="glass rounded-[2.5rem] p-8 md:p-10 text-left">
+            <div className="glass rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-8 md:p-10 text-left">
               <div className="flex flex-col gap-4 mb-5">
                 <input
                   type="email"

@@ -85,8 +85,8 @@ export default function InsightsPage() {
 
   return (
     <>
-      <header className="pt-32 pb-12 bg-a relative z-10">
-        <div className="container mx-auto px-6 md:px-12">
+      <header className="pt-24 sm:pt-32 pb-8 sm:pb-12 bg-a relative z-10">
+        <div className="container mx-auto px-4 sm:px-6 md:px-12">
           <div className="flex items-center gap-2 mb-4">
             <div className="w-1.5 h-1.5 rounded-full bg-theme" />
             <span className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-500">Market <span className="text-accent">Intelligence</span></span>
@@ -96,11 +96,11 @@ export default function InsightsPage() {
         </div>
       </header>
 
-      <main className="py-12 min-h-screen" style={{ background: "var(--color-mid)" }}>
-        <div className="container mx-auto px-6 md:px-12">
+      <main className="py-8 sm:py-12 min-h-screen" style={{ background: "var(--color-mid)" }}>
+        <div className="container mx-auto px-4 sm:px-6 md:px-12">
           {heroArticle && (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-16">
-              <Link href={`/insights/${heroArticle.slug}`} className="lg:col-span-8 relative rounded-2xl overflow-hidden flex flex-col justify-end p-8 min-h-[500px] cursor-pointer border border-white/5 hover:border-gold transition-all duration-300 hover:-translate-y-1 group">
+              <Link href={`/insights/${heroArticle.slug}`} className="lg:col-span-8 relative rounded-2xl overflow-hidden flex flex-col justify-end p-6 sm:p-8 min-h-[300px] sm:min-h-[450px] md:min-h-[500px] cursor-pointer border border-white/5 hover:border-gold transition-all duration-300 hover:-translate-y-1 group">
                 <img src={imgPath(heroArticle)} className="absolute inset-0 w-full h-full object-cover z-0 transition-transform duration-700 group-hover:scale-105" style={{ filter: "brightness(0.6)" }} alt="" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent z-10" />
                 <div className="relative z-20">
@@ -112,7 +112,7 @@ export default function InsightsPage() {
               </Link>
               <div className="lg:col-span-4 flex flex-col gap-6">
                 {sideArticles.map((item) => (
-                  <Link key={item.slug} href={`/insights/${item.slug}`} className="relative rounded-2xl overflow-hidden flex flex-col justify-end p-6 min-h-[235px] cursor-pointer border border-white/5 hover:border-gold transition-all duration-300 hover:-translate-y-1 group flex-1">
+                  <Link key={item.slug} href={`/insights/${item.slug}`} className="relative rounded-2xl overflow-hidden flex flex-col justify-end p-5 sm:p-6 min-h-[180px] sm:min-h-[220px] md:min-h-[235px] cursor-pointer border border-white/5 hover:border-gold transition-all duration-300 hover:-translate-y-1 group flex-1">
                     <img src={imgPath(item)} className="absolute inset-0 w-full h-full object-cover z-0 transition-transform duration-700 group-hover:scale-105" style={{ filter: "brightness(0.6)" }} alt="" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent z-10" />
                     <div className="relative z-20">

@@ -24,9 +24,9 @@ export function Footer() {
         />
       </div>
 
-      <section className="relative z-10 container mx-auto px-6 md:px-12 pt-24 pb-20">
+      <section className="relative z-10 container mx-auto px-4 sm:px-6 md:px-12 pt-16 sm:pt-24 pb-12 sm:pb-20">
         <div
-          className="rounded-[4rem] p-12 md:p-20 text-center"
+          className="rounded-[2rem] sm:rounded-[3rem] md:rounded-[4rem] p-6 sm:p-10 md:p-20 text-center"
           style={{
             background: "rgba(255,255,255,0.06)",
             border: "1px solid rgba(197,160,89,0.25)",
@@ -34,33 +34,33 @@ export function Footer() {
             WebkitBackdropFilter: "blur(25px)",
           }}
         >
-          <div className="label justify-center mb-6">
+          <div className="label justify-center mb-4 sm:mb-6">
             Start the Conversation
           </div>
           <h2
-            className="sh mb-6"
-            style={{ fontSize: "clamp(2.5rem,6.5vw,5.5rem)" }}
+            className="sh mb-4 sm:mb-6"
+            style={{ fontSize: "clamp(1.8rem,8vw,5.5rem)" }}
           >
             The <span className="text-accent">Green</span>{" "}
             <span className="text-theme">Empire</span>
             <br />
             Starts Here.
           </h2>
-          <p className="text-gray-500 text-lg font-light italic mb-10 max-w-lg mx-auto">
+          <p className="text-gray-500 text-sm sm:text-lg font-light italic mb-8 sm:mb-10 max-w-lg mx-auto">
             Response within 2 hours. No commitment required.
           </p>
-          <div className="flex flex-wrap justify-center gap-4">
+          <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-3 sm:gap-4">
             <QrDropdown>
               <a
                 href="https://wa.me/qr/F7M2RQADCE3KN1"
-                className="btn-primary px-12 py-5 rounded text-sm font-black tracking-widest uppercase italic shadow-lg"
+                className="btn-primary px-8 sm:px-12 py-4 sm:py-5 rounded text-xs sm:text-sm font-black tracking-widest uppercase italic shadow-lg w-full sm:w-auto text-center"
               >
                 WhatsApp Us Now
               </a>
             </QrDropdown>
             <a
               href="mailto:alan@youguard.cn"
-              className="btn-outline px-12 py-5 rounded text-sm font-black tracking-widest uppercase italic"
+              className="btn-outline px-8 sm:px-12 py-4 sm:py-5 rounded text-xs sm:text-sm font-black tracking-widest uppercase italic w-full sm:w-auto text-center"
             >
               Send an Enquiry
             </a>
@@ -76,8 +76,8 @@ export function Footer() {
               "linear-gradient(to top, rgba(0,0,0,.96) 0%, rgba(0,0,0,.82) 45%, rgba(0,0,0,.5) 75%, transparent 100%)",
           }}
         />
-        <div className="relative z-10 container mx-auto px-6 md:px-12 py-16">
-          <div className="grid md:grid-cols-4 gap-10 mb-14">
+        <div className="relative z-10 container mx-auto px-4 sm:px-6 md:px-12 py-10 sm:py-16">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 sm:gap-10 mb-10 sm:mb-14">
             <div>
               <div className="flex items-center gap-2.5 mb-5">
                 <img src="/favicon.png" className="h-8 w-auto" alt="autoYJ" />

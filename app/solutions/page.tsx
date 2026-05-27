@@ -25,21 +25,21 @@ export default function SolutionsPage() {
           }}
         />
 
-        <div className="container absolute inset-0 z-10 flex flex-col items-center justify-center px-6 md:px-12">
+        <div className="container absolute inset-0 z-10 flex flex-col items-center justify-center px-4 sm:px-6 md:px-12">
           <div className="max-w-3xl">
-            <div className="label label-gold mb-6 text-[11px]">
+            <div className="label label-gold mb-4 sm:mb-6 text-[10px] sm:text-[11px]">
               Precision Export Solutions
             </div>
             <h1
-              className="sh mb-8"
-              style={{ fontSize: "clamp(3rem, 7.5vw, 6.5rem)" }}
+              className="sh mb-6 sm:mb-8"
+              style={{ fontSize: "clamp(2rem, 7.5vw, 6.5rem)" }}
             >
               Quality <span className="text-accent">Verified</span>
               <br />
               Delivered Transparently.
             </h1>
             <p
-              className="text-xl text-gray-400 font-light italic border-l-2 pl-8 leading-relaxed max-w-xl"
+              className="text-base sm:text-xl text-gray-400 font-light italic border-l-2 pl-6 sm:pl-8 leading-relaxed max-w-xl"
               style={{ borderColor: "var(--color-green)" }}
             >
               Eliminating the uncertainty of China-to-Africa EV exports with
@@ -50,8 +50,8 @@ export default function SolutionsPage() {
       </section>
 
       {/* PDI & Quality Standards */}
-      <section id="pdi" className="py-20 md:py-28 bg-a">
-        <div className="container mx-auto px-6 md:px-12">
+      <section id="pdi" className="py-16 sm:py-20 md:py-28 bg-a">
+        <div className="container mx-auto px-4 sm:px-6 md:px-12">
           <div className="grid lg:grid-cols-2 gap-16 items-start">
             <div>
               <div className="label mb-6">PDI & Quality Control</div>
@@ -137,7 +137,7 @@ export default function SolutionsPage() {
       </section>
 
       {/* Visual Proof: Video Loading */}
-      <section className="py-20 md:py-28 relative overflow-hidden">
+      <section className="py-16 sm:py-20 md:py-28 relative overflow-hidden">
         <div className="absolute inset-0">
           <img
             src="https://images.unsplash.com/photo-1520038410233-7141be7e6f97?auto=format&fit=crop&w=2000&q=80"
@@ -196,8 +196,8 @@ export default function SolutionsPage() {
       </section>
 
       {/* Starter Parts Kit */}
-      <section id="parts" className="py-20 md:py-28 bg-b">
-        <div className="container mx-auto px-6 md:px-12">
+      <section id="parts" className="py-16 sm:py-20 md:py-28 bg-b">
+        <div className="container mx-auto px-4 sm:px-6 md:px-12">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div className="order-2 lg:order-1">
               <div className="glass rounded-[3rem] p-10 md:p-14 border-theme/20 relative overflow-hidden">
@@ -266,8 +266,8 @@ export default function SolutionsPage() {
       </section>
 
       {/* Service Centre Setup */}
-      <section id="service" className="py-20 md:py-28 bg-a">
-        <div className="container mx-auto px-6 md:px-12">
+      <section id="service" className="py-16 sm:py-20 md:py-28 bg-a">
+        <div className="container mx-auto px-4 sm:px-6 md:px-12">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div>
               <div className="label label-gold mb-6">
@@ -344,7 +344,7 @@ export default function SolutionsPage() {
       </section>
 
       {/* Marketing Support */}
-      <section className="py-20 md:py-28 relative overflow-hidden">
+      <section className="py-16 sm:py-20 md:py-28 relative overflow-hidden">
         <div className="absolute inset-0">
           <img
             src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=2000&q=80"
@@ -417,8 +417,8 @@ export default function SolutionsPage() {
       </section>
 
       {/* Trade Terms */}
-      <section id="finance" className="py-20 md:py-28 bg-b">
-        <div className="container mx-auto px-6 md:px-12">
+      <section id="finance" className="py-16 sm:py-20 md:py-28 bg-b">
+        <div className="container mx-auto px-4 sm:px-6 md:px-12">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div>
               <div className="label mb-6">Flexible Trade Terms</div>
