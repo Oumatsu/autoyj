@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 
 const content = `<p>An EV test drive is not the same as an ICE test drive — and dealers who run it the same way leave most of the conversion opportunity on the table. The EV's advantages (instant torque, silence, smoothness, single-pedal driving) are things a customer must experience physically to believe.</p>
 <h2>Why the EV Test Drive Is Your Best Closer</h2>
@@ -100,7 +100,7 @@ export default function EvTestDriveGuidePage() {
                     </div>
                   </div>
                   <p className="text-gray-400 text-xs font-light leading-relaxed mb-6">Need help structuring your sales process? Let's talk.</p>
-                  <a href="https://wa.me/qr/F7M2RQADCE3KN1" className="w-full btn-primary py-3 rounded text-[10px] font-black tracking-widest uppercase flex items-center justify-center gap-2">WhatsApp Us</a>
+                  <a href="/qr" className="w-full btn-primary py-3 rounded text-[10px] font-black tracking-widest uppercase flex items-center justify-center gap-2">WhatsApp Us</a>
                 </div>
               </div>
             </aside>

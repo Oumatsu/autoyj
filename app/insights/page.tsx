@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
@@ -201,7 +201,7 @@ export default function InsightsPage() {
                     <div className="text-[10px] font-black uppercase tracking-widest text-theme mb-4">Intelligence Briefing</div>
                     <h3 className="text-2xl font-black italic text-white mb-4">Don't Miss the Next Tariff Shift.</h3>
                     <p className="text-gray-400 text-sm font-light leading-relaxed mb-6">Get our monthly digest of African EV policy changes and exclusive wholesale pricing updates delivered straight to your WhatsApp.</p>
-                    <a href="https://wa.me/qr/F7M2RQADCE3KN1" className="w-full btn-primary py-3 rounded-lg text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2">Subscribe Now</a>
+                    <a href="/qr" className="w-full btn-primary py-3 rounded-lg text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2">Subscribe Now</a>
                   </div>
                 </div>
               </div>

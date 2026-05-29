@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 
 const content = `<p>After thousands of sales conversations across East and West African markets, the same five concerns surface repeatedly: battery life, charging infrastructure, spare parts, resale value, and price premium. Knowing that these objections are coming — and having a structured, credible response ready for each — is the core skill that separates dealers who convert EV enquiries from those who lose them to ICE alternatives.</p>
 <h2>Objection 1: "What happens when the battery dies?"</h2>
@@ -102,7 +102,7 @@ export default function EvObjectionsPage() {
                     </div>
                   </div>
                   <p className="text-gray-400 text-xs font-light leading-relaxed mb-6">Need help with sales training? Our team can help.</p>
-                  <a href="https://wa.me/qr/F7M2RQADCE3KN1" className="w-full btn-primary py-3 rounded text-[10px] font-black tracking-widest uppercase flex items-center justify-center gap-2">WhatsApp Us</a>
+                  <a href="/qr" className="w-full btn-primary py-3 rounded text-[10px] font-black tracking-widest uppercase flex items-center justify-center gap-2">WhatsApp Us</a>
                 </div>
               </div>
             </aside>

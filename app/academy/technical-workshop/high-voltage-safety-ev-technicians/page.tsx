@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 
 const content = `<p>High voltage safety rules for EV technicians are the non-negotiable foundation of any electric vehicle workshop operation. Unlike ICE vehicles where most risks are mechanical or involve hot fluids, EVs carry 200–800V DC electrical systems that can cause cardiac arrest from a single contact.</p>
 <div class="rounded-[1.5rem] p-6 my-10" style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);">
@@ -76,7 +76,7 @@ export default function HighVoltageSafetyPage() {
                   <div><div className="text-sm font-bold text-white">Safety Training</div><div className="text-[10px] text-green flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-green animate-pulse"></span> Available Now</div></div>
                 </div>
                 <p className="text-gray-400 text-xs font-light leading-relaxed mb-6">Need HV safety equipment sourcing advice? We can help.</p>
-                <a href="https://wa.me/qr/F7M2RQADCE3KN1" className="w-full btn-primary py-3 rounded text-[10px] font-black tracking-widest uppercase flex items-center justify-center gap-2">WhatsApp Us</a>
+                <a href="/qr" className="w-full btn-primary py-3 rounded text-[10px] font-black tracking-widest uppercase flex items-center justify-center gap-2">WhatsApp Us</a>
               </div>
             </div>
           </aside>

@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 
 const content = `<p>The widely repeated claim that EVs "don't care about altitude" is partially true and mostly misleading. Unlike internal combustion engines, electric motors do not require oxygen for combustion — so you will not see the 10–15% power loss that ICE vehicles suffer above 2,000m. However, altitude creates three real effects that dealers and technicians must understand.</p>
 <h2>Why Altitude Matters for Electric Vehicles</h2>
@@ -116,7 +116,7 @@ export default function HighAltitudeDustPage() {
                     </div>
                   </div>
                   <p className="text-gray-400 text-xs font-light leading-relaxed mb-6">Have specific questions about EV operations in Ethiopia? Our team responds in 2 hours.</p>
-                  <a href="https://wa.me/qr/F7M2RQADCE3KN1" className="w-full btn-primary py-3 rounded text-[10px] font-black tracking-widest uppercase flex items-center justify-center gap-2">WhatsApp Us</a>
+                  <a href="/qr" className="w-full btn-primary py-3 rounded text-[10px] font-black tracking-widest uppercase flex items-center justify-center gap-2">WhatsApp Us</a>
                 </div>
               </div>
             </aside>

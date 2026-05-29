@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useCallback } from "react";
 import Link from "next/link";
@@ -112,7 +112,7 @@ export default function BydSeagullPage() {
                 The world&apos;s top-selling compact EV. The strongest weapon against the used ICE market — your customers save up to $250 every month.
               </p>
               <div className="flex flex-wrap gap-4">
-                <a href="https://wa.me/qr/F7M2RQADCE3KN1" className="btn-primary px-9 py-4 rounded text-xs font-black tracking-widest uppercase italic shadow-lg">
+                <a href="/qr" className="btn-primary px-9 py-4 rounded text-xs font-black tracking-widest uppercase italic shadow-lg">
                   WhatsApp Inquiry
                 </a>
                 <Link href="#specs" className="px-9 py-4 rounded text-xs font-black tracking-widest uppercase italic border border-accent/40 text-accent hover:bg-accent hover:text-black transition">

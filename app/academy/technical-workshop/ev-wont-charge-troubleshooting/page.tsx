@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 
 const content = `<p>A charging fault can occur at any point in the circuit. Understanding the path that electricity takes from the grid to the battery helps you isolate where the fault lies.</p>
 <p><strong>AC charging path:</strong> Grid → EVSE → Charge port → On-Board Charger (OBC) → DC-DC conversion → HV battery pack.</p>
@@ -74,7 +74,7 @@ export default function EvWontChargePage() {
                   <div><div className="text-sm font-bold text-white">Need Help?</div><div className="text-[10px] text-green flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-green animate-pulse"></span> Available Now</div></div>
                 </div>
                 <p className="text-gray-400 text-xs font-light leading-relaxed mb-6">Can't resolve a charging issue? Our technical team can help diagnose.</p>
-                <a href="https://wa.me/qr/F7M2RQADCE3KN1" className="w-full btn-primary py-3 rounded text-[10px] font-black tracking-widest uppercase flex items-center justify-center gap-2">WhatsApp Us</a>
+                <a href="/qr" className="w-full btn-primary py-3 rounded text-[10px] font-black tracking-widest uppercase flex items-center justify-center gap-2">WhatsApp Us</a>
               </div>
             </div>
           </aside>

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 
@@ -30,6 +30,10 @@ export default function QrPage() {
             className="w-full rounded-2xl border border-white/10"
           />
 
+          <p className="text-gray-400 text-xs font-light italic text-center">
+            Please scan the QR code in WhatsApp
+          </p>
+
           <div className="flex flex-col gap-3 w-full">
             <button
               onClick={handleSave}
@@ -37,14 +41,6 @@ export default function QrPage() {
             >
               Save QR Image
             </button>
-            <a
-              href="https://wa.me/qr/F7M2RQADCE3KN1"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-primary w-full py-4 rounded-xl text-xs font-black tracking-widest uppercase italic text-center"
-            >
-              Open WhatsApp
-            </a>
           </div>
 
           <Link

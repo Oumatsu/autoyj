@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState, useRef, useCallback } from "react";
 
@@ -91,7 +91,7 @@ export function SectionTabs() {
         >
           Heritage
         </button>
-        <a href="https://wa.me/qr/F7M2RQADCE3KN1" className="tab-wa">
+        <a href="/qr" className="tab-wa">
           <svg
             width="14"
             height="14"

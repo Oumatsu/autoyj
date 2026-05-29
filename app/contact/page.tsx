@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 export default function ContactPage() {
   return (
@@ -24,7 +24,7 @@ export default function ContactPage() {
 
               <div className="space-y-4 mb-16">
                 <a
-                  href="https://wa.me/qr/F7M2RQADCE3KN1"
+                  href="/qr"
                   className="contact-card group flex items-center gap-4 p-6 rounded-2xl border border-white/5 hover:border-gold transition-all duration-300 hover:translate-x-1"
                   style={{ background: "rgba(255,255,255,0.02)" }}
                 >

@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 
 const content = `<p>Voltage fluctuation and its effects on EV charging in Ethiopia is a topic that almost no Chinese OEM service documentation addresses, yet it causes a significant proportion of charging-related faults and OBC failures.</p>
 <h2>The Ethiopian Grid: What Technicians Need to Know</h2>
@@ -78,7 +78,7 @@ export default function VoltageFluctuationPage() {
                   <div><div className="text-sm font-bold text-white">Infrastructure Help</div><div className="text-[10px] text-green flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-green animate-pulse"></span> Available Now</div></div>
                 </div>
                 <p className="text-gray-400 text-xs font-light leading-relaxed mb-6">Need AVR sourcing advice for your charging installation? Let's talk.</p>
-                <a href="https://wa.me/qr/F7M2RQADCE3KN1" className="w-full btn-primary py-3 rounded text-[10px] font-black tracking-widest uppercase flex items-center justify-center gap-2">WhatsApp Us</a>
+                <a href="/qr" className="w-full btn-primary py-3 rounded text-[10px] font-black tracking-widest uppercase flex items-center justify-center gap-2">WhatsApp Us</a>
               </div>
             </div>
           </aside>

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useCallback } from "react";
 import Link from "next/link";
@@ -164,7 +164,7 @@ export default function VehicleDetail({ data }: { data: DetailData }) {
               <p className="text-2xl font-light italic text-gray-500 mb-8">{data.subtitle}</p>
               <p className="text-gray-300 text-base font-light leading-relaxed mb-10 max-w-lg italic border-l-2 pl-6" style={{ borderColor: "rgba(16,185,129,.45)" }}>{data.heroDesc}</p>
               <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4">
-                <a href="https://wa.me/qr/F7M2RQADCE3KN1" className="btn-primary px-6 sm:px-9 py-3 sm:py-4 rounded text-xs sm:text-sm font-black tracking-widest uppercase italic shadow-lg text-center">WhatsApp Inquiry</a>
+                <a href="/qr" className="btn-primary px-6 sm:px-9 py-3 sm:py-4 rounded text-xs sm:text-sm font-black tracking-widest uppercase italic shadow-lg text-center">WhatsApp Inquiry</a>
                 <Link href="#specs" className="px-6 sm:px-9 py-3 sm:py-4 rounded text-xs sm:text-sm font-black tracking-widest uppercase italic border border-accent/40 text-accent hover:bg-accent hover:text-black transition text-center">View Full Specs ↓</Link>
               </div>
             </div>

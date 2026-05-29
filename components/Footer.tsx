@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { QrDropdown } from "./QrDropdown";
 
 export function Footer() {
@@ -24,7 +24,7 @@ export function Footer() {
         />
       </div>
 
-      <section className="relative z-10 container mx-auto px-4 sm:px-6 md:px-12 pt-16 sm:pt-24 pb-12 sm:pb-20">
+      <section id="contact" className="relative z-10 container mx-auto px-4 sm:px-6 md:px-12 pt-16 sm:pt-24 pb-12 sm:pb-20 scroll-mt-16">
         <div
           className="rounded-[2rem] sm:rounded-[3rem] md:rounded-[4rem] p-6 sm:p-10 md:p-20 text-center"
           style={{
@@ -58,7 +58,7 @@ export function Footer() {
             </Link>
             <QrDropdown>
               <a
-                href="https://wa.me/qr/F7M2RQADCE3KN1"
+                href="/qr"
                 className="hidden sm:inline-flex btn-primary px-8 sm:px-12 py-4 sm:py-5 rounded text-xs sm:text-sm font-black tracking-widest uppercase italic shadow-lg"
               >
                 WhatsApp Us Now
@@ -74,7 +74,7 @@ export function Footer() {
         </div>
       </section>
 
-      <footer className="relative z-10" id="contact">
+      <footer className="relative z-10">
         <div
           className="absolute inset-0"
           style={{

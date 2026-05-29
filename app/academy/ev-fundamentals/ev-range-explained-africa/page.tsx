@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 
 const content = `<p>Real-world EV range in Africa diverges significantly from manufacturer-stated range figures. The spec sheet number is produced under controlled test conditions that do not reflect African operating realities: altitude, temperature, road conditions, payload, and driving habits all reduce effective range. This guide explains the gap, quantifies it, and gives you the language to communicate it honestly.</p>
 <h2>Where the Spec Sheet Number Comes From</h2>
@@ -108,7 +108,7 @@ export default function EvRangeExplainedPage() {
                     </div>
                   </div>
                   <p className="text-gray-400 text-xs font-light leading-relaxed mb-6">Have questions about EV range in African conditions? We're here to help.</p>
-                  <a href="https://wa.me/qr/F7M2RQADCE3KN1" className="w-full btn-primary py-3 rounded text-[10px] font-black tracking-widest uppercase flex items-center justify-center gap-2">WhatsApp Us</a>
+                  <a href="/qr" className="w-full btn-primary py-3 rounded text-[10px] font-black tracking-widest uppercase flex items-center justify-center gap-2">WhatsApp Us</a>
                 </div>
               </div>
             </aside>

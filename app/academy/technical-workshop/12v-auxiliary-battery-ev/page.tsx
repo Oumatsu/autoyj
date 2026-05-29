@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 
 const content = `<p>The 12V auxiliary battery in Chinese EVs is the most overlooked — and most failure-prone — component in the vehicle. While the traction battery (HV pack) powers the motor, the 12V battery powers every control module, relay, sensor, and communication system. When it fails, the vehicle will not start, will not enter Ready mode, and in many cases will not even unlock.</p>
 <h2>What the 12V Battery Does in an EV</h2>
@@ -71,7 +71,7 @@ export default function AuxiliaryBatteryPage() {
                   <div><div className="text-sm font-bold text-white">Need Parts?</div><div className="text-[10px] text-green flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-green animate-pulse"></span> Available Now</div></div>
                 </div>
                 <p className="text-gray-400 text-xs font-light leading-relaxed mb-6">We can help source AGM batteries for your workshop stock.</p>
-                <a href="https://wa.me/qr/F7M2RQADCE3KN1" className="w-full btn-primary py-3 rounded text-[10px] font-black tracking-widest uppercase flex items-center justify-center gap-2">WhatsApp Us</a>
+                <a href="/qr" className="w-full btn-primary py-3 rounded text-[10px] font-black tracking-widest uppercase flex items-center justify-center gap-2">WhatsApp Us</a>
               </div>
             </div>
           </aside>

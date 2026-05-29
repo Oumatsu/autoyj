@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 
 const content = `<p>Ethiopian operating conditions — altitude, dust, grid instability, heat in lowland regions — create fault patterns that don't appear in Chinese OEM technical documentation. This field reference covers what technicians are actually seeing.</p>
 <h2>Category 1: Altitude and Thermal Faults</h2>
@@ -80,7 +80,7 @@ export default function CommonFaultPatternsPage() {
                   <div><div className="text-sm font-bold text-white">Field Support</div><div className="text-[10px] text-green flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-green animate-pulse"></span> Available Now</div></div>
                 </div>
                 <p className="text-gray-400 text-xs font-light leading-relaxed mb-6">Need help diagnosing a tricky fault? Our technical team can assist.</p>
-                <a href="https://wa.me/qr/F7M2RQADCE3KN1" className="w-full btn-primary py-3 rounded text-[10px] font-black tracking-widest uppercase flex items-center justify-center gap-2">WhatsApp Us</a>
+                <a href="/qr" className="w-full btn-primary py-3 rounded text-[10px] font-black tracking-widest uppercase flex items-center justify-center gap-2">WhatsApp Us</a>
               </div>
             </div>
           </aside>

@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 
 const content = `<p>EV battery degradation — the gradual loss of a battery pack's ability to hold its original charge — is the single most common concern customers raise before buying an electric vehicle in Africa. This guide explains how lithium battery degradation actually works, what accelerates it in African operating conditions, and how to use this knowledge to close deals rather than lose them.</p>
 <h2>What Degradation Actually Is</h2>
@@ -101,7 +101,7 @@ export default function HowEvBatteriesDegradePage() {
                     </div>
                   </div>
                   <p className="text-gray-400 text-xs font-light leading-relaxed mb-6">Have questions about battery technology? Our team responds in 2 hours.</p>
-                  <a href="https://wa.me/qr/F7M2RQADCE3KN1" className="w-full btn-primary py-3 rounded text-[10px] font-black tracking-widest uppercase flex items-center justify-center gap-2">WhatsApp Us</a>
+                  <a href="/qr" className="w-full btn-primary py-3 rounded text-[10px] font-black tracking-widest uppercase flex items-center justify-center gap-2">WhatsApp Us</a>
                 </div>
               </div>
             </aside>

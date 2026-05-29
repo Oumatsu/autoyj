@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState, useRef, useCallback } from "react";
 import Link from "next/link";
@@ -438,7 +438,7 @@ export default function AcademyPage() {
                 <h3 className="text-2xl font-black italic text-white mb-4">{item.title}</h3>
                 <p className="text-gray-400 text-xs font-light leading-relaxed mb-8">{item.desc}</p>
                 <a
-                  href="https://wa.me/qr/F7M2RQADCE3KN1"
+                  href="/qr"
                   className="text-[9px] font-black uppercase tracking-widest text-gold flex items-center gap-2 group-hover:gap-4 transition-all"
                 >
                   Request via WhatsApp <span className="text-lg">→</span>

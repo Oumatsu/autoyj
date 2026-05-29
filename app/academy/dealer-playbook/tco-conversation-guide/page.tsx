@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 
 const content = `<p>The total cost of ownership (TCO) conversation is the most powerful tool an EV dealer has in Africa. Because EV sticker prices are often higher than equivalent ICE vehicles, customers who evaluate only the purchase price will frequently choose the ICE option. The dealers who consistently close EV deals are those who can rapidly and confidently shift the conversation from upfront cost to operating cost over time.</p>
 <h2>Why TCO Works as a Sales Conversation</h2>
@@ -110,7 +110,7 @@ export default function TcoConversationGuidePage() {
                     </div>
                   </div>
                   <p className="text-gray-400 text-xs font-light leading-relaxed mb-6">Need a TCO calculator? We can help you build one.</p>
-                  <a href="https://wa.me/qr/F7M2RQADCE3KN1" className="w-full btn-primary py-3 rounded text-[10px] font-black tracking-widest uppercase flex items-center justify-center gap-2">WhatsApp Us</a>
+                  <a href="/qr" className="w-full btn-primary py-3 rounded text-[10px] font-black tracking-widest uppercase flex items-center justify-center gap-2">WhatsApp Us</a>
                 </div>
               </div>
             </aside>

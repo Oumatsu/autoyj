@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 
 const content = `<p>Diagnosing Chinese EVs requires specific diagnostic tools that support Chinese OEM protocols — the generic OBD2 scanners used for European and Japanese ICE vehicles will not give you full access to EV-specific systems. This guide covers the diagnostic tool landscape as of 2026 and gives you concrete recommendations based on actual workshop applicability.</p>
 <h2>Why Standard OBD2 Scanners Fall Short</h2>
@@ -71,7 +71,7 @@ export default function ChineseEvDiagnosticToolsPage() {
                   <div><div className="text-sm font-bold text-white">Equipment Advice</div><div className="text-[10px] text-green flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-green animate-pulse"></span> Available Now</div></div>
                 </div>
                 <p className="text-gray-400 text-xs font-light leading-relaxed mb-6">Need help sourcing diagnostic tools in East Africa? Let's talk.</p>
-                <a href="https://wa.me/qr/F7M2RQADCE3KN1" className="w-full btn-primary py-3 rounded text-[10px] font-black tracking-widest uppercase flex items-center justify-center gap-2">WhatsApp Us</a>
+                <a href="/qr" className="w-full btn-primary py-3 rounded text-[10px] font-black tracking-widest uppercase flex items-center justify-center gap-2">WhatsApp Us</a>
               </div>
             </div>
           </aside>
