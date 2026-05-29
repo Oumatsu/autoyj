@@ -50,7 +50,7 @@ export function Navbar() {
         className="fixed top-0 left-0 right-0 z-50 glass px-6 md:px-10 py-4 flex items-center justify-between transition-all duration-300"
       >
         <Link href="/" className="flex items-center gap-2.5">
-          <img src="/favicon.png" className="h-8 w-auto" alt="autoYJ" />
+          <img src="/favicon.svg" className="h-8 w-auto" alt="autoYJ" />
         </Link>
 
         <div className="hidden lg:flex items-center gap-10">

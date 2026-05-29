@@ -86,7 +86,7 @@ export function Footer() {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 sm:gap-10 mb-10 sm:mb-14">
             <div>
               <div className="flex items-center gap-2.5 mb-5">
-                <img src="/favicon.png" className="h-8 w-auto" alt="autoYJ" />
+                <img src="/favicon.svg" className="h-8 w-auto" alt="autoYJ" />
               </div>
               <p className="text-gray-600 text-xs font-light leading-relaxed">
                 China&apos;s trusted EV sourcing partner for African dealers.

@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   description:
     "China's premier EV export partner for African dealers. Expert sourcing, transparent PDI, turnkey dealer empowerment.",
   icons: {
-    icon: "/logo.png",
+    icon: "/logo.svg",
   },
 };
 
