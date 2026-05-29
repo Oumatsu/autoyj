@@ -1,9 +1,9 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 
 export default function SolutionsPage() {
   return (
     <>
-      <div className="h-[var(--navbar-h,56px)] sm:hidden bg-black w-full" />
+      <div className="h-[var(--navbar-h,56px)] lg:hidden bg-black w-full" />
       {/* Hero */}
       <section className="relative overflow-hidden">
         <img
@@ -40,7 +40,7 @@ export default function SolutionsPage() {
               Delivered Transparently.
             </h1>
             <p
-              className="text-base sm:text-xl text-gray-400 font-light italic border-l-2 pl-6 sm:pl-8 leading-relaxed max-w-xl"
+              className="hidden min-[451px]:block text-base sm:text-xl text-gray-400 font-light italic border-l-2 pl-6 sm:pl-8 leading-relaxed max-w-xl"
               style={{ borderColor: "var(--color-green)" }}
             >
               Eliminating the uncertainty of China-to-Africa EV exports with

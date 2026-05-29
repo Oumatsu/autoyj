@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import { vehicles as revenueVehicles } from "./revenue-king/data";
 import { vehicles as eliteVehicles } from "./elite-flagship/data";
 import { vehicles as utilityVehicles } from "./utility-pro/data";
@@ -6,7 +6,7 @@ import { vehicles as utilityVehicles } from "./utility-pro/data";
 export default function ProductsPage() {
   return (
     <>
-      <div className="h-[var(--navbar-h,56px)] sm:hidden bg-black w-full" />
+      <div className="h-[var(--navbar-h,56px)] lg:hidden bg-black w-full" />
       {/* Hero — image drives height, bottom 7.5% clipped, fades to mid */}
       <section className="relative overflow-hidden">
         <img
@@ -77,7 +77,7 @@ export default function ProductsPage() {
             <br />
             <span className="text-accent">Champions</span>
           </h1>
-          <p className="text-gray-300 text-sm sm:text-lg font-light italic max-w-2xl mx-auto leading-relaxed px-2">
+          <p className="hidden min-[392px]:block text-gray-300 text-sm sm:text-lg font-light italic max-w-2xl mx-auto leading-relaxed px-2">
             The world&apos;s best-selling electric vehicles, hand-picked by
             expert buyers for their reliability, durability, and proven
             performance on African roads.

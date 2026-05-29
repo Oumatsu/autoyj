@@ -114,7 +114,7 @@ export function HeroSlider() {
 
   return (
     <section id="hero" className="relative w-full overflow-hidden" style={{ aspectRatio: "4/3" }}>
-      <style>{`@media (min-width: 640px) { #hero { aspect-ratio: auto; height: 100vh; } }`}</style>
+      <style>{`@media (min-width: 1024px) { #hero { aspect-ratio: auto; height: 100vh; } }`}</style>
       {slidesData.map((slide, i) => (
         <div key={i} className={`slide ${i === cur ? "active" : ""}`}>
           <img
@@ -140,39 +140,39 @@ export function HeroSlider() {
         </div>
       ))}
 
-      <div className="absolute inset-0 z-10 flex flex-col justify-center px-4 sm:px-6 md:px-12 lg:px-20 pt-4 sm:pt-20 pb-8 sm:pb-24">
+      <div className="absolute inset-0 z-10 flex flex-col justify-center px-4 md:px-12 lg:px-20 pt-4 lg:pt-20 pb-8 lg:pb-24">
         <div className="max-w-3xl w-full">
-          <div className="flex items-center gap-2 mb-3 sm:mb-6">
+          <div className="flex items-center gap-2 mb-3 lg:mb-6">
             <div className="pulse-dot" />
-            <span className="text-accent text-[8px] sm:text-[10px] font-black uppercase tracking-[.2em] sm:tracking-[.3em]">
+            <span className="text-accent text-[8px] lg:text-[10px] font-black uppercase tracking-[.2em] lg:tracking-[.3em]">
               {d.label}
             </span>
           </div>
 
           <h1
             ref={h1Ref}
-            className="sh mb-3 sm:mb-8"
+            className="sh mb-3 lg:mb-8"
             style={{ fontSize: `calc(clamp(1.8rem, 7vw, 6.5rem) * ${fontSizeScale})` }}
             dangerouslySetInnerHTML={{ __html: d.h1 }}
           />
 
           <p
-            className="hidden min-[376px]:block text-xs sm:text-lg md:text-xl text-gray-500 mb-6 sm:mb-12 max-w-xl leading-relaxed italic border-l-2 pl-4 sm:pl-8"
+            className="hidden min-[376px]:block text-xs lg:text-lg md:text-xl text-gray-500 mb-6 lg:mb-12 max-w-xl leading-relaxed italic border-l-2 pl-4 lg:pl-8"
             style={{ borderColor: "rgba(197,160,89,.3)" }}
           >
             {d.sub}
           </p>
 
-          <div ref={btnRowRef} className="flex flex-wrap gap-2 sm:gap-4">
+          <div ref={btnRowRef} className="flex flex-wrap gap-2 lg:gap-4">
             <a
               href="#products"
-              className="btn-primary px-6 sm:px-10 py-3 sm:py-5 rounded text-[10px] sm:text-sm font-black tracking-widest uppercase italic"
+              className="btn-primary px-6 lg:px-10 py-3 lg:py-5 rounded text-[10px] lg:text-sm font-black tracking-widest uppercase italic"
             >
               {d.cta}
             </a>
             <a
               href="#solutions"
-              className="btn-outline px-6 sm:px-10 py-3 sm:py-5 rounded text-[10px] sm:text-sm font-black tracking-widest uppercase italic"
+              className="btn-outline px-6 lg:px-10 py-3 lg:py-5 rounded text-[10px] lg:text-sm font-black tracking-widest uppercase italic"
             >
               Our Process
             </a>

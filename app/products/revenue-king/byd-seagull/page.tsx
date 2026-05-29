@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useCallback } from "react";
 import Link from "next/link";
@@ -58,9 +58,10 @@ export default function BydSeagullPage() {
 
   return (
     <>
-      <div className="h-[var(--navbar-h,56px)] sm:hidden bg-black w-full" />
+      <div className="h-[var(--navbar-h,56px)] lg:hidden bg-black w-full" />
       {/* Hero */}
-      <section className="relative min-h-screen flex items-end overflow-hidden bg-black">
+      <section data-vd-hero className="relative lg:min-h-screen flex items-end overflow-hidden bg-black w-full" style={{ aspectRatio: "4/3" }}>
+        <style>{`@media (min-width: 1024px) { [data-vd-hero] { aspect-ratio: auto !important; height: 100vh; } }`}</style>
         <div className="absolute inset-0">
           <img
             src="/pic/revenue-king/seagull/8.webp"
@@ -89,8 +90,8 @@ export default function BydSeagullPage() {
           }}
         />
 
-        <div className="relative z-10 container mx-auto px-6 md:px-12 pb-20 pt-36">
-          <nav className="flex items-center gap-2 text-[10px] font-black tracking-widest uppercase mb-8 text-gray-600">
+        <div className="relative z-10 container mx-auto px-4 sm:px-6 md:px-12 pb-12 lg:pb-20 pt-20 lg:pt-36">
+          <nav className="hidden min-[504px]:flex items-center gap-2 text-[10px] font-black tracking-widest uppercase mb-8 text-gray-600">
             <Link href="/" className="hover:text-gray-400 transition">Home</Link>
             <span>/</span>
             <Link href="/products/revenue-king" className="hover:text-accent transition text-accent">Revenue King</Link>
@@ -100,18 +101,18 @@ export default function BydSeagullPage() {
 
           <div className="grid lg:grid-cols-2 gap-12 items-end">
             <div>
-              <div className="flex items-center gap-3 mb-5">
+              <div className="hidden min-[504px]:flex items-center gap-3 mb-5">
                 <span className="text-[9px] font-black px-3 py-1.5 rounded uppercase tracking-widest" style={{ background: "var(--color-gold)", color: "#000" }}>Global #1</span>
                 <span className="text-[9px] font-black px-3 py-1.5 rounded uppercase tracking-widest" style={{ background: "rgba(16,185,129,.15)", color: "var(--color-green)", border: "1px solid rgba(16,185,129,.25)" }}>Revenue King</span>
               </div>
               <h1 className="font-black italic uppercase tracking-tighter text-white leading-none mb-2" style={{ fontSize: "clamp(3.5rem,9vw,8rem)" }}>
                 BYD<br />Seagull
               </h1>
-              <p className="text-2xl font-light italic text-gray-500 mb-8">海鸥 — 2024 Edition</p>
-              <p className="text-gray-300 text-base font-light leading-relaxed mb-10 max-w-lg italic border-l-2 pl-6" style={{ borderColor: "rgba(16,185,129,.45)" }}>
+              <p className="text-2xl font-light italic text-gray-500 mb-8">The Global #1 EV</p>
+              <p className="hidden lg:block text-gray-300 text-base font-light leading-relaxed mb-10 max-w-lg italic border-l-2 pl-6" style={{ borderColor: "rgba(16,185,129,.45)" }}>
                 The world&apos;s top-selling compact EV. The strongest weapon against the used ICE market — your customers save up to $250 every month.
               </p>
-              <div className="flex flex-wrap gap-4">
+              <div className="hidden min-[456px]:flex flex-wrap gap-4">
                 <a href="/qr" className="btn-primary px-9 py-4 rounded text-xs font-black tracking-widest uppercase italic shadow-lg">
                   WhatsApp Inquiry
                 </a>
@@ -120,7 +121,7 @@ export default function BydSeagullPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-3">
+            <div className="hidden min-[812px]:grid grid-cols-3 gap-3">
               <div className="glass rounded-[1.5rem] p-5 text-center border-accent/20">
                 <div className="text-3xl font-black italic text-accent mb-1">405</div>
                 <div className="text-[8px] font-black tracking-[.25em] uppercase text-gray-600">km CLTC Range</div>
