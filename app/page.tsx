@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import { HeroSlider } from "@/components/HeroSlider";
 import { SectionTabs } from "@/components/SectionTabs";
 import { TcoCounter } from "@/components/TcoCounter";
@@ -693,14 +693,14 @@ export default function HomePage() {
               ].map((item, i) => (
                 <div
                   key={i}
-                  className="glass rounded-[2rem] p-10 text-center"
+                  className="glass rounded-[2rem] p-6 sm:p-10 text-center"
                   style={
                     item.border
                       ? { borderColor: item.border }
                       : undefined
                   }
                 >
-                  <div className={`text-5xl font-black italic mb-2 ${item.cls}`}>
+                  <div className={`text-4xl min-[419px]:text-5xl font-black italic mb-2 ${item.cls}`}>
                     {item.num}
                   </div>
                   <div className="text-[10px] font-black tracking-[.3em] uppercase text-gray-500">
