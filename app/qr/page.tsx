@@ -14,7 +14,7 @@ export default function QrPage() {
 
   return (
     <>
-      <div className="h-14 sm:hidden bg-black w-full" />
+      <div className="h-[var(--navbar-h,56px)] sm:hidden bg-black w-full" />
       <main className="min-h-screen bg-b flex flex-col items-center justify-center px-6 py-16">
         <div className="glass rounded-[2.5rem] p-8 sm:p-12 flex flex-col items-center gap-8 max-w-sm w-full">
           <div className="text-center">

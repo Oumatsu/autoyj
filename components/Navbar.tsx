@@ -41,6 +41,18 @@ export function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  useEffect(() => {
+    const navbar = document.getElementById("navbar");
+    if (!navbar) return;
+    const syncHeight = () => {
+      document.documentElement.style.setProperty("--navbar-h", `${navbar.offsetHeight}px`);
+    };
+    syncHeight();
+    const observer = new ResizeObserver(syncHeight);
+    observer.observe(navbar);
+    return () => observer.disconnect();
+  }, []);
+
   const closeMobile = useCallback(() => setMobileOpen(false), []);
 
   return (

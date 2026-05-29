@@ -116,7 +116,7 @@ export default function VehicleDetail({ data }: { data: DetailData }) {
 
   return (
     <>
-      <div className="h-14 sm:hidden bg-black w-full" />
+      <div className="h-[var(--navbar-h,56px)] sm:hidden bg-black w-full" />
       {/* Hero — bottom gradient (transparent → black) bridges into Gallery's pure black */}
       <section className="relative min-h-screen flex items-end bg-black">
         <div className="absolute inset-0">

@@ -1,9 +1,9 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 
 export default function SolutionsPage() {
   return (
     <>
-      <div className="h-14 sm:hidden bg-black w-full" />
+      <div className="h-[var(--navbar-h,56px)] sm:hidden bg-black w-full" />
       {/* Hero */}
       <section className="relative overflow-hidden">
         <img

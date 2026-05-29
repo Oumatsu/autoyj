@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { HeroSlider } from "@/components/HeroSlider";
 import { SectionTabs } from "@/components/SectionTabs";
 import { TcoCounter } from "@/components/TcoCounter";
@@ -7,7 +7,7 @@ import { ScrollColorCard } from "@/components/ScrollColorCard";
 export default function HomePage() {
   return (
     <>
-      <div className="h-14 sm:hidden bg-black w-full" />
+      <div className="h-[var(--navbar-h,56px)] sm:hidden bg-black w-full" />
       <HeroSlider />
       <SectionTabs />
 

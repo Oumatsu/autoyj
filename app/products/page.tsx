@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { vehicles as revenueVehicles } from "./revenue-king/data";
 import { vehicles as eliteVehicles } from "./elite-flagship/data";
 import { vehicles as utilityVehicles } from "./utility-pro/data";
@@ -6,7 +6,7 @@ import { vehicles as utilityVehicles } from "./utility-pro/data";
 export default function ProductsPage() {
   return (
     <>
-      <div className="h-14 sm:hidden bg-black w-full" />
+      <div className="h-[var(--navbar-h,56px)] sm:hidden bg-black w-full" />
       {/* Hero — image drives height, bottom 7.5% clipped, fades to mid */}
       <section className="relative overflow-hidden">
         <img

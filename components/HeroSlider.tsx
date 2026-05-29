@@ -157,7 +157,7 @@ export function HeroSlider() {
           />
 
           <p
-            className="text-xs sm:text-lg md:text-xl text-gray-500 mb-6 sm:mb-12 max-w-xl leading-relaxed italic border-l-2 pl-4 sm:pl-8"
+            className="hidden min-[376px]:block text-xs sm:text-lg md:text-xl text-gray-500 mb-6 sm:mb-12 max-w-xl leading-relaxed italic border-l-2 pl-4 sm:pl-8"
             style={{ borderColor: "rgba(197,160,89,.3)" }}
           >
             {d.sub}

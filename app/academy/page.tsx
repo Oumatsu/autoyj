@@ -159,7 +159,7 @@ export default function AcademyPage() {
 
   return (
     <>
-      <div className="h-14 sm:hidden bg-black w-full" />
+      <div className="h-[var(--navbar-h,56px)] sm:hidden bg-black w-full" />
       {/* Section Tabs */}
       <div id="section-tabs" ref={tabBarRef} role="navigation" aria-label="Page sections">
         <div className="tab-inner">
