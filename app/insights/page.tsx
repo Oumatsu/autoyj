@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
@@ -53,6 +53,10 @@ export default function InsightsPage() {
     window.scrollTo(0, 0);
   }, []);
 
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [filterCat, sortBy]);
+
   const sorted = [...articles].sort((a, b) => {
     if (sortBy === "newest") return b.sortDate.localeCompare(a.sortDate);
     if (sortBy === "oldest") return a.sortDate.localeCompare(b.sortDate);
@@ -74,7 +78,7 @@ export default function InsightsPage() {
       const top = el.getBoundingClientRect().top + window.scrollY - offset;
       window.scrollTo({ top, behavior: "smooth" });
     }
-  }, [page, filterCat, sortBy]);
+  }, [page]);
 
   const handleFilter = (cat: Category) => {
     setFilterCat((prev) => (prev === cat ? null : cat));
