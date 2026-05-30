@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState, useRef, useCallback } from "react";
 import Link from "next/link";
@@ -167,25 +167,29 @@ export default function AcademyPage() {
             className={`tab-btn ${activeId === "hero" ? "active" : ""}`}
             onClick={() => scrollTo("hero")}
           >
-            Intelligence Hub
+            <span className="min-[498px]:hidden">AI Hub</span>
+            <span className="hidden min-[498px]:inline">Intelligence Hub</span>
           </button>
           <button
             className={`tab-btn ${activeId === "fundamentals" ? "active" : ""}`}
             onClick={() => scrollTo("fundamentals")}
           >
-            ev-fundamentals
+            <span className="min-[498px]:hidden">EV 101</span>
+            <span className="hidden min-[498px]:inline">ev-fundamentals</span>
           </button>
           <button
             className={`tab-btn ${activeId === "playbook" ? "active" : ""}`}
             onClick={() => scrollTo("playbook")}
           >
-            dealer-playbook
+            <span className="min-[498px]:hidden">Playbook</span>
+            <span className="hidden min-[498px]:inline">dealer-playbook</span>
           </button>
           <button
             className={`tab-btn ${activeId === "workshop" ? "active" : ""}`}
             onClick={() => scrollTo("workshop")}
           >
-            technical-workshop
+            <span className="min-[498px]:hidden">Workshop</span>
+            <span className="hidden min-[498px]:inline">technical-workshop</span>
           </button>
         </div>
       </div>
