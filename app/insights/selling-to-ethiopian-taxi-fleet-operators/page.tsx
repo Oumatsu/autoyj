@@ -17,7 +17,7 @@ const content = `<p>Ethiopia's EV market is not primarily a consumer market. It 
 <p>Addis Ababa hosts a dense concentration of UN agencies, international NGOs, and development finance institutions —UNDP, UNEP, WFP, GIZ, USAID, African Development Bank affiliates —each of which maintains vehicle fleets. These organisations have been early EV adopters globally and increasingly apply green procurement policies that favour EVs.</p>
 <p>Government ministry fleet procurement follows different channels —typically a public tender process —but the volume and payment reliability make it worth the compliance investment.</p>
 <div class="rounded-[1.5rem] overflow-hidden my-10">
-  <img src="images/selling-to-ethiopian-taxi-fleet-operators/taxi-fleet.jpg" alt="Taxi fleet vehicles in an African city representing the commercial fleet segment that drives EV adoption ahead of retail consumer purchasing" class="w-full h-auto object-cover" style="max-height:450px;">
+  <img src="images/selling-to-ethiopian-taxi-fleet-operators/taxi-fleet.webp" alt="Taxi fleet vehicles in an African city representing the commercial fleet segment that drives EV adoption ahead of retail consumer purchasing" class="w-full h-auto object-cover" style="max-height:450px;">
   <div class="px-6 py-4 bg-white/[0.02] border-t border-white/5">
     <p class="text-xs text-gray-500 font-light italic leading-relaxed">Commercial fleet operators in Addis Ababa run economic analysis before any vehicle purchase. The conversation that closes a fleet sale is a total cost of ownership comparison —not a brochure.</p>
   </div>
@@ -32,7 +32,7 @@ const content = `<p>Ethiopia's EV market is not primarily a consumer market. It 
 <p>Ethiopian commercial vehicle buyers —particularly independent taxi drivers —rarely have the capital to purchase an EV outright. Financing access is the second most <span class="hl-green">important</span> enabler of fleet sales after after-sales confidence.</p>
 <p>If you can offer financing (through an Ethiopian bank partner), hire-purchase, or connect buyers to microfinance institutions offering EV loans, you will close deals that price-only competitors cannot reach. Development Finance Institutions are actively seeking Ethiopian EV dealers to partner with for green mobility financing programmes.</p>
 <div class="rounded-[1.5rem] overflow-hidden my-10">
-  <img src="images/selling-to-ethiopian-taxi-fleet-operators/ride-hailing.jpg" alt="Ride-hailing driver with smartphone in vehicle representing the Feres and ZayRide driver community that represents the largest single EV fleet opportunity in Ethiopia" class="w-full h-auto object-cover" style="max-height:450px;">
+  <img src="images/selling-to-ethiopian-taxi-fleet-operators/ride-hailing.webp" alt="Ride-hailing driver with smartphone in vehicle representing the Feres and ZayRide driver community that represents the largest single EV fleet opportunity in Ethiopia" class="w-full h-auto object-cover" style="max-height:450px;">
   <div class="px-6 py-4 bg-white/[0.02] border-t border-white/5">
     <p class="text-xs text-gray-500 font-light italic leading-relaxed">Feres drivers who switch to EVs report ETB 21,000—5,000 in monthly fuel savings. This financial reality —not range, not technology —is what drives platform driver EV adoption at scale.</p>
   </div>
@@ -118,7 +118,7 @@ export default function ArticlePage() {
               </header>
 
               <div className="w-full aspect-[21/9] rounded-[2rem] overflow-hidden mb-16 relative">
-                <img src="/insights/images/selling-to-ethiopian-taxi-fleet-operators/hero.jpg" alt="How to Sell EVs to Ethiopian Taxi Associations and Fleet Operators" className="w-full h-full object-cover" />
+                <img src="/insights/images/selling-to-ethiopian-taxi-fleet-operators/hero.webp" alt="How to Sell EVs to Ethiopian Taxi Associations and Fleet Operators" className="w-full h-full object-cover" />
                 <div className="absolute inset-0 border border-white/10 rounded-[2rem] pointer-events-none"></div>
               </div>
 
@@ -153,7 +153,7 @@ export default function ArticlePage() {
                 </div>
                 <div className="glass rounded-[2rem] p-8 bg-mid/50 border-white/5 hover:border-green/30 transition-all duration-300 group">
                   <div className="flex items-center gap-4 mb-6">
-                    <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80" alt="Consultant" className="w-12 h-12 rounded-full border-2 border-green/50 object-cover group-hover:border-green transition-colors" />
+                    <img src="/pic/academy/photo-1560250097-0b93528c311a.webp" alt="Consultant" className="w-12 h-12 rounded-full border-2 border-green/50 object-cover group-hover:border-green transition-colors" />
                     <div>
                       <div className="text-sm font-bold text-white group-hover:text-green transition-colors">Speak to an Expert</div>
                       <div className="text-[10px] text-green flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-green animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]"></span> Available Now</div>

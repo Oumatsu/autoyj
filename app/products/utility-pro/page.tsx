@@ -137,7 +137,7 @@ export default function UtilityProPage() {
       <header className="pt-32 pb-20 relative z-10 overflow-hidden min-h-[50vh] flex items-center">
         <div className="absolute inset-0 z-0">
           <img
-            src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=2000&q=80"
+            src="/pic/page/photo-1558618666-fcd25c85cd64.webp"
             className="w-full h-full object-cover"
             style={{ filter: "brightness(.3) grayscale(20%)" }}
             alt="Utility Fleet"

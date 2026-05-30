@@ -137,7 +137,7 @@ export default function EliteFlagshipPage() {
       <header className="pt-32 pb-20 relative z-10 overflow-hidden min-h-[50vh] flex items-center">
         <div className="absolute inset-0 z-0">
           <img
-            src="https://images.unsplash.com/photo-1563720360172-67b8f3dce741?auto=format&fit=crop&w=2000&q=80"
+            src="/pic/page/photo-1563720360172-67b8f3dce741.webp"
             className="w-full h-full object-cover"
             style={{ filter: "brightness(.3) grayscale(20%)" }}
             alt="Elite Fleet"

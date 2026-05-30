@@ -21,7 +21,7 @@ const content = `<p>"Which Chinese EV should I import?" is the defining question
 <p>Not the cheapest option; more competitive pricing available in the pure urban segment</p>
 <p>BYD's official after-sales network in Sub-Saharan Africa (outside South Africa) remains thin</p>
 <div class="rounded-[1.5rem] overflow-hidden my-10">
-  <img src="images/best-chinese-evs-for-africa-2026/ev-models.jpg" alt="Multiple electric vehicles in a row representing the diverse Chinese EV product lineup available for African market sourcing in 2026" class="w-full h-auto object-cover" style="max-height:450px;">
+  <img src="images/best-chinese-evs-for-africa-2026/ev-models.webp" alt="Multiple electric vehicles in a row representing the diverse Chinese EV product lineup available for African market sourcing in 2026" class="w-full h-auto object-cover" style="max-height:450px;">
   <div class="px-6 py-4 bg-white/[0.02] border-t border-white/5">
     <p class="text-xs text-gray-500 font-light italic leading-relaxed">The strongest Chinese EV options for Africa in 2026 span urban hatchbacks, compact SUVs, and PHEV pickups —each addressing a distinct segment of the market. No single vehicle is ideal for all African markets simultaneously.</p>
   </div>
@@ -45,7 +45,7 @@ const content = `<p>"Which Chinese EV should I import?" is the defining question
 <p>The Shark's dual-mode capability means buyers in markets with two fast chargers in the entire capital city (such as Addis Ababa as of 2025) can still operate primarily on electricity in urban conditions while retaining full range capability for any journey.</p>
 <p>South Africa and Kenya launches in 2025 have generated early sales data: the Shark has been particularly well-received by fleet operators running mixed urban/inter-city routes.</p>
 <div class="rounded-[1.5rem] overflow-hidden my-10">
-  <img src="images/best-chinese-evs-for-africa-2026/pickup-truck.jpg" alt="BYD Shark PHEV pickup truck representing the dual-mode EV capability that addresses Africa's charging infrastructure gap" class="w-full h-auto object-cover" style="max-height:450px;">
+  <img src="images/best-chinese-evs-for-africa-2026/pickup-truck.webp" alt="BYD Shark PHEV pickup truck representing the dual-mode EV capability that addresses Africa's charging infrastructure gap" class="w-full h-auto object-cover" style="max-height:450px;">
   <div class="px-6 py-4 bg-white/[0.02] border-t border-white/5">
     <p class="text-xs text-gray-500 font-light italic leading-relaxed">The BYD Shark's 100 km pure EV range handles urban daily driving on electricity, while the petrol engine covers inter-city distances where charging infrastructure is absent. For East African commercial operators, it is the most operationally practical EV available in 2026.</p>
   </div>
@@ -126,7 +126,7 @@ export default function ArticlePage() {
               </header>
 
               <div className="w-full aspect-[21/9] rounded-[2rem] overflow-hidden mb-16 relative">
-                <img src="/insights/images/best-chinese-evs-for-africa-2026/hero.jpg" alt="The 5 Best Chinese EVs for African Markets in 2026" className="w-full h-full object-cover" />
+                <img src="/insights/images/best-chinese-evs-for-africa-2026/hero.webp" alt="The 5 Best Chinese EVs for African Markets in 2026" className="w-full h-full object-cover" />
                 <div className="absolute inset-0 border border-white/10 rounded-[2rem] pointer-events-none"></div>
               </div>
 
@@ -162,7 +162,7 @@ export default function ArticlePage() {
                 </div>
                 <div className="glass rounded-[2rem] p-8 bg-mid/50 border-white/5 hover:border-green/30 transition-all duration-300 group">
                   <div className="flex items-center gap-4 mb-6">
-                    <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80" alt="Consultant" className="w-12 h-12 rounded-full border-2 border-green/50 object-cover group-hover:border-green transition-colors" />
+                    <img src="/pic/academy/photo-1560250097-0b93528c311a.webp" alt="Consultant" className="w-12 h-12 rounded-full border-2 border-green/50 object-cover group-hover:border-green transition-colors" />
                     <div>
                       <div className="text-sm font-bold text-white group-hover:text-green transition-colors">Speak to an Expert</div>
                       <div className="text-[10px] text-green flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-green animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]"></span> Available Now</div>

@@ -1,10 +1,10 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
 
 const slidesData = [
   {
-    img: "https://6a0327d1fc46b5b25f3480d6.imgix.net/banner/ChatGPT%20Image%202026%E5%B9%B45%E6%9C%8818%E6%97%A5%2019_47_04.png",
+    img: "/pic/hero/ChatGPT Image 2026年5月18日 19_47_04.webp",
     alt: "Expert Buyer",
     label: "Expert Buyer Network",
     h1: 'Your Dedicated<br><span class="text-theme">EV Sourcing</span><br>Expert',
@@ -12,7 +12,7 @@ const slidesData = [
     cta: "View Selection",
   },
   {
-    img: "https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&w=2000&q=80",
+    img: "/pic/hero/photo-1578575437130-527eed3abbec.webp",
     alt: "Port Logistics",
     label: "Seamless Port Logistics",
     h1: 'China to Your Port<br><span class="text-theme">Seamlessly</span> Delivered',
@@ -28,7 +28,7 @@ const slidesData = [
     cta: "Explore Utility Pro",
   },
   {
-    img: "https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?auto=format&fit=crop&w=2000&q=80",
+    img: "/pic/hero/photo-1486262715619-67b85e0b08d3.webp",
     alt: "Aftersales",
     label: "Zero-Headache Aftersales",
     h1: 'Every Shipment<br><span class="text-accent">Fully</span> <span class="text-theme">Supported</span>',
@@ -36,7 +36,7 @@ const slidesData = [
     cta: "Discover Dealer Support",
   },
   {
-    img: "https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=2000&q=80",
+    img: "/pic/hero/photo-1521791136064-7986c2920216.webp",
     alt: "Partnership",
     label: "Ecosystem Partnership",
     h1: 'More Than<br>Selling <span class="text-theme">Cars</span>',

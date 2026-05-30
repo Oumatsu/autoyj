@@ -11,7 +11,7 @@ const content = `<p>When the IEA reported that African EV sales more than double
 <p>The result is a landed cost advantage that makes EVs directly price-competitive with equivalent ICE vehicles in several segments for the first time. Morocco's EV market grew from a negligible base to over 2,000 sales in 2024 —with Chinese brands capturing the majority of that growth.</p>
 <p>Morocco's geographic position also makes it significant beyond its own market. As a manufacturing hub with proximity to Europe (and currently building relationships with several Chinese OEM assembly projects), Morocco is emerging as a potential regional distribution point for North and West African EV supply chains.</p>
 <div class="rounded-[1.5rem] overflow-hidden my-10">
-  <img src="images/morocco-egypt-ev-surge-2025/cairo.jpg" alt="Cairo, Egypt urban landscape representing the scale of the automotive market that Egypt's EV policy is beginning to capture" class="w-full h-auto object-cover" style="max-height:450px;">
+  <img src="images/morocco-egypt-ev-surge-2025/cairo.webp" alt="Cairo, Egypt urban landscape representing the scale of the automotive market that Egypt's EV policy is beginning to capture" class="w-full h-auto object-cover" style="max-height:450px;">
   <div class="px-6 py-4 bg-white/[0.02] border-t border-white/5">
     <p class="text-xs text-gray-500 font-light italic leading-relaxed">Cairo —home to over 20 million residents and one of Africa's largest urban vehicle fleets. Egypt's 20,000 EV target by 2030 has been backed by concrete import incentives that are already driving results.</p>
   </div>
@@ -82,7 +82,7 @@ export default function ArticlePage() {
               </header>
 
               <div className="w-full aspect-[21/9] rounded-[2rem] overflow-hidden mb-16 relative">
-                <img src="/insights/images/morocco-egypt-ev-surge-2025/hero.jpg" alt="Morocco and Egypt Are Leading Africa\'s EV Surge. Sub-Saharan Dealers Should Pay Attention." className="w-full h-full object-cover" />
+                <img src="/insights/images/morocco-egypt-ev-surge-2025/hero.webp" alt="Morocco and Egypt Are Leading Africa\'s EV Surge. Sub-Saharan Dealers Should Pay Attention." className="w-full h-full object-cover" />
                 <div className="absolute inset-0 border border-white/10 rounded-[2rem] pointer-events-none"></div>
               </div>
 
@@ -118,7 +118,7 @@ export default function ArticlePage() {
                 </div>
                 <div className="glass rounded-[2rem] p-8 bg-mid/50 border-white/5 hover:border-green/30 transition-all duration-300 group">
                   <div className="flex items-center gap-4 mb-6">
-                    <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80" alt="Consultant" className="w-12 h-12 rounded-full border-2 border-green/50 object-cover group-hover:border-green transition-colors" />
+                    <img src="/pic/academy/photo-1560250097-0b93528c311a.webp" alt="Consultant" className="w-12 h-12 rounded-full border-2 border-green/50 object-cover group-hover:border-green transition-colors" />
                     <div>
                       <div className="text-sm font-bold text-white group-hover:text-green transition-colors">Speak to an Expert</div>
                       <div className="text-[10px] text-green flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-green animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]"></span> Available Now</div>

@@ -13,7 +13,7 @@ const content = `<p>On July 29, 2024, the National Bank of Ethiopia announced th
 <h3>Phase 3: Continued Weakening and New Normal (2025—026)</h3>
 <p>The Birr has continued to weaken from the initial float. By late 2025, the rate had reached approximately <span class="hl-gold">150 ETB</span>/USD. Some stabilisation has occurred, but currency analysts and the IMF program documents do not project a return to the pre-float rate. The <span class="hl-gold">150 ETB</span>/USD range, with continued gradual weakening, is the operating assumption for EV importers planning 2026 business.</p>
 <div class="rounded-[1.5rem] overflow-hidden my-10">
-  <img src="images/ethiopia-birr-depreciation-pricing-strategy/exchange-rate.jpg" alt="Currency exchange rate analysis representing the financial modeling that Ethiopian EV importers must use to protect against Birr depreciation risk" class="w-full h-auto object-cover" style="max-height:450px;">
+  <img src="images/ethiopia-birr-depreciation-pricing-strategy/exchange-rate.webp" alt="Currency exchange rate analysis representing the financial modeling that Ethiopian EV importers must use to protect against Birr depreciation risk" class="w-full h-auto object-cover" style="max-height:450px;">
   <div class="px-6 py-4 bg-white/[0.02] border-t border-white/5">
     <p class="text-xs text-gray-500 font-light italic leading-relaxed">An EV priced in July 2024 assuming 57 ETB/USD would need to be repriced by 163% in ETB terms to maintain the same USD margin in late 2025. Dealers who did not build currency protection into their pricing models were exposed to severe margin compression.</p>
   </div>
@@ -94,7 +94,7 @@ export default function ArticlePage() {
               </header>
 
               <div className="w-full aspect-[21/9] rounded-[2rem] overflow-hidden mb-16 relative">
-                <img src="/insights/images/ethiopia-birr-depreciation-pricing-strategy/hero.jpg" alt="The Birr Has Lost Two-Thirds of Its Value. How Ethiopian EV Dealers Should Price and Protect Margins." className="w-full h-full object-cover" />
+                <img src="/insights/images/ethiopia-birr-depreciation-pricing-strategy/hero.webp" alt="The Birr Has Lost Two-Thirds of Its Value. How Ethiopian EV Dealers Should Price and Protect Margins." className="w-full h-full object-cover" />
                 <div className="absolute inset-0 border border-white/10 rounded-[2rem] pointer-events-none"></div>
               </div>
 
@@ -129,7 +129,7 @@ export default function ArticlePage() {
                 </div>
                 <div className="glass rounded-[2rem] p-8 bg-mid/50 border-white/5 hover:border-green/30 transition-all duration-300 group">
                   <div className="flex items-center gap-4 mb-6">
-                    <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80" alt="Consultant" className="w-12 h-12 rounded-full border-2 border-green/50 object-cover group-hover:border-green transition-colors" />
+                    <img src="/pic/academy/photo-1560250097-0b93528c311a.webp" alt="Consultant" className="w-12 h-12 rounded-full border-2 border-green/50 object-cover group-hover:border-green transition-colors" />
                     <div>
                       <div className="text-sm font-bold text-white group-hover:text-green transition-colors">Speak to an Expert</div>
                       <div className="text-[10px] text-green flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-green animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]"></span> Available Now</div>

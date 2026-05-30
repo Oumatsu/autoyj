@@ -137,8 +137,8 @@ export default function RevenueKingPage() {
       {/* Hero */}
       <header className="pt-32 pb-20 relative z-10 overflow-hidden min-h-[50vh] flex items-center">
         <div className="absolute inset-0 z-0">
-          <img
-            src="https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&w=2000&q=80"
+          <img            src="/pic/hero/photo-1593941707882-a5bba14938c7.webp"
+
             className="w-full h-full object-cover"
             style={{ filter: "brightness(.3) grayscale(20%)" }}
             alt="Urban Fleet"

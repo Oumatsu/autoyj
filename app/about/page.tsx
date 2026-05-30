@@ -139,7 +139,7 @@ export default function AboutPage() {
       <section className="relative py-24 sm:py-32 md:py-48 scroll-mt-48 overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img
-            src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=2000&q=80"
+            src="/pic/page/photo-1451187580459-43490279c0fa.webp"
             className="w-full h-full object-cover"
             style={{ filter: "brightness(.4) contrast(1.2) grayscale(40%)" }}
             alt="Global Network"

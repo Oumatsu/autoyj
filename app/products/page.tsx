@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { vehicles as revenueVehicles } from "./revenue-king/data";
 import { vehicles as eliteVehicles } from "./elite-flagship/data";
 import { vehicles as utilityVehicles } from "./utility-pro/data";
@@ -10,7 +10,7 @@ export default function ProductsPage() {
       {/* Hero — image drives height, bottom 7.5% clipped, fades to mid */}
       <section className="relative overflow-hidden">
         <img
-          src="https://6a0327d1fc46b5b25f3480d6.imgix.net/Our-solutions-durability-and-fatigue.avif"
+          src="/pic/hero/Our-solutions-durability-and-fatigue.webp"
           className="w-full block"
           style={{ filter: "contrast(1.1)", marginBottom: "-7.5%" }}
           alt="Curated Selection Background"
@@ -146,7 +146,7 @@ export default function ProductsPage() {
                   badgeCls: "bg-white/5 text-gray-500 border border-white/10",
                   saving: "Save $220/mo",
                   tags: ["Aegis Battery", "530km Range"],
-                  img: "https://6a0327d1fc46b5b25f3480d6.imgix.net/Galaxye5/Galaxye5%20display.jpg",
+                  img: "/pic/hero/Galaxye5 display.webp",
                   link: "/products/revenue-king/geely-galaxy-e5",
                 },
               ].map((car, i) => {
@@ -254,7 +254,7 @@ export default function ProductsPage() {
               >
                 <div className="aspect-[16/10] overflow-hidden relative">
                   <img
-                    src="https://6a0327d1fc46b5b25f3480d6.imgix.net/M9/M9%20display.webp"
+                    src="/pic/hero/M9 display.webp"
                     alt="AITO M9"
                     className="w-full h-full object-cover scale-100 group-hover:scale-105 transition-all duration-700"
                   />
@@ -290,7 +290,7 @@ export default function ProductsPage() {
               >
                 <div className="aspect-[21/9] overflow-hidden relative">
                   <img
-                    src="https://6a0327d1fc46b5b25f3480d6.imgix.net/M9/M9%20display.webp"
+                    src="/pic/hero/M9 display.webp"
                     alt="AITO M9"
                     className="w-full h-full object-cover scale-100 group-hover:scale-105 transition-all duration-700"
                   />
@@ -333,7 +333,7 @@ export default function ProductsPage() {
                   tag: "1500+ Horsepower",
                   desc: "The ultimate social currency for tech-elite buyers. Carbon-fiber aero with peak acceleration.",
                   label: "Performance Icon",
-                  img: "https://6a0327d1fc46b5b25f3480d6.imgix.net/SU7ultra/SU7ultra%20display.png",
+                  img: "/pic/hero/SU7ultra display.webp",
                   link: "/products/elite-flagship/xiaomi-su7-ultra",
                 },
               ].map((car, i) => {
@@ -436,7 +436,7 @@ export default function ProductsPage() {
                   desc: "Pure electric efficiency for urban logistics and farms. 6kW external discharge capacity.",
                   label: "Production Power",
                   sub: "Eco Logistics",
-                  img: "https://6a0327d1fc46b5b25f3480d6.imgix.net/neo/RD6%20display0.jpeg",
+                  img: "/pic/hero/RD6 display0.webp",
                   link: "/products/utility-pro/radar-rd6",
                 },
                 {
@@ -445,7 +445,7 @@ export default function ProductsPage() {
                   desc: "The future of city cargo. Steer-by-wire with flat-floor cargo optimization for 11m³+ volume.",
                   label: "Digital Cargo",
                   sub: "Next-Gen Van",
-                  img: "https://6a0327d1fc46b5b25f3480d6.imgix.net/supervan/supervan%20display.jpg",
+                  img: "/pic/hero/supervan display.webp",
                   link: "/products/utility-pro/farizon-super-van",
                 },
               ].map((car, i) => {

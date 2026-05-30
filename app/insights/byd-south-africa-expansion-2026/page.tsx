@@ -13,7 +13,7 @@ const content = `<p>In June 2025, BYD confirmed it would expand its South Africa
 </table></div>
 <p>South Africa's new energy vehicle registrations reached <strong>3,487 units in Q1 2025</strong> alone —a 2.<span class="hl-gold">4% </span>market share, up from 1.<span class="hl-gold">4% </span>in 2023. BYD is not expanding into an abstract future market; it is responding to documented demand growth.</p>
 <div class="rounded-[1.5rem] overflow-hidden my-10">
-  <img src="images/byd-south-africa-expansion-2026/dealership.jpg" alt="Modern car dealership showroom representing the retail infrastructure BYD is building across South Africa" class="w-full h-auto object-cover" style="max-height:450px;">
+  <img src="images/byd-south-africa-expansion-2026/dealership.webp" alt="Modern car dealership showroom representing the retail infrastructure BYD is building across South Africa" class="w-full h-auto object-cover" style="max-height:450px;">
   <div class="px-6 py-4 bg-white/[0.02] border-t border-white/5">
     <p class="text-xs text-gray-500 font-light italic leading-relaxed">BYD's South Africa expansion follows the same playbook used in Europe and Southeast Asia: rapid dealer network build-out, standardised showroom design, and a multi-model product lineup covering entry to premium segments.</p>
   </div>
@@ -28,7 +28,7 @@ const content = `<p>In June 2025, BYD confirmed it would expand its South Africa
 <p><strong>Shark 6</strong> —plug-in hybrid pickup truck (relevant for markets where charging infrastructure is limited)</p>
 <p>The breadth of this lineup is strategically deliberate. BYD is not targeting a single buyer segment —it is attempting to establish category dominance across commercial, private, and mixed-use applications simultaneously.</p>
 <div class="rounded-[1.5rem] overflow-hidden my-10">
-  <img src="images/byd-south-africa-expansion-2026/byd-ev.jpg" alt="BYD electric vehicle representing the product lineup the brand is deploying in the African market" class="w-full h-auto object-cover" style="max-height:450px;">
+  <img src="images/byd-south-africa-expansion-2026/byd-ev.webp" alt="BYD electric vehicle representing the product lineup the brand is deploying in the African market" class="w-full h-auto object-cover" style="max-height:450px;">
   <div class="px-6 py-4 bg-white/[0.02] border-t border-white/5">
     <p class="text-xs text-gray-500 font-light italic leading-relaxed">BYD's Africa-facing lineup includes both full BEV and plug-in hybrid (PHEV) options —a pragmatic acknowledgement that charging infrastructure remains uneven across the continent.</p>
   </div>
@@ -88,7 +88,7 @@ export default function ArticlePage() {
               </header>
 
               <div className="w-full aspect-[21/9] rounded-[2rem] overflow-hidden mb-16 relative">
-                <img src="/insights/images/byd-south-africa-expansion-2026/hero.jpg" alt="BYD Is Tripling Its South Africa Dealership Network. What It Means for the Continent." className="w-full h-full object-cover" />
+                <img src="/insights/images/byd-south-africa-expansion-2026/hero.webp" alt="BYD Is Tripling Its South Africa Dealership Network. What It Means for the Continent." className="w-full h-full object-cover" />
                 <div className="absolute inset-0 border border-white/10 rounded-[2rem] pointer-events-none"></div>
               </div>
 
@@ -123,7 +123,7 @@ export default function ArticlePage() {
                 </div>
                 <div className="glass rounded-[2rem] p-8 bg-mid/50 border-white/5 hover:border-green/30 transition-all duration-300 group">
                   <div className="flex items-center gap-4 mb-6">
-                    <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80" alt="Consultant" className="w-12 h-12 rounded-full border-2 border-green/50 object-cover group-hover:border-green transition-colors" />
+                    <img src="/pic/academy/photo-1560250097-0b93528c311a.webp" alt="Consultant" className="w-12 h-12 rounded-full border-2 border-green/50 object-cover group-hover:border-green transition-colors" />
                     <div>
                       <div className="text-sm font-bold text-white group-hover:text-green transition-colors">Speak to an Expert</div>
                       <div className="text-[10px] text-green flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-green animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]"></span> Available Now</div>

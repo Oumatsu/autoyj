@@ -1,9 +1,9 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 
 const IMGS = [
   "https://images.unsplash.com/photo-1527853787696-f7be74f2e39a?auto=format&fit=crop&w=600&q=80",
-  "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80",
-  "https://images.unsplash.com/photo-1559136555-9303baea8ebd?auto=format&fit=crop&w=600&q=80",
+  "/pic/academy/photo-1518770660439-4636190af475.webp",
+  "/pic/academy/photo-1559136555-9303baea8ebd.webp",
 ];
 
 const articles = [

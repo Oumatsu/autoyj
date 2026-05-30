@@ -75,9 +75,9 @@ interface DetailData {
 }
 
 const DEFAULT_GALLERY: GalleryImage[] = [
-  { src: "https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&w=1200&q=80", cat: "Exterior", label: "Front View" },
+  { src: "/pic/hero/photo-1593941707882-a5bba14938c7.webp", cat: "Exterior", label: "Front View" },
   { src: "https://images.unsplash.com/photo-1620800615569-42b781a62dcb?auto=format&fit=crop&w=1200&q=80", cat: "Exterior", label: "Side Profile" },
-  { src: "https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=1200&q=80", cat: "Interior", label: "Dashboard" },
+  { src: "/pic/page/photo-1555215695-3004980ad54e.webp", cat: "Interior", label: "Dashboard" },
 ];
 
 const DEFAULT_BATCH_LEVELS = [
@@ -278,7 +278,7 @@ export default function VehicleDetail({ data }: { data: DetailData }) {
       {/* Dealer ROI / Business Case */}
       <section className="py-12 md:py-16 relative overflow-hidden">
         <div className="absolute inset-0">
-          <img src="https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&w=1600&q=80" className="w-full h-full object-cover" style={{ filter: "brightness(.28) grayscale(20%)" }} alt="" />
+          <img src="/pic/page/photo-1449965408869-eaa3f722e40d.webp" className="w-full h-full object-cover" style={{ filter: "brightness(.28) grayscale(20%)" }} alt="" />
           <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, rgba(10,10,10,.80) 0%, rgba(10,10,10,.55) 100%)" }} />
           <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, var(--color-mid) 0%, transparent 20%, transparent 80%, var(--color-mid) 100%)" }} />
         </div>
@@ -323,7 +323,7 @@ export default function VehicleDetail({ data }: { data: DetailData }) {
       {/* Specs */}
       <section id="specs" className="py-12 md:py-16 relative overflow-hidden">
         <div className="absolute inset-0">
-          <img src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1600&q=80" className="w-full h-full object-cover" style={{ filter: "brightness(.35) grayscale(20%)" }} alt="" />
+          <img src="/pic/page/photo-1503376780353-7e6692767b70.webp" className="w-full h-full object-cover" style={{ filter: "brightness(.35) grayscale(20%)" }} alt="" />
           <div className="absolute inset-0" style={{ background: "rgba(10,10,10,.60)" }} />
           <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, var(--color-mid) 0%, transparent 20%, transparent 80%, var(--color-mid) 100%)" }} />
         </div>

@@ -1,12 +1,12 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 
 const IMGS = [
-  "https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&w=600&q=80",
-  "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?auto=format&fit=crop&w=600&q=80",
+  "/pic/academy/photo-1581092160562-40aa08e78837.webp",
+  "/pic/academy/photo-1486312338219-ce68d2c6f44d.webp",
   "/pic/academy/0.webp",
-  "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&w=600&q=80",
-  "https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?auto=format&fit=crop&w=600&q=80",
-  "https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&w=600&q=80",
+  "/pic/academy/photo-1473341304170-971dccb5ac1e.webp",
+  "/pic/academy/photo-1504328345606-18bbc8c9d7d1.webp",
+  "/pic/academy/photo-1581092160562-40aa08e78837.webp",
 ];
 
 const articles = [

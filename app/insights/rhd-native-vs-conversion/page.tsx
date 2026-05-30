@@ -7,7 +7,7 @@ const content = `<p>Africa's major vehicle markets divide cleanly on steering co
 <p>Chinese EV manufacturers design and produce primarily for the domestic Chinese market, which is LHD. For export, OEMs with significant RHD market ambitions —BYD, Geely, SAIC (MG), GWM —invest in native RHD production tooling for specific models. This is expensive and is only done for models with confirmed volume in RHD markets.</p>
 <p>For models without native RHD production —which is the majority of the Chinese EV catalogue —export to RHD markets requires conversion. Conversion businesses operate across several Chinese cities and in receiving markets (South Africa, Kenya, UAE) that then re-export to the continent.</p>
 <div class="rounded-[1.5rem] overflow-hidden my-10">
-  <img src="images/rhd-native-vs-conversion/factory-line.jpg" alt="Vehicle manufacturing line representing Chinese EV factory production with native RHD configuration options" class="w-full h-auto object-cover" style="max-height:450px;">
+  <img src="images/rhd-native-vs-conversion/factory-line.webp" alt="Vehicle manufacturing line representing Chinese EV factory production with native RHD configuration options" class="w-full h-auto object-cover" style="max-height:450px;">
   <div class="px-6 py-4 bg-white/[0.02] border-t border-white/5">
     <p class="text-xs text-gray-500 font-light italic leading-relaxed">Native RHD production means the vehicle was engineered and assembled as a right-hand drive unit from the factory floor —airbag positioning, wiper sweep, instrument cluster, and crash safety structure all reflect the correct configuration.</p>
   </div>
@@ -15,7 +15,7 @@ const content = `<p>Africa's major vehicle markets divide cleanly on steering co
 <h2>What a Conversion Changes —and What It Doesn't</h2>
 <p>A professional steering conversion relocates the steering rack, column, and wheel to the right side. It adjusts the instrument cluster mounting and sometimes the HVAC controls. What it typically does not change:</p>
 <div class="rounded-[1.5rem] overflow-hidden my-10">
-  <img src="images/rhd-native-vs-conversion/steering-wheel.jpg" alt="Right-hand drive steering wheel configuration representing the factory RHD option that preserves full safety and warranty compliance" class="w-full h-auto object-cover" style="max-height:450px;">
+  <img src="images/rhd-native-vs-conversion/steering-wheel.webp" alt="Right-hand drive steering wheel configuration representing the factory RHD option that preserves full safety and warranty compliance" class="w-full h-auto object-cover" style="max-height:450px;">
   <div class="px-6 py-4 bg-white/[0.02] border-t border-white/5">
     <p class="text-xs text-gray-500 font-light italic leading-relaxed">The difference between a factory RHD unit and a converted one is not visible from the outside. It shows up in the wiper pattern, the airbag behaviour in a crash, and the warranty validity.</p>
   </div>
@@ -103,7 +103,7 @@ export default function ArticlePage() {
               </header>
 
               <div className="w-full aspect-[21/9] rounded-[2rem] overflow-hidden mb-16 relative">
-                <img src="/insights/images/rhd-native-vs-conversion/hero.jpg" alt="Native RHD vs Converted LHD: The Sourcing Decision That Affects Warranty, Safety, and Resale" className="w-full h-full object-cover" />
+                <img src="/insights/images/rhd-native-vs-conversion/hero.webp" alt="Native RHD vs Converted LHD: The Sourcing Decision That Affects Warranty, Safety, and Resale" className="w-full h-full object-cover" />
                 <div className="absolute inset-0 border border-white/10 rounded-[2rem] pointer-events-none"></div>
               </div>
 
@@ -139,7 +139,7 @@ export default function ArticlePage() {
                 </div>
                 <div className="glass rounded-[2rem] p-8 bg-mid/50 border-white/5 hover:border-green/30 transition-all duration-300 group">
                   <div className="flex items-center gap-4 mb-6">
-                    <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80" alt="Consultant" className="w-12 h-12 rounded-full border-2 border-green/50 object-cover group-hover:border-green transition-colors" />
+                    <img src="/pic/academy/photo-1560250097-0b93528c311a.webp" alt="Consultant" className="w-12 h-12 rounded-full border-2 border-green/50 object-cover group-hover:border-green transition-colors" />
                     <div>
                       <div className="text-sm font-bold text-white group-hover:text-green transition-colors">Speak to an Expert</div>
                       <div className="text-[10px] text-green flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-green animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]"></span> Available Now</div>

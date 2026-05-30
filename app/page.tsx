@@ -70,7 +70,7 @@ export default function HomePage() {
               <Link href="/products/revenue-king" className="block">
                 <ScrollColorCard className="v-card aspect-[4/5] border border-accent/20">
                   <img
-                    src="https://6a0327d1fc46b5b25f3480d6.imgix.net/Ti3/Ti3%20display.webp"
+                    src="/pic/hero/Ti3 display.webp"
                     className="w-full h-full object-cover absolute inset-0"
                     alt="Revenue King"
                   />
@@ -258,7 +258,7 @@ export default function HomePage() {
       >
         <div className="absolute inset-0">
           <img
-            src="https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&w=2000&q=80"
+            src="/pic/hero/photo-1578575437130-527eed3abbec.webp"
             className="w-full h-full object-cover"
             style={{ filter: "brightness(.3) grayscale(15%)" }}
             alt="Logistics"
@@ -553,7 +553,7 @@ export default function HomePage() {
       >
         <div className="absolute inset-0">
           <img
-            src="https://images.unsplash.com/photo-1520038410233-7141be7e6f97?auto=format&fit=crop&w=2000&q=80"
+            src="/pic/page/photo-1520038410233-7141be7e6f97.webp"
             className="w-full h-full object-cover"
             style={{ filter: "brightness(.3) grayscale(15%)" }}
             alt="Tech"

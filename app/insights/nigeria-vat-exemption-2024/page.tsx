@@ -9,7 +9,7 @@ const content = `<p>In September 2024, Nigeria's federal government quietly enac
 <p><strong>Services directly related to EV manufacturing, assembly, and sales</strong></p>
 <p>Simultaneously, the <strong>Import Adjustment Tax (IAT)</strong> —which was previously levied on ICE vehicles according to engine displacement —no longer applies to electric vehicles. EVs do not have an engine, so they were not subject to the IAT in any case, but the Order clarifies this explicitly, removing any ambiguity in customs classification.</p>
 <div class="rounded-[1.5rem] overflow-hidden my-10">
-  <img src="images/nigeria-vat-exemption-2024/policy-doc.jpg" alt="Official government policy documents representing the VAT Modification Order 2024" class="w-full h-auto object-cover" style="max-height:450px;">
+  <img src="images/nigeria-vat-exemption-2024/policy-doc.webp" alt="Official government policy documents representing the VAT Modification Order 2024" class="w-full h-auto object-cover" style="max-height:450px;">
   <div class="px-6 py-4 bg-white/[0.02] border-t border-white/5">
     <p class="text-xs text-gray-500 font-light italic leading-relaxed">The VAT Modification Order 2024 was published in Nigeria's Federal Gazette in September 2024 —the legal instrument that dealers should reference in any customs dispute.</p>
   </div>
@@ -80,7 +80,7 @@ export default function ArticlePage() {
               </header>
 
               <div className="w-full aspect-[21/9] rounded-[2rem] overflow-hidden mb-16 relative">
-                <img src="/insights/images/nigeria-vat-exemption-2024/hero.jpg" alt="Nigeria\'s VAT Exemption Order: What Every EV Dealer Must Know" className="w-full h-full object-cover" />
+                <img src="/insights/images/nigeria-vat-exemption-2024/hero.webp" alt="Nigeria\'s VAT Exemption Order: What Every EV Dealer Must Know" className="w-full h-full object-cover" />
                 <div className="absolute inset-0 border border-white/10 rounded-[2rem] pointer-events-none"></div>
               </div>
 
@@ -115,7 +115,7 @@ export default function ArticlePage() {
                 </div>
                 <div className="glass rounded-[2rem] p-8 bg-mid/50 border-white/5 hover:border-green/30 transition-all duration-300 group">
                   <div className="flex items-center gap-4 mb-6">
-                    <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80" alt="Consultant" className="w-12 h-12 rounded-full border-2 border-green/50 object-cover group-hover:border-green transition-colors" />
+                    <img src="/pic/academy/photo-1560250097-0b93528c311a.webp" alt="Consultant" className="w-12 h-12 rounded-full border-2 border-green/50 object-cover group-hover:border-green transition-colors" />
                     <div>
                       <div className="text-sm font-bold text-white group-hover:text-green transition-colors">Speak to an Expert</div>
                       <div className="text-[10px] text-green flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-green animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]"></span> Available Now</div>

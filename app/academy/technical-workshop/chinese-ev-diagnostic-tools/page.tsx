@@ -51,7 +51,7 @@ export default function ChineseEvDiagnosticToolsPage() {
               </div>
             </header>
             <div className="w-full aspect-[21/9] rounded-[2rem] overflow-hidden mb-16 relative bg-mid">
-              <img src="https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?auto=format&fit=crop&w=1600&q=80" alt="Diagnostic Tools" className="w-full h-full object-cover" />
+              <img src="/pic/academy/photo-1486312338219-ce68d2c6f44d.webp" alt="Diagnostic Tools" className="w-full h-full object-cover" />
               <div className="absolute inset-0 border border-white/10 rounded-[2rem] pointer-events-none"></div>
             </div>
             <article className="article-body max-w-3xl" dangerouslySetInnerHTML={{ __html: content }} />
@@ -67,7 +67,7 @@ export default function ChineseEvDiagnosticToolsPage() {
             <div className="sticky top-28 space-y-6">
               <div className="glass rounded-[2rem] p-8 bg-mid/50 border-white/5 hover:border-green/30 transition-all duration-300 group">
                 <div className="flex items-center gap-4 mb-6">
-                  <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80" className="w-12 h-12 rounded-full border-2 border-green/50 object-cover" alt="" />
+                  <img src="/pic/academy/photo-1560250097-0b93528c311a.webp" className="w-12 h-12 rounded-full border-2 border-green/50 object-cover" alt="" />
                   <div><div className="text-sm font-bold text-white">Equipment Advice</div><div className="text-[10px] text-green flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-green animate-pulse"></span> Available Now</div></div>
                 </div>
                 <p className="text-gray-400 text-xs font-light leading-relaxed mb-6">Need help sourcing diagnostic tools in East Africa? Let's talk.</p>

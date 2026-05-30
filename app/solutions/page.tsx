@@ -141,7 +141,7 @@ export default function SolutionsPage() {
       <section className="py-16 sm:py-20 md:py-28 relative overflow-hidden">
         <div className="absolute inset-0">
           <img
-            src="https://images.unsplash.com/photo-1520038410233-7141be7e6f97?auto=format&fit=crop&w=2000&q=80"
+            src="/pic/page/photo-1520038410233-7141be7e6f97.webp"
             className="w-full h-full object-cover"
             style={{ filter: "brightness(.28) grayscale(20%)" }}
             alt="Port Loading"

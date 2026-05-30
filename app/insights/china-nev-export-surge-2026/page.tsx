@@ -12,7 +12,7 @@ const content = `<p>Two policy events collided in January 2026 to create the mos
 </table></div>
 <p>The halving of the benefit affects primarily the domestic Chinese consumer. For the export market, the direct impact on pricing is indirect —but the strategic implications are significant.</p>
 <div class="rounded-[1.5rem] overflow-hidden my-10">
-  <img src="images/china-nev-export-surge-2026/export-port.jpg" alt="RoRo car export terminal showing thousands of vehicles awaiting shipment overseas" class="w-full h-auto object-cover" style="max-height:450px;">
+  <img src="images/china-nev-export-surge-2026/export-port.webp" alt="RoRo car export terminal showing thousands of vehicles awaiting shipment overseas" class="w-full h-auto object-cover" style="max-height:450px;">
   <div class="px-6 py-4 bg-white/[0.02] border-t border-white/5">
     <p class="text-xs text-gray-500 font-light italic leading-relaxed">China's car export terminals are running at capacity. With Western markets closed by tariffs, African and Southeast Asian dealers are receiving increasing commercial attention from Chinese OEMs.</p>
   </div>
@@ -25,7 +25,7 @@ const content = `<p>Two policy events collided in January 2026 to create the mos
 <p>The primary driver of this surge was not Africa —it was Southeast Asia and Latin America, which absorbed the bulk of the redirected volume. But the trend is clear: as Western markets erected tariff walls, Chinese OEMs pivoted toward open markets with speed and commercial aggression.</p>
 <p>Africa is increasingly on that list. In 2024, Chinese imports accounted for <strong>75—span class="hl-gold">85% </span>of EV sales</strong> across key emerging markets —reaching <span class="hl-gold">85% </span>in Brazil and Thailand, according to IEA data. The African market, where Chinese brands have been active in ICE vehicles for over a decade, is a natural extension.</p>
 <div class="rounded-[1.5rem] overflow-hidden my-10">
-  <img src="images/china-nev-export-surge-2026/price-data.jpg" alt="Data analysis screen showing market statistics representing the pricing intelligence available to informed dealers" class="w-full h-auto object-cover" style="max-height:450px;">
+  <img src="images/china-nev-export-surge-2026/price-data.webp" alt="Data analysis screen showing market statistics representing the pricing intelligence available to informed dealers" class="w-full h-auto object-cover" style="max-height:450px;">
   <div class="px-6 py-4 bg-white/[0.02] border-t border-white/5">
     <p class="text-xs text-gray-500 font-light italic leading-relaxed">Chinese OEM pricing for export markets has become more negotiable as domestic sales stimulants are reduced —dealers who understand this dynamic are in a stronger position.</p>
   </div>
@@ -92,7 +92,7 @@ export default function ArticlePage() {
               </header>
 
               <div className="w-full aspect-[21/9] rounded-[2rem] overflow-hidden mb-16 relative">
-                <img src="/insights/images/china-nev-export-surge-2026/hero.jpg" alt="China Halves Its EV Purchase Tax —And African Dealers Are the Unexpected Winners" className="w-full h-full object-cover" />
+                <img src="/insights/images/china-nev-export-surge-2026/hero.webp" alt="China Halves Its EV Purchase Tax —And African Dealers Are the Unexpected Winners" className="w-full h-full object-cover" />
                 <div className="absolute inset-0 border border-white/10 rounded-[2rem] pointer-events-none"></div>
               </div>
 
@@ -127,7 +127,7 @@ export default function ArticlePage() {
                 </div>
                 <div className="glass rounded-[2rem] p-8 bg-mid/50 border-white/5 hover:border-green/30 transition-all duration-300 group">
                   <div className="flex items-center gap-4 mb-6">
-                    <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80" alt="Consultant" className="w-12 h-12 rounded-full border-2 border-green/50 object-cover group-hover:border-green transition-colors" />
+                    <img src="/pic/academy/photo-1560250097-0b93528c311a.webp" alt="Consultant" className="w-12 h-12 rounded-full border-2 border-green/50 object-cover group-hover:border-green transition-colors" />
                     <div>
                       <div className="text-sm font-bold text-white group-hover:text-green transition-colors">Speak to an Expert</div>
                       <div className="text-[10px] text-green flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-green animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]"></span> Available Now</div>

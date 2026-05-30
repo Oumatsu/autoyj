@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 
 export default function EthiopiaMarketPage() {
   return (
@@ -8,7 +8,7 @@ export default function EthiopiaMarketPage() {
       <section className="relative min-h-[80vh] flex items-center overflow-hidden">
         <div className="absolute inset-0">
           <img
-            src="https://images.unsplash.com/photo-1523805009345-7448845a9e53?auto=format&fit=crop&w=2000&q=80"
+            src="/pic/page/photo-1523805009345-7448845a9e53.webp"
             className="w-full h-full object-cover"
             style={{ filter: "brightness(.75)" }}
             alt="Addis Ababa"
@@ -143,7 +143,7 @@ export default function EthiopiaMarketPage() {
                   name: "BYD Seagull",
                   segment: "Ride-Hailing King",
                   reason: "405km range, LFP safety, and sub-$12K FOB pricing make this the #1 choice for Addis taxi fleets.",
-                  img: "https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&w=600&q=80",
+                  img: "/pic/hero/photo-1593941707882-a5bba14938c7.webp",
                 },
                 {
                   name: "GAC Aion RT",
@@ -244,7 +244,7 @@ export default function EthiopiaMarketPage() {
       <div className="relative overflow-hidden">
         <div className="absolute inset-0">
           <img
-            src="https://images.unsplash.com/photo-1523805009345-7448845a9e53?auto=format&fit=crop&w=2000&q=80"
+            src="/pic/page/photo-1523805009345-7448845a9e53.webp"
             className="w-full h-full object-cover"
             style={{ filter: "brightness(.28) grayscale(20%)" }}
             alt=""

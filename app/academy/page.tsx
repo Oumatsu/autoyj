@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState, useRef, useCallback } from "react";
 import Link from "next/link";
@@ -11,21 +11,21 @@ const fundamentalsArticles = [
     tag: "Battery Tech",
     slug: "high-altitude-dust-ethiopia-ev",
     desc: "Understanding how high altitude and dust affect EVs in Ethiopia is essential knowledge for any dealer or technician.",
-    img: "https://images.unsplash.com/photo-1527853787696-f7be74f2e39a?auto=format&fit=crop&w=800&q=80",
+    img: "/pic/academy/photo-1527853787696-f7be74f2e39a.webp",
   },
   {
     title: "EV Range Explained: Why the Spec Sheet Number Doesn't Apply in Africa",
     tag: "Infrastructure",
     slug: "ev-range-explained-africa",
     desc: "The range figure on a Chinese EV's spec sheet is not the range your customer will experience in Africa.",
-    img: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80",
+    img: "/pic/academy/photo-1518770660439-4636190af475.webp",
   },
   {
     title: "How EV Batteries Degrade: What African Dealers Need to Understand",
     tag: "TCO Analysis",
     slug: "how-ev-batteries-degrade",
     desc: "Battery degradation is the most common customer concern — and the most misunderstood by dealers.",
-    img: "https://images.unsplash.com/photo-1559136555-9303baea8ebd?auto=format&fit=crop&w=800&q=80",
+    img: "/pic/academy/photo-1559136555-9303baea8ebd.webp",
   },
 ];
 
@@ -56,14 +56,14 @@ const workshopArticles = [
     tag: "High Voltage",
     slug: "high-voltage-safety-ev-technicians",
     desc: "The non-negotiable safety protocol for any workshop servicing Chinese EVs.",
-    img: "https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&w=800&q=80",
+    img: "/pic/academy/photo-1581092160562-40aa08e78837.webp",
   },
   {
     title: "Chinese EV Diagnostic Tools: What Actually Works",
     tag: "Diagnostics",
     slug: "chinese-ev-diagnostic-tools",
     desc: "LAUNCH X431 vs AUTEL vs brand-specific — what to buy and what to skip.",
-    img: "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?auto=format&fit=crop&w=800&q=80",
+    img: "/pic/academy/photo-1486312338219-ce68d2c6f44d.webp",
   },
   {
     title: "The 12V Auxiliary Battery: Why It Fails, How to Fix It",
@@ -77,21 +77,21 @@ const workshopArticles = [
     tag: "Diagnostics",
     slug: "ev-wont-charge-troubleshooting",
     desc: "Most charging faults are caused by one of six root causes.",
-    img: "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&w=800&q=80",
+    img: "/pic/academy/photo-1473341304170-971dccb5ac1e.webp",
   },
   {
     title: "Common Fault Patterns in Chinese EVs in Ethiopia",
     tag: "Field Reference",
     slug: "common-fault-patterns-ethiopia",
     desc: "Altitude, dust, grid instability — fault patterns that don't appear in OEM documentation.",
-    img: "https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?auto=format&fit=crop&w=800&q=80",
+    img: "/pic/academy/photo-1504328345606-18bbc8c9d7d1.webp",
   },
   {
     title: "Voltage Fluctuation and EV Charging in Ethiopia",
     tag: "Field Reference",
     slug: "voltage-fluctuation-ev-charger-ethiopia",
     desc: "Grid voltage is one of the most underappreciated causes of EV charging faults.",
-    img: "https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&w=800&q=80",
+    img: "/pic/academy/photo-1581092160562-40aa08e78837.webp",
   },
 ];
 
@@ -202,7 +202,7 @@ export default function AcademyPage() {
       >
         <div className="absolute inset-0">
           <img
-            src="https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&w=2000&q=80"
+            src="/pic/hero/photo-1593941707882-a5bba14938c7.webp"
             className="w-full h-full object-cover"
             style={{ filter: "grayscale(40%)" }}
             alt="EV Tech"
@@ -400,7 +400,7 @@ export default function AcademyPage() {
       >
         <div className="absolute inset-0 z-0">
           <img
-            src="https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=2000&q=80"
+            src="/pic/page/photo-1555215695-3004980ad54e.webp"
             className="w-full h-full object-cover"
             style={{ filter: "brightness(.2) contrast(1.1) grayscale(40%)" }}
             alt="Vault"

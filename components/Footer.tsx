@@ -6,7 +6,7 @@ export function Footer() {
     <div className="relative overflow-hidden">
       <div className="absolute inset-0">
         <img
-          src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=2000&q=80"
+          src="/pic/under/photo-1469854523086-cc02fe5d8800.webp"
           className="w-full h-full object-cover"
           style={{ filter: "brightness(.28) grayscale(20%)" }}
           alt=""

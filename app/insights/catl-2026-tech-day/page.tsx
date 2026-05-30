@@ -9,7 +9,7 @@ const content = `<p>On April 21, 2026, CATL —the world's largest battery manuf
 <p>The practical implication for African market deployment: <strong>vehicles equipped with 3rd-gen Shenxing cells can charge in the time it takes to conduct a driver handover</strong> at a taxi rank or a logistics hub delivery stop —a genuine operational change, not a showroom spec.</p>
 <p>Which vehicles will carry it: BYD's 2026 generation flagship models, several Geely/Zeekr premium models, and NIO vehicles from H2 2026 onwards. Expect these specifications to appear in Africa-facing models from Q1 2027.</p>
 <div class="rounded-[1.5rem] overflow-hidden my-10">
-  <img src="images/catl-2026-tech-day/fast-charge.jpg" alt="High-speed EV charging station representing the ultra-fast charging capability of CATL's 3rd generation Shenxing battery" class="w-full h-auto object-cover" style="max-height:450px;">
+  <img src="images/catl-2026-tech-day/fast-charge.webp" alt="High-speed EV charging station representing the ultra-fast charging capability of CATL's 3rd generation Shenxing battery" class="w-full h-auto object-cover" style="max-height:450px;">
   <div class="px-6 py-4 bg-white/[0.02] border-t border-white/5">
     <p class="text-xs text-gray-500 font-light italic leading-relaxed">The 3rd-generation Shenxing battery's 6-minute 10-80% charge capability is designed for vehicles using 400A+ chargers —still rare in Africa, but relevant for fleet depot and fast-charger investment planning.</p>
   </div>
@@ -23,7 +23,7 @@ const content = `<p>On April 21, 2026, CATL —the world's largest battery manuf
 <p>CATL confirmed production ramp-up for the condensed matter battery is underway, initially targeting premium segments and aviation applications, before broadening to commercial automotive in 2027—028.</p>
 <p>For African dealers, this technology is <strong>not immediately actionable</strong> —it will appear first in premium Chinese models (Yangwang U8, NIO ET9) at price points above the Africa-focused market. The relevance is strategic: watch for condensed matter specifications to appear in mid-range vehicles by 2028, at which point the range anxiety argument against EVs in markets with sparse charging infrastructure largely dissolves.</p>
 <div class="rounded-[1.5rem] overflow-hidden my-10">
-  <img src="images/catl-2026-tech-day/battery-cells.jpg" alt="Advanced battery cell technology close-up representing CATL's energy density breakthroughs announced at the 2026 Tech Day" class="w-full h-auto object-cover" style="max-height:450px;">
+  <img src="images/catl-2026-tech-day/battery-cells.webp" alt="Advanced battery cell technology close-up representing CATL's energy density breakthroughs announced at the 2026 Tech Day" class="w-full h-auto object-cover" style="max-height:450px;">
   <div class="px-6 py-4 bg-white/[0.02] border-t border-white/5">
     <p class="text-xs text-gray-500 font-light italic leading-relaxed">CATL's condensed matter battery achieves 350 Wh/kg —roughly twice the energy density of standard LFP cells. Production is ramping in 2026 for premium segments, with broader automotive application from 2027.</p>
   </div>
@@ -102,7 +102,7 @@ export default function ArticlePage() {
               </header>
 
               <div className="w-full aspect-[21/9] rounded-[2rem] overflow-hidden mb-16 relative">
-                <img src="/insights/images/catl-2026-tech-day/hero.jpg" alt="CATL\'s 2026 Tech Day Changed the Battery Roadmap. What African Dealers Need to Know." className="w-full h-full object-cover" />
+                <img src="/insights/images/catl-2026-tech-day/hero.webp" alt="CATL\'s 2026 Tech Day Changed the Battery Roadmap. What African Dealers Need to Know." className="w-full h-full object-cover" />
                 <div className="absolute inset-0 border border-white/10 rounded-[2rem] pointer-events-none"></div>
               </div>
 
@@ -137,7 +137,7 @@ export default function ArticlePage() {
                 </div>
                 <div className="glass rounded-[2rem] p-8 bg-mid/50 border-white/5 hover:border-green/30 transition-all duration-300 group">
                   <div className="flex items-center gap-4 mb-6">
-                    <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80" alt="Consultant" className="w-12 h-12 rounded-full border-2 border-green/50 object-cover group-hover:border-green transition-colors" />
+                    <img src="/pic/academy/photo-1560250097-0b93528c311a.webp" alt="Consultant" className="w-12 h-12 rounded-full border-2 border-green/50 object-cover group-hover:border-green transition-colors" />
                     <div>
                       <div className="text-sm font-bold text-white group-hover:text-green transition-colors">Speak to an Expert</div>
                       <div className="text-[10px] text-green flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-green animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]"></span> Available Now</div>

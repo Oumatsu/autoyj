@@ -67,7 +67,7 @@ export default function AuxiliaryBatteryPage() {
             <div className="sticky top-28 space-y-6">
               <div className="glass rounded-[2rem] p-8 bg-mid/50 border-white/5 hover:border-green/30 transition-all duration-300 group">
                 <div className="flex items-center gap-4 mb-6">
-                  <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80" className="w-12 h-12 rounded-full border-2 border-green/50 object-cover" alt="" />
+                  <img src="/pic/academy/photo-1560250097-0b93528c311a.webp" className="w-12 h-12 rounded-full border-2 border-green/50 object-cover" alt="" />
                   <div><div className="text-sm font-bold text-white">Need Parts?</div><div className="text-[10px] text-green flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-green animate-pulse"></span> Available Now</div></div>
                 </div>
                 <p className="text-gray-400 text-xs font-light leading-relaxed mb-6">We can help source AGM batteries for your workshop stock.</p>

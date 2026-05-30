@@ -16,7 +16,7 @@ const content = `<blockquote class="bq-note"><strong>时效提示，/strong> 本
 </table></div>
 <p>The <span class="hl-gold">305 km</span> CLTC range translates to approximately 220—span class="hl-gold">250 km</span> in real-world mixed driving —sufficient for Addis Ababa urban use, where average daily taxi distances are reported at 100—span class="hl-gold">150 km</span> by Feres platform data.</p>
 <div class="rounded-[1.5rem] overflow-hidden my-10">
-  <img src="images/byd-seagull-landed-cost-ethiopia/addis-ababa.jpg" alt="Addis Ababa street scene representing the urban taxi and ride-hailing environment where the BYD Seagull would operate commercially" class="w-full h-auto object-cover" style="max-height:450px;">
+  <img src="images/byd-seagull-landed-cost-ethiopia/addis-ababa.webp" alt="Addis Ababa street scene representing the urban taxi and ride-hailing environment where the BYD Seagull would operate commercially" class="w-full h-auto object-cover" style="max-height:450px;">
   <div class="px-6 py-4 bg-white/[0.02] border-t border-white/5">
     <p class="text-xs text-gray-500 font-light italic leading-relaxed">Addis Ababa —where Feres, ZayRide, and independent taxi operators collectively move over 60,000 drivers daily. The Seagull's urban range profile is well-matched to this operating environment.</p>
   </div>
@@ -47,7 +47,7 @@ const content = `<blockquote class="bq-note"><strong>时效提示，/strong> 本
 </table></div>
 <p class="text-gray-500 text-xs font-light italic mt-8">Note: Excise tax rates for EVs remain subject to policy interpretation by Ethiopian Customs. The 30% rate above reflects the reinstated schedule under Directive 1006/2024. Verify the current applicable rate with a licensed Ethiopian customs broker before finalising purchase commitments.</p>
 <div class="rounded-[1.5rem] overflow-hidden my-10">
-  <img src="images/byd-seagull-landed-cost-ethiopia/cost-breakdown.jpg" alt="Cost calculation and financial analysis representing the import cost breakdown process for Ethiopian EV dealers" class="w-full h-auto object-cover" style="max-height:450px;">
+  <img src="images/byd-seagull-landed-cost-ethiopia/cost-breakdown.webp" alt="Cost calculation and financial analysis representing the import cost breakdown process for Ethiopian EV dealers" class="w-full h-auto object-cover" style="max-height:450px;">
   <div class="px-6 py-4 bg-white/[0.02] border-t border-white/5">
     <p class="text-xs text-gray-500 font-light italic leading-relaxed">Ethiopia's layered tax structure —customs duty, excise, VAT, sur-tax, and withholding —means that taxes represent a larger component of the landed cost than the vehicle's FOB export price.</p>
   </div>
@@ -132,7 +132,7 @@ export default function ArticlePage() {
               </header>
 
               <div className="w-full aspect-[21/9] rounded-[2rem] overflow-hidden mb-16 relative">
-                <img src="/insights/images/byd-seagull-landed-cost-ethiopia/hero.jpg" alt="BYD Seagull: What It Actually Costs to Import One to Ethiopia in 2026" className="w-full h-full object-cover" />
+                <img src="/insights/images/byd-seagull-landed-cost-ethiopia/hero.webp" alt="BYD Seagull: What It Actually Costs to Import One to Ethiopia in 2026" className="w-full h-full object-cover" />
                 <div className="absolute inset-0 border border-white/10 rounded-[2rem] pointer-events-none"></div>
               </div>
 
@@ -167,7 +167,7 @@ export default function ArticlePage() {
                 </div>
                 <div className="glass rounded-[2rem] p-8 bg-mid/50 border-white/5 hover:border-green/30 transition-all duration-300 group">
                   <div className="flex items-center gap-4 mb-6">
-                    <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80" alt="Consultant" className="w-12 h-12 rounded-full border-2 border-green/50 object-cover group-hover:border-green transition-colors" />
+                    <img src="/pic/academy/photo-1560250097-0b93528c311a.webp" alt="Consultant" className="w-12 h-12 rounded-full border-2 border-green/50 object-cover group-hover:border-green transition-colors" />
                     <div>
                       <div className="text-sm font-bold text-white group-hover:text-green transition-colors">Speak to an Expert</div>
                       <div className="text-[10px] text-green flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-green animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]"></span> Available Now</div>

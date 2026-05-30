@@ -23,7 +23,8 @@
     "potrace": "^2.1.8",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "resend": "^6.12.4"
+    "resend": "^6.12.4",
+    "sharp": "^0.34.5"
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "^1.36.3",

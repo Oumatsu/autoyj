@@ -8,7 +8,7 @@ const content = `<p>The International Energy Agency's <strong>Global EV Outlook 
 <p>That combination —strong growth rate, tiny absolute penetration —defines the Africa opportunity. A market that sold fewer than 11,000 EVs in 2024 across a continent of 1.4 billion people, in a vehicle sector dominated by second-hand imports, is not yet a scale market. But it is moving.</p>
 <p>The growth was geographically concentrated. <strong>Morocco and Egypt</strong> each exceeded 2,000 EV sales in 2024, together accounting for the majority of the continent's growth. Sub-Saharan Africa —where Evexportweb operates —remains in earlier-stage territory, with Kenya, South Africa, and Ethiopia as the primary active markets.</p>
 <div class="rounded-[1.5rem] overflow-hidden my-10">
-  <img src="images/iea-global-ev-outlook-2025/data-chart.jpg" alt="Data analytics dashboard representing the statistical intelligence contained in the IEA's annual Global EV Outlook" class="w-full h-auto object-cover" style="max-height:450px;">
+  <img src="images/iea-global-ev-outlook-2025/data-chart.webp" alt="Data analytics dashboard representing the statistical intelligence contained in the IEA's annual Global EV Outlook" class="w-full h-auto object-cover" style="max-height:450px;">
   <div class="px-6 py-4 bg-white/[0.02] border-t border-white/5">
     <p class="text-xs text-gray-500 font-light italic leading-relaxed">The IEA report draws on data from over 50 countries. For African markets specifically, it provides the most reliable benchmark for understanding where the continent sits in the global EV adoption curve.</p>
   </div>
@@ -24,7 +24,7 @@ const content = `<p>The International Energy Agency's <strong>Global EV Outlook 
 <p>In emerging and developing economies across Asia, Latin America, and Africa combined, EV sales grew by over <strong><span class="hl-gold">60% </span>year-on-year in 2024</strong>, with the EV sales share nearly doubling from 2.<span class="hl-gold">5% </span>to 4%.</p>
 <p>Africa's sub-<span class="hl-gold">1% </span>share means it is significantly behind this emerging market average —which is either a problem or an opportunity, depending on your time horizon. Dealers building market position today are doing so before the adoption curve inflects upward.</p>
 <div class="rounded-[1.5rem] overflow-hidden my-10">
-  <img src="images/iea-global-ev-outlook-2025/africa-roads.jpg" alt="African road infrastructure representing the physical context in which EV adoption must develop" class="w-full h-auto object-cover" style="max-height:450px;">
+  <img src="images/iea-global-ev-outlook-2025/africa-roads.webp" alt="African road infrastructure representing the physical context in which EV adoption must develop" class="w-full h-auto object-cover" style="max-height:450px;">
   <div class="px-6 py-4 bg-white/[0.02] border-t border-white/5">
     <p class="text-xs text-gray-500 font-light italic leading-relaxed">Africa's transport infrastructure varies dramatically by country. The IEA report notes that two- and three-wheelers —not passenger cars —are the fastest-growing EV segment in emerging markets overall, driven by ride-hailing and cargo delivery use cases.</p>
   </div>
@@ -92,7 +92,7 @@ export default function ArticlePage() {
               </header>
 
               <div className="w-full aspect-[21/9] rounded-[2rem] overflow-hidden mb-16 relative">
-                <img src="/insights/images/iea-global-ev-outlook-2025/hero.jpg" alt="IEA Global EV Outlook 2025: What the World\'s Most Authoritative Report Says About Africa" className="w-full h-full object-cover" />
+                <img src="/insights/images/iea-global-ev-outlook-2025/hero.webp" alt="IEA Global EV Outlook 2025: What the World\'s Most Authoritative Report Says About Africa" className="w-full h-full object-cover" />
                 <div className="absolute inset-0 border border-white/10 rounded-[2rem] pointer-events-none"></div>
               </div>
 
@@ -127,7 +127,7 @@ export default function ArticlePage() {
                 </div>
                 <div className="glass rounded-[2rem] p-8 bg-mid/50 border-white/5 hover:border-green/30 transition-all duration-300 group">
                   <div className="flex items-center gap-4 mb-6">
-                    <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80" alt="Consultant" className="w-12 h-12 rounded-full border-2 border-green/50 object-cover group-hover:border-green transition-colors" />
+                    <img src="/pic/academy/photo-1560250097-0b93528c311a.webp" alt="Consultant" className="w-12 h-12 rounded-full border-2 border-green/50 object-cover group-hover:border-green transition-colors" />
                     <div>
                       <div className="text-sm font-bold text-white group-hover:text-green transition-colors">Speak to an Expert</div>
                       <div className="text-[10px] text-green flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-green animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]"></span> Available Now</div>

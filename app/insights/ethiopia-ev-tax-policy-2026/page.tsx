@@ -14,7 +14,7 @@ const content = `<p>In September 2022, Ethiopia made international headlines as 
 <p>Ethiopia doubled down, becoming the <strong>first nation globally to ban ICE vehicle imports</strong> entirely. The ban initially covered fully built units (CBU). In May 2025, the government expanded the ban to include SKD and CKD kits for ICE vehicles, closing the local-assembly loophole.</p>
 <p>For dealers, this was unambiguously positive —it locked in EV demand structurally, with no petrol alternative to compete against on price.</p>
 <div class="rounded-[1.5rem] overflow-hidden my-10">
-  <img src="images/ethiopia-ev-tax-policy-2026/tax-reversal.jpg" alt="Tax documents and calculator representing the layered Ethiopian import cost structure" class="w-full h-auto object-cover" style="max-height:450px;">
+  <img src="images/ethiopia-ev-tax-policy-2026/tax-reversal.webp" alt="Tax documents and calculator representing the layered Ethiopian import cost structure" class="w-full h-auto object-cover" style="max-height:450px;">
   <div class="px-6 py-4 bg-white/[0.02] border-t border-white/5">
     <p class="text-xs text-gray-500 font-light italic leading-relaxed">Ethiopia's tax structure for EV imports has been revised three times since the 2022 exemption directive —importers must calculate landed cost based on current rules, not headlines.</p>
   </div>
@@ -35,7 +35,7 @@ const content = `<p>In September 2022, Ethiopia made international headlines as 
 </table></div>
 <p>On a $20,000 vehicle, the difference between the 2022 headline policy and today's actual structure is substantial —potentially $5,000—7,000 in additional taxes depending on the excise treatment applied.</p>
 <div class="rounded-[1.5rem] overflow-hidden my-10">
-  <img src="images/ethiopia-ev-tax-policy-2026/ev-africa.jpg" alt="Electric vehicle being inspected at a customs checkpoint, representing the import compliance process" class="w-full h-auto object-cover" style="max-height:450px;">
+  <img src="images/ethiopia-ev-tax-policy-2026/ev-africa.webp" alt="Electric vehicle being inspected at a customs checkpoint, representing the import compliance process" class="w-full h-auto object-cover" style="max-height:450px;">
   <div class="px-6 py-4 bg-white/[0.02] border-t border-white/5">
     <p class="text-xs text-gray-500 font-light italic leading-relaxed">EV imports into Ethiopia have grown rapidly despite the policy reversals —but accurate cost modelling is now essential.</p>
   </div>
@@ -102,7 +102,7 @@ export default function ArticlePage() {
               </header>
 
               <div className="w-full aspect-[21/9] rounded-[2rem] overflow-hidden mb-16 relative">
-                <img src="/insights/images/ethiopia-ev-tax-policy-2026/hero.jpg" alt="Ethiopia\'s EV Tax Policy: Three Years, Three Reversals" className="w-full h-full object-cover" />
+                <img src="/insights/images/ethiopia-ev-tax-policy-2026/hero.webp" alt="Ethiopia\'s EV Tax Policy: Three Years, Three Reversals" className="w-full h-full object-cover" />
                 <div className="absolute inset-0 border border-white/10 rounded-[2rem] pointer-events-none"></div>
               </div>
 
@@ -137,7 +137,7 @@ export default function ArticlePage() {
                 </div>
                 <div className="glass rounded-[2rem] p-8 bg-mid/50 border-white/5 hover:border-green/30 transition-all duration-300 group">
                   <div className="flex items-center gap-4 mb-6">
-                    <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80" alt="Consultant" className="w-12 h-12 rounded-full border-2 border-green/50 object-cover group-hover:border-green transition-colors" />
+                    <img src="/pic/academy/photo-1560250097-0b93528c311a.webp" alt="Consultant" className="w-12 h-12 rounded-full border-2 border-green/50 object-cover group-hover:border-green transition-colors" />
                     <div>
                       <div className="text-sm font-bold text-white group-hover:text-green transition-colors">Speak to an Expert</div>
                       <div className="text-[10px] text-green flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-green animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]"></span> Available Now</div>

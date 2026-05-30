@@ -1,4 +1,4 @@
-import VehicleDetail from "../../_VehicleDetail";
+﻿import VehicleDetail from "../../_VehicleDetail";
 
 const data = {
   vehicle: {
@@ -9,7 +9,7 @@ const data = {
     batteryType: "LFP",
     range: "410 km",
     charging: "Smart electric hatchback — Flyme Auto connectivity + 36 storage compartments + 540° camera",
-    img: "https://6a0327d1fc46b5b25f3480d6.imgix.net/Star/Geome%20display.jpg",
+    img: "/pic/hero/Geome display.webp",
     status: "in-stock",
     statusText: "In Stock: Shanghai",
   },

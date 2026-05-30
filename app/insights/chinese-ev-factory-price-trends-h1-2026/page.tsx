@@ -12,7 +12,7 @@ const content = `<p>China's EV price war is not a media narrative —it is a doc
 <h3>Subsidy Phase-Out and Competitive Response</h3>
 <p>China's national NEV purchase subsidies ended in January 2023. Manufacturers faced a choice: allow demand to decline as the subsidy-adjusted price rose, or cut prices to maintain the effective purchase cost for buyers. Most chose the latter.</p>
 <div class="rounded-[1.5rem] overflow-hidden my-10">
-  <img src="images/chinese-ev-factory-price-trends-h1-2026/price-data.jpg" alt="Data analytics and price trend charts representing the financial analysis of Chinese EV pricing trends in 2025-2026" class="w-full h-auto object-cover" style="max-height:450px;">
+  <img src="images/chinese-ev-factory-price-trends-h1-2026/price-data.webp" alt="Data analytics and price trend charts representing the financial analysis of Chinese EV pricing trends in 2025-2026" class="w-full h-auto object-cover" style="max-height:450px;">
   <div class="px-6 py-4 bg-white/[0.02] border-t border-white/5">
     <p class="text-xs text-gray-500 font-light italic leading-relaxed">China's average NEV transaction price fell significantly between Q1 2023 and Q1 2026, with the largest absolute declines in the RMB 100,000—00,000 ($13,700—27,400 USD) segment —exactly the range that defines most Africa-facing export models.</p>
   </div>
@@ -89,7 +89,7 @@ export default function ArticlePage() {
               </header>
 
               <div className="w-full aspect-[21/9] rounded-[2rem] overflow-hidden mb-16 relative">
-                <img src="/insights/images/chinese-ev-factory-price-trends-h1-2026/hero.jpg" alt="Chinese EV Prices Have Fallen for 32 Consecutive Months. What African Importers Need to Understand." className="w-full h-full object-cover" />
+                <img src="/insights/images/chinese-ev-factory-price-trends-h1-2026/hero.webp" alt="Chinese EV Prices Have Fallen for 32 Consecutive Months. What African Importers Need to Understand." className="w-full h-full object-cover" />
                 <div className="absolute inset-0 border border-white/10 rounded-[2rem] pointer-events-none"></div>
               </div>
 
@@ -124,7 +124,7 @@ export default function ArticlePage() {
                 </div>
                 <div className="glass rounded-[2rem] p-8 bg-mid/50 border-white/5 hover:border-green/30 transition-all duration-300 group">
                   <div className="flex items-center gap-4 mb-6">
-                    <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80" alt="Consultant" className="w-12 h-12 rounded-full border-2 border-green/50 object-cover group-hover:border-green transition-colors" />
+                    <img src="/pic/academy/photo-1560250097-0b93528c311a.webp" alt="Consultant" className="w-12 h-12 rounded-full border-2 border-green/50 object-cover group-hover:border-green transition-colors" />
                     <div>
                       <div className="text-sm font-bold text-white group-hover:text-green transition-colors">Speak to an Expert</div>
                       <div className="text-[10px] text-green flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-green animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]"></span> Available Now</div>

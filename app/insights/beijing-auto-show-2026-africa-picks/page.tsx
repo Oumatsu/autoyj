@@ -8,7 +8,7 @@ const content = `<p>Auto China 2026 —the Beijing International Automotive Exhi
 <p>The commercial implication for African importers: the FOB export price for a credible Chinese BEV with a <span class="hl-gold">300+ km</span> CLTC range is moving toward the $11,000—13,000 range. This is the price point at which the landed cost in Ethiopia and Nigeria, after taxes and freight, begins to compete directly with equivalent used ICE vehicles on a total cost of ownership basis.</p>
 <p>Dealers who built their business case on Chinese EVs being inherently expensive relative to the secondhand Japanese market should revisit that assumption. The arithmetic is shifting.</p>
 <div class="rounded-[1.5rem] overflow-hidden my-10">
-  <img src="images/beijing-auto-show-2026-africa-picks/ev-lineup.jpg" alt="Row of Chinese electric vehicles lined up representing the scale and diversity of Chinese OEM EV lineups at Auto China 2026" class="w-full h-auto object-cover" style="max-height:450px;">
+  <img src="images/beijing-auto-show-2026-africa-picks/ev-lineup.webp" alt="Row of Chinese electric vehicles lined up representing the scale and diversity of Chinese OEM EV lineups at Auto China 2026" class="w-full h-auto object-cover" style="max-height:450px;">
   <div class="px-6 py-4 bg-white/[0.02] border-t border-white/5">
     <p class="text-xs text-gray-500 font-light italic leading-relaxed">Auto China 2026's exhibit floor featured the most competitive NEV product mix in the show's history. Entry-level pricing, PHEV range extension, and confirmed RHD production were the three recurring themes across major brand pavilions.</p>
   </div>
@@ -21,7 +21,7 @@ const content = `<p>Auto China 2026 —the Beijing International Automotive Exhi
 <p>The third trend: more Chinese OEMs made explicit RHD production commitments at Auto China 2026 than at any previous show. South Africa's growing market, Australia's established volumes, and the UK's brand positioning requirements are collectively creating enough RHD demand that OEMs are treating it as a standard production configuration rather than a special order.</p>
 <p>For East African dealers (Kenya, Tanzania, Uganda): the RHD vehicle catalogue from China is expanding. Vehicles that were previously available only in converted form —or not available at all —are entering native RHD production. This eliminates the warranty void and safety concerns associated with post-production conversions.</p>
 <div class="rounded-[1.5rem] overflow-hidden my-10">
-  <img src="images/beijing-auto-show-2026-africa-picks/auto-show.jpg" alt="Modern auto show floor with vehicle displays representing the scale and strategic importance of Auto China 2026 for the global EV market" class="w-full h-auto object-cover" style="max-height:450px;">
+  <img src="images/beijing-auto-show-2026-africa-picks/auto-show.webp" alt="Modern auto show floor with vehicle displays representing the scale and strategic importance of Auto China 2026 for the global EV market" class="w-full h-auto object-cover" style="max-height:450px;">
   <div class="px-6 py-4 bg-white/[0.02] border-t border-white/5">
     <p class="text-xs text-gray-500 font-light italic leading-relaxed">At Auto China 2026, Chinese OEM booths occupied the majority of premium exhibition space —a reversal from five years ago when Western brands held those positions. The shift reflects where EV product competitiveness now sits.</p>
   </div>
@@ -82,7 +82,7 @@ export default function ArticlePage() {
               </header>
 
               <div className="w-full aspect-[21/9] rounded-[2rem] overflow-hidden mb-16 relative">
-                <img src="/insights/images/beijing-auto-show-2026-africa-picks/hero.jpg" alt="Auto China 2026 Just Closed. Here Are the Signals African Dealers Should Act On." className="w-full h-full object-cover" />
+                <img src="/insights/images/beijing-auto-show-2026-africa-picks/hero.webp" alt="Auto China 2026 Just Closed. Here Are the Signals African Dealers Should Act On." className="w-full h-full object-cover" />
                 <div className="absolute inset-0 border border-white/10 rounded-[2rem] pointer-events-none"></div>
               </div>
 
@@ -117,7 +117,7 @@ export default function ArticlePage() {
                 </div>
                 <div className="glass rounded-[2rem] p-8 bg-mid/50 border-white/5 hover:border-green/30 transition-all duration-300 group">
                   <div className="flex items-center gap-4 mb-6">
-                    <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80" alt="Consultant" className="w-12 h-12 rounded-full border-2 border-green/50 object-cover group-hover:border-green transition-colors" />
+                    <img src="/pic/academy/photo-1560250097-0b93528c311a.webp" alt="Consultant" className="w-12 h-12 rounded-full border-2 border-green/50 object-cover group-hover:border-green transition-colors" />
                     <div>
                       <div className="text-sm font-bold text-white group-hover:text-green transition-colors">Speak to an Expert</div>
                       <div className="text-[10px] text-green flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-green animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]"></span> Available Now</div>

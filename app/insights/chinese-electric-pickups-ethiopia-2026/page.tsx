@@ -7,7 +7,7 @@ const content = `<p>East Africa runs on pickup trucks. The Toyota Hilux has defi
 <p>Pickups operate differently. They are used for inter-city routes, rural supply chains, and unpredictable-range commercial tasks. A commercial pickup that cannot reliably complete a Nairobi-to-Nakuru run (<span class="hl-gold">100 km</span> each way) or a Mombasa-to-Malindi goods delivery (<span class="hl-gold">120 km</span> each way) without range anxiety is not commercially viable for the majority of East African use cases.</p>
 <p>This is why every Chinese electric pickup currently viable for East African deployment is a <strong>plug-in hybrid (PHEV)</strong> —not a pure BEV. The PHEV architecture provides electric operation in urban conditions where fuel cost savings are maximised, with petrol backup for the range-variable long-distance use that defines commercial pickup use.</p>
 <div class="rounded-[1.5rem] overflow-hidden my-10">
-  <img src="images/chinese-electric-pickups-ethiopia-2026/shark-phev.jpg" alt="BYD Shark PHEV pickup truck representing the plug-in hybrid commercial vehicle that bridges electric capability with petrol range for East African operating conditions" class="w-full h-auto object-cover" style="max-height:450px;">
+  <img src="images/chinese-electric-pickups-ethiopia-2026/shark-phev.webp" alt="BYD Shark PHEV pickup truck representing the plug-in hybrid commercial vehicle that bridges electric capability with petrol range for East African operating conditions" class="w-full h-auto object-cover" style="max-height:450px;">
   <div class="px-6 py-4 bg-white/[0.02] border-t border-white/5">
     <p class="text-xs text-gray-500 font-light italic leading-relaxed">The BYD Shark 6 PHEV —launched in South Africa (April 2025) and Kenya (2025) —is the most commercially relevant Chinese electric pickup in East Africa as of 2026. Its 100 km pure EV range covers urban use; its petrol engine covers inter-city routes without charging infrastructure.</p>
   </div>
@@ -101,7 +101,7 @@ export default function ArticlePage() {
               </header>
 
               <div className="w-full aspect-[21/9] rounded-[2rem] overflow-hidden mb-16 relative">
-                <img src="/insights/images/chinese-electric-pickups-ethiopia-2026/hero.jpg" alt="Chinese Electric Pickups Are Coming to East Africa. Here\'s What Matters." className="w-full h-full object-cover" />
+                <img src="/insights/images/chinese-electric-pickups-ethiopia-2026/hero.webp" alt="Chinese Electric Pickups Are Coming to East Africa. Here\'s What Matters." className="w-full h-full object-cover" />
                 <div className="absolute inset-0 border border-white/10 rounded-[2rem] pointer-events-none"></div>
               </div>
 
@@ -137,7 +137,7 @@ export default function ArticlePage() {
                 </div>
                 <div className="glass rounded-[2rem] p-8 bg-mid/50 border-white/5 hover:border-green/30 transition-all duration-300 group">
                   <div className="flex items-center gap-4 mb-6">
-                    <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80" alt="Consultant" className="w-12 h-12 rounded-full border-2 border-green/50 object-cover group-hover:border-green transition-colors" />
+                    <img src="/pic/academy/photo-1560250097-0b93528c311a.webp" alt="Consultant" className="w-12 h-12 rounded-full border-2 border-green/50 object-cover group-hover:border-green transition-colors" />
                     <div>
                       <div className="text-sm font-bold text-white group-hover:text-green transition-colors">Speak to an Expert</div>
                       <div className="text-[10px] text-green flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-green animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]"></span> Available Now</div>
