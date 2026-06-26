@@ -5,7 +5,7 @@ import Link from "next/link";
 export default function QrPage() {
   const handleSave = () => {
     const a = document.createElement("a");
-    a.href = "/qrcode.jpg";
+    a.href = "public\pic\0.webp";
     a.download = "autoYJ-WhatsApp-QR.jpg";
     document.body.appendChild(a);
     a.click();
