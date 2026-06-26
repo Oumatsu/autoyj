@@ -7,7 +7,9 @@ import { QrDropdown } from "./QrDropdown";
 export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [aboutDropdownOpen, setAboutDropdownOpen] = useState(false);
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const aboutCloseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const openDropdown = useCallback(() => {
     if (closeTimerRef.current) {
@@ -23,9 +25,24 @@ export function Navbar() {
     }, 150);
   }, []);
 
+  const openAboutDropdown = useCallback(() => {
+    if (aboutCloseTimerRef.current) {
+      clearTimeout(aboutCloseTimerRef.current);
+      aboutCloseTimerRef.current = null;
+    }
+    setAboutDropdownOpen(true);
+  }, []);
+
+  const closeAboutDropdown = useCallback(() => {
+    aboutCloseTimerRef.current = setTimeout(() => {
+      setAboutDropdownOpen(false);
+    }, 150);
+  }, []);
+
   useEffect(() => {
     return () => {
       if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
+      if (aboutCloseTimerRef.current) clearTimeout(aboutCloseTimerRef.current);
     };
   }, []);
 
@@ -65,7 +82,7 @@ export function Navbar() {
           <img src="/favicon.svg" className="h-8 w-auto" alt="autoYJ" />
         </Link>
 
-        <div className="hidden lg:flex items-center gap-10">
+        <div className="hidden lg:flex items-center gap-8 xl:gap-10">
           <div
             className="nav-group relative flex items-center gap-1 cursor-default"
             onMouseEnter={openDropdown}
@@ -133,9 +150,53 @@ export function Navbar() {
           <Link href="/academy" className="nav-link green">
             Academy
           </Link>
-          <Link href="/about" className="nav-link">
-            About
-          </Link>
+          <div
+            className="nav-group relative flex items-center gap-1 cursor-default"
+            onMouseEnter={openAboutDropdown}
+            onMouseLeave={closeAboutDropdown}
+          >
+            <Link href="/about" className="nav-link flex items-center gap-1.5">
+              About
+              <svg
+                className="w-2 h-2 opacity-50"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="3"
+                viewBox="0 0 10 6"
+              >
+                <path d="M1 1l4 4 4-4" />
+              </svg>
+            </Link>
+            <div
+              className="nav-dropdown glass absolute top-[calc(100%+12px)] left-1/2 min-w-[220px] rounded-[14px] transition-all duration-200"
+              style={{
+                borderColor: "rgba(197,160,89,0.22)",
+                opacity: aboutDropdownOpen ? 1 : 0,
+                visibility: aboutDropdownOpen ? "visible" : "hidden",
+                pointerEvents: aboutDropdownOpen ? "auto" : "none",
+                transform: aboutDropdownOpen
+                  ? "translateX(-50%) translateY(0)"
+                  : "translateX(-50%) translateY(-4px)",
+              }}
+              onMouseEnter={openAboutDropdown}
+              onMouseLeave={closeAboutDropdown}
+            >
+              <Link
+                href="/about"
+                className="flex items-center justify-between px-4 py-2.5 text-[11px] font-bold tracking-[.12em] uppercase text-gray-400 hover:text-white hover:bg-white/5 rounded-t-[14px] transition-colors"
+              >
+                About Us
+                <span className="w-1.5 h-1.5 rounded-full bg-white/20" />
+              </Link>
+              <Link
+                href="/company"
+                className="flex items-center justify-between px-4 py-2.5 text-[11px] font-bold tracking-[.12em] uppercase text-theme hover:bg-white/5 rounded-b-[14px] transition-colors"
+              >
+                Company Verification
+                <span className="w-1.5 h-1.5 rounded-full bg-gold" />
+              </Link>
+            </div>
+          </div>
         </div>
 
         <div className="hidden lg:flex items-center gap-3">
@@ -223,6 +284,13 @@ export function Navbar() {
             className="text-white hover:text-theme transition"
           >
             About
+          </Link>
+          <Link
+            href="/company"
+            onClick={closeMobile}
+            className="text-white hover:text-theme transition"
+          >
+            Company
           </Link>
           <Link
             href="/sign-in"
