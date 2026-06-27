@@ -14,8 +14,22 @@ const tempDir = ".lark-tmp";
 mkdirSync(tempDir, { recursive: true });
 
 const schemas = {
-  Customers: [
-    { name: "Customer ID", type: "text" },
+  "Internal Users": [
+    { name: "User ID", type: "text" },
+    { name: "Name", type: "text" },
+    { name: "Email", type: "text" },
+    { name: "Access Code", type: "text" },
+    { name: "Role", type: "select", multiple: false, options: [{ name: "admin" }, { name: "sales" }, { name: "sourcing" }, { name: "finance" }] },
+    { name: "Status", type: "select", multiple: false, options: [{ name: "Active" }, { name: "Disabled" }] },
+    { name: "Department", type: "text" },
+    { name: "Can Edit Vehicles", type: "checkbox" },
+    { name: "Can See Cost", type: "checkbox" },
+    { name: "Can See Supplier", type: "checkbox" },
+    { name: "Sourcing Commission Rate", type: "number" },
+    { name: "Sales Commission Rate", type: "number" },
+  ],
+  "External Accounts": [
+    { name: "Account ID", type: "text" },
     { name: "Company", type: "text" },
     { name: "Contact", type: "text" },
     { name: "Email", type: "text" },
@@ -64,6 +78,7 @@ const schemas = {
     { name: "Color Confirmed", type: "checkbox" },
     { name: "Configuration", type: "text" },
     { name: "Supplier", type: "text" },
+    { name: "Recorder", type: "text" },
     { name: "Location", type: "text" },
     { name: "Status", type: "select", multiple: false, options: [{ name: "In Stock" }, { name: "Preorder" }, { name: "Unavailable" }] },
     { name: "Stock Quantity", type: "number" },
@@ -249,9 +264,9 @@ if (!baseToken) {
     "--name",
     baseName,
     "--table-name",
-    "Customers",
+    "Internal Users",
     "--fields",
-    jsonFileArg("Customers-fields", schemas.Customers),
+    jsonFileArg("Internal-Users-fields", schemas["Internal Users"]),
   ]);
   baseToken = getBaseToken(baseResult);
   if (!baseToken) throw new Error(`Could not find base token in lark-cli output:\n${JSON.stringify(baseResult, null, 2)}`);
@@ -261,15 +276,26 @@ if (!baseToken) {
 
 let tables = tableList(baseToken);
 for (const [name, fields] of Object.entries(schemas)) {
-  if (name === "Customers") continue;
+  if (name === "Internal Users") continue;
   if (!tables[name]) createTable(baseToken, name, fields);
 }
 tables = tableList(baseToken);
 
 createRows(
   baseToken,
-  tables.Customers,
-  ["Customer ID", "Company", "Contact", "Email", "Access Code", "Role", "Price Tier", "Status", "Country", "Owner"],
+  tables["Internal Users"],
+  ["User ID", "Name", "Email", "Access Code", "Role", "Status", "Department", "Can Edit Vehicles", "Can See Cost", "Can See Supplier", "Sourcing Commission Rate", "Sales Commission Rate"],
+  [
+    ["USR-ADMIN", "Admin User", "admin@local.test", "admin-demo-2026", "admin", "Active", "Management", true, true, true, 0, 0],
+    ["USR-SALES", "Sales User", "sales@local.test", "sales-demo-2026", "sales", "Active", "Sales", true, true, true, 0, 0.03],
+    ["USR-SOURCING", "Sourcing User", "sourcing@local.test", "sourcing-demo-2026", "sourcing", "Active", "Sourcing", true, true, true, 0.02, 0],
+  ],
+);
+
+createRows(
+  baseToken,
+  tables["External Accounts"],
+  ["Account ID", "Company", "Contact", "Email", "Access Code", "Role", "Price Tier", "Status", "Country", "Owner"],
   [
     ["CUS-001", "Addis Fleet Trading", "Demo Partner", "partner@example.com", "partner-demo-2026", "partner", "partner", "Active", "Ethiopia", "Sales"],
     ["CUS-002", "Green Ride Addis", "Demo Customer", "customer@example.com", "customer-demo-2026", "customer", "hidden", "Active", "Ethiopia", "Sales"],
@@ -290,11 +316,11 @@ createRows(
 createRows(
   baseToken,
   tables.Vehicles,
-  ["Vehicle ID", "Model ID", "Brand", "Model", "Trim", "Year", "Color", "Exterior Color", "Interior Color", "Supplier Exterior Color", "Supplier Interior Color", "Color Code", "Color Notes", "Color Confirmed", "Configuration", "Supplier", "Location", "Status", "Stock Quantity", "Lead Time", "Partner Price", "Customer Price", "Cost", "Price Valid Until", "Public Notes", "Image URL", "Export Status", "Is Listed"],
+  ["Vehicle ID", "Model ID", "Brand", "Model", "Trim", "Year", "Color", "Exterior Color", "Interior Color", "Supplier Exterior Color", "Supplier Interior Color", "Color Code", "Color Notes", "Color Confirmed", "Configuration", "Supplier", "Recorder", "Location", "Status", "Stock Quantity", "Lead Time", "Partner Price", "Customer Price", "Cost", "Price Valid Until", "Public Notes", "Image URL", "Export Status", "Is Listed"],
   [
-    ["EV-001", "MDL-001", "BYD", "Yuan Plus", "430KM Premium", "2026", "White", "White", "Black", "珍珠白", "黑内", "", "以实拍图为准", true, "Standard export configuration", "Primary Shanghai supplier", "Shanghai Port", "In Stock", 12, "Ready stock", 18500, 19800, 17100, "2026-07-31", "White ready stock for East Africa batch orders.", "/pic/revenue-king/Yplus/0.webp", "Exportable Now", true],
-    ["EV-002", "MDL-002", "BYD", "Seagull", "405KM", "2026", "Color optional", "Optional", "Optional", "颜色待确认", "内饰待确认", "", "订车颜色按下单窗口确认", false, "Color and trim to confirm before order", "Ningbo preorder supplier", "Ningbo Port", "Preorder", 0, "30-45 days after deposit", 11200, 12100, 10300, "2026-07-15", "High ROI city EV; permit timing should be confirmed.", "/pic/revenue-king/seagull/0.webp", "Check Permit", true],
-    ["EV-003", "MDL-003", "Geely", "Galaxy E5", "530KM", "2026", "Silver", "Silver", "Black", "银色", "黑内", "", "供应商颜色名称待标准化", true, "Standard export configuration", "Primary Shanghai supplier", "Shanghai Port", "In Stock", 6, "Ready stock", 16900, 18100, 15700, "2026-07-31", "Silver ready stock for dealer batch orders.", "/pic/revenue-king/Galaxye5/1.webp", "Exportable Now", true],
+    ["EV-001", "MDL-001", "BYD", "Yuan Plus", "430KM Premium", "2026", "White", "White", "Black", "珍珠白", "黑内", "", "以实拍图为准", true, "Standard export configuration", "Primary Shanghai supplier", "Sales Admin", "Shanghai Port", "In Stock", 12, "Ready stock", 18500, 19800, 17100, "2026-07-31", "White ready stock for East Africa batch orders.", "/pic/revenue-king/Yplus/0.webp", "Exportable Now", true],
+    ["EV-002", "MDL-002", "BYD", "Seagull", "405KM", "2026", "Color optional", "Optional", "Optional", "颜色待确认", "内饰待确认", "", "订车颜色按下单窗口确认", false, "Color and trim to confirm before order", "Ningbo preorder supplier", "Sales Admin", "Ningbo Port", "Preorder", 0, "30-45 days after deposit", 11200, 12100, 10300, "2026-07-15", "High ROI city EV; permit timing should be confirmed.", "/pic/revenue-king/seagull/0.webp", "Check Permit", true],
+    ["EV-003", "MDL-003", "Geely", "Galaxy E5", "530KM", "2026", "Silver", "Silver", "Black", "银色", "黑内", "", "供应商颜色名称待标准化", true, "Standard export configuration", "Primary Shanghai supplier", "Sales Admin", "Shanghai Port", "In Stock", 6, "Ready stock", 16900, 18100, 15700, "2026-07-31", "Silver ready stock for dealer batch orders.", "/pic/revenue-king/Galaxye5/1.webp", "Exportable Now", true],
   ],
 );
 
@@ -304,6 +330,8 @@ const envText = [
   "FEISHU_APP_ID=",
   "FEISHU_APP_SECRET=",
   `FEISHU_BASE_APP_TOKEN=${baseToken}`,
+  `FEISHU_TABLE_INTERNAL_USERS=${tables["Internal Users"] || ""}`,
+  `FEISHU_TABLE_EXTERNAL_ACCOUNTS=${tables["External Accounts"] || ""}`,
   `FEISHU_TABLE_CUSTOMERS=${tables.Customers || ""}`,
   `FEISHU_TABLE_VEHICLE_MODELS=${tables["Vehicle Models"] || ""}`,
   `FEISHU_TABLE_VEHICLES=${tables.Vehicles || ""}`,

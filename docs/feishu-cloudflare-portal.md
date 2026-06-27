@@ -8,8 +8,8 @@ This branch wires the project into the target split:
 
 ## First-Phase Flow
 
-1. Customer signs in at `/portal` with an email and access code stored in Feishu Base.
-2. Worker validates the customer against the `Customers` table and sets an HTTP-only portal session cookie.
+1. User signs in at `/portal` with an email and access code stored in Feishu Base.
+2. Worker checks `Internal Users` first, then `External Accounts`, and sets an HTTP-only portal session cookie.
 3. Portal reads model specs from `Vehicle Models` and live supply from `Vehicles`.
    - External users first see a model-level list: brand, model, segment, in-stock quantity, preorder availability, and FOB price range.
    - Clicking a model opens merged source rows by year, trim, external color, interior color, configuration, supply type, lead time, location, and FOB price.
@@ -28,7 +28,8 @@ This branch wires the project into the target split:
 
 The setup script creates these tables:
 
-- `Customers`
+- `Internal Users`: company staff accounts, roles, permissions, and commission rates.
+- `External Accounts`: partner/customer accounts, company details, and price permissions.
 - `Vehicle Models`: model/version parameter library. It describes what a vehicle version is.
 - `Vehicles`: supply/inventory resources. It describes whether that model has stock, colors, supplier, price, and lead time.
 - `Inquiries`
@@ -36,12 +37,19 @@ The setup script creates these tables:
 - `Negotiations`
 - `Orders`
 
-Field names are intentionally stable English API names, for example `Customer ID`, `Model ID`, `Vehicle ID`, `Partner Price`, and `Quote No`. Staff can create Chinese views in Feishu without changing API field names.
+Field names are intentionally stable English API names, for example `User ID`, `Account ID`, `Model ID`, `Vehicle ID`, `Partner Price`, and `Quote No`. Staff can create Chinese views in Feishu without changing API field names.
+
+The localhost quick-login buttons remain for development only. They simulate real account sessions:
+
+- `Admin` and `Sales` simulate `Internal Users`.
+- `Partner` and `Customer` simulate `External Accounts`.
+
+In production, users do not choose a role. The role and permissions come from the account row after login.
 
 `Vehicle Models` and `Vehicles` are deliberately separated:
 
 - `Vehicle Models` stores the base product facts: brand, model, trim, year, body type, battery, range, motor, dimensions, charging, warranty, market position, and export notes.
-- `Vehicles` stores supply facts: resource ID, model ID, external display color, supplier original color, configuration, supplier, location, stock quantity, preorder lead time, FOB prices, cost, price validity, and listing status.
+- `Vehicles` stores supply facts: resource ID, model ID, external display color, supplier original color, configuration, supplier, recorder, location, stock quantity, preorder lead time, FOB prices, cost, price validity, and listing status.
 
 External color and internal color are separate:
 
@@ -54,7 +62,7 @@ External supply rows are merged for readability. If these customer-visible field
 
 `Brand + Model + Year + Trim + Exterior Color + Interior Color + Configuration + Supply Type + Lead Time + Location + FOB Price`
 
-Internal Feishu rows remain separate so staff can still trace supplier, cost, files, and private notes.
+Internal Feishu rows remain separate so staff can still trace supplier, recorder, cost, files, and private notes.
 
 The portal is backward-compatible while migrating. If `FEISHU_TABLE_VEHICLE_MODELS` is not configured, Worker derives a basic model library from `Vehicles` so the UI still works.
 
@@ -99,6 +107,8 @@ Required:
 FEISHU_APP_ID=
 FEISHU_APP_SECRET=
 FEISHU_BASE_APP_TOKEN=
+FEISHU_TABLE_INTERNAL_USERS=
+FEISHU_TABLE_EXTERNAL_ACCOUNTS=
 FEISHU_TABLE_CUSTOMERS=
 FEISHU_TABLE_VEHICLE_MODELS=
 FEISHU_TABLE_VEHICLES=

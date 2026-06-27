@@ -3,17 +3,36 @@
 import { useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 
-type PortalRole = "admin" | "sales" | "partner" | "customer";
+type PortalRole = "admin" | "sales" | "sourcing" | "finance" | "partner" | "customer";
 type PriceTier = "hidden" | "partner" | "vip" | "internal";
+type AccountType = "internal" | "external";
 type AdminModule = "dashboard" | "profiles" | "vehicles" | "quotes" | "orders" | "payments" | "logistics" | "customers" | "staff" | "files";
 type AdminIconName = AdminModule;
 
 type PortalUser = {
+  userId: string;
   customerId: string;
+  name: string;
   email: string;
   company: string;
+  accountType: AccountType;
   role: PortalRole;
   priceTier: PriceTier;
+};
+
+type InternalUser = {
+  recordId: string;
+  userId: string;
+  name: string;
+  email: string;
+  role: PortalRole;
+  status: string;
+  department: string;
+  canEditVehicles: boolean;
+  canSeeCost: boolean;
+  canSeeSupplier: boolean;
+  sourcingCommissionRate: number;
+  salesCommissionRate: number;
 };
 
 type Customer = {
@@ -68,6 +87,7 @@ type Vehicle = {
   colorConfirmed: boolean;
   configuration: string;
   supplier: string;
+  recorder: string;
   location: string;
   status: string;
   exportStatus: string;
@@ -90,6 +110,7 @@ type SellableModel = {
   key: string;
   brand: string;
   model: string;
+  year: string;
   segment: string;
   imageUrl: string;
   stockQuantity: number;
@@ -187,6 +208,7 @@ type BootstrapData = {
   quotes: Quote[];
   negotiations: Negotiation[];
   orders: Order[];
+  internalUsers: InternalUser[];
   customers: Customer[];
 };
 
@@ -216,6 +238,8 @@ const devLoginOptions: { role: PortalRole; label: string; detail: string }[] = [
 const roleLabels: Record<PortalRole, string> = {
   admin: "Admin",
   sales: "Sales",
+  sourcing: "Sourcing",
+  finance: "Finance",
   partner: "Partner",
   customer: "Customer",
 };
@@ -223,17 +247,19 @@ const roleLabels: Record<PortalRole, string> = {
 const adminRoleLabels: Record<PortalRole, string> = {
   admin: "管理员",
   sales: "销售",
+  sourcing: "车源",
+  finance: "财务",
   partner: "合作伙伴",
   customer: "客户",
 };
 
 const adminNavItems: { key: AdminModule; label: string; roles: PortalRole[]; icon: AdminIconName }[] = [
-  { key: "dashboard", label: "首页看板", roles: ["admin", "sales"], icon: "dashboard" },
-  { key: "profiles", label: "车型库", roles: ["admin", "sales"], icon: "profiles" },
-  { key: "vehicles", label: "车辆资源", roles: ["admin", "sales"], icon: "vehicles" },
+  { key: "dashboard", label: "首页看板", roles: ["admin", "sales", "sourcing", "finance"], icon: "dashboard" },
+  { key: "profiles", label: "车型库", roles: ["admin", "sales", "sourcing"], icon: "profiles" },
+  { key: "vehicles", label: "车辆资源", roles: ["admin", "sales", "sourcing"], icon: "vehicles" },
   { key: "quotes", label: "询价管理", roles: ["admin", "sales"], icon: "quotes" },
-  { key: "orders", label: "订单管理", roles: ["admin", "sales"], icon: "orders" },
-  { key: "payments", label: "收款财务", roles: ["admin"], icon: "payments" },
+  { key: "orders", label: "订单管理", roles: ["admin", "sales", "finance"], icon: "orders" },
+  { key: "payments", label: "收款财务", roles: ["admin", "finance"], icon: "payments" },
   { key: "logistics", label: "出口流程", roles: ["admin", "sales"], icon: "logistics" },
   { key: "customers", label: "客户资料", roles: ["admin"], icon: "customers" },
   { key: "staff", label: "员工账号", roles: ["admin"], icon: "staff" },
@@ -515,7 +541,7 @@ export default function PortalPage() {
     );
   }
 
-  if (data.user.role === "admin" || data.user.role === "sales") {
+  if (isInternalUser(data.user)) {
     return (
       <AdminPortal
         activeModule={activeAdminModule}
@@ -538,7 +564,7 @@ export default function PortalPage() {
               {data.user.company}
             </h1>
             <p className="mt-3 text-sm text-gray-500">
-              {roleLabels[data.user.role].toUpperCase()} / {data.user.priceTier.toUpperCase()} / {data.user.customerId}
+              {roleLabels[data.user.role].toUpperCase()} / {data.user.accountType.toUpperCase()} / {data.user.priceTier.toUpperCase()} / {data.user.customerId}
             </p>
           </div>
           <button onClick={logout} className="w-fit rounded-full border border-white/15 px-5 py-2 text-[10px] font-black uppercase tracking-widest text-gray-400 transition hover:border-white/40 hover:text-white">
@@ -574,15 +600,14 @@ export default function PortalPage() {
                 </div>
                 <div className="grid gap-4 p-5">
                   <div>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-accent">{item.segment || "EV"} / {item.preorderAvailable ? "Preorder available" : "Ready stock only"}</p>
-                    <h3 className="mt-2 text-xl font-black uppercase italic text-white">{item.brand} {item.model}</h3>
-                    <p className="mt-1 text-xs text-gray-500">{item.offers.length} source option{item.offers.length === 1 ? "" : "s"}</p>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-accent">{item.segment || "EV"}</p>
+                    <h3 className="mt-2 text-xl font-black uppercase italic text-white">{item.brand} {item.model} {formatModelYear(item.year)}</h3>
                   </div>
-                  <div className="grid grid-cols-2 gap-3 text-xs">
-                    <Info label="In-stock Qty" value={`${item.stockQuantity} units`} />
-                    <Info label="Preorder" value={item.preorderAvailable ? "Available" : "No"} />
-                    <Info label="FOB Range" value={item.fobPriceRange} highlight />
-                    <Info label="Model" value={`${item.brand} ${item.model}`} />
+                  <div className="flex flex-wrap items-center gap-2 text-xs">
+                    <PortalInventoryPill label="Stock" value={`${item.stockQuantity} units`} />
+                    <PortalInventoryPill label="Supply" value={formatSupplySummary(item)} />
+                    <PortalInventoryPill label="FOB" value={item.fobPriceRange.replace(/^FOB\s*/i, "")} highlight />
+                    <PortalInventoryPill label="Sources" value={String(item.offers.length)} />
                   </div>
                   <button
                     onClick={() => setSelectedSellableModel(item)}
@@ -684,7 +709,7 @@ export default function PortalPage() {
       </section>
 
       {selectedSellableModel && (
-        <Modal title={`${selectedSellableModel.brand} ${selectedSellableModel.model} / Sources`} onClose={() => setSelectedSellableModel(null)}>
+        <Modal title={`${selectedSellableModel.brand} ${selectedSellableModel.model} ${formatModelYear(selectedSellableModel.year)} / Sources`} onClose={() => setSelectedSellableModel(null)}>
           <div className="grid gap-4">
             <div className="grid gap-3 sm:grid-cols-3">
               <Info label="Segment" value={selectedSellableModel.segment || "EV"} />
@@ -854,8 +879,8 @@ function AdminPortal({
 
           <div className="mt-6 rounded-xl border border-white/10 bg-white/[.04] p-4">
             <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Current account</p>
-            <strong className="mt-2 block truncate text-sm text-white">{data.user.email}</strong>
-            <p className="mt-1 text-xs text-slate-400">{adminRoleLabels[data.user.role]} / {data.user.priceTier}</p>
+            <strong className="mt-2 block truncate text-sm text-white">{data.user.name || data.user.email}</strong>
+            <p className="mt-1 text-xs text-slate-400">{adminRoleLabels[data.user.role]} / {data.user.accountType} / {data.user.email}</p>
             <button
               type="button"
               onClick={() => void onLogout()}
@@ -1063,34 +1088,33 @@ function AdminVehicles({ data, onEdit }: { data: BootstrapData; onEdit: (vehicle
 
         return (
           <section key={item.key} className="min-w-0 overflow-hidden rounded-xl border border-white/10 bg-white/[.045] p-4 shadow-2xl shadow-black/10 sm:p-5">
-            <header className="mb-5 grid gap-4 border-b border-white/10 pb-4 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-end">
+            <header className="grid gap-3 border-b border-white/10 pb-3 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-center">
               <div className="min-w-0">
                 <p className="text-[10px] font-black uppercase tracking-[.24em] text-[#22b8aa]">可售车型 / 车源分组</p>
-                <h2 className="mt-2 break-words text-2xl font-black text-white">{item.brand} {item.model}</h2>
-                <p className="mt-1 text-xs leading-5 text-slate-500">{item.segment || "EV"} / {item.preorderAvailable ? "可订车" : "仅现车"} / {item.fobPriceRange}</p>
+                <div className="mt-2 flex min-w-0 flex-wrap items-center gap-2">
+                  <h2 className="break-words text-2xl font-black text-white">{item.brand} {item.model} {formatModelYear(item.year)}</h2>
+                  <AdminSummaryChip label="级别" value={item.segment || "EV"} />
+                  <AdminSummaryChip label="供应" value={formatSupplySummary(item)} />
+                </div>
               </div>
-              <div className="grid min-w-0 gap-2 text-xs sm:grid-cols-3 xl:w-[420px]">
-                <AdminTopMetric label="现车" value={`${item.stockQuantity} 台`} />
-                <AdminTopMetric label="合并明细" value={`${item.offers.length} 条`} />
-                <AdminTopMetric label="原始批次" value={`${rawVehicles.length} 条`} />
+              <div className="flex min-w-0 flex-wrap items-center gap-2 xl:justify-end">
+                <AdminSummaryChip label="FOB" value={item.fobPriceRange.replace(/^FOB\s*/i, "")} tone="accent" />
+                <AdminSummaryChip label="现车" value={`${item.stockQuantity} 台`} />
+                <AdminSummaryChip label="明细" value={`${item.offers.length} 条`} />
+                <button
+                  type="button"
+                  onClick={() => toggleModel(item.key)}
+                  className="inline-flex h-9 items-center gap-2 rounded-lg border border-white/10 bg-white/[.035] px-3 text-[10px] font-black uppercase tracking-widest text-slate-300 transition hover:border-[#22b8aa]/40 hover:bg-[#22b8aa]/10"
+                  aria-expanded={isExpanded}
+                >
+                  {isExpanded ? "收起" : "展开"}
+                  <span className="text-xs text-[#5ee6d8]" aria-hidden="true">{isExpanded ? "▲" : "▼"}</span>
+                </button>
               </div>
             </header>
 
-            <button
-              type="button"
-              onClick={() => toggleModel(item.key)}
-              className="mb-4 inline-flex w-full items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/[.035] px-4 py-3 text-left transition hover:border-[#22b8aa]/40 hover:bg-[#22b8aa]/10"
-            >
-              <span className="text-xs font-black text-slate-300">
-                {isExpanded ? "收起车源明细" : "展开车源明细"}
-              </span>
-              <span className="grid h-7 w-7 shrink-0 place-items-center rounded-lg border border-white/10 text-lg font-black text-[#5ee6d8]">
-                {isExpanded ? "-" : "+"}
-              </span>
-            </button>
-
             {isExpanded && (
-            <div className="grid gap-5">
+            <div className="mt-4 grid gap-5">
               <div>
                 <div className="mb-3 flex items-center justify-between gap-3">
                   <h3 className="text-sm font-black text-white">车源明细</h3>
@@ -1117,13 +1141,14 @@ function AdminVehicles({ data, onEdit }: { data: BootstrapData; onEdit: (vehicle
                   <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">内部供应商和编辑入口</span>
                 </div>
                 <AdminTable
-                  headers={["资源 ID", "车型版本", "外部颜色", "内部颜色", "供应商/地点", "库存/供应", "FOB/成本", "操作"]}
+                  headers={["资源 ID", "车型版本", "外部颜色", "内部颜色", "供应商/录入人", "地点", "库存/供应", "FOB/成本", "操作"]}
                   rows={rawVehicles.map((vehicle) => [
                     <span key="id" className="font-mono text-xs text-[#22b8aa]">{vehicle.id}</span>,
                     vehicleName(vehicle),
                     formatColorPair(vehicle.exteriorColor || vehicle.color, vehicle.interiorColor),
                     compactJoin([vehicle.supplierExteriorColor, vehicle.supplierInteriorColor, vehicle.colorCode]),
-                    compactJoin([vehicle.supplier, vehicle.location]),
+                    compactJoin([vehicle.supplier, vehicle.recorder]),
+                    vehicle.location || "-",
                     compactJoin([`${vehicle.stockQuantity} 台`, getSupplyType(vehicle), vehicle.status === "Preorder" ? vehicle.leadTime || "周期待确认" : vehicle.leadTime]),
                     compactJoin([vehicle.partnerPrice ? `FOB ${formatUsdStrict(vehicle.partnerPrice)}` : formatUsd(vehicle.price), vehicle.cost ? `成本 ${formatUsdStrict(vehicle.cost)}` : ""]),
                     <button
@@ -1271,7 +1296,7 @@ function AdminLogistics({ data }: { data: BootstrapData }) {
 function AdminCustomers({ data }: { data: BootstrapData }) {
   const customers = data.customers || [];
   return (
-    <AdminPanel title="客户资料" subtitle="飞书 Customers 表中的外部账号和价格权限">
+    <AdminPanel title="客户资料" subtitle="飞书 External Accounts 表中的外部账号和价格权限">
       <AdminTable
         headers={["客户 ID", "公司", "联系人", "邮箱", "角色", "价格权限", "国家", "状态"]}
         rows={customers.map((customer) => [
@@ -1291,20 +1316,38 @@ function AdminCustomers({ data }: { data: BootstrapData }) {
 }
 
 function AdminStaff({ data }: { data: BootstrapData }) {
-  const rows = [
-    [data.user.role === "admin" ? data.user.email : "admin@local.test", "管理员", "全部后台模块", "启用"],
-    [data.user.role === "sales" ? data.user.email : "sales@local.test", "销售", "车型、车辆、询价、订单、出口流程", "启用"],
-  ];
+  const users = data.internalUsers || [];
+  const rows =
+    users.length > 0
+      ? users.map((user) => [
+          user.userId || "-",
+          user.name || "-",
+          user.email || "-",
+          adminRoleLabels[user.role],
+          compactJoin([
+            user.canEditVehicles ? "车源编辑" : "",
+            user.canSeeCost ? "成本" : "",
+            user.canSeeSupplier ? "供应商" : "",
+          ]),
+          user.department || "-",
+          user.status || "Active",
+        ])
+      : [
+          [data.user.userId || "USR-ADMIN", data.user.name || data.user.email, data.user.email, adminRoleLabels[data.user.role], "当前登录账号", "-", "Active"],
+        ];
 
   return (
-    <AdminPanel title="员工账号" subtitle="内部账号与 autoYJ 后台角色">
+    <AdminPanel title="员工账号" subtitle="飞书 Internal Users 表中的内部账号和权限">
       <AdminTable
-        headers={["账号", "角色", "后台权限", "状态"]}
+        headers={["User ID", "姓名", "邮箱", "角色", "权限", "部门", "状态"]}
         rows={rows.map((row) => [
-          <span key="email" className="font-mono text-xs text-slate-200">{row[0]}</span>,
+          <span key="id" className="font-mono text-xs text-[#22b8aa]">{row[0]}</span>,
           row[1],
           row[2],
-          <AdminStatusBadge key="status" status={row[3]} />,
+          row[3],
+          row[4] || "-",
+          row[5],
+          <AdminStatusBadge key="status" status={row[6]} />,
         ])}
         emptyText="暂无员工账号"
       />
@@ -1346,6 +1389,7 @@ function VehicleEditModal({ vehicle, onClose, onSaved }: { vehicle: Vehicle; onC
     colorConfirmed: vehicle.colorConfirmed,
     configuration: vehicle.configuration || "",
     supplier: vehicle.supplier || "",
+    recorder: vehicle.recorder || "",
     location: vehicle.location || "",
     status: vehicle.status || "In Stock",
     stockQuantity: String(vehicle.stockQuantity ?? 0),
@@ -1385,6 +1429,7 @@ function VehicleEditModal({ vehicle, onClose, onSaved }: { vehicle: Vehicle; onC
           colorConfirmed: form.colorConfirmed,
           configuration: form.configuration,
           supplier: form.supplier,
+          recorder: form.recorder,
           location: form.location,
           status: form.status,
           stockQuantity: Number(form.stockQuantity || 0),
@@ -1459,6 +1504,11 @@ function VehicleEditModal({ vehicle, onClose, onSaved }: { vehicle: Vehicle; onC
           {canEditOptionalField("Supplier") && (
             <FormField label="供应商">
               <input value={form.supplier} onChange={(event) => updateField("supplier", event.target.value)} />
+            </FormField>
+          )}
+          {canEditOptionalField("Recorder") && (
+            <FormField label="录入人">
+              <input value={form.recorder} onChange={(event) => updateField("recorder", event.target.value)} placeholder="录入人姓名" />
             </FormField>
           )}
           <FormField label="地点">
@@ -1566,6 +1616,16 @@ function AdminTopMetric({ label, value }: { label: string; value: string }) {
       <span className="block text-[10px] font-black uppercase tracking-widest text-slate-500">{label}</span>
       <strong className="mt-1 block truncate text-sm text-white">{value}</strong>
     </div>
+  );
+}
+
+function AdminSummaryChip({ label, value, tone = "default" }: { label: string; value: string; tone?: "default" | "accent" }) {
+  const toneClass = tone === "accent" ? "border-[#22b8aa]/30 bg-[#22b8aa]/10 text-[#5ee6d8]" : "border-white/10 bg-white/[.045] text-slate-300";
+  return (
+    <span className={`inline-flex h-8 max-w-full items-center gap-1.5 rounded-lg border px-2.5 text-xs font-bold ${toneClass}`}>
+      <span className="shrink-0 text-[9px] font-black uppercase tracking-widest text-slate-500">{label}</span>
+      <span className="truncate">{value || "-"}</span>
+    </span>
   );
 }
 
@@ -1736,6 +1796,10 @@ function findCustomer(data: BootstrapData, customerId: string) {
   return (data.customers || []).find((customer) => customer.customerId === customerId);
 }
 
+function isInternalUser(user: PortalUser) {
+  return user.accountType === "internal" || ["admin", "sales", "sourcing", "finance"].includes(user.role);
+}
+
 function buildSellableModels(data: BootstrapData): SellableModel[] {
   const modelsByVehicle = new Map<string, VehicleModel>();
   const modelsByName = new Map<string, VehicleModel>();
@@ -1747,13 +1811,14 @@ function buildSellableModels(data: BootstrapData): SellableModel[] {
   const grouped = new Map<string, { item: SellableModel; offerMap: Map<string, VehicleOffer> }>();
   for (const vehicle of data.vehicles || []) {
     const modelInfo = modelsByVehicle.get(vehicle.modelId) || modelsByName.get(normalizeKey(vehicle.brand, vehicle.model));
-    const modelKey = normalizeKey(vehicle.brand, vehicle.model);
+    const modelKey = normalizeKey(vehicle.brand, vehicle.model, vehicle.year);
     if (!grouped.has(modelKey)) {
       grouped.set(modelKey, {
         item: {
           key: modelKey,
           brand: vehicle.brand,
           model: vehicle.model,
+          year: vehicle.year,
           segment: modelInfo?.bodyType || inferVehicleSegment(vehicle),
           imageUrl: modelInfo?.imageUrl || vehicle.imageUrl,
           stockQuantity: 0,
@@ -1821,7 +1886,7 @@ function buildSellableModels(data: BootstrapData): SellableModel[] {
         fobPriceRange: formatFobRange(offers.map((offer) => offer.price).filter((price): price is number => Boolean(price))),
       };
     })
-    .sort((a, b) => b.stockQuantity - a.stockQuantity || a.brand.localeCompare(b.brand) || a.model.localeCompare(b.model));
+    .sort((a, b) => b.stockQuantity - a.stockQuantity || a.brand.localeCompare(b.brand) || a.model.localeCompare(b.model) || b.year.localeCompare(a.year));
 }
 
 function getFobPrice(vehicle: Vehicle) {
@@ -1830,7 +1895,7 @@ function getFobPrice(vehicle: Vehicle) {
 
 function vehiclesForSellableModel(vehicles: Vehicle[], item: SellableModel) {
   return vehicles
-    .filter((vehicle) => normalizeKey(vehicle.brand, vehicle.model) === item.key)
+    .filter((vehicle) => normalizeKey(vehicle.brand, vehicle.model, vehicle.year) === item.key)
     .sort((a, b) => {
       const supplyRank = Number(getSupplyType(b) === "In Stock") - Number(getSupplyType(a) === "In Stock");
       return supplyRank || (getFobPrice(a) || Number.MAX_SAFE_INTEGER) - (getFobPrice(b) || Number.MAX_SAFE_INTEGER);
@@ -1839,7 +1904,7 @@ function vehiclesForSellableModel(vehicles: Vehicle[], item: SellableModel) {
 
 function modelMatchesAdminSearch(item: SellableModel, query: string) {
   if (!query) return true;
-  return adminSearchText([item.brand, item.model, item.segment, item.fobPriceRange]).includes(query);
+  return adminSearchText([item.brand, item.model, item.year, item.segment, item.fobPriceRange]).includes(query);
 }
 
 function offerMatchesAdminFilters(offer: VehicleOffer, item: SellableModel, query: string, supplyFilter: string) {
@@ -1882,6 +1947,7 @@ function vehicleMatchesAdminFilters(vehicle: Vehicle, item: SellableModel, query
     vehicle.colorCode,
     vehicle.configuration,
     vehicle.supplier,
+    vehicle.recorder,
     vehicle.location,
     vehicle.status,
     vehicle.leadTime,
@@ -1924,7 +1990,15 @@ function formatFobRange(prices: number[]) {
   if (prices.length === 0) return "FOB on request";
   const min = Math.min(...prices);
   const max = Math.max(...prices);
-  return min === max ? `FOB ${formatUsdStrict(min)}` : `FOB ${formatUsdStrict(min)} - ${formatUsdStrict(max)}`;
+  return `FOB ${formatUsdStrict(min)} - ${formatUsdStrict(max)}`;
+}
+
+function formatModelYear(year: string) {
+  return year ? `${year}款` : "年款待确认";
+}
+
+function formatSupplySummary(item: SellableModel) {
+  return item.stockQuantity > 0 ? "有现车" : "仅可预定";
 }
 
 function formatColorPair(exteriorColor: string, interiorColor: string) {
@@ -1956,6 +2030,15 @@ function Metric({ label, value }: { label: string; value: string }) {
       <p className="text-[10px] font-black uppercase tracking-widest text-gray-500">{label}</p>
       <strong className="mt-2 block text-3xl font-black italic text-white">{value}</strong>
     </div>
+  );
+}
+
+function PortalInventoryPill({ label, value, highlight = false }: { label: string; value: string; highlight?: boolean }) {
+  return (
+    <span className={`inline-flex max-w-full items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11px] font-bold ${highlight ? "border-accent/30 bg-accent/10 text-accent" : "border-white/10 bg-white/[.04] text-gray-300"}`}>
+      <span className="shrink-0 text-[9px] font-black uppercase tracking-widest text-gray-600">{label}</span>
+      <span className="truncate">{value || "-"}</span>
+    </span>
   );
 }
 

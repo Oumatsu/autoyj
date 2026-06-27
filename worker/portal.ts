@@ -4,6 +4,8 @@ type Env = {
   FEISHU_APP_ID?: string;
   FEISHU_APP_SECRET?: string;
   FEISHU_BASE_APP_TOKEN?: string;
+  FEISHU_TABLE_INTERNAL_USERS?: string;
+  FEISHU_TABLE_EXTERNAL_ACCOUNTS?: string;
   FEISHU_TABLE_CUSTOMERS?: string;
   FEISHU_TABLE_VEHICLE_MODELS?: string;
   FEISHU_TABLE_VEHICLES?: string;
@@ -15,8 +17,9 @@ type Env = {
   PORTAL_COOKIE_NAME?: string;
 };
 
-type PortalRole = "admin" | "sales" | "partner" | "customer";
+type PortalRole = "admin" | "sales" | "sourcing" | "finance" | "partner" | "customer";
 type PriceTier = "hidden" | "partner" | "vip" | "internal";
+type AccountType = "internal" | "external";
 
 type FeishuRecord = {
   record_id: string;
@@ -31,12 +34,30 @@ type BaseRecordListResponse = {
 };
 
 type PortalSession = {
+  userId: string;
   customerId: string;
+  name: string;
   email: string;
+  accountType: AccountType;
   role: PortalRole;
   priceTier: PriceTier;
   company: string;
   exp: number;
+};
+
+type PortalInternalUser = {
+  recordId: string;
+  userId: string;
+  name: string;
+  email: string;
+  role: PortalRole;
+  status: string;
+  department: string;
+  canEditVehicles: boolean;
+  canSeeCost: boolean;
+  canSeeSupplier: boolean;
+  sourcingCommissionRate: number;
+  salesCommissionRate: number;
 };
 
 type PortalCustomer = {
@@ -144,7 +165,7 @@ function asBool(value: unknown) {
 
 function normalizeRole(value: unknown): PortalRole {
   const text = asText(value).toLowerCase();
-  if (text === "admin" || text === "sales" || text === "partner") return text;
+  if (text === "admin" || text === "sales" || text === "sourcing" || text === "finance" || text === "partner") return text;
   return "customer";
 }
 
@@ -157,7 +178,7 @@ function normalizePriceTier(value: unknown): PriceTier {
 }
 
 function isInternalSession(session: PortalSession) {
-  return session.role === "admin" || session.role === "sales";
+  return session.accountType === "internal" || session.role === "admin" || session.role === "sales" || session.role === "sourcing" || session.role === "finance";
 }
 
 function canSeePortalPrice(session: PortalSession) {
@@ -231,6 +252,9 @@ async function readSession(request: Request, env: Env): Promise<PortalSession | 
   if (signature !== expected) return null;
   const session = JSON.parse(decodeBase64Url(payload)) as PortalSession;
   if (!session.exp || session.exp < Math.floor(Date.now() / 1000)) return null;
+  session.accountType = session.accountType || (session.role === "admin" || session.role === "sales" || session.role === "sourcing" || session.role === "finance" ? "internal" : "external");
+  session.userId = session.userId || session.customerId || session.email;
+  session.name = session.name || session.email;
   return session;
 }
 
@@ -416,11 +440,29 @@ function normalizeBaseFilter(filter?: Record<string, unknown>) {
   };
 }
 
+function mapInternalUser(record: FeishuRecord): PortalInternalUser {
+  const fields = record.fields;
+  return {
+    recordId: record.record_id,
+    userId: asText(fields["User ID"]),
+    name: asText(fields.Name),
+    email: asText(fields.Email).toLowerCase(),
+    role: normalizeRole(fields.Role),
+    status: asText(fields.Status) || "Active",
+    department: asText(fields.Department),
+    canEditVehicles: asBool(fields["Can Edit Vehicles"]),
+    canSeeCost: asBool(fields["Can See Cost"]),
+    canSeeSupplier: asBool(fields["Can See Supplier"]),
+    sourcingCommissionRate: asNumber(fields["Sourcing Commission Rate"]),
+    salesCommissionRate: asNumber(fields["Sales Commission Rate"]),
+  };
+}
+
 function mapCustomer(record: FeishuRecord): PortalCustomer {
   const fields = record.fields;
   return {
     recordId: record.record_id,
-    customerId: asText(fields["Customer ID"]),
+    customerId: asText(fields["Account ID"]) || asText(fields["Customer ID"]),
     company: asText(fields.Company),
     contact: asText(fields.Contact),
     email: asText(fields.Email).toLowerCase(),
@@ -429,6 +471,45 @@ function mapCustomer(record: FeishuRecord): PortalCustomer {
     status: asText(fields.Status) || "Active",
     country: asText(fields.Country),
     owner: asText(fields.Owner),
+  };
+}
+
+function sessionFromInternalUser(user: PortalInternalUser): Omit<PortalSession, "exp"> {
+  return {
+    userId: user.userId,
+    customerId: user.userId,
+    name: user.name,
+    email: user.email,
+    accountType: "internal",
+    role: user.role,
+    priceTier: "internal",
+    company: "autoYJ",
+  };
+}
+
+function sessionFromExternalAccount(account: PortalCustomer): Omit<PortalSession, "exp"> {
+  return {
+    userId: account.customerId,
+    customerId: account.customerId,
+    name: account.contact,
+    email: account.email,
+    accountType: "external",
+    role: account.role,
+    priceTier: account.priceTier,
+    company: account.company,
+  };
+}
+
+function publicUser(session: PortalSession) {
+  return {
+    userId: session.userId,
+    customerId: session.customerId,
+    name: session.name,
+    email: session.email,
+    accountType: session.accountType,
+    company: session.company,
+    role: session.role,
+    priceTier: session.priceTier,
   };
 }
 
@@ -485,6 +566,7 @@ function mapVehicle(record: FeishuRecord, session: PortalSession) {
     colorConfirmed: isInternal ? asBool(fields["Color Confirmed"]) : false,
     configuration: asText(fields.Configuration),
     supplier: asText(fields.Supplier),
+    recorder: isInternal ? asText(fields.Recorder) : "",
     location: asText(fields.Location),
     status: asText(fields.Status),
     exportStatus: asText(fields["Export Status"]),
@@ -614,10 +696,34 @@ function mapOrder(record: FeishuRecord) {
   };
 }
 
-async function findCustomerByEmail(env: Env, email: string) {
-  const tableId = requireEnv(env, "FEISHU_TABLE_CUSTOMERS");
-  const records = await searchRecords(env, tableId, { filter: equalsFilter("Email", email.toLowerCase()), pageSize: 10 });
-  return records.map(mapCustomer).find((customer) => customer.email === email.toLowerCase()) || null;
+async function recordsByEmail(env: Env, tableId: string, email: string) {
+  return searchRecords(env, tableId, { filter: equalsFilter("Email", email.toLowerCase()), pageSize: 10 });
+}
+
+async function findLoginAccount(env: Env, email: string, accessCode: string): Promise<Omit<PortalSession, "exp"> | null> {
+  const internalTableId = optionalEnv(env, "FEISHU_TABLE_INTERNAL_USERS");
+  if (internalTableId) {
+    const records = await recordsByEmail(env, internalTableId, email);
+    const match = records.find((record) => asText(record.fields["Access Code"]).trim() === accessCode);
+    if (match) {
+      const user = mapInternalUser(match);
+      if (user.status && user.status.toLowerCase() !== "active") throw problem("This internal account is not active", 403);
+      return sessionFromInternalUser(user);
+    }
+  }
+
+  const externalTableId = optionalEnv(env, "FEISHU_TABLE_EXTERNAL_ACCOUNTS") || optionalEnv(env, "FEISHU_TABLE_CUSTOMERS");
+  if (externalTableId) {
+    const records = await recordsByEmail(env, externalTableId, email);
+    const match = records.find((record) => asText(record.fields["Access Code"]).trim() === accessCode);
+    if (match) {
+      const account = mapCustomer(match);
+      if (account.status && account.status.toLowerCase() !== "active") throw problem("This portal account is not active", 403);
+      return sessionFromExternalAccount(account);
+    }
+  }
+
+  return null;
 }
 
 async function requireSession(request: Request, env: Env) {
@@ -646,80 +752,41 @@ async function handleLogin(request: Request, env: Env) {
   const accessCode = String(body?.accessCode || "").trim();
   if (!email || !accessCode) return problem("Email and access code are required");
 
-  const customerRecord = await searchRecords(env, requireEnv(env, "FEISHU_TABLE_CUSTOMERS"), {
-    filter: equalsFilter("Email", email),
-    pageSize: 10,
-  });
-  const match = customerRecord.find((record) => asText(record.fields["Access Code"]).trim() === accessCode);
-  if (!match) return problem("Invalid portal credentials", 401);
+  const account = await findLoginAccount(env, email, accessCode);
+  if (!account) return problem("Invalid portal credentials", 401);
 
-  const customer = mapCustomer(match);
-  if (customer.status && customer.status.toLowerCase() !== "active") {
-    return problem("This portal account is not active", 403);
-  }
   const session: PortalSession = {
-    customerId: customer.customerId,
-    email: customer.email,
-    role: customer.role,
-    priceTier: customer.priceTier,
-    company: customer.company,
+    ...account,
     exp: Math.floor(Date.now() / 1000) + SESSION_TTL_SECONDS,
   };
   const token = await signSession(env, session);
-  return json(
-    { user: { customerId: session.customerId, email: session.email, company: session.company, role: session.role, priceTier: session.priceTier } },
-    { headers: { "set-cookie": sessionCookie(env, request, token) } },
-  );
+  return json({ user: publicUser(session) }, { headers: { "set-cookie": sessionCookie(env, request, token) } });
 }
 
 async function handleDevLogin(request: Request, env: Env) {
   if (!isLocalRequest(request)) return problem("Dev login is only available on localhost", 404);
 
   const body = (await request.json().catch(() => null)) as { role?: string } | null;
-  const role = String(body?.role || "").toLowerCase() as PortalRole;
-  const devUsers: Record<PortalRole, Omit<PortalSession, "exp">> = {
-    admin: {
-      customerId: "CUS-001",
-      email: "admin@local.test",
-      role: "admin",
-      priceTier: "internal",
-      company: "autoYJ Admin",
-    },
-    sales: {
-      customerId: "CUS-001",
-      email: "sales@local.test",
-      role: "sales",
-      priceTier: "internal",
-      company: "autoYJ Sales",
-    },
-    partner: {
-      customerId: "CUS-001",
-      email: "partner@example.com",
-      role: "partner",
-      priceTier: "partner",
-      company: "Addis Fleet Trading",
-    },
-    customer: {
-      customerId: "CUS-002",
-      email: "customer@example.com",
-      role: "customer",
-      priceTier: "hidden",
-      company: "Green Ride Addis",
-    },
+  const role = String(body?.role || "").toLowerCase();
+  const devCredentials: Record<string, { email: string; accessCode: string }> = {
+    admin: { email: "admin@local.test", accessCode: "admin-demo-2026" },
+    sales: { email: "sales@local.test", accessCode: "sales-demo-2026" },
+    partner: { email: "partner@example.com", accessCode: "partner-demo-2026" },
+    customer: { email: "customer@example.com", accessCode: "customer-demo-2026" },
   };
 
-  const devUser = devUsers[role];
-  if (!devUser) return problem("Unknown development role", 400);
+  const credentials = devCredentials[role];
+  if (!credentials) return problem("Unknown development role", 400);
+
+  const account = await findLoginAccount(env, credentials.email, credentials.accessCode);
+  if (!account) return problem(`Development account ${credentials.email} is missing in Feishu Base`, 500);
 
   const session: PortalSession = {
-    ...devUser,
+    ...account,
     exp: Math.floor(Date.now() / 1000) + SESSION_TTL_SECONDS,
   };
   const token = await signSession(env, session);
-  return json(
-    { user: { customerId: session.customerId, email: session.email, company: session.company, role: session.role, priceTier: session.priceTier } },
-    { headers: { "set-cookie": sessionCookie(env, request, token) } },
-  );
+  return json({ user: publicUser(session) }, { headers: { "set-cookie": sessionCookie(env, request, token) } });
 }
 
 async function handleBootstrap(request: Request, env: Env) {
@@ -742,7 +809,14 @@ async function handleBootstrap(request: Request, env: Env) {
       pageSize: 100,
     }),
   ]);
-  const customerRecords = isInternal ? await searchRecords(env, requireEnv(env, "FEISHU_TABLE_CUSTOMERS"), { pageSize: 100 }) : [];
+  const internalUserTableId = optionalEnv(env, "FEISHU_TABLE_INTERNAL_USERS");
+  const externalAccountTableId = optionalEnv(env, "FEISHU_TABLE_EXTERNAL_ACCOUNTS") || optionalEnv(env, "FEISHU_TABLE_CUSTOMERS");
+  const [internalUserRecords, customerRecords] = isInternal
+    ? await Promise.all([
+        internalUserTableId ? searchRecords(env, internalUserTableId, { pageSize: 100 }) : Promise.resolve([]),
+        externalAccountTableId ? searchRecords(env, externalAccountTableId, { pageSize: 100 }) : Promise.resolve([]),
+      ])
+    : [[], []];
 
   const vehicles = vehicleRecords
     .filter((record) => asBool(record.fields["Is Listed"]))
@@ -762,16 +836,11 @@ async function handleBootstrap(request: Request, env: Env) {
   const negotiations = allNegotiations.map(mapNegotiation).filter((log) => isInternal || inquiryNos.has(log.inquiryNo));
 
   const orders = orderRecords.map(mapOrder);
+  const internalUsers = internalUserRecords.map(mapInternalUser);
   const customers = customerRecords.map(mapCustomer);
 
   return json({
-    user: {
-      customerId: session.customerId,
-      email: session.email,
-      company: session.company,
-      role: session.role,
-      priceTier: session.priceTier,
-    },
+    user: publicUser(session),
     permissions: {
       canSeePrice: canSeePortalPrice(session),
       canRequestQuote: true,
@@ -783,6 +852,7 @@ async function handleBootstrap(request: Request, env: Env) {
     quotes,
     negotiations,
     orders,
+    internalUsers,
     customers,
   });
 }
@@ -871,6 +941,7 @@ async function handleUpdateVehicle(request: Request, env: Env, vehicleId: string
   setBool("Color Confirmed", "colorConfirmed");
   setText("Configuration", "configuration");
   setText("Supplier", "supplier");
+  setText("Recorder", "recorder");
   setText("Location", "location");
   setText("Status", "status");
   setNumber("Stock Quantity", "stockQuantity");
