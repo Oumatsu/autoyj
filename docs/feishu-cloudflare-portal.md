@@ -10,7 +10,9 @@ This branch wires the project into the target split:
 
 1. Customer signs in at `/portal` with an email and access code stored in Feishu Base.
 2. Worker validates the customer against the `Customers` table and sets an HTTP-only portal session cookie.
-3. Portal reads inventory from `Vehicles`.
+3. Portal reads model specs from `Vehicle Models` and live supply from `Vehicles`.
+   - External users first see a model-level list: brand, model, segment, in-stock quantity, preorder availability, and FOB price range.
+   - Clicking a model opens merged source rows by year, trim, external color, interior color, configuration, supply type, lead time, location, and FOB price.
 4. Price visibility is enforced in Worker:
    - `hidden`: stock only, no price returned.
    - `partner`: partner cooperation price returned.
@@ -27,13 +29,34 @@ This branch wires the project into the target split:
 The setup script creates these tables:
 
 - `Customers`
-- `Vehicles`
+- `Vehicle Models`: model/version parameter library. It describes what a vehicle version is.
+- `Vehicles`: supply/inventory resources. It describes whether that model has stock, colors, supplier, price, and lead time.
 - `Inquiries`
 - `Quotes`
 - `Negotiations`
 - `Orders`
 
-Field names are intentionally stable English API names, for example `Customer ID`, `Vehicle ID`, `Partner Price`, and `Quote No`. Staff can create Chinese views in Feishu without changing API field names.
+Field names are intentionally stable English API names, for example `Customer ID`, `Model ID`, `Vehicle ID`, `Partner Price`, and `Quote No`. Staff can create Chinese views in Feishu without changing API field names.
+
+`Vehicle Models` and `Vehicles` are deliberately separated:
+
+- `Vehicle Models` stores the base product facts: brand, model, trim, year, body type, battery, range, motor, dimensions, charging, warranty, market position, and export notes.
+- `Vehicles` stores supply facts: resource ID, model ID, external display color, supplier original color, configuration, supplier, location, stock quantity, preorder lead time, FOB prices, cost, price validity, and listing status.
+
+External color and internal color are separate:
+
+- External color fields are standardized for customers and partners: `Exterior Color` and `Interior Color`.
+- Internal color fields preserve supplier source data: `Supplier Exterior Color`, `Supplier Interior Color`, `Color Code`, `Color Notes`, and `Color Confirmed`.
+
+The first-phase portal does not expose export status on the customer-facing inventory flow. The current business focus is Ethiopia, so the external inventory experience prioritizes supply availability and FOB price. Export/compliance fields can be reintroduced later when multi-market rules matter.
+
+External supply rows are merged for readability. If these customer-visible fields are the same, the portal shows one row and sums quantity:
+
+`Brand + Model + Year + Trim + Exterior Color + Interior Color + Configuration + Supply Type + Lead Time + Location + FOB Price`
+
+Internal Feishu rows remain separate so staff can still trace supplier, cost, files, and private notes.
+
+The portal is backward-compatible while migrating. If `FEISHU_TABLE_VEHICLE_MODELS` is not configured, Worker derives a basic model library from `Vehicles` so the UI still works.
 
 ## Create The Feishu Base
 
@@ -77,6 +100,7 @@ FEISHU_APP_ID=
 FEISHU_APP_SECRET=
 FEISHU_BASE_APP_TOKEN=
 FEISHU_TABLE_CUSTOMERS=
+FEISHU_TABLE_VEHICLE_MODELS=
 FEISHU_TABLE_VEHICLES=
 FEISHU_TABLE_INQUIRIES=
 FEISHU_TABLE_QUOTES=

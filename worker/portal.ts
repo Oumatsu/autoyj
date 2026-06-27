@@ -5,6 +5,7 @@ type Env = {
   FEISHU_APP_SECRET?: string;
   FEISHU_BASE_APP_TOKEN?: string;
   FEISHU_TABLE_CUSTOMERS?: string;
+  FEISHU_TABLE_VEHICLE_MODELS?: string;
   FEISHU_TABLE_VEHICLES?: string;
   FEISHU_TABLE_INQUIRIES?: string;
   FEISHU_TABLE_QUOTES?: string;
@@ -51,9 +52,41 @@ type PortalCustomer = {
   owner: string;
 };
 
+type PortalVehicleModel = {
+  id: string;
+  brand: string;
+  model: string;
+  trim: string;
+  year: string;
+  bodyType: string;
+  battery: string;
+  range: string;
+  motorPower: string;
+  driveType: string;
+  seats: string;
+  dimensions: string;
+  charging: string;
+  warranty: string;
+  marketPosition: string;
+  exportNotes: string;
+  imageUrl: string;
+  brochureUrl: string;
+  status: string;
+};
+
 const FEISHU_API = "https://open.feishu.cn";
 const SESSION_TTL_SECONDS = 60 * 60 * 12;
 const DEFAULT_COOKIE_NAME = "autoyj_portal";
+const TENANT_TOKEN_SAFETY_WINDOW_MS = 60 * 1000;
+
+let tenantTokenCache:
+  | {
+      appId: string;
+      token: string;
+      expiresAt: number;
+      pending?: Promise<string>;
+    }
+  | null = null;
 
 function json(data: unknown, init: ResponseInit = {}) {
   return new Response(JSON.stringify(data), {
@@ -75,6 +108,10 @@ function requireEnv(env: Env, key: keyof Env) {
   return value;
 }
 
+function optionalEnv(env: Env, key: keyof Env) {
+  return env[key] || "";
+}
+
 function asText(value: unknown) {
   if (value === null || value === undefined) return "";
   if (Array.isArray(value)) {
@@ -90,6 +127,12 @@ function asText(value: unknown) {
 function asNumber(value: unknown) {
   const number = Number(Array.isArray(value) ? value[0] : value);
   return Number.isFinite(number) ? number : 0;
+}
+
+function asOptionalNumber(value: unknown) {
+  if (value === null || value === undefined || value === "") return null;
+  const number = Number(Array.isArray(value) ? value[0] : value);
+  return Number.isFinite(number) ? number : null;
 }
 
 function asBool(value: unknown) {
@@ -210,19 +253,42 @@ function clearSessionCookie(env: Env, request: Request) {
 }
 
 async function feishuToken(env: Env) {
-  const response = await fetch(`${FEISHU_API}/open-apis/auth/v3/tenant_access_token/internal`, {
-    method: "POST",
-    headers: { "content-type": "application/json; charset=utf-8" },
-    body: JSON.stringify({
-      app_id: requireEnv(env, "FEISHU_APP_ID"),
-      app_secret: requireEnv(env, "FEISHU_APP_SECRET"),
-    }),
-  });
-  const data = (await response.json()) as { code?: number; msg?: string; tenant_access_token?: string };
-  if (!response.ok || data.code !== 0 || !data.tenant_access_token) {
-    throw new Error(`Feishu auth failed: ${data.msg || response.statusText}`);
+  const appId = requireEnv(env, "FEISHU_APP_ID");
+  const appSecret = requireEnv(env, "FEISHU_APP_SECRET");
+  const now = Date.now();
+  if (tenantTokenCache?.appId === appId && tenantTokenCache.token && tenantTokenCache.expiresAt - TENANT_TOKEN_SAFETY_WINDOW_MS > now) {
+    return tenantTokenCache.token;
   }
-  return data.tenant_access_token;
+  if (tenantTokenCache?.appId === appId && tenantTokenCache.pending) return tenantTokenCache.pending;
+
+  const pending = (async () => {
+    const response = await fetch(`${FEISHU_API}/open-apis/auth/v3/tenant_access_token/internal`, {
+      method: "POST",
+      headers: { "content-type": "application/json; charset=utf-8" },
+      body: JSON.stringify({
+        app_id: appId,
+        app_secret: appSecret,
+      }),
+    });
+    const data = (await response.json()) as { code?: number; msg?: string; tenant_access_token?: string; expire?: number };
+    if (!response.ok || data.code !== 0 || !data.tenant_access_token) {
+      throw new Error(`Feishu auth failed: ${data.msg || response.statusText}`);
+    }
+    tenantTokenCache = {
+      appId,
+      token: data.tenant_access_token,
+      expiresAt: Date.now() + Math.max((data.expire || 7200) - 60, 60) * 1000,
+    };
+    return data.tenant_access_token;
+  })();
+
+  tenantTokenCache = { appId, token: "", expiresAt: 0, pending };
+  try {
+    return await pending;
+  } catch (error) {
+    if (tenantTokenCache?.pending === pending) tenantTokenCache = null;
+    throw error;
+  }
 }
 
 async function feishuRequest<T>(
@@ -230,6 +296,7 @@ async function feishuRequest<T>(
   method: string,
   path: string,
   body?: Record<string, unknown>,
+  attempt = 0,
 ): Promise<T> {
   const token = await feishuToken(env);
   const response = await fetch(`${FEISHU_API}${path}`, {
@@ -242,9 +309,19 @@ async function feishuRequest<T>(
   });
   const data = (await response.json()) as { code?: number; msg?: string; data?: T };
   if (!response.ok || data.code !== 0) {
+    if (attempt < 2 && /limited|rate/i.test(data.msg || "")) {
+      await delay(300 * (attempt + 1));
+      return feishuRequest<T>(env, method, path, body, attempt + 1);
+    }
     throw new Error(`Feishu API failed: ${data.msg || response.statusText}`);
   }
   return data.data as T;
+}
+
+function delay(ms: number) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
 }
 
 async function searchRecords(
@@ -283,7 +360,7 @@ async function updateRecord(env: Env, tableId: string, recordId: string, fields:
   const appToken = requireEnv(env, "FEISHU_BASE_APP_TOKEN");
   await feishuRequest(
     env,
-    "PUT",
+    "PATCH",
     `/open-apis/base/v3/bases/${appToken}/tables/${tableId}/records/${recordId}`,
     fields,
   );
@@ -355,10 +432,37 @@ function mapCustomer(record: FeishuRecord): PortalCustomer {
   };
 }
 
+function mapVehicleModel(record: FeishuRecord): PortalVehicleModel {
+  const fields = record.fields;
+  return {
+    id: asText(fields["Model ID"]),
+    brand: asText(fields.Brand),
+    model: asText(fields.Model),
+    trim: asText(fields.Trim),
+    year: asText(fields.Year),
+    bodyType: asText(fields["Body Type"]),
+    battery: asText(fields.Battery),
+    range: asText(fields.Range),
+    motorPower: asText(fields["Motor Power"]),
+    driveType: asText(fields["Drive Type"]),
+    seats: asText(fields.Seats),
+    dimensions: asText(fields.Dimensions),
+    charging: asText(fields.Charging),
+    warranty: asText(fields.Warranty),
+    marketPosition: asText(fields["Market Position"]),
+    exportNotes: asText(fields["Export Notes"]),
+    imageUrl: asText(fields["Image URL"]),
+    brochureUrl: asText(fields["Brochure URL"]),
+    status: asText(fields.Status) || "Active",
+  };
+}
+
 function mapVehicle(record: FeishuRecord, session: PortalSession) {
   const fields = record.fields;
   const partnerPrice = asNumber(fields["Partner Price"]);
   const customerPrice = asNumber(fields["Customer Price"]);
+  const cost = asNumber(fields.Cost);
+  const isInternal = isInternalSession(session);
   const canSeePrice = canSeePortalPrice(session);
   const visiblePrice =
     (session.priceTier === "vip" || session.priceTier === "internal") && customerPrice > 0
@@ -366,27 +470,74 @@ function mapVehicle(record: FeishuRecord, session: PortalSession) {
       : partnerPrice;
   return {
     id: asText(fields["Vehicle ID"]),
+    modelId: asText(fields["Model ID"]),
     brand: asText(fields.Brand),
     model: asText(fields.Model),
     trim: asText(fields.Trim),
     year: asText(fields.Year),
     color: asText(fields.Color),
+    exteriorColor: asText(fields["Exterior Color"]) || asText(fields.Color),
+    interiorColor: asText(fields["Interior Color"]),
+    supplierExteriorColor: isInternal ? asText(fields["Supplier Exterior Color"]) : "",
+    supplierInteriorColor: isInternal ? asText(fields["Supplier Interior Color"]) : "",
+    colorCode: isInternal ? asText(fields["Color Code"]) : "",
+    colorNotes: isInternal ? asText(fields["Color Notes"]) : "",
+    colorConfirmed: isInternal ? asBool(fields["Color Confirmed"]) : false,
+    configuration: asText(fields.Configuration),
+    supplier: asText(fields.Supplier),
     location: asText(fields.Location),
     status: asText(fields.Status),
     exportStatus: asText(fields["Export Status"]),
     stockQuantity: asNumber(fields["Stock Quantity"]),
+    leadTime: asText(fields["Lead Time"]),
+    priceValidUntil: asText(fields["Price Valid Until"]),
     imageUrl: asText(fields["Image URL"]),
     publicNotes: asText(fields["Public Notes"]),
     canSeePrice,
     price: canSeePrice ? visiblePrice : null,
+    partnerPrice: isInternal ? partnerPrice : null,
+    customerPrice: isInternal ? customerPrice : null,
+    cost: isInternal ? cost : null,
+    isListed: asBool(fields["Is Listed"]),
+    editableFields: isInternal ? Object.keys(fields) : [],
     priceLabel: canSeePrice
-      ? isInternalSession(session)
+      ? isInternal
         ? "Internal portal price"
         : session.priceTier === "vip"
           ? "VIP cooperation price"
           : "Cooperation price"
       : "Request quote",
   };
+}
+
+function deriveVehicleModelsFromVehicles(vehicles: ReturnType<typeof mapVehicle>[]): PortalVehicleModel[] {
+  const grouped = new Map<string, PortalVehicleModel>();
+  for (const vehicle of vehicles) {
+    const id = vehicle.modelId || `${vehicle.brand}-${vehicle.model}-${vehicle.trim}-${vehicle.year}`.replace(/\s+/g, "-").toUpperCase();
+    if (grouped.has(id)) continue;
+    grouped.set(id, {
+      id,
+      brand: vehicle.brand,
+      model: vehicle.model,
+      trim: vehicle.trim,
+      year: vehicle.year,
+      bodyType: "",
+      battery: "",
+      range: "",
+      motorPower: "",
+      driveType: "",
+      seats: "",
+      dimensions: "",
+      charging: "",
+      warranty: "",
+      marketPosition: vehicle.publicNotes,
+      exportNotes: vehicle.exportStatus,
+      imageUrl: vehicle.imageUrl,
+      brochureUrl: "",
+      status: vehicle.status || "Active",
+    });
+  }
+  return Array.from(grouped.values());
 }
 
 function mapInquiry(record: FeishuRecord) {
@@ -477,6 +628,10 @@ async function requireSession(request: Request, env: Env) {
 
 function nowText() {
   return new Date().toISOString();
+}
+
+function hasField(record: FeishuRecord, fieldName: string) {
+  return Object.prototype.hasOwnProperty.call(record.fields, fieldName);
 }
 
 function nextId(prefix: string) {
@@ -570,36 +725,44 @@ async function handleDevLogin(request: Request, env: Env) {
 async function handleBootstrap(request: Request, env: Env) {
   const session = await requireSession(request, env);
   const isInternal = isInternalSession(session);
-  const vehicles = (
-    await searchRecords(env, requireEnv(env, "FEISHU_TABLE_VEHICLES"), {
+  const vehicleModelTableId = optionalEnv(env, "FEISHU_TABLE_VEHICLE_MODELS");
+  const [vehicleRecords, vehicleModelRecords] = await Promise.all([
+    searchRecords(env, requireEnv(env, "FEISHU_TABLE_VEHICLES"), {
       pageSize: 100,
-    })
-  )
+    }),
+    vehicleModelTableId ? searchRecords(env, vehicleModelTableId, { pageSize: 100 }) : Promise.resolve([]),
+  ]);
+  const [inquiryRecords, orderRecords] = await Promise.all([
+    searchRecords(env, requireEnv(env, "FEISHU_TABLE_INQUIRIES"), {
+      filter: isInternal ? undefined : equalsFilter("Customer ID", session.customerId),
+      pageSize: 100,
+    }),
+    searchRecords(env, requireEnv(env, "FEISHU_TABLE_ORDERS"), {
+      filter: isInternal ? undefined : equalsFilter("Customer ID", session.customerId),
+      pageSize: 100,
+    }),
+  ]);
+  const customerRecords = isInternal ? await searchRecords(env, requireEnv(env, "FEISHU_TABLE_CUSTOMERS"), { pageSize: 100 }) : [];
+
+  const vehicles = vehicleRecords
     .filter((record) => asBool(record.fields["Is Listed"]))
     .map((record) => mapVehicle(record, session));
-
-  const inquiryRecords = await searchRecords(env, requireEnv(env, "FEISHU_TABLE_INQUIRIES"), {
-    filter: isInternal ? undefined : equalsFilter("Customer ID", session.customerId),
-    pageSize: 100,
-  });
+  const vehicleModels = vehicleModelRecords.length ? vehicleModelRecords.map(mapVehicleModel) : deriveVehicleModelsFromVehicles(vehicles);
   const inquiries = inquiryRecords.map(mapInquiry);
   const inquiryNos = new Set(inquiries.map((inquiry) => inquiry.inquiryNo));
 
-  const allQuotes = await searchRecords(env, requireEnv(env, "FEISHU_TABLE_QUOTES"), { pageSize: 100 });
+  const [allQuotes, allNegotiations] =
+    isInternal || inquiryNos.size
+      ? await Promise.all([
+          searchRecords(env, requireEnv(env, "FEISHU_TABLE_QUOTES"), { pageSize: 100 }),
+          searchRecords(env, requireEnv(env, "FEISHU_TABLE_NEGOTIATIONS"), { pageSize: 100 }),
+        ])
+      : [[], []];
   const quotes = allQuotes.map(mapQuote).filter((quote) => isInternal || inquiryNos.has(quote.inquiryNo));
-
-  const allNegotiations = await searchRecords(env, requireEnv(env, "FEISHU_TABLE_NEGOTIATIONS"), { pageSize: 100 });
   const negotiations = allNegotiations.map(mapNegotiation).filter((log) => isInternal || inquiryNos.has(log.inquiryNo));
 
-  const orders = (
-    await searchRecords(env, requireEnv(env, "FEISHU_TABLE_ORDERS"), {
-      filter: isInternal ? undefined : equalsFilter("Customer ID", session.customerId),
-      pageSize: 100,
-    })
-  ).map(mapOrder);
-  const customers = isInternal
-    ? (await searchRecords(env, requireEnv(env, "FEISHU_TABLE_CUSTOMERS"), { pageSize: 100 })).map(mapCustomer)
-    : [];
+  const orders = orderRecords.map(mapOrder);
+  const customers = customerRecords.map(mapCustomer);
 
   return json({
     user: {
@@ -614,6 +777,7 @@ async function handleBootstrap(request: Request, env: Env) {
       canRequestQuote: true,
       canCounterOffer: true,
     },
+    vehicleModels,
     vehicles,
     inquiries,
     quotes,
@@ -667,6 +831,62 @@ async function handleCreateInquiry(request: Request, env: Env) {
   });
 
   return json({ inquiryNo }, { status: 201 });
+}
+
+async function handleUpdateVehicle(request: Request, env: Env, vehicleId: string) {
+  const session = await requireSession(request, env);
+  if (!isInternalSession(session)) return problem("Only internal users can update vehicle resources", 403);
+
+  const body = (await request.json().catch(() => null)) as Record<string, unknown> | null;
+  if (!body) return problem("Request body is required");
+
+  const records = await searchRecords(env, requireEnv(env, "FEISHU_TABLE_VEHICLES"), {
+    filter: equalsFilter("Vehicle ID", vehicleId),
+    pageSize: 5,
+  });
+  const record = records[0];
+  if (!record) return problem("Vehicle resource not found", 404);
+
+  const updates: Record<string, unknown> = {};
+  const setText = (fieldName: string, bodyKey: string) => {
+    if (bodyKey in body && hasField(record, fieldName)) updates[fieldName] = asText(body[bodyKey]);
+  };
+  const setNumber = (fieldName: string, bodyKey: string) => {
+    if (!(bodyKey in body) || !hasField(record, fieldName)) return;
+    const number = asOptionalNumber(body[bodyKey]);
+    updates[fieldName] = number ?? 0;
+  };
+  const setBool = (fieldName: string, bodyKey: string) => {
+    if (bodyKey in body && hasField(record, fieldName)) updates[fieldName] = Boolean(body[bodyKey]);
+  };
+
+  setText("Model ID", "modelId");
+  setText("Color", "color");
+  setText("Exterior Color", "exteriorColor");
+  setText("Interior Color", "interiorColor");
+  setText("Supplier Exterior Color", "supplierExteriorColor");
+  setText("Supplier Interior Color", "supplierInteriorColor");
+  setText("Color Code", "colorCode");
+  setText("Color Notes", "colorNotes");
+  setBool("Color Confirmed", "colorConfirmed");
+  setText("Configuration", "configuration");
+  setText("Supplier", "supplier");
+  setText("Location", "location");
+  setText("Status", "status");
+  setNumber("Stock Quantity", "stockQuantity");
+  setText("Lead Time", "leadTime");
+  setNumber("Partner Price", "partnerPrice");
+  setNumber("Customer Price", "customerPrice");
+  setNumber("Cost", "cost");
+  setText("Price Valid Until", "priceValidUntil");
+  setText("Public Notes", "publicNotes");
+  setText("Image URL", "imageUrl");
+  setText("Export Status", "exportStatus");
+  setBool("Is Listed", "isListed");
+
+  if (Object.keys(updates).length === 0) return problem("No editable fields were provided");
+  await updateRecord(env, requireEnv(env, "FEISHU_TABLE_VEHICLES"), record.record_id, updates);
+  return json({ ok: true });
 }
 
 async function handleCounterOffer(request: Request, env: Env, quoteNo: string) {
@@ -793,6 +1013,11 @@ export async function handlePortalRequest(request: Request, env: Env) {
     }
     if (path === "/api/portal/inquiries" && request.method === "POST") {
       return await handleCreateInquiry(request, env);
+    }
+
+    const vehicleMatch = path.match(/^\/api\/portal\/vehicles\/([^/]+)$/);
+    if (vehicleMatch && request.method === "PATCH") {
+      return await handleUpdateVehicle(request, env, decodeURIComponent(vehicleMatch[1]));
     }
 
     const counterMatch = path.match(/^\/api\/portal\/quotes\/([^/]+)\/counter$/);

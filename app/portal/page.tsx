@@ -29,20 +29,88 @@ type Customer = {
   owner: string;
 };
 
-type Vehicle = {
+type VehicleModel = {
   id: string;
   brand: string;
   model: string;
   trim: string;
   year: string;
+  bodyType: string;
+  battery: string;
+  range: string;
+  motorPower: string;
+  driveType: string;
+  seats: string;
+  dimensions: string;
+  charging: string;
+  warranty: string;
+  marketPosition: string;
+  exportNotes: string;
+  imageUrl: string;
+  brochureUrl: string;
+  status: string;
+};
+
+type Vehicle = {
+  id: string;
+  modelId: string;
+  brand: string;
+  model: string;
+  trim: string;
+  year: string;
   color: string;
+  exteriorColor: string;
+  interiorColor: string;
+  supplierExteriorColor: string;
+  supplierInteriorColor: string;
+  colorCode: string;
+  colorNotes: string;
+  colorConfirmed: boolean;
+  configuration: string;
+  supplier: string;
   location: string;
   status: string;
   exportStatus: string;
   stockQuantity: number;
+  leadTime: string;
+  priceValidUntil: string;
   imageUrl: string;
   publicNotes: string;
   canSeePrice: boolean;
+  price: number | null;
+  partnerPrice: number | null;
+  customerPrice: number | null;
+  cost: number | null;
+  isListed: boolean;
+  editableFields: string[];
+  priceLabel: string;
+};
+
+type SellableModel = {
+  key: string;
+  brand: string;
+  model: string;
+  segment: string;
+  imageUrl: string;
+  stockQuantity: number;
+  preorderAvailable: boolean;
+  fobPriceRange: string;
+  offers: VehicleOffer[];
+};
+
+type VehicleOffer = {
+  key: string;
+  vehicle: Vehicle;
+  vehicles: Vehicle[];
+  year: string;
+  trim: string;
+  exteriorColor: string;
+  interiorColor: string;
+  configuration: string;
+  quantity: number;
+  supplyType: string;
+  leadTime: string;
+  location: string;
   price: number | null;
   priceLabel: string;
 };
@@ -113,6 +181,7 @@ type BootstrapData = {
     canRequestQuote: boolean;
     canCounterOffer: boolean;
   };
+  vehicleModels: VehicleModel[];
   vehicles: Vehicle[];
   inquiries: Inquiry[];
   quotes: Quote[];
@@ -218,6 +287,7 @@ export default function PortalPage() {
   const [error, setError] = useState("");
   const [isLocalDev, setIsLocalDev] = useState(false);
   const [activeAdminModule, setActiveAdminModule] = useState<AdminModule>("dashboard");
+  const [selectedSellableModel, setSelectedSellableModel] = useState<SellableModel | null>(null);
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
   const [inquiryForm, setInquiryForm] = useState<InquiryForm>(emptyInquiryForm);
   const [counterQuote, setCounterQuote] = useState<Quote | null>(null);
@@ -260,6 +330,8 @@ export default function PortalPage() {
     return grouped;
   }, [data?.quotes]);
 
+  const sellableModels = useMemo(() => (data ? buildSellableModels(data) : []), [data]);
+
   async function login(event: React.FormEvent) {
     event.preventDefault();
     setBusy(true);
@@ -295,8 +367,10 @@ export default function PortalPage() {
 
   async function logout() {
     await api("/api/portal/session", { method: "DELETE" });
-    setData(null);
-    setActiveAdminModule("dashboard");
+      setData(null);
+      setActiveAdminModule("dashboard");
+      setSelectedSellableModel(null);
+      setSelectedVehicle(null);
   }
 
   async function createInquiry(event: React.FormEvent) {
@@ -449,6 +523,7 @@ export default function PortalPage() {
         error={error}
         onLogout={logout}
         onModuleChange={setActiveAdminModule}
+        onReload={load}
       />
     );
   }
@@ -474,7 +549,7 @@ export default function PortalPage() {
         {error && <p className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm font-bold text-red-300">{error}</p>}
 
         <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <Metric label="Visible Stock" value={String(data.vehicles.length)} />
+          <Metric label="Sellable Models" value={String(sellableModels.length)} />
           <Metric label="Open Inquiries" value={String(data.inquiries.filter((item) => !["Accepted", "Closed"].includes(item.status)).length)} />
           <Metric label="Quote Versions" value={String(data.quotes.length)} />
           <Metric label="Draft Orders" value={String(data.orders.length)} />
@@ -483,41 +558,37 @@ export default function PortalPage() {
         <section>
           <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <h2 className="text-2xl font-black uppercase italic tracking-tight text-white">Inventory</h2>
-              <p className="mt-1 text-xs text-gray-500">Prices are filtered by your portal access level.</p>
+              <h2 className="text-2xl font-black uppercase italic tracking-tight text-white">Available Models</h2>
+              <p className="mt-1 text-xs text-gray-500">FOB prices are filtered by your portal access level.</p>
             </div>
           </div>
           <div className="grid gap-4 lg:grid-cols-3">
-            {data.vehicles.map((vehicle) => (
-              <article key={vehicle.id} className="glass grid overflow-hidden rounded-[1.5rem]">
+            {sellableModels.map((item) => (
+              <article key={item.key} className="glass grid overflow-hidden rounded-[1.5rem]">
                 <div className="aspect-[16/9] overflow-hidden bg-black">
-                  {vehicle.imageUrl ? (
-                    <img src={vehicle.imageUrl} alt={`${vehicle.brand} ${vehicle.model}`} className="h-full w-full object-cover" />
+                  {item.imageUrl ? (
+                    <img src={item.imageUrl} alt={`${item.brand} ${item.model}`} className="h-full w-full object-cover" />
                   ) : (
                     <div className="grid h-full place-items-center text-xs font-black uppercase tracking-widest text-gray-700">autoYJ EV</div>
                   )}
                 </div>
                 <div className="grid gap-4 p-5">
                   <div>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-accent">{vehicle.status} / {vehicle.location}</p>
-                    <h3 className="mt-2 text-xl font-black uppercase italic text-white">{vehicle.brand} {vehicle.model}</h3>
-                    <p className="mt-1 text-xs text-gray-500">{vehicle.year} / {vehicle.trim} / {vehicle.color}</p>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-accent">{item.segment || "EV"} / {item.preorderAvailable ? "Preorder available" : "Ready stock only"}</p>
+                    <h3 className="mt-2 text-xl font-black uppercase italic text-white">{item.brand} {item.model}</h3>
+                    <p className="mt-1 text-xs text-gray-500">{item.offers.length} source option{item.offers.length === 1 ? "" : "s"}</p>
                   </div>
                   <div className="grid grid-cols-2 gap-3 text-xs">
-                    <Info label="Stock" value={`${vehicle.stockQuantity} units`} />
-                    <Info label={vehicle.priceLabel} value={formatUsd(vehicle.price)} highlight={vehicle.canSeePrice} />
-                    <Info label="Export" value={vehicle.exportStatus || "Confirm"} />
-                    <Info label="Vehicle ID" value={vehicle.id} />
+                    <Info label="In-stock Qty" value={`${item.stockQuantity} units`} />
+                    <Info label="Preorder" value={item.preorderAvailable ? "Available" : "No"} />
+                    <Info label="FOB Range" value={item.fobPriceRange} highlight />
+                    <Info label="Model" value={`${item.brand} ${item.model}`} />
                   </div>
-                  {vehicle.publicNotes && <p className="text-xs leading-6 text-gray-500">{vehicle.publicNotes}</p>}
                   <button
-                    onClick={() => {
-                      setSelectedVehicle(vehicle);
-                      setInquiryForm(emptyInquiryForm);
-                    }}
+                    onClick={() => setSelectedSellableModel(item)}
                     className="btn-primary rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest"
                   >
-                    Request Quote
+                    View Sources
                   </button>
                 </div>
               </article>
@@ -612,9 +683,69 @@ export default function PortalPage() {
         </section>
       </section>
 
+      {selectedSellableModel && (
+        <Modal title={`${selectedSellableModel.brand} ${selectedSellableModel.model} / Sources`} onClose={() => setSelectedSellableModel(null)}>
+          <div className="grid gap-4">
+            <div className="grid gap-3 sm:grid-cols-3">
+              <Info label="Segment" value={selectedSellableModel.segment || "EV"} />
+              <Info label="In-stock Qty" value={`${selectedSellableModel.stockQuantity} units`} />
+              <Info label="FOB Range" value={selectedSellableModel.fobPriceRange} highlight />
+            </div>
+            <div className="max-w-full overflow-x-auto">
+              <table className="w-full min-w-[760px] border-separate border-spacing-0 text-left text-sm">
+                <thead>
+                  <tr>
+                    {["Year", "Trim / Config", "Color", "Qty", "Supply", "Lead Time", "Location", "FOB", "Action"].map((header) => (
+                      <th key={header} className="border-b border-white/10 px-3 py-3 text-[10px] font-black uppercase tracking-widest text-gray-500">
+                        {header}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {selectedSellableModel.offers.map((offer) => (
+                    <tr key={offer.key} className="align-top">
+                      <td className="border-b border-white/[.06] px-3 py-3 text-gray-300">{offer.year || "-"}</td>
+                      <td className="border-b border-white/[.06] px-3 py-3 text-gray-300">
+                        <strong className="block text-white">{offer.trim || "-"}</strong>
+                        <span className="mt-1 block text-xs text-gray-500">{offer.configuration || "-"}</span>
+                      </td>
+                      <td className="border-b border-white/[.06] px-3 py-3 text-gray-300">{formatColorPair(offer.exteriorColor, offer.interiorColor)}</td>
+                      <td className="border-b border-white/[.06] px-3 py-3 text-gray-300">{offer.quantity}</td>
+                      <td className="border-b border-white/[.06] px-3 py-3 text-gray-300">{offer.supplyType}</td>
+                      <td className="border-b border-white/[.06] px-3 py-3 text-gray-300">{offer.leadTime || (offer.supplyType === "In Stock" ? "Ready stock" : "-")}</td>
+                      <td className="border-b border-white/[.06] px-3 py-3 text-gray-300">{offer.location || "-"}</td>
+                      <td className="border-b border-white/[.06] px-3 py-3 font-black text-accent">{offer.price ? `FOB ${formatUsdStrict(offer.price)}` : offer.priceLabel}</td>
+                      <td className="border-b border-white/[.06] px-3 py-3">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedSellableModel(null);
+                            setSelectedVehicle(offer.vehicle);
+                            setInquiryForm((current) => ({ ...emptyInquiryForm, quantity: Math.max(1, offer.quantity || current.quantity || 1) }));
+                          }}
+                          className="rounded-lg border border-accent/40 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-accent transition hover:border-accent hover:bg-accent/10"
+                        >
+                          Inquiry
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </Modal>
+      )}
+
       {selectedVehicle && (
-        <Modal title={`Request quote / ${selectedVehicle.brand} ${selectedVehicle.model}`} onClose={() => setSelectedVehicle(null)}>
+        <Modal title={`Request quote / ${selectedVehicle.brand} ${selectedVehicle.model} ${selectedVehicle.trim}`.trim()} onClose={() => setSelectedVehicle(null)}>
           <form onSubmit={createInquiry} className="grid gap-4">
+            <div className="grid gap-3 sm:grid-cols-3">
+              <Info label="Year" value={selectedVehicle.year || "-"} />
+              <Info label="Color" value={formatColorPair(selectedVehicle.exteriorColor, selectedVehicle.interiorColor)} />
+              <Info label="FOB" value={selectedVehicle.price ? formatUsdStrict(selectedVehicle.price) : selectedVehicle.priceLabel} highlight={selectedVehicle.canSeePrice} />
+            </div>
             <div className="grid gap-3 sm:grid-cols-2">
               <FormField label="Quantity">
                 <input min="1" type="number" value={inquiryForm.quantity} onChange={(event) => setInquiryForm((current) => ({ ...current, quantity: Number(event.target.value) }))} />
@@ -668,14 +799,17 @@ function AdminPortal({
   activeModule,
   onModuleChange,
   onLogout,
+  onReload,
   error,
 }: {
   data: BootstrapData;
   activeModule: AdminModule;
   onModuleChange: (module: AdminModule) => void;
   onLogout: () => Promise<void>;
+  onReload: () => Promise<void>;
   error: string;
 }) {
+  const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
   const visibleNav = adminNavItems.filter((item) => item.roles.includes(data.user.role));
   const normalizedActiveModule = visibleNav.some((item) => item.key === activeModule) ? activeModule : "dashboard";
   const activeItem = visibleNav.find((item) => item.key === normalizedActiveModule) || visibleNav[0];
@@ -684,8 +818,8 @@ function AdminPortal({
   const orderTotal = data.orders.reduce((sum, order) => sum + order.total, 0);
 
   return (
-    <main className="min-h-screen bg-[#0c1322] text-slate-100">
-      <div className="grid min-h-screen lg:grid-cols-[300px_minmax(0,1fr)]">
+    <main className="min-h-screen overflow-x-hidden bg-[#0c1322] text-slate-100">
+      <div className="grid min-h-screen min-w-0 lg:grid-cols-[300px_minmax(0,1fr)]">
         <aside className="border-b border-white/10 bg-[#101827] px-4 py-5 lg:sticky lg:top-0 lg:h-screen lg:border-b-0 lg:border-r lg:px-5">
           <div className="flex items-center gap-4 border-b border-white/10 pb-6">
             <div className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-[#22b8aa] text-2xl font-black text-[#0c1322]">
@@ -732,7 +866,7 @@ function AdminPortal({
           </div>
         </aside>
 
-        <section className="min-w-0 px-4 py-5 sm:px-6 lg:px-8 lg:py-8">
+        <section className="min-w-0 overflow-hidden px-4 py-5 sm:px-6 lg:px-8 lg:py-8">
           <header className="mb-6 flex flex-col gap-4 border-b border-white/10 pb-5 xl:flex-row xl:items-end xl:justify-between">
             <div>
               <p className="text-[10px] font-black uppercase tracking-[.24em] text-[#22b8aa]">
@@ -740,7 +874,7 @@ function AdminPortal({
               </p>
               <h1 className="mt-2 text-3xl font-black tracking-tight text-white sm:text-4xl">{activeItem?.label || "首页看板"}</h1>
             </div>
-            <div className="grid gap-2 text-xs text-slate-400 sm:grid-cols-3 xl:min-w-[520px]">
+            <div className="grid w-full min-w-0 gap-2 text-xs text-slate-400 sm:grid-cols-3 xl:max-w-[520px]">
               <AdminTopMetric label="库存台数" value={String(totalStock)} />
               <AdminTopMetric label="待处理询价" value={String(openInquiries)} />
               <AdminTopMetric label="订单金额" value={formatUsdStrict(orderTotal)} />
@@ -749,19 +883,29 @@ function AdminPortal({
 
           {error && <p className="mb-5 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm font-bold text-red-300">{error}</p>}
 
-          <AdminModuleContent activeModule={normalizedActiveModule} data={data} />
+          <AdminModuleContent activeModule={normalizedActiveModule} data={data} onEditVehicle={setEditingVehicle} />
         </section>
       </div>
+      {editingVehicle && (
+        <VehicleEditModal
+          vehicle={editingVehicle}
+          onClose={() => setEditingVehicle(null)}
+          onSaved={async () => {
+            setEditingVehicle(null);
+            await onReload();
+          }}
+        />
+      )}
     </main>
   );
 }
 
-function AdminModuleContent({ activeModule, data }: { activeModule: AdminModule; data: BootstrapData }) {
+function AdminModuleContent({ activeModule, data, onEditVehicle }: { activeModule: AdminModule; data: BootstrapData; onEditVehicle: (vehicle: Vehicle) => void }) {
   switch (activeModule) {
     case "profiles":
       return <AdminProfiles data={data} />;
     case "vehicles":
-      return <AdminVehicles data={data} />;
+      return <AdminVehicles data={data} onEdit={onEditVehicle} />;
     case "quotes":
       return <AdminQuotes data={data} />;
     case "orders":
@@ -783,6 +927,7 @@ function AdminModuleContent({ activeModule, data }: { activeModule: AdminModule;
 
 function AdminDashboard({ data }: { data: BootstrapData }) {
   const totalStock = data.vehicles.reduce((sum, vehicle) => sum + vehicle.stockQuantity, 0);
+  const modelCount = (data.vehicleModels || []).length;
   const quoteValue = data.quotes.reduce((sum, quote) => sum + quote.unitPrice * Math.max(quote.quantity, 1), 0);
   const latestInquiries = [...data.inquiries]
     .sort((a, b) => getDateTime(b.updatedAt || b.createdAt) - getDateTime(a.updatedAt || a.createdAt))
@@ -790,15 +935,15 @@ function AdminDashboard({ data }: { data: BootstrapData }) {
   const lowStock = data.vehicles.filter((vehicle) => vehicle.stockQuantity <= 2).slice(0, 6);
 
   return (
-    <div className="grid gap-5">
+    <div className="grid min-w-0 gap-5">
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <AdminStat label="车型资源" value={String(data.vehicles.length)} note={`${totalStock} 台可见库存`} />
+        <AdminStat label="车型库" value={String(modelCount)} note={`${data.vehicles.length} 条车源 / ${totalStock} 台库存`} />
         <AdminStat label="询价单" value={String(data.inquiries.length)} note={`${latestInquiries.length} 条近期动态`} />
         <AdminStat label="报价版本" value={String(data.quotes.length)} note={formatUsdStrict(quoteValue)} />
         <AdminStat label="订单" value={String(data.orders.length)} note={formatUsdStrict(data.orders.reduce((sum, order) => sum + order.total, 0))} />
       </section>
 
-      <section className="grid gap-5 xl:grid-cols-[1.1fr_.9fr]">
+      <section className="grid min-w-0 gap-5 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,.9fr)]">
         <AdminPanel title="近期询价" subtitle="来自飞书 Inquiries / Quotes 表">
           <AdminTable
             headers={["询价号", "车辆", "数量", "状态", "最新报价"]}
@@ -818,12 +963,12 @@ function AdminDashboard({ data }: { data: BootstrapData }) {
 
         <AdminPanel title="库存提醒" subtitle="低库存和待确认车辆">
           <AdminTable
-            headers={["车辆", "库存", "位置", "出口状态"]}
+            headers={["车辆", "库存", "位置", "供应类型"]}
             rows={lowStock.map((vehicle) => [
               vehicleName(vehicle),
               `${vehicle.stockQuantity} 台`,
               vehicle.location || "-",
-              <AdminStatusBadge key="status" status={vehicle.exportStatus || vehicle.status || "待确认"} />,
+              <AdminStatusBadge key="status" status={getSupplyType(vehicle)} />,
             ])}
             emptyText="暂无低库存车辆"
           />
@@ -834,41 +979,19 @@ function AdminDashboard({ data }: { data: BootstrapData }) {
 }
 
 function AdminProfiles({ data }: { data: BootstrapData }) {
-  const profiles = Array.from(
-    data.vehicles.reduce((map, vehicle) => {
-      const key = `${vehicle.brand} ${vehicle.model}`.trim() || vehicle.id;
-      const current =
-        map.get(key) || {
-          key,
-          brand: vehicle.brand,
-          model: vehicle.model,
-          trims: new Set<string>(),
-          years: new Set<string>(),
-          locations: new Set<string>(),
-          stock: 0,
-          minPrice: null as number | null,
-        };
-      if (vehicle.trim) current.trims.add(vehicle.trim);
-      if (vehicle.year) current.years.add(vehicle.year);
-      if (vehicle.location) current.locations.add(vehicle.location);
-      current.stock += vehicle.stockQuantity;
-      if (vehicle.price && (!current.minPrice || vehicle.price < current.minPrice)) current.minPrice = vehicle.price;
-      map.set(key, current);
-      return map;
-    }, new Map<string, { key: string; brand: string; model: string; trims: Set<string>; years: Set<string>; locations: Set<string>; stock: number; minPrice: number | null }>()),
-  );
+  const models = data.vehicleModels || [];
 
   return (
-    <AdminPanel title="车型库" subtitle="同一车型的年款、版本、库存和内部可见价格">
+    <AdminPanel title="车型库" subtitle="车型版本、核心参数、市场定位和出口适配说明">
       <AdminTable
-        headers={["车型", "版本", "年款", "库存", "地点", "起始价格"]}
-        rows={profiles.map((profile) => [
-          `${profile.brand} ${profile.model}`.trim() || profile.key,
-          Array.from(profile.trims).join(" / ") || "-",
-          Array.from(profile.years).join(" / ") || "-",
-          `${profile.stock} 台`,
-          Array.from(profile.locations).join(" / ") || "-",
-          formatUsd(profile.minPrice),
+        headers={["Model ID", "车型版本", "核心参数", "市场定位", "出口说明", "状态"]}
+        rows={models.map((model) => [
+          <span key="id" className="font-mono text-xs text-[#22b8aa]">{model.id}</span>,
+          `${model.brand} ${model.model} ${model.trim} ${model.year}`.trim() || model.id,
+          compactJoin([model.bodyType, model.battery, model.range, model.motorPower, model.driveType, model.seats && `${model.seats} seats`]),
+          model.marketPosition || "-",
+          model.exportNotes || "-",
+          <AdminStatusBadge key="status" status={model.status || "Active"} />,
         ])}
         emptyText="暂无车型资料"
       />
@@ -876,23 +999,151 @@ function AdminProfiles({ data }: { data: BootstrapData }) {
   );
 }
 
-function AdminVehicles({ data }: { data: BootstrapData }) {
+function AdminVehicles({ data, onEdit }: { data: BootstrapData; onEdit: (vehicle: Vehicle) => void }) {
+  const sellableModels = buildSellableModels(data);
+  const [expandedModels, setExpandedModels] = useState<Set<string>>(() => new Set());
+  const [searchQuery, setSearchQuery] = useState("");
+  const [supplyFilter, setSupplyFilter] = useState("all");
+  const normalizedSearch = searchQuery.trim().toLowerCase();
+  const visibleModels = sellableModels
+    .map((item) => {
+      const rawVehicles = vehiclesForSellableModel(data.vehicles, item).filter((vehicle) => vehicleMatchesAdminFilters(vehicle, item, normalizedSearch, supplyFilter));
+      const offers = item.offers.filter((offer) => offerMatchesAdminFilters(offer, item, normalizedSearch, supplyFilter));
+      const modelMatches = modelMatchesAdminSearch(item, normalizedSearch);
+      return {
+        ...item,
+        offers: modelMatches && supplyFilter === "all" ? item.offers : offers,
+        rawVehicles: modelMatches && supplyFilter === "all" ? vehiclesForSellableModel(data.vehicles, item) : rawVehicles,
+        modelMatches,
+      };
+    })
+    .filter((item) => item.modelMatches || item.offers.length > 0 || item.rawVehicles.length > 0);
+
+  function toggleModel(key: string) {
+    setExpandedModels((current) => {
+      const next = new Set(current);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  }
+
   return (
-    <AdminPanel title="车辆资源" subtitle="飞书 Vehicles 表中的可上架车辆">
-      <AdminTable
-        headers={["车辆 ID", "车型", "颜色", "地点", "库存", "价格", "状态"]}
-        rows={data.vehicles.map((vehicle) => [
-          <span key="id" className="font-mono text-xs text-[#22b8aa]">{vehicle.id}</span>,
-          vehicleName(vehicle),
-          vehicle.color || "-",
-          vehicle.location || "-",
-          `${vehicle.stockQuantity} 台`,
-          formatUsd(vehicle.price),
-          <AdminStatusBadge key="status" status={vehicle.exportStatus || vehicle.status || "Listed"} />,
-        ])}
-        emptyText="暂无车辆资源"
-      />
-    </AdminPanel>
+    <div className="grid gap-5">
+      <section className="grid gap-3 rounded-xl border border-white/10 bg-white/[.045] p-4 sm:grid-cols-[minmax(0,1fr)_180px] sm:items-end sm:p-5">
+        <label className="grid gap-2 text-xs font-black uppercase tracking-widest text-slate-500">
+          搜索车源
+          <input
+            value={searchQuery}
+            onChange={(event) => setSearchQuery(event.target.value)}
+            className="rounded-xl border border-white/10 bg-[#0c1322] px-4 py-3 text-sm font-medium normal-case tracking-normal text-white outline-none transition placeholder:text-slate-600 focus:border-[#22b8aa]"
+            placeholder="品牌、车型、版本、颜色、供应商、资源 ID"
+          />
+        </label>
+        <label className="grid gap-2 text-xs font-black uppercase tracking-widest text-slate-500">
+          供应类型
+          <select
+            value={supplyFilter}
+            onChange={(event) => setSupplyFilter(event.target.value)}
+            className="rounded-xl border border-white/10 bg-[#0c1322] px-4 py-3 text-sm font-bold normal-case tracking-normal text-white outline-none transition focus:border-[#22b8aa]"
+          >
+            <option value="all">全部</option>
+            <option value="in-stock">现车</option>
+            <option value="preorder">可订车</option>
+            <option value="no-stock">暂无库存</option>
+          </select>
+        </label>
+      </section>
+
+      {sellableModels.length === 0 && <AdminPanel title="车辆资源" subtitle="按车型管理车源"><Empty text="暂无车辆资源" /></AdminPanel>}
+      {sellableModels.length > 0 && visibleModels.length === 0 && <AdminPanel title="搜索结果" subtitle="没有匹配的车型或车源"><Empty text="没有找到匹配车源" /></AdminPanel>}
+      {visibleModels.map((item) => {
+        const rawVehicles = item.rawVehicles;
+        const isExpanded = expandedModels.has(item.key);
+
+        return (
+          <section key={item.key} className="min-w-0 overflow-hidden rounded-xl border border-white/10 bg-white/[.045] p-4 shadow-2xl shadow-black/10 sm:p-5">
+            <header className="mb-5 grid gap-4 border-b border-white/10 pb-4 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-end">
+              <div className="min-w-0">
+                <p className="text-[10px] font-black uppercase tracking-[.24em] text-[#22b8aa]">可售车型 / 车源分组</p>
+                <h2 className="mt-2 break-words text-2xl font-black text-white">{item.brand} {item.model}</h2>
+                <p className="mt-1 text-xs leading-5 text-slate-500">{item.segment || "EV"} / {item.preorderAvailable ? "可订车" : "仅现车"} / {item.fobPriceRange}</p>
+              </div>
+              <div className="grid min-w-0 gap-2 text-xs sm:grid-cols-3 xl:w-[420px]">
+                <AdminTopMetric label="现车" value={`${item.stockQuantity} 台`} />
+                <AdminTopMetric label="合并明细" value={`${item.offers.length} 条`} />
+                <AdminTopMetric label="原始批次" value={`${rawVehicles.length} 条`} />
+              </div>
+            </header>
+
+            <button
+              type="button"
+              onClick={() => toggleModel(item.key)}
+              className="mb-4 inline-flex w-full items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/[.035] px-4 py-3 text-left transition hover:border-[#22b8aa]/40 hover:bg-[#22b8aa]/10"
+            >
+              <span className="text-xs font-black text-slate-300">
+                {isExpanded ? "收起车源明细" : "展开车源明细"}
+              </span>
+              <span className="grid h-7 w-7 shrink-0 place-items-center rounded-lg border border-white/10 text-lg font-black text-[#5ee6d8]">
+                {isExpanded ? "-" : "+"}
+              </span>
+            </button>
+
+            {isExpanded && (
+            <div className="grid gap-5">
+              <div>
+                <div className="mb-3 flex items-center justify-between gap-3">
+                  <h3 className="text-sm font-black text-white">车源明细</h3>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">客户可见合并结果</span>
+                </div>
+                <AdminTable
+                  headers={["年款", "版本/配置", "外部颜色", "数量", "供应", "周期/地点", "FOB"]}
+                  rows={item.offers.map((offer) => [
+                    offer.year || "-",
+                    compactJoin([offer.trim, offer.configuration]),
+                    formatColorPair(offer.exteriorColor, offer.interiorColor),
+                    `${offer.quantity} 台`,
+                    <AdminStatusBadge key="supply" status={offer.supplyType} />,
+                    compactJoin([offer.leadTime || (offer.supplyType === "In Stock" ? "现车" : ""), offer.location]),
+                    offer.price ? `FOB ${formatUsdStrict(offer.price)}` : offer.priceLabel,
+                  ])}
+                  emptyText="暂无车源明细"
+                />
+              </div>
+
+              <div>
+                <div className="mb-3 flex items-center justify-between gap-3">
+                  <h3 className="text-sm font-black text-white">原始批次</h3>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">内部供应商和编辑入口</span>
+                </div>
+                <AdminTable
+                  headers={["资源 ID", "车型版本", "外部颜色", "内部颜色", "供应商/地点", "库存/供应", "FOB/成本", "操作"]}
+                  rows={rawVehicles.map((vehicle) => [
+                    <span key="id" className="font-mono text-xs text-[#22b8aa]">{vehicle.id}</span>,
+                    vehicleName(vehicle),
+                    formatColorPair(vehicle.exteriorColor || vehicle.color, vehicle.interiorColor),
+                    compactJoin([vehicle.supplierExteriorColor, vehicle.supplierInteriorColor, vehicle.colorCode]),
+                    compactJoin([vehicle.supplier, vehicle.location]),
+                    compactJoin([`${vehicle.stockQuantity} 台`, getSupplyType(vehicle), vehicle.status === "Preorder" ? vehicle.leadTime || "周期待确认" : vehicle.leadTime]),
+                    compactJoin([vehicle.partnerPrice ? `FOB ${formatUsdStrict(vehicle.partnerPrice)}` : formatUsd(vehicle.price), vehicle.cost ? `成本 ${formatUsdStrict(vehicle.cost)}` : ""]),
+                    <button
+                      key="edit"
+                      type="button"
+                      onClick={() => onEdit(vehicle)}
+                      className="min-w-[64px] rounded-lg border border-[#22b8aa]/40 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-[#5ee6d8] transition hover:border-[#22b8aa] hover:bg-[#22b8aa]/10"
+                    >
+                      编辑
+                    </button>,
+                  ])}
+                  emptyText="暂无原始批次"
+                />
+              </div>
+            </div>
+            )}
+          </section>
+        );
+      })}
+    </div>
   );
 }
 
@@ -1080,9 +1331,216 @@ function AdminFiles({ data }: { data: BootstrapData }) {
   );
 }
 
+function VehicleEditModal({ vehicle, onClose, onSaved }: { vehicle: Vehicle; onClose: () => void; onSaved: () => Promise<void> }) {
+  const editableFields = new Set(vehicle.editableFields || []);
+  const canEditOptionalField = (fieldName: string) => editableFields.has(fieldName);
+  const [form, setForm] = useState({
+    modelId: vehicle.modelId || "",
+    color: vehicle.color || "",
+    exteriorColor: vehicle.exteriorColor || vehicle.color || "",
+    interiorColor: vehicle.interiorColor || "",
+    supplierExteriorColor: vehicle.supplierExteriorColor || "",
+    supplierInteriorColor: vehicle.supplierInteriorColor || "",
+    colorCode: vehicle.colorCode || "",
+    colorNotes: vehicle.colorNotes || "",
+    colorConfirmed: vehicle.colorConfirmed,
+    configuration: vehicle.configuration || "",
+    supplier: vehicle.supplier || "",
+    location: vehicle.location || "",
+    status: vehicle.status || "In Stock",
+    stockQuantity: String(vehicle.stockQuantity ?? 0),
+    leadTime: vehicle.leadTime || "",
+    partnerPrice: vehicle.partnerPrice ? String(vehicle.partnerPrice) : "",
+    customerPrice: vehicle.customerPrice ? String(vehicle.customerPrice) : "",
+    cost: vehicle.cost ? String(vehicle.cost) : "",
+    priceValidUntil: vehicle.priceValidUntil || "",
+    publicNotes: vehicle.publicNotes || "",
+    imageUrl: vehicle.imageUrl || "",
+    exportStatus: vehicle.exportStatus || "Exportable Now",
+    isListed: vehicle.isListed,
+  });
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+
+  function updateField(key: keyof typeof form, value: string | boolean) {
+    setForm((current) => ({ ...current, [key]: value }));
+  }
+
+  async function submit(event: React.FormEvent) {
+    event.preventDefault();
+    setSaving(true);
+    setError("");
+    try {
+      await api(`/api/portal/vehicles/${encodeURIComponent(vehicle.id)}`, {
+        method: "PATCH",
+        body: JSON.stringify({
+          modelId: form.modelId,
+          color: form.color,
+          exteriorColor: form.exteriorColor,
+          interiorColor: form.interiorColor,
+          supplierExteriorColor: form.supplierExteriorColor,
+          supplierInteriorColor: form.supplierInteriorColor,
+          colorCode: form.colorCode,
+          colorNotes: form.colorNotes,
+          colorConfirmed: form.colorConfirmed,
+          configuration: form.configuration,
+          supplier: form.supplier,
+          location: form.location,
+          status: form.status,
+          stockQuantity: Number(form.stockQuantity || 0),
+          leadTime: form.leadTime,
+          partnerPrice: form.partnerPrice === "" ? null : Number(form.partnerPrice),
+          customerPrice: form.customerPrice === "" ? null : Number(form.customerPrice),
+          cost: form.cost === "" ? null : Number(form.cost),
+          priceValidUntil: form.priceValidUntil,
+          publicNotes: form.publicNotes,
+          imageUrl: form.imageUrl,
+          exportStatus: form.exportStatus,
+          isListed: form.isListed,
+        }),
+      });
+      await onSaved();
+    } catch (saveError) {
+      setError(saveError instanceof Error ? saveError.message : "保存失败");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <Modal title={`编辑车源 / ${vehicle.id}`} onClose={onClose}>
+      <form onSubmit={submit} className="grid gap-4">
+        <div className="grid gap-3 sm:grid-cols-2">
+          {canEditOptionalField("Model ID") && (
+            <FormField label="Model ID">
+              <input value={form.modelId} onChange={(event) => updateField("modelId", event.target.value)} placeholder="MDL-001" />
+            </FormField>
+          )}
+          <FormField label="状态">
+            <select value={form.status} onChange={(event) => updateField("status", event.target.value)}>
+              <option>In Stock</option>
+              <option>Preorder</option>
+              <option>Unavailable</option>
+            </select>
+          </FormField>
+          <FormField label="颜色">
+            <input value={form.color} onChange={(event) => updateField("color", event.target.value)} />
+          </FormField>
+          {canEditOptionalField("Exterior Color") && (
+            <FormField label="外部外观颜色">
+              <input value={form.exteriorColor} onChange={(event) => updateField("exteriorColor", event.target.value)} placeholder="White" />
+            </FormField>
+          )}
+          {canEditOptionalField("Interior Color") && (
+            <FormField label="外部内饰颜色">
+              <input value={form.interiorColor} onChange={(event) => updateField("interiorColor", event.target.value)} placeholder="Black" />
+            </FormField>
+          )}
+          {canEditOptionalField("Supplier Exterior Color") && (
+            <FormField label="供应商外观色">
+              <input value={form.supplierExteriorColor} onChange={(event) => updateField("supplierExteriorColor", event.target.value)} placeholder="珍珠白 / 极地白" />
+            </FormField>
+          )}
+          {canEditOptionalField("Supplier Interior Color") && (
+            <FormField label="供应商内饰色">
+              <input value={form.supplierInteriorColor} onChange={(event) => updateField("supplierInteriorColor", event.target.value)} placeholder="黑内 / 米内" />
+            </FormField>
+          )}
+          {canEditOptionalField("Color Code") && (
+            <FormField label="色号">
+              <input value={form.colorCode} onChange={(event) => updateField("colorCode", event.target.value)} />
+            </FormField>
+          )}
+          {canEditOptionalField("Configuration") && (
+            <FormField label="配置">
+              <input value={form.configuration} onChange={(event) => updateField("configuration", event.target.value)} placeholder="Standard export configuration" />
+            </FormField>
+          )}
+          {canEditOptionalField("Supplier") && (
+            <FormField label="供应商">
+              <input value={form.supplier} onChange={(event) => updateField("supplier", event.target.value)} />
+            </FormField>
+          )}
+          <FormField label="地点">
+            <input value={form.location} onChange={(event) => updateField("location", event.target.value)} />
+          </FormField>
+          <FormField label="库存数量">
+            <input type="number" min="0" value={form.stockQuantity} onChange={(event) => updateField("stockQuantity", event.target.value)} />
+          </FormField>
+          {canEditOptionalField("Lead Time") && (
+            <FormField label="订车周期">
+              <input value={form.leadTime} onChange={(event) => updateField("leadTime", event.target.value)} placeholder="30-45 days after deposit" />
+            </FormField>
+          )}
+          <FormField label="合作价">
+            <input type="number" value={form.partnerPrice} onChange={(event) => updateField("partnerPrice", event.target.value)} />
+          </FormField>
+          <FormField label="客户价">
+            <input type="number" value={form.customerPrice} onChange={(event) => updateField("customerPrice", event.target.value)} />
+          </FormField>
+          <FormField label="成本">
+            <input type="number" value={form.cost} onChange={(event) => updateField("cost", event.target.value)} />
+          </FormField>
+          {canEditOptionalField("Price Valid Until") && (
+            <FormField label="价格有效期">
+              <input value={form.priceValidUntil} onChange={(event) => updateField("priceValidUntil", event.target.value)} placeholder="2026-07-31" />
+            </FormField>
+          )}
+          <FormField label="图片 URL">
+            <input value={form.imageUrl} onChange={(event) => updateField("imageUrl", event.target.value)} />
+          </FormField>
+        </div>
+
+        <FormField label="备注">
+          <textarea value={form.publicNotes} onChange={(event) => updateField("publicNotes", event.target.value)} />
+        </FormField>
+
+        {canEditOptionalField("Color Notes") && (
+          <FormField label="颜色内部备注">
+            <textarea value={form.colorNotes} onChange={(event) => updateField("colorNotes", event.target.value)} placeholder="以实拍图为准、供应商原始描述等" />
+          </FormField>
+        )}
+
+        {canEditOptionalField("Color Confirmed") && (
+          <label className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[.04] px-4 py-3 text-xs font-bold text-slate-300">
+            <input
+              checked={form.colorConfirmed}
+              onChange={(event) => updateField("colorConfirmed", event.target.checked)}
+              type="checkbox"
+              className="h-4 w-4 accent-[#22b8aa]"
+            />
+            颜色已确认
+          </label>
+        )}
+
+        <label className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[.04] px-4 py-3 text-xs font-bold text-slate-300">
+          <input
+            checked={form.isListed}
+            onChange={(event) => updateField("isListed", event.target.checked)}
+            type="checkbox"
+            className="h-4 w-4 accent-[#22b8aa]"
+          />
+          对外上架显示
+        </label>
+
+        {error && <p className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-xs font-bold text-red-300">{error}</p>}
+
+        <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
+          <button type="button" onClick={onClose} className="rounded-xl border border-white/15 px-5 py-3 text-[10px] font-black uppercase tracking-widest text-slate-300 transition hover:border-white/30">
+            取消
+          </button>
+          <button disabled={saving} className="btn-primary rounded-xl px-5 py-3 text-[10px] font-black uppercase tracking-widest disabled:opacity-60">
+            {saving ? "保存中..." : "保存到飞书"}
+          </button>
+        </div>
+      </form>
+    </Modal>
+  );
+}
+
 function AdminPanel({ title, subtitle, children }: { title: string; subtitle: string; children: ReactNode }) {
   return (
-    <section className="rounded-xl border border-white/10 bg-white/[.045] p-4 shadow-2xl shadow-black/10 sm:p-5">
+    <section className="min-w-0 overflow-hidden rounded-xl border border-white/10 bg-white/[.045] p-4 shadow-2xl shadow-black/10 sm:p-5">
       <div className="mb-4">
         <h2 className="text-lg font-black text-white">{title}</h2>
         <p className="mt-1 text-xs leading-5 text-slate-500">{subtitle}</p>
@@ -1113,8 +1571,8 @@ function AdminTopMetric({ label, value }: { label: string; value: string }) {
 
 function AdminTable({ headers, rows, emptyText }: { headers: string[]; rows: ReactNode[][]; emptyText: string }) {
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full min-w-[760px] border-separate border-spacing-0 text-left text-sm">
+    <div className="max-w-full overflow-x-auto">
+      <table className="w-full min-w-full table-fixed border-separate border-spacing-0 text-left text-sm">
         <thead>
           <tr>
             {headers.map((header) => (
@@ -1135,7 +1593,7 @@ function AdminTable({ headers, rows, emptyText }: { headers: string[]; rows: Rea
             rows.map((row, rowIndex) => (
               <tr key={rowIndex} className="transition hover:bg-white/[.035]">
                 {row.map((cell, cellIndex) => (
-                  <td key={cellIndex} className="border-b border-white/[.06] px-3 py-3 align-middle text-slate-300">
+                  <td key={cellIndex} className="break-words border-b border-white/[.06] px-3 py-3 align-middle text-slate-300">
                     {cell}
                   </td>
                 ))}
@@ -1278,8 +1736,213 @@ function findCustomer(data: BootstrapData, customerId: string) {
   return (data.customers || []).find((customer) => customer.customerId === customerId);
 }
 
+function buildSellableModels(data: BootstrapData): SellableModel[] {
+  const modelsByVehicle = new Map<string, VehicleModel>();
+  const modelsByName = new Map<string, VehicleModel>();
+  for (const item of data.vehicleModels || []) {
+    if (item.id) modelsByVehicle.set(item.id, item);
+    modelsByName.set(normalizeKey(item.brand, item.model), item);
+  }
+
+  const grouped = new Map<string, { item: SellableModel; offerMap: Map<string, VehicleOffer> }>();
+  for (const vehicle of data.vehicles || []) {
+    const modelInfo = modelsByVehicle.get(vehicle.modelId) || modelsByName.get(normalizeKey(vehicle.brand, vehicle.model));
+    const modelKey = normalizeKey(vehicle.brand, vehicle.model);
+    if (!grouped.has(modelKey)) {
+      grouped.set(modelKey, {
+        item: {
+          key: modelKey,
+          brand: vehicle.brand,
+          model: vehicle.model,
+          segment: modelInfo?.bodyType || inferVehicleSegment(vehicle),
+          imageUrl: modelInfo?.imageUrl || vehicle.imageUrl,
+          stockQuantity: 0,
+          preorderAvailable: false,
+          fobPriceRange: "FOB on request",
+          offers: [],
+        },
+        offerMap: new Map(),
+      });
+    }
+
+    const entry = grouped.get(modelKey)!;
+    const supplyType = getSupplyType(vehicle);
+    entry.item.stockQuantity += supplyType === "In Stock" ? vehicle.stockQuantity : 0;
+    entry.item.preorderAvailable = entry.item.preorderAvailable || supplyType === "Preorder";
+    if (!entry.item.imageUrl && vehicle.imageUrl) entry.item.imageUrl = vehicle.imageUrl;
+    if (!entry.item.segment && modelInfo?.bodyType) entry.item.segment = modelInfo.bodyType;
+
+    const offerKey = normalizeKey(
+      vehicle.brand,
+      vehicle.model,
+      vehicle.year,
+      vehicle.trim,
+      vehicle.exteriorColor || vehicle.color,
+      vehicle.interiorColor,
+      vehicle.configuration,
+      supplyType,
+      vehicle.leadTime,
+      vehicle.location,
+      String(getFobPrice(vehicle) ?? ""),
+    );
+    const existing = entry.offerMap.get(offerKey);
+    if (existing) {
+      existing.quantity += vehicle.stockQuantity;
+      existing.vehicles.push(vehicle);
+    } else {
+      entry.offerMap.set(offerKey, {
+        key: offerKey,
+        vehicle,
+        vehicles: [vehicle],
+        year: vehicle.year,
+        trim: vehicle.trim,
+        exteriorColor: vehicle.exteriorColor || vehicle.color,
+        interiorColor: vehicle.interiorColor,
+        configuration: vehicle.configuration,
+        quantity: vehicle.stockQuantity,
+        supplyType,
+        leadTime: vehicle.leadTime,
+        location: vehicle.location,
+        price: getFobPrice(vehicle),
+        priceLabel: vehicle.priceLabel,
+      });
+    }
+  }
+
+  return Array.from(grouped.values())
+    .map(({ item, offerMap }) => {
+      const offers = Array.from(offerMap.values()).sort((a, b) => {
+        const stockRank = Number(b.supplyType === "In Stock") - Number(a.supplyType === "In Stock");
+        return stockRank || (a.price || Number.MAX_SAFE_INTEGER) - (b.price || Number.MAX_SAFE_INTEGER);
+      });
+      return {
+        ...item,
+        offers,
+        fobPriceRange: formatFobRange(offers.map((offer) => offer.price).filter((price): price is number => Boolean(price))),
+      };
+    })
+    .sort((a, b) => b.stockQuantity - a.stockQuantity || a.brand.localeCompare(b.brand) || a.model.localeCompare(b.model));
+}
+
+function getFobPrice(vehicle: Vehicle) {
+  return vehicle.partnerPrice ?? vehicle.price;
+}
+
+function vehiclesForSellableModel(vehicles: Vehicle[], item: SellableModel) {
+  return vehicles
+    .filter((vehicle) => normalizeKey(vehicle.brand, vehicle.model) === item.key)
+    .sort((a, b) => {
+      const supplyRank = Number(getSupplyType(b) === "In Stock") - Number(getSupplyType(a) === "In Stock");
+      return supplyRank || (getFobPrice(a) || Number.MAX_SAFE_INTEGER) - (getFobPrice(b) || Number.MAX_SAFE_INTEGER);
+    });
+}
+
+function modelMatchesAdminSearch(item: SellableModel, query: string) {
+  if (!query) return true;
+  return adminSearchText([item.brand, item.model, item.segment, item.fobPriceRange]).includes(query);
+}
+
+function offerMatchesAdminFilters(offer: VehicleOffer, item: SellableModel, query: string, supplyFilter: string) {
+  if (!supplyTypeMatchesFilter(offer.supplyType, supplyFilter)) return false;
+  if (!query) return true;
+  return adminSearchText([
+    item.brand,
+    item.model,
+    item.segment,
+    offer.year,
+    offer.trim,
+    offer.configuration,
+    offer.exteriorColor,
+    offer.interiorColor,
+    offer.supplyType,
+    offer.leadTime,
+    offer.location,
+    offer.price ? formatUsdStrict(offer.price) : offer.priceLabel,
+  ]).includes(query);
+}
+
+function vehicleMatchesAdminFilters(vehicle: Vehicle, item: SellableModel, query: string, supplyFilter: string) {
+  if (!supplyTypeMatchesFilter(getSupplyType(vehicle), supplyFilter)) return false;
+  if (!query) return true;
+  return adminSearchText([
+    item.brand,
+    item.model,
+    item.segment,
+    vehicle.id,
+    vehicle.modelId,
+    vehicle.brand,
+    vehicle.model,
+    vehicle.trim,
+    vehicle.year,
+    vehicle.color,
+    vehicle.exteriorColor,
+    vehicle.interiorColor,
+    vehicle.supplierExteriorColor,
+    vehicle.supplierInteriorColor,
+    vehicle.colorCode,
+    vehicle.configuration,
+    vehicle.supplier,
+    vehicle.location,
+    vehicle.status,
+    vehicle.leadTime,
+    vehicle.publicNotes,
+    vehicle.partnerPrice ? formatUsdStrict(vehicle.partnerPrice) : "",
+    vehicle.cost ? formatUsdStrict(vehicle.cost) : "",
+  ]).includes(query);
+}
+
+function supplyTypeMatchesFilter(supplyType: string, supplyFilter: string) {
+  if (supplyFilter === "all") return true;
+  const normalized = supplyType.toLowerCase();
+  if (supplyFilter === "in-stock") return normalized === "in stock";
+  if (supplyFilter === "preorder") return normalized === "preorder";
+  if (supplyFilter === "no-stock") return normalized === "no stock";
+  return true;
+}
+
+function adminSearchText(values: Array<string | number | null | undefined>) {
+  return values.map((value) => String(value ?? "")).join(" ").toLowerCase();
+}
+
+function inferVehicleSegment(vehicle: Vehicle) {
+  const name = `${vehicle.brand} ${vehicle.model}`.toLowerCase();
+  if (name.includes("seagull")) return "Hatchback";
+  if (name.includes("yuan plus") || name.includes("galaxy e5")) return "Compact SUV";
+  if (name.includes("pickup") || name.includes("shark") || name.includes("cannon")) return "Pickup";
+  if (name.includes("van")) return "Van";
+  return "EV";
+}
+
+function getSupplyType(vehicle: Vehicle) {
+  const status = vehicle.status.toLowerCase();
+  if (status.includes("preorder") || status.includes("order")) return "Preorder";
+  if (vehicle.stockQuantity > 0) return "In Stock";
+  return "No Stock";
+}
+
+function formatFobRange(prices: number[]) {
+  if (prices.length === 0) return "FOB on request";
+  const min = Math.min(...prices);
+  const max = Math.max(...prices);
+  return min === max ? `FOB ${formatUsdStrict(min)}` : `FOB ${formatUsdStrict(min)} - ${formatUsdStrict(max)}`;
+}
+
+function formatColorPair(exteriorColor: string, interiorColor: string) {
+  const exterior = exteriorColor || "-";
+  return interiorColor ? `${exterior} / ${interiorColor}` : exterior;
+}
+
+function normalizeKey(...values: Array<string | number | null | undefined>) {
+  return values.map((value) => String(value ?? "").trim().toLowerCase()).join("::");
+}
+
 function vehicleName(vehicle: Vehicle) {
   return `${vehicle.brand} ${vehicle.model} ${vehicle.trim}`.trim() || vehicle.id;
+}
+
+function compactJoin(values: Array<string | number | null | undefined>) {
+  const text = values.map((value) => String(value ?? "").trim()).filter(Boolean).join(" / ");
+  return text || "-";
 }
 
 function getDateTime(value: string) {
