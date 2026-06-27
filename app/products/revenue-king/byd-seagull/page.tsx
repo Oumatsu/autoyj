@@ -35,6 +35,118 @@ const batchLevels = [
   { units: 100, display: "$450K – $650K" },
 ];
 
+const seagullTrimCards = [
+  {
+    name: "305km Vitality",
+    cn: "305km Huo Li",
+    price: "RMB 69,800",
+    range: "305 km",
+    battery: "30.08 kWh",
+    charge: "30 kW DC",
+    summary: "Lowest landed cost. Best for price-sensitive taxi fleets.",
+    highlights: ["Lowest MSRP", "305 km CLTC", "Core safety kit"],
+  },
+  {
+    name: "305km Freedom",
+    cn: "305km Zi You",
+    price: "RMB 78,800",
+    range: "305 km",
+    battery: "30.08 kWh",
+    charge: "30 kW DC",
+    summary: "Same range as Vitality, but with stronger cockpit and ADAS.",
+    highlights: ["DiPilot L2", "12.8 in screen", "Seat heating"],
+  },
+  {
+    name: "405km Ease",
+    cn: "405km Zi Zai",
+    price: "RMB 78,800",
+    range: "405 km",
+    battery: "38.88 kWh",
+    charge: "40 kW DC",
+    summary: "Long-range battery at the same list price as 305km Freedom.",
+    highlights: ["405 km CLTC", "38.88 kWh battery", "Side airbags"],
+  },
+  {
+    name: "405km Fly",
+    cn: "405km Fei Xiang",
+    price: "RMB 85,800",
+    range: "405 km",
+    battery: "38.88 kWh",
+    charge: "40 kW DC",
+    summary: "Best export recommendation: long range plus full comfort tech.",
+    highlights: ["Best export pick", "405 km + DiPilot", "Highest resale story"],
+    rec: true,
+  },
+];
+
+const seagullDiffGroups = [
+  {
+    title: "Battery & Charging",
+    rows: [
+      ["CLTC range", "305 km", "305 km", "405 km", "405 km"],
+      ["Battery capacity", "30.08 kWh", "30.08 kWh", "38.88 kWh", "38.88 kWh"],
+      ["DC fast charge", "30 kW", "30 kW", "40 kW", "40 kW"],
+      ["Curb weight", "1,160 kg", "1,160 kg", "1,240 kg", "1,240 kg"],
+    ],
+  },
+  {
+    title: "Driver Assistance",
+    rows: [
+      ["Camera view", "Reverse", "360 panoramic", "Reverse", "360 panoramic"],
+      ["Front parking radar", "No", "Yes", "No", "Yes"],
+      ["Cruise", "Fixed speed", "Full-speed ACC", "Fixed speed", "Full-speed ACC"],
+      ["DiPilot L2", "No", "Yes", "No", "Yes"],
+    ],
+  },
+  {
+    title: "Comfort & Cabin",
+    rows: [
+      ["Wheel", "15 in steel", "Alloy", "Alloy", "Alloy"],
+      ["Instrument cluster", "7 in", "8.8 in LCD", "7 in", "8.8 in LCD"],
+      ["Center screen", "10.1 in", "12.8 in", "10.1 in", "12.8 in"],
+      ["Driver seat", "Manual", "Power + heat", "Power + heat", "Power + heat"],
+      ["Wireless charging", "No", "Yes", "No", "Yes"],
+      ["Headlights", "Halogen", "LED", "LED", "LED"],
+    ],
+  },
+  {
+    title: "Safety Difference",
+    rows: [
+      ["Front airbags", "Yes", "Yes", "Yes", "Yes"],
+      ["Front side airbags", "No", "No", "Yes", "Yes"],
+      ["Side curtains", "Yes", "Yes", "Yes", "Yes"],
+      ["Tire pressure", "Alarm", "Display", "Alarm", "Display"],
+    ],
+  },
+];
+
+const seagullSharedFeatures = [
+  {
+    title: "EV platform",
+    items: ["55 kW / 135 Nm PM motor", "Front-wheel drive", "LFP Blade battery", "130 km/h top speed"],
+  },
+  {
+    title: "Body & chassis",
+    items: ["3780 x 1715 x 1540 mm", "2500 mm wheelbase", "5-door / 4-seat hatchback", "4.95 m turning radius"],
+  },
+  {
+    title: "Charging & energy",
+    items: ["30-80% DC fast charge in 30 min", "AC charging port", "DC charging port", "VTOL external discharge"],
+  },
+  {
+    title: "Standard safety",
+    items: ["ABS / EBD / ESP / TCS", "Rear parking radar", "Auto hold", "Hill start control"],
+  },
+  {
+    title: "Daily equipment",
+    items: ["Keyless start", "DiLink cockpit", "Bluetooth", "4 speakers"],
+  },
+  {
+    title: "Dealer note",
+    items: ["Export availability varies by batch", "Local homologation may differ", "Final config confirmed by VIN"],
+  },
+];
+
 export default function BydSeagullPage() {
   const [galIdx, setGalIdx] = useState(0);
   const [animating, setAnimating] = useState(false);
@@ -445,8 +557,164 @@ export default function BydSeagullPage() {
         </div>
       </section>
 
-      {/* Trim Comparison */}
-      <section className="py-10 md:py-14 bg-a">
+      {/* Trim Comparison - configuration poster style */}
+      <section className="py-14 md:py-20 bg-a">
+        <div className="container mx-auto px-6 md:px-12">
+          <div className="mb-10 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
+            <div>
+              <div className="label mb-3">All Versions - Side by Side</div>
+              <h2 className="text-3xl md:text-4xl font-black uppercase italic tracking-tight text-white">
+                BYD Seagull Trim Map
+              </h2>
+              <p className="text-gray-500 text-sm font-light mt-3 max-w-2xl">
+                Differences are grouped like a showroom configuration sheet: version cards first, then only the equipment that changes, followed by all-trim standard equipment.
+              </p>
+            </div>
+            <div className="text-[10px] font-black uppercase tracking-[.18em] text-gray-600">
+              2025 China domestic trims / export config must be confirmed by VIN
+            </div>
+          </div>
+
+          <div className="grid lg:grid-cols-4 gap-5 mb-8">
+            {seagullTrimCards.map((trim) => (
+              <div
+                key={trim.name}
+                className={`relative rounded-[2rem] p-6 border transition-colors ${
+                  trim.rec
+                    ? "bg-accent/[0.08] border-accent/45 shadow-[0_0_40px_rgba(16,185,129,.08)]"
+                    : "bg-white/[0.025] border-white/10"
+                }`}
+              >
+                {trim.rec && (
+                  <div className="absolute -top-3 left-6 rounded-full bg-accent px-3 py-1 text-[8px] font-black uppercase tracking-[.16em] text-black">
+                    Recommended
+                  </div>
+                )}
+                <div className="text-[10px] font-black uppercase tracking-[.18em] text-gray-600 mb-2">
+                  {trim.cn}
+                </div>
+                <h3 className="text-xl font-black italic uppercase tracking-tight text-white mb-4">
+                  {trim.name}
+                </h3>
+                <div className="grid grid-cols-2 gap-3 mb-5">
+                  <div>
+                    <div className="text-[8px] font-black uppercase tracking-widest text-gray-600 mb-1">Range</div>
+                    <div className={`text-lg font-black italic ${trim.range === "405 km" ? "text-accent" : "text-white"}`}>{trim.range}</div>
+                  </div>
+                  <div>
+                    <div className="text-[8px] font-black uppercase tracking-widest text-gray-600 mb-1">Battery</div>
+                    <div className="text-lg font-black italic text-theme">{trim.battery}</div>
+                  </div>
+                  <div>
+                    <div className="text-[8px] font-black uppercase tracking-widest text-gray-600 mb-1">DC Charge</div>
+                    <div className="text-sm font-black text-white">{trim.charge}</div>
+                  </div>
+                  <div>
+                    <div className="text-[8px] font-black uppercase tracking-widest text-gray-600 mb-1">China MSRP</div>
+                    <div className="text-sm font-black text-white">{trim.price}</div>
+                  </div>
+                </div>
+                <p className="text-xs text-gray-500 font-light leading-relaxed mb-5 min-h-[48px]">
+                  {trim.summary}
+                </p>
+                <div className="space-y-2">
+                  {trim.highlights.map((item) => (
+                    <div key={item} className="flex items-center gap-2 text-[10px] font-black uppercase tracking-wider text-gray-400">
+                      <span className={`h-1.5 w-1.5 rounded-full ${trim.rec ? "bg-accent" : "bg-theme"}`} />
+                      {item}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="overflow-x-auto rounded-[2rem] border border-white/10 bg-black/25 mb-8">
+            <div className="min-w-[980px]">
+              <div className="grid grid-cols-[220px_repeat(4,1fr)] border-b border-white/10">
+                <div className="p-4 text-[10px] font-black uppercase tracking-[.2em] text-gray-600">
+                  Difference Only
+                </div>
+                {seagullTrimCards.map((trim) => (
+                  <div
+                    key={trim.name}
+                    className={`p-4 text-center border-l border-white/5 ${trim.rec ? "bg-accent/[0.08]" : ""}`}
+                  >
+                    <div className="text-[10px] font-black uppercase tracking-[.14em] text-white">{trim.name}</div>
+                    <div className="text-[9px] font-black uppercase tracking-[.12em] text-gray-600 mt-1">{trim.price}</div>
+                  </div>
+                ))}
+              </div>
+
+              {seagullDiffGroups.map((group) => (
+                <div key={group.title}>
+                  <div className="px-4 py-3 bg-white/[0.035] border-b border-white/5 text-[10px] font-black uppercase tracking-[.18em] text-accent">
+                    {group.title}
+                  </div>
+                  {group.rows.map(([label, ...values]) => (
+                    <div key={label} className="grid grid-cols-[220px_repeat(4,1fr)] border-b border-white/[0.04] last:border-b-0">
+                      <div className="px-4 py-3 text-[10px] font-black uppercase tracking-[.1em] text-gray-500">
+                        {label}
+                      </div>
+                      {values.map((value, idx) => {
+                        const isPositive = value === "Yes" || value.includes("405") || value.includes("360") || value.includes("DiPilot") || value.includes("12.8") || value.includes("Power");
+                        const isNo = value === "No" || value === "Halogen" || value.includes("steel") || value === "Manual";
+                        return (
+                          <div
+                            key={`${label}-${idx}`}
+                            className={`px-4 py-3 text-center text-xs font-bold border-l border-white/[0.04] ${
+                              seagullTrimCards[idx].rec ? "bg-accent/[0.06]" : ""
+                            }`}
+                          >
+                            <span className={isPositive ? "text-accent" : isNo ? "text-gray-600" : "text-white"}>
+                              {value}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-[2rem] border border-theme/20 bg-theme/[0.045] p-6 md:p-8">
+            <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 mb-6">
+              <div>
+                <div className="label label-gold mb-3">All Trims Include</div>
+                <h3 className="text-2xl font-black uppercase italic tracking-tight text-white">
+                  Standard Equipment Across Every Version
+                </h3>
+              </div>
+              <Link href="/contact" className="btn-primary px-7 py-3 rounded text-xs font-black tracking-widest uppercase italic flex-shrink-0">
+                Request Trim Pricing
+              </Link>
+            </div>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {seagullSharedFeatures.map((group) => (
+                <div key={group.title} className="rounded-2xl bg-black/20 border border-white/5 p-5">
+                  <div className="text-[10px] font-black uppercase tracking-[.18em] text-theme mb-4">{group.title}</div>
+                  <div className="space-y-2">
+                    {group.items.map((item) => (
+                      <div key={item} className="flex gap-2 text-xs text-gray-400 font-light leading-relaxed">
+                        <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-accent flex-shrink-0" />
+                        {item}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <p className="text-[10px] text-gray-700 mt-5">
+              Data note: BYD Ethiopia currently publishes 305KM Active and 405KM Fly export specs; the four-column map above uses China domestic 2025 trim configuration names for comparison planning. Confirm exact export equipment by VIN before quoting.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Legacy Trim Comparison */}
+      <section className="hidden">
         <div className="container mx-auto px-6 md:px-12">
           <div className="mb-10">
             <div className="label mb-3">All Versions — Side by Side</div>

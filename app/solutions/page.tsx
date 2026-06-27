@@ -5,11 +5,11 @@ export default function SolutionsPage() {
     <>
       <div className="h-[var(--navbar-h,56px)] lg:hidden bg-black w-full" />
       {/* Hero */}
-      <section className="relative overflow-hidden">
+      <section className="relative min-h-[720px] sm:min-h-[780px] lg:min-h-[900px] xl:min-h-[960px] overflow-hidden">
         <img
           src="/pic/hero/0.webp"
-          className="w-full block"
-          style={{ filter: "brightness(.95)", marginBottom: "-7.5%" }}
+          className="absolute inset-0 h-full w-full object-cover"
+          style={{ filter: "brightness(.95)" }}
           alt="Export Logistics"
         />
         <div
