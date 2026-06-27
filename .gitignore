@@ -7,3 +7,6 @@ dist
 .env.local
 *.log
 history
+.lark-tmp
+.dev.vars.feishu.example
+.dev.vars.local

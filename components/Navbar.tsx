@@ -140,10 +140,10 @@ export function Navbar() {
 
         <div className="hidden lg:flex items-center gap-3">
           <Link
-            href="/sign-in"
+            href="/portal"
             className="px-7 py-2.5 rounded-full text-xs font-black tracking-widest uppercase transition border border-white/20 text-gray-300 hover:text-white hover:border-white/40"
           >
-            Sign In
+            Portal
           </Link>
           <Link
             href="/register"
@@ -225,11 +225,11 @@ export function Navbar() {
             About
           </Link>
           <Link
-            href="/sign-in"
+            href="/portal"
             onClick={closeMobile}
             className="mt-4 px-10 sm:px-12 py-3 sm:py-4 rounded text-xs sm:text-sm tracking-widest font-black uppercase w-48 sm:w-auto text-center border border-white/20 text-gray-300"
           >
-            Sign In
+            Portal
           </Link>
           <Link
             href="/register"

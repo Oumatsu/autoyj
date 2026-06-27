@@ -1,0 +1,285 @@
+import { execFileSync } from "node:child_process";
+import { mkdirSync, writeFileSync } from "node:fs";
+import { join, resolve } from "node:path";
+
+const baseName = process.argv.includes("--name")
+  ? process.argv[process.argv.indexOf("--name") + 1]
+  : "autoYJ EV Export Portal";
+const existingBaseToken = process.argv.includes("--base-token")
+  ? process.argv[process.argv.indexOf("--base-token") + 1]
+  : "";
+
+const now = new Date().toISOString();
+const tempDir = ".lark-tmp";
+mkdirSync(tempDir, { recursive: true });
+
+const schemas = {
+  Customers: [
+    { name: "Customer ID", type: "text" },
+    { name: "Company", type: "text" },
+    { name: "Contact", type: "text" },
+    { name: "Email", type: "text" },
+    { name: "Access Code", type: "text" },
+    { name: "Role", type: "select", multiple: false, options: [{ name: "partner" }, { name: "customer" }] },
+    { name: "Price Tier", type: "select", multiple: false, options: [{ name: "hidden" }, { name: "partner" }, { name: "vip" }] },
+    { name: "Status", type: "select", multiple: false, options: [{ name: "Active" }, { name: "Disabled" }] },
+    { name: "Country", type: "text" },
+    { name: "Owner", type: "text" },
+  ],
+  Vehicles: [
+    { name: "Vehicle ID", type: "text" },
+    { name: "Brand", type: "text" },
+    { name: "Model", type: "text" },
+    { name: "Trim", type: "text" },
+    { name: "Year", type: "text" },
+    { name: "Color", type: "text" },
+    { name: "Location", type: "text" },
+    { name: "Status", type: "select", multiple: false, options: [{ name: "In Stock" }, { name: "Preorder" }, { name: "Unavailable" }] },
+    { name: "Stock Quantity", type: "number" },
+    { name: "Partner Price", type: "number" },
+    { name: "Customer Price", type: "number" },
+    { name: "Cost", type: "number" },
+    { name: "Public Notes", type: "text" },
+    { name: "Image URL", type: "url" },
+    { name: "Export Status", type: "select", multiple: false, options: [{ name: "Exportable Now" }, { name: "Later in 2026" }, { name: "Check Permit" }] },
+    { name: "Is Listed", type: "checkbox" },
+  ],
+  Inquiries: [
+    { name: "Inquiry No", type: "text" },
+    { name: "Customer ID", type: "text" },
+    { name: "Vehicle ID", type: "text" },
+    { name: "Vehicle Model", type: "text" },
+    { name: "Quantity", type: "number" },
+    { name: "Destination Port", type: "text" },
+    { name: "Trade Term", type: "select", multiple: false, options: [{ name: "FOB" }, { name: "CIF" }, { name: "CFR" }, { name: "EXW" }] },
+    { name: "Target Price", type: "number" },
+    { name: "Notes", type: "text" },
+    { name: "Status", type: "select", multiple: false, options: [{ name: "New Inquiry" }, { name: "Quoted" }, { name: "Negotiating" }, { name: "Accepted" }, { name: "Closed" }] },
+    { name: "Source", type: "select", multiple: false, options: [{ name: "Customer Portal" }, { name: "Feishu" }, { name: "WhatsApp" }, { name: "Email" }] },
+    { name: "Created At", type: "text" },
+    { name: "Updated At", type: "text" },
+  ],
+  Quotes: [
+    { name: "Quote No", type: "text" },
+    { name: "Inquiry No", type: "text" },
+    { name: "Version", type: "number" },
+    { name: "Vehicle ID", type: "text" },
+    { name: "Quantity", type: "number" },
+    { name: "Unit Price", type: "number" },
+    { name: "Currency", type: "select", multiple: false, options: [{ name: "USD" }, { name: "CNY" }] },
+    { name: "Trade Term", type: "select", multiple: false, options: [{ name: "FOB" }, { name: "CIF" }, { name: "CFR" }, { name: "EXW" }] },
+    { name: "Payment Terms", type: "select", multiple: false, options: [{ name: "LC" }, { name: "CAD" }, { name: "TT advance" }, { name: "franco valuta" }] },
+    { name: "Valid Until", type: "text" },
+    { name: "Status", type: "select", multiple: false, options: [{ name: "Sent" }, { name: "Counteroffer Received" }, { name: "Accepted" }, { name: "Expired" }, { name: "Replaced" }] },
+    { name: "Change Reason", type: "text" },
+    { name: "Created At", type: "text" },
+  ],
+  Negotiations: [
+    { name: "Log No", type: "text" },
+    { name: "Inquiry No", type: "text" },
+    { name: "Quote No", type: "text" },
+    { name: "Actor", type: "select", multiple: false, options: [{ name: "Customer" }, { name: "autoYJ" }, { name: "System" }] },
+    { name: "Action", type: "select", multiple: false, options: [{ name: "Inquiry Created" }, { name: "Quote Sent" }, { name: "Counteroffer" }, { name: "Quote Accepted" }, { name: "Order Created" }] },
+    { name: "Offered Price", type: "number" },
+    { name: "Quantity", type: "number" },
+    { name: "Message", type: "text" },
+    { name: "Created At", type: "text" },
+  ],
+  Orders: [
+    { name: "Order No", type: "text" },
+    { name: "Inquiry No", type: "text" },
+    { name: "Quote No", type: "text" },
+    { name: "Customer ID", type: "text" },
+    { name: "Vehicle ID", type: "text" },
+    { name: "Quantity", type: "number" },
+    { name: "Final Unit Price", type: "number" },
+    { name: "Total", type: "number" },
+    { name: "Currency", type: "select", multiple: false, options: [{ name: "USD" }, { name: "CNY" }] },
+    { name: "Payment Terms", type: "select", multiple: false, options: [{ name: "LC" }, { name: "CAD" }, { name: "TT advance" }, { name: "franco valuta" }] },
+    { name: "Status", type: "select", multiple: false, options: [{ name: "Draft Order" }, { name: "Confirmed" }, { name: "Deposit Pending" }, { name: "Shipping" }, { name: "Completed" }, { name: "Closed" }] },
+    { name: "Created At", type: "text" },
+  ],
+};
+
+function run(args) {
+  const command =
+    process.platform === "win32"
+      ? "powershell.exe"
+      : process.env.LARK_CLI_BIN || "lark-cli";
+  const commandArgs =
+    process.platform === "win32"
+      ? [
+          "-NoProfile",
+          "-ExecutionPolicy",
+          "Bypass",
+          "-File",
+          process.env.LARK_CLI_BIN || join(process.env.APPDATA || "", "npm", "lark-cli.ps1"),
+          ...args,
+        ]
+      : args;
+  const output = execFileSync(command, commandArgs, {
+    cwd: process.cwd(),
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "pipe"],
+  });
+  const start = output.indexOf("{");
+  const end = output.lastIndexOf("}");
+  if (start === -1 || end === -1) {
+    throw new Error(`lark-cli returned non-JSON output:\n${output}`);
+  }
+  return JSON.parse(output.slice(start, end + 1));
+}
+
+function jsonFileArg(name, value) {
+  const file = join(tempDir, `${name}-${Math.random().toString(36).slice(2)}.json`);
+  writeFileSync(file, JSON.stringify(value), "utf8");
+  return `@./${file.replaceAll("\\", "/")}`;
+}
+
+function findString(value, predicate) {
+  if (typeof value === "string" && predicate(value)) return value;
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      const found = findString(item, predicate);
+      if (found) return found;
+    }
+  }
+  if (value && typeof value === "object") {
+    for (const item of Object.values(value)) {
+      const found = findString(item, predicate);
+      if (found) return found;
+    }
+  }
+  return "";
+}
+
+function getBaseToken(value) {
+  return (
+    value.base_token ||
+    value.created_base_token ||
+    value.app_token ||
+    value.data?.base?.base_token ||
+    findString(value, (item) => /^base[a-zA-Z0-9_]+/.test(item))
+  );
+}
+
+function tableList(baseToken) {
+  const data = run(["base", "+table-list", "--as", "user", "--base-token", baseToken, "--limit", "100"]);
+  const tables = data.items || data.tables || data.data?.items || data.data?.tables || [];
+  const result = {};
+  for (const table of tables) {
+    const id = table.table_id || table.id;
+    const name = table.name || table.table_name;
+    if (id && name) result[name] = id;
+  }
+  return result;
+}
+
+function createTable(baseToken, name, fields) {
+  run([
+    "base",
+    "+table-create",
+    "--as",
+    "user",
+    "--base-token",
+    baseToken,
+    "--name",
+    name,
+    "--fields",
+    jsonFileArg(`${name}-fields`, fields),
+  ]);
+}
+
+function createRows(baseToken, tableId, fields, rows) {
+  run([
+    "base",
+    "+record-batch-create",
+    "--as",
+    "user",
+    "--base-token",
+    baseToken,
+    "--table-id",
+    tableId,
+    "--json",
+    jsonFileArg(`${tableId}-rows`, { fields, rows }),
+  ]);
+}
+
+let baseToken = existingBaseToken;
+if (!baseToken) {
+  console.log(`Creating Feishu Base: ${baseName}`);
+  const baseResult = run([
+    "base",
+    "+base-create",
+    "--as",
+    "user",
+    "--name",
+    baseName,
+    "--table-name",
+    "Customers",
+    "--fields",
+    jsonFileArg("Customers-fields", schemas.Customers),
+  ]);
+  baseToken = getBaseToken(baseResult);
+  if (!baseToken) throw new Error(`Could not find base token in lark-cli output:\n${JSON.stringify(baseResult, null, 2)}`);
+} else {
+  console.log(`Using existing Feishu Base: ${baseToken}`);
+}
+
+let tables = tableList(baseToken);
+for (const [name, fields] of Object.entries(schemas)) {
+  if (name === "Customers") continue;
+  if (!tables[name]) createTable(baseToken, name, fields);
+}
+tables = tableList(baseToken);
+
+createRows(
+  baseToken,
+  tables.Customers,
+  ["Customer ID", "Company", "Contact", "Email", "Access Code", "Role", "Price Tier", "Status", "Country", "Owner"],
+  [
+    ["CUS-001", "Addis Fleet Trading", "Demo Partner", "partner@example.com", "partner-demo-2026", "partner", "partner", "Active", "Ethiopia", "Sales"],
+    ["CUS-002", "Green Ride Addis", "Demo Customer", "customer@example.com", "customer-demo-2026", "customer", "hidden", "Active", "Ethiopia", "Sales"],
+  ],
+);
+
+createRows(
+  baseToken,
+  tables.Vehicles,
+  ["Vehicle ID", "Brand", "Model", "Trim", "Year", "Color", "Location", "Status", "Stock Quantity", "Partner Price", "Customer Price", "Cost", "Public Notes", "Image URL", "Export Status", "Is Listed"],
+  [
+    ["EV-001", "BYD", "Yuan Plus", "430KM Premium", "2026", "White", "Shanghai Port", "In Stock", 12, 18500, 19800, 17100, "Popular ride-hailing SUV for East Africa.", "/pic/revenue-king/Yplus/0.webp", "Exportable Now", true],
+    ["EV-002", "BYD", "Seagull", "405KM", "2026", "Color optional", "Ningbo Port", "Preorder", 0, 11200, 12100, 10300, "High ROI city EV; permit timing should be confirmed.", "/pic/revenue-king/seagull/0.webp", "Check Permit", true],
+    ["EV-003", "Geely", "Galaxy E5", "530KM", "2026", "Silver", "Shanghai Port", "In Stock", 6, 16900, 18100, 15700, "Balanced SUV for dealer batch orders.", "/pic/revenue-king/Galaxye5/1.webp", "Exportable Now", true],
+  ],
+);
+
+const envPath = resolve(process.cwd(), ".dev.vars.feishu.example");
+const envText = [
+  "# Copy these values into .dev.vars for local development and into Cloudflare secrets/vars for deployment.",
+  "FEISHU_APP_ID=",
+  "FEISHU_APP_SECRET=",
+  `FEISHU_BASE_APP_TOKEN=${baseToken}`,
+  `FEISHU_TABLE_CUSTOMERS=${tables.Customers || ""}`,
+  `FEISHU_TABLE_VEHICLES=${tables.Vehicles || ""}`,
+  `FEISHU_TABLE_INQUIRIES=${tables.Inquiries || ""}`,
+  `FEISHU_TABLE_QUOTES=${tables.Quotes || ""}`,
+  `FEISHU_TABLE_NEGOTIATIONS=${tables.Negotiations || ""}`,
+  `FEISHU_TABLE_ORDERS=${tables.Orders || ""}`,
+  `PORTAL_SESSION_SECRET=${crypto.randomUUID()}-${crypto.randomUUID()}`,
+  "PORTAL_COOKIE_NAME=autoyj_portal",
+  "",
+].join("\n");
+writeFileSync(envPath, envText, "utf8");
+
+console.log("");
+console.log("Feishu Base created.");
+console.log(`Base token: ${baseToken}`);
+console.log("Tables:");
+for (const [name, id] of Object.entries(tables)) console.log(`  ${name}: ${id}`);
+console.log("");
+console.log(`Environment template written to ${envPath}`);
+console.log("");
+console.log("Demo portal accounts:");
+console.log("  partner@example.com / partner-demo-2026");
+console.log("  customer@example.com / customer-demo-2026");

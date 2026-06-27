@@ -2,6 +2,7 @@
 
 import { handleImageOptimization, DEFAULT_DEVICE_SIZES, DEFAULT_IMAGE_SIZES } from "vinext/server/image-optimization";
 import handler from "vinext/server/app-router-entry";
+import { handlePortalRequest } from "./portal";
 
 interface Env {
   ASSETS: Fetcher;
@@ -12,6 +13,17 @@ interface Env {
       };
     };
   };
+  FEISHU_APP_ID?: string;
+  FEISHU_APP_SECRET?: string;
+  FEISHU_BASE_APP_TOKEN?: string;
+  FEISHU_TABLE_CUSTOMERS?: string;
+  FEISHU_TABLE_VEHICLES?: string;
+  FEISHU_TABLE_INQUIRIES?: string;
+  FEISHU_TABLE_QUOTES?: string;
+  FEISHU_TABLE_NEGOTIATIONS?: string;
+  FEISHU_TABLE_ORDERS?: string;
+  PORTAL_SESSION_SECRET?: string;
+  PORTAL_COOKIE_NAME?: string;
 }
 
 interface ExecutionContext {
@@ -32,6 +44,10 @@ export default {
           return result.response();
         },
       }, allowedWidths);
+    }
+
+    if (url.pathname.startsWith("/api/portal/")) {
+      return handlePortalRequest(request, env);
     }
 
     return handler.fetch(request, env, ctx);

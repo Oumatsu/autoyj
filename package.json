@@ -9,7 +9,9 @@
     "start": "vinext start",
     "deploy": "vinext deploy",
     "check": "vinext check",
-    "lint": "vinext lint"
+    "lint": "vinext lint",
+    "setup:feishu": "node scripts/setup-feishu-base.mjs",
+    "sync:feishu-env": "node scripts/sync-feishu-env.mjs"
   },
   "dependencies": {
     "@better-auth/infra": "^0.2.11",
