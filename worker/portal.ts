@@ -205,6 +205,24 @@ function cleanUrl(value: unknown): string {
   return text.trim();
 }
 
+function normalizeAcademyCategory(category: string): string {
+  const cat = category.toLowerCase().trim();
+  if (cat === "dealer-playbook") return "playbook";
+  if (cat === "ev-fundamentals") return "fundamentals";
+  if (cat === "technical-workshop") return "workshop";
+  return cat;
+}
+
+function safeJsonParse(val: unknown, fallback: any = []): any {
+  const text = asText(val).trim();
+  if (!text) return fallback;
+  try {
+    return JSON.parse(text);
+  } catch (e) {
+    return fallback;
+  }
+}
+
 function asNumber(value: unknown) {
   const number = Number(Array.isArray(value) ? value[0] : value);
   return Number.isFinite(number) ? number : 0;
@@ -1290,7 +1308,7 @@ async function handlePublicProduct(slug: string, env: Env) {
 
   const models = await searchRecords(env, vehicleModelTableId, { pageSize: 100 });
   const modelRecord = models.find((m) => {
-    const sourceUrl = cleanUrl(m.fields["Source URL"]);
+    const sourceUrl = cleanUrl(m.fields["Source URL"]).split('?')[0].split('#')[0].trim();
     return sourceUrl.endsWith(`/${slug}`) || sourceUrl.endsWith(`/${slug}/`);
   });
 
@@ -1370,7 +1388,7 @@ async function handlePublicProduct(slug: string, env: Env) {
     }
   }
 
-  const batchLevels = JSON.parse(asText(fields.batchLevels) || "[]");
+  const batchLevels = safeJsonParse(fields.batchLevels, []);
   const batchMargin = computeBatchMargin(batchLevels);
 
   const data = {
@@ -1398,16 +1416,16 @@ async function handlePublicProduct(slug: string, env: Env) {
     stat3Value: asText(fields.stat3Value),
     whyTitle: asText(fields.whyTitle),
     whyDesc: asText(fields.whyDesc),
-    features: JSON.parse(asText(fields.features) || "[]"),
+    features: safeJsonParse(fields.features, []),
     specsLeft,
     specsRight,
-    fits: JSON.parse(asText(fields.fits) || "[]"),
-    relatedModels: JSON.parse(asText(fields.relatedModels) || "[]"),
-    tags: JSON.parse(asText(fields.tags) || "[]"),
-    galleryImages: JSON.parse(asText(fields.galleryImages) || "[]"),
+    fits: safeJsonParse(fields.fits, []),
+    relatedModels: safeJsonParse(fields.relatedModels, []),
+    tags: safeJsonParse(fields.tags, []),
+    galleryImages: safeJsonParse(fields.galleryImages, []),
     batchLevels,
     batchMargin,
-    trimData: JSON.parse(asText(fields.trimData) || "[]")
+    trimData: safeJsonParse(fields.trimData, [])
   };
 
   setCached(cacheKey, data);
@@ -1560,7 +1578,7 @@ async function handlePublicAcademyLesson(category: string, slug: string, env: En
     pageSize: 5
   });
 
-  const record = records.find(r => asText(r.fields.category).toLowerCase().trim() === category.toLowerCase().trim());
+  const record = records.find(r => normalizeAcademyCategory(asText(r.fields.category)) === normalizeAcademyCategory(category));
   if (!record || asText(record.fields.status) !== "Published") {
     return problem(`Academy lesson ${slug} in category ${category} not found`, 404);
   }
