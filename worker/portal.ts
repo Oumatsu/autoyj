@@ -37,6 +37,7 @@ type BaseRecordListResponse = {
   fields?: string[];
   record_id_list?: string[];
   has_more?: boolean;
+  page_token?: string;
   total?: number;
 };
 
@@ -440,12 +441,12 @@ async function searchRecords(
   const pageSize = options.pageSize || 100;
   const filter = normalizeBaseFilter(options.filter);
   const records: FeishuRecord[] = [];
-  let offset = 0;
+  let pageToken = "";
   for (let page = 0; page < 20; page++) {
     const query = new URLSearchParams({
       limit: String(pageSize),
-      offset: String(offset),
     });
+    if (pageToken) query.set("page_token", pageToken);
     if (filter) query.set("filter", JSON.stringify(filter));
     if (options.sort) query.set("sort", JSON.stringify(options.sort));
     const data = await feishuRequest<BaseRecordListResponse>(
@@ -455,8 +456,8 @@ async function searchRecords(
     );
     const pageRecords = normalizeBaseRecords(data);
     records.push(...pageRecords);
-    offset += pageSize;
-    if (!data.has_more && pageRecords.length < pageSize) break;
+    pageToken = data.page_token || "";
+    if (!pageToken || !data.has_more) break;
   }
   return records;
 }
@@ -651,10 +652,28 @@ function mapVehicleModel(record: FeishuRecord): PortalVehicleModel {
 
 function mapVehicleModelSpec(record: FeishuRecord): PortalVehicleModelSpec {
   const fields = record.fields;
+  let name = asText(fields["Spec Name"]);
+  
+  // Normalize English spec names to Chinese for the portal dashboard compatibility
+  const lowerName = name.toLowerCase().trim();
+  if (lowerName === "vehicle class" || lowerName === "class" || lowerName === "body type") {
+    name = "车身级别";
+  } else if (lowerName === "energy type" || lowerName === "fuel type" || lowerName === "battery type") {
+    name = "能源类型";
+  } else if (lowerName === "cltc range" || lowerName === "range" || lowerName === "cltc range (cltc)" || lowerName === "cltc range (km)" || lowerName === "range (cltc)") {
+    name = "CLTC续航";
+  } else if (lowerName === "china guide price" || lowerName === "guide price" || lowerName === "msrp china" || lowerName === "china guide price cny" || lowerName === "china guide price cn...") {
+    name = "中国官方指导价";
+  } else if (lowerName === "market position" || lowerName === "buyer logic" || lowerName === "review notes") {
+    name = "市场定位";
+  } else if (lowerName === "system power" || lowerName === "motor" || lowerName === "motor power") {
+    name = "电机总功率";
+  }
+
   return {
     modelId: asText(fields["Model ID"]),
     category: asText(fields.Category),
-    name: asText(fields["Spec Name"]),
+    name: name,
     value: asText(fields["Spec Value"]),
     unit: asText(fields.Unit),
     visibleLevel: asText(fields["Visible Level"]),
@@ -665,10 +684,84 @@ function mapVehicleModelSpec(record: FeishuRecord): PortalVehicleModelSpec {
   };
 }
 
-function enrichVehicleModelsWithSpecs(models: PortalVehicleModel[], records: FeishuRecord[]) {
-  if (!records.length) return models;
+function synthesizeSpecsFromModel(record: FeishuRecord): PortalVehicleModelSpec[] {
+  const fields = record.fields;
+  const modelId = asText(fields["Model ID"]);
+  if (!modelId) return [];
+
+  const specs: PortalVehicleModelSpec[] = [];
+
+  const msrp = asText(fields["China Guide Price CN..."]) || asText(fields["China Guide Price CNY"]) || asText(fields["MSRP China"]);
+  if (msrp) {
+    specs.push({
+      modelId,
+      category: "基本参数",
+      name: "中国官方指导价",
+      value: msrp,
+      unit: "",
+      visibleLevel: "Core",
+      sortOrder: 0,
+      sourceName: "autoYJ",
+      sourceUrl: "",
+      confidence: "High",
+    });
+  }
+
+  const range = asText(fields["CLTC Range"]) || asText(fields.Range);
+  if (range) {
+    specs.push({
+      modelId,
+      category: "电池/充电",
+      name: "CLTC续航",
+      value: range,
+      unit: "",
+      visibleLevel: "Core",
+      sortOrder: 20,
+      sourceName: "autoYJ",
+      sourceUrl: "",
+      confidence: "High",
+    });
+  }
+
+  const bodyType = asText(fields.Segment) || asText(fields["Body Type"]);
+  if (bodyType) {
+    specs.push({
+      modelId,
+      category: "基本参数",
+      name: "车身级别",
+      value: bodyType,
+      unit: "",
+      visibleLevel: "Core",
+      sortOrder: 10,
+      sourceName: "autoYJ",
+      sourceUrl: "",
+      confidence: "High",
+    });
+  }
+
+  const fuelType = asText(fields["Energy Type"]) || asText(fields["Fuel Type"]);
+  if (fuelType) {
+    specs.push({
+      modelId,
+      category: "基本参数",
+      name: "能源类型",
+      value: fuelType,
+      unit: "",
+      visibleLevel: "Core",
+      sortOrder: 15,
+      sourceName: "autoYJ",
+      sourceUrl: "",
+      confidence: "High",
+    });
+  }
+
+  return specs;
+}
+
+function enrichVehicleModelsWithSpecs(models: PortalVehicleModel[], specs: PortalVehicleModelSpec[]) {
+  if (!specs.length) return models;
   const specsByModel = new Map<string, Map<string, PortalVehicleModelSpec>>();
-  for (const spec of records.map(mapVehicleModelSpec)) {
+  for (const spec of specs) {
     if (!spec.modelId || !spec.name) continue;
     if (!specsByModel.has(spec.modelId)) specsByModel.set(spec.modelId, new Map());
     specsByModel.get(spec.modelId)!.set(spec.name, spec);
@@ -1000,8 +1093,11 @@ async function handleBootstrap(request: Request, env: Env) {
   const vehicles = vehicleRecords
     .filter((record) => asBool(record.fields["Is Listed"]))
     .map((record) => mapVehicle(record, session));
-  const vehicleModelSpecs = vehicleModelSpecRecords.map(mapVehicleModelSpec);
-  const vehicleModels = vehicleModelRecords.length ? enrichVehicleModelsWithSpecs(vehicleModelRecords.map(mapVehicleModel), vehicleModelSpecRecords) : deriveVehicleModelsFromVehicles(vehicles);
+  const vehicleModelSpecs = [
+    ...vehicleModelSpecRecords.map(mapVehicleModelSpec),
+    ...vehicleModelRecords.flatMap(synthesizeSpecsFromModel),
+  ];
+  const vehicleModels = vehicleModelRecords.length ? enrichVehicleModelsWithSpecs(vehicleModelRecords.map(mapVehicleModel), vehicleModelSpecs) : deriveVehicleModelsFromVehicles(vehicles);
   const inquiries = inquiryRecords.map(mapInquiry);
   const inquiryNos = new Set(inquiries.map((inquiry) => inquiry.inquiryNo));
 
