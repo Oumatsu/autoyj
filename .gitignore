@@ -10,3 +10,5 @@ history
 .lark-tmp
 .dev.vars.feishu.example
 .dev.vars.local
+.dev.vars
+

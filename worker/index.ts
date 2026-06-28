@@ -13,6 +13,7 @@ interface Env {
       };
     };
   };
+  FEISHU_API_URL?: string;
   FEISHU_APP_ID?: string;
   FEISHU_APP_SECRET?: string;
   FEISHU_BASE_APP_TOKEN?: string;

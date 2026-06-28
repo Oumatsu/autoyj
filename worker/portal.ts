@@ -1,6 +1,7 @@
 /// <reference types="@cloudflare/workers-types" />
 
 type Env = {
+  FEISHU_API_URL?: string;
   FEISHU_APP_ID?: string;
   FEISHU_APP_SECRET?: string;
   FEISHU_BASE_APP_TOKEN?: string;
@@ -312,6 +313,9 @@ function clearSessionCookie(env: Env, request: Request) {
 }
 
 async function feishuToken(env: Env) {
+  if (env.FEISHU_API_URL?.includes("localhost") || env.FEISHU_API_URL?.includes("127.0.0.1")) {
+    return "dummy-local-token";
+  }
   const appId = requireEnv(env, "FEISHU_APP_ID");
   const appSecret = requireEnv(env, "FEISHU_APP_SECRET");
   const now = Date.now();
@@ -321,7 +325,8 @@ async function feishuToken(env: Env) {
   if (tenantTokenCache?.appId === appId && tenantTokenCache.pending) return tenantTokenCache.pending;
 
   const pending = (async () => {
-    const response = await fetch(`${FEISHU_API}/open-apis/auth/v3/tenant_access_token/internal`, {
+    const apiBase = env.FEISHU_API_URL || FEISHU_API;
+    const response = await fetch(`${apiBase}/open-apis/auth/v3/tenant_access_token/internal`, {
       method: "POST",
       headers: { "content-type": "application/json; charset=utf-8" },
       body: JSON.stringify({
@@ -358,7 +363,8 @@ async function feishuRequest<T>(
   attempt = 0,
 ): Promise<T> {
   const token = await feishuToken(env);
-  const response = await fetch(`${FEISHU_API}${path}`, {
+  const apiBase = env.FEISHU_API_URL || FEISHU_API;
+  const response = await fetch(`${apiBase}${path}`, {
     method,
     headers: {
       authorization: `Bearer ${token}`,

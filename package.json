@@ -11,15 +11,10 @@
     "check": "vinext check",
     "lint": "vinext lint",
     "setup:feishu": "node scripts/setup-feishu-base.mjs",
+    "sync:feishu-data": "node scripts/import-frontend-to-feishu.mjs",
     "sync:feishu-env": "node scripts/sync-feishu-env.mjs"
   },
   "dependencies": {
-    "@better-auth/infra": "^0.2.11",
-    "@better-auth/passkey": "^1.6.11",
-    "@better-auth/sso": "^1.6.12",
-    "better-auth": "^1.6.11",
-    "better-auth-cloudflare": "^0.3.0",
-    "drizzle-orm": "^0.45.2",
     "imagetracerjs": "^1.2.6",
     "next": "^16.0.0",
     "potrace": "^2.1.8",
