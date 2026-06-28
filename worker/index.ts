@@ -25,6 +25,9 @@ interface Env {
   FEISHU_TABLE_ORDERS?: string;
   PORTAL_SESSION_SECRET?: string;
   PORTAL_COOKIE_NAME?: string;
+  FEISHU_TABLE_ARTICLES?: string;
+  FEISHU_TABLE_ACADEMY_LESSONS?: string;
+  FEISHU_TABLE_ACADEMY_VAULT?: string;
 }
 
 interface ExecutionContext {

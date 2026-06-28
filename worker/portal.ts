@@ -17,6 +17,9 @@ type Env = {
   FEISHU_TABLE_ORDERS?: string;
   PORTAL_SESSION_SECRET?: string;
   PORTAL_COOKIE_NAME?: string;
+  FEISHU_TABLE_ARTICLES?: string;
+  FEISHU_TABLE_ACADEMY_LESSONS?: string;
+  FEISHU_TABLE_ACADEMY_VAULT?: string;
 };
 
 type PortalRole = "admin" | "sales" | "sourcing" | "finance" | "partner" | "customer";
@@ -136,6 +139,20 @@ const SESSION_TTL_SECONDS = 60 * 60 * 12;
 const DEFAULT_COOKIE_NAME = "autoyj_portal";
 const TENANT_TOKEN_SAFETY_WINDOW_MS = 60 * 1000;
 
+// Simple in-memory cache definition in worker context
+const cacheMap = new Map<string, { value: any; expires: number }>();
+const CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes
+
+function getCached(key: string): any | null {
+  const item = cacheMap.get(key);
+  if (item && item.expires > Date.now()) return item.value;
+  return null;
+}
+
+function setCached(key: string, value: any) {
+  cacheMap.set(key, { value, expires: Date.now() + CACHE_TTL_MS });
+}
+
 let tenantTokenCache:
   | {
       appId: string;
@@ -179,6 +196,13 @@ function asText(value: unknown) {
     return String(item.text ?? item.name ?? item.value ?? item.id ?? "");
   }
   return String(value);
+}
+
+function cleanUrl(value: unknown): string {
+  const text = asText(value);
+  const mdMatch = text.match(/\[.*?\]\((.*?)\)/);
+  if (mdMatch) return mdMatch[1].trim();
+  return text.trim();
 }
 
 function asNumber(value: unknown) {
@@ -1204,11 +1228,391 @@ async function handleAcceptQuote(request: Request, env: Env, quoteNo: string) {
   return json({ orderNo }, { status: 201 });
 }
 
+function mapTagClass(category: string): string {
+  const cat = category.toLowerCase().trim();
+  if (cat === "market analysis" || cat === "product watch") {
+    return "bg-white/5 text-white border border-white/10";
+  }
+  if (cat === "operator hub" || cat === "sourcing intelligence") {
+    return "bg-accent/10 text-accent border border-accent/30";
+  }
+  if (cat === "policy & tariffs" || cat === "pricing & trade" || cat === "policy and tariffs" || cat === "pricing and trade") {
+    return "bg-gold/10 text-gold border border-gold/30";
+  }
+  return "bg-white/5 text-white border border-white/10";
+}
+
+function formatDate(isoStr: string): string {
+  if (!isoStr) return "";
+  const cleanStr = isoStr.split(" ")[0].split("T")[0];
+  const parts = cleanStr.split("-").map(Number);
+  if (parts.length !== 3 || parts.some(isNaN)) return isoStr;
+  const [year, month, day] = parts;
+  const MONTH_NAMES = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ];
+  if (month < 1 || month > 12) return isoStr;
+  return `${MONTH_NAMES[month - 1]} ${day}, ${year}`;
+}
+
+function computeBatchMargin(batchLevels: { units: number; display: string }[]) {
+  if (!batchLevels || batchLevels.length === 0) return undefined;
+  const first = batchLevels[0];
+  if (!first || !first.units) return undefined;
+  const cleaned = first.display.replace(/\s+/g, "").replace(/K/gi, "000");
+  const match = cleaned.match(/\$?([0-9,]+)[-–—]\$?([0-9,]+)/);
+  if (match) {
+    const lowVal = parseFloat(match[1].replace(/,/g, ""));
+    const highVal = parseFloat(match[2].replace(/,/g, ""));
+    if (!isNaN(lowVal) && !isNaN(highVal)) {
+      const lowPerUnit = Math.round(lowVal / first.units);
+      const highPerUnit = Math.round(highVal / first.units);
+      const formatCurrency = (val: number) => {
+        return "$" + val.toLocaleString("en-US");
+      };
+      return {
+        low: formatCurrency(lowPerUnit),
+        high: formatCurrency(highPerUnit)
+      };
+    }
+  }
+  return undefined;
+}
+
+async function handlePublicProduct(slug: string, env: Env) {
+  const cacheKey = `product:${slug}`;
+  const cached = getCached(cacheKey);
+  if (cached) return json(cached);
+
+  const vehicleModelTableId = requireEnv(env, "FEISHU_TABLE_VEHICLE_MODELS");
+  const vehicleModelSpecTableId = requireEnv(env, "FEISHU_TABLE_VEHICLE_MODEL_SPECS");
+
+  const models = await searchRecords(env, vehicleModelTableId, { pageSize: 100 });
+  const modelRecord = models.find((m) => {
+    const sourceUrl = cleanUrl(m.fields["Source URL"]);
+    return sourceUrl.endsWith(`/${slug}`) || sourceUrl.endsWith(`/${slug}/`);
+  });
+
+  if (!modelRecord) {
+    return problem(`Product ${slug} not found`, 404);
+  }
+
+  const modelId = asText(modelRecord.fields["Model ID"]);
+  const specs = await searchRecords(env, vehicleModelSpecTableId, {
+    filter: equalsFilter("Model ID", modelId),
+    pageSize: 100,
+  });
+
+  const fields = modelRecord.fields;
+  const specsLeft: { label: string; value: string }[] = [];
+  const specsRight: { label: string; value: string }[] = [];
+
+  const sortedSpecs = specs
+    .map(mapVehicleModelSpec)
+    .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
+
+  for (const s of sortedSpecs) {
+    const spec = { label: s.name, value: s.value };
+    if (s.visibleLevel?.toLowerCase() === "core") {
+      specsLeft.push(spec);
+    } else if (s.visibleLevel?.toLowerCase() === "standard") {
+      specsRight.push(spec);
+    }
+  }
+
+  const sourceUrl = asText(fields["Source URL"]);
+  const parts = sourceUrl.split("/");
+  let category = "revenue-king";
+  const catIdx = parts.indexOf("products");
+  if (catIdx !== -1 && catIdx + 1 < parts.length) {
+    category = parts[catIdx + 1];
+  }
+
+  const valueForSpec = (names: string[]) => {
+    for (const name of names) {
+      const found = sortedSpecs.find((s) => s.name === name);
+      if (found?.value) return found.unit ? `${found.value} ${found.unit}`.trim() : found.value;
+    }
+    return "";
+  };
+
+  const brand = asText(fields["Brand"]);
+  const modelName = asText(fields["Model"]);
+  const msrpChina = asText(fields["China Guide Price CNY"]) || asText(fields["MSRP China"]);
+
+  const battery = asText(fields["Battery Capacity"]) || asText(fields.Battery) || valueForSpec(["电池容量"]);
+  const batteryType = asText(fields["Battery Type"]) || valueForSpec(["电池类型"]);
+  const range = asText(fields["CLTC Range"]) || asText(fields.Range) || valueForSpec(["CLTC续航"]);
+  const charging = asText(fields.Charging) || valueForSpec(["充电说明", "快充时间 30-80%", "快充峰值功率"]);
+  const imageUrl = asText(fields["Image URL"]);
+
+  let status = "in-stock";
+  let statusText = "In Stock: Shenzhen";
+  const vehiclesTableId = optionalEnv(env, "FEISHU_TABLE_VEHICLES");
+  if (vehiclesTableId) {
+    const vehicles = await searchRecords(env, vehiclesTableId, {
+      filter: equalsFilter("Model ID", modelId),
+      pageSize: 10,
+    });
+    const activeVehicle = vehicles.find(v => asBool(v.fields["Is Listed"])) || vehicles[0];
+    if (activeVehicle) {
+      const vStatus = asText(activeVehicle.fields.Status).toLowerCase();
+      const location = asText(activeVehicle.fields.Location);
+      const leadTime = asText(activeVehicle.fields["Lead Time"]);
+      if (vStatus.includes("in stock") || vStatus.includes("stock")) {
+        status = "in-stock";
+        statusText = `In Stock: ${location || "Shenzhen"}`;
+      } else {
+        status = "factory";
+        statusText = leadTime ? `Factory Order: ${leadTime}` : "Factory Order: 21 Days";
+      }
+    }
+  }
+
+  const batchLevels = JSON.parse(asText(fields.batchLevels) || "[]");
+  const batchMargin = computeBatchMargin(batchLevels);
+
+  const data = {
+    vehicle: {
+      brand,
+      name: modelName,
+      fob: msrpChina,
+      battery,
+      batteryType,
+      range,
+      charging,
+      img: imageUrl,
+      status,
+      statusText
+    },
+    category,
+    title: asText(fields.title) || `${brand} ${modelName}`,
+    subtitle: asText(fields.subtitle) || asText(fields.Version) || "",
+    heroDesc: asText(fields.heroDesc) || asText(fields["Review Notes"]) || "",
+    stat1Label: asText(fields.stat1Label),
+    stat1Value: asText(fields.stat1Value),
+    stat2Label: asText(fields.stat2Label),
+    stat2Value: asText(fields.stat2Value),
+    stat3Label: asText(fields.stat3Label),
+    stat3Value: asText(fields.stat3Value),
+    whyTitle: asText(fields.whyTitle),
+    whyDesc: asText(fields.whyDesc),
+    features: JSON.parse(asText(fields.features) || "[]"),
+    specsLeft,
+    specsRight,
+    fits: JSON.parse(asText(fields.fits) || "[]"),
+    relatedModels: JSON.parse(asText(fields.relatedModels) || "[]"),
+    tags: JSON.parse(asText(fields.tags) || "[]"),
+    galleryImages: JSON.parse(asText(fields.galleryImages) || "[]"),
+    batchLevels,
+    batchMargin,
+    trimData: JSON.parse(asText(fields.trimData) || "[]")
+  };
+
+  setCached(cacheKey, data);
+  return json(data);
+}
+
+async function handlePublicInsights(env: Env) {
+  const cacheKey = "insights";
+  const cached = getCached(cacheKey);
+  if (cached) return json(cached);
+
+  const articlesTableId = requireEnv(env, "FEISHU_TABLE_ARTICLES");
+  const records = await searchRecords(env, articlesTableId, { pageSize: 100 });
+
+  const published = records.filter(r => asText(r.fields.status) === "Published");
+
+  const articles = published.map((r, index) => {
+    const fields = r.fields;
+    const coverImageFullPath = asText(fields.cover_image);
+    const coverImage = coverImageFullPath.split("/").pop() || "hero.webp";
+    const publishDate = asText(fields.publish_date);
+
+    return {
+      title: asText(fields.title),
+      category: asText(fields.category),
+      tagClass: mapTagClass(asText(fields.category)),
+      date: formatDate(publishDate),
+      sortDate: publishDate,
+      readTime: asText(fields.read_time),
+      slug: asText(fields.slug),
+      coverImage,
+      sortOrder: index + 1,
+      overview: asText(fields.overview)
+    };
+  });
+
+  setCached(cacheKey, articles);
+  return json(articles);
+}
+
+async function handlePublicInsight(slug: string, env: Env) {
+  const cacheKey = `insight:${slug}`;
+  const cached = getCached(cacheKey);
+  if (cached) return json(cached);
+
+  const articlesTableId = requireEnv(env, "FEISHU_TABLE_ARTICLES");
+  const records = await searchRecords(env, articlesTableId, {
+    filter: equalsFilter("slug", slug),
+    pageSize: 5
+  });
+
+  const record = records[0];
+  if (!record || asText(record.fields.status) !== "Published") {
+    return problem(`Insight ${slug} not found`, 404);
+  }
+
+  const fields = record.fields;
+  const coverImageFullPath = asText(fields.cover_image);
+  const coverImage = coverImageFullPath.split("/").pop() || "hero.webp";
+  const publishDate = asText(fields.publish_date);
+
+  const data = {
+    title: asText(fields.title),
+    category: asText(fields.category),
+    tagClass: mapTagClass(asText(fields.category)),
+    date: formatDate(publishDate),
+    sortDate: publishDate,
+    readTime: asText(fields.read_time),
+    slug: asText(fields.slug),
+    coverImage,
+    overview: asText(fields.overview),
+    content: asText(fields.content)
+  };
+
+  setCached(cacheKey, data);
+  return json(data);
+}
+
+async function handlePublicAcademy(env: Env) {
+  const cacheKey = "academy";
+  const cached = getCached(cacheKey);
+  if (cached) return json(cached);
+
+  const lessonsTableId = requireEnv(env, "FEISHU_TABLE_ACADEMY_LESSONS");
+  const vaultTableId = requireEnv(env, "FEISHU_TABLE_ACADEMY_VAULT");
+
+  const [lessonsRecords, vaultRecords] = await Promise.all([
+    searchRecords(env, lessonsTableId, { pageSize: 100 }),
+    searchRecords(env, vaultTableId, { pageSize: 100 })
+  ]);
+
+  const publishedLessons = lessonsRecords.filter(r => asText(r.fields.status) === "Published");
+
+  const fundamentals: any[] = [];
+  const playbook: any[] = [];
+  const workshop: any[] = [];
+
+  for (const r of publishedLessons) {
+    const fields = r.fields;
+    const cat = asText(fields.category).toLowerCase().trim();
+    const lesson = {
+      title: asText(fields.title),
+      tag: asText(fields.tag),
+      slug: asText(fields.slug),
+      desc: asText(fields.description),
+      img: asText(fields.cover_image)
+    };
+
+    if (cat === "fundamentals") {
+      fundamentals.push(lesson);
+    } else if (cat === "playbook") {
+      playbook.push(lesson);
+    } else if (cat === "workshop") {
+      workshop.push(lesson);
+    }
+  }
+
+  const vault = vaultRecords.map(r => {
+    const fields = r.fields;
+    return {
+      title: asText(fields.title),
+      type: asText(fields.type),
+      desc: asText(fields.description),
+      size: asText(fields.size) || "2.4 MB",
+      downloadLink: asText(fields.download_link) || "/qr"
+    };
+  });
+
+  const data = {
+    lessons: {
+      fundamentals,
+      playbook,
+      workshop
+    },
+    vault
+  };
+
+  setCached(cacheKey, data);
+  return json(data);
+}
+
+async function handlePublicAcademyLesson(category: string, slug: string, env: Env) {
+  const cacheKey = `academy:${category}:${slug}`;
+  const cached = getCached(cacheKey);
+  if (cached) return json(cached);
+
+  const lessonsTableId = requireEnv(env, "FEISHU_TABLE_ACADEMY_LESSONS");
+  const records = await searchRecords(env, lessonsTableId, {
+    filter: equalsFilter("slug", slug),
+    pageSize: 5
+  });
+
+  const record = records.find(r => asText(r.fields.category).toLowerCase().trim() === category.toLowerCase().trim());
+  if (!record || asText(record.fields.status) !== "Published") {
+    return problem(`Academy lesson ${slug} in category ${category} not found`, 404);
+  }
+
+  const fields = record.fields;
+  const data = {
+    title: asText(fields.title),
+    category: asText(fields.category),
+    tag: asText(fields.tag),
+    desc: asText(fields.description),
+    img: asText(fields.cover_image),
+    content: asText(fields.content)
+  };
+
+  setCached(cacheKey, data);
+  return json(data);
+}
+
 export async function handlePortalRequest(request: Request, env: Env) {
   const url = new URL(request.url);
   const path = url.pathname;
 
   try {
+    if (path.startsWith("/api/portal/public/")) {
+      if (path === "/api/portal/public/insights" && request.method === "GET") {
+        return await handlePublicInsights(env);
+      }
+      const insightMatch = path.match(/^\/api\/portal\/public\/insights\/([^/]+)$/);
+      if (insightMatch && request.method === "GET") {
+        return await handlePublicInsight(decodeURIComponent(insightMatch[1]), env);
+      }
+      const productMatch = path.match(/^\/api\/portal\/public\/products\/([^/]+)$/);
+      if (productMatch && request.method === "GET") {
+        return await handlePublicProduct(decodeURIComponent(productMatch[1]), env);
+      }
+      if (path === "/api/portal/public/academy" && request.method === "GET") {
+        return await handlePublicAcademy(env);
+      }
+      const academyLessonMatch = path.match(/^\/api\/portal\/public\/academy\/([^/]+)\/([^/]+)$/);
+      if (academyLessonMatch && request.method === "GET") {
+        return await handlePublicAcademyLesson(
+          decodeURIComponent(academyLessonMatch[1]),
+          decodeURIComponent(academyLessonMatch[2]),
+          env,
+        );
+      }
+    }
+    if (path === "/api/portal/webhook/sync" && request.method === "POST") {
+      cacheMap.clear();
+      return json({ ok: true, cleared: true });
+    }
+
     if (path === "/api/portal/dev-session" && request.method === "POST") {
       return await handleDevLogin(request, env);
     }
