@@ -441,12 +441,12 @@ async function searchRecords(
   const pageSize = options.pageSize || 100;
   const filter = normalizeBaseFilter(options.filter);
   const records: FeishuRecord[] = [];
-  let pageToken = "";
+  let offset = 0;
   for (let page = 0; page < 20; page++) {
     const query = new URLSearchParams({
       limit: String(pageSize),
+      offset: String(offset),
     });
-    if (pageToken) query.set("page_token", pageToken);
     if (filter) query.set("filter", JSON.stringify(filter));
     if (options.sort) query.set("sort", JSON.stringify(options.sort));
     const data = await feishuRequest<BaseRecordListResponse>(
@@ -456,8 +456,8 @@ async function searchRecords(
     );
     const pageRecords = normalizeBaseRecords(data);
     records.push(...pageRecords);
-    pageToken = data.page_token || "";
-    if (!pageToken || !data.has_more) break;
+    offset += pageSize;
+    if (!data.has_more || pageRecords.length < pageSize) break;
   }
   return records;
 }
