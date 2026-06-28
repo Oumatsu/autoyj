@@ -211,7 +211,7 @@ export function Footer() {
                 </li>
                 <li>
                   <Link
-                    href="/company"
+                    href="/about#verification"
                     className="hover:text-white transition"
                   >
                     Company Verification
