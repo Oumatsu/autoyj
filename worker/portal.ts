@@ -150,8 +150,10 @@ function getCached(key: string): any | null {
   return null;
 }
 
-function setCached(key: string, value: any) {
-  cacheMap.set(key, { value, expires: Date.now() + CACHE_TTL_MS });
+function setCached(key: string, value: any, env?: Env) {
+  const isDev = env?.DEV === true || (typeof process !== "undefined" && process?.env?.NODE_ENV === "development");
+  const ttl = isDev ? 2000 : CACHE_TTL_MS;
+  cacheMap.set(key, { value, expires: Date.now() + ttl });
 }
 
 let tenantTokenCache:
@@ -1524,7 +1526,7 @@ async function handlePublicProduct(slug: string, env: Env) {
     trimData: safeJsonParse(fields.trimData, [])
   };
 
-  setCached(cacheKey, data);
+  setCached(cacheKey, data, env);
   return json(data);
 }
 
@@ -1678,7 +1680,7 @@ async function handlePublicProducts(env: Env) {
     };
   });
 
-  setCached(cacheKey, products);
+  setCached(cacheKey, products, env);
   return json(products);
 }
 
@@ -1713,7 +1715,7 @@ async function handlePublicInsights(env: Env) {
     };
   });
 
-  setCached(cacheKey, articles);
+  setCached(cacheKey, articles, env);
   return json(articles);
 }
 
@@ -1751,7 +1753,7 @@ async function handlePublicInsight(slug: string, env: Env) {
     content: asText(fields.content)
   };
 
-  setCached(cacheKey, data);
+  setCached(cacheKey, data, env);
   return json(data);
 }
 
@@ -1814,7 +1816,7 @@ async function handlePublicAcademy(env: Env) {
     vault
   };
 
-  setCached(cacheKey, data);
+  setCached(cacheKey, data, env);
   return json(data);
 }
 
@@ -1844,7 +1846,7 @@ async function handlePublicAcademyLesson(category: string, slug: string, env: En
     content: asText(fields.content)
   };
 
-  setCached(cacheKey, data);
+  setCached(cacheKey, data, env);
   return json(data);
 }
 
