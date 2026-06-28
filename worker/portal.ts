@@ -615,7 +615,7 @@ function mapVehicleModel(record: FeishuRecord): PortalVehicleModel {
     year: asText(fields.Year),
     bodyType: asText(fields.Segment) || asText(fields["Body Type"]),
     fuelType: asText(fields["Energy Type"]) || asText(fields["Fuel Type"]),
-    msrpChina: asText(fields["China Guide Price CNY"]) || asText(fields["MSRP China"]),
+    msrpChina: asText(fields["China Guide Price CN..."]) || asText(fields["China Guide Price CNY"]) || asText(fields["MSRP China"]),
     battery: asText(fields["Battery Capacity"]) || asText(fields.Battery),
     batteryType: asText(fields["Battery Type"]),
     batteryMaker: asText(fields["Battery Maker"]),
@@ -1357,12 +1357,12 @@ async function handlePublicProduct(slug: string, env: Env) {
 
   const brand = asText(fields["Brand"]);
   const modelName = asText(fields["Model"]);
-  const msrpChina = asText(fields["China Guide Price CNY"]) || asText(fields["MSRP China"]);
+  const msrpChina = asText(fields["China Guide Price CN..."]) || asText(fields["China Guide Price CNY"]) || asText(fields["MSRP China"]);
 
-  const battery = asText(fields["Battery Capacity"]) || asText(fields.Battery) || valueForSpec(["电池容量"]);
-  const batteryType = asText(fields["Battery Type"]) || valueForSpec(["电池类型"]);
-  const range = asText(fields["CLTC Range"]) || asText(fields.Range) || valueForSpec(["CLTC续航"]);
-  const charging = asText(fields.Charging) || valueForSpec(["充电说明", "快充时间 30-80%", "快充峰值功率"]);
+  const battery = asText(fields["Battery Capacity"]) || asText(fields.Battery) || valueForSpec(["Battery Capacity", "电池容量"]);
+  const batteryType = asText(fields["Battery Type"]) || valueForSpec(["Battery Type", "电池类型"]);
+  const range = asText(fields["CLTC Range"]) || asText(fields.Range) || valueForSpec(["Range (CLTC)", "Range", "CLTC Range", "CLTC续航"]);
+  const charging = asText(fields.Charging) || valueForSpec(["DC Fast Charge", "AC Slow Charge", "Charging", "充电说明", "快充时间 30-80%", "快充峰值功率"]);
   const imageUrl = asText(fields["Image URL"]);
 
   let status = "in-stock";
