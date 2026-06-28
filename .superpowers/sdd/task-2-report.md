@@ -2,16 +2,20 @@
 
 ## Execution Details
 * **Status**: DONE
-* **Commit**: `f0a4f3cc4c03b12ea66e133d1c9ef16eb47ec158`
+* **Commit**: `dfc2bc203a09a2534ae271b8cea58bda3a917a79`
 * **Verification Status**:
-  - GET `/api/portal/public/products/byd-seal`: 200 OK (returns full specs mapped from Feishu Bitable)
+  - GET `/api/portal/public/products/byd-seagull`: 200 OK (returns full specs mapped from Feishu Bitable)
   - GET `/api/portal/public/insights`: 200 OK (returns article index metadata)
-  - GET `/api/portal/public/insights/byd-south-africa-expansion-2026`: 200 OK (returns full article detail)
+  - GET `/api/portal/public/insights/byd-seagull-landed-cost-ethiopia`: 200 OK (returns full article detail)
   - GET `/api/portal/public/academy`: 200 OK (returns lessons and vault items)
   - GET `/api/portal/public/academy/playbook/ev-objections-african-dealers`: 200 OK (returns lesson details)
   - POST `/api/portal/webhook/sync`: 200 OK (clears edge cache map)
 
 ## Implementation Details
+0. **Data Sourcing Refinement**:
+   - Added robust helper `cleanUrl` to normalize URLs from Feishu markdown link outputs (stripping query parameters and hash anchors).
+   - Added bilingual support for specification keys (e.g., mapping `Battery Capacity` -> `电池容量`, `Range (CLTC)` -> `CLTC续航`) to handle imported English and Chinese dataset keys seamlessly.
+   - Integrated `safeJsonParse` and `normalizeAcademyCategory` to safeguard JSON parsing and standardize category-based routing.
 1. **Public API Endpoint Routing**:
    - Mapped all requested public endpoints prefixing with `/api/portal/public/` inside the Worker handler `handlePortalRequest` in [worker/portal.ts](file:///Users/a12/projects/autoyj/worker/portal.ts).
    - Dynamic parameters (e.g. `:slug`, `:category`) are safely parsed using regular expressions on paths.
