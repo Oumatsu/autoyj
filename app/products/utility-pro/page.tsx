@@ -1,6 +1,6 @@
-﻿"use client";
+"use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { vehicles, specLabels } from "./data";
 
@@ -48,10 +48,43 @@ function parseRangeNum(range: string): number {
 }
 
 export default function UtilityProPage() {
+  const [products, setProducts] = useState<any[] | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [sortBy, setSortBy] = useState<"default" | "price_low" | "price_high" | "range_high" | "range_low">("default");
   const [search, setSearch] = useState("");
   const [activeFilters, setActiveFilters] = useState<Record<string, Set<string>>>({});
+
+  useEffect(() => {
+    fetch("/api/portal/public/products")
+      .then((res) => {
+        if (!res.ok) throw new Error();
+        return res.json();
+      })
+      .then((data) => {
+        const filtered = data.filter((p: any) => p.category === "utility-pro");
+        const mapped = filtered.map((p: any) => {
+          const fallback = vehicles.find((v) => v.name.toLowerCase() === p.name.toLowerCase() || p.slug.includes(v.name.toLowerCase()));
+          return {
+            brand: p.brand,
+            name: p.name,
+            fob: p.fob || (fallback ? fallback.fob : ""),
+            battery: p.battery || (fallback ? fallback.battery : ""),
+            batteryType: p.tags?.find((t: string) => t.includes("LFP") || t.includes("NCM")) || (fallback ? fallback.batteryType : ""),
+            range: p.range || (fallback ? fallback.range : ""),
+            charging: p.charging || p.desc || (fallback ? fallback.charging : ""),
+            img: p.img || (fallback ? fallback.img : ""),
+            status: fallback ? fallback.status : "factory",
+            statusText: fallback ? fallback.statusText : "Factory Order: 21 Days",
+            link: p.link || (fallback ? fallback.link : `/products/utility-pro/${p.slug}`),
+            tags: p.tags && p.tags.length ? p.tags : (fallback ? fallback.tags : []),
+          };
+        });
+        setProducts(mapped);
+      })
+      .catch(() => {});
+  }, []);
+
+  const displayVehicles = products || vehicles;
 
   const handleFilterToggle = useCallback((group: string, label: string) => {
     setActiveFilters(prev => {
@@ -71,7 +104,7 @@ export default function UtilityProPage() {
   }, []);
 
   const sortedVehicles = useMemo(() => {
-    const sorted = [...vehicles];
+    const sorted = [...displayVehicles];
     switch (sortBy) {
       case "default":
         break;
@@ -89,7 +122,7 @@ export default function UtilityProPage() {
         break;
     }
     return sorted;
-  }, [sortBy]);
+  }, [displayVehicles, sortBy]);
 
   const filteredVehicles = useMemo(() => {
     let result = sortedVehicles;
