@@ -241,6 +241,11 @@ export default function EthiopiaMarketPage() {
                 Djibouti, the new Addis-Djibouti railway provides seamless
                 inland transport to the capital.
               </p>
+              <p className="text-sm text-gray-500 font-light italic leading-relaxed mb-8 border-l-2 border-accent/30 pl-5">
+                For Ethiopian importers, we support LC, CAD, and TT advance
+                payment workflows, including franco-valuta structures when the
+                shipment requires local bank and foreign-exchange coordination.
+              </p>
               <Link
                 href="/contact"
                 className="btn-primary px-9 py-4 rounded text-xs font-black tracking-widest uppercase italic shadow-lg"

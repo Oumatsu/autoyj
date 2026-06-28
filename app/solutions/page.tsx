@@ -426,6 +426,16 @@ export default function SolutionsPage() {
                 documents — you pay the majority only when your vehicles are
                 already on the water.
               </p>
+              <div className="mb-8 rounded-2xl border border-accent/25 bg-accent/5 px-5 py-4">
+                <div className="text-[9px] font-black uppercase tracking-[0.22em] text-accent mb-2">
+                  Payment & Forex Support
+                </div>
+                <p className="text-sm text-gray-400 font-light leading-relaxed">
+                  We support Letter of Credit (LC), Cash Against Documents
+                  (CAD), and TT advance payments, and can coordinate
+                  franco-valuta structures where required.
+                </p>
+              </div>
               <Link
                 href="/contact"
                 className="btn-primary px-9 py-4 rounded text-xs font-black tracking-widest uppercase italic shadow-lg"

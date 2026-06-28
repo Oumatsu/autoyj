@@ -141,10 +141,34 @@ export function Footer() {
               <ul className="space-y-3 text-xs text-gray-600 font-light">
                 <li>
                   <Link
-                    href="/solutions"
+                    href="/solutions#pdi"
                     className="hover:text-white transition"
                   >
-                    Export Solutions Overview
+                    PDI &amp; Quality
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/solutions#parts"
+                    className="hover:text-white transition"
+                  >
+                    Starter Parts Kit
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/solutions#marketing"
+                    className="hover:text-white transition"
+                  >
+                    Marketing Assets
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/solutions/request-quote"
+                    className="hover:text-white transition"
+                  >
+                    Custom Sourcing
                   </Link>
                 </li>
               </ul>
