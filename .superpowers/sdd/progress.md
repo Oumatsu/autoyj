@@ -1,6 +1,6 @@
 # Progress Ledger
 
-* Task 1: pending
+* Task 1: complete (commits 185e95d..2de9033, review clean)
 * Task 2: pending
 * Task 3: pending
 * Task 4: pending
