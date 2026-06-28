@@ -1,128 +1,46 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState, useRef, useCallback } from "react";
 import Link from "next/link";
 
 const tabSectionIds = ["hero", "fundamentals", "playbook", "workshop", "vault"];
 
-const fundamentalsArticles = [
-  {
-    title: "High Altitude and Dust in Ethiopia: How They Affect Your EV",
-    tag: "Battery Tech",
-    slug: "high-altitude-dust-ethiopia-ev",
-    desc: "Understanding how high altitude and dust affect EVs in Ethiopia is essential knowledge for any dealer or technician.",
-    img: "/pic/academy/photo-1527853787696-f7be74f2e39a.webp",
-  },
-  {
-    title: "EV Range Explained: Why the Spec Sheet Number Doesn't Apply in Africa",
-    tag: "Infrastructure",
-    slug: "ev-range-explained-africa",
-    desc: "The range figure on a Chinese EV's spec sheet is not the range your customer will experience in Africa.",
-    img: "/pic/academy/photo-1518770660439-4636190af475.webp",
-  },
-  {
-    title: "How EV Batteries Degrade: What African Dealers Need to Understand",
-    tag: "TCO Analysis",
-    slug: "how-ev-batteries-degrade",
-    desc: "Battery degradation is the most common customer concern — and the most misunderstood by dealers.",
-    img: "/pic/academy/photo-1559136555-9303baea8ebd.webp",
-  },
-];
-
-const playbookArticles = [
-  {
-    title: "The 5 EV Objections Every African Dealer Will Face",
-    tag: "Objection Handling",
-    slug: "ev-objections-african-dealers",
-    desc: "Battery life, charging, parts, resale, price — the five objections that account for most stalled EV deals.",
-  },
-  {
-    title: "The TCO Conversation Guide: How to Win EV Sales on Total Cost",
-    tag: "Fleet Pitch",
-    slug: "tco-conversation-guide",
-    desc: "The TCO conversation is the most powerful tool an EV dealer has in Africa.",
-  },
-  {
-    title: "How to Run an EV Test Drive That Closes Deals",
-    tag: "Showroom SOP",
-    slug: "ev-test-drive-guide",
-    desc: "A well-structured 20-minute drive converts more fence-sitters than any amount of objection handling.",
-  },
-];
-
-const workshopArticles = [
-  {
-    title: "High Voltage Safety Rules for EV Technicians",
-    tag: "High Voltage",
-    slug: "high-voltage-safety-ev-technicians",
-    desc: "The non-negotiable safety protocol for any workshop servicing Chinese EVs.",
-    img: "/pic/academy/photo-1581092160562-40aa08e78837.webp",
-  },
-  {
-    title: "Chinese EV Diagnostic Tools: What Actually Works",
-    tag: "Diagnostics",
-    slug: "chinese-ev-diagnostic-tools",
-    desc: "LAUNCH X431 vs AUTEL vs brand-specific — what to buy and what to skip.",
-    img: "/pic/academy/photo-1486312338219-ce68d2c6f44d.webp",
-  },
-  {
-    title: "The 12V Auxiliary Battery: Why It Fails, How to Fix It",
-    tag: "Diagnostics",
-    slug: "12v-auxiliary-battery-ev",
-    desc: "The single most common cause of 'dead EV' complaints — and the easiest to fix.",
-    img: "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?auto=format&fit=crop&w=800&q=80",
-  },
-  {
-    title: "EV Won't Charge: Troubleshooting Guide",
-    tag: "Diagnostics",
-    slug: "ev-wont-charge-troubleshooting",
-    desc: "Most charging faults are caused by one of six root causes.",
-    img: "/pic/academy/photo-1473341304170-971dccb5ac1e.webp",
-  },
-  {
-    title: "Common Fault Patterns in Chinese EVs in Ethiopia",
-    tag: "Field Reference",
-    slug: "common-fault-patterns-ethiopia",
-    desc: "Altitude, dust, grid instability — fault patterns that don't appear in OEM documentation.",
-    img: "/pic/academy/photo-1504328345606-18bbc8c9d7d1.webp",
-  },
-  {
-    title: "Voltage Fluctuation and EV Charging in Ethiopia",
-    tag: "Field Reference",
-    slug: "voltage-fluctuation-ev-charger-ethiopia",
-    desc: "Grid voltage is one of the most underappreciated causes of EV charging faults.",
-    img: "/pic/academy/photo-1581092160562-40aa08e78837.webp",
-  },
-];
-
-const vaultItems = [
-  {
-    type: "Excel Model",
-    title: "2026 Fleet ROI Calculator",
-    desc: "Plug in local electricity rates and petrol prices to instantly generate a 5-year cost comparison for your commercial clients.",
-  },
-  {
-    type: "PDF Checklist",
-    title: "The 50-Point Factory PDI",
-    desc: "The exact Pre-Delivery Inspection checklist our engineers use in Shanghai before loading your vehicles into the container.",
-  },
-  {
-    type: "PDF Whitepaper",
-    title: "Africa RHD Import Guide",
-    desc: "A comprehensive breakdown of which Chinese factories are producing true Right-Hand Drive models and their export availability.",
-  },
-];
-
 export default function AcademyPage() {
   const tabBarRef = useRef<HTMLDivElement>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
   const heroRef = useRef<HTMLElement>(null);
+
+  const [fundamentalsArticles, setFundamentalsArticles] = useState<any[]>([]);
+  const [playbookArticles, setPlaybookArticles] = useState<any[]>([]);
+  const [workshopArticles, setWorkshopArticles] = useState<any[]>([]);
+  const [vaultItems, setVaultItems] = useState<any[]>([]);
 
   const syncTabTop = useCallback(() => {
     const navbar = document.getElementById("navbar");
     const tabBar = tabBarRef.current;
     if (!tabBar || !navbar) return;
     tabBar.style.top = navbar.offsetHeight - 1 + "px";
+  }, []);
+
+  useEffect(() => {
+    fetch("/api/portal/public/academy")
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to load");
+        return res.json();
+      })
+      .then((data) => {
+        if (data?.lessons) {
+          setFundamentalsArticles(data.lessons.fundamentals || []);
+          setPlaybookArticles(data.lessons.playbook || []);
+          setWorkshopArticles(data.lessons.workshop || []);
+        }
+        if (data?.vault) {
+          setVaultItems(data.vault || []);
+        }
+      })
+      .catch((err) => {
+        console.error("Error loading academy Bitable data:", err);
+      });
   }, []);
 
   useEffect(() => {

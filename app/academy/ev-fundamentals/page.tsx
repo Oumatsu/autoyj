@@ -1,4 +1,7 @@
-﻿import Link from "next/link";
+"use client";
+
+import { useEffect, useState } from "react";
+import Link from "next/link";
 
 const IMGS = [
   "https://images.unsplash.com/photo-1527853787696-f7be74f2e39a?auto=format&fit=crop&w=600&q=80",
@@ -6,13 +9,34 @@ const IMGS = [
   "/pic/academy/photo-1559136555-9303baea8ebd.webp",
 ];
 
-const articles = [
-  { title: "High Altitude and Dust in Ethiopia: How They Affect Your EV", date: "May 16, 2026", readTime: "9 min", slug: "high-altitude-dust-ethiopia-ev", overview: "Understanding how high altitude and dust affect EVs in Ethiopia is essential knowledge for any dealer or technician." },
-  { title: "EV Range Explained: Why the Spec Sheet Number Doesn't Apply in Africa", date: "May 17, 2026", readTime: "7 min", slug: "ev-range-explained-africa", overview: "The range figure on a Chinese EV's spec sheet is not the range your customer will experience in Africa." },
-  { title: "How EV Batteries Degrade: What African Dealers Need to Understand and Tell Customers", date: "May 17, 2026", readTime: "8 min", slug: "how-ev-batteries-degrade", overview: "Battery degradation is the most common customer concern — and the most misunderstood." },
-];
+const getReadTime = (slug: string) => {
+  if (slug.includes("range")) return "7 min";
+  if (slug.includes("degrade")) return "8 min";
+  return "9 min";
+};
+
+const getDate = (slug: string) => {
+  if (slug.includes("range")) return "May 17, 2026";
+  return "May 16, 2026";
+};
 
 export default function EvFundamentalsPage() {
+  const [articles, setArticles] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch("/api/portal/public/academy")
+      .then((res) => {
+        if (!res.ok) throw new Error();
+        return res.json();
+      })
+      .then((data) => {
+        if (data?.lessons?.fundamentals) {
+          setArticles(data.lessons.fundamentals);
+        }
+      })
+      .catch((err) => console.error("Failed to fetch EV Fundamentals:", err));
+  }, []);
+
   return (
     <>
       <header className="pt-32 pb-16 bg-a relative z-10">
@@ -33,17 +57,17 @@ export default function EvFundamentalsPage() {
           <div className="max-w-3xl mx-auto space-y-6">
             {articles.map((a, i) => (
               <Link key={a.slug} href={`/academy/ev-fundamentals/${a.slug}`} className="glass rounded-[1.5rem] p-8 block hover:border-green/30 transition-all duration-300 group relative overflow-hidden">
-                <img src={IMGS[i]} className="absolute inset-0 w-full h-full object-cover z-0 transition-transform duration-500 group-hover:scale-105" style={{ filter: "brightness(0.35)" }} alt="" />
+                <img src={a.img || IMGS[i % IMGS.length]} className="absolute inset-0 w-full h-full object-cover z-0 transition-transform duration-500 group-hover:scale-105" style={{ filter: "brightness(0.35)" }} alt="" />
                 <div className="absolute inset-0 bg-gradient-to-t from-bg via-bg/60 to-transparent z-[1]" />
                 <div className="relative z-10">
-                <div className="flex items-center gap-3 mb-3">
-                  <span className="text-[10px] font-black text-gray-500 uppercase tracking-wider">0{i + 1}</span>
-                  <span className="text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider" style={{ background: "rgba(16,185,129,.1)", color: "var(--color-green)", border: "1px solid rgba(16,185,129,.3)" }}>EV Fundamentals</span>
-                  <span className="text-[9px] text-gray-600">{a.readTime}</span>
-                </div>
-                <h2 className="text-xl font-black italic text-white uppercase tracking-tight mb-2 group-hover:text-accent transition-colors">{a.title}</h2>
-                <p className="text-gray-300 text-sm font-light leading-relaxed mb-3">{a.overview}</p>
-                <span className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider">{a.date}</span>
+                  <div className="flex items-center gap-3 mb-3">
+                    <span className="text-[10px] font-black text-gray-500 uppercase tracking-wider">0{i + 1}</span>
+                    <span className="text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider" style={{ background: "rgba(16,185,129,.1)", color: "var(--color-green)", border: "1px solid rgba(16,185,129,.3)" }}>EV Fundamentals</span>
+                    <span className="text-[9px] text-gray-600">{getReadTime(a.slug)}</span>
+                  </div>
+                  <h2 className="text-xl font-black italic text-white uppercase tracking-tight mb-2 group-hover:text-accent transition-colors">{a.title}</h2>
+                  <p className="text-gray-300 text-sm font-light leading-relaxed mb-3">{a.desc}</p>
+                  <span className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider">{getDate(a.slug)}</span>
                 </div>
               </Link>
             ))}
