@@ -1432,6 +1432,161 @@ async function handlePublicProduct(slug: string, env: Env) {
   return json(data);
 }
 
+async function handlePublicProducts(env: Env) {
+  const cacheKey = "public-products";
+  const cached = getCached(cacheKey);
+  if (cached) return json(cached);
+
+  const vehicleModelTableId = requireEnv(env, "FEISHU_TABLE_VEHICLE_MODELS");
+  const models = await searchRecords(env, vehicleModelTableId, { pageSize: 100 });
+
+  const activeModels = models.filter((m) => asText(m.fields.Status) !== "Inactive");
+
+  const products = activeModels.map((m) => {
+    const fields = m.fields;
+    const brand = asText(fields["Brand"]);
+    const modelName = asText(fields["Model"]);
+    const msrpChina = asText(fields["China Guide Price CN..."]) || asText(fields["China Guide Price CNY"]) || asText(fields["MSRP China"]);
+
+    const battery = asText(fields["Battery Capacity"]) || asText(fields.Battery);
+    const batteryType = asText(fields["Battery Type"]);
+    const range = asText(fields["CLTC Range"]) || asText(fields.Range);
+    const charging = asText(fields.Charging);
+    const imageUrl = asText(fields["Image URL"]);
+
+    const sourceUrl = cleanUrl(fields["Source URL"]);
+    const parts = sourceUrl.split("/");
+    let category = "revenue-king";
+    const catIdx = parts.indexOf("products");
+    if (catIdx !== -1 && catIdx + 1 < parts.length) {
+      category = parts[catIdx + 1];
+    }
+
+    const slug = sourceUrl.split("/").filter(Boolean).pop() || "";
+
+    const stat2Value = asText(fields.stat2Value);
+    const stat2Label = asText(fields.stat2Label);
+    
+    let saving = "";
+    if (stat2Value && stat2Label && stat2Label.toLowerCase().includes("saving")) {
+      saving = stat2Value.startsWith("Save") ? stat2Value : `Save ${stat2Value}/mo`;
+    }
+
+    const subtitle = asText(fields.subtitle) || asText(fields.Version) || "";
+    const heroDesc = asText(fields.heroDesc) || asText(fields["Review Notes"]) || "";
+    const whyDesc = asText(fields.whyDesc) || asText(fields["Review Notes"]) || "";
+
+    let badge = asText(fields.badge) || asText(fields.Badge) || null;
+    let badgeCls = asText(fields.badgeCls) || asText(fields.BadgeCls) || "";
+
+    if (!badge && subtitle) {
+      if (subtitle.includes("Global #1") || slug === "byd-seagull") {
+        badge = "Global #1";
+        badgeCls = "bg-gold text-black";
+      } else if (subtitle.includes("2025 New King") || slug === "gac-aion-rt") {
+        badge = "2025 New King";
+        badgeCls = "bg-accent/20 text-accent border border-accent/30";
+      } else if (subtitle.includes("Global Model") || subtitle.includes("Battle-Tested") || slug === "geely-galaxy-e5") {
+        badge = "Global Model";
+        badgeCls = "bg-white/5 text-gray-500 border border-white/10";
+      } else if (subtitle.includes("Million-Unit") || slug === "byd-qin-plus") {
+        badge = null;
+        badgeCls = "";
+      } else if (category === "revenue-king") {
+        badge = subtitle;
+        badgeCls = "bg-white/5 text-gray-500 border border-white/10";
+      }
+    }
+
+    let showcaseTags = safeJsonParse(fields.tags || fields.Tags, []);
+    if (category === "revenue-king") {
+      const cleanRange = range ? `${range.replace(/\s+/g, "")} Range` : "";
+      if (slug === "byd-seagull") {
+        showcaseTags = ["LFP Blade", "405km Range"];
+      } else if (slug === "gac-aion-rt") {
+        showcaseTags = ["LiDAR ADAS", "520km Range"];
+      } else if (slug === "byd-qin-plus") {
+        showcaseTags = ["Million-Unit Proof", "510km Range"];
+      } else if (slug === "geely-galaxy-e5") {
+        showcaseTags = ["Aegis Battery", "530km Range"];
+      } else {
+        showcaseTags = [];
+        if (batteryType) showcaseTags.push(batteryType);
+        else if (battery) showcaseTags.push(battery);
+        if (cleanRange) showcaseTags.push(cleanRange);
+      }
+    }
+
+    let cardImg = imageUrl;
+    if (slug === "byd-seagull") {
+      cardImg = "/pic/revenue-king/seagull/7cut.webp";
+    } else if (slug === "gac-aion-rt") {
+      cardImg = "/pic/revenue-king/RT/7cut.webp";
+    } else if (slug === "byd-qin-plus") {
+      cardImg = "/pic/revenue-king/qinplusev/5cut.webp";
+    }
+
+    let cardTag = subtitle || "";
+    let cardDesc = heroDesc || "";
+    let cardLabel = brand || "";
+
+    if (slug === "zeekr-001") {
+      cardTag = "800V Ultra-Fast Charge";
+      cardDesc = "Extreme handling and range. The fastest charging executive shooting brake in the market.";
+      cardLabel = "Tech Icon";
+    } else if (slug === "xiaomi-su7-ultra") {
+      cardTag = "1500+ Horsepower";
+      cardDesc = "The ultimate social currency for tech-elite buyers. Carbon-fiber aero with peak acceleration.";
+      cardLabel = "Performance Icon";
+    } else if (slug === "aito-m9") {
+      cardTag = "Performance King";
+      cardDesc = "Huawei's ADS 3.0 tech masterpiece. Executive projection headlights and the most advanced chassis in the industry.";
+      cardLabel = "Tech Pinnacle";
+    } else if (slug === "byd-shark") {
+      cardTag = "V2L Mobile Power";
+      cardDesc = "PHEV Pickup with DMO off-road platform. 1000km+ total range for the hardest jobs.";
+      cardLabel = "Hybrid Power";
+    } else if (slug === "radar-rd6") {
+      cardTag = "SUV Comfort Pickup";
+      cardDesc = "Pure electric efficiency for urban logistics and farms. 6kW external discharge capacity.";
+      cardLabel = "Production Power";
+    } else if (slug === "farizon-super-van") {
+      cardTag = "Digital Logistics";
+      cardDesc = "The future of city cargo. Steer-by-wire with flat-floor cargo optimization for 11m³+ volume.";
+      cardLabel = "Digital Cargo";
+    } else if (category === "elite-flagship" || category === "utility-pro") {
+      cardTag = subtitle || (range ? `${range} Range` : "");
+      cardDesc = heroDesc || "";
+      cardLabel = brand || "";
+    }
+
+    return {
+      brand,
+      name: modelName,
+      fullName: `${brand} ${modelName}`,
+      fob: msrpChina,
+      battery,
+      range,
+      charging,
+      img: cardImg,
+      category,
+      slug,
+      badge,
+      badgeCls,
+      saving,
+      tags: showcaseTags,
+      tag: cardTag,
+      desc: cardDesc,
+      label: cardLabel,
+      link: `/products/${category}/${slug}`
+    };
+  });
+
+  setCached(cacheKey, products);
+  return json(products);
+}
+
+
 async function handlePublicInsights(env: Env) {
   const cacheKey = "insights";
   const cached = getCached(cacheKey);
@@ -1609,6 +1764,9 @@ export async function handlePortalRequest(request: Request, env: Env) {
       const insightMatch = path.match(/^\/api\/portal\/public\/insights\/([^/]+)$/);
       if (insightMatch && request.method === "GET") {
         return await handlePublicInsight(decodeURIComponent(insightMatch[1]), env);
+      }
+      if (path === "/api/portal/public/products" && request.method === "GET") {
+        return await handlePublicProducts(env);
       }
       const productMatch = path.match(/^\/api\/portal\/public\/products\/([^/]+)$/);
       if (productMatch && request.method === "GET") {

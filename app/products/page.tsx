@@ -1,9 +1,139 @@
-﻿import Link from "next/link";
-import { vehicles as revenueVehicles } from "./revenue-king/data";
-import { vehicles as eliteVehicles } from "./elite-flagship/data";
-import { vehicles as utilityVehicles } from "./utility-pro/data";
+"use client";
+
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { vehicles as fallbackRevenue } from "./revenue-king/data";
+import { vehicles as fallbackElite } from "./elite-flagship/data";
+import { vehicles as fallbackUtility } from "./utility-pro/data";
 
 export default function ProductsPage() {
+  const [products, setProducts] = useState<any[] | null>(null);
+
+  useEffect(() => {
+    fetch("/api/portal/public/products")
+      .then((res) => {
+        if (!res.ok) throw new Error();
+        return res.json();
+      })
+      .then(setProducts)
+      .catch(() => {});
+  }, []);
+
+  const revenueSlugs = ["byd-seagull", "gac-aion-rt", "byd-qin-plus", "geely-galaxy-e5"];
+  const revenueKingList = products
+    ? revenueSlugs.map(slug => products.find(p => p.slug === slug)).filter(Boolean)
+    : [
+        {
+          name: "BYD Seagull",
+          badge: "Global #1",
+          badgeCls: "bg-gold text-black",
+          saving: "Save $250/mo",
+          tags: ["LFP Blade", "405km Range"],
+          img: "/pic/revenue-king/seagull/7cut.webp",
+          link: "/products/revenue-king/byd-seagull",
+        },
+        {
+          name: "GAC Aion RT",
+          badge: "2025 New King",
+          badgeCls: "bg-accent/20 text-accent border border-accent/30",
+          saving: "Save $380/mo",
+          tags: ["LiDAR ADAS", "520km Range"],
+          img: "/pic/revenue-king/RT/7cut.webp",
+          link: "/products/revenue-king/gac-aion-rt",
+        },
+        {
+          name: "BYD Qin PLUS",
+          badge: null,
+          badgeCls: "",
+          saving: "Save $350/mo",
+          tags: ["Million-Unit Proof", "510km Range"],
+          img: "/pic/revenue-king/qinplusev/5cut.webp",
+          link: "/products/revenue-king/byd-qin-plus",
+        },
+        {
+          name: "Galaxy E5",
+          badge: "Global Model",
+          badgeCls: "bg-white/5 text-gray-500 border border-white/10",
+          saving: "Save $220/mo",
+          tags: ["Aegis Battery", "530km Range"],
+          img: "/pic/hero/Galaxye5 display.webp",
+          link: "/products/revenue-king/geely-galaxy-e5",
+        },
+      ];
+
+  const aitoM9 = products
+    ? products.find(p => p.slug === "aito-m9")
+    : {
+        name: "AITO M9",
+        tag: "Performance King",
+        desc: "Huawei's ADS 3.0 tech masterpiece. Executive projection headlights and the most advanced chassis in the industry.",
+        label: "Tech Pinnacle",
+        img: "/pic/hero/M9 display.webp",
+        link: "/products/elite-flagship/aito-m9",
+      };
+
+  const eliteSmallList = products
+    ? ["zeekr-001", "xiaomi-su7-ultra"].map(slug => products.find(p => p.slug === slug)).filter(Boolean)
+    : [
+        {
+          name: "Zeekr 001",
+          tag: "800V Ultra-Fast Charge",
+          desc: "Extreme handling and range. The fastest charging executive shooting brake in the market.",
+          label: "Tech Icon",
+          img: "/pic/elite-flagship/001/0.webp",
+          link: "/products/elite-flagship/zeekr-001",
+        },
+        {
+          name: "Xiaomi SU7 Ultra",
+          tag: "1500+ Horsepower",
+          desc: "The ultimate social currency for tech-elite buyers. Carbon-fiber aero with peak acceleration.",
+          label: "Performance Icon",
+          img: "/pic/hero/SU7ultra display.webp",
+          link: "/products/elite-flagship/xiaomi-su7-ultra",
+        },
+      ];
+
+  const utilityList = products
+    ? ["byd-shark", "radar-rd6", "farizon-super-van"].map(slug => products.find(p => p.slug === slug)).filter(Boolean)
+    : [
+        {
+          name: "BYD Shark",
+          tag: "V2L Mobile Power",
+          desc: "PHEV Pickup with DMO off-road platform. 1000km+ total range for the hardest jobs.",
+          label: "Hybrid Power",
+          img: "/pic/utility-pro/shark/4cut.webp",
+          link: "/products/utility-pro/byd-shark",
+        },
+        {
+          name: "Radar RD6",
+          tag: "SUV Comfort Pickup",
+          desc: "Pure electric efficiency for urban logistics and farms. 6kW external discharge capacity.",
+          label: "Production Power",
+          img: "/pic/hero/RD6 display0.webp",
+          link: "/products/utility-pro/radar-rd6",
+        },
+        {
+          name: "Super Van",
+          tag: "Digital Logistics",
+          desc: "The future of city cargo. Steer-by-wire with flat-floor cargo optimization for 11m³+ volume.",
+          label: "Digital Cargo",
+          img: "/pic/hero/supervan display.webp",
+          link: "/products/utility-pro/farizon-super-van",
+        },
+      ];
+
+  const revenueCount = products
+    ? products.filter((p) => p.category === "revenue-king").length
+    : fallbackRevenue.length;
+
+  const eliteCount = products
+    ? products.filter((p) => p.category === "elite-flagship").length
+    : fallbackElite.length;
+
+  const utilityCount = products
+    ? products.filter((p) => p.category === "utility-pro").length
+    : fallbackUtility.length;
+
   return (
     <>
       <div className="h-[var(--navbar-h,56px)] lg:hidden bg-black w-full" />
@@ -112,44 +242,7 @@ export default function ProductsPage() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-              {[
-                {
-                  name: "BYD Seagull",
-                  badge: "Global #1",
-                  badgeCls: "bg-gold text-black",
-                  saving: "Save $250/mo",
-                  tags: ["LFP Blade", "405km Range"],
-                  img: "/pic/revenue-king/seagull/7cut.webp",
-                  link: "/products/revenue-king/byd-seagull",
-                },
-                {
-                  name: "GAC Aion RT",
-                  badge: "2025 New King",
-                  badgeCls: "bg-accent/20 text-accent border border-accent/30",
-                  saving: "Save $380/mo",
-                  tags: ["LiDAR ADAS", "520km Range"],
-                  img: "/pic/revenue-king/RT/7cut.webp",
-                  link: "/products/revenue-king/gac-aion-rt",
-                },
-                {
-                  name: "BYD Qin PLUS",
-                  badge: null,
-                  badgeCls: "",
-                  saving: "Save $350/mo",
-                  tags: ["Million-Unit Proof", "510km Range"],
-                  img: "/pic/revenue-king/qinplusev/5cut.webp",
-                  link: "/products/revenue-king/byd-qin-plus",
-                },
-                {
-                  name: "Galaxy E5",
-                  badge: "Global Model",
-                  badgeCls: "bg-white/5 text-gray-500 border border-white/10",
-                  saving: "Save $220/mo",
-                  tags: ["Aegis Battery", "530km Range"],
-                  img: "/pic/hero/Galaxye5 display.webp",
-                  link: "/products/revenue-king/geely-galaxy-e5",
-                },
-              ].map((car, i) => {
+              {revenueKingList.map((car: any, i: number) => {
                 const CardContent = (
                   <div className="group relative bg-bg3/30 rounded-[2.5rem] overflow-hidden border border-white/5 hover:border-accent/30 transition-all duration-500 cursor-pointer">
                     <div className="aspect-[4/5] overflow-hidden relative">
@@ -179,7 +272,7 @@ export default function ProductsPage() {
                     </div>
                     <div className="p-5 sm:p-8">
                       <div className="flex flex-wrap gap-2 mb-3 sm:mb-4">
-                        {car.tags.map((tag, j) => (
+                        {(car.tags || []).map((tag: string, j: number) => (
                           <span
                             key={j}
                             className="text-[8px] font-black px-2 py-1 rounded bg-white/5 text-gray-500 uppercase"
@@ -211,9 +304,9 @@ export default function ProductsPage() {
               <Link
                 href="/products/revenue-king"
                 className="group flex items-center gap-3 sm:gap-4 px-6 sm:px-10 py-3 sm:py-4 rounded-full border border-white/10 hover:border-accent/40 transition-all"
-            >
+              >
                 <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] text-gray-500 group-hover:text-white">
-                  Discover Full Revenue Matrix ({revenueVehicles.length}+ Models)
+                  Discover Full Revenue Matrix ({revenueCount}+ Models)
                 </span>
                 <span className="w-4 sm:w-6 h-px bg-white/10 group-hover:bg-accent/50 transition-all" />
                 <span className="text-accent group-hover:translate-x-1 transition-transform">
@@ -249,32 +342,32 @@ export default function ProductsPage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
               {/* AITO M9 - Mobile Card (matches Zeekr 001 style) */}
               <Link
-                href="/products/elite-flagship/aito-m9"
+                href={aitoM9.link || "/products/elite-flagship/aito-m9"}
                 className="lg:hidden group relative bg-bg3/30 rounded-[2.5rem] overflow-hidden border border-white/5 hover:border-theme/30 transition-all duration-500 cursor-pointer"
               >
                 <div className="aspect-[16/10] overflow-hidden relative">
                   <img
-                    src="/pic/hero/M9 display.webp"
-                    alt="AITO M9"
+                    src={aitoM9.img}
+                    alt={aitoM9.name}
                     className="w-full h-full object-cover scale-100 group-hover:scale-105 transition-all duration-700"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-bg via-transparent to-transparent opacity-60" />
                   <div className="absolute bottom-6 left-6 right-6">
                     <div className="text-[9px] font-black text-theme uppercase tracking-[0.2em] mb-1">
-                      Performance King
+                      {aitoM9.tag || "Performance King"}
                     </div>
                     <h3 className="text-2xl font-black italic text-white uppercase tracking-tight">
-                      AITO M9
+                      {aitoM9.name}
                     </h3>
                   </div>
                 </div>
                 <div className="p-5 sm:p-8">
                   <p className="text-gray-500 text-xs font-light leading-relaxed mb-4 sm:mb-6">
-                    Huawei&apos;s ADS 3.0 tech masterpiece. Executive projection headlights and the most advanced chassis in the industry.
+                    {aitoM9.desc}
                   </p>
                   <div className="flex items-center justify-between pt-4 sm:pt-6 border-t border-white/5">
                     <div className="text-[10px] font-black text-theme uppercase tracking-widest">
-                      Tech Pinnacle
+                      {aitoM9.label || "Tech Pinnacle"}
                     </div>
                     <div className="text-[10px] font-black text-gray-600 uppercase">
                       View Details →
@@ -285,58 +378,39 @@ export default function ProductsPage() {
 
               {/* AITO M9 - Desktop Large Card */}
               <Link
-                href="/products/elite-flagship/aito-m9"
+                href={aitoM9.link || "/products/elite-flagship/aito-m9"}
                 className="hidden lg:block group relative bg-bg3/30 rounded-[3rem] overflow-hidden border border-white/5 hover:border-theme/30 transition-all duration-500 cursor-pointer col-span-1 lg:col-span-2"
               >
                 <div className="aspect-[21/9] overflow-hidden relative">
                   <img
-                    src="/pic/hero/M9 display.webp"
-                    alt="AITO M9"
+                    src={aitoM9.img}
+                    alt={aitoM9.name}
                     className="w-full h-full object-cover scale-100 group-hover:scale-105 transition-all duration-700"
                   />
                   <div className="absolute inset-0 bg-gradient-to-r from-bg via-bg/20 to-transparent opacity-80" />
                   <div className="absolute inset-0 flex flex-col justify-center p-8 md:p-16">
                     <div className="label label-gold mb-4">
-                      The Tech Pinnacle
+                      The {aitoM9.label || "Tech Pinnacle"}
                     </div>
                     <h3 className="text-4xl md:text-6xl font-black italic text-white uppercase tracking-tighter mb-4">
-                      AITO M9
+                      {aitoM9.name}
                     </h3>
                     <p className="text-gray-400 text-sm md:text-base font-light italic max-w-md leading-relaxed mb-8">
-                      Huawei&apos;s ADS 3.0 tech masterpiece. Executive
-                      projection headlights and the most advanced chassis in the
-                      industry.
+                      {aitoM9.desc}
                     </p>
                     <div className="flex flex-wrap gap-4">
                       <div className="px-6 py-3 rounded-full bg-theme text-black text-[10px] font-black uppercase tracking-widest">
-                        Performance King
+                        {aitoM9.tag || "Performance King"}
                       </div>
                       <div className="px-6 py-3 rounded-full border border-white/10 text-white text-[10px] font-black uppercase tracking-widest">
-                        Save $500+/mo
+                        {aitoM9.saving || "Save $500+/mo"}
                       </div>
                     </div>
                   </div>
                 </div>
               </Link>
 
-              {[
-                {
-                  name: "Zeekr 001",
-                  tag: "800V Ultra-Fast Charge",
-                  desc: "Extreme handling and range. The fastest charging executive shooting brake in the market.",
-                  label: "Tech Icon",
-                  img: "/pic/elite-flagship/001/0.webp",
-                  link: "/products/elite-flagship/zeekr-001",
-                },
-                {
-                  name: "Xiaomi SU7 Ultra",
-                  tag: "1500+ Horsepower",
-                  desc: "The ultimate social currency for tech-elite buyers. Carbon-fiber aero with peak acceleration.",
-                  label: "Performance Icon",
-                  img: "/pic/hero/SU7ultra display.webp",
-                  link: "/products/elite-flagship/xiaomi-su7-ultra",
-                },
-              ].map((car, i) => {
+              {eliteSmallList.map((car: any, i: number) => {
                 const CardContent = (
                   <div className="group relative bg-bg3/30 rounded-[2.5rem] overflow-hidden border border-white/5 hover:border-theme/30 transition-all duration-500 cursor-pointer">
                     <div className="aspect-[16/10] overflow-hidden relative">
@@ -385,9 +459,9 @@ export default function ProductsPage() {
               <Link
                 href="/products/elite-flagship"
                 className="group flex items-center gap-3 sm:gap-4 px-6 sm:px-10 py-3 sm:py-4 rounded-full border border-white/10 hover:border-theme/40 transition-all"
-            >
+              >
                 <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] text-gray-500 group-hover:text-white">
-                  Discover Full Elite Series ({eliteVehicles.length}+ Models)
+                  Discover Full Elite Series ({eliteCount}+ Models)
                 </span>
                 <span className="w-4 sm:w-6 h-px bg-white/10 group-hover:bg-theme/50 transition-all" />
                 <span className="text-theme group-hover:translate-x-1 transition-transform">
@@ -420,35 +494,7 @@ export default function ProductsPage() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-              {[
-                {
-                  name: "BYD Shark",
-                  tag: "V2L Mobile Power",
-                  desc: "PHEV Pickup with DMO off-road platform. 1000km+ total range for the hardest jobs.",
-                  label: "Hybrid Power",
-                  sub: "Pickup Pro",
-                  img: "/pic/utility-pro/shark/4cut.webp",
-                  link: "/products/utility-pro/byd-shark",
-                },
-                {
-                  name: "Radar RD6",
-                  tag: "SUV Comfort Pickup",
-                  desc: "Pure electric efficiency for urban logistics and farms. 6kW external discharge capacity.",
-                  label: "Production Power",
-                  sub: "Eco Logistics",
-                  img: "/pic/hero/RD6 display0.webp",
-                  link: "/products/utility-pro/radar-rd6",
-                },
-                {
-                  name: "Super Van",
-                  tag: "Digital Logistics",
-                  desc: "The future of city cargo. Steer-by-wire with flat-floor cargo optimization for 11m³+ volume.",
-                  label: "Digital Cargo",
-                  sub: "Next-Gen Van",
-                  img: "/pic/hero/supervan display.webp",
-                  link: "/products/utility-pro/farizon-super-van",
-                },
-              ].map((car, i) => {
+              {utilityList.map((car: any, i: number) => {
                 const CardContent = (
                   <div className="group relative bg-bg3/30 rounded-[2.5rem] overflow-hidden border border-white/5 hover:border-accent/30 transition-all duration-500 cursor-pointer">
                     <div className="aspect-[16/9] overflow-hidden relative">
@@ -497,9 +543,9 @@ export default function ProductsPage() {
               <Link
                 href="/products/utility-pro"
                 className="group flex items-center gap-3 sm:gap-4 px-6 sm:px-10 py-3 sm:py-4 rounded-full border border-white/10 hover:border-accent/40 transition-all"
-            >
+              >
                 <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] text-gray-500 group-hover:text-white">
-                  Discover Full Utility Matrix ({utilityVehicles.length}+ Models)
+                  Discover Full Utility Matrix ({utilityCount}+ Models)
                 </span>
                 <span className="w-4 sm:w-6 h-px bg-white/10 group-hover:bg-accent/50 transition-all" />
                 <span className="text-accent group-hover:translate-x-1 transition-transform">
@@ -510,8 +556,6 @@ export default function ProductsPage() {
           </div>
         </div>
       </section>
-
-      {/* CTA — removed to avoid duplication with global footer */}
     </>
   );
 }
