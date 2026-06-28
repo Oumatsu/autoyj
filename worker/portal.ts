@@ -8,6 +8,7 @@ type Env = {
   FEISHU_TABLE_EXTERNAL_ACCOUNTS?: string;
   FEISHU_TABLE_CUSTOMERS?: string;
   FEISHU_TABLE_VEHICLE_MODELS?: string;
+  FEISHU_TABLE_VEHICLE_MODEL_SPECS?: string;
   FEISHU_TABLE_VEHICLES?: string;
   FEISHU_TABLE_INQUIRIES?: string;
   FEISHU_TABLE_QUOTES?: string;
@@ -31,6 +32,8 @@ type BaseRecordListResponse = {
   data?: unknown[][];
   fields?: string[];
   record_id_list?: string[];
+  has_more?: boolean;
+  total?: number;
 };
 
 type PortalSession = {
@@ -80,19 +83,51 @@ type PortalVehicleModel = {
   trim: string;
   year: string;
   bodyType: string;
+  fuelType: string;
+  msrpChina: string;
   battery: string;
+  batteryType: string;
+  batteryMaker: string;
   range: string;
+  energyConsumption: string;
   motorPower: string;
+  motorTorque: string;
   driveType: string;
+  topSpeed: string;
+  acceleration: string;
   seats: string;
+  doors: string;
   dimensions: string;
+  wheelbase: string;
+  curbWeight: string;
+  trunkCapacity: string;
   charging: string;
+  frontSuspension: string;
+  rearSuspension: string;
+  adas: string;
   warranty: string;
   marketPosition: string;
   exportNotes: string;
   imageUrl: string;
   brochureUrl: string;
+  sourceUrl: string;
+  sourceName: string;
+  lastSyncedAt: string;
+  fullSpecsJson: string;
   status: string;
+};
+
+type PortalVehicleModelSpec = {
+  modelId: string;
+  category: string;
+  name: string;
+  value: string;
+  unit: string;
+  visibleLevel: string;
+  sortOrder: number;
+  sourceName: string;
+  sourceUrl: string;
+  confidence: string;
 };
 
 const FEISHU_API = "https://open.feishu.cn";
@@ -354,19 +389,28 @@ async function searchRecords(
   options: { filter?: Record<string, unknown>; sort?: unknown[]; pageSize?: number } = {},
 ) {
   const appToken = requireEnv(env, "FEISHU_BASE_APP_TOKEN");
-  const query = new URLSearchParams({
-    limit: String(options.pageSize || 100),
-    offset: "0",
-  });
+  const pageSize = options.pageSize || 100;
   const filter = normalizeBaseFilter(options.filter);
-  if (filter) query.set("filter", JSON.stringify(filter));
-  if (options.sort) query.set("sort", JSON.stringify(options.sort));
-  const data = await feishuRequest<BaseRecordListResponse>(
-    env,
-    "GET",
-    `/open-apis/base/v3/bases/${appToken}/tables/${tableId}/records?${query.toString()}`,
-  );
-  return normalizeBaseRecords(data);
+  const records: FeishuRecord[] = [];
+  let offset = 0;
+  for (let page = 0; page < 20; page++) {
+    const query = new URLSearchParams({
+      limit: String(pageSize),
+      offset: String(offset),
+    });
+    if (filter) query.set("filter", JSON.stringify(filter));
+    if (options.sort) query.set("sort", JSON.stringify(options.sort));
+    const data = await feishuRequest<BaseRecordListResponse>(
+      env,
+      "GET",
+      `/open-apis/base/v3/bases/${appToken}/tables/${tableId}/records?${query.toString()}`,
+    );
+    const pageRecords = normalizeBaseRecords(data);
+    records.push(...pageRecords);
+    offset += pageSize;
+    if (!data.has_more && pageRecords.length < pageSize) break;
+  }
+  return records;
 }
 
 async function createRecord(env: Env, tableId: string, fields: Record<string, unknown>) {
@@ -519,23 +563,108 @@ function mapVehicleModel(record: FeishuRecord): PortalVehicleModel {
     id: asText(fields["Model ID"]),
     brand: asText(fields.Brand),
     model: asText(fields.Model),
-    trim: asText(fields.Trim),
+    trim: asText(fields.Version) || asText(fields.Trim),
     year: asText(fields.Year),
-    bodyType: asText(fields["Body Type"]),
-    battery: asText(fields.Battery),
-    range: asText(fields.Range),
+    bodyType: asText(fields.Segment) || asText(fields["Body Type"]),
+    fuelType: asText(fields["Energy Type"]) || asText(fields["Fuel Type"]),
+    msrpChina: asText(fields["China Guide Price CNY"]) || asText(fields["MSRP China"]),
+    battery: asText(fields["Battery Capacity"]) || asText(fields.Battery),
+    batteryType: asText(fields["Battery Type"]),
+    batteryMaker: asText(fields["Battery Maker"]),
+    range: asText(fields["CLTC Range"]) || asText(fields.Range),
+    energyConsumption: asText(fields["Energy Consumption"]),
     motorPower: asText(fields["Motor Power"]),
+    motorTorque: asText(fields["Motor Torque"]),
     driveType: asText(fields["Drive Type"]),
+    topSpeed: asText(fields["Top Speed"]),
+    acceleration: asText(fields.Acceleration),
     seats: asText(fields.Seats),
+    doors: asText(fields.Doors),
     dimensions: asText(fields.Dimensions),
+    wheelbase: asText(fields.Wheelbase),
+    curbWeight: asText(fields["Curb Weight"]),
+    trunkCapacity: asText(fields["Trunk Capacity"]),
     charging: asText(fields.Charging),
+    frontSuspension: asText(fields["Front Suspension"]),
+    rearSuspension: asText(fields["Rear Suspension"]),
+    adas: asText(fields.ADAS),
     warranty: asText(fields.Warranty),
     marketPosition: asText(fields["Market Position"]),
-    exportNotes: asText(fields["Export Notes"]),
+    exportNotes: asText(fields["Review Notes"]) || asText(fields["Export Notes"]),
     imageUrl: asText(fields["Image URL"]),
     brochureUrl: asText(fields["Brochure URL"]),
+    sourceUrl: asText(fields["Source URL"]),
+    sourceName: asText(fields["Source Name"]),
+    lastSyncedAt: asText(fields["Last Synced At"]),
+    fullSpecsJson: asText(fields["Full Specs JSON"]),
     status: asText(fields.Status) || "Active",
   };
+}
+
+function mapVehicleModelSpec(record: FeishuRecord): PortalVehicleModelSpec {
+  const fields = record.fields;
+  return {
+    modelId: asText(fields["Model ID"]),
+    category: asText(fields.Category),
+    name: asText(fields["Spec Name"]),
+    value: asText(fields["Spec Value"]),
+    unit: asText(fields.Unit),
+    visibleLevel: asText(fields["Visible Level"]),
+    sortOrder: asNumber(fields["Sort Order"]),
+    sourceName: asText(fields["Source Name"]),
+    sourceUrl: asText(fields["Source URL"]),
+    confidence: asText(fields.Confidence),
+  };
+}
+
+function enrichVehicleModelsWithSpecs(models: PortalVehicleModel[], records: FeishuRecord[]) {
+  if (!records.length) return models;
+  const specsByModel = new Map<string, Map<string, PortalVehicleModelSpec>>();
+  for (const spec of records.map(mapVehicleModelSpec)) {
+    if (!spec.modelId || !spec.name) continue;
+    if (!specsByModel.has(spec.modelId)) specsByModel.set(spec.modelId, new Map());
+    specsByModel.get(spec.modelId)!.set(spec.name, spec);
+  }
+
+  const valueFor = (modelId: string, names: string[]) => {
+    const specs = specsByModel.get(modelId);
+    if (!specs) return "";
+    for (const name of names) {
+      const spec = specs.get(name);
+      if (spec?.value) return spec.unit ? `${spec.value} ${spec.unit}`.trim() : spec.value;
+    }
+    return "";
+  };
+
+  return models.map((model) => ({
+    ...model,
+    bodyType: model.bodyType || valueFor(model.id, ["车身级别"]),
+    fuelType: model.fuelType || valueFor(model.id, ["能源类型"]),
+    battery: model.battery || valueFor(model.id, ["电池容量"]),
+    batteryType: model.batteryType || valueFor(model.id, ["电池类型"]),
+    batteryMaker: model.batteryMaker || valueFor(model.id, ["电池供应商"]),
+    range: model.range || valueFor(model.id, ["CLTC续航"]),
+    energyConsumption: model.energyConsumption || valueFor(model.id, ["百公里耗电量"]),
+    motorPower: model.motorPower || valueFor(model.id, ["电机总功率", "电机总马力"]),
+    motorTorque: model.motorTorque || valueFor(model.id, ["电机总扭矩"]),
+    driveType: model.driveType || valueFor(model.id, ["驱动方式"]),
+    topSpeed: model.topSpeed || valueFor(model.id, ["最高车速"]),
+    acceleration: model.acceleration || valueFor(model.id, ["0-100km/h加速", "0-50km/h加速"]),
+    seats: model.seats || valueFor(model.id, ["座位数"]),
+    doors: model.doors || valueFor(model.id, ["车门数"]),
+    dimensions: model.dimensions || valueFor(model.id, ["长宽高"]),
+    wheelbase: model.wheelbase || valueFor(model.id, ["轴距"]),
+    curbWeight: model.curbWeight || valueFor(model.id, ["整备质量"]),
+    trunkCapacity: model.trunkCapacity || valueFor(model.id, ["后备厢容积"]),
+    charging: model.charging || valueFor(model.id, ["充电说明", "快充时间 30-80%", "快充峰值功率"]),
+    frontSuspension: model.frontSuspension || valueFor(model.id, ["前悬架类型"]),
+    rearSuspension: model.rearSuspension || valueFor(model.id, ["后悬架类型"]),
+    adas: model.adas || valueFor(model.id, ["ADAS"]),
+    warranty: model.warranty || valueFor(model.id, ["质保说明"]),
+    marketPosition: model.marketPosition || valueFor(model.id, ["市场定位"]),
+    fullSpecsJson: model.fullSpecsJson || valueFor(model.id, ["原始参数JSON"]),
+    exportNotes: model.exportNotes || valueFor(model.id, ["出口备注", "版本核对"]),
+  }));
 }
 
 function mapVehicle(record: FeishuRecord, session: PortalSession) {
@@ -793,11 +922,13 @@ async function handleBootstrap(request: Request, env: Env) {
   const session = await requireSession(request, env);
   const isInternal = isInternalSession(session);
   const vehicleModelTableId = optionalEnv(env, "FEISHU_TABLE_VEHICLE_MODELS");
-  const [vehicleRecords, vehicleModelRecords] = await Promise.all([
+  const vehicleModelSpecTableId = optionalEnv(env, "FEISHU_TABLE_VEHICLE_MODEL_SPECS");
+  const [vehicleRecords, vehicleModelRecords, vehicleModelSpecRecords] = await Promise.all([
     searchRecords(env, requireEnv(env, "FEISHU_TABLE_VEHICLES"), {
       pageSize: 100,
     }),
     vehicleModelTableId ? searchRecords(env, vehicleModelTableId, { pageSize: 100 }) : Promise.resolve([]),
+    vehicleModelSpecTableId ? searchRecords(env, vehicleModelSpecTableId, { pageSize: 200 }) : Promise.resolve([]),
   ]);
   const [inquiryRecords, orderRecords] = await Promise.all([
     searchRecords(env, requireEnv(env, "FEISHU_TABLE_INQUIRIES"), {
@@ -821,7 +952,8 @@ async function handleBootstrap(request: Request, env: Env) {
   const vehicles = vehicleRecords
     .filter((record) => asBool(record.fields["Is Listed"]))
     .map((record) => mapVehicle(record, session));
-  const vehicleModels = vehicleModelRecords.length ? vehicleModelRecords.map(mapVehicleModel) : deriveVehicleModelsFromVehicles(vehicles);
+  const vehicleModelSpecs = vehicleModelSpecRecords.map(mapVehicleModelSpec);
+  const vehicleModels = vehicleModelRecords.length ? enrichVehicleModelsWithSpecs(vehicleModelRecords.map(mapVehicleModel), vehicleModelSpecRecords) : deriveVehicleModelsFromVehicles(vehicles);
   const inquiries = inquiryRecords.map(mapInquiry);
   const inquiryNos = new Set(inquiries.map((inquiry) => inquiry.inquiryNo));
 
@@ -847,6 +979,7 @@ async function handleBootstrap(request: Request, env: Env) {
       canCounterOffer: true,
     },
     vehicleModels,
+    vehicleModelSpecs,
     vehicles,
     inquiries,
     quotes,

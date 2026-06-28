@@ -55,19 +55,51 @@ type VehicleModel = {
   trim: string;
   year: string;
   bodyType: string;
+  fuelType: string;
+  msrpChina: string;
   battery: string;
+  batteryType: string;
+  batteryMaker: string;
   range: string;
+  energyConsumption: string;
   motorPower: string;
+  motorTorque: string;
   driveType: string;
+  topSpeed: string;
+  acceleration: string;
   seats: string;
+  doors: string;
   dimensions: string;
+  wheelbase: string;
+  curbWeight: string;
+  trunkCapacity: string;
   charging: string;
+  frontSuspension: string;
+  rearSuspension: string;
+  adas: string;
   warranty: string;
   marketPosition: string;
   exportNotes: string;
   imageUrl: string;
   brochureUrl: string;
+  sourceUrl: string;
+  sourceName: string;
+  lastSyncedAt: string;
+  fullSpecsJson: string;
   status: string;
+};
+
+type VehicleModelSpec = {
+  modelId: string;
+  category: string;
+  name: string;
+  value: string;
+  unit: string;
+  visibleLevel: string;
+  sortOrder: number;
+  sourceName: string;
+  sourceUrl: string;
+  confidence: string;
 };
 
 type Vehicle = {
@@ -117,6 +149,45 @@ type SellableModel = {
   preorderAvailable: boolean;
   fobPriceRange: string;
   offers: VehicleOffer[];
+};
+
+type ModelProfileGroup = {
+  key: string;
+  brand: string;
+  model: string;
+  years: string[];
+  variants: VehicleModel[];
+  specsByModel: Map<string, VehicleModelSpec[]>;
+  segment: string;
+  energyType: string;
+  marketPosition: string;
+  rangeSummary: string;
+  guidePriceSummary: string;
+};
+
+type ModelComparisonRow = {
+  category: string;
+  label: string;
+  sortOrder: number;
+  values: Record<string, string>;
+};
+
+type ModelProfileRoute =
+  | { view: "list" }
+  | { view: "detail"; groupKey: string }
+  | { view: "comparison"; groupKey: string; variantId: string };
+
+type VariantDifferenceStep = {
+  variant: VehicleModel;
+  label: string;
+  price: string;
+  range: string;
+  sections: {
+    label: string;
+    tone: string;
+    isCurrent: boolean;
+    items: { category: string; name: string; value: string; previousValue: string }[];
+  }[];
 };
 
 type VehicleOffer = {
@@ -203,6 +274,7 @@ type BootstrapData = {
     canCounterOffer: boolean;
   };
   vehicleModels: VehicleModel[];
+  vehicleModelSpecs: VehicleModelSpec[];
   vehicles: Vehicle[];
   inquiries: Inquiry[];
   quotes: Quote[];
@@ -264,6 +336,51 @@ const adminNavItems: { key: AdminModule; label: string; roles: PortalRole[]; ico
   { key: "customers", label: "客户资料", roles: ["admin"], icon: "customers" },
   { key: "staff", label: "员工账号", roles: ["admin"], icon: "staff" },
   { key: "files", label: "文件中心", roles: ["admin", "sales"], icon: "files" },
+];
+
+const modelCoreSpecNames = [
+  "中国官方指导价",
+  "车身级别",
+  "能源类型",
+  "CLTC续航",
+  "电池容量",
+  "电池类型",
+  "电机总功率",
+  "电机总扭矩",
+  "驱动方式",
+  "长宽高",
+  "轴距",
+  "座位数",
+  "整备质量",
+  "后备厢容积",
+  "百公里耗电量",
+  "充电说明",
+  "前悬架类型",
+  "后悬架类型",
+  "ADAS",
+  "市场定位",
+];
+
+const modelCategoryOrder = [
+  "基本参数",
+  "车身",
+  "电动机",
+  "电池/充电",
+  "变速箱",
+  "底盘转向",
+  "车轮制动",
+  "主动安全",
+  "被动安全",
+  "辅助驾驶",
+  "外部配置",
+  "内部配置",
+  "座椅配置",
+  "多媒体/智能座舱",
+  "灯光",
+  "玻璃/后视镜",
+  "空调/舒适",
+  "智能硬件",
+  "其他",
 ];
 
 function formatUsd(value: number | null | undefined) {
@@ -1004,23 +1121,304 @@ function AdminDashboard({ data }: { data: BootstrapData }) {
 }
 
 function AdminProfiles({ data }: { data: BootstrapData }) {
-  const models = data.vehicleModels || [];
+  const groups = useMemo(() => buildModelProfileGroups(data), [data]);
+  const [route, setRoute] = useState<ModelProfileRoute>({ view: "list" });
+  const [searchQuery, setSearchQuery] = useState("");
+  const [mode, setMode] = useState<"core" | "full">("core");
+  const normalizedSearch = searchQuery.trim().toLowerCase();
+  const visibleGroups = groups.filter((group) => modelProfileGroupMatchesSearch(group, normalizedSearch));
+  const selectedGroup = route.view === "list" ? null : groups.find((group) => group.key === route.groupKey) || null;
+  const highlightedVariantId = route.view === "comparison" ? route.variantId : "";
+  const comparisonRows = selectedGroup ? buildModelComparisonRows(selectedGroup, mode) : [];
+
+  function openDetail(group: ModelProfileGroup) {
+    setRoute({ view: "detail", groupKey: group.key });
+  }
+
+  function openComparison(group: ModelProfileGroup, variant: VehicleModel, nextMode: "core" | "full" = "full") {
+    setMode(nextMode);
+    setRoute({ view: "comparison", groupKey: group.key, variantId: variant.id });
+  }
+
+  if (route.view !== "list" && !selectedGroup) {
+    return (
+      <AdminPanel title="车型库" subtitle="车型数据已刷新">
+        <button type="button" onClick={() => setRoute({ view: "list" })} className="rounded-xl border border-white/15 px-4 py-3 text-xs font-black text-slate-300 transition hover:border-white/30">
+          返回车型列表
+        </button>
+      </AdminPanel>
+    );
+  }
 
   return (
-    <AdminPanel title="车型库" subtitle="车型版本、核心参数、市场定位和出口适配说明">
-      <AdminTable
-        headers={["Model ID", "车型版本", "核心参数", "市场定位", "出口说明", "状态"]}
-        rows={models.map((model) => [
-          <span key="id" className="font-mono text-xs text-[#22b8aa]">{model.id}</span>,
-          `${model.brand} ${model.model} ${model.trim} ${model.year}`.trim() || model.id,
-          compactJoin([model.bodyType, model.battery, model.range, model.motorPower, model.driveType, model.seats && `${model.seats} seats`]),
-          model.marketPosition || "-",
-          model.exportNotes || "-",
-          <AdminStatusBadge key="status" status={model.status || "Active"} />,
-        ])}
-        emptyText="暂无车型资料"
-      />
-    </AdminPanel>
+    <div className="grid gap-5">
+      {route.view === "list" ? (
+        <AdminPanel title="车型库" subtitle="车型列表用于快速查找，进入详情后再看版本差异和完整参数">
+          <div className="mb-4 grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
+            <label className="grid gap-2 text-xs font-black uppercase tracking-widest text-slate-500">
+              搜索车型
+              <input
+                value={searchQuery}
+                onChange={(event) => setSearchQuery(event.target.value)}
+                className="rounded-xl border border-white/10 bg-[#0c1322] px-4 py-3 text-sm font-medium normal-case tracking-normal text-white outline-none transition placeholder:text-slate-600 focus:border-[#22b8aa]"
+                placeholder="品牌、车型、年款、版本、级别、能源"
+              />
+            </label>
+            <div className="flex gap-2">
+              <AdminSummaryChip label="车型" value={`${visibleGroups.length} / ${groups.length}`} tone="accent" />
+              <AdminSummaryChip label="版本" value={`${visibleGroups.reduce((sum, group) => sum + group.variants.length, 0)} 个`} />
+            </div>
+          </div>
+
+          <div className="max-w-full overflow-x-auto rounded-xl border border-white/10">
+            <table className="w-full min-w-[900px] border-separate border-spacing-0 text-left text-sm">
+              <thead>
+                <tr>
+                  {["品牌", "车型", "年款", "版本", "级别", "能源", "续航", "指导价", "操作"].map((header) => (
+                    <th key={header} className="border-b border-white/10 px-3 py-3 text-[10px] font-black uppercase tracking-widest text-slate-500">
+                      {header}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {visibleGroups.map((group) => (
+                  <tr key={group.key} className="transition hover:bg-white/[.035]">
+                    <td className="border-b border-white/[.06] px-3 py-3 align-middle text-[10px] font-black uppercase tracking-widest text-[#22b8aa]">{group.brand}</td>
+                    <td className="border-b border-white/[.06] px-3 py-3 align-middle">
+                      <button type="button" onClick={() => openDetail(group)} className="text-left">
+                        <strong className="block text-base text-white transition hover:text-[#5ee6d8]">{group.model}</strong>
+                        <span className="mt-1 block max-w-md truncate text-xs text-slate-500">{group.marketPosition || "市场定位待补充"}</span>
+                      </button>
+                    </td>
+                    <td className="whitespace-nowrap border-b border-white/[.06] px-3 py-3 align-middle text-slate-300">{group.years.join(" / ") || "-"}</td>
+                    <td className="whitespace-nowrap border-b border-white/[.06] px-3 py-3 align-middle text-slate-300">{group.variants.length} 个</td>
+                    <td className="border-b border-white/[.06] px-3 py-3 align-middle text-slate-300">{group.segment || "-"}</td>
+                    <td className="whitespace-nowrap border-b border-white/[.06] px-3 py-3 align-middle text-slate-300">{group.energyType || "-"}</td>
+                    <td className="whitespace-nowrap border-b border-white/[.06] px-3 py-3 align-middle text-slate-300">{group.rangeSummary || "-"}</td>
+                    <td className="whitespace-nowrap border-b border-white/[.06] px-3 py-3 align-middle text-slate-300">{group.guidePriceSummary || "-"}</td>
+                    <td className="whitespace-nowrap border-b border-white/[.06] px-3 py-3 align-middle">
+                      <button type="button" onClick={() => openDetail(group)} className="rounded-lg border border-[#22b8aa]/30 bg-[#22b8aa]/10 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-[#5ee6d8] transition hover:bg-[#22b8aa] hover:text-[#07111f]">
+                        查看
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+                {visibleGroups.length === 0 ? (
+                  <tr>
+                    <td colSpan={9} className="px-3 py-8 text-center text-sm text-slate-600">
+                      暂无匹配车型
+                    </td>
+                  </tr>
+                ) : null}
+              </tbody>
+            </table>
+          </div>
+        </AdminPanel>
+      ) : null}
+
+      {route.view === "detail" && selectedGroup ? (
+        <AdminPanel title={`${selectedGroup.brand} ${selectedGroup.model} ${selectedGroup.years[0] || ""}`} subtitle="先看版本列表和配置差异速览，再进入完整参数对比">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <button type="button" onClick={() => setRoute({ view: "list" })} className="rounded-xl border border-white/15 px-4 py-3 text-xs font-black text-slate-300 transition hover:border-white/30">
+              返回车型列表
+            </button>
+            <div className="flex flex-wrap gap-2">
+              <AdminSummaryChip label="级别" value={selectedGroup.segment || "-"} tone="accent" />
+              <AdminSummaryChip label="能源" value={selectedGroup.energyType || "-"} />
+              <AdminSummaryChip label="版本" value={`${selectedGroup.variants.length} 个`} />
+              <AdminSummaryChip label="指导价" value={selectedGroup.guidePriceSummary || "-"} />
+            </div>
+          </div>
+
+          <div className="mb-5 max-w-full overflow-x-auto rounded-xl border border-white/10">
+            <table className="w-full min-w-[760px] border-separate border-spacing-0 text-left text-sm">
+              <thead>
+                <tr>
+                  {["版本", "续航", "电机", "指导价", "操作"].map((header) => (
+                    <th key={header} className="border-b border-white/10 px-3 py-3 text-[10px] font-black uppercase tracking-widest text-slate-500">
+                      {header}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {selectedGroup.variants.map((variant) => (
+                  <tr key={variant.id} className="transition hover:bg-white/[.035]">
+                    <td className="border-b border-white/[.06] px-3 py-3 align-middle">
+                      <strong className="block text-sm text-white">{variant.trim || variant.id}</strong>
+                      <span className="mt-1 block font-mono text-[10px] text-slate-500">{variant.id}</span>
+                    </td>
+                    <td className="whitespace-nowrap border-b border-white/[.06] px-3 py-3 align-middle text-slate-300">{getModelSpecValue(selectedGroup.specsByModel, variant.id, ["CLTC续航"]) || "-"}</td>
+                    <td className="whitespace-nowrap border-b border-white/[.06] px-3 py-3 align-middle text-slate-300">{getModelSpecValue(selectedGroup.specsByModel, variant.id, ["电机总功率", "电机总马力"]) || "-"}</td>
+                    <td className="whitespace-nowrap border-b border-white/[.06] px-3 py-3 align-middle text-slate-300">{getModelSpecValue(selectedGroup.specsByModel, variant.id, ["中国官方指导价"]) || "-"}</td>
+                    <td className="whitespace-nowrap border-b border-white/[.06] px-3 py-3 align-middle">
+                      <button type="button" onClick={() => openComparison(selectedGroup, variant, "full")} className="rounded-lg border border-white/15 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-slate-300 transition hover:border-[#22b8aa]/50 hover:text-[#5ee6d8]">
+                        查看参数
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <section className="mb-5 rounded-xl border border-white/10 bg-[#0c1322] p-4">
+            <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+              <div>
+                <h3 className="text-base font-black text-white">配置升级阶梯</h3>
+                <p className="mt-1 text-xs text-slate-500">按价格从低到高展示，每一级高亮相比上一版本新增或升级的配置。</p>
+              </div>
+              <button type="button" onClick={() => openComparison(selectedGroup, selectedGroup.variants[0], "core")} className="rounded-lg border border-[#22b8aa]/30 bg-[#22b8aa]/10 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-[#5ee6d8] transition hover:bg-[#22b8aa] hover:text-[#07111f]">
+                主要参数对比
+              </button>
+            </div>
+
+            <div className="max-w-full overflow-x-auto pb-1">
+              <div className="flex min-w-[760px] items-end gap-3">
+                {buildVariantDifferenceSteps(selectedGroup).map((step, index, steps) => (
+                  <article
+                    key={step.variant.id}
+                    className="flex min-w-[230px] flex-1 flex-col overflow-hidden rounded-xl border bg-white/[.035] shadow-2xl shadow-black/10"
+                    style={{ minHeight: `${250 + step.sections.reduce((sum, section) => sum + section.items.length, 0) * 13 + step.sections.length * 28}px`, borderColor: upgradeStepColor(index) }}
+                  >
+                    <div className="px-4 py-3" style={{ background: upgradeStepColor(index) }}>
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <span className="text-[10px] font-black uppercase tracking-widest text-[#07111f]">{step.label}</span>
+                          <h4 className="mt-1 text-base font-black leading-snug text-[#07111f]">{step.variant.trim || step.variant.id}</h4>
+                        </div>
+                        <span className="rounded-full bg-[#07111f]/15 px-2.5 py-1 text-[10px] font-black text-[#07111f]">{index + 1}/{steps.length}</span>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-1.5 border-b border-white/[.07] p-2.5">
+                      <div className="rounded-md border border-white/10 bg-black/10 px-2 py-1.5">
+                        <span className="block text-[9px] font-black uppercase tracking-widest text-slate-500">指导价</span>
+                        <strong className="mt-0.5 block truncate text-xs text-white">{step.price || "-"}</strong>
+                      </div>
+                      <div className="rounded-md border border-white/10 bg-black/10 px-2 py-1.5">
+                        <span className="block text-[9px] font-black uppercase tracking-widest text-slate-500">续航</span>
+                        <strong className="mt-0.5 block truncate text-xs text-white">{step.range || "-"}</strong>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-1 flex-col gap-1.5 p-2.5">
+                      <p className="px-1 text-[9px] font-black uppercase tracking-widest text-slate-500">
+                        {index === 0 ? "入门核心配置" : "底部继承 / 上方为本级新增或升级"}
+                      </p>
+                      <div className="flex flex-1 flex-col-reverse justify-start gap-1.5">
+                        {step.sections.map((section, sectionIndex) => (
+                          <div
+                            key={`${step.variant.id}-${section.label}-${sectionIndex}`}
+                            className="rounded-lg border px-2.5 py-2 text-xs leading-4"
+                            style={{ borderColor: section.tone, background: `${section.tone}${section.isCurrent ? "2e" : "1c"}` }}
+                          >
+                            <div className="mb-1.5 flex items-center justify-between gap-2">
+                              <span className="font-black text-white">{section.label}</span>
+                              <span className="rounded-full bg-black/15 px-1.5 py-0.5 text-[9px] font-black text-slate-200">{section.items.length}</span>
+                            </div>
+                            <ul className="grid gap-0.5">
+                              {section.items.map((item) => (
+                                <li key={`${section.label}-${item.name}`} className="truncate text-[11px] text-slate-100">
+                                  <span className="font-bold">{item.name}</span>
+                                  <span className="text-slate-300">: </span>
+                                  <span>{item.previousValue ? `${item.previousValue} -> ${item.value}` : item.value}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="border-t border-white/[.07] p-3">
+                      <button type="button" onClick={() => openComparison(selectedGroup, step.variant, "full")} className="w-full rounded-lg border border-white/15 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-slate-300 transition hover:border-[#22b8aa]/50 hover:text-[#5ee6d8]">
+                        高亮查看完整参数
+                      </button>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          <section className="rounded-xl border border-white/10 bg-white/[.025] p-4">
+            <h3 className="text-base font-black text-white">全系标配</h3>
+            <p className="mt-1 text-xs text-slate-500">所有版本一致的关键配置单独收纳，避免在对比表里反复占空间。</p>
+            <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+              {buildSharedSpecItems(selectedGroup).map((item) => (
+                <div key={item} className="rounded-lg border border-white/[.07] bg-[#0c1322] px-3 py-2 text-sm text-slate-300">
+                  {item}
+                </div>
+              ))}
+            </div>
+          </section>
+        </AdminPanel>
+      ) : null}
+
+      {route.view === "comparison" && selectedGroup ? (
+        <AdminPanel title={`${selectedGroup.brand} ${selectedGroup.model} 完整参数对比`} subtitle={`已高亮 ${selectedGroup.variants.find((variant) => variant.id === highlightedVariantId)?.trim || highlightedVariantId}`}>
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-wrap gap-2">
+              <button type="button" onClick={() => setRoute({ view: "detail", groupKey: selectedGroup.key })} className="rounded-lg border border-white/15 px-3 py-2 text-xs font-black text-slate-300 transition hover:border-white/30">
+                返回车型详情
+              </button>
+              <AdminSummaryChip label="级别" value={selectedGroup.segment || "-"} tone="accent" />
+              <AdminSummaryChip label="能源" value={selectedGroup.energyType || "-"} />
+              <AdminSummaryChip label="版本" value={`${selectedGroup.variants.length} 个`} />
+            </div>
+            <div className="inline-grid grid-cols-2 rounded-xl border border-white/10 bg-[#0c1322] p-1">
+              <button type="button" onClick={() => setMode("core")} className={`rounded-lg px-3 py-2 text-xs font-black transition ${mode === "core" ? "bg-[#22b8aa] text-[#07111f]" : "text-slate-400 hover:text-white"}`}>
+                主要参数
+              </button>
+              <button type="button" onClick={() => setMode("full")} className={`rounded-lg px-3 py-2 text-xs font-black transition ${mode === "full" ? "bg-[#22b8aa] text-[#07111f]" : "text-slate-400 hover:text-white"}`}>
+                明细参数
+              </button>
+            </div>
+          </div>
+
+          <div className="max-w-full overflow-x-auto rounded-xl border border-white/10">
+            <table className="w-full min-w-[980px] border-separate border-spacing-0 text-left text-sm">
+              <thead>
+                <tr>
+                  <th className="sticky left-0 z-20 w-44 border-b border-white/10 bg-[#111827] px-4 py-4 text-[10px] font-black uppercase tracking-widest text-slate-500">参数</th>
+                  {selectedGroup.variants.map((variant) => (
+                    <th key={variant.id} className={`min-w-52 border-b border-white/10 px-4 py-4 align-top ${variant.id === highlightedVariantId ? "bg-[#22b8aa]/15 shadow-[inset_0_2px_0_#22b8aa]" : "bg-[#111827]"}`}>
+                      <span className="block text-[10px] font-black uppercase tracking-widest text-[#22b8aa]">{variant.year}款</span>
+                      <strong className="mt-1 block text-sm leading-snug text-white">{variant.trim || variant.id}</strong>
+                      <span className="mt-2 block font-mono text-[10px] text-slate-500">{variant.id}</span>
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {comparisonRows.map((row) => (
+                  <tr key={`${row.category}-${row.label}`} className="transition hover:bg-white/[.035]">
+                    <th className="sticky left-0 z-10 border-b border-white/[.06] bg-[#111827] px-4 py-3 align-top">
+                      <span className="block text-[10px] font-black uppercase tracking-widest text-slate-600">{row.category}</span>
+                      <span className="mt-1 block text-sm font-black text-slate-200">{row.label}</span>
+                    </th>
+                    {selectedGroup.variants.map((variant) => (
+                      <td key={`${variant.id}-${row.label}`} className={`border-b border-white/[.06] px-4 py-3 align-top text-slate-300 ${variant.id === highlightedVariantId ? "bg-[#22b8aa]/10 text-white" : ""}`}>
+                        {row.values[variant.id] || <span className="text-slate-600">待补充</span>}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+                {comparisonRows.length === 0 ? (
+                  <tr>
+                    <td colSpan={selectedGroup.variants.length + 1} className="px-4 py-10 text-center text-sm text-slate-600">
+                      暂无参数
+                    </td>
+                  </tr>
+                ) : null}
+              </tbody>
+            </table>
+          </div>
+        </AdminPanel>
+      ) : null}
+    </div>
   );
 }
 
@@ -1798,6 +2196,278 @@ function findCustomer(data: BootstrapData, customerId: string) {
 
 function isInternalUser(user: PortalUser) {
   return user.accountType === "internal" || ["admin", "sales", "sourcing", "finance"].includes(user.role);
+}
+
+function buildModelProfileGroups(data: BootstrapData): ModelProfileGroup[] {
+  const specsByModel = new Map<string, VehicleModelSpec[]>();
+  for (const spec of data.vehicleModelSpecs || []) {
+    if (!spec.modelId) continue;
+    if (!specsByModel.has(spec.modelId)) specsByModel.set(spec.modelId, []);
+    specsByModel.get(spec.modelId)!.push(spec);
+  }
+  for (const specs of specsByModel.values()) {
+    specs.sort((a, b) => categoryRank(a.category) - categoryRank(b.category) || (a.sortOrder || 9999) - (b.sortOrder || 9999) || a.name.localeCompare(b.name));
+  }
+
+  const activeModels = (data.vehicleModels || []).filter((model) => !/archived/i.test(model.status));
+  const models = activeModels.length ? activeModels : data.vehicleModels || [];
+  const grouped = new Map<string, ModelProfileGroup>();
+  for (const model of models) {
+    const key = normalizeKey(model.brand, model.model);
+    if (!grouped.has(key)) {
+      grouped.set(key, {
+        key,
+        brand: model.brand,
+        model: model.model,
+        years: [],
+        variants: [],
+        specsByModel,
+        segment: "",
+        energyType: "",
+        marketPosition: "",
+        rangeSummary: "",
+        guidePriceSummary: "",
+      });
+    }
+    const group = grouped.get(key)!;
+    group.variants.push(model);
+    if (model.year && !group.years.includes(model.year)) group.years.push(model.year);
+  }
+
+  const groups = [...grouped.values()];
+  for (const group of groups) {
+    group.variants.sort((a, b) => {
+      const yearOrder = String(b.year).localeCompare(String(a.year));
+      if (yearOrder) return yearOrder;
+      return getVariantGuidePriceNumber(group.specsByModel, a) - getVariantGuidePriceNumber(group.specsByModel, b) || a.trim.localeCompare(b.trim);
+    });
+    group.years.sort((a, b) => b.localeCompare(a));
+    const first = group.variants[0];
+    group.segment = getModelSpecValue(group.specsByModel, first?.id || "", ["车身级别"]) || first?.bodyType || "";
+    group.energyType = getModelSpecValue(group.specsByModel, first?.id || "", ["能源类型"]) || first?.fuelType || "";
+    group.marketPosition = getModelSpecValue(group.specsByModel, first?.id || "", ["市场定位"]) || first?.marketPosition || "";
+    group.rangeSummary = summarizeGroupSpec(group, ["CLTC续航"]);
+    group.guidePriceSummary = summarizeGuidePriceGroup(group);
+  }
+  return groups.sort((a, b) => `${a.brand} ${a.model}`.localeCompare(`${b.brand} ${b.model}`));
+}
+
+function modelProfileGroupMatchesSearch(group: ModelProfileGroup, query: string) {
+  if (!query) return true;
+  return adminSearchText([
+    group.brand,
+    group.model,
+    group.years.join(" "),
+    group.segment,
+    group.energyType,
+    group.marketPosition,
+    group.rangeSummary,
+    group.guidePriceSummary,
+    ...group.variants.map((variant) => `${variant.id} ${variant.year} ${variant.trim}`),
+  ]).includes(query);
+}
+
+function summarizeGroupSpec(group: ModelProfileGroup, names: string[]) {
+  const values = group.variants
+    .map((variant) => getModelSpecValue(group.specsByModel, variant.id, names))
+    .filter(Boolean);
+  const unique = [...new Set(values)];
+  if (unique.length === 0) return "";
+  if (unique.length === 1) return unique[0];
+  const numbers = unique
+    .map((value) => Number(String(value).match(/[\d,.]+/)?.[0]?.replace(/,/g, "")))
+    .filter((value) => Number.isFinite(value));
+  if (numbers.length === unique.length) {
+    const min = Math.min(...numbers);
+    const max = Math.max(...numbers);
+    const suffix = String(unique[0]).replace(/^[\d,.\s-]+/, "").trim();
+    return min === max ? `${min}${suffix ? ` ${suffix}` : ""}` : `${min} - ${max}${suffix ? ` ${suffix}` : ""}`;
+  }
+  return unique.length <= 2 ? unique.join(" / ") : `${unique[0]} - ${unique[unique.length - 1]}`;
+}
+
+function summarizeGuidePriceGroup(group: ModelProfileGroup) {
+  const values = group.variants
+    .map((variant) => getModelSpecValue(group.specsByModel, variant.id, ["中国官方指导价"]))
+    .filter(Boolean);
+  const numbers = values
+    .map((value) => Number(String(value).match(/[\d,.]+/)?.[0]?.replace(/,/g, "")))
+    .filter((value) => Number.isFinite(value));
+  if (numbers.length === 0) return "";
+  const min = Math.min(...numbers);
+  const max = Math.max(...numbers);
+  return min === max ? formatCnyCompact(min) : `${formatCnyCompact(min)}-${formatCnyCompact(max)}`;
+}
+
+function formatCnyCompact(value: number) {
+  return `¥${(value / 1000).toFixed(value % 1000 === 0 ? 0 : 1)}k`;
+}
+
+function buildModelComparisonRows(group: ModelProfileGroup, mode: "core" | "full"): ModelComparisonRow[] {
+  const rows = new Map<string, ModelComparisonRow>();
+  const activeNames = new Set(modelCoreSpecNames);
+  for (const variant of group.variants) {
+    const specs = group.specsByModel.get(variant.id) || [];
+    for (const spec of specs) {
+      if (!spec.name || !spec.value) continue;
+      if (mode === "core" && !activeNames.has(spec.name)) continue;
+      const key = `${spec.category}::${spec.name}`;
+      if (!rows.has(key)) {
+        rows.set(key, {
+          category: spec.category || "其他",
+          label: spec.name,
+          sortOrder: spec.sortOrder || 9999,
+          values: {},
+        });
+      }
+      rows.get(key)!.values[variant.id] = formatSpecValue(spec);
+    }
+  }
+  const result = [...rows.values()].sort((a, b) => {
+    if (mode === "core") return modelCoreSpecNames.indexOf(a.label) - modelCoreSpecNames.indexOf(b.label);
+    return categoryRank(a.category) - categoryRank(b.category) || a.sortOrder - b.sortOrder || a.label.localeCompare(b.label);
+  });
+  return result;
+}
+
+function buildVariantDifferenceSteps(group: ModelProfileGroup): VariantDifferenceStep[] {
+  const ignoredNames = new Set(["品牌", "车系", "车型", "年款", "版本", "市场定位", "原始参数JSON", "出口备注", "版本核对", "中国官方指导价"]);
+  const entryNames = new Set(["车身级别", "能源类型", "CLTC续航", "电池容量", "电池类型", "电机总功率", "驱动方式", "座位数"]);
+  const sections: VariantDifferenceStep["sections"] = [];
+  return group.variants.map((variant, index) => {
+    const specs = (group.specsByModel.get(variant.id) || [])
+      .filter((spec) => spec.name && spec.value && !ignoredNames.has(spec.name))
+      .sort((a, b) => upgradeSpecRank(a) - upgradeSpecRank(b) || categoryRank(a.category) - categoryRank(b.category) || (a.sortOrder || 9999) - (b.sortOrder || 9999));
+    const previous = index > 0 ? group.variants[index - 1] : null;
+    const previousValues = new Map((previous ? group.specsByModel.get(previous.id) || [] : []).map((spec) => [spec.name, formatSpecValue(spec)]));
+    const changedSpecs = (index === 0 ? specs.filter((spec) => entryNames.has(spec.name)) : specs.filter((spec) => previousValues.get(spec.name) !== formatSpecValue(spec))).slice(0, index === 0 ? 7 : 8);
+
+    const sectionItems = changedSpecs.map((spec) => ({
+      category: spec.category || "其他",
+      name: spec.name,
+      value: formatSpecValue(spec),
+      previousValue: index === 0 ? "" : previousValues.get(spec.name) || "",
+    }));
+    if (index > 0 && sectionItems.length === 0) {
+      sectionItems.push({
+        category: "配置",
+        name: "配置差异待补充",
+        value: "当前参数表未记录明显新增项",
+        previousValue: "",
+      });
+    }
+    if (sectionItems.length) {
+      sections.push({
+        label: index === 0 ? "入门基础" : `第${index + 1}档新增/升级`,
+        tone: upgradeStepColor(index),
+        isCurrent: true,
+        items: sectionItems,
+      });
+    }
+    const visibleSections = sections.map((section, sectionIndex) => ({
+      ...section,
+      isCurrent: sectionIndex === sections.length - 1,
+    }));
+
+    return {
+      variant,
+      label: index === 0 ? "入门版底座" : index === group.variants.length - 1 ? "最高配升级" : "加价升级",
+      price: getModelSpecValue(group.specsByModel, variant.id, ["中国官方指导价"]),
+      range: getModelSpecValue(group.specsByModel, variant.id, ["CLTC续航"]),
+      sections: visibleSections.length
+        ? visibleSections
+        : [
+            {
+              label: "配置待补充",
+              tone: specCategoryTone("其他"),
+              isCurrent: true,
+              items: [
+                {
+                  category: "配置",
+                  name: index === 0 ? "核心配置" : "差异待补充",
+                  value: index === 0 ? "参数表暂无核心配置摘要" : "参数表暂无明显新增项",
+                  previousValue: "",
+                },
+              ],
+            },
+          ],
+    };
+  });
+}
+
+function upgradeStepColor(index: number) {
+  return ["#f4d35e", "#5ee6d8", "#8fb7ff", "#f5a3c7", "#b6e36a"][index % 5];
+}
+
+function specCategoryTone(category: string) {
+  if (/电池|充电|电动机/.test(category)) return "#5ee6d8";
+  if (/辅助|安全|智能/.test(category)) return "#8fb7ff";
+  if (/座椅|内部|空调|舒适/.test(category)) return "#f5a3c7";
+  if (/外部|灯光|玻璃/.test(category)) return "#f4d35e";
+  if (/车身|底盘|车轮/.test(category)) return "#b6e36a";
+  return "#94a3b8";
+}
+
+function upgradeSpecRank(spec: VehicleModelSpec) {
+  const names = [
+    "CLTC续航",
+    "电池容量",
+    "电池类型",
+    "电机总功率",
+    "电机总扭矩",
+    "驱动方式",
+    "充电说明",
+    "ADAS",
+    "辅助驾驶",
+    "主动安全配置",
+    "被动安全配置",
+    "座椅配置",
+    "多媒体/智能座舱",
+    "外部配置",
+    "内部配置",
+    "空调/舒适",
+  ];
+  const exact = names.indexOf(spec.name);
+  if (exact !== -1) return exact;
+  if (/辅助|安全|座椅|智能|舒适|天窗|雷达|影像|屏|灯|空调/.test(`${spec.category} ${spec.name}`)) return 50;
+  return 100 + categoryRank(spec.category);
+}
+
+function getVariantGuidePriceNumber(specsByModel: Map<string, VehicleModelSpec[]>, variant: VehicleModel) {
+  const raw = getModelSpecValue(specsByModel, variant.id, ["中国官方指导价"]) || variant.msrpChina;
+  const number = Number(String(raw).match(/[\d,.]+/)?.[0]?.replace(/,/g, ""));
+  return Number.isFinite(number) ? number : Number.MAX_SAFE_INTEGER;
+}
+
+function buildSharedSpecItems(group: ModelProfileGroup) {
+  const rows = buildModelComparisonRows(group, "core");
+  const items = rows
+    .filter((row) => {
+      const values = group.variants.map((variant) => row.values[variant.id]).filter(Boolean);
+      return values.length === group.variants.length && new Set(values).size === 1;
+    })
+    .slice(0, 18)
+    .map((row) => `${row.label}: ${row.values[group.variants[0].id]}`);
+  return items.length ? items : ["全系标配待补充"];
+}
+
+function getModelSpecValue(specsByModel: Map<string, VehicleModelSpec[]>, modelId: string, names: string[]) {
+  const specs = specsByModel.get(modelId) || [];
+  for (const name of names) {
+    const spec = specs.find((item) => item.name === name);
+    if (spec?.value) return formatSpecValue(spec);
+  }
+  return "";
+}
+
+function formatSpecValue(spec: VehicleModelSpec) {
+  if (!spec.value) return "";
+  return spec.unit ? `${spec.value} ${spec.unit}`.trim() : spec.value;
+}
+
+function categoryRank(category: string) {
+  const index = modelCategoryOrder.indexOf(category);
+  return index === -1 ? modelCategoryOrder.length : index;
 }
 
 function buildSellableModels(data: BootstrapData): SellableModel[] {

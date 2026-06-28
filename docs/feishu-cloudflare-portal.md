@@ -30,7 +30,8 @@ The setup script creates these tables:
 
 - `Internal Users`: company staff accounts, roles, permissions, and commission rates.
 - `External Accounts`: partner/customer accounts, company details, and price permissions.
-- `Vehicle Models`: model/version parameter library. It describes what a vehicle version is.
+- `Vehicle Models`: model/version master table. It stores model identity, guide price, status, image/source metadata, and review notes.
+- `Vehicle Model Specs`: full parameter detail table. It stores category/spec/value rows for complete Dongchedi-style configuration data.
 - `Vehicles`: supply/inventory resources. It describes whether that model has stock, colors, supplier, price, and lead time.
 - `Inquiries`
 - `Quotes`
@@ -48,7 +49,8 @@ In production, users do not choose a role. The role and permissions come from th
 
 `Vehicle Models` and `Vehicles` are deliberately separated:
 
-- `Vehicle Models` stores the base product facts: brand, model, trim, year, body type, battery, range, motor, dimensions, charging, warranty, market position, and export notes.
+- `Vehicle Models` stores stable model identity and metadata: brand, model, year, version, China guide price, source, image, status, and review notes.
+- `Vehicle Model Specs` stores full configuration facts as rows: model ID, category, spec name, spec value, unit, visibility level, sort order, confidence, source, and notes. This lets AI add new parameters as data rows instead of changing table schema.
 - `Vehicles` stores supply facts: resource ID, model ID, external display color, supplier original color, configuration, supplier, recorder, location, stock quantity, preorder lead time, FOB prices, cost, price validity, and listing status.
 
 External color and internal color are separate:
@@ -111,6 +113,7 @@ FEISHU_TABLE_INTERNAL_USERS=
 FEISHU_TABLE_EXTERNAL_ACCOUNTS=
 FEISHU_TABLE_CUSTOMERS=
 FEISHU_TABLE_VEHICLE_MODELS=
+FEISHU_TABLE_VEHICLE_MODEL_SPECS=
 FEISHU_TABLE_VEHICLES=
 FEISHU_TABLE_INQUIRIES=
 FEISHU_TABLE_QUOTES=
