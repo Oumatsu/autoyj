@@ -14,10 +14,7 @@ export default function SolutionsPage() {
         />
         <div
           className="absolute inset-0"
-          style={{
-            background:
-              "linear-gradient(to right, rgba(28,28,28,.6) 28%, transparent 75%)",
-          }}
+          style={{ background: "rgba(0, 0, 0, 0.45)" }}
         />
         <div
           className="absolute inset-0"
@@ -26,32 +23,27 @@ export default function SolutionsPage() {
           }}
         />
 
-        <div className="container absolute inset-0 z-10 flex flex-col items-center justify-center px-4 sm:px-6 md:px-12">
-          <div className="max-w-3xl">
-            <div className="label label-gold mb-4 sm:mb-6 text-[10px] sm:text-[11px]">
-              Precision Export Solutions
-            </div>
-            <h1
-              className="sh mb-6 sm:mb-8"
-              style={{ fontSize: "clamp(2rem, 7.5vw, 6.5rem)" }}
-            >
-              Quality <span className="text-accent">Verified</span>
-              <br />
-              Delivered Transparently.
-            </h1>
-            <p
-              className="hidden min-[451px]:block text-base sm:text-xl text-gray-400 font-light italic border-l-2 pl-6 sm:pl-8 leading-relaxed max-w-xl"
-              style={{ borderColor: "var(--color-green)" }}
-            >
-              Eliminating the uncertainty of China-to-Africa EV exports with
-              rigorous 50-point PDI and end-to-end visual tracking.
-            </p>
+        <div className="container absolute inset-0 z-10 mx-auto px-4 sm:px-6 md:px-12 flex flex-col items-center justify-center text-center">
+          <div className="label label-gold justify-center mb-4 sm:mb-6">
+            Precision Export Solutions
           </div>
+          <h1
+            className="sh mb-4 sm:mb-6"
+            style={{ fontSize: "clamp(2rem, 8vw, 6.5rem)" }}
+          >
+            Quality <span className="text-accent">Verified</span>
+            <br />
+            Delivered <span className="text-theme">Transparently</span>
+          </h1>
+          <p className="hidden min-[392px]:block text-gray-300 text-sm sm:text-lg font-light italic max-w-2xl mx-auto leading-relaxed px-2">
+            Eliminating the uncertainty of China-to-Africa EV exports with
+            rigorous 50-point PDI and end-to-end visual tracking.
+          </p>
         </div>
       </section>
 
       {/* PDI & Quality Standards */}
-      <section id="pdi" className="py-16 sm:py-20 md:py-28 bg-a">
+      <section id="pdi" className="py-16 sm:py-20 md:py-28 bg-a scroll-mt-24">
         <div className="container mx-auto px-4 sm:px-6 md:px-12">
           <div className="grid lg:grid-cols-2 gap-16 items-start">
             <div>
@@ -197,7 +189,7 @@ export default function SolutionsPage() {
       </section>
 
       {/* Starter Parts Kit */}
-      <section id="parts" className="py-16 sm:py-20 md:py-28 bg-b">
+      <section id="parts" className="py-16 sm:py-20 md:py-28 bg-b scroll-mt-24">
         <div className="container mx-auto px-4 sm:px-6 md:px-12">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div className="order-2 lg:order-1">
@@ -267,7 +259,7 @@ export default function SolutionsPage() {
       </section>
 
       {/* Service Centre Setup */}
-      <section id="service" className="py-16 sm:py-20 md:py-28 bg-a">
+      <section id="service" className="py-16 sm:py-20 md:py-28 bg-a scroll-mt-24">
         <div className="container mx-auto px-4 sm:px-6 md:px-12">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div>
@@ -345,7 +337,7 @@ export default function SolutionsPage() {
       </section>
 
       {/* Marketing Support */}
-      <section className="py-16 sm:py-20 md:py-28 relative overflow-hidden">
+      <section id="marketing" className="py-16 sm:py-20 md:py-28 relative overflow-hidden scroll-mt-24">
         <div className="absolute inset-0">
           <img
             src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=2000&q=80"
@@ -418,7 +410,7 @@ export default function SolutionsPage() {
       </section>
 
       {/* Trade Terms */}
-      <section id="finance" className="py-16 sm:py-20 md:py-28 bg-b">
+      <section id="finance" className="py-16 sm:py-20 md:py-28 bg-b scroll-mt-24">
         <div className="container mx-auto px-4 sm:px-6 md:px-12">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div>

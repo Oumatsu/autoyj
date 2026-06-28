@@ -132,15 +132,6 @@ export function Footer() {
                   </Link>
                 </li>
               </ul>
-              <div className="text-[10px] font-black tracking-widest uppercase mb-3 mt-6 text-theme">
-                Markets We Serve
-              </div>
-              <Link
-                href="/markets/ethiopia"
-                className="text-xs text-gray-600 hover:text-theme transition"
-              >
-                → Ethiopia Focus
-              </Link>
             </div>
 
             <div>
@@ -153,28 +144,7 @@ export function Footer() {
                     href="/solutions"
                     className="hover:text-white transition"
                   >
-                    PDI &amp; Quality
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/solutions#parts"
-                    className="hover:text-white transition"
-                  >
-                    Starter Parts Kit
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/solutions#marketing"
-                    className="hover:text-white transition"
-                  >
-                    Marketing Assets
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="hover:text-white transition">
-                    Custom Sourcing
+                    Export Solutions Overview
                   </Link>
                 </li>
               </ul>
@@ -232,15 +202,6 @@ export function Footer() {
                   </Link>
                 </li>
               </ul>
-              <div className="text-[10px] font-black tracking-widest uppercase mb-3 text-theme">
-                Markets We Serve
-              </div>
-              <Link
-                href="#"
-                className="text-xs text-gray-600 hover:text-theme transition"
-              >
-                → Ethiopia
-              </Link>
             </div>
           </div>
 
