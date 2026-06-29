@@ -11,4 +11,6 @@ history
 .dev.vars.feishu.example
 .dev.vars.local
 .dev.vars
+build-log.txt
+_tmp_fix_hero.py
 

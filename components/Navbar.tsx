@@ -2,12 +2,14 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { QrDropdown } from "./QrDropdown";
 
 export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pathname = usePathname();
 
   const openDropdown = useCallback(() => {
     if (closeTimerRef.current) {
@@ -102,24 +104,24 @@ export function Navbar() {
             >
               <Link
                 href="/products/revenue-king"
-                className="flex items-center justify-between px-4 py-2.5 text-[11px] font-bold tracking-[.12em] uppercase text-accent hover:bg-white/5 rounded-t-[14px] transition-colors"
+                className={`flex items-center justify-between px-4 py-2.5 text-[11px] font-bold tracking-[.12em] uppercase hover:bg-white/5 rounded-t-[14px] transition-colors ${pathname.includes("/revenue-king") ? "text-accent" : "text-gray-400"}`}
               >
                 Revenue King
-                <span className="w-1.5 h-1.5 rounded-full bg-accent" />
+                <span className={`w-1.5 h-1.5 rounded-full ${pathname.includes("/revenue-king") ? "bg-accent" : "bg-white/20"}`} />
               </Link>
               <Link
                 href="/products/elite-flagship"
-                className="flex items-center justify-between px-4 py-2.5 text-[11px] font-bold tracking-[.12em] uppercase text-gray-400 hover:text-white hover:bg-white/5 transition-colors"
+                className={`flex items-center justify-between px-4 py-2.5 text-[11px] font-bold tracking-[.12em] uppercase hover:text-white hover:bg-white/5 transition-colors ${pathname.includes("/elite-flagship") ? "text-accent" : "text-gray-400"}`}
               >
                 Elite Flagship
-                <span className="w-1.5 h-1.5 rounded-full bg-white/20" />
+                <span className={`w-1.5 h-1.5 rounded-full ${pathname.includes("/elite-flagship") ? "bg-accent" : "bg-white/20"}`} />
               </Link>
               <Link
                 href="/products/utility-pro"
-                className="flex items-center justify-between px-4 py-2.5 text-[11px] font-bold tracking-[.12em] uppercase text-gray-400 hover:text-white hover:bg-white/5 rounded-b-[14px] transition-colors"
+                className={`flex items-center justify-between px-4 py-2.5 text-[11px] font-bold tracking-[.12em] uppercase hover:text-white hover:bg-white/5 rounded-b-[14px] transition-colors ${pathname.includes("/utility-pro") ? "text-accent" : "text-gray-400"}`}
               >
                 Utility Pro
-                <span className="w-1.5 h-1.5 rounded-full bg-white/20" />
+                <span className={`w-1.5 h-1.5 rounded-full ${pathname.includes("/utility-pro") ? "bg-accent" : "bg-white/20"}`} />
               </Link>
             </div>
           </div>
