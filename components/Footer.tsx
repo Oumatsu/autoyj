@@ -1,7 +1,12 @@
-﻿import Link from "next/link";
+"use client";
+
+import { useState } from "react";
+import Link from "next/link";
 import { QrDropdown } from "./QrDropdown";
 
 export function Footer() {
+  const [mobileFooterOpen, setMobileFooterOpen] = useState(false);
+
   return (
     <div className="relative overflow-hidden">
       <div className="absolute inset-0">
@@ -82,9 +87,47 @@ export function Footer() {
               "linear-gradient(to top, rgba(0,0,0,.96) 0%, rgba(0,0,0,.82) 45%, rgba(0,0,0,.5) 75%, transparent 100%)",
           }}
         />
-        <div className="relative z-10 container mx-auto px-4 sm:px-6 md:px-12 py-10 sm:py-16">
+        <div className="relative z-10 container mx-auto px-4 sm:px-6 md:px-12 pt-6 sm:pt-16 pb-8 sm:pb-16">
+          <div className="sm:hidden mb-3">
+            <div className="flex items-center gap-2.5 mb-4">
+              <img src="/favicon.svg" className="h-8 w-auto" alt="autoYJ" />
+            </div>
+            <p className="text-gray-600 text-xs font-light leading-relaxed">
+              China&apos;s trusted EV sourcing partner for African dealers.
+              Expert-curated, transparently delivered.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setMobileFooterOpen((open) => !open)}
+            className="sm:hidden mb-6 flex w-full items-center justify-center gap-3 py-3 text-gray-500 hover:text-white transition"
+            aria-expanded={mobileFooterOpen}
+            aria-controls="footer-navigation"
+            aria-label={
+              mobileFooterOpen
+                ? "Collapse footer navigation"
+                : "Expand footer navigation"
+            }
+          >
+            <span className="h-px flex-1 bg-current opacity-50" />
+            <span className="flex min-w-[132px] flex-col items-center gap-1">
+              <span className="text-[9px] font-black uppercase tracking-[0.24em]">
+                Site Navigation
+              </span>
+              <span className="text-xs leading-none" aria-hidden="true">
+                {mobileFooterOpen ? "▲" : "▼"}
+              </span>
+            </span>
+            <span className="h-px flex-1 bg-current opacity-50" />
+          </button>
+
+          <div
+            id="footer-navigation"
+            className={`${mobileFooterOpen ? "block" : "hidden"} sm:block`}
+          >
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 sm:gap-10 mb-10 sm:mb-14">
-            <div>
+            <div className="hidden sm:block">
               <div className="flex items-center gap-2.5 mb-5">
                 <img src="/favicon.svg" className="h-8 w-auto" alt="autoYJ" />
               </div>
@@ -125,8 +168,8 @@ export function Footer() {
                 </li>
                 <li>
                   <Link
-                    href="/#contact"
-                    className="hover:text-theme transition"
+                    href="/#tco"
+                    className="hover:text-white transition"
                   >
                     Dealer Profit Estimate ↗
                   </Link>
@@ -196,7 +239,7 @@ export function Footer() {
                 <li>
                   <Link
                     href="/academy"
-                    className="hover:text-white transition text-accent"
+                    className="hover:text-white transition"
                   >
                     EV Academy
                   </Link>
@@ -227,6 +270,7 @@ export function Footer() {
                 </li>
               </ul>
             </div>
+          </div>
           </div>
 
           <div
