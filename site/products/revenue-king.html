@@ -640,7 +640,7 @@
         </div>
       </div>
       <div class="flex flex-col md:flex-row justify-between items-center gap-4 pt-8" style="border-top:1px solid rgba(197,160,89,.06);">
-        <p class="text-[9px] font-black tracking-[.4em] uppercase text-gray-700">© 2026 autoYJ Eco Supply Chain. All Rights Reserved.</p>
+        <p class="text-[9px] font-black tracking-[.4em] uppercase text-gray-700">© <span class="footer-year">2026</span> autoYJ Eco Supply Chain. All Rights Reserved.</p>
         <div class="flex gap-6">
           <a href="../privacy.html" class="text-[9px] font-black tracking-widest uppercase text-gray-700 hover:text-gray-500 transition">Privacy</a>
           <a href="../terms.html"   class="text-[9px] font-black tracking-widest uppercase text-gray-700 hover:text-gray-500 transition">Terms</a>
@@ -662,5 +662,5 @@ document.getElementById('mob-open').addEventListener('click', () => document.get
 document.getElementById('mob-close').addEventListener('click', closeMob);
 </script>
 
-</body>
+<script>document.querySelectorAll('.footer-year').forEach(function(e){e.textContent=new Date().getFullYear()});</script></body>
 </html>

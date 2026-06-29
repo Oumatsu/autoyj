@@ -111,9 +111,9 @@
       <a href="privacy.html" class="text-[9px] font-black tracking-widest uppercase text-theme">Privacy Policy</a>
       <a href="terms.html" class="text-[9px] font-black tracking-widest uppercase text-gray-500 hover:text-white transition">Terms of Service</a>
     </div>
-    <div class="text-[9px] font-black tracking-[.4em] uppercase text-gray-700">© 2026 autoYJ Eco Supply Chain. All Rights Reserved.</div>
+    <div class="text-[9px] font-black tracking-[.4em] uppercase text-gray-700">© <span class="footer-year">2026</span> autoYJ Eco Supply Chain. All Rights Reserved.</div>
   </div>
 </footer>
 
-</body>
+<script>document.querySelectorAll('.footer-year').forEach(function(e){e.textContent=new Date().getFullYear()});</script></body>
 </html>

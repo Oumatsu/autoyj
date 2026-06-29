@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>About Us �?autoYJ | Your Trusted EV Sourcing Partner</title>
+  <title>About Us â?autoYJ | Your Trusted EV Sourcing Partner</title>
   <meta name="description" content="Meet autoYJ: 15+ years of automotive and logistics expertise. We don't just sell cars; we build dealerships across Africa with a dual-track strategy.">
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,600;0,700;0,800;0,900;1,300;1,400;1,700;1,800;1,900&display=swap" rel="stylesheet">
   <style>
-    /* ── Core tokens (V3 palette) ── */
+    /* ââ Core tokens (V3 palette) ââ */
     :root {
       --gold:    #C5A059;
       --gold-lt: #D4AF37;
@@ -22,37 +22,37 @@
     html  { scroll-behavior: smooth; }
     body  { font-family: 'Inter', sans-serif; background: var(--bg); color: #E5E7EB; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
 
-    /* ── Background Gradients (Seamless Transitions) ── */
+    /* ââ Background Gradients (Seamless Transitions) ââ */
     .bg-a { background: linear-gradient(to bottom, var(--mid) 0%, var(--bg)  20%, var(--bg)  80%, var(--mid) 100%); }
     .bg-b { background: linear-gradient(to bottom, var(--mid) 0%, var(--bg2) 20%, var(--bg2) 80%, var(--mid) 100%); }
 
-    /* ── Glass ── */
+    /* ââ Glass ââ */
     .glass { background: rgba(0,0,0,0.35); -webkit-backdrop-filter: blur(24px); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px) saturate(1.3); backdrop-filter: blur(24px) saturate(1.3); border: 1px solid rgba(197,160,89,0.15); box-shadow: 0 8px 32px rgba(0,0,0,0.4); }
     .glass-sm { border-color: rgba(197,160,89,0.12); }
 
-    /* ── Buttons ── */
+    /* ââ Buttons ââ */
     .btn-primary { background: linear-gradient(135deg, #D4AF37 0%, #C5A059 100%); color: #000; transition: transform .25s, box-shadow .25s; }
     .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 24px -6px rgba(197,160,89,.45); }
     .btn-outline { border: 1px solid rgba(197,160,89,.4); color: var(--gold); transition: background .2s, color .2s; }
     .btn-outline:hover { background: var(--gold); color: #000; }
 
-    /* ── Text helpers ── */
+    /* ââ Text helpers ââ */
     .text-theme  { color: var(--gold); }
     .text-accent { color: var(--green); }
     .sh { font-size: clamp(2.4rem,5.5vw,4.5rem); font-weight: 900; line-height: .95; letter-spacing: -.03em; text-transform: uppercase; font-style: italic; color: #fff; }
 
-    /* ── Label ── */
+    /* ââ Label ââ */
     .label { font-size: 10px; font-weight: 900; letter-spacing: .3em; text-transform: uppercase; color: var(--green); display: flex; align-items: center; gap: 8px; }
     .label::before { content:''; width:20px; height:1px; background:var(--green); flex-shrink:0; }
     .label-gold { color:var(--gold); }
     .label-gold::before { background:var(--gold); }
 
-    /* ── Nav link ── */
+    /* ââ Nav link ââ */
     .nav-link { font-size:11px; font-weight:700; letter-spacing:.18em; text-transform:uppercase; color:var(--gold); transition:color .2s; }
     .nav-link:hover { color:#fff; }
     .nav-link.green { color:var(--green); }
 
-    /* ── Sticky Sub-nav ── */
+    /* ââ Sticky Sub-nav ââ */
     #section-tabs { position:fixed; top:0; left:0; right:0; z-index:40; background:rgba(22,22,22,0.85); -webkit-backdrop-filter:blur(24px); backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px) saturate(1.3); backdrop-filter:blur(24px) saturate(1.3); border-top:1px solid rgba(197,160,89,0.22); border-bottom:1px solid rgba(255,255,255,0.05); transform:translateY(-100%); opacity:0; transition:all .4s ease; pointer-events:none; }
     #section-tabs.visible { transform:translateY(0); opacity:1; pointer-events:auto; }
     .tab-inner { display:flex; align-items:center; overflow-x:auto; scrollbar-width:none; max-width:1440px; margin:0 auto; padding:0 24px; }
@@ -63,7 +63,7 @@
     .tab-wa { flex-shrink:0; margin-left:auto; padding:6px 14px; display:flex; align-items:center; gap:6px; background:rgba(37,211,102,.12); border:1px solid rgba(37,211,102,.25); border-radius:20px; color:#25D366; font-size:9px; font-weight:900; letter-spacing:.15em; text-transform:uppercase; transition:background .2s; white-space:nowrap; cursor:pointer; text-decoration:none; }
     .tab-wa:hover { background:rgba(37,211,102,.22); }
 
-    /* ── Case Card ── */
+    /* ââ Case Card ââ */
     .case-card { border-radius:2.5rem; overflow:hidden; position:relative; cursor:pointer; border: 1px solid rgba(255,255,255,0.03); transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
     .case-card img { transition:transform 1.2s ease; filter: brightness(.8); }
     .case-card:hover { transform: translateY(-10px); border-color: var(--gold); }
@@ -71,12 +71,12 @@
     .case-card-overlay { position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,.95) 0%, rgba(0,0,0,.2) 50%, transparent 100%); z-index: 5; }
     .case-content { position: relative; z-index: 10; display: flex; flex-direction: column; justify-content: flex-end; height: 100%; padding: 2rem; }
 
-    /* ── Numbered circle ── */
+    /* ââ Numbered circle ââ */
     .num-circle { width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:900; flex-shrink:0; }
     .pulse-dot { width:8px; height:8px; border-radius:50%; background:var(--green); box-shadow:0 0 0 0 rgba(16,185,129,.5); animation:pulse-anim 2s infinite; }
     @keyframes pulse-anim { 0%,100%{box-shadow:0 0 0 0 rgba(16,185,129,.5)} 60%{box-shadow:0 0 0 8px transparent} }
 
-    /* ── Infinite Marquee ── */
+    /* ââ Infinite Marquee ââ */
     @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
     .marquee-container { overflow: hidden; white-space: nowrap; position: relative; border-top: 1px solid rgba(197,160,89,0.05); border-bottom: 1px solid rgba(197,160,89,0.05); }
     .marquee-content { display: inline-block; animation: marquee 40s linear infinite; padding: 25px 0; }
@@ -114,7 +114,7 @@
 
 <!-- Mobile drawer -->
 <div id="mob-menu" class="fixed inset-0 z-[60] flex flex-col items-center justify-center gap-8 text-2xl font-black uppercase italic tracking-tight hidden" style="background:rgba(5,5,5,.97);">
-  <button id="mob-close" class="absolute top-5 right-6 text-3xl text-gray-600">�?/button>
+  <button id="mob-close" class="absolute top-5 right-6 text-3xl text-gray-600">â?/button>
   <a href="products-index-v5.html" onclick="closeMob()" class="text-white hover:text-theme transition">Vehicles</a>
   <a href="solutions.html"       onclick="closeMob()" class="text-white hover:text-theme transition">Solutions</a>
   <a href="index.html#insights"  onclick="closeMob()" class="text-white hover:text-theme transition">Insights</a>
@@ -171,7 +171,7 @@
         <div class="label label-gold mb-6">Our Heritage</div>
         <h2 class="sh mb-8">10+ Years of<br><span class="text-theme">Combined</span> Expertise.</h2>
         <p class="text-gray-500 text-lg font-light leading-relaxed mb-12">
-          Headquartered in <strong>Shanghai, China</strong>—the global epicenter of advanced EV manufacturing and logistics—autoYJ was forged to bridge the gap between Tier-1 automotive factories and the African market's demand for a reliable, end-to-end green mobility partner.
+          Headquartered in <strong>Shanghai, China</strong>âthe global epicenter of advanced EV manufacturing and logisticsâautoYJ was forged to bridge the gap between Tier-1 automotive factories and the African market's demand for a reliable, end-to-end green mobility partner.
         </p>
         
         <!-- Upgraded B2B Data Points -->
@@ -383,7 +383,7 @@
         <div><div class="text-[10px] font-black tracking-widest uppercase mb-6 text-theme">Solutions</div><ul class="space-y-4 text-xs text-gray-600 font-light"><li><a href="solutions.html">PDI & Quality</a></li><li><a href="solutions.html#parts">Starter Parts Kit</a></li><li><a href="solutions.html#marketing">Marketing Assets</a></li></ul></div>
         <div><div class="text-[10px] font-black tracking-widest uppercase mb-6 text-theme">Resources</div><ul class="space-y-4 text-xs text-gray-600 font-light"><li><a href="index.html#insights">Insights</a></li><li><a href="academy.html" class="text-accent">EV Academy</a></li><li><a href="about.html">About Sourcing</a></li></ul></div>
       </div>
-      <div class="pt-8 border-t border-white/5 text-[9px] font-black tracking-[.4em] uppercase text-gray-700">© 2026 autoYJ Eco Supply Chain. All Rights Reserved.</div>
+      <div class="pt-8 border-t border-white/5 text-[9px] font-black tracking-[.4em] uppercase text-gray-700">Â© <span class="footer-year">2026</span> autoYJ Eco Supply Chain. All Rights Reserved.</div>
     </div>
   </footer>
 </div>
@@ -428,5 +428,5 @@ function closeMob() { document.getElementById('mob-menu').style.display='none'; 
 document.getElementById('mob-open').addEventListener('click', () => document.getElementById('mob-menu').style.display='flex');
 </script>
 
-</body>
+<script>document.querySelectorAll('.footer-year').forEach(function(e){e.textContent=new Date().getFullYear()});</script></body>
 </html>

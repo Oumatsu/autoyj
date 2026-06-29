@@ -268,7 +268,7 @@
         <div><div class="text-[10px] font-black tracking-widest uppercase mb-6 text-theme">Solutions</div><ul class="space-y-4 text-xs text-gray-600 font-light"><li><a href="solutions.html" class="hover:text-white transition">PDI & Quality</a></li><li><a href="solutions.html#parts" class="hover:text-white transition">Starter Parts Kit</a></li><li><a href="solutions.html#marketing" class="hover:text-white transition">Marketing Assets</a></li></ul></div>
         <div><div class="text-[10px] font-black tracking-widest uppercase mb-6 text-theme">Resources</div><ul class="space-y-4 text-xs text-gray-600 font-light"><li><a href="#" class="hover:text-white transition">Insights</a></li><li><a href="academy.html" class="hover:text-white transition text-accent">EV Academy</a></li><li><a href="about.html" class="hover:text-white transition">About Sourcing</a></li></ul></div>
       </div>
-      <div class="pt-8 border-t border-white/5 text-[9px] font-black tracking-[.4em] uppercase text-gray-700">© 2026 autoYJ Eco Supply Chain. All Rights Reserved.</div>
+      <div class="pt-8 border-t border-white/5 text-[9px] font-black tracking-[.4em] uppercase text-gray-700">© <span class="footer-year">2026</span> autoYJ Eco Supply Chain. All Rights Reserved.</div>
     </div>
   </footer>
 </div>
@@ -338,5 +338,5 @@ function closeMob() { document.getElementById('mob-menu').style.display='none'; 
 document.getElementById('mob-open').addEventListener('click', () => document.getElementById('mob-menu').style.display='flex');
 </script>
 
-</body>
+<script>document.querySelectorAll('.footer-year').forEach(function(e){e.textContent=new Date().getFullYear()});</script></body>
 </html>

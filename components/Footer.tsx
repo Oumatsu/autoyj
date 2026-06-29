@@ -278,7 +278,7 @@ export function Footer() {
             style={{ borderTop: "1px solid rgba(197,160,89,.06)" }}
           >
             <p className="text-[9px] font-black tracking-[.4em] uppercase text-gray-700">
-              © 2025 autoYJ Eco Supply Chain. All Rights Reserved.
+              © {new Date().getFullYear()} autoYJ Eco Supply Chain. All Rights Reserved.
             </p>
             <div className="flex gap-6">
               <Link
