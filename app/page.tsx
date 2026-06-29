@@ -132,7 +132,7 @@ export default function HomePage() {
                   style={{ boxShadow: "0 0 40px rgba(197,160,89,.07)" }}
                 >
                   <img
-                    src="/pic/elite-flagship/E-HS9/6cut.jpeg"
+                    src="/pic/elite-flagship/E-HS9/6cut.webp"
                     className="w-full h-full object-cover absolute inset-0"
                     alt="Elite Flagship"
                   />

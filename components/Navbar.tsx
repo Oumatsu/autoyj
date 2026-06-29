@@ -65,7 +65,7 @@ export function Navbar() {
           <img src="/favicon.svg" className="h-8 w-auto" alt="autoYJ" />
         </Link>
 
-        <div className="hidden lg:flex items-center gap-10">
+        <div className="hidden lg:flex items-center gap-8 xl:gap-10">
           <div
             className="nav-group relative flex items-center gap-1 cursor-default"
             onMouseEnter={openDropdown}
@@ -130,7 +130,7 @@ export function Navbar() {
           <Link href="/insights" className="nav-link">
             Insights
           </Link>
-          <Link href="/academy" className="nav-link green">
+          <Link href="/academy" className="nav-link">
             Academy
           </Link>
           <Link href="/about" className="nav-link">
@@ -144,13 +144,6 @@ export function Navbar() {
             className="px-7 py-2.5 rounded-full text-xs font-black tracking-widest uppercase transition border border-white/20 text-gray-300 hover:text-white hover:border-white/40"
           >
             Portal
-          </Link>
-          <Link
-            href="/register"
-            className="px-7 py-2.5 rounded-full text-xs font-black tracking-widest uppercase transition"
-            style={{ background: "#fff", color: "#000" }}
-          >
-            Register
           </Link>
           <QrDropdown>
           <Link
@@ -213,7 +206,7 @@ export function Navbar() {
           <Link
             href="/academy"
             onClick={closeMobile}
-            className="text-accent"
+            className="text-white hover:text-theme transition"
           >
             Academy
           </Link>
@@ -227,17 +220,16 @@ export function Navbar() {
           <Link
             href="/portal"
             onClick={closeMobile}
-            className="mt-4 px-10 sm:px-12 py-3 sm:py-4 rounded text-xs sm:text-sm tracking-widest font-black uppercase w-48 sm:w-auto text-center border border-white/20 text-gray-300"
+            className="text-white hover:text-theme transition"
           >
             Portal
           </Link>
           <Link
-            href="/register"
+            href="/about#verification"
             onClick={closeMobile}
-            className="mt-4 px-10 sm:px-12 py-3 sm:py-4 rounded text-xs sm:text-sm tracking-widest font-black uppercase w-48 sm:w-auto text-center"
-            style={{ background: "#fff", color: "#000" }}
+            className="text-white hover:text-theme transition"
           >
-            Register
+            Company Verification
           </Link>
           <Link
             href="/#contact"

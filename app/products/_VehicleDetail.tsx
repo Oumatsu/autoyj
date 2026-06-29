@@ -89,6 +89,225 @@ const DEFAULT_BATCH_LEVELS = [
 
 const DEFAULT_BATCH_MARGIN = { low: "$4,500", high: "$6,500" };
 
+function compactItems(items: Array<string | undefined>): string[] {
+  return items.filter((item): item is string => Boolean(item));
+}
+
+function TrimPoster({ data, v }: { data: DetailData; v: DetailData["vehicle"] }) {
+  if (!data.trimData || data.trimData.length === 0) return null;
+
+  const standardGroups = [
+    {
+      title: "EV platform",
+      items: compactItems([
+        v.batteryType,
+        data.specsLeft.find((s) => /Drive/.test(s.label))?.value,
+        data.specsLeft.find((s) => /Top Speed/.test(s.label))?.value,
+      ]),
+    },
+    {
+      title: "Battery & charging",
+      items: compactItems([
+        v.battery,
+        v.charging,
+        data.specsRight.find((s) => /Warranty/.test(s.label))?.value,
+      ]),
+    },
+    {
+      title: "Body basics",
+      items: compactItems([
+        data.specsRight.find((s) => /Dimensions/.test(s.label))?.value,
+        data.specsRight.find((s) => /Wheelbase/.test(s.label))?.value,
+        data.specsRight.find((s) => /Seating/.test(s.label))?.value,
+      ]),
+    },
+    {
+      title: "Core specs",
+      items: compactItems([
+        data.specsLeft.find((s) => /Motor/.test(s.label))?.value,
+        data.specsLeft.find((s) => /Battery Type/.test(s.label))?.value,
+        data.specsLeft.find((s) => /DC Fast/.test(s.label))?.value,
+      ]),
+    },
+    {
+      title: "Dealer note",
+      items: ["Export availability varies by batch", "Final equipment confirmed by VIN", "Local homologation may differ"],
+    },
+    {
+      title: "Source note",
+      items: ["Based on current page data", "Use official spec sheet before final quote", "Pricing varies by port and volume"],
+    },
+  ];
+
+  return (
+    <section className="py-14 md:py-20 bg-a">
+      <div className="container mx-auto px-6 md:px-12">
+        <div className="mb-10 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
+          <div>
+            <div className="label mb-3">All Versions - Side by Side</div>
+            <h2 className="text-3xl md:text-4xl font-black uppercase italic tracking-tight text-white">
+              {v.brand} {v.name} Trim Map
+            </h2>
+            <p className="text-gray-500 text-sm font-light mt-3 max-w-2xl">
+              Version cards first, then only the equipment that changes. Shared equipment is separated below so dealers can see the real differences faster.
+            </p>
+          </div>
+          <div className="text-[10px] font-black uppercase tracking-[.18em] text-gray-600">
+            Export configuration must be confirmed by VIN
+          </div>
+        </div>
+
+        <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-5 mb-8">
+          {data.trimData.map((trim) => (
+            <div
+              key={trim.name}
+              className={`relative rounded-[2rem] p-6 border transition-colors ${
+                trim.rec
+                  ? "bg-accent/[0.08] border-accent/45 shadow-[0_0_40px_rgba(16,185,129,.08)]"
+                  : "bg-white/[0.025] border-white/10"
+              }`}
+            >
+              {trim.rec && (
+                <div className="absolute -top-3 left-6 rounded-full bg-accent px-3 py-1 text-[8px] font-black uppercase tracking-[.16em] text-black">
+                  Recommended
+                </div>
+              )}
+              <div className="text-[10px] font-black uppercase tracking-[.18em] text-gray-600 mb-2">
+                {trim.fob} price level
+              </div>
+              <h3 className="text-xl font-black italic uppercase tracking-tight text-white mb-5">
+                {trim.name}
+              </h3>
+              <div className="grid grid-cols-2 gap-3 mb-5">
+                <div>
+                  <div className="text-[8px] font-black uppercase tracking-widest text-gray-600 mb-1">Range</div>
+                  <div className="text-lg font-black italic text-accent">{trim.range}</div>
+                </div>
+                <div>
+                  <div className="text-[8px] font-black uppercase tracking-widest text-gray-600 mb-1">0-100</div>
+                  <div className="text-lg font-black italic text-theme">{trim.accel}</div>
+                </div>
+                <div>
+                  <div className="text-[8px] font-black uppercase tracking-widest text-gray-600 mb-1">Airbags</div>
+                  <div className="text-sm font-black text-white">{trim.airbags}</div>
+                </div>
+                <div>
+                  <div className="text-[8px] font-black uppercase tracking-widest text-gray-600 mb-1">Seat</div>
+                  <div className="text-sm font-black text-white">{trim.seat}</div>
+                </div>
+              </div>
+              <div className="space-y-2">
+                {[trim.range, trim.sunroof, trim.seat].map((item) => (
+                  <div key={item} className="flex items-center gap-2 text-[10px] font-black uppercase tracking-wider text-gray-400">
+                    <span className={`h-1.5 w-1.5 rounded-full ${trim.rec ? "bg-accent" : "bg-theme"}`} />
+                    {item}
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="overflow-x-auto rounded-[2rem] border border-white/10 bg-black/25 mb-8">
+          <div className="min-w-[920px]">
+            <div
+              className="grid border-b border-white/10"
+              style={{ gridTemplateColumns: `220px repeat(${data.trimData.length}, minmax(150px, 1fr))` }}
+            >
+              <div className="p-4 text-[10px] font-black uppercase tracking-[.2em] text-gray-600">
+                Difference Only
+              </div>
+              {data.trimData.map((trim) => (
+                <div
+                  key={trim.name}
+                  className={`p-4 text-center border-l border-white/5 ${trim.rec ? "bg-accent/[0.08]" : ""}`}
+                >
+                  <div className="text-[10px] font-black uppercase tracking-[.14em] text-white">{trim.name}</div>
+                  <div className="text-[9px] font-black uppercase tracking-[.12em] text-gray-600 mt-1">{trim.fob}</div>
+                </div>
+              ))}
+            </div>
+
+            {[
+              { group: "Performance", rows: [["Range (CLTC)", "range"], ["0-100 km/h", "accel"]] },
+              { group: "Comfort & Safety", rows: [["Sunroof", "sunroof"], ["Airbags", "airbags"], ["Seat Material", "seat"]] },
+              { group: "Commercial", rows: [["Price Level", "fob"]] },
+            ].map((section) => (
+              <div key={section.group}>
+                <div className="px-4 py-3 bg-white/[0.035] border-b border-white/5 text-[10px] font-black uppercase tracking-[.18em] text-accent">
+                  {section.group}
+                </div>
+                {section.rows.map(([label, key]) => (
+                  <div
+                    key={label}
+                    className="grid border-b border-white/[0.04] last:border-b-0"
+                    style={{ gridTemplateColumns: `220px repeat(${data.trimData!.length}, minmax(150px, 1fr))` }}
+                  >
+                    <div className="px-4 py-3 text-[10px] font-black uppercase tracking-[.1em] text-gray-500">
+                      {label}
+                    </div>
+                    {data.trimData!.map((trim) => {
+                      const value = trim[key as keyof TrimItem] as string;
+                      const isPositive = /405|500|600|700|Yes|Standard|Leather|Full|Premium|Mid|High|6|8/.test(value);
+                      const isLow = /None|Lowest|Low|Fabric|4/.test(value);
+                      return (
+                        <div
+                          key={`${trim.name}-${label}`}
+                          className={`px-4 py-3 text-center text-xs font-bold border-l border-white/[0.04] ${
+                            trim.rec ? "bg-accent/[0.06]" : ""
+                          }`}
+                        >
+                          <span className={isPositive ? "text-accent" : isLow ? "text-gray-600" : "text-white"}>
+                            {value}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="rounded-[2rem] border border-theme/20 bg-theme/[0.045] p-6 md:p-8">
+          <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 mb-6">
+            <div>
+              <div className="label label-gold mb-3">All Trims Include</div>
+              <h3 className="text-2xl font-black uppercase italic tracking-tight text-white">
+                Standard Equipment Across Every Version
+              </h3>
+            </div>
+            <Link href="/contact" className="btn-primary px-7 py-3 rounded text-xs font-black tracking-widest uppercase italic flex-shrink-0">
+              Request Trim Pricing
+            </Link>
+          </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {standardGroups.map((group) => (
+              <div key={group.title} className="rounded-2xl bg-black/20 border border-white/5 p-5">
+                <div className="text-[10px] font-black uppercase tracking-[.18em] text-theme mb-4">{group.title}</div>
+                <div className="space-y-2">
+                  {group.items.map((item) => (
+                    <div key={item} className="flex gap-2 text-xs text-gray-400 font-light leading-relaxed">
+                      <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-accent flex-shrink-0" />
+                      {item}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+          <p className="text-[9px] sm:text-[10px] text-gray-700 mt-5">
+            {(data.trimNote || `* Current model year. All trims share core platform specifications. Pricing on request - varies by order volume and destination port.`).split('<br />').map((line, i, arr) => (
+              <span key={i}>{line}{i < arr.length - 1 ? <br /> : null}</span>
+            ))}
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function VehicleDetail({ data }: { data: DetailData }) {
   const v = data.vehicle;
   const gallery: GalleryImage[] = data.galleryImages || DEFAULT_GALLERY;
@@ -368,9 +587,11 @@ export default function VehicleDetail({ data }: { data: DetailData }) {
         </div>
       </section>
 
-      {/* Trim Comparison */}
+      <TrimPoster data={data} v={v} />
+
+      {/* Legacy Trim Comparison */}
       {data.trimData && data.trimData.length > 0 && (
-        <section className="py-10 md:py-14 bg-a">
+        <section className="hidden">
           <div className="container mx-auto px-6 md:px-12">
             <div className="mb-10">
               <div className="label mb-3">All Versions — Side by Side</div>

@@ -1,7 +1,12 @@
-﻿import Link from "next/link";
+"use client";
+
+import { useState } from "react";
+import Link from "next/link";
 import { QrDropdown } from "./QrDropdown";
 
 export function Footer() {
+  const [mobileFooterOpen, setMobileFooterOpen] = useState(false);
+
   return (
     <div className="relative overflow-hidden">
       <div className="absolute inset-0">
@@ -82,9 +87,47 @@ export function Footer() {
               "linear-gradient(to top, rgba(0,0,0,.96) 0%, rgba(0,0,0,.82) 45%, rgba(0,0,0,.5) 75%, transparent 100%)",
           }}
         />
-        <div className="relative z-10 container mx-auto px-4 sm:px-6 md:px-12 py-10 sm:py-16">
+        <div className="relative z-10 container mx-auto px-4 sm:px-6 md:px-12 pt-6 sm:pt-16 pb-8 sm:pb-16">
+          <div className="sm:hidden mb-3">
+            <div className="flex items-center gap-2.5 mb-4">
+              <img src="/favicon.svg" className="h-8 w-auto" alt="autoYJ" />
+            </div>
+            <p className="text-gray-600 text-xs font-light leading-relaxed">
+              China&apos;s trusted EV sourcing partner for African dealers.
+              Expert-curated, transparently delivered.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setMobileFooterOpen((open) => !open)}
+            className="sm:hidden mb-6 flex w-full items-center justify-center gap-3 py-3 text-gray-500 hover:text-white transition"
+            aria-expanded={mobileFooterOpen}
+            aria-controls="footer-navigation"
+            aria-label={
+              mobileFooterOpen
+                ? "Collapse footer navigation"
+                : "Expand footer navigation"
+            }
+          >
+            <span className="h-px flex-1 bg-current opacity-50" />
+            <span className="flex min-w-[132px] flex-col items-center gap-1">
+              <span className="text-[9px] font-black uppercase tracking-[0.24em]">
+                Site Navigation
+              </span>
+              <span className="text-xs leading-none" aria-hidden="true">
+                {mobileFooterOpen ? "▲" : "▼"}
+              </span>
+            </span>
+            <span className="h-px flex-1 bg-current opacity-50" />
+          </button>
+
+          <div
+            id="footer-navigation"
+            className={`${mobileFooterOpen ? "block" : "hidden"} sm:block`}
+          >
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 sm:gap-10 mb-10 sm:mb-14">
-            <div>
+            <div className="hidden sm:block">
               <div className="flex items-center gap-2.5 mb-5">
                 <img src="/favicon.svg" className="h-8 w-auto" alt="autoYJ" />
               </div>
@@ -125,22 +168,13 @@ export function Footer() {
                 </li>
                 <li>
                   <Link
-                    href="/#contact"
-                    className="hover:text-theme transition"
+                    href="/#tco"
+                    className="hover:text-white transition"
                   >
                     Dealer Profit Estimate ↗
                   </Link>
                 </li>
               </ul>
-              <div className="text-[10px] font-black tracking-widest uppercase mb-3 mt-6 text-theme">
-                Markets We Serve
-              </div>
-              <Link
-                href="/markets/ethiopia"
-                className="text-xs text-gray-600 hover:text-theme transition"
-              >
-                → Ethiopia Focus
-              </Link>
             </div>
 
             <div>
@@ -150,7 +184,7 @@ export function Footer() {
               <ul className="space-y-3 text-xs text-gray-600 font-light">
                 <li>
                   <Link
-                    href="/solutions"
+                    href="/solutions#pdi"
                     className="hover:text-white transition"
                   >
                     PDI &amp; Quality
@@ -173,7 +207,10 @@ export function Footer() {
                   </Link>
                 </li>
                 <li>
-                  <Link href="#" className="hover:text-white transition">
+                  <Link
+                    href="/solutions/request-quote"
+                    className="hover:text-white transition"
+                  >
                     Custom Sourcing
                   </Link>
                 </li>
@@ -202,7 +239,7 @@ export function Footer() {
                 <li>
                   <Link
                     href="/academy"
-                    className="hover:text-white transition text-accent"
+                    className="hover:text-white transition"
                   >
                     EV Academy
                   </Link>
@@ -217,6 +254,14 @@ export function Footer() {
                 </li>
                 <li>
                   <Link
+                    href="/about#verification"
+                    className="hover:text-white transition"
+                  >
+                    Company Verification
+                  </Link>
+                </li>
+                <li>
+                  <Link
                     href="/#contact"
                     className="hover:text-white transition"
                   >
@@ -224,16 +269,8 @@ export function Footer() {
                   </Link>
                 </li>
               </ul>
-              <div className="text-[10px] font-black tracking-widest uppercase mb-3 text-theme">
-                Markets We Serve
-              </div>
-              <Link
-                href="#"
-                className="text-xs text-gray-600 hover:text-theme transition"
-              >
-                → Ethiopia
-              </Link>
             </div>
+          </div>
           </div>
 
           <div
@@ -241,7 +278,7 @@ export function Footer() {
             style={{ borderTop: "1px solid rgba(197,160,89,.06)" }}
           >
             <p className="text-[9px] font-black tracking-[.4em] uppercase text-gray-700">
-              © 2026 autoYJ Eco Supply Chain. All Rights Reserved.
+              © 2025 autoYJ Eco Supply Chain. All Rights Reserved.
             </p>
             <div className="flex gap-6">
               <Link

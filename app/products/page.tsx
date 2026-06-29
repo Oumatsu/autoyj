@@ -137,12 +137,12 @@ export default function ProductsPage() {
   return (
     <>
       <div className="h-[var(--navbar-h,56px)] lg:hidden bg-black w-full" />
-      {/* Hero — image drives height, bottom 7.5% clipped, fades to mid */}
-      <section className="relative overflow-hidden">
+      {/* Hero */}
+      <section className="relative min-h-[720px] sm:min-h-[780px] lg:min-h-[900px] xl:min-h-[960px] overflow-hidden">
         <img
           src="/pic/hero/Our-solutions-durability-and-fatigue.webp"
-          className="w-full block"
-          style={{ filter: "contrast(1.1)", marginBottom: "-7.5%" }}
+          className="absolute inset-0 h-full w-full object-cover"
+          style={{ filter: "contrast(1.1)" }}
           alt="Curated Selection Background"
         />
         <div

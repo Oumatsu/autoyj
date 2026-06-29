@@ -1,5 +1,47 @@
 import Link from "next/link";
 
+const fadeToMid = [
+  "linear-gradient(to bottom,",
+  "  transparent 0%,",
+  "  rgba(28,28,28,0.05) 5%,",
+  "  rgba(28,28,28,0.10) 10%,",
+  "  rgba(28,28,28,0.15) 15%,",
+  "  rgba(28,28,28,0.20) 20%,",
+  "  rgba(28,28,28,0.25) 25%,",
+  "  rgba(28,28,28,0.30) 30%,",
+  "  rgba(28,28,28,0.35) 35%,",
+  "  rgba(28,28,28,0.40) 40%,",
+  "  rgba(28,28,28,0.45) 45%,",
+  "  rgba(28,28,28,0.50) 50%,",
+  "  rgba(28,28,28,0.55) 55%,",
+  "  rgba(28,28,28,0.60) 60%,",
+  "  rgba(28,28,28,0.65) 65%,",
+  "  rgba(28,28,28,0.70) 70%,",
+  "  rgba(28,28,28,0.75) 75%,",
+  "  rgba(28,28,28,0.80) 80%,",
+  "  rgba(28,28,28,0.85) 85%,",
+  "  rgba(28,28,28,0.90) 90%,",
+  "  rgba(28,28,28,0.95) 95%,",
+  "  rgba(28,28,28,1.00) 100%",
+  ")",
+].join("\n");
+
+const fadeFromMid = [
+  "linear-gradient(to bottom,",
+  "  rgba(28,28,28,1.00) 0%,",
+  "  rgba(28,28,28,0.95) 5%,",
+  "  rgba(28,28,28,0.90) 10%,",
+  "  rgba(28,28,28,0.85) 15%,",
+  "  rgba(28,28,28,0.80) 20%,",
+  "  rgba(28,28,28,0.72) 28%,",
+  "  rgba(28,28,28,0.60) 38%,",
+  "  rgba(28,28,28,0.45) 50%,",
+  "  rgba(28,28,28,0.30) 64%,",
+  "  rgba(28,28,28,0.15) 80%,",
+  "  transparent 100%",
+  ")",
+].join("\n");
+
 export default function EthiopiaMarketPage() {
   return (
     <>
@@ -18,10 +60,10 @@ export default function EthiopiaMarketPage() {
             style={{ background: "rgba(0,0,0,0.4)" }}
           />
           <div
-            className="absolute inset-0"
+            className="absolute bottom-0 left-0 right-0"
             style={{
-              background:
-                "linear-gradient(to top, var(--color-bg) 0%, transparent 40%)",
+              top: "48%",
+              background: fadeToMid,
             }}
           />
         </div>
@@ -143,19 +185,19 @@ export default function EthiopiaMarketPage() {
                   name: "BYD Seagull",
                   segment: "Ride-Hailing King",
                   reason: "405km range, LFP safety, and sub-$12K FOB pricing make this the #1 choice for Addis taxi fleets.",
-                  img: "/pic/hero/photo-1593941707882-a5bba14938c7.webp",
+                  img: "/pic/revenue-king/seagull/7cut.webp",
                 },
                 {
                   name: "GAC Aion RT",
                   segment: "Premium Fleet",
                   reason: "LiDAR ADAS and 520km range appeal to corporate and government procurement contracts.",
-                  img: "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=600&q=80",
+                  img: "/pic/revenue-king/RT/7cut.webp",
                 },
                 {
                   name: "Farizon Super Van",
                   segment: "Last-Mile Logistics",
                   reason: "With Addis Ababa's booming e-commerce sector, electric cargo vans offer unmatched urban delivery economics.",
-                  img: "https://images.unsplash.com/photo-1517524008410-d4484e313a21?auto=format&fit=crop&w=600&q=80",
+                  img: "/pic/utility-pro/supervan/9.webp",
                 },
               ].map((car, i) => (
                 <div
@@ -198,6 +240,11 @@ export default function EthiopiaMarketPage() {
                 to Djibouti Port ensure reliable 28-35 day transit. From
                 Djibouti, the new Addis-Djibouti railway provides seamless
                 inland transport to the capital.
+              </p>
+              <p className="text-sm text-gray-500 font-light italic leading-relaxed mb-8 border-l-2 border-accent/30 pl-5">
+                For Ethiopian importers, we support LC, CAD, and TT advance
+                payment workflows, including franco-valuta structures when the
+                shipment requires local bank and foreign-exchange coordination.
               </p>
               <Link
                 href="/contact"
@@ -256,9 +303,12 @@ export default function EthiopiaMarketPage() {
           <div
             className="absolute inset-0"
             style={{
-              background:
-                "linear-gradient(to bottom, var(--color-bg) 0%, transparent 20%)",
+              background: fadeFromMid,
             }}
+          />
+          <div
+            className="absolute bottom-0 left-0 right-0"
+            style={{ top: "58%", background: fadeToMid }}
           />
         </div>
 
