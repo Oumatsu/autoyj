@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Noto_Sans_Ethiopic } from "next/font/google";
 import "./globals.css";
 import { SiteChrome } from "@/components/SiteChrome";
 
-const inter = Inter({
-  subsets: ["latin"],
-  weight: ["300", "400", "600", "700", "800", "900"],
-  style: ["normal", "italic"],
+const notoSansEthiopic = Noto_Sans_Ethiopic({
+  subsets: ["ethiopic"],
+  weight: ["400", "700"],
   display: "swap",
+  variable: "--font-ethiopic",
 });
 
 export const metadata: Metadata = {
@@ -26,7 +26,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
+      <body className={notoSansEthiopic.variable}>
         <SiteChrome>{children}</SiteChrome>
       </body>
     </html>
