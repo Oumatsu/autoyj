@@ -402,19 +402,28 @@ export default function HomePage() {
                 {[
                   {
                     num: "01",
-                    text: 'Fuel savings: <span class="text-white">$180–$500 per month</span>',
+                    parts: [
+                      { text: "Fuel savings: " },
+                      { text: "$180–$500 per month", cls: "text-white" },
+                    ],
                     cls: "border-theme",
                     color: "var(--color-gold)",
                   },
                   {
                     num: "02",
-                    text: 'Lower maintenance: <span class="text-white">No oil changes, fewer brake jobs</span>',
+                    parts: [
+                      { text: "Lower maintenance: " },
+                      { text: "No oil changes, fewer brake jobs", cls: "text-white" },
+                    ],
                     cls: "border-accent",
                     color: "var(--color-green)",
                   },
                   {
                     num: "03",
-                    text: '3-year net saving: <span class="text-accent">$6,000–$18,000 per vehicle</span>',
+                    parts: [
+                      { text: "3-year net saving: " },
+                      { text: "$6,000–$18,000 per vehicle", cls: "text-accent" },
+                    ],
                     cls: "border-theme",
                     color: "var(--color-gold)",
                   },
@@ -431,10 +440,17 @@ export default function HomePage() {
                     >
                       {item.num}
                     </div>
-                    <p
-                      className="text-xs font-black uppercase tracking-wider text-gray-400"
-                      dangerouslySetInnerHTML={{ __html: item.text }}
-                    />
+                    <p className="text-xs font-black uppercase tracking-wider text-gray-400">
+                      {item.parts.map((part, pi) =>
+                        part.cls ? (
+                          <span key={pi} className={part.cls}>
+                            {part.text}
+                          </span>
+                        ) : (
+                          part.text
+                        ),
+                      )}
+                    </p>
                   </div>
                 ))}
               </div>

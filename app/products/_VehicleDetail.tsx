@@ -298,7 +298,7 @@ function TrimPoster({ data, v }: { data: DetailData; v: DetailData["vehicle"] })
             ))}
           </div>
           <p className="text-[9px] sm:text-[10px] text-gray-700 mt-5">
-            {(data.trimNote || `* Current model year. All trims share core platform specifications. Pricing on request - varies by order volume and destination port.`).split('<br />').map((line, i, arr) => (
+            {(data.trimNote || `* Current model year. All trims share core platform specifications. Pricing on request - varies by order volume and destination port.`).split('\n').map((line, i, arr) => (
               <span key={i}>{line}{i < arr.length - 1 ? <br /> : null}</span>
             ))}
           </p>
@@ -642,7 +642,7 @@ export default function VehicleDetail({ data }: { data: DetailData }) {
             </div>
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mt-5">
               <p className="text-[9px] sm:text-[10px] text-gray-700">
-                {(data.trimNote || `* Current model year. All trims share core platform specifications. Pricing on request — varies by order volume & destination port.`).split('<br />').map((line, i, arr) => (
+                {(data.trimNote || `* Current model year. All trims share core platform specifications. Pricing on request — varies by order volume & destination port.`).split('\n').map((line, i, arr) => (
                    <span key={i}>{line}{i < arr.length - 1 ? <br /> : null}</span>
                  ))}
               </p>

@@ -1344,20 +1344,6 @@ async function handleAcceptQuote(request: Request, env: Env, quoteNo: string) {
   return json({ orderNo }, { status: 201 });
 }
 
-function mapTagClass(category: string): string {
-  const cat = category.toLowerCase().trim();
-  if (cat === "market analysis" || cat === "product watch") {
-    return "bg-white/5 text-white border border-white/10";
-  }
-  if (cat === "operator hub" || cat === "sourcing intelligence") {
-    return "bg-accent/10 text-accent border border-accent/30";
-  }
-  if (cat === "policy & tariffs" || cat === "pricing & trade" || cat === "policy and tariffs" || cat === "pricing and trade") {
-    return "bg-gold/10 text-gold border border-gold/30";
-  }
-  return "bg-white/5 text-white border border-white/10";
-}
-
 function formatDate(isoStr: string): string {
   if (!isoStr) return "";
   const cleanStr = isoStr.split(" ")[0].split("T")[0];
@@ -1564,35 +1550,24 @@ async function handlePublicProducts(env: Env) {
 
     const stat2Value = asText(fields.stat2Value);
     const stat2Label = asText(fields.stat2Label);
-    
-    let saving = "";
-    if (stat2Value && stat2Label && stat2Label.toLowerCase().includes("saving")) {
-      saving = stat2Value.startsWith("Save") ? stat2Value : `Save ${stat2Value}/mo`;
-    }
 
     const subtitle = asText(fields.subtitle) || asText(fields.Version) || "";
     const heroDesc = asText(fields.heroDesc) || asText(fields["Review Notes"]) || "";
     const whyDesc = asText(fields.whyDesc) || asText(fields["Review Notes"]) || "";
 
     let badge = asText(fields.badge) || asText(fields.Badge) || null;
-    let badgeCls = asText(fields.badgeCls) || asText(fields.BadgeCls) || "";
 
     if (!badge && subtitle) {
       if (subtitle.includes("Global #1") || slug === "byd-seagull") {
         badge = "Global #1";
-        badgeCls = "bg-gold text-black";
       } else if (subtitle.includes("2025 New King") || slug === "gac-aion-rt") {
         badge = "2025 New King";
-        badgeCls = "bg-accent/20 text-accent border border-accent/30";
       } else if (subtitle.includes("Global Model") || subtitle.includes("Battle-Tested") || slug === "geely-galaxy-e5") {
         badge = "Global Model";
-        badgeCls = "bg-white/5 text-gray-500 border border-white/10";
       } else if (subtitle.includes("Million-Unit") || slug === "byd-qin-plus") {
         badge = null;
-        badgeCls = "";
       } else if (category === "revenue-king") {
         badge = subtitle;
-        badgeCls = "bg-white/5 text-gray-500 border border-white/10";
       }
     }
 
@@ -1670,8 +1645,8 @@ async function handlePublicProducts(env: Env) {
       category,
       slug,
       badge,
-      badgeCls,
-      saving,
+      stat2Label,
+      stat2Value,
       tags: showcaseTags,
       tag: cardTag,
       desc: cardDesc,
@@ -1704,7 +1679,6 @@ async function handlePublicInsights(env: Env) {
     return {
       title: asText(fields.title),
       category: asText(fields.category),
-      tagClass: mapTagClass(asText(fields.category)),
       date: formatDate(publishDate),
       sortDate: publishDate,
       readTime: asText(fields.read_time),
@@ -1743,7 +1717,6 @@ async function handlePublicInsight(slug: string, env: Env) {
   const data = {
     title: asText(fields.title),
     category: asText(fields.category),
-    tagClass: mapTagClass(asText(fields.category)),
     date: formatDate(publishDate),
     sortDate: publishDate,
     readTime: asText(fields.read_time),

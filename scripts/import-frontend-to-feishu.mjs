@@ -175,8 +175,9 @@ function createField(tableId, fieldName, type) {
   ]);
 }
 
-function getAllRecords(tableId) {
-  let recordIds = [];
+// Get slug→record_id map from a table
+function getSlugRecordMap(tableId) {
+  const map = {};
   let offset = 0;
   let hasMore = true;
   while (hasMore) {
@@ -189,137 +190,131 @@ function getAllRecords(tableId) {
       FEISHU_BASE_TOKEN,
       "--table-id",
       tableId,
+      "--field-id",
+      "slug",
+      "--field-id",
+      "content",
+      "--limit",
+      "200",
+      "--offset",
+      String(offset),
       "--format",
       "json",
-      "--limit",
-      "100",
-      "--offset",
-      String(offset)
     ]);
-    const ids = res.data?.record_id_list || [];
-    recordIds = recordIds.concat(ids);
-    if (ids.length < 100) {
+    const body = res.data || {};
+    const records = body.data || [];
+    const ids = body.record_id_list || [];
+    for (let i = 0; i < records.length; i++) {
+      const slug = Array.isArray(records[i]) ? records[i][0] : records[i]?.slug;
+      const id = ids[i];
+      if (slug && id) map[slug] = id;
+    }
+    if (!body.has_more || records.length < 200) {
       hasMore = false;
     } else {
-      offset += 100;
+      offset += 200;
     }
   }
-  return recordIds;
+  return map;
 }
 
-function deleteRecords(tableId, recordIds) {
-  if (recordIds.length === 0) return;
-  for (let i = 0; i < recordIds.length; i += 50) {
-    const chunk = recordIds.slice(i, i + 50);
-    const args = [
-      "base",
-      "+record-delete",
-      "--as",
-      "user",
-      "--base-token",
-      FEISHU_BASE_TOKEN,
-      "--table-id",
-      tableId,
-      "--yes"
-    ];
-    for (const id of chunk) {
-      args.push("--record-id", id);
-    }
-    runLarkCli(args);
-  }
+function upsertRecord(tableId, recordId, fields) {
+  const args = [
+    "base",
+    "+record-upsert",
+    "--as",
+    "user",
+    "--base-token",
+    FEISHU_BASE_TOKEN,
+    "--table-id",
+    tableId,
+    "--json",
+    JSON.stringify(fields),
+  ];
+  if (recordId) args.push("--record-id", recordId);
+  return runLarkCli(args);
 }
 
-function clearTable(tableId) {
-  const recordIds = getAllRecords(tableId);
-  if (recordIds.length > 0) {
-    console.log(`Clearing ${recordIds.length} records from table ${tableId}...`);
-    deleteRecords(tableId, recordIds);
-  }
-}
+function upsertContentRecords(tableId, records) {
+  const slugMap = getSlugRecordMap(tableId);
+  console.log(`  Found ${Object.keys(slugMap).length} existing records`);
+  let updated = 0;
+  let created = 0;
 
-function batchCreateRecords(tableId, records) {
-  if (records.length === 0) return [];
-  const fields = Object.keys(records[0]);
-  const rows = records.map(row => fields.map(f => row[f] === undefined ? null : row[f]));
-  
-  const createdIds = [];
-  for (let i = 0; i < records.length; i += 200) {
-    const chunkRows = rows.slice(i, i + 200);
-    const payload = { fields, rows: chunkRows };
-    const res = runLarkCli([
-      "base",
-      "+record-batch-create",
-      "--as",
-      "user",
-      "--base-token",
-      FEISHU_BASE_TOKEN,
-      "--table-id",
-      tableId,
-      "--json",
-      jsonFileArg("batch-create", payload)
-    ]);
-    const items = res.items || res.records || res.data?.items || res.data?.records || [];
-    createdIds.push(...items.map(it => it.record_id || it.id));
-  }
-  return createdIds;
-}
-
-// 5. Array extraction and parsing helpers
-function extractArrayFromContent(content, marker) {
-  const index = content.indexOf(marker);
-  if (index === -1) return null;
-  const start = index + marker.length - 1; // start with '['
-  let braceCount = 0;
-  let inString = false;
-  let stringChar = "";
-  let escape = false;
-  let end = start;
-  for (let i = start; i < content.length; i++) {
-    const char = content[i];
-    if (escape) { escape = false; continue; }
-    if (char === "\\") { escape = true; continue; }
-    if (inString) { if (char === stringChar) inString = false; continue; }
-    if (char === '"' || char === "'" || char === '`') { inString = true; stringChar = char; continue; }
-    if (char === '[') { braceCount++; }
-    else if (char === ']') {
-      braceCount--;
-      if (braceCount === 0) { end = i + 1; break; }
+  for (const rec of records) {
+    const recordId = slugMap[rec.slug];
+    if (recordId) {
+      upsertRecord(tableId, recordId, { content: rec.content });
+      updated++;
+    } else {
+      upsertRecord(tableId, null, rec);
+      created++;
     }
   }
-  const raw = content.slice(start, end);
-  return new Function(`return ${raw}`)();
+
+  console.log(`  Updated: ${updated}, Created: ${created}`);
 }
 
-function extractContentString(fileContent) {
-  const marker = "const content = ";
-  const index = fileContent.indexOf(marker);
-  if (index === -1) return null;
-  const start = index + marker.length;
-  const quote = fileContent[start];
-  let inEscape = false;
-  let result = "";
-  for (let i = start + 1; i < fileContent.length; i++) {
-    const char = fileContent[i];
-    if (inEscape) {
-      inEscape = false;
-      result += char;
+// 5. Markdown article parser
+function parseMarkdownArticle(filePath) {
+  const content = fs.readFileSync(filePath, "utf-8").replace(/\r/g, "");
+  const lines = content.split("\n");
+
+  const meta = { category: "", date: "", readTime: "", tag: "" };
+  let title = "";
+  let overview = "";
+  let bodyStart = 0;
+  let inOverview = false;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+
+    if (line.startsWith("**Category:**")) { meta.category = line.replace("**Category:**", "").trim(); continue; }
+    if (line.startsWith("**Date:**")) { meta.date = line.replace("**Date:**", "").trim(); continue; }
+    if (line.startsWith("**Read Time:**")) { meta.readTime = line.replace("**Read Time:**", "").trim(); continue; }
+    if (line.startsWith("**Tag:**")) { meta.tag = line.replace("**Tag:**", "").trim(); continue; }
+
+    if (line.startsWith("# ") && !title) {
+      title = line.replace("# ", "").trim();
       continue;
     }
-    if (char === "\\") {
-      inEscape = true;
-      result += char;
+
+    if (line === "## Overview" || line.startsWith("## Overview")) {
+      inOverview = true;
       continue;
     }
-    if (char === quote) {
-      break;
+
+    if (inOverview && line.startsWith("*")) {
+      overview = line.replace(/^\*/, "").replace(/\*$/, "").trim();
+      inOverview = false;
+      bodyStart = i + 1;
+      continue;
     }
-    result += char;
+    if (inOverview && line && !line.startsWith("#")) {
+      overview = line;
+      inOverview = false;
+      bodyStart = i + 1;
+    }
   }
-  try {
-    return new Function(`return ${quote}${result}${quote}`)();
-  } catch (err) {
-    return result;
+
+  // Extract body content (everything after frontmatter and title/overview)
+  const bodyLines = [];
+  let started = false;
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (i >= bodyStart) {
+      started = true;
+    }
+    if (started) {
+      // Skip empty lines at the very beginning of body
+      if (bodyLines.length === 0 && !line.trim()) continue;
+      bodyLines.push(line);
+    }
   }
+  const bodyContent = bodyLines.join("\n").trim();
+
+  if (!meta.category && !meta.date && !title) return { meta: null, title: "", overview: "", bodyContent: "" };
+  return { meta, title, overview, bodyContent };
 }
 
 function parseVehiclePageData(filePath) {
@@ -550,206 +545,101 @@ async function main() {
     }
   }
 
-  // Clear existing records for clean population
-  clearTable(tables["Vehicle Models"]);
-  clearTable(tables["Vehicle Model Specs"]);
-  clearTable(tables["Articles"]);
-  clearTable(tables["Academy Lessons"]);
-  clearTable(tables["Academy Vault"]);
+  // -- SKIP VEHICLE POPULATION: vehicles managed directly in Feishu --
+  console.log("Skipping vehicle sync (managed in Feishu)");
 
-  // -- POPULATE VEHICLES --
-  console.log("Processing vehicles...");
-  const categories = ["elite-flagship", "revenue-king", "utility-pro"];
-  const vehicleRecords = [];
-  const specRecords = [];
-
-  for (const category of categories) {
-    const dataPath = path.resolve(process.cwd(), `app/products/${category}/data.ts`);
-    const { vehicles } = await import(dataPath);
-    console.log(`Found ${vehicles.length} vehicles in category ${category}`);
-
-    for (const v of vehicles) {
-      const slug = v.link.split('/').pop();
-      let pageData;
-      if (slug === "byd-seagull") {
-        pageData = bydSeagullData;
-      } else {
-        const pagePath = path.resolve(process.cwd(), `app/products/${category}/${slug}/page.tsx`);
-        pageData = parseVehiclePageData(pagePath);
-      }
-
-      const modelId = getModelId(pageData.vehicle.brand, pageData.vehicle.name);
-
-      // Map model fields
-      const modelFields = {
-        "Model ID": modelId,
-        "Brand": pageData.vehicle.brand,
-        "Model": pageData.vehicle.name,
-        "Year": "2026",
-        "Version": pageData.subtitle || "",
-        "China Guide Price CNY": pageData.vehicle.fob,
-        "Review Notes": pageData.whyDesc || "",
-        "Image URL": pageData.vehicle.img,
-        "Brochure URL": "",
-        "Source URL": `http://localhost:3000/products/${category}/${slug}`,
-        "Source Name": "autoYJ",
-        "Last Synced At": new Date().toISOString().replace('T', ' ').substring(0, 16),
-        "Status": "Active",
-        "subtitle": pageData.subtitle || "",
-        "heroDesc": pageData.heroDesc || "",
-        "stat1Label": pageData.stat1Label || "",
-        "stat1Value": pageData.stat1Value || "",
-        "stat2Label": pageData.stat2Label || "",
-        "stat2Value": pageData.stat2Value || "",
-        "stat3Label": pageData.stat3Label || "",
-        "stat3Value": pageData.stat3Value || "",
-        "whyTitle": pageData.whyTitle || "",
-        "whyDesc": pageData.whyDesc || "",
-        "features": JSON.stringify(pageData.features || []),
-        "fits": JSON.stringify(pageData.fits || []),
-        "relatedModels": JSON.stringify(pageData.relatedModels || []),
-        "tags": JSON.stringify(pageData.tags || []),
-        "galleryImages": JSON.stringify(pageData.galleryImages || []),
-        "batchLevels": JSON.stringify(pageData.batchLevels || []),
-        "trimData": JSON.stringify(pageData.trimData || [])
-      };
-      vehicleRecords.push(modelFields);
-
-      // Map specs Left & Right
-      let sortOrder = 10;
-      const allSpecs = [
-        ...(pageData.specsLeft || []).map(s => ({ ...s, level: "Core" })),
-        ...(pageData.specsRight || []).map(s => ({ ...s, level: "Standard" }))
-      ];
-
-      for (const spec of allSpecs) {
-        specRecords.push({
-          "Model ID": modelId,
-          "Brand": pageData.vehicle.brand,
-          "Model": pageData.vehicle.name,
-          "Year": "2026",
-          "Version": "",
-          "Category": mapSpecLabelToCategory(spec.label),
-          "Spec Name": spec.label,
-          "Spec Value": spec.value,
-          "Unit": "",
-          "Normalized Value": spec.value,
-          "Visible Level": spec.level,
-          "Sort Order": sortOrder,
-          "Source Name": "autoYJ",
-          "Source URL": `http://localhost:3000/products/${category}/${slug}`,
-          "Confidence": "High",
-          "Last Synced At": new Date().toISOString().replace('T', ' ').substring(0, 16),
-          "Notes": ""
-        });
-        sortOrder += 10;
-      }
-    }
-  }
-
-  console.log(`Uploading ${vehicleRecords.length} vehicle models to Feishu...`);
-  batchCreateRecords(tables["Vehicle Models"], vehicleRecords);
-  console.log(`Uploading ${specRecords.length} specs to Feishu...`);
-  batchCreateRecords(tables["Vehicle Model Specs"], specRecords);
-
-  // -- POPULATE ARTICLES --
-  console.log("Processing articles...");
-  const insightsPath = path.resolve(process.cwd(), "app/insights/page.tsx");
-  const insightsContent = fs.readFileSync(insightsPath, "utf8");
-  const articlesList = extractArrayFromContent(insightsContent, "const articles = [");
+  // -- UPSERT ARTICLES FROM EXAMPLE/MARKDOWN --
+  console.log("Processing articles from example/insights/...");
   const articleRecords = [];
+  const insightsDir = path.resolve(process.cwd(), "example/insights");
+  const catDirMap = {
+    "market-analysis": "Market Analysis",
+    "policy-tariffs": "Policy & Tariffs",
+    "sourcing-intelligence": "Sourcing Intelligence",
+    "operator-hub": "Operator Hub",
+    "product-watch": "Product Watch",
+    "pricing-trade": "Pricing & Trade",
+  };
 
-  for (const art of articlesList) {
-    const articlePagePath = path.resolve(process.cwd(), `app/insights/${art.slug}/page.tsx`);
-    if (!fs.existsSync(articlePagePath)) {
-      console.warn(`Article page not found: ${articlePagePath}`);
-      continue;
-    }
-    const pageContent = fs.readFileSync(articlePagePath, "utf8");
-    const htmlBody = extractContentString(pageContent) || "";
-    const coverImageUrl = `/insights/images/${art.slug}/${art.coverImage}`;
+  if (fs.existsSync(insightsDir)) {
+    for (const catDirName of fs.readdirSync(insightsDir, { withFileTypes: true })) {
+      if (!catDirName.isDirectory() || !catDirMap[catDirName.name]) continue;
+      const catDir = path.join(insightsDir, catDirName.name);
+      for (const slugDir of fs.readdirSync(catDir, { withFileTypes: true })) {
+        if (!slugDir.isDirectory()) continue;
+        const mdPath = path.join(catDir, slugDir.name, "article.md");
+        if (!fs.existsSync(mdPath)) continue;
+        const { meta, title, overview, bodyContent } = parseMarkdownArticle(mdPath);
+        if (!meta || !title) continue;
 
-    articleRecords.push({
-      "slug": art.slug,
-      "title": art.title,
-      "category": art.category,
-      "overview": art.overview,
-      "cover_image": coverImageUrl,
-      "publish_date": art.sortDate,
-      "read_time": art.readTime,
-      "content": htmlBody.replace(/images\//g, '/insights/images/'),
-      "status": "Published"
-    });
-  }
+        // Find cover image in directory
+        const imgDir = path.join(catDir, slugDir.name);
+        const imgFiles = fs.readdirSync(imgDir).filter(f => /\.(jpg|png|webp|jpeg)$/i.test(f));
+        const coverImage = imgFiles[0] || "hero.jpg";
+        const coverImageUrl = `/insights/images/${slugDir.name}/${coverImage}`;
 
-  console.log(`Uploading ${articleRecords.length} articles to Feishu...`);
-  batchCreateRecords(tables["Articles"], articleRecords);
-
-  // -- POPULATE ACADEMY --
-  console.log("Processing academy lessons & vault...");
-  const academyPagePath = path.resolve(process.cwd(), "app/academy/page.tsx");
-  const academyContent = fs.readFileSync(academyPagePath, "utf8");
-
-  const fundLessons = extractArrayFromContent(academyContent, "const fundamentalsArticles = [");
-  const playLessons = extractArrayFromContent(academyContent, "const playbookArticles = [");
-  const workLessons = extractArrayFromContent(academyContent, "const workshopArticles = [");
-  const vaultItems = extractArrayFromContent(academyContent, "const vaultItems = [");
-
-  const lessonRecords = [];
-  const lessonsWithCategories = [
-    { list: fundLessons, catName: "fundamentals", dirName: "ev-fundamentals" },
-    { list: playLessons, catName: "playbook", dirName: "dealer-playbook" },
-    { list: workLessons, catName: "workshop", dirName: "technical-workshop" }
-  ];
-
-  for (const { list, catName, dirName } of lessonsWithCategories) {
-    for (const les of list) {
-      const lessonPagePath = path.resolve(process.cwd(), `app/academy/${dirName}/${les.slug}/page.tsx`);
-      if (!fs.existsSync(lessonPagePath)) {
-        console.warn(`Lesson page not found: ${lessonPagePath}`);
-        continue;
+        articleRecords.push({
+          "slug": slugDir.name,
+          "title": title,
+          "category": catDirMap[catDirName.name],
+          "overview": overview || "",
+          "cover_image": coverImageUrl,
+          "publish_date": meta.date || "",
+          "read_time": meta.readTime || "",
+          "content": bodyContent,
+          "status": "Published",
+        });
       }
-      const pageContent = fs.readFileSync(lessonPagePath, "utf8");
-      const htmlBody = extractContentString(pageContent) || "";
-
-      // Try to parse cover image from page.tsx or fallback to les.img
-      const imgMatch = pageContent.match(/aspect-\[21\/9\][\s\S]*?src="([^"]+)"/);
-      const coverImage = imgMatch ? imgMatch[1] : (les.img || "");
-
-      lessonRecords.push({
-        "slug": les.slug,
-        "title": les.title,
-        "category": catName,
-        "tag": les.tag || "",
-        "description": les.desc || "",
-        "cover_image": coverImage,
-        "content": htmlBody,
-        "status": "Published"
-      });
     }
   }
 
-  console.log(`Uploading ${lessonRecords.length} academy lessons to Feishu...`);
-  batchCreateRecords(tables["Academy Lessons"], lessonRecords);
+  console.log(`Upserting ${articleRecords.length} articles to Feishu...`);
+  upsertContentRecords(tables["Articles"], articleRecords);
 
-  // Populate Academy Vault
-  const vaultRecords = vaultItems.map(item => {
-    // Map type "PDF Checklist" / "PDF Whitepaper" -> "PDF Guide"
-    let type = item.type;
-    if (type === "PDF Checklist" || type === "PDF Whitepaper") {
-      type = "PDF Guide";
+  // -- POPULATE ACADEMY FROM EXAMPLE/MARKDOWN --
+  console.log("Processing academy lessons from example/academy/...");
+  const lessonRecords = [];
+  const academyDir = path.resolve(process.cwd(), "example/academy");
+  const academyCatMap = {
+    "ev-fundamentals": "fundamentals",
+    "dealer-playbook": "playbook",
+    "technical-workshop": "workshop",
+  };
+
+  if (fs.existsSync(academyDir)) {
+    for (const catDirName of fs.readdirSync(academyDir, { withFileTypes: true })) {
+      if (!catDirName.isDirectory() || !academyCatMap[catDirName.name]) continue;
+      const catDir = path.join(academyDir, catDirName.name);
+      for (const slugDir of fs.readdirSync(catDir, { withFileTypes: true })) {
+        if (!slugDir.isDirectory()) continue;
+        const mdPath = path.join(catDir, slugDir.name, "article.md");
+        if (!fs.existsSync(mdPath)) continue;
+        const { meta, title, overview, bodyContent } = parseMarkdownArticle(mdPath);
+        if (!meta || !title) continue;
+
+        const imgDir = path.join(catDir, slugDir.name);
+        const imgFiles = fs.readdirSync(imgDir).filter(f => /\.(jpg|png|webp|jpeg)$/i.test(f));
+        const coverImage = imgFiles[0] || "";
+
+        lessonRecords.push({
+          "slug": slugDir.name,
+          "title": title,
+          "category": academyCatMap[catDirName.name],
+          "tag": meta.tag || "",
+          "description": overview || "",
+          "cover_image": coverImage,
+          "content": bodyContent,
+          "status": "Published",
+        });
+      }
     }
-    return {
-      "title": item.title,
-      "type": type,
-      "size": "2.4 MB",
-      "download_link": "/qr",
-      "description": item.desc
-    };
-  });
+  }
 
-  console.log(`Uploading ${vaultRecords.length} vault items to Feishu...`);
-  batchCreateRecords(tables["Academy Vault"], vaultRecords);
+  console.log(`Upserting ${lessonRecords.length} academy lessons to Feishu...`);
+  upsertContentRecords(tables["Academy Lessons"], lessonRecords);
+
+  // -- SKIP VAULT: static items already in Feishu --
+  console.log("Skipping academy vault sync (static)");
 
   console.log("\nFeishu Bitable Data Sync Completed successfully!");
 }

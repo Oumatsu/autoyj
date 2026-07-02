@@ -13,4 +13,5 @@ history
 .dev.vars
 build-log.txt
 _tmp_fix_hero.py
+**/.DS_Store
 

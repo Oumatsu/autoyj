@@ -8,7 +8,6 @@ type SortMode = "recommended" | "newest" | "oldest";
 interface Article {
   title: string;
   category: string;
-  tagClass: string;
   date: string;
   sortDate: string;
   readTime: string;
@@ -16,6 +15,20 @@ interface Article {
   coverImage: string;
   sortOrder: number;
   overview: string;
+}
+
+function getTagClass(category: string): string {
+  const cat = category.toLowerCase().trim();
+  if (cat === "market analysis" || cat === "product watch") {
+    return "bg-white/5 text-white border border-white/10";
+  }
+  if (cat === "operator hub" || cat === "sourcing intelligence") {
+    return "bg-accent/10 text-accent border border-accent/30";
+  }
+  if (cat === "policy & tariffs" || cat === "pricing & trade") {
+    return "bg-gold/10 text-gold border border-gold/30";
+  }
+  return "bg-accent/10 text-accent border border-accent/30";
 }
 
 const PER_PAGE = 8;
@@ -110,7 +123,7 @@ export default function InsightsPage() {
                     <img src={imgPath(heroArticle)} className="absolute inset-0 w-full h-full object-cover z-0 transition-transform duration-700 group-hover:scale-105" style={{ filter: "brightness(0.6)" }} alt="" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent z-10" />
                     <div className="relative z-20">
-                      <span className={`inline-block text-[9px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full mb-4 ${heroArticle.tagClass}`}>{heroArticle.category}</span>
+                      <span className={`inline-block text-[9px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full mb-4 ${getTagClass(heroArticle.category)}`}>{heroArticle.category}</span>
                       <h2 className="text-3xl md:text-4xl font-black italic text-white uppercase tracking-tighter leading-tight mb-3">{heroArticle.title}</h2>
                       <p className="text-gray-300 font-light text-sm mb-4 max-w-xl">{heroArticle.overview}</p>
                       <div className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider flex items-center gap-3"><span>autoYJ Intelligence</span> <span>•</span> <span>{heroArticle.date}</span></div>
@@ -122,7 +135,7 @@ export default function InsightsPage() {
                         <img src={imgPath(item)} className="absolute inset-0 w-full h-full object-cover z-0 transition-transform duration-700 group-hover:scale-105" style={{ filter: "brightness(0.6)" }} alt="" />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent z-10" />
                         <div className="relative z-20">
-                          <span className={`inline-block text-[9px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full mb-3 ${item.tagClass}`}>{item.category}</span>
+                          <span className={`inline-block text-[9px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full mb-3 ${getTagClass(item.category)}`}>{item.category}</span>
                           <h3 className="text-xl font-black italic text-white leading-tight mb-2">{item.title}</h3>
                           <div className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider">{item.date}</div>
                         </div>
@@ -159,7 +172,7 @@ export default function InsightsPage() {
                             <img src={imgPath(item)} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" style={{ filter: "grayscale(20%)" }} alt="" />
                           </div>
                           <div className="flex flex-col justify-center">
-                            <span className={`inline-block text-[9px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full mb-3 ${item.tagClass}`}>{item.category}</span>
+                            <span className={`inline-block text-[9px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full mb-3 ${getTagClass(item.category)}`}>{item.category}</span>
                             <h3 className="text-xl font-bold text-white mb-2">{item.title}</h3>
                             <p className="text-gray-400 text-sm font-light leading-relaxed mb-4">{item.overview}</p>
                             <div className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider">{item.date} <span>•</span> {item.readTime}</div>

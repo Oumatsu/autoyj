@@ -1,13 +1,19 @@
 ﻿"use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
+
+type H1Seg = string | { text: string; cls: string };
 
 const slidesData = [
   {
     img: "/pic/hero/ChatGPT Image 2026年5月18日 19_47_04.webp",
     alt: "Expert Buyer",
     label: "Expert Buyer Network",
-    h1: 'Your Dedicated<br><span class="text-theme">EV Sourcing</span><br>Expert',
+    lines: [
+      ["Your Dedicated"],
+      [{ text: "EV Sourcing", cls: "text-theme" }],
+      ["Expert"],
+    ] as H1Seg[][],
     sub: "Data-driven selection and rigorous quality checks tailored for the African market",
     cta: "View Selection",
   },
@@ -15,7 +21,13 @@ const slidesData = [
     img: "/pic/hero/photo-1578575437130-527eed3abbec.webp",
     alt: "Port Logistics",
     label: "Seamless Port Logistics",
-    h1: 'China to Your Port<br><span class="text-theme">Seamlessly</span> Delivered',
+    lines: [
+      ["China to Your Port"],
+      [
+        { text: "Seamlessly", cls: "text-theme" },
+        " Delivered",
+      ],
+    ] as H1Seg[][],
     sub: "We handle complex shipping, customs documentation, and secure container loading",
     cta: "Explore Our Process",
   },
@@ -23,7 +35,15 @@ const slidesData = [
     img: "/pic/hero/title3 (2).webp",
     alt: "African Roads",
     label: "Built for African Roads",
-    h1: 'Selected for<br>Your <span class="text-accent">Eco</span> <span class="text-theme">Profit</span>',
+    lines: [
+      ["Selected for"],
+      [
+        "Your ",
+        { text: "Eco", cls: "text-accent" },
+        " ",
+        { text: "Profit", cls: "text-theme" },
+      ],
+    ] as H1Seg[][],
     sub: "High-clearance, durable EVs perfectly suited for African roads and climates",
     cta: "Explore Utility Pro",
   },
@@ -31,7 +51,14 @@ const slidesData = [
     img: "/pic/hero/photo-1486262715619-67b85e0b08d3.webp",
     alt: "Aftersales",
     label: "Zero-Headache Aftersales",
-    h1: 'Every Shipment<br><span class="text-accent">Fully</span> <span class="text-theme">Supported</span>',
+    lines: [
+      ["Every Shipment"],
+      [
+        { text: "Fully", cls: "text-accent" },
+        " ",
+        { text: "Supported", cls: "text-theme" },
+      ],
+    ] as H1Seg[][],
     sub: "Starter Parts Kit + digital repair manuals + remote tech support included",
     cta: "Discover Dealer Support",
   },
@@ -39,7 +66,13 @@ const slidesData = [
     img: "/pic/hero/photo-1521791136064-7986c2920216.webp",
     alt: "Partnership",
     label: "Ecosystem Partnership",
-    h1: 'More Than<br>Selling <span class="text-theme">Cars</span>',
+    lines: [
+      ["More Than"],
+      [
+        "Selling ",
+        { text: "Cars", cls: "text-theme" },
+      ],
+    ] as H1Seg[][],
     sub: "We build dealerships Turnkey solutions from marketing assets to showroom strategies",
     cta: "Become a Partner",
   },
@@ -153,8 +186,22 @@ export function HeroSlider() {
             ref={h1Ref}
             className="sh mb-3 lg:mb-8"
             style={{ fontSize: `calc(clamp(1.8rem, 7vw, 6.5rem) * ${fontSizeScale})` }}
-            dangerouslySetInnerHTML={{ __html: d.h1 }}
-          />
+          >
+            {d.lines.map((line, i) => (
+              <React.Fragment key={i}>
+                {i > 0 && <br />}
+                {line.map((seg, j) =>
+                  typeof seg === "string" ? (
+                    seg
+                  ) : (
+                    <span key={j} className={seg.cls}>
+                      {seg.text}
+                    </span>
+                  ),
+                )}
+              </React.Fragment>
+            ))}
+          </h1>
 
           <p
             className="hidden min-[376px]:block text-xs lg:text-lg md:text-xl text-gray-500 mb-6 lg:mb-12 max-w-xl leading-relaxed italic border-l-2 pl-4 lg:pl-8"

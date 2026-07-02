@@ -6,6 +6,22 @@ import { vehicles as fallbackRevenue } from "./revenue-king/data";
 import { vehicles as fallbackElite } from "./elite-flagship/data";
 import { vehicles as fallbackUtility } from "./utility-pro/data";
 
+function getBadgeCls(slug: string, badge: string | null): string {
+  if (!badge) return "";
+  if (slug === "byd-seagull") return "bg-gold text-black";
+  if (slug === "gac-aion-rt") return "bg-accent/20 text-accent border border-accent/30";
+  if (slug === "byd-qin-plus") return "";
+  if (slug === "geely-galaxy-e5") return "bg-white/5 text-gray-500 border border-white/10";
+  if (badge === "Global #1") return "bg-gold text-black";
+  if (badge === "2025 New King") return "bg-accent/20 text-accent border border-accent/30";
+  return "bg-white/5 text-gray-500 border border-white/10";
+}
+
+function formatSaving(value: string | undefined): string {
+  if (!value) return "";
+  return value.startsWith("Save") ? value : `${value}/mo`;
+}
+
 export default function ProductsPage() {
   const [products, setProducts] = useState<any[] | null>(null);
 
@@ -22,39 +38,39 @@ export default function ProductsPage() {
   const revenueSlugs = ["byd-seagull", "gac-aion-rt", "byd-qin-plus", "geely-galaxy-e5"];
   const revenueKingList = products
     ? revenueSlugs.map(slug => products.find(p => p.slug === slug)).filter(Boolean)
-    : [
+      : [
         {
           name: "BYD Seagull",
+          slug: "byd-seagull",
           badge: "Global #1",
-          badgeCls: "bg-gold text-black",
-          saving: "Save $250/mo",
+          stat2Value: "Save $250",
           tags: ["LFP Blade", "405km Range"],
           img: "/pic/revenue-king/seagull/7cut.webp",
           link: "/products/revenue-king/byd-seagull",
         },
         {
           name: "GAC Aion RT",
+          slug: "gac-aion-rt",
           badge: "2025 New King",
-          badgeCls: "bg-accent/20 text-accent border border-accent/30",
-          saving: "Save $380/mo",
+          stat2Value: "Save $380",
           tags: ["LiDAR ADAS", "520km Range"],
           img: "/pic/revenue-king/RT/7cut.webp",
           link: "/products/revenue-king/gac-aion-rt",
         },
         {
           name: "BYD Qin PLUS",
+          slug: "byd-qin-plus",
           badge: null,
-          badgeCls: "",
-          saving: "Save $350/mo",
+          stat2Value: "Save $350",
           tags: ["Million-Unit Proof", "510km Range"],
           img: "/pic/revenue-king/qinplusev/5cut.webp",
           link: "/products/revenue-king/byd-qin-plus",
         },
         {
           name: "Galaxy E5",
+          slug: "geely-galaxy-e5",
           badge: "Global Model",
-          badgeCls: "bg-white/5 text-gray-500 border border-white/10",
-          saving: "Save $220/mo",
+          stat2Value: "Save $220",
           tags: ["Aegis Battery", "530km Range"],
           img: "/pic/hero/Galaxye5 display.webp",
           link: "/products/revenue-king/geely-galaxy-e5",
@@ -255,7 +271,7 @@ export default function ProductsPage() {
                       {car.badge && (
                         <div className="absolute top-6 left-6 flex flex-col gap-2">
                           <span
-                            className={`text-[8px] font-black px-2.5 py-1.5 rounded-full uppercase tracking-wider ${car.badgeCls}`}
+                            className={`text-[8px] font-black px-2.5 py-1.5 rounded-full uppercase tracking-wider ${getBadgeCls(car.slug, car.badge)}`}
                           >
                             {car.badge}
                           </span>
@@ -263,7 +279,7 @@ export default function ProductsPage() {
                       )}
                       <div className="absolute bottom-6 left-6 right-6">
                         <div className="text-[9px] font-black text-accent uppercase tracking-[0.2em] mb-1">
-                          {car.saving}
+                          {formatSaving(car.stat2Value)}
                         </div>
                         <h3 className="text-xl font-black italic text-white uppercase tracking-tight">
                           {car.name}
@@ -403,7 +419,7 @@ export default function ProductsPage() {
                         {aitoM9.tag || "Performance King"}
                       </div>
                       <div className="px-6 py-3 rounded-full border border-white/10 text-white text-[10px] font-black uppercase tracking-widest">
-                        {aitoM9.saving || "Save $500+/mo"}
+                        {formatSaving(aitoM9.stat2Value) || "Save $500+/mo"}
                       </div>
                     </div>
                   </div>

@@ -2,6 +2,7 @@
 
 import { use, useEffect, useState } from "react";
 import Link from "next/link";
+import MarkdownRenderer from "@/components/MarkdownRenderer";
 
 interface Lesson {
   title: string;
@@ -172,11 +173,10 @@ export default function DynamicLessonPage({ params }: any) {
                 </div>
               )}
 
-              {/* HTML Body */}
-              <article
-                className="article-body max-w-3xl"
-                dangerouslySetInnerHTML={{ __html: lesson.content }}
-              />
+              {/* Article Body */}
+              <article className="article-body max-w-3xl">
+                <MarkdownRenderer content={lesson.content} />
+              </article>
 
               {/* Footer tags */}
               <div className="mt-16 pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-6">

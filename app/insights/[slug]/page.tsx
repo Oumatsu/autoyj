@@ -2,11 +2,11 @@
 
 import { use, useEffect, useState } from "react";
 import Link from "next/link";
+import MarkdownRenderer from "@/components/MarkdownRenderer";
 
 interface ArticleData {
   title: string;
   category: string;
-  tagClass: string;
   date: string;
   sortDate: string;
   readTime: string;
@@ -14,6 +14,34 @@ interface ArticleData {
   coverImage: string;
   overview: string;
   content: string;
+}
+
+function getTagStyle(category: string): { bg: string; color: string; border: string } {
+  const cat = category.toLowerCase().trim();
+  if (cat === "operator hub" || cat === "sourcing intelligence") {
+    return { bg: "rgba(16,185,129,.1)", color: "var(--color-green)", border: "rgba(16,185,129,.3)" };
+  }
+  if (cat === "policy & tariffs" || cat === "pricing & trade") {
+    return { bg: "rgba(197,160,89,.1)", color: "var(--color-gold)", border: "rgba(197,160,89,.3)" };
+  }
+  if (cat === "market analysis" || cat === "product watch") {
+    return { bg: "rgba(255,255,255,.05)", color: "var(--color-green)", border: "rgba(16,185,129,.3)" };
+  }
+  return { bg: "rgba(16,185,129,.1)", color: "var(--color-green)", border: "rgba(16,185,129,.3)" };
+}
+
+function getTagClass(category: string): string {
+  const cat = category.toLowerCase().trim();
+  if (cat === "market analysis" || cat === "product watch") {
+    return "bg-white/5 text-white border border-white/10";
+  }
+  if (cat === "operator hub" || cat === "sourcing intelligence") {
+    return "bg-accent/10 text-accent border border-accent/30";
+  }
+  if (cat === "policy & tariffs" || cat === "pricing & trade") {
+    return "bg-gold/10 text-gold border border-gold/30";
+  }
+  return "bg-accent/10 text-accent border border-accent/30";
 }
 
 function getSubcategory(category: string): string {
@@ -97,11 +125,11 @@ export default function DynamicInsightPage({ params }: any) {
             <div className="lg:col-span-8 xl:col-span-8">
               <header className="mb-12">
                 <span
-                  className={`inline-block px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-wider mb-6 border ${article.tagClass}`}
+                  className={`inline-block px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-wider mb-6 border ${getTagClass(article.category)}`}
                   style={{
-                    background: "rgba(16,185,129,.1)",
-                    color: "var(--color-green)",
-                    borderColor: "rgba(16,185,129,.3)",
+                    background: getTagStyle(article.category).bg,
+                    color: getTagStyle(article.category).color,
+                    borderColor: getTagStyle(article.category).border,
                   }}
                 >
                   {article.category}
@@ -138,12 +166,9 @@ export default function DynamicInsightPage({ params }: any) {
                 <div className="absolute inset-0 border border-white/10 rounded-[2rem] pointer-events-none"></div>
               </div>
 
-              <article
-                className="article-body max-w-3xl"
-                dangerouslySetInnerHTML={{
-                  __html: article.content.replace(/images\//g, `/insights/images/${article.slug}/`),
-                }}
-              />
+              <article className="article-body max-w-3xl">
+                <MarkdownRenderer content={article.content} imageBasePath={`/insights/images/${article.slug}`} />
+              </article>
 
               <div className="mt-16 pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-6">
                 <div className="flex flex-wrap gap-2">
