@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+.font-inter {
+  font-family: var(--font-inter), system-ui, sans-serif;
+}
+
 .font-sans {
   font-family: var(--font-sans), var(--font-sc), system-ui, sans-serif;
 }
@@ -174,7 +178,7 @@ html {
 }
 
 body {
-  font-family: var(--font-sans), var(--font-sc), system-ui, sans-serif;
+  font-family: var(--font-inter), system-ui, sans-serif;
   background: var(--color-bg);
   color: #E5E7EB;
   -webkit-font-smoothing: antialiased;

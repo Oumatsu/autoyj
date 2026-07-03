@@ -1,13 +1,22 @@
 import type { Metadata } from "next";
-import { Noto_Sans, Noto_Sans_SC, Noto_Sans_Ethiopic } from "next/font/google";
+import { Inter, Noto_Sans, Noto_Sans_SC, Noto_Sans_Ethiopic } from "next/font/google";
 import "./globals.css";
 import { SiteChrome } from "@/components/SiteChrome";
 
 export const dynamic = "force-dynamic";
 
+const inter = Inter({
+  subsets: ["latin", "latin-ext"],
+  weight: ["300", "400", "500", "600", "700", "800"],
+  style: ["normal", "italic"],
+  display: "swap",
+  variable: "--font-inter",
+});
+
 const notoSans = Noto_Sans({
   subsets: ["latin", "latin-ext"],
   weight: ["300", "400", "500", "600", "700", "800"],
+  style: ["normal"],
   display: "swap",
   variable: "--font-sans",
 });
@@ -15,6 +24,7 @@ const notoSans = Noto_Sans({
 const notoSansSc = Noto_Sans_SC({
   subsets: ["latin"],
   weight: ["400", "500", "700"],
+  style: ["normal"],
   display: "swap",
   variable: "--font-sc",
 });
@@ -22,6 +32,7 @@ const notoSansSc = Noto_Sans_SC({
 const notoSansEthiopic = Noto_Sans_Ethiopic({
   subsets: ["ethiopic"],
   weight: ["400", "500", "600", "700"],
+  style: ["normal"],
   display: "swap",
   variable: "--font-ethiopic",
 });
@@ -44,7 +55,7 @@ export default function RootLayout({
     <html
       lang="zh"
       dir="ltr"
-      className={`${notoSans.variable} ${notoSansSc.variable} ${notoSansEthiopic.variable}`}
+      className={`${inter.variable} ${notoSans.variable} ${notoSansSc.variable} ${notoSansEthiopic.variable}`}
       suppressHydrationWarning
     >
       <head>
@@ -56,12 +67,15 @@ export default function RootLayout({
                   const segments = window.location.pathname.split('/');
                   const locale = ['zh', 'en', 'am'].includes(segments[1]) ? segments[1] : 'zh';
                   document.documentElement.lang = locale;
-                  if (locale === 'am') {
+                  if (locale === 'en') {
+                    document.documentElement.classList.add('font-inter');
+                    document.documentElement.classList.remove('font-sans', 'font-ethiopic');
+                  } else if (locale === 'am') {
                     document.documentElement.classList.add('font-ethiopic');
-                    document.documentElement.classList.remove('font-sans');
+                    document.documentElement.classList.remove('font-inter', 'font-sans');
                   } else {
                     document.documentElement.classList.add('font-sans');
-                    document.documentElement.classList.remove('font-ethiopic');
+                    document.documentElement.classList.remove('font-inter', 'font-ethiopic');
                   }
                 } catch (e) {}
               })();
@@ -69,7 +83,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className={`${notoSans.className} font-sans`}>
+      <body className="font-inter">
         <SiteChrome>{children}</SiteChrome>
       </body>
     </html>
