@@ -5,14 +5,17 @@
   "type": "module",
   "scripts": {
     "dev": "vinext dev",
-    "build": "vinext build",
+    "build": "npm run sync:i18n && vinext build",
     "start": "vinext start",
     "deploy": "vinext deploy",
     "check": "vinext check",
     "lint": "vinext lint",
     "setup:feishu": "node scripts/setup-feishu-base.mjs",
     "sync:feishu-data": "node scripts/import-frontend-to-feishu.mjs",
-    "sync:feishu-env": "node scripts/sync-feishu-env.mjs"
+    "sync:feishu-env": "node scripts/sync-feishu-env.mjs",
+    "setup:i18n": "node scripts/setup-i18n-tables.mjs",
+    "seed:i18n": "node scripts/seed-i18n-to-feishu.mjs",
+    "sync:i18n": "node scripts/sync-i18n.mjs"
   },
   "dependencies": {
     "imagetracerjs": "^1.2.6",

@@ -15,15 +15,15 @@ function parseInlineMd(text: string): React.ReactNode {
 
   while (remaining.length > 0) {
     // **bold**
-    const boldMatch = remaining.match(/^(.*?)\*\*(.+?)\*\*(.*)/s);
+    const boldMatch = remaining.match(/^([\s\S]*?)\*\*([\s\S]+?)\*\*([\s\S]*)/);
     if (boldMatch) {
       if (boldMatch[1]) parts.push(boldMatch[1]);
       parts.push(<strong key={nextKey()}>{parseInlineMd(boldMatch[2])}</strong>);
       remaining = boldMatch[3];
       continue;
     }
-    // *italic* (single asterisk, not part of **)
-    const emMatch = remaining.match(/^(.*?)(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)(.*)/s);
+    // Since bold is parsed first, any remaining * are italics.
+    const emMatch = remaining.match(/^([\s\S]*?)\*([^*]+?)\*([\s\S]*)/);
     if (emMatch) {
       if (emMatch[1]) parts.push(emMatch[1]);
       parts.push(<em key={nextKey()}>{parseInlineMd(emMatch[2])}</em>);
@@ -31,7 +31,7 @@ function parseInlineMd(text: string): React.ReactNode {
       continue;
     }
     // [text](url)
-    const linkMatch = remaining.match(/^(.*?)\[([^\]]+)\]\(([^)]+)\)(.*)/s);
+    const linkMatch = remaining.match(/^([\s\S]*?)\[([^\]]+)\]\(([^)]+)\)([\s\S]*)/);
     if (linkMatch) {
       if (linkMatch[1]) parts.push(linkMatch[1]);
       parts.push(
@@ -47,7 +47,7 @@ function parseInlineMd(text: string): React.ReactNode {
       continue;
     }
     // `code`
-    const codeMatch = remaining.match(/^(.*?)`(.+?)`(.*)/s);
+    const codeMatch = remaining.match(/^([\s\S]*?)`([\s\S]+?)`([\s\S]*)/);
     if (codeMatch) {
       if (codeMatch[1]) parts.push(codeMatch[1]);
       parts.push(

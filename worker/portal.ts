@@ -20,6 +20,7 @@ type Env = {
   FEISHU_TABLE_ARTICLES?: string;
   FEISHU_TABLE_ACADEMY_LESSONS?: string;
   FEISHU_TABLE_ACADEMY_VAULT?: string;
+  DEV?: boolean;
 };
 
 type PortalRole = "admin" | "sales" | "sourcing" | "finance" | "partner" | "customer";
@@ -179,17 +180,18 @@ function problem(message: string, status = 400) {
   return json({ error: message }, { status });
 }
 
-function requireEnv(env: Env, key: keyof Env) {
+function requireEnv(env: Env, key: keyof Env): string {
   const value = env[key];
   if (!value) throw new Error(`Missing ${key}`);
-  return value;
+  return String(value);
 }
 
-function optionalEnv(env: Env, key: keyof Env) {
-  return env[key] || "";
+function optionalEnv(env: Env, key: keyof Env): string {
+  const value = env[key];
+  return value ? String(value) : "";
 }
 
-function asText(value: unknown) {
+function asText(value: unknown): string {
   if (value === null || value === undefined) return "";
   if (Array.isArray(value)) {
     return value.map(asText).filter(Boolean).join(", ");
@@ -889,7 +891,7 @@ function deriveVehicleModelsFromVehicles(vehicles: ReturnType<typeof mapVehicle>
       imageUrl: vehicle.imageUrl,
       brochureUrl: "",
       status: vehicle.status || "Active",
-    });
+    } as unknown as PortalVehicleModel);
   }
   return Array.from(grouped.values());
 }

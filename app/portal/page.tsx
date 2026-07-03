@@ -210,6 +210,7 @@ type VehicleOffer = {
 type Inquiry = {
   id: string;
   inquiryNo: string;
+  customerId: string;
   vehicleId: string;
   vehicleModel: string;
   quantity: number;
@@ -254,6 +255,7 @@ type Negotiation = {
 type Order = {
   id: string;
   orderNo: string;
+  customerId: string;
   inquiryNo: string;
   quoteNo: string;
   vehicleId: string;
@@ -414,7 +416,7 @@ async function api<T>(path: string, init?: RequestInit): Promise<T> {
       ...(init?.headers || {}),
     },
   });
-  const data = await response.json().catch(() => ({}));
+  const data = (await response.json().catch(() => ({}))) as any;
   if (!response.ok) {
     throw new Error(typeof data.error === "string" ? data.error : "Request failed");
   }
