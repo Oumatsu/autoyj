@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
-.font-inter {
-  font-family: var(--font-inter), "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", system-ui, sans-serif;
+.font-sans {
+  font-family: var(--font-sans), var(--font-sc), system-ui, sans-serif;
 }
 
 .font-ethiopic {
@@ -174,7 +174,7 @@ html {
 }
 
 body {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans), var(--font-sc), system-ui, sans-serif;
   background: var(--color-bg);
   color: #E5E7EB;
   -webkit-font-smoothing: antialiased;

@@ -1,16 +1,22 @@
 import type { Metadata } from "next";
-import { Inter, Noto_Sans_Ethiopic } from "next/font/google";
+import { Noto_Sans, Noto_Sans_SC, Noto_Sans_Ethiopic } from "next/font/google";
 import "./globals.css";
 import { SiteChrome } from "@/components/SiteChrome";
 
 export const dynamic = "force-dynamic";
 
-const inter = Inter({
-  subsets: ["latin"],
-  weight: ["300", "400", "600", "700", "800", "900"],
-  style: ["normal", "italic"],
+const notoSans = Noto_Sans({
+  subsets: ["latin", "latin-ext"],
+  weight: ["300", "400", "500", "600", "700", "800"],
   display: "swap",
-  variable: "--font-inter",
+  variable: "--font-sans",
+});
+
+const notoSansSc = Noto_Sans_SC({
+  subsets: ["latin"],
+  weight: ["400", "500", "700"],
+  display: "swap",
+  variable: "--font-sc",
 });
 
 const notoSansEthiopic = Noto_Sans_Ethiopic({
@@ -38,7 +44,7 @@ export default function RootLayout({
     <html
       lang="zh"
       dir="ltr"
-      className={`${inter.variable} ${notoSansEthiopic.variable}`}
+      className={`${notoSans.variable} ${notoSansSc.variable} ${notoSansEthiopic.variable}`}
       suppressHydrationWarning
     >
       <head>
@@ -52,9 +58,9 @@ export default function RootLayout({
                   document.documentElement.lang = locale;
                   if (locale === 'am') {
                     document.documentElement.classList.add('font-ethiopic');
-                    document.documentElement.classList.remove('font-inter');
+                    document.documentElement.classList.remove('font-sans');
                   } else {
-                    document.documentElement.classList.add('font-inter');
+                    document.documentElement.classList.add('font-sans');
                     document.documentElement.classList.remove('font-ethiopic');
                   }
                 } catch (e) {}
@@ -63,7 +69,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className={`${inter.className} font-inter`}>
+      <body className={`${notoSans.className} font-sans`}>
         <SiteChrome>{children}</SiteChrome>
       </body>
     </html>

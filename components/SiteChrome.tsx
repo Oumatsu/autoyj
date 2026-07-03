@@ -20,9 +20,9 @@ export function SiteChrome({ children }: { children: ReactNode }) {
     // 渐进式切换 body 字体类，不直接覆写整个 body.className
     if (locale === "am") {
       document.body.classList.add("font-ethiopic");
-      document.body.classList.remove("font-inter");
+      document.body.classList.remove("font-sans");
     } else {
-      document.body.classList.add("font-inter");
+      document.body.classList.add("font-sans");
       document.body.classList.remove("font-ethiopic");
     }
   }, [pathname]);
