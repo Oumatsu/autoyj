@@ -1524,6 +1524,58 @@ async function handlePublicProduct(slug: string, env: Env) {
   return json(data);
 }
 
+async function handlePublicTranslations(env: Env) {
+  // 实时测试模式下不使用 Worker 内部缓存，每次直接向飞书拉取最新数据
+  const tableId = requireEnv(env, "FEISHU_TABLE_I18N");
+  const records = await searchRecords(env, tableId, { pageSize: 500 });
+  
+  const zhRecords: any[] = [];
+  const enRecords: any[] = [];
+  const amRecords: any[] = [];
+  
+  for (const item of records) {
+    const key = asText(item.fields.Key);
+    if (!key) continue;
+    zhRecords.push({ key, value: asText(item.fields.ZH) });
+    enRecords.push({ key, value: asText(item.fields.EN) });
+    amRecords.push({ key, value: asText(item.fields.AM) });
+  }
+
+  const buildNested = (list: any[]) => {
+    const root: any = {};
+    for (const { key, value } of list) {
+      const parts = key.split(".");
+      let current = root;
+      for (let i = 0; i < parts.length - 1; i++) {
+        const part = parts[i];
+        if (current[part] === undefined || typeof current[part] !== "object") {
+          current[part] = {};
+        }
+        current = current[part];
+      }
+      const lastPart = parts[parts.length - 1];
+      if (typeof value === "string" && value.trimStart().startsWith("[")) {
+        try {
+          current[lastPart] = JSON.parse(value);
+        } catch {
+          current[lastPart] = value;
+        }
+      } else {
+        current[lastPart] = value;
+      }
+    }
+    return root;
+  };
+
+  const data = {
+    zh: buildNested(zhRecords),
+    en: buildNested(enRecords),
+    am: buildNested(amRecords)
+  };
+
+  return json(data);
+}
+
 async function handlePublicProducts(env: Env) {
   const cacheKey = "public-products";
   const cached = getCached(cacheKey);
@@ -1837,6 +1889,9 @@ export async function handlePortalRequest(request: Request, env: Env) {
 
   try {
     if (path.startsWith("/api/portal/public/")) {
+      if (path === "/api/portal/public/translations" && request.method === "GET") {
+        return await handlePublicTranslations(env);
+      }
       if (path === "/api/portal/public/insights" && request.method === "GET") {
         return await handlePublicInsights(env);
       }
