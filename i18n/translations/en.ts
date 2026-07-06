@@ -172,7 +172,7 @@ export default {
     },
     tco: {
       label: "The Numbers Don't Lie",
-      title1: "EV vs ICE.\n",
+      title1: "EV vs ICE",
       title2: "",
       titleAccent1: "Real",
       title3: "",
@@ -216,7 +216,7 @@ export default {
       label: "Knowledge Is Your Edge",
       title1: "",
       titleAccent1: "Expert-Grade",
-      title2: "Tools\nBuilt for Dealers.",
+      title2: "Tools\nBuilt for Dealers",
       report: {
         label: "Market Intelligence",
         title: "2025 Africa EV\nExport Report",
@@ -224,7 +224,7 @@ export default {
       },
       academy: {
         label: "EV Growth Academy",
-        title: "Turn Your Team\nInto EV Experts.",
+        title: "Turn Your Team\nInto EV Experts",
         desc: "Free training modules: EV fundamentals, battery safety for African climates, sales scripts, and showroom SOPs. Ready to use from day one.",
         freeAccess: "Free Access",
       },
@@ -258,14 +258,18 @@ export default {
     },
     leadMagnet: {
       label: "Free Insider Report",
-      title1: "2025 China EV\n",
-      titleAccent: "Export Report",
+      title1: "2025 Global EV\n",
+      titleAccent: "Outlook Report",
       title2: "",
       desc: "Top 20 vehicles by African ROI. Real import margin data. Used by dealers across Ethiopia to source smarter.",
       emailPlaceholder: "Your email address",
       phonePlaceholder: "WhatsApp number (with country code)",
       cta: "Download Free Report →",
       privacy: "No spam. Unsubscribe anytime.",
+      modalTitle: "Dealer Sign In Required",
+      modalDesc: "Please sign in to your dealer portal account to access and download this exclusive export report.",
+      modalCancel: "Close",
+      modalCta: "Go to Sign In →",
     },
   },
   sectionTabs: {

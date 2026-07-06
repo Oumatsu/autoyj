@@ -86,7 +86,7 @@ export default {
       titleAccent1: "ኢኮ",
       title2: "",
       titleAccent2: "አሸናፊ",
-      title3: " ክበብ።",
+      title3: " ክበብ",
       revenueKing: {
         badge: "ከፍተኛ የኢንቨስትመንት ተመላሽ",
         category: "ምድብ 01",
@@ -124,7 +124,7 @@ export default {
       titleAccent1: "ወርቅ",
       title2: "",
       titleAccent2: "ስታንዳርድ",
-      title3: "።",
+      title3: "",
       steps: [
         {
           num: "01",
@@ -172,12 +172,12 @@ export default {
     },
     tco: {
       label: "ቁጥሮች አይዋሹም",
-      title1: "ኤሌክትሪክ መኪና vs ነዳጅ መኪና።\n",
+      title1: "ኤሌክትሪክ መኪና vs ነዳጅ መኪና\n",
       title2: "",
       titleAccent1: "እውነተኛ",
       title3: "",
       titleAccent2: "ትርፍ",
-      title4: "።",
+      title4: "",
       desc: "ደንበኞችዎ ኤሌክትሪክ መኪና የሚመርጡት በየወሩ እውነተኛ ገንዘብ ስለሚቆጥብ ነው። ስምምነቶችን የሚዘጉበትን መረጃ ይስጧቸው።",
       benefits: [
         {
@@ -216,7 +216,7 @@ export default {
       label: "እውቀት የእርስዎ ጥቅም ነው",
       title1: "",
       titleAccent1: "የባለሙያ",
-      title2: " መሳሪያዎች\nለነጋዴዎች የተገነቡ።",
+      title2: " መሳሪያዎች\nለነጋዴዎች የተገነቡ",
       report: {
         label: "የገበያ መረጃ",
         title: "2025 የአፍሪካ ኤሌክትሪክ መኪና\nየወጪ ንግድ ሪፖርት",
@@ -224,7 +224,7 @@ export default {
       },
       academy: {
         label: "የኤሌክትሪክ መኪና እድገት አካዳሚ",
-        title: "ቡድንዎን የኤሌክትሪክ መኪና\nባለሙያ ያድርጉ።",
+        title: "ቡድንዎን የኤሌክትሪክ መኪና\nባለሙያ ያድርጉ",
         desc: "ነጻ የሥልጠና ሞጁሎች፡ የኤሌክትሪክ መኪና መሰረታዊ ነገሮች፣ የአፍሪካ የአየር ንብረት ባትሪ ደህንነት፣ የሽያጭ ንግግሮች እና የማሳያ ክፍል SOP። ከመጀመሪያው ቀን ጀምሮ ሊጠቀሙ ይችላሉ።",
         freeAccess: "ነጻ መዳረሻ",
       },
@@ -258,14 +258,18 @@ export default {
     },
     leadMagnet: {
       label: "ነጻ የውስጥ ሪፖርት",
-      title1: "2025 የቻይና ኤሌክትሪክ መኪና\n",
-      titleAccent: "የወጪ ንግድ ሪፖርት",
-      title2: "።",
+      title1: "2025 ዓለም አቀፍ ኤሌክትሪክ መኪና\n",
+      titleAccent: "የእይታ ሪፖርት",
+      title2: "",
       desc: "በአፍሪካ ROI ከፍተኛ 20 ሞዴሎች። እውነተኛ የማስመጣት ትርፍ ህዳግ መረጃ። በመላው ኢትዮጵያ ነጋዴዎች የበለጠ ብልህ ለመግዛት ይጠቀማሉ።",
       emailPlaceholder: "የኢሜል አድራሻዎ",
       phonePlaceholder: "WhatsApp ቁጥር (የሀገር ኮድ ጋር)",
       cta: "ሪፖርቱን በነጻ አውርድ →",
       privacy: "አይፈለጌ መልእክት የለም። በማንኛውም ጊዜ ምዝገባ መሰረዝ ይቻላል።",
+      modalTitle: "የነጋዴ መግቢያ ያስፈልጋል",
+      modalDesc: "እባክዎን ይህንን ልዩ የወጪ ንግድ ሪፖርት ለማግኘት እና ለማውረድ መጀመሪያ ወደ ነጋዴ ፖርታልዎ ይግቡ።",
+      modalCancel: "ዝጋ",
+      modalCta: "ወደ መግቢያ ይሂዱ →",
     },
   },
   sectionTabs: {
@@ -1119,7 +1123,7 @@ export default {
       },
     },
     included: {
-      title: "ምን ይካተታል።",
+      title: "ምን ይካተታል",
       items: [
         "የመሳሪያ ግዥ ከቻይና ታዋቂ ምርቶች",
         "ከፋብሪካ ወደብ የሎጂስቲክስ ቅንጅት",
@@ -1130,7 +1134,7 @@ export default {
       ],
     },
     form: {
-      title: "ስለ መገልገያዎ ይንገሩን።",
+      title: "ስለ መገልገያዎ ይንገሩን",
       description: "ከዚህ በታች ያለውን ቅጽ ይሙሉ እና የእኛ የመሠረተ ልማት ቡድን በ 48 ሰዓታት ውስጥ ዝርዝር መሳሪያዎችን ዝርዝር እና የ CIF ጥቅስ ያዘጋጃል።",
       targetTier: "የዒላማ አገልግሎት ደረጃ *",
       tierOptions: [

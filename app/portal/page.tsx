@@ -302,11 +302,11 @@ const emptyInquiryForm: InquiryForm = {
   notes: "",
 };
 
-const devLoginOptions: { role: PortalRole; label: string; detail: string }[] = [
-  { role: "admin", label: "Admin", detail: "Full internal view" },
-  { role: "sales", label: "Sales", detail: "Sales workspace" },
-  { role: "partner", label: "Partner", detail: "Cooperation price" },
-  { role: "customer", label: "Customer", detail: "Inventory only" },
+const devLoginOptions: { role: PortalRole; label: string; detail: string; email: string; accessCode: string }[] = [
+  { role: "admin", label: "Admin", detail: "Full internal view", email: "admin@local.test", accessCode: "admin-demo-2026" },
+  { role: "sales", label: "Sales", detail: "Sales workspace", email: "sales@local.test", accessCode: "sales-demo-2026" },
+  { role: "partner", label: "Partner", detail: "Cooperation price", email: "partner@example.com", accessCode: "partner-demo-2026" },
+  { role: "customer", label: "Customer", detail: "Inventory only", email: "customer@example.com", accessCode: "customer-demo-2026" },
 ];
 
 const roleLabels: Record<PortalRole, string> = {
@@ -431,6 +431,7 @@ export default function PortalPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [isLocalDev, setIsLocalDev] = useState(false);
+  const [showPreviewTestLogin, setShowPreviewTestLogin] = useState(false);
   const [activeAdminModule, setActiveAdminModule] = useState<AdminModule>("dashboard");
   const [selectedSellableModel, setSelectedSellableModel] = useState<SellableModel | null>(null);
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
@@ -458,6 +459,11 @@ export default function PortalPage() {
   useEffect(() => {
     const host = window.location.hostname.toLowerCase();
     setIsLocalDev(host === "localhost" || host === "127.0.0.1" || host === "::1" || host === "[::1]");
+    setShowPreviewTestLogin(
+      host.includes("workers.dev") ||
+      host.includes("autoyj-preview") ||
+      host.includes("preview")
+    );
     void load();
   }, []);
 
@@ -487,6 +493,11 @@ export default function PortalPage() {
         body: JSON.stringify({ email, accessCode }),
       });
       await load();
+      const params = new URLSearchParams(window.location.search);
+      const redirect = params.get("redirect");
+      if (redirect) {
+        window.location.href = redirect;
+      }
     } catch (loginError) {
       setError(loginError instanceof Error ? loginError.message : "Sign in failed");
     } finally {
@@ -508,6 +519,12 @@ export default function PortalPage() {
     } finally {
       setBusy(false);
     }
+  }
+
+  function fillTestCredentials(option: (typeof devLoginOptions)[number]) {
+    setEmail(option.email);
+    setAccessCode(option.accessCode);
+    setError("");
   }
 
   async function logout() {
@@ -611,16 +628,16 @@ export default function PortalPage() {
               <h2 className="text-2xl font-black uppercase italic text-white">Portal Sign In</h2>
               <p className="mt-2 text-xs text-gray-500">Your access level is controlled in Feishu Base.</p>
             </div>
-            {isLocalDev && (
+            {(isLocalDev || showPreviewTestLogin) && (
               <div className="grid gap-3 rounded-xl border border-gold/20 bg-gold/[.06] p-3">
-                <p className="text-[10px] font-black uppercase tracking-widest text-gold">Local quick login</p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-gold">Test accounts</p>
                 <div className="grid grid-cols-2 gap-2">
                   {devLoginOptions.map((option) => (
                     <button
                       key={option.role}
                       type="button"
                       disabled={busy}
-                      onClick={() => devLogin(option.role)}
+                      onClick={() => fillTestCredentials(option)}
                       className="rounded-lg border border-white/10 bg-black/25 px-3 py-3 text-left transition hover:border-gold/60 disabled:opacity-60"
                     >
                       <span className="block text-xs font-black uppercase italic text-white">{option.label}</span>

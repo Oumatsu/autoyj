@@ -86,7 +86,7 @@ export default {
       titleAccent1: "Ecosystem",
       title2: "",
       titleAccent2: "Winners",
-      title3: "生态赢家。",
+      title3: "生态赢家",
       revenueKing: {
         badge: "极高投资回报率 (ROI)",
         category: "新能源车型 01",
@@ -124,7 +124,7 @@ export default {
       titleAccent1: "Gold",
       title2: "",
       titleAccent2: "Eco Standard",
-      title3: "金牌生态标准。",
+      title3: "金牌生态标准",
       steps: [
         {
           num: "01",
@@ -172,12 +172,12 @@ export default {
     },
     tco: {
       label: "用数据说话",
-      title1: "新能源汽车 vs 传统燃油车：\n",
+      title1: "新能源汽车 vs 传统燃油车",
       title2: "",
-      titleAccent1: "Real",
+      titleAccent1: "真实",
       title3: "",
-      titleAccent2: "Profits",
-      title4: "探寻真实利润空间。",
+      titleAccent2: "利润",
+      title4: "",
       desc: "您的客户选择电动车，是因为它每月都能省下真金白银。为您提供最有力、能迅速促成交易的硬核数据支持。",
       benefits: [
         {
@@ -196,7 +196,7 @@ export default {
       ],
       cta: "获取我的利润估算模型",
       chartTitle: "中型轿车月度运营成本对比",
-      evLabel: "新能源电动汽车 (EV)",
+      evLabel: "新能源汽车 (EV)",
       evValue: "~$120 / 月",
       evBreakdown: [
         "⚡ 充电电费 ~$60",
@@ -216,7 +216,7 @@ export default {
       label: "专业知识即是您的核心竞争力",
       title1: "为经销商打造的\n",
       titleAccent1: "Expert",
-      title2: "专业出海工具。",
+      title2: "专业出海工具",
       report: {
         label: "非洲新能源市场情报",
         title: "2025 非洲电动车\n出海白皮书",
@@ -224,7 +224,7 @@ export default {
       },
       academy: {
         label: "新能源增长学院",
-        title: "快速将您的团队\n培养为新能源专家。",
+        title: "快速将您的团队\n培养为新能源专家",
         desc: "全套免费培训：涵盖电动车基础原理、非洲气候电池安全规范、黄金销售话术及展厅 SOP，助您的团队开箱即用。",
         freeAccess: "获取免费学习权限",
       },
@@ -258,14 +258,18 @@ export default {
     },
     leadMagnet: {
       label: "免费内部报告",
-      title1: "2025 中国电动车\n",
-      titleAccent: "出口报告",
-      title2: "。",
+      title1: "2025 全球电动车\n",
+      titleAccent: "展望报告",
+      title2: "",
       desc: "按非洲投资回报率排名前 20 车型。真实进口利润率数据。埃塞俄比亚各地经销商用来更聪明地采购。",
       emailPlaceholder: "您的邮箱地址",
       phonePlaceholder: "WhatsApp 号码（含国家代码）",
       cta: "免费下载报告 →",
       privacy: "无垃圾邮件。随时取消订阅。",
+      modalTitle: "需要经销商登录",
+      modalDesc: "请先登录您的经销商门户账号，以访问并下载此独家出口报告。",
+      modalCancel: "关闭",
+      modalCta: "前往登录 →",
     },
   },
   sectionTabs: {
