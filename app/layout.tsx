@@ -55,7 +55,7 @@ export default function RootLayout({
     <html
       lang="zh"
       dir="ltr"
-      className={`${inter.variable} ${notoSans.variable} ${notoSansSc.variable} ${notoSansEthiopic.variable}`}
+      className={`${inter.variable} ${notoSans.variable} ${notoSansSc.variable} ${notoSansEthiopic.variable} font-sans`}
       suppressHydrationWarning
     >
       <head>
@@ -83,7 +83,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="font-inter">
+      <body>
         <SiteChrome>{children}</SiteChrome>
       </body>
     </html>

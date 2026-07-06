@@ -1,8 +1,4 @@
 export default {
-  meta: {
-    title: "autoYJ — የእርስዎ ልዩ የአፍሪካ ኤሌክትሪክ መኪና ግዥ ባለሙያ",
-    description: "ለአፍሪካ ነጋዴዎች የቻይና መሪ ኤሌክትሪክ መኪና ወደ ውጭ መላኪያ አጋር። ሙያዊ ግዥ፣ ግልጽ PDI፣ አንድ-ማቆሚያ ነጋዴ ማብቃት።",
-  },
   nav: {
     vehicles: "ሞዴሎች",
     revenueKing: "የገቢ ንጉሥ",
@@ -14,9 +10,6 @@ export default {
     about: "ስለ እኛ",
     portal: "ፖርታል",
     contactUs: "ያግኙን",
-  },
-  locale: {
-    switch: "ቋንቋ ቀይር",
   },
   footer: {
     cta: "ውይይት ጀምር",
@@ -1578,5 +1571,25 @@ export default {
       whatsappButton: "WhatsApp ቅድሚያ መስኮት",
       applicationButton: "የሻጭ ማመልከቻ ያስገቡ",
     },
+  },
+  specs: {
+    "Battery Capacity": "የባትሪ אቅም",
+    "Battery Type": "የባትሪ ዓይነት",
+    "CLTC Range": "የCLTC 局ት",
+    "NEDC Range": "የNEDC 局ት",
+    Range: "የርቀት",
+    "Max Power": "ከፍተኛ ኃይል",
+    "Max Torque": "ከፍተኛ የማሽከርከር ኃይል",
+    "Top Speed": "ከፍተኛ ፍጥነት",
+    "0-100 km/h": "ከ0-100 ኪ.ሜ/ሰ",
+    "DC Fast Charge": "የዲሲ ፈጣን ቻርጅ",
+    "AC Slow Charge": "የኤሲ ቀስተኛ ቻርጅ",
+    "Dimensions (LxWxH)": "ልኬቶች (ቁመት x ወርድ x ርዝመት)",
+    Wheelbase: "ዊልቤዝ",
+    "Curb Weight": "ከርб ክብደት",
+    "Seating Capacity": "የመቀመጫ አቅም",
+    "Drive Type": "የአሽከርካሪ ዓይነት",
+    Airbags: "የአየር ከረጢቶች",
+    Sunroof: "የፀሐይ መከላከያ ጣሪያ",
   },
 };

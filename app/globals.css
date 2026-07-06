@@ -178,7 +178,7 @@ html {
 }
 
 body {
-  font-family: var(--font-inter), system-ui, sans-serif;
+  font-family: inherit;
   background: var(--color-bg);
   color: #E5E7EB;
   -webkit-font-smoothing: antialiased;

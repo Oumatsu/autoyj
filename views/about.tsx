@@ -56,7 +56,7 @@ const mediaSlots = [
 ];
 
 export default function AboutPage() {
-  const { t } = useTranslation();
+  const { t, tArray } = useTranslation();
   const [lightbox, setLightbox] = useState<{
     albumIndex: number;
     imageIndex: number;
@@ -78,17 +78,12 @@ export default function AboutPage() {
     });
   };
 
-  const getArray = (key: string) => {
-    const val = t(key);
-    return Array.isArray(val) ? val : [];
-  };
-
-  const heritageStats = getArray("about.heritage.stats");
-  const proofStats = getArray("about.verification.stats");
-  const capabilities = getArray("about.capability.items");
-  const presenceNodes = getArray("about.presence.nodes");
-  const galleryAlbums = getArray("about.gallery.albums");
-  const logisticsItems = getArray("about.logistics.items");
+  const heritageStats = tArray("about.heritage.stats");
+  const proofStats = tArray("about.verification.stats");
+  const capabilities = tArray("about.capability.items");
+  const presenceNodes = tArray("about.presence.nodes");
+  const galleryAlbums = tArray("about.gallery.albums");
+  const logisticsItems = tArray("about.logistics.items");
 
   return (
     <>

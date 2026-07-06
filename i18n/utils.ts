@@ -13,9 +13,14 @@ export function getNestedValue(
   key: string
 ): unknown {
   return key.split(".").reduce<unknown>((o, k) => {
-    if (o && typeof o === "object" && !Array.isArray(o)) {
+    if (o && typeof o === "object") {
+      if (Array.isArray(o)) {
+        const idx = parseInt(k, 10);
+        return isNaN(idx) ? undefined : o[idx];
+      }
       return (o as Record<string, unknown>)[k];
     }
     return undefined;
   }, obj);
 }
+

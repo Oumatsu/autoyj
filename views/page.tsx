@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { HeroSlider } from "@/components/HeroSlider";
 import { SectionTabs } from "@/components/SectionTabs";
@@ -8,7 +8,7 @@ import { useTranslation } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
 
 export default function HomePage() {
-  const { t } = useTranslation();
+  const { t, tArray } = useTranslation();
 
   return (
     <>
@@ -27,7 +27,7 @@ export default function HomePage() {
               {t("home.trustBar.label")}
             </span>
             <div className="flex flex-wrap items-center gap-6 sm:gap-10 md:gap-14 opacity-25 grayscale">
-              {(t("home.trustBar.partners", "") as unknown as string[]).map(
+              {tArray("home.trustBar.partners").map(
                 (name) => (
                   <span
                     key={name}
@@ -80,7 +80,7 @@ export default function HomePage() {
               category={t("home.products.revenueKing.category")}
               title={t("home.products.revenueKing.title")}
               desc={t("home.products.revenueKing.desc")}
-              tags={t("home.products.revenueKing.tags") as unknown as string[]}
+              tags={tArray("home.products.revenueKing.tags")}
               tagColor="green"
             />
 
@@ -93,7 +93,7 @@ export default function HomePage() {
               category={t("home.products.eliteFlagship.category")}
               title={t("home.products.eliteFlagship.title")}
               desc={t("home.products.eliteFlagship.desc")}
-              tags={t("home.products.eliteFlagship.tags") as unknown as string[]}
+              tags={tArray("home.products.eliteFlagship.tags")}
               tagColor="gold"
               cardStyle={{ boxShadow: "0 0 40px rgba(197,160,89,.07)" }}
               borderColor="border-theme/25"
@@ -108,7 +108,7 @@ export default function HomePage() {
               category={t("home.products.utilityPro.category")}
               title={t("home.products.utilityPro.title")}
               desc={t("home.products.utilityPro.desc")}
-              tags={t("home.products.utilityPro.tags") as unknown as string[]}
+              tags={tArray("home.products.utilityPro.tags")}
               tagColor="green"
             />
           </div>
@@ -375,7 +375,7 @@ export default function HomePage() {
                   />
                 </div>
                 <div className="flex gap-3 mt-2">
-                  {(t("home.tco.evBreakdown") as unknown as string[]).map(
+                  {tArray("home.tco.evBreakdown").map(
                     (text, i) => (
                       <span key={i} className="text-[9px] text-gray-600">
                         {text}
@@ -411,7 +411,7 @@ export default function HomePage() {
                   />
                 </div>
                 <div className="flex gap-3 mt-2">
-                  {(t("home.tco.iceBreakdown") as unknown as string[]).map(
+                  {tArray("home.tco.iceBreakdown").map(
                     (text, i) => (
                       <span key={i} className="text-[9px] text-gray-600">
                         {text}

@@ -1,8 +1,4 @@
 export default {
-  meta: {
-    title: "autoYJ — Your Dedicated African EV Procurement Expert",
-    description: "China's leading EV export partner for African dealers. Expert sourcing, transparent PDI, one-stop dealer empowerment.",
-  },
   nav: {
     vehicles: "Vehicles",
     revenueKing: "Revenue King",
@@ -14,9 +10,6 @@ export default {
     about: "About",
     portal: "Portal",
     contactUs: "Contact",
-  },
-  locale: {
-    switch: "Switch Language",
   },
   footer: {
     cta: "Start a Conversation",
@@ -1578,5 +1571,25 @@ export default {
       whatsappButton: "WhatsApp Priority Window",
       applicationButton: "Submit Dealer Application",
     },
+  },
+  specs: {
+    "Battery Capacity": "Battery Capacity",
+    "Battery Type": "Battery Type",
+    "CLTC Range": "CLTC Range",
+    "NEDC Range": "NEDC Range",
+    Range: "Range",
+    "Max Power": "Max Power",
+    "Max Torque": "Max Torque",
+    "Top Speed": "Top Speed",
+    "0-100 km/h": "0-100 km/h",
+    "DC Fast Charge": "DC Fast Charge",
+    "AC Slow Charge": "AC Slow Charge",
+    "Dimensions (LxWxH)": "Dimensions (LxWxH)",
+    Wheelbase: "Wheelbase",
+    "Curb Weight": "Curb Weight",
+    "Seating Capacity": "Seating Capacity",
+    "Drive Type": "Drive Type",
+    Airbags: "Airbags",
+    Sunroof: "Sunroof",
   },
 };

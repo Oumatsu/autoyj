@@ -695,68 +695,60 @@ function synthesizeSpecsFromModel(record: FeishuRecord): PortalVehicleModelSpec[
 
   const specs: PortalVehicleModelSpec[] = [];
 
-  const msrp = asText(fields["China Guide Price CN..."]) || asText(fields["China Guide Price CNY"]) || asText(fields["MSRP China"]);
-  if (msrp) {
-    specs.push({
-      modelId,
-      category: "基本参数",
-      name: "中国官方指导价",
-      value: msrp,
-      unit: "",
-      visibleLevel: "Core",
-      sortOrder: 0,
-      sourceName: "autoYJ",
-      sourceUrl: "",
-      confidence: "High",
-    });
-  }
+  const mappings = [
+    // Core parameters (visibleLevel: Core)
+    { col: "China Guide Price CNY", name: "中国官方指导价", cat: "基本参数", order: 0, lvl: "Core" },
+    { col: "China Guide Price", name: "中国官方指导价", cat: "基本参数", order: 0, lvl: "Core" },
+    { col: "MSRP China", name: "中国官方指导价", cat: "基本参数", order: 0, lvl: "Core" },
+    { col: "China Guide Price CN...", name: "中国官方指导价", cat: "基本参数", order: 0, lvl: "Core" },
 
-  const range = asText(fields["CLTC Range"]) || asText(fields.Range);
-  if (range) {
-    specs.push({
-      modelId,
-      category: "电池/充电",
-      name: "CLTC续航",
-      value: range,
-      unit: "",
-      visibleLevel: "Core",
-      sortOrder: 20,
-      sourceName: "autoYJ",
-      sourceUrl: "",
-      confidence: "High",
-    });
-  }
+    { col: "Drive Type", name: "驱动方式", cat: "性能参数", order: 10, lvl: "Core" },
+    { col: "Top Speed", name: "最高车速", cat: "性能参数", order: 11, lvl: "Core" },
+    { col: "Motor Power", name: "电机总功率", cat: "性能参数", order: 12, lvl: "Core" },
+    { col: "Battery Type", name: "电池类型", cat: "电池/充电", order: 13, lvl: "Core" },
+    { col: "DC Fast Charge", name: "快充时间 30-80%", cat: "电池/充电", order: 14, lvl: "Core" },
+    { col: "CLTC Range", name: "CLTC续航", cat: "电池/充电", order: 15, lvl: "Core" },
+    { col: "Battery Capacity", name: "电池容量", cat: "电池/充电", order: 16, lvl: "Core" },
 
-  const bodyType = asText(fields.Segment) || asText(fields["Body Type"]);
-  if (bodyType) {
-    specs.push({
-      modelId,
-      category: "基本参数",
-      name: "车身级别",
-      value: bodyType,
-      unit: "",
-      visibleLevel: "Core",
-      sortOrder: 10,
-      sourceName: "autoYJ",
-      sourceUrl: "",
-      confidence: "High",
-    });
-  }
+    // Standard parameters (visibleLevel: Standard)
+    { col: "Dimensions (LxWxH)", name: "长宽高", cat: "车身参数", order: 30, lvl: "Standard" },
+    { col: "Dimensions", name: "长宽高", cat: "车身参数", order: 30, lvl: "Standard" },
+    { col: "Wheelbase", name: "轴距", cat: "车身参数", order: 31, lvl: "Standard" },
+    { col: "Ground Clearance", name: "离地间隙", cat: "车身参数", order: 32, lvl: "Standard" },
+    { col: "Boot Volume", name: "后备厢容积", cat: "车身参数", order: 33, lvl: "Standard" },
+    { col: "Seating Capacity", name: "座位数", cat: "车身参数", order: 34, lvl: "Standard" },
+    { col: "Seating", name: "座位数", cat: "车身参数", order: 34, lvl: "Standard" },
+    { col: "V2L Support", name: "V2L外放电", cat: "其它参数", order: 35, lvl: "Standard" },
+    { col: "AC Slow Charge", name: "慢充时间", cat: "电池/充电", order: 36, lvl: "Standard" },
+    { col: "Household Charging", name: "家用充电", cat: "电池/充电", order: 37, lvl: "Standard" },
+    { col: "Battery Warranty", name: "电池质保", cat: "其它参数", order: 38, lvl: "Standard" },
+    { col: "Airbags", name: "安全气囊", cat: "安全配置", order: 39, lvl: "Standard" },
+    { col: "Sunroof", name: "天窗", cat: "舒适配置", order: 40, lvl: "Standard" },
+    { col: "Vehicle Class", name: "车身级别", cat: "基本参数", order: 41, lvl: "Standard" },
+    { col: "Segment", name: "车身级别", cat: "基本参数", order: 41, lvl: "Standard" },
+    { col: "0 - 100 km/h", name: "0-100km/h加速", cat: "性能参数", order: 42, lvl: "Standard" },
+  ];
 
-  const fuelType = asText(fields["Energy Type"]) || asText(fields["Fuel Type"]);
-  if (fuelType) {
-    specs.push({
-      modelId,
-      category: "基本参数",
-      name: "能源类型",
-      value: fuelType,
-      unit: "",
-      visibleLevel: "Core",
-      sortOrder: 15,
-      sourceName: "autoYJ",
-      sourceUrl: "",
-      confidence: "High",
-    });
+  const addedNames = new Set();
+
+  for (const m of mappings) {
+    if (addedNames.has(m.name)) continue;
+    const val = asText(fields[m.col]);
+    if (val) {
+      specs.push({
+        modelId,
+        category: m.cat,
+        name: m.name,
+        value: val,
+        unit: "",
+        visibleLevel: m.lvl,
+        sortOrder: m.order,
+        sourceName: "autoYJ",
+        sourceUrl: "",
+        confidence: "High",
+      });
+      addedNames.add(m.name);
+    }
   }
 
   return specs;
@@ -1073,7 +1065,10 @@ async function handleBootstrap(request: Request, env: Env) {
       pageSize: 100,
     }),
     vehicleModelTableId ? searchRecords(env, vehicleModelTableId, { pageSize: 100 }) : Promise.resolve([]),
-    vehicleModelSpecTableId ? searchRecords(env, vehicleModelSpecTableId, { pageSize: 200 }) : Promise.resolve([]),
+    vehicleModelSpecTableId ? searchRecords(env, vehicleModelSpecTableId, { pageSize: 200 }).catch(e => {
+      console.warn("Bootstrap: failed to search specs table, returning empty:", e.message);
+      return [];
+    }) : Promise.resolve([]),
   ]);
   const [inquiryRecords, orderRecords] = await Promise.all([
     searchRecords(env, requireEnv(env, "FEISHU_TABLE_INQUIRIES"), {
@@ -1390,7 +1385,7 @@ async function handlePublicProduct(slug: string, env: Env) {
   if (cached) return json(cached);
 
   const vehicleModelTableId = requireEnv(env, "FEISHU_TABLE_VEHICLE_MODELS");
-  const vehicleModelSpecTableId = requireEnv(env, "FEISHU_TABLE_VEHICLE_MODEL_SPECS");
+  const vehicleModelSpecTableId = optionalEnv(env, "FEISHU_TABLE_VEHICLE_MODEL_SPECS");
 
   const models = await searchRecords(env, vehicleModelTableId, { pageSize: 100 });
   const modelRecord = models.find((m) => {
@@ -1403,17 +1398,28 @@ async function handlePublicProduct(slug: string, env: Env) {
   }
 
   const modelId = asText(modelRecord.fields["Model ID"]);
-  const specs = await searchRecords(env, vehicleModelSpecTableId, {
-    filter: equalsFilter("Model ID", modelId),
-    pageSize: 100,
-  });
+  let specs: any[] = [];
+  if (vehicleModelSpecTableId) {
+    try {
+      specs = await searchRecords(env, vehicleModelSpecTableId, {
+        filter: equalsFilter("Model ID", modelId),
+        pageSize: 100,
+      });
+    } catch (e: any) {
+      console.warn("handlePublicProduct: failed to query specs table, using fallback synthesis:", e.message);
+    }
+  }
+
+  if (!specs || specs.length === 0) {
+    specs = synthesizeSpecsFromModel(modelRecord);
+  }
 
   const fields = modelRecord.fields;
   const specsLeft: { label: string; value: string }[] = [];
   const specsRight: { label: string; value: string }[] = [];
 
   const sortedSpecs = specs
-    .map(mapVehicleModelSpec)
+    .map((s) => (s.fields ? mapVehicleModelSpec(s) : s))
     .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
 
   for (const s of sortedSpecs) {

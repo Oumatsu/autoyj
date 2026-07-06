@@ -33,5 +33,13 @@ export function useTranslation() {
     [locale]
   );
 
-  return useMemo(() => ({ t, locale }), [t, locale]);
+  const tArray = useCallback(
+    (key: string, fallback: any[] = []): any[] => {
+      const val = t(key);
+      return Array.isArray(val) ? val : fallback;
+    },
+    [t]
+  );
+
+  return useMemo(() => ({ t, tArray, locale }), [t, tArray, locale]);
 }

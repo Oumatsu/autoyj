@@ -13,9 +13,10 @@
     "setup:feishu": "node scripts/setup-feishu-base.mjs",
     "sync:feishu-data": "node scripts/import-frontend-to-feishu.mjs",
     "sync:feishu-env": "node scripts/sync-feishu-env.mjs",
-    "setup:i18n": "node scripts/setup-i18n-tables.mjs",
-    "seed:i18n": "node scripts/seed-i18n-to-feishu.mjs",
-    "sync:i18n": "node scripts/sync-i18n.mjs"
+    "setup:i18n": "node scripts/setup-i18n-tables-v2.mjs",
+    "seed:i18n": "node scripts/seed-i18n-to-feishu-v2.mjs",
+    "sync:i18n": "node scripts/sync-i18n.mjs",
+    "setup:specs-dict": "node scripts/setup-specs-dict.mjs"
   },
   "dependencies": {
     "imagetracerjs": "^1.2.6",

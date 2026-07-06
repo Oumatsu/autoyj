@@ -3,8 +3,8 @@
 import { useTranslation } from "@/i18n/useTranslation";
 
 export default function PrivacyPage() {
-  const { t } = useTranslation();
-  const sections = (t("privacy.sections") as any[]) || [];
+  const { t, tArray } = useTranslation();
+  const sections = tArray("privacy.sections");
 
   return (
     <main className="pt-32 pb-24 bg-a min-h-screen">
