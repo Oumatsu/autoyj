@@ -1,14 +1,40 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Noto_Sans, Noto_Sans_SC, Noto_Sans_Ethiopic } from "next/font/google";
 import "./globals.css";
-import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
+import { SiteChrome } from "@/components/SiteChrome";
+
+export const dynamic = "force-dynamic";
 
 const inter = Inter({
-  subsets: ["latin"],
-  weight: ["300", "400", "600", "700", "800", "900"],
+  subsets: ["latin", "latin-ext"],
+  weight: ["300", "400", "500", "600", "700", "800"],
   style: ["normal", "italic"],
   display: "swap",
+  variable: "--font-inter",
+});
+
+const notoSans = Noto_Sans({
+  subsets: ["latin", "latin-ext"],
+  weight: ["300", "400", "500", "600", "700", "800"],
+  style: ["normal"],
+  display: "swap",
+  variable: "--font-sans",
+});
+
+const notoSansSc = Noto_Sans_SC({
+  subsets: ["latin"],
+  weight: ["400", "500", "700"],
+  style: ["normal"],
+  display: "swap",
+  variable: "--font-sc",
+});
+
+const notoSansEthiopic = Noto_Sans_Ethiopic({
+  subsets: ["ethiopic"],
+  weight: ["400", "500", "600", "700"],
+  style: ["normal"],
+  display: "swap",
+  variable: "--font-ethiopic",
 });
 
 export const metadata: Metadata = {
@@ -26,11 +52,39 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
-        <Navbar />
-        {children}
-        <Footer />
+    <html
+      lang="zh"
+      dir="ltr"
+      className={`${inter.variable} ${notoSans.variable} ${notoSansSc.variable} ${notoSansEthiopic.variable} font-sans`}
+      suppressHydrationWarning
+    >
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  const segments = window.location.pathname.split('/');
+                  const locale = ['zh', 'en', 'am'].includes(segments[1]) ? segments[1] : 'zh';
+                  document.documentElement.lang = locale;
+                  if (locale === 'en') {
+                    document.documentElement.classList.add('font-inter');
+                    document.documentElement.classList.remove('font-sans', 'font-ethiopic');
+                  } else if (locale === 'am') {
+                    document.documentElement.classList.add('font-ethiopic');
+                    document.documentElement.classList.remove('font-inter', 'font-sans');
+                  } else {
+                    document.documentElement.classList.add('font-sans');
+                    document.documentElement.classList.remove('font-inter', 'font-ethiopic');
+                  }
+                } catch (e) {}
+              })();
+            `,
+          }}
+        />
+      </head>
+      <body>
+        <SiteChrome>{children}</SiteChrome>
       </body>
     </html>
   );

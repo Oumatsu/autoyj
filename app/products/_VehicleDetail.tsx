@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from "react";
 import Link from "next/link";
+import { useTranslation } from "@/i18n/useTranslation";
 
 type Category = "revenue-king" | "elite-flagship" | "utility-pro";
 
@@ -298,7 +299,7 @@ function TrimPoster({ data, v }: { data: DetailData; v: DetailData["vehicle"] })
             ))}
           </div>
           <p className="text-[9px] sm:text-[10px] text-gray-700 mt-5">
-            {(data.trimNote || `* Current model year. All trims share core platform specifications. Pricing on request - varies by order volume and destination port.`).split('<br />').map((line, i, arr) => (
+            {(data.trimNote || `* Current model year. All trims share core platform specifications. Pricing on request - varies by order volume and destination port.`).split('\n').map((line, i, arr) => (
               <span key={i}>{line}{i < arr.length - 1 ? <br /> : null}</span>
             ))}
           </p>
@@ -309,6 +310,12 @@ function TrimPoster({ data, v }: { data: DetailData; v: DetailData["vehicle"] })
 }
 
 export default function VehicleDetail({ data }: { data: DetailData }) {
+  const { t } = useTranslation();
+  const translateSpecLabel = useCallback((label: string) => {
+    const key = `specs.${label.trim()}`;
+    return t(key, label);
+  }, [t]);
+
   const v = data.vehicle;
   const gallery: GalleryImage[] = data.galleryImages || DEFAULT_GALLERY;
   const batchLevels = data.batchLevels || DEFAULT_BATCH_LEVELS;
@@ -555,7 +562,7 @@ export default function VehicleDetail({ data }: { data: DetailData }) {
               </h2>
             </div>
           </div>
-          <div className="grid md:grid-cols-2 gap-6">
+           <div className="grid md:grid-cols-2 gap-6">
             <div className="glass rounded-[2rem] p-8" style={{ background: "rgba(0,0,0,.45)", borderColor: "rgba(16,185,129,.2)" }}>
               <div className="text-[9px] font-black tracking-widest uppercase text-accent mb-6 flex items-center gap-2"><span className="w-4 h-px bg-accent inline-block" /> Performance & Range</div>
               {data.specsLeft.map((spec, j) => {
@@ -563,7 +570,7 @@ export default function VehicleDetail({ data }: { data: DetailData }) {
                 const o = spec.gold ?? /Battery Type|Battery Capacity|Battery Chem|Drive Type|Platform|Energy Density/.test(spec.label);
                 return (
                 <div key={j} className="flex items-center justify-between py-3 border-b border-white/[0.04] last:border-b-0 gap-3">
-                  <span className="text-[11px] font-bold tracking-[.08em] uppercase text-[#9CA3AF] flex-shrink-0">{spec.label}</span>
+                  <span className="text-[11px] font-bold tracking-[.08em] uppercase text-[#9CA3AF] flex-shrink-0">{translateSpecLabel(spec.label)}</span>
                   <span className={`text-xs font-extrabold text-right ${g ? "text-accent" : o ? "text-theme" : "text-white"}`} style={spec.value === "Not Supported" ? { color: "#6B7280" } : undefined}>{spec.value}</span>
                 </div>
                 );
@@ -576,7 +583,7 @@ export default function VehicleDetail({ data }: { data: DetailData }) {
                 const o = spec.gold ?? /Dimensions|Seating?|Airbag|Audio|Ambient|Sunroof|Boot|Wheelbase/.test(spec.label);
                 return (
                 <div key={j} className="flex items-center justify-between py-3 border-b border-white/[0.04] last:border-b-0 gap-3">
-                  <span className="text-[11px] font-bold tracking-[.08em] uppercase text-[#9CA3AF] flex-shrink-0">{spec.label}</span>
+                  <span className="text-[11px] font-bold tracking-[.08em] uppercase text-[#9CA3AF] flex-shrink-0">{translateSpecLabel(spec.label)}</span>
                   <span className={`text-xs font-extrabold text-right ${g ? "text-accent" : o ? "text-theme" : "text-white"}`} style={spec.value === "Not Supported" ? { color: "#6B7280" } : undefined}>{spec.value}</span>
                 </div>
                 );
@@ -642,7 +649,7 @@ export default function VehicleDetail({ data }: { data: DetailData }) {
             </div>
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mt-5">
               <p className="text-[9px] sm:text-[10px] text-gray-700">
-                {(data.trimNote || `* Current model year. All trims share core platform specifications. Pricing on request — varies by order volume & destination port.`).split('<br />').map((line, i, arr) => (
+                {(data.trimNote || `* Current model year. All trims share core platform specifications. Pricing on request — varies by order volume & destination port.`).split('\n').map((line, i, arr) => (
                    <span key={i}>{line}{i < arr.length - 1 ? <br /> : null}</span>
                  ))}
               </p>

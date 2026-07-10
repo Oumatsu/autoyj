@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
 
-export default function CompanyPage() {
-  redirect("/about#verification");
+export default function RedirectPage() {
+  redirect("/zh/company");
 }

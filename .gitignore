@@ -7,3 +7,27 @@ dist
 .env.local
 *.log
 history
+.lark-tmp
+.dev.vars.feishu.example
+.dev.vars.local
+.dev.vars
+build-log.txt
+_tmp_fix_hero.py
+**/.DS_Store
+
+# 翻译备份文件（由 sync:i18n 自动生成）
+i18n/translations/*.backup-*.ts
+
+# 临时脚本和工具
+parse_zh.py
+remove_english.py
+remove_english_extended.py
+remove_english_final.py
+update_translations.py
+
+# 授权二维码图片
+feishu_auth_qr.png
+
+# tsbuildinfo（构建缓存）
+tsconfig.tsbuildinfo
+

@@ -11,12 +11,5 @@
   },
   "images": {
     "binding": "IMAGES"
-  },
-  "d1_databases": [
-    {
-      "binding": "DB",
-      "database_name": "autoyj-auth-db",
-      "database_id": "cda104c0-18f7-4e27-80bd-b45fb34aae3a"
-    }
-  ]
+  }
 }
