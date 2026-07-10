@@ -10,13 +10,15 @@ interface Article {
   title: string;
   category: string;
   date: string;
-  sortDate: string;
+  sortDate?: string;
   readTime: string;
   slug: string;
   coverImage: string;
-  sortOrder: number;
+  sortOrder?: number;
   overview: string;
 }
+
+type NormalizedArticle = Required<Article>;
 
 function getTagClass(category: string): string {
   const cat = category.toLowerCase().trim();
@@ -38,6 +40,19 @@ const imgPath = (a: { slug: string; coverImage: string }) => `/insights/images/$
 const ALL_CATEGORIES = ["Market Analysis", "Policy & Tariffs", "Sourcing Intelligence", "Operator Hub", "Product Watch", "Pricing & Trade"] as const;
 type Category = (typeof ALL_CATEGORIES)[number];
 
+function normalizeArticle(article: Article, index: number): NormalizedArticle {
+  const parsedDate = Date.parse(article.sortDate || article.date);
+  return {
+    ...article,
+    sortDate: Number.isNaN(parsedDate) ? article.sortDate || article.date : new Date(parsedDate).toISOString(),
+    sortOrder: article.sortOrder ?? index + 1,
+  };
+}
+
+function normalizeArticles(articles: Article[] | undefined): NormalizedArticle[] {
+  return (articles || []).map(normalizeArticle);
+}
+
 function getCategoryLabel(category: string, t: any): string {
   const cat = category.toLowerCase().trim();
   if (cat === "market analysis") return t("insights.categories.marketAnalysis");
@@ -49,10 +64,10 @@ function getCategoryLabel(category: string, t: any): string {
   return category;
 }
 
-export default function InsightsPage() {
+export default function InsightsPage({ initialArticles = [] }: { initialArticles?: Article[] }) {
   const { t } = useTranslation();
-  const [articles, setArticles] = useState<Article[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [articles, setArticles] = useState<NormalizedArticle[]>(() => normalizeArticles(initialArticles));
+  const [loading, setLoading] = useState(initialArticles.length === 0);
   const [filterCat, setFilterCat] = useState<Category | null>(null);
   const [sortBy, setSortBy] = useState<SortMode>("recommended");
   const [page, setPage] = useState(0);
@@ -68,7 +83,8 @@ export default function InsightsPage() {
         return res.json();
       })
       .then((data: any) => {
-        setArticles(data || []);
+        const nextArticles = normalizeArticles(data || []);
+        if (nextArticles.length > 0) setArticles(nextArticles);
         setLoading(false);
       })
       .catch((err) => {
