@@ -46,17 +46,17 @@ const fadeFromMid = [
 ].join("\n");
 
 export default function EthiopiaMarketPage() {
-  const { t, tArray } = useTranslation();
+  const { t } = useTranslation();
 
-  const overviewStats = tArray("marketsEthiopia.overview.stats");
-  const policyItems = tArray("marketsEthiopia.policy.items");
+  const overviewStats = (t("marketsEthiopia.overview.stats") as any[]) || [];
+  const policyItems = (t("marketsEthiopia.policy.items") as any[]) || [];
 
   const vehicleImages = [
     "/pic/revenue-king/seagull/7cut.webp",
     "/pic/revenue-king/RT/7cut.webp",
     "/pic/utility-pro/supervan/9.webp",
   ];
-  const localVehicles = tArray("marketsEthiopia.vehicles");
+  const localVehicles = (t("marketsEthiopia.vehicles") as any[]) || [];
   const displayVehicles = localVehicles.map((v, index) => ({
     ...v,
     img: vehicleImages[index] || "",

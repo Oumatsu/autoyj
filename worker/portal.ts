@@ -9,12 +9,12 @@ type Env = {
   FEISHU_TABLE_EXTERNAL_ACCOUNTS?: string;
   FEISHU_TABLE_CUSTOMERS?: string;
   FEISHU_TABLE_VEHICLE_MODELS?: string;
-  FEISHU_TABLE_VEHICLE_MODEL_SPECS?: string;
   FEISHU_TABLE_VEHICLES?: string;
   FEISHU_TABLE_INQUIRIES?: string;
   FEISHU_TABLE_QUOTES?: string;
   FEISHU_TABLE_NEGOTIATIONS?: string;
   FEISHU_TABLE_ORDERS?: string;
+  FEISHU_TABLE_PORTAL_AUDIT_LOG?: string;
   PORTAL_SESSION_SECRET?: string;
   PORTAL_COOKIE_NAME?: string;
   FEISHU_TABLE_ARTICLES?: string;
@@ -36,6 +36,7 @@ type BaseRecordListResponse = {
   items?: FeishuRecord[];
   data?: unknown[][];
   fields?: string[];
+  field_id_list?: string[];
   record_id_list?: string[];
   has_more?: boolean;
   page_token?: string;
@@ -115,7 +116,6 @@ type PortalVehicleModel = {
   marketPosition: string;
   exportNotes: string;
   imageUrl: string;
-  brochureUrl: string;
   sourceUrl: string;
   sourceName: string;
   lastSyncedAt: string;
@@ -136,9 +136,27 @@ type PortalVehicleModelSpec = {
   confidence: string;
 };
 
+type PortalAuditLog = {
+  id: string;
+  time: string;
+  operatorId: string;
+  operatorName: string;
+  operatorEmail: string;
+  role: PortalRole;
+  action: string;
+  targetType: string;
+  targetId: string;
+  targetSummary: string;
+  changedFields: string;
+  before: string;
+  after: string;
+  result: string;
+};
+
 const FEISHU_API = "https://open.feishu.cn";
 const SESSION_TTL_SECONDS = 60 * 60 * 12;
 const DEFAULT_COOKIE_NAME = "autoyj_portal";
+const DEFAULT_DATA_SOURCE = "autoYJ";
 const TENANT_TOKEN_SAFETY_WINDOW_MS = 60 * 1000;
 
 // Simple in-memory cache definition in worker context
@@ -210,6 +228,345 @@ function cleanUrl(value: unknown): string {
   return text.trim();
 }
 
+function fieldText(fields: Record<string, unknown>, names: string[]): string {
+  for (const name of names) {
+    const value = asText(fields[name]).trim();
+    if (value) return value;
+  }
+  return "";
+}
+
+function fieldNumber(fields: Record<string, unknown>, names: string[]): number | undefined {
+  const value = fieldText(fields, names).replace(/[$,\s]/g, "");
+  if (!value) return undefined;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : undefined;
+}
+
+function formatNumericValue(value: number, options: { precision?: number; thousands?: boolean } = {}) {
+  const precision = options.precision ?? (Number.isInteger(value) ? 0 : 1);
+  return value.toLocaleString("en-US", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: precision,
+    useGrouping: options.thousands ?? true,
+  });
+}
+
+function formatAcceleration(fields: Record<string, unknown>) {
+  const seconds = fieldNumber(fields, ["0 - 100 km/h (sec)", "fld7KFZ8h5", "0 - 100 km/h", "Acceleration"]);
+  if (seconds === undefined) return "";
+  return `${formatNumericValue(seconds, { precision: 2, thousands: false })} sec`;
+}
+
+function formatAcSlowCharge(fields: Record<string, unknown>) {
+  const hours = fieldNumber(fields, ["AC Slow Charge Full Time Hours", "fldI0yvSQ1", "AC Slow Charge"]);
+  if (hours === undefined) return "";
+  return `${formatNumericValue(hours, { precision: 2, thousands: false })} hrs (0-100%)`;
+}
+
+function formatHouseholdCharging(fields: Record<string, unknown>) {
+  const value = fields["Household Charging"];
+  if (asBool(value)) return "Yes - export charger depends on market";
+  const text = asText(value).trim().toLowerCase();
+  return text.startsWith("yes") ? "Yes - export charger depends on market" : "";
+}
+
+function formatSunroofAvailability(fields: Record<string, unknown>) {
+  const value = fieldText(fields, ["Sunroof Availability", "fldKVDPAOF"]);
+  if (!value) return "";
+
+  const normalized = value.trim().toLowerCase();
+  if (normalized === "by trim") return "Available by trim";
+  if (normalized === "not available") return "Not available";
+  if (normalized === "standard") return "Standard";
+  if (normalized === "optional") return "Optional";
+  return value;
+}
+
+function formatV2lSupport(fields: Record<string, unknown>) {
+  const availability = fieldText(fields, ["V2L Availability", "fldsdLDsu8"]);
+  if (!availability) return "";
+
+  const outputPower = fieldNumber(fields, ["V2L Output Power (kW)", "fld0LkhKNz"]);
+  const outputText = outputPower === undefined
+    ? ""
+    : `${formatNumericValue(outputPower, { precision: 1, thousands: false })} kW`;
+
+  const normalized = availability.trim().toLowerCase();
+  if (normalized === "standard") return outputText ? `Yes - ${outputText}` : "Yes";
+  if (normalized === "optional") return outputText ? `Optional - ${outputText}` : "Optional";
+  if (normalized === "by trim") return outputText ? `Available by trim - ${outputText}` : "Available by trim";
+  if (normalized === "market dependent") return outputText ? `Depends on market - ${outputText}` : "Depends on market";
+  if (normalized === "not supported") return "Not Supported";
+  return outputText ? `${availability} - ${outputText}` : availability;
+}
+
+function formatAirbags(fields: Record<string, unknown>) {
+  const count = fieldNumber(fields, ["Airbags", "fldG2brb4l"]);
+  if (count === undefined) return "";
+  return `${formatNumericValue(count, { precision: 0, thousands: false })} airbags`;
+}
+
+function formatBootVolume(fields: Record<string, unknown>) {
+  const text = fieldText(fields, ["Boot Volume (L)", "fld6DyIXUd", "Boot Volume", "Trunk Capacity"]);
+  if (!text) return "";
+
+  const range = text.match(/^([\d,]+(?:\.\d+)?)\s*[-–]\s*([\d,]+(?:\.\d+)?)/);
+  if (range) {
+    const low = Number(range[1].replace(/,/g, ""));
+    const high = Number(range[2].replace(/,/g, ""));
+    if (Number.isFinite(low) && Number.isFinite(high)) {
+      return `${formatNumericValue(low, { precision: 0 })} - ${formatNumericValue(high, { precision: 0 })} L`;
+    }
+  }
+
+  const numeric = text.match(/[\d,]+(?:\.\d+)?/);
+  if (numeric) {
+    const value = Number(numeric[0].replace(/,/g, ""));
+    if (Number.isFinite(value)) return `${formatNumericValue(value, { precision: 0 })} L`;
+  }
+
+  return text;
+}
+
+function formatGroundClearance(fields: Record<string, unknown>) {
+  const text = fieldText(fields, ["Ground Clearance (mm)", "fldTZtzcZi", "Ground Clearance"]);
+  if (!text) return "";
+
+  const numeric = text.match(/[\d,]+(?:\.\d+)?/);
+  if (numeric) {
+    const value = Number(numeric[0].replace(/,/g, ""));
+    if (Number.isFinite(value)) return `${formatNumericValue(value, { precision: 0 })} mm`;
+  }
+
+  return text;
+}
+
+function formatNumberRange(
+  fields: Record<string, unknown>,
+  minName: string,
+  maxName: string,
+  unit: string,
+  options: { precision?: number; thousands?: boolean } = {},
+) {
+  const min = fieldNumber(fields, [minName]);
+  const max = fieldNumber(fields, [maxName]);
+  if (min === undefined && max === undefined) return "";
+  if (min !== undefined && max !== undefined && min !== max) {
+    return formatNumericValue(min, options) + " - " + formatNumericValue(max, options) + (unit ? " " + unit : "");
+  }
+  const value = min ?? max;
+  return value === undefined ? "" : formatNumericValue(value, options) + (unit ? " " + unit : "");
+}
+
+function formatUsdGuidePrice(fields: Record<string, unknown>) {
+  const min = fieldNumber(fields, ["Guide Price Min USD"]);
+  const max = fieldNumber(fields, ["Guide Price Max USD"]);
+  if (min !== undefined && max !== undefined && min !== max) {
+    return "$" + formatNumericValue(min, { precision: 0 }) + " - $" + formatNumericValue(max, { precision: 0 });
+  }
+  const value = min ?? max;
+  if (value !== undefined) return "$" + formatNumericValue(value, { precision: 0 });
+  return "";
+}
+
+function formatBatteryWarranty(fields: Record<string, unknown>) {
+  const years = fieldNumber(fields, ["Battery Warranty Years"]);
+  const distance = fieldNumber(fields, ["Battery Warranty Distance KM"]);
+  if (years !== undefined && distance !== undefined) {
+    return formatNumericValue(years, { precision: 0, thousands: false }) + " Yrs / " + formatNumericValue(distance, { precision: 0 }) + " km";
+  }
+  if (years !== undefined) return formatNumericValue(years, { precision: 0, thousands: false }) + " Yrs";
+  if (distance !== undefined) return formatNumericValue(distance, { precision: 0 }) + " km";
+  return "";
+}
+
+function formatDimensions(fields: Record<string, unknown>) {
+  const length = fieldNumber(fields, ["Length MM"]);
+  const width = fieldNumber(fields, ["Width MM"]);
+  const height = fieldNumber(fields, ["Height MM"]);
+  if (length !== undefined && width !== undefined && height !== undefined) {
+    return formatNumericValue(length, { precision: 0 }) + " x " + formatNumericValue(width, { precision: 0 }) + " x " + formatNumericValue(height, { precision: 0 }) + " mm";
+  }
+  return "";
+}
+
+function formatHeroCltcRangeValue(fields: Record<string, unknown>) {
+  const min = fieldNumber(fields, ["CLTC Range Min KM"]);
+  const max = fieldNumber(fields, ["CLTC Range Max KM"]);
+  if (min === undefined && max === undefined) return "";
+
+  const low = min ?? max;
+  const high = max ?? min;
+  if (low === undefined || high === undefined) return "";
+
+  const lowText = formatNumericValue(low, { precision: 0 });
+  const highText = formatNumericValue(high, { precision: 0 });
+  return lowText === highText ? lowText : `${lowText} - ${highText}`;
+}
+
+function formatBatteryChemistryMetric(fields: Record<string, unknown>) {
+  const chemistry = fieldText(fields, ["Battery Chemistry", "fldtmrhwXT"]) || fieldText(fields, ["Battery Type"]);
+  const technology = fieldText(fields, ["Battery Technology", "fldLaMFXCZ"]);
+  if (!chemistry) return "";
+  return technology ? `${chemistry} (${technology})` : chemistry;
+}
+
+function formatBatteryCatalogTag(fields: Record<string, unknown>) {
+  const chemistry = fieldText(fields, ["Battery Chemistry", "fldtmrhwXT"]) || fieldText(fields, ["Battery Type"]);
+  const technology = fieldText(fields, ["Battery Technology", "fldLaMFXCZ"]);
+  const normalizedChemistry = chemistry.toUpperCase();
+  const normalizedTechnology = technology.toLowerCase();
+  if (!chemistry) return "";
+  if (normalizedChemistry === "LFP" && normalizedTechnology.includes("blade")) return "LFP Blade (BYD)";
+  if (normalizedChemistry === "LFP") return "LFP (Lithium Iron Phosphate)";
+  if (normalizedChemistry === "NCM" || normalizedChemistry === "NMC") return "NCM (Ternary Lithium)";
+  if (normalizedChemistry === "NCM / LFP") return "NCM / LFP";
+  return chemistry;
+}
+
+function formatSteeringCatalogTag(fields: Record<string, unknown>) {
+  const steering = fieldText(fields, ["Steering Setup", "fldvdJYRpe"]);
+  if (steering === "LHD") return "LHD (Left-Hand Drive)";
+  if (steering === "RHD") return "RHD (Right-Hand Drive)";
+  if (steering === "LHD / RHD") return "LHD / RHD";
+  return "";
+}
+
+function rangeCatalogTag(fields: Record<string, unknown>, category: string) {
+  const min = fieldNumber(fields, ["CLTC Range Min KM"]);
+  const max = fieldNumber(fields, ["CLTC Range Max KM"]);
+  const value = max ?? min;
+  if (value === undefined) return "";
+  if (category === "utility-pro") {
+    if (value < 250) return "Under 250 km";
+    if (value <= 350) return "250 km - 350 km";
+    return "350 km +";
+  }
+  if (category === "elite-flagship") {
+    if (value < 500) return "Under 500 km";
+    if (value <= 700) return "500 km - 700 km";
+    return "700 km +";
+  }
+  if (value < 300) return "Under 300 km";
+  if (value <= 450) return "300 km - 450 km";
+  return "450 km +";
+}
+
+function priceCatalogTag(fields: Record<string, unknown>, category: string) {
+  const min = fieldNumber(fields, ["Guide Price Min USD"]);
+  const max = fieldNumber(fields, ["Guide Price Max USD"]);
+  const value = min !== undefined && max !== undefined ? (min + max) / 2 : (min ?? max);
+  if (value === undefined) return "";
+  if (category === "utility-pro") {
+    if (value < 20000) return "Under $20,000";
+    if (value <= 35000) return "$20,000 - $35,000";
+    return "Above $35,000";
+  }
+  if (category === "elite-flagship") {
+    if (value <= 50000) return "$35,000 - $50,000";
+    if (value <= 65000) return "$50,000 - $65,000";
+    return "Above $65,000";
+  }
+  if (value < 15000) return "Under $15,000";
+  if (value <= 20000) return "$15,000 - $20,000";
+  return "Above $20,000";
+}
+
+function availabilityCatalogTag(status: string, category: string) {
+  if (status === "in-stock") return "In Stock (Port)";
+  if (category === "utility-pro") return "Factory Order (18+ Days)";
+  if (category === "revenue-king") return "Factory Order (14+ Days)";
+  return "Factory Order (21+ Days)";
+}
+
+function buildCatalogTags(fields: Record<string, unknown>, category: string, availabilityStatus = "factory") {
+  const tags: string[] = [];
+  const push = (value: string) => {
+    if (value && !tags.includes(value)) tags.push(value);
+  };
+
+  push(fieldText(fields, ["Vehicle Class", "Segment"]));
+  push(formatBatteryCatalogTag(fields));
+  push(rangeCatalogTag(fields, category));
+  push(priceCatalogTag(fields, category));
+  push(formatSteeringCatalogTag(fields));
+
+  const voltage = fieldNumber(fields, ["Voltage Platform (V)", "fldLrZkwa9"]);
+  if (voltage !== undefined && voltage >= 800) push("800V Platform");
+
+  const powertrain = fieldText(fields, ["Powertrain Type", "fldl9evNHQ"]);
+  if (powertrain === "EREV") push("EREV (Extended Range)");
+
+  const v2lAvailability = fieldText(fields, ["V2L Availability", "fldsdLDsu8"]).toLowerCase();
+  if (v2lAvailability && v2lAvailability !== "not supported") push("V2L Power Export");
+
+  const driveType = fieldText(fields, ["Drive Type"]);
+  if (/\b(4wd|awd|four-wheel|all-wheel)\b/i.test(driveType)) push("4WD / AWD");
+
+  const clearance = fieldNumber(fields, ["Ground Clearance (mm)", "fldTZtzcZi"]);
+  if (clearance !== undefined && clearance >= 200) push("High Clearance (200mm+)");
+
+  push(availabilityCatalogTag(availabilityStatus, category));
+  return tags;
+}
+
+function productPathFromValue(value: unknown): string {
+  const sourceUrl = cleanUrl(value).split("?")[0].split("#")[0].trim();
+  if (!sourceUrl) return "";
+  if (sourceUrl.startsWith("/")) return sourceUrl;
+
+  try {
+    return new URL(sourceUrl).pathname || "";
+  } catch {
+    const productsIndex = sourceUrl.indexOf("/products/");
+    return productsIndex === -1 ? sourceUrl : sourceUrl.slice(productsIndex);
+  }
+}
+
+function productSlugFromSourceUrl(value: unknown): string {
+  const productPath = productPathFromValue(value);
+  const parts = productPath.split("/").filter(Boolean);
+  const productsIndex = parts.indexOf("products");
+  if (productsIndex === -1 || productsIndex + 2 >= parts.length) return "";
+  return `${parts[productsIndex + 1]}/${parts[productsIndex + 2]}`;
+}
+
+function productPathFromFields(fields: Record<string, unknown>): string {
+  return productPathFromValue(fieldText(fields, ["Product Path", "Source URL"]));
+}
+
+function productSlugFromFields(fields: Record<string, unknown>): string {
+  return productSlugFromSourceUrl(fieldText(fields, ["Product Path", "Source URL"]));
+}
+
+function syncedAtMs(record: FeishuRecord): number {
+  const text = asText(record.fields["Last Synced At"]).replace(" ", "T");
+  const value = Date.parse(text);
+  return Number.isFinite(value) ? value : 0;
+}
+
+function isActiveModel(record: FeishuRecord) {
+  return asText(record.fields.Status) === "Active";
+}
+
+function latestProductModelRecords(records: FeishuRecord[]): FeishuRecord[] {
+  const bySlug = new Map<string, FeishuRecord>();
+  const fallback: FeishuRecord[] = [];
+  for (const record of records) {
+    const slug = productSlugFromFields(record.fields);
+    if (!slug) {
+      fallback.push(record);
+      continue;
+    }
+    const existing = bySlug.get(slug);
+    if (!existing || syncedAtMs(record) >= syncedAtMs(existing)) {
+      bySlug.set(slug, record);
+    }
+  }
+  return [...bySlug.values(), ...fallback];
+}
+
 function normalizeAcademyCategory(category: string): string {
   const cat = category.toLowerCase().trim();
   if (cat === "dealer-playbook") return "playbook";
@@ -262,6 +619,14 @@ function normalizePriceTier(value: unknown): PriceTier {
 
 function isInternalSession(session: PortalSession) {
   return session.accountType === "internal" || session.role === "admin" || session.role === "sales" || session.role === "sourcing" || session.role === "finance";
+}
+
+function canManageVehicles(session: PortalSession) {
+  return session.role === "admin" || session.role === "sales";
+}
+
+function canViewAuditLogs(session: PortalSession) {
+  return session.role === "admin";
 }
 
 function canSeePortalPrice(session: PortalSession) {
@@ -441,8 +806,7 @@ async function searchRecords(
   tableId: string,
   options: { filter?: Record<string, unknown>; sort?: unknown[]; pageSize?: number } = {},
 ) {
-  const appToken = optionalEnv(env, "FEISHU_BASE_APP_TOKEN");
-  if (!appToken) return [];
+  const appToken = requireEnv(env, "FEISHU_BASE_APP_TOKEN");
   const pageSize = options.pageSize || 100;
   const filter = normalizeBaseFilter(options.filter);
   const records: FeishuRecord[] = [];
@@ -488,6 +852,11 @@ async function updateRecord(env: Env, tableId: string, recordId: string, fields:
   );
 }
 
+async function deleteRecord(env: Env, tableId: string, recordId: string) {
+  const appToken = requireEnv(env, "FEISHU_BASE_APP_TOKEN");
+  await feishuRequest(env, "DELETE", `/open-apis/base/v3/bases/${appToken}/tables/${tableId}/records/${recordId}`);
+}
+
 function equalsFilter(fieldName: string, value: string) {
   return {
     conjunction: "and",
@@ -505,11 +874,15 @@ function normalizeBaseRecords(data: BaseRecordListResponse) {
   if (Array.isArray(data.items)) return data.items;
   const rows = Array.isArray(data.data) ? data.data : [];
   const fields = Array.isArray(data.fields) ? data.fields : [];
+  const fieldIds = Array.isArray(data.field_id_list) ? data.field_id_list : [];
   const recordIds = Array.isArray(data.record_id_list) ? data.record_id_list : [];
   return rows.map((row, rowIndex) => {
     const recordFields: Record<string, unknown> = {};
     fields.forEach((fieldName, fieldIndex) => {
       recordFields[fieldName] = row[fieldIndex];
+    });
+    fieldIds.forEach((fieldId, fieldIndex) => {
+      recordFields[fieldId] = row[fieldIndex];
     });
     return {
       record_id: recordIds[rowIndex] || "",
@@ -614,78 +987,43 @@ function publicUser(session: PortalSession) {
 function mapVehicleModel(record: FeishuRecord): PortalVehicleModel {
   const fields = record.fields;
   return {
-    id: asText(fields["Model ID"]),
-    brand: asText(fields.Brand),
-    model: asText(fields.Model),
-    trim: asText(fields.Version) || asText(fields.Trim),
-    year: asText(fields.Year),
-    bodyType: asText(fields.Segment) || asText(fields["Body Type"]),
-    fuelType: asText(fields["Energy Type"]) || asText(fields["Fuel Type"]),
-    msrpChina: asText(fields["China Guide Price CN..."]) || asText(fields["China Guide Price CNY"]) || asText(fields["MSRP China"]),
-    battery: asText(fields["Battery Capacity"]) || asText(fields.Battery),
-    batteryType: asText(fields["Battery Type"]),
-    batteryMaker: asText(fields["Battery Maker"]),
-    range: asText(fields["CLTC Range"]) || asText(fields.Range),
-    energyConsumption: asText(fields["Energy Consumption"]),
-    motorPower: asText(fields["Motor Power"]),
-    motorTorque: asText(fields["Motor Torque"]),
-    driveType: asText(fields["Drive Type"]),
-    topSpeed: asText(fields["Top Speed"]),
-    acceleration: asText(fields.Acceleration),
-    seats: asText(fields.Seats),
-    doors: asText(fields.Doors),
-    dimensions: asText(fields.Dimensions),
-    wheelbase: asText(fields.Wheelbase),
-    curbWeight: asText(fields["Curb Weight"]),
-    trunkCapacity: asText(fields["Trunk Capacity"]),
-    charging: asText(fields.Charging),
-    frontSuspension: asText(fields["Front Suspension"]),
-    rearSuspension: asText(fields["Rear Suspension"]),
-    adas: asText(fields.ADAS),
-    warranty: asText(fields.Warranty),
-    marketPosition: asText(fields["Market Position"]),
-    exportNotes: asText(fields["Review Notes"]) || asText(fields["Export Notes"]),
-    imageUrl: asText(fields["Image URL"]),
-    brochureUrl: asText(fields["Brochure URL"]),
-    sourceUrl: asText(fields["Source URL"]),
-    sourceName: asText(fields["Source Name"]),
-    lastSyncedAt: asText(fields["Last Synced At"]),
-    fullSpecsJson: asText(fields["Full Specs JSON"]),
-    status: asText(fields.Status) || "Active",
-  };
-}
-
-function mapVehicleModelSpec(record: FeishuRecord): PortalVehicleModelSpec {
-  const fields = record.fields;
-  let name = asText(fields["Spec Name"]);
-  
-  // Normalize English spec names to Chinese for the portal dashboard compatibility
-  const lowerName = name.toLowerCase().trim();
-  if (lowerName === "vehicle class" || lowerName === "class" || lowerName === "body type") {
-    name = "车身级别";
-  } else if (lowerName === "energy type" || lowerName === "fuel type" || lowerName === "battery type") {
-    name = "能源类型";
-  } else if (lowerName === "cltc range" || lowerName === "range" || lowerName === "cltc range (cltc)" || lowerName === "cltc range (km)" || lowerName === "range (cltc)") {
-    name = "CLTC续航";
-  } else if (lowerName === "china guide price" || lowerName === "guide price" || lowerName === "msrp china" || lowerName === "china guide price cny" || lowerName === "china guide price cn...") {
-    name = "中国官方指导价";
-  } else if (lowerName === "market position" || lowerName === "buyer logic" || lowerName === "review notes") {
-    name = "市场定位";
-  } else if (lowerName === "system power" || lowerName === "motor" || lowerName === "motor power") {
-    name = "电机总功率";
-  }
-
-  return {
-    modelId: asText(fields["Model ID"]),
-    category: asText(fields.Category),
-    name: name,
-    value: asText(fields["Spec Value"]),
-    unit: asText(fields.Unit),
-    visibleLevel: asText(fields["Visible Level"]),
-    sortOrder: asNumber(fields["Sort Order"]),
-    sourceName: asText(fields["Source Name"]),
-    sourceUrl: asText(fields["Source URL"]),
-    confidence: asText(fields.Confidence),
+    id: fieldText(fields, ["Model ID"]),
+    brand: fieldText(fields, ["Brand"]),
+    model: fieldText(fields, ["Model"]),
+    trim: fieldText(fields, ["Version", "Trim"]),
+    year: fieldText(fields, ["Model Year"]),
+    bodyType: fieldText(fields, ["Segment", "Body Type"]),
+    fuelType: fieldText(fields, ["Energy Type", "Fuel Type"]),
+    msrpChina: formatUsdGuidePrice(fields),
+    battery: formatNumberRange(fields, "Battery Capacity Min kWh", "Battery Capacity Max kWh", "kWh", { precision: 1, thousands: false }),
+    batteryType: formatBatteryChemistryMetric(fields),
+    batteryMaker: fieldText(fields, ["Battery Maker"]),
+    range: formatNumberRange(fields, "CLTC Range Min KM", "CLTC Range Max KM", "km", { precision: 0 }),
+    energyConsumption: fieldText(fields, ["Energy Consumption"]),
+    motorPower: formatNumberRange(fields, "Motor Power Min KW", "Motor Power Max KW", "kW", { precision: 0, thousands: false }),
+    motorTorque: fieldText(fields, ["Motor Torque"]),
+    driveType: fieldText(fields, ["Drive Type"]),
+    topSpeed: formatNumberRange(fields, "Top Speed Min KMH", "Top Speed Max KMH", "km/h", { precision: 0, thousands: false }),
+    acceleration: formatAcceleration(fields),
+    seats: formatNumberRange(fields, "Seats Min", "Seats Max", "seats", { precision: 0, thousands: false }),
+    doors: fieldText(fields, ["Doors"]),
+    dimensions: formatDimensions(fields),
+    wheelbase: formatNumberRange(fields, "Wheelbase MM", "Wheelbase MM", "mm", { precision: 0 }),
+    curbWeight: fieldText(fields, ["Curb Weight"]),
+    trunkCapacity: fieldText(fields, ["Trunk Capacity"]),
+    charging: fieldText(fields, ["Charging"]),
+    frontSuspension: fieldText(fields, ["Front Suspension"]),
+    rearSuspension: fieldText(fields, ["Rear Suspension"]),
+    adas: fieldText(fields, ["ADAS"]),
+    warranty: formatBatteryWarranty(fields),
+    marketPosition: fieldText(fields, ["Market Position"]),
+    exportNotes: fieldText(fields, ["Review Notes", "Export Notes"]),
+    imageUrl: fieldText(fields, ["Image URL"]),
+    sourceUrl: productPathFromFields(fields),
+    sourceName: DEFAULT_DATA_SOURCE,
+    lastSyncedAt: fieldText(fields, ["Last Synced At"]),
+    fullSpecsJson: fieldText(fields, ["Full Specs JSON"]),
+    status: fieldText(fields, ["Status"]) || "Active",
   };
 }
 
@@ -694,63 +1032,50 @@ function synthesizeSpecsFromModel(record: FeishuRecord): PortalVehicleModelSpec[
   const modelId = asText(fields["Model ID"]);
   if (!modelId) return [];
 
+  const sourceName = DEFAULT_DATA_SOURCE;
+  const sourceUrl = productPathFromFields(fields);
   const specs: PortalVehicleModelSpec[] = [];
+  const pushSpec = (category: string, name: string, value: string, sortOrder: number, visibleLevel = "Core") => {
+    const text = value.trim();
+    if (!text) return;
+    specs.push({
+      modelId,
+      category,
+      name,
+      value: text,
+      unit: "",
+      visibleLevel,
+      sortOrder,
+      sourceName,
+      sourceUrl,
+      confidence: "High",
+    });
+  };
 
-  const mappings = [
-    // Core parameters (visibleLevel: Core)
-    { col: "China Guide Price CNY", name: "中国官方指导价", cat: "基本参数", order: 0, lvl: "Core" },
-    { col: "China Guide Price", name: "中国官方指导价", cat: "基本参数", order: 0, lvl: "Core" },
-    { col: "MSRP China", name: "中国官方指导价", cat: "基本参数", order: 0, lvl: "Core" },
-    { col: "China Guide Price CN...", name: "中国官方指导价", cat: "基本参数", order: 0, lvl: "Core" },
-
-    { col: "Drive Type", name: "驱动方式", cat: "性能参数", order: 10, lvl: "Core" },
-    { col: "Top Speed", name: "最高车速", cat: "性能参数", order: 11, lvl: "Core" },
-    { col: "Motor Power", name: "电机总功率", cat: "性能参数", order: 12, lvl: "Core" },
-    { col: "Battery Type", name: "电池类型", cat: "电池/充电", order: 13, lvl: "Core" },
-    { col: "DC Fast Charge", name: "快充时间 30-80%", cat: "电池/充电", order: 14, lvl: "Core" },
-    { col: "CLTC Range", name: "CLTC续航", cat: "电池/充电", order: 15, lvl: "Core" },
-    { col: "Battery Capacity", name: "电池容量", cat: "电池/充电", order: 16, lvl: "Core" },
-
-    // Standard parameters (visibleLevel: Standard)
-    { col: "Dimensions (LxWxH)", name: "长宽高", cat: "车身参数", order: 30, lvl: "Standard" },
-    { col: "Dimensions", name: "长宽高", cat: "车身参数", order: 30, lvl: "Standard" },
-    { col: "Wheelbase", name: "轴距", cat: "车身参数", order: 31, lvl: "Standard" },
-    { col: "Ground Clearance", name: "离地间隙", cat: "车身参数", order: 32, lvl: "Standard" },
-    { col: "Boot Volume", name: "后备厢容积", cat: "车身参数", order: 33, lvl: "Standard" },
-    { col: "Seating Capacity", name: "座位数", cat: "车身参数", order: 34, lvl: "Standard" },
-    { col: "Seating", name: "座位数", cat: "车身参数", order: 34, lvl: "Standard" },
-    { col: "V2L Support", name: "V2L外放电", cat: "其它参数", order: 35, lvl: "Standard" },
-    { col: "AC Slow Charge", name: "慢充时间", cat: "电池/充电", order: 36, lvl: "Standard" },
-    { col: "Household Charging", name: "家用充电", cat: "电池/充电", order: 37, lvl: "Standard" },
-    { col: "Battery Warranty", name: "电池质保", cat: "其它参数", order: 38, lvl: "Standard" },
-    { col: "Airbags", name: "安全气囊", cat: "安全配置", order: 39, lvl: "Standard" },
-    { col: "Sunroof", name: "天窗", cat: "舒适配置", order: 40, lvl: "Standard" },
-    { col: "Vehicle Class", name: "车身级别", cat: "基本参数", order: 41, lvl: "Standard" },
-    { col: "Segment", name: "车身级别", cat: "基本参数", order: 41, lvl: "Standard" },
-    { col: "0 - 100 km/h", name: "0-100km/h加速", cat: "性能参数", order: 42, lvl: "Standard" },
-  ];
-
-  const addedNames = new Set();
-
-  for (const m of mappings) {
-    if (addedNames.has(m.name)) continue;
-    const val = asText(fields[m.col]);
-    if (val) {
-      specs.push({
-        modelId,
-        category: m.cat,
-        name: m.name,
-        value: val,
-        unit: "",
-        visibleLevel: m.lvl,
-        sortOrder: m.order,
-        sourceName: "autoYJ",
-        sourceUrl: "",
-        confidence: "High",
-      });
-      addedNames.add(m.name);
-    }
-  }
+  pushSpec("Basic", "Guide Price", formatUsdGuidePrice(fields), 0);
+  pushSpec("Basic", "Vehicle Class", valueForModelSpecField(fields, ["Vehicle Class", "Segment", "Body Type"]), 10);
+  pushSpec("Basic", "Energy Type", valueForModelSpecField(fields, ["Energy Type", "Fuel Type", "Battery Type"]), 15);
+  pushSpec("Basic", "Market Position", valueForModelSpecField(fields, ["Market Position", "Review Notes"]), 95, "Standard");
+  pushSpec("Battery / Charging", "CLTC Range", formatNumberRange(fields, "CLTC Range Min KM", "CLTC Range Max KM", "km", { precision: 0 }), 20);
+  pushSpec("Battery / Charging", "Battery Capacity", formatNumberRange(fields, "Battery Capacity Min kWh", "Battery Capacity Max kWh", "kWh", { precision: 1, thousands: false }), 30);
+  pushSpec("Battery / Charging", "Battery Chemistry", formatBatteryChemistryMetric(fields), 40);
+  pushSpec("Battery / Charging", "Charging", valueForModelSpecField(fields, ["Charging", "DC Fast Charge", "AC Slow Charge Full Time Hours", "AC Slow Charge"]), 80, "Standard");
+  pushSpec("Battery / Charging", "DC Fast Charge", valueForModelSpecField(fields, ["DC Fast Charge"]), 82, "Standard");
+  pushSpec("Battery / Charging", "AC Slow Charge", formatAcSlowCharge(fields), 84, "Standard");
+  pushSpec("Motor", "Motor Power", formatNumberRange(fields, "Motor Power Min KW", "Motor Power Max KW", "kW", { precision: 0, thousands: false }), 50);
+  pushSpec("Motor", "Drive Type", valueForModelSpecField(fields, ["Drive Type"]), 60);
+  pushSpec("Motor", "0-100 km/h", formatAcceleration(fields), 65);
+  pushSpec("Motor", "Top Speed", formatNumberRange(fields, "Top Speed Min KMH", "Top Speed Max KMH", "km/h", { precision: 0, thousands: false }), 70);
+  pushSpec("Body", "Dimensions", formatDimensions(fields), 100, "Standard");
+  pushSpec("Body", "Wheelbase", formatNumberRange(fields, "Wheelbase MM", "Wheelbase MM", "mm", { precision: 0 }), 110, "Standard");
+  pushSpec("Body", "Seats", formatNumberRange(fields, "Seats Min", "Seats Max", "seats", { precision: 0, thousands: false }), 120, "Standard");
+  pushSpec("Body", "Boot Volume", formatBootVolume(fields), 130, "Standard");
+  pushSpec("Body", "Ground Clearance", formatGroundClearance(fields), 140, "Standard");
+  pushSpec("Exterior", "Sunroof", formatSunroofAvailability(fields), 200, "Standard");
+  pushSpec("Passive Safety", "Airbags", formatAirbags(fields), 210, "Standard");
+  pushSpec("Export Fit", "Household Charging", formatHouseholdCharging(fields), 300, "Standard");
+  pushSpec("Export Fit", "Battery Warranty", formatBatteryWarranty(fields), 310, "Standard");
+  pushSpec("Export Fit", "V2L Support", formatV2lSupport(fields), 320, "Standard");
 
   return specs;
 }
@@ -776,14 +1101,14 @@ function enrichVehicleModelsWithSpecs(models: PortalVehicleModel[], specs: Porta
 
   return models.map((model) => ({
     ...model,
-    bodyType: model.bodyType || valueFor(model.id, ["车身级别"]),
-    fuelType: model.fuelType || valueFor(model.id, ["能源类型"]),
-    battery: model.battery || valueFor(model.id, ["电池容量"]),
-    batteryType: model.batteryType || valueFor(model.id, ["电池类型"]),
+    bodyType: model.bodyType || valueFor(model.id, ["Vehicle Class", "车身级别"]),
+    fuelType: model.fuelType || valueFor(model.id, ["Energy Type", "能源类型"]),
+    battery: model.battery || valueFor(model.id, ["Battery Capacity", "电池容量"]),
+    batteryType: model.batteryType || valueFor(model.id, ["Battery Chemistry", "Battery Type", "电池类型"]),
     batteryMaker: model.batteryMaker || valueFor(model.id, ["电池供应商"]),
-    range: model.range || valueFor(model.id, ["CLTC续航"]),
+    range: model.range || valueFor(model.id, ["CLTC Range", "Range (CLTC)", "Range", "CLTC续航"]),
     energyConsumption: model.energyConsumption || valueFor(model.id, ["百公里耗电量"]),
-    motorPower: model.motorPower || valueFor(model.id, ["电机总功率", "电机总马力"]),
+    motorPower: model.motorPower || valueFor(model.id, ["Motor Power", "System Power", "电机总功率", "电机总马力"]),
     motorTorque: model.motorTorque || valueFor(model.id, ["电机总扭矩"]),
     driveType: model.driveType || valueFor(model.id, ["驱动方式"]),
     topSpeed: model.topSpeed || valueFor(model.id, ["最高车速"]),
@@ -799,7 +1124,7 @@ function enrichVehicleModelsWithSpecs(models: PortalVehicleModel[], specs: Porta
     rearSuspension: model.rearSuspension || valueFor(model.id, ["后悬架类型"]),
     adas: model.adas || valueFor(model.id, ["ADAS"]),
     warranty: model.warranty || valueFor(model.id, ["质保说明"]),
-    marketPosition: model.marketPosition || valueFor(model.id, ["市场定位"]),
+    marketPosition: model.marketPosition || valueFor(model.id, ["Market Position", "市场定位"]),
     fullSpecsJson: model.fullSpecsJson || valueFor(model.id, ["原始参数JSON"]),
     exportNotes: model.exportNotes || valueFor(model.id, ["出口备注", "版本核对"]),
   }));
@@ -848,7 +1173,7 @@ function mapVehicle(record: FeishuRecord, session: PortalSession) {
     customerPrice: isInternal ? customerPrice : null,
     cost: isInternal ? cost : null,
     isListed: asBool(fields["Is Listed"]),
-    editableFields: isInternal ? Object.keys(fields) : [],
+    editableFields: canManageVehicles(session) ? Object.keys(fields) : [],
     priceLabel: canSeePrice
       ? isInternal
         ? "Internal portal price"
@@ -856,6 +1181,26 @@ function mapVehicle(record: FeishuRecord, session: PortalSession) {
           ? "VIP cooperation price"
           : "Cooperation price"
       : "Request quote",
+  };
+}
+
+function mapAuditLog(record: FeishuRecord): PortalAuditLog {
+  const fields = record.fields;
+  return {
+    id: asText(fields["Log ID"]) || record.record_id,
+    time: asText(fields.Time),
+    operatorId: asText(fields["Operator ID"]),
+    operatorName: asText(fields["Operator Name"]),
+    operatorEmail: asText(fields["Operator Email"]),
+    role: normalizeRole(fields.Role),
+    action: asText(fields.Action),
+    targetType: asText(fields["Target Type"]),
+    targetId: asText(fields["Target ID"]),
+    targetSummary: asText(fields["Target Summary"]),
+    changedFields: asText(fields["Changed Fields"]),
+    before: asText(fields.Before),
+    after: asText(fields.After),
+    result: asText(fields.Result),
   };
 }
 
@@ -882,7 +1227,6 @@ function deriveVehicleModelsFromVehicles(vehicles: ReturnType<typeof mapVehicle>
       marketPosition: vehicle.publicNotes,
       exportNotes: vehicle.exportStatus,
       imageUrl: vehicle.imageUrl,
-      brochureUrl: "",
       status: vehicle.status || "Active",
     } as unknown as PortalVehicleModel);
   }
@@ -1013,55 +1357,92 @@ function nextId(prefix: string) {
   return `${prefix}-${timestamp}-${random}`;
 }
 
-const devCredentials: Record<string, { email: string; accessCode: string }> = {
-  admin: { email: "admin@local.test", accessCode: "admin-demo-2026" },
-  sales: { email: "sales@local.test", accessCode: "sales-demo-2026" },
-  partner: { email: "partner@example.com", accessCode: "partner-demo-2026" },
-  customer: { email: "customer@example.com", accessCode: "customer-demo-2026" },
-};
+function vehicleSummary(fields: Record<string, unknown>) {
+  return compactText([fields.Brand, fields.Model, fields.Year, fields.Trim, fields.Configuration]);
+}
 
-const devUsers: Record<string, Omit<PortalSession, "exp">> = {
-  admin: {
-    userId: "DEV-ADMIN",
-    customerId: "DEV-ADMIN",
-    name: "Local Admin",
-    email: "admin@local.test",
-    accountType: "internal",
-    role: "admin",
-    priceTier: "internal",
-    company: "autoYJ Admin",
+function compactText(values: unknown[]) {
+  return values.map(asText).map((value) => value.trim()).filter(Boolean).join(" ");
+}
+
+function pickFields(fields: Record<string, unknown>, names: string[]) {
+  return Object.fromEntries(names.map((name) => [name, fields[name]]).filter(([, value]) => value !== undefined));
+}
+
+function jsonText(value: unknown) {
+  return JSON.stringify(value, null, 0);
+}
+
+function changedFieldNames(before: Record<string, unknown>, after: Record<string, unknown>) {
+  return Object.keys(after).filter((field) => jsonText(before[field]) !== jsonText(after[field]));
+}
+
+async function writeAuditLog(
+  env: Env,
+  session: PortalSession,
+  entry: {
+    action: string;
+    targetType: string;
+    targetId: string;
+    targetSummary?: string;
+    changedFields?: string[];
+    before?: unknown;
+    after?: unknown;
+    result?: string;
   },
-  sales: {
-    userId: "DEV-SALES",
-    customerId: "DEV-SALES",
-    name: "Local Sales",
-    email: "sales@local.test",
-    accountType: "internal",
-    role: "sales",
-    priceTier: "internal",
-    company: "autoYJ Sales",
-  },
-  partner: {
-    userId: "CUS-001",
-    customerId: "CUS-001",
-    name: "Local Partner",
-    email: "partner@example.com",
-    accountType: "external",
-    role: "partner",
-    priceTier: "partner",
-    company: "Addis Fleet Trading",
-  },
-  customer: {
-    userId: "CUS-002",
-    customerId: "CUS-002",
-    name: "Local Customer",
-    email: "customer@example.com",
-    accountType: "external",
-    role: "customer",
-    priceTier: "hidden",
-    company: "Green Ride Addis",
-  },
-};
+) {
+  const tableId = optionalEnv(env, "FEISHU_TABLE_PORTAL_AUDIT_LOG");
+  if (!tableId) return;
+  try {
+    await createRecord(env, tableId, {
+      "Log ID": nextId("AUD"),
+      Time: nowText(),
+      "Operator ID": session.userId || session.customerId || session.email,
+      "Operator Name": session.name,
+      "Operator Email": session.email,
+      Role: session.role,
+      Action: entry.action,
+      "Target Type": entry.targetType,
+      "Target ID": entry.targetId,
+      "Target Summary": entry.targetSummary || "",
+      "Changed Fields": (entry.changedFields || []).join(", "),
+      Before: entry.before === undefined ? "" : jsonText(entry.before),
+      After: entry.after === undefined ? "" : jsonText(entry.after),
+      Result: entry.result || "success",
+    });
+  } catch (error) {
+    console.error("Portal audit log write failed", error);
+  }
+}
+
+async function findActiveModelById(env: Env, modelId: string) {
+  const tableId = requireEnv(env, "FEISHU_TABLE_VEHICLE_MODELS");
+  const records = await searchRecords(env, tableId, {
+    filter: equalsFilter("Model ID", modelId),
+    pageSize: 10,
+  });
+  const record = latestProductModelRecords(records.filter(isActiveModel))[0] || records.find(isActiveModel);
+  return record || null;
+}
+
+function modelFieldsForVehicle(modelRecord: FeishuRecord) {
+  const fields = modelRecord.fields;
+  return {
+    "Model ID": asText(fields["Model ID"]),
+    Brand: asText(fields.Brand),
+    Model: asText(fields.Model),
+    Year: asText(fields.Year),
+    Trim: asText(fields.Version) || asText(fields.Trim),
+  };
+}
+
+function assertAllowed(value: string, allowed: string[], label: string) {
+  if (!value || allowed.includes(value)) return;
+  throw problem(`${label} is not allowed`, 400);
+}
+
+const vehicleStatusOptions = ["In Stock", "Preorder", "Unavailable"];
+const vehicleExportStatusOptions = ["Exportable Now", "Later in 2026", "Check Permit"];
 
 async function handleLogin(request: Request, env: Env) {
   const body = (await request.json().catch(() => null)) as { email?: string; accessCode?: string } | null;
@@ -1069,11 +1450,7 @@ async function handleLogin(request: Request, env: Env) {
   const accessCode = String(body?.accessCode || "").trim();
   if (!email || !accessCode) return problem("Email and access code are required");
 
-  let account = await findLoginAccount(env, email, accessCode).catch(() => null);
-  if (!account) {
-    const match = Object.entries(devCredentials).find(([, c]) => c.email === email && c.accessCode === accessCode);
-    if (match) account = devUsers[match[0]];
-  }
+  const account = await findLoginAccount(env, email, accessCode);
   if (!account) return problem("Invalid portal credentials", 401);
 
   const session: PortalSession = {
@@ -1089,11 +1466,21 @@ async function handleDevLogin(request: Request, env: Env) {
 
   const body = (await request.json().catch(() => null)) as { role?: string } | null;
   const role = String(body?.role || "").toLowerCase();
-  const devUser = devUsers[role];
-  if (!devUser) return problem("Unknown development role", 400);
+  const devCredentials: Record<string, { email: string; accessCode: string }> = {
+    admin: { email: "admin@local.test", accessCode: "admin-demo-2026" },
+    sales: { email: "sales@local.test", accessCode: "sales-demo-2026" },
+    partner: { email: "partner@example.com", accessCode: "partner-demo-2026" },
+    customer: { email: "customer@example.com", accessCode: "customer-demo-2026" },
+  };
+
+  const credentials = devCredentials[role];
+  if (!credentials) return problem("Unknown development role", 400);
+
+  const account = await findLoginAccount(env, credentials.email, credentials.accessCode);
+  if (!account) return problem(`Development account ${credentials.email} is missing in Feishu Base`, 500);
 
   const session: PortalSession = {
-    ...devUser,
+    ...account,
     exp: Math.floor(Date.now() / 1000) + SESSION_TTL_SECONDS,
   };
   const token = await signSession(env, session);
@@ -1104,16 +1491,11 @@ async function handleBootstrap(request: Request, env: Env) {
   const session = await requireSession(request, env);
   const isInternal = isInternalSession(session);
   const vehicleModelTableId = optionalEnv(env, "FEISHU_TABLE_VEHICLE_MODELS");
-  const vehicleModelSpecTableId = optionalEnv(env, "FEISHU_TABLE_VEHICLE_MODEL_SPECS");
-  const [vehicleRecords, vehicleModelRecords, vehicleModelSpecRecords] = await Promise.all([
+  const [vehicleRecords, vehicleModelRecords] = await Promise.all([
     searchRecords(env, requireEnv(env, "FEISHU_TABLE_VEHICLES"), {
       pageSize: 100,
     }),
     vehicleModelTableId ? searchRecords(env, vehicleModelTableId, { pageSize: 100 }) : Promise.resolve([]),
-    vehicleModelSpecTableId ? searchRecords(env, vehicleModelSpecTableId, { pageSize: 200 }).catch(e => {
-      console.warn("Bootstrap: failed to search specs table, returning empty:", e.message);
-      return [];
-    }) : Promise.resolve([]),
   ]);
   const [inquiryRecords, orderRecords] = await Promise.all([
     searchRecords(env, requireEnv(env, "FEISHU_TABLE_INQUIRIES"), {
@@ -1137,11 +1519,9 @@ async function handleBootstrap(request: Request, env: Env) {
   const vehicles = vehicleRecords
     .filter((record) => asBool(record.fields["Is Listed"]))
     .map((record) => mapVehicle(record, session));
-  const vehicleModelSpecs = [
-    ...vehicleModelSpecRecords.map(mapVehicleModelSpec),
-    ...vehicleModelRecords.flatMap(synthesizeSpecsFromModel),
-  ];
-  const vehicleModels = vehicleModelRecords.length ? enrichVehicleModelsWithSpecs(vehicleModelRecords.map(mapVehicleModel), vehicleModelSpecs) : deriveVehicleModelsFromVehicles(vehicles);
+  const activeVehicleModelRecords = latestProductModelRecords(vehicleModelRecords.filter(isActiveModel));
+  const vehicleModelSpecs = activeVehicleModelRecords.flatMap(synthesizeSpecsFromModel);
+  const vehicleModels = activeVehicleModelRecords.length ? enrichVehicleModelsWithSpecs(activeVehicleModelRecords.map(mapVehicleModel), vehicleModelSpecs) : deriveVehicleModelsFromVehicles(vehicles);
   const inquiries = inquiryRecords.map(mapInquiry);
   const inquiryNos = new Set(inquiries.map((inquiry) => inquiry.inquiryNo));
 
@@ -1158,6 +1538,24 @@ async function handleBootstrap(request: Request, env: Env) {
   const orders = orderRecords.map(mapOrder);
   const internalUsers = internalUserRecords.map(mapInternalUser);
   const customers = customerRecords.map(mapCustomer);
+  const auditLogTableId = optionalEnv(env, "FEISHU_TABLE_PORTAL_AUDIT_LOG");
+  const auditLogs =
+    canViewAuditLogs(session) && auditLogTableId
+      ? (await searchRecords(env, auditLogTableId, {
+          sort: [{ field_name: "Time", desc: true }],
+          pageSize: 100,
+        })).map(mapAuditLog)
+      : [];
+
+  if (canManageVehicles(session)) {
+    await writeAuditLog(env, session, {
+      action: "READ",
+      targetType: "Vehicle",
+      targetId: "Vehicles",
+      targetSummary: "Portal vehicle resource list",
+      result: "success",
+    });
+  }
 
   return json({
     user: publicUser(session),
@@ -1175,6 +1573,7 @@ async function handleBootstrap(request: Request, env: Env) {
     orders,
     internalUsers,
     customers,
+    auditLogs,
   });
 }
 
@@ -1224,34 +1623,21 @@ async function handleCreateInquiry(request: Request, env: Env) {
   return json({ inquiryNo }, { status: 201 });
 }
 
-async function handleUpdateVehicle(request: Request, env: Env, vehicleId: string) {
-  const session = await requireSession(request, env);
-  if (!isInternalSession(session)) return problem("Only internal users can update vehicle resources", 403);
-
-  const body = (await request.json().catch(() => null)) as Record<string, unknown> | null;
-  if (!body) return problem("Request body is required");
-
-  const records = await searchRecords(env, requireEnv(env, "FEISHU_TABLE_VEHICLES"), {
-    filter: equalsFilter("Vehicle ID", vehicleId),
-    pageSize: 5,
-  });
-  const record = records[0];
-  if (!record) return problem("Vehicle resource not found", 404);
-
+function vehiclePatchFromBody(body: Record<string, unknown>, existingFields?: Record<string, unknown>) {
   const updates: Record<string, unknown> = {};
+  const allowField = (fieldName: string) => !existingFields || Object.prototype.hasOwnProperty.call(existingFields, fieldName);
   const setText = (fieldName: string, bodyKey: string) => {
-    if (bodyKey in body && hasField(record, fieldName)) updates[fieldName] = asText(body[bodyKey]);
+    if (bodyKey in body && allowField(fieldName)) updates[fieldName] = asText(body[bodyKey]);
   };
   const setNumber = (fieldName: string, bodyKey: string) => {
-    if (!(bodyKey in body) || !hasField(record, fieldName)) return;
+    if (!(bodyKey in body) || !allowField(fieldName)) return;
     const number = asOptionalNumber(body[bodyKey]);
     updates[fieldName] = number ?? 0;
   };
   const setBool = (fieldName: string, bodyKey: string) => {
-    if (bodyKey in body && hasField(record, fieldName)) updates[fieldName] = Boolean(body[bodyKey]);
+    if (bodyKey in body && allowField(fieldName)) updates[fieldName] = Boolean(body[bodyKey]);
   };
 
-  setText("Model ID", "modelId");
   setText("Color", "color");
   setText("Exterior Color", "exteriorColor");
   setText("Interior Color", "interiorColor");
@@ -1276,8 +1662,114 @@ async function handleUpdateVehicle(request: Request, env: Env, vehicleId: string
   setText("Export Status", "exportStatus");
   setBool("Is Listed", "isListed");
 
+  assertAllowed(asText(updates.Status), vehicleStatusOptions, "Vehicle status");
+  assertAllowed(asText(updates["Export Status"]), vehicleExportStatusOptions, "Export status");
+  return updates;
+}
+
+async function handleCreateVehicle(request: Request, env: Env) {
+  const session = await requireSession(request, env);
+  if (!canManageVehicles(session)) return problem("Only admin and sales can create vehicle resources", 403);
+
+  const body = (await request.json().catch(() => null)) as Record<string, unknown> | null;
+  if (!body) return problem("Request body is required");
+  const modelId = asText(body.modelId).trim();
+  if (!modelId) return problem("Model ID is required");
+
+  const modelRecord = await findActiveModelById(env, modelId);
+  if (!modelRecord) return problem("Selected vehicle model does not exist or is not active", 400);
+
+  const vehicleId = asText(body.vehicleId).trim() || nextId("EV");
+  const existing = await searchRecords(env, requireEnv(env, "FEISHU_TABLE_VEHICLES"), {
+    filter: equalsFilter("Vehicle ID", vehicleId),
+    pageSize: 1,
+  });
+  if (existing.length > 0) return problem("Vehicle ID already exists", 409);
+
+  const fields = {
+    "Vehicle ID": vehicleId,
+    ...modelFieldsForVehicle(modelRecord),
+    Status: "In Stock",
+    "Export Status": "Exportable Now",
+    "Is Listed": true,
+    ...vehiclePatchFromBody(body),
+  };
+  await createRecord(env, requireEnv(env, "FEISHU_TABLE_VEHICLES"), fields);
+  await writeAuditLog(env, session, {
+    action: "CREATE",
+    targetType: "Vehicle",
+    targetId: vehicleId,
+    targetSummary: vehicleSummary(fields),
+    changedFields: Object.keys(fields),
+    after: fields,
+    result: "success",
+  });
+  return json({ ok: true, vehicleId }, { status: 201 });
+}
+
+async function handleUpdateVehicle(request: Request, env: Env, vehicleId: string) {
+  const session = await requireSession(request, env);
+  if (!canManageVehicles(session)) return problem("Only admin and sales can update vehicle resources", 403);
+
+  const body = (await request.json().catch(() => null)) as Record<string, unknown> | null;
+  if (!body) return problem("Request body is required");
+
+  const records = await searchRecords(env, requireEnv(env, "FEISHU_TABLE_VEHICLES"), {
+    filter: equalsFilter("Vehicle ID", vehicleId),
+    pageSize: 5,
+  });
+  const record = records[0];
+  if (!record) return problem("Vehicle resource not found", 404);
+
+  const updates: Record<string, unknown> = {};
+  if ("modelId" in body) {
+    const modelId = asText(body.modelId).trim();
+    if (!modelId) return problem("Model ID is required");
+    const modelRecord = await findActiveModelById(env, modelId);
+    if (!modelRecord) return problem("Selected vehicle model does not exist or is not active", 400);
+    Object.assign(updates, modelFieldsForVehicle(modelRecord));
+  }
+  Object.assign(updates, vehiclePatchFromBody(body, record.fields));
+
   if (Object.keys(updates).length === 0) return problem("No editable fields were provided");
+  const before = pickFields(record.fields, Object.keys(updates));
+  const after = { ...before, ...updates };
+  const changed = changedFieldNames(before, after);
   await updateRecord(env, requireEnv(env, "FEISHU_TABLE_VEHICLES"), record.record_id, updates);
+  await writeAuditLog(env, session, {
+    action: "UPDATE",
+    targetType: "Vehicle",
+    targetId: vehicleId,
+    targetSummary: vehicleSummary({ ...record.fields, ...updates }),
+    changedFields: changed,
+    before,
+    after,
+    result: "success",
+  });
+  return json({ ok: true });
+}
+
+async function handleDeleteVehicle(request: Request, env: Env, vehicleId: string) {
+  const session = await requireSession(request, env);
+  if (!canManageVehicles(session)) return problem("Only admin and sales can delete vehicle resources", 403);
+
+  const records = await searchRecords(env, requireEnv(env, "FEISHU_TABLE_VEHICLES"), {
+    filter: equalsFilter("Vehicle ID", vehicleId),
+    pageSize: 5,
+  });
+  const record = records[0];
+  if (!record) return problem("Vehicle resource not found", 404);
+
+  await deleteRecord(env, requireEnv(env, "FEISHU_TABLE_VEHICLES"), record.record_id);
+  await writeAuditLog(env, session, {
+    action: "DELETE",
+    targetType: "Vehicle",
+    targetId: vehicleId,
+    targetSummary: vehicleSummary(record.fields),
+    changedFields: Object.keys(record.fields),
+    before: record.fields,
+    result: "success",
+  });
   return json({ ok: true });
 }
 
@@ -1405,7 +1897,7 @@ function computeBatchMargin(batchLevels: { units: number; display: string }[]) {
   const first = batchLevels[0];
   if (!first || !first.units) return undefined;
   const cleaned = first.display.replace(/\s+/g, "").replace(/K/gi, "000");
-  const match = cleaned.match(/\$?([0-9,]+)[-–—]\$?([0-9,]+)/);
+  const match = cleaned.match(/\$?([0-9,]+)(?:-|~|to|–|—)\$?([0-9,]+)/i);
   if (match) {
     const lowVal = parseFloat(match[1].replace(/,/g, ""));
     const highVal = parseFloat(match[2].replace(/,/g, ""));
@@ -1424,82 +1916,172 @@ function computeBatchMargin(batchLevels: { units: number; display: string }[]) {
   return undefined;
 }
 
+function buildBatchLevels() {
+  const perUnitLow = 4500;
+  const perUnitHigh = 6500;
+  return [10, 20, 50, 100].map((units) => ({
+    units,
+    display: `$${formatNumericValue((units * perUnitLow) / 1000, { precision: 0, thousands: false })}K - $${formatNumericValue((units * perUnitHigh) / 1000, { precision: 0, thousands: false })}K`,
+  }));
+}
+
+function buildFeatureCards(fields: Record<string, unknown>, summary: { batteryType: string; range: string; charging: string }) {
+  const vehicleClass = fieldText(fields, ["Vehicle Class"]);
+  const warranty = formatBatteryWarranty(fields);
+  const v2l = formatV2lSupport(fields);
+  const batteryLabel = summary.batteryType || "Verified EV platform";
+  const rangeLabel = summary.range || "Verified range data";
+  const chargingLabel = summary.charging || "dealer-ready charging story";
+  const exportFit = [warranty, v2l].filter(Boolean).join(" + ");
+
+  return [
+    {
+      icon: "EV",
+      title: "Battery confidence",
+      desc: `${batteryLabel} gives dealers a clear safety and durability story without maintaining custom copy per model.`,
+    },
+    {
+      icon: "KM",
+      title: "Range and charging",
+      desc: `${rangeLabel} with ${chargingLabel}. Use the structured specs for final quotation checks.`,
+    },
+    {
+      icon: "$",
+      title: "Dealer fit",
+      desc: `${vehicleClass || "This model"} is positioned for repeatable export sales${exportFit ? ` with ${exportFit}` : ""}.`,
+    },
+  ];
+}
+
+function buildUseCases(fields: Record<string, unknown>) {
+  const vehicleClass = fieldText(fields, ["Vehicle Class", "Segment"]).toLowerCase();
+  if (/pickup|truck|van|cargo|commercial|utility/.test(vehicleClass)) {
+    return [
+      { icon: "UT", title: "Utility fleets", desc: "Built for work-site, farm, and mixed business use where operating cost matters.", accent: "Work ready" },
+      { icon: "LG", title: "Logistics operators", desc: "Useful for dealers serving delivery, service, and last-mile customers.", accent: "Fleet fit" },
+      { icon: "PW", title: "Power users", desc: "Strong match for buyers who value payload, clearance, or external power capability.", accent: "High utility" },
+    ];
+  }
+  if (/suv|mpv|family/.test(vehicleClass)) {
+    return [
+      { icon: "FM", title: "Family upgrade", desc: "Suited to buyers moving from compact ICE models into safer, roomier EVs.", accent: "Family demand" },
+      { icon: "PF", title: "Premium fleet", desc: "Fits executive transport, hotel, and airport-transfer sales conversations.", accent: "Fleet ready" },
+      { icon: "RD", title: "Regional dealers", desc: "Strong showroom product when range, comfort, and equipment depth matter.", accent: "Showroom pull" },
+    ];
+  }
+  return [
+    { icon: "TX", title: "Network taxi", desc: "Good fit for high-mileage urban operators focused on low running cost.", accent: "High yield" },
+    { icon: "UR", title: "Urban retail", desc: "Easy to position for first-time EV buyers and city commuters.", accent: "Retail ready" },
+    { icon: "FC", title: "Family second car", desc: "Practical daily-use model for school, shopping, and short regional trips.", accent: "Smart commute" },
+  ];
+}
+
+const PRODUCT_DETAIL_SPEC_FIELDS = [
+  { fields: ["Vehicle Class"], label: "Vehicle Class", level: "Core" },
+  { fields: [], label: "Guide Price", level: "Core" },
+  { fields: [], label: "CLTC Range", level: "Core" },
+  { fields: [], label: "Battery Capacity", level: "Core" },
+  { fields: [], label: "Dimensions (LxWxH)", level: "Standard" },
+  { fields: [], label: "Battery Chemistry", level: "Core" },
+  { fields: [], label: "Wheelbase", level: "Standard" },
+  { fields: [], label: "Motor Power", level: "Core" },
+  { fields: ["Drive Type"], label: "Drive Type", level: "Core" },
+  { fields: [], label: "0 - 100 km/h", level: "Core" },
+  { fields: [], label: "Top Speed", level: "Core" },
+  { fields: ["Charging"], label: "Charging", level: "Core" },
+  { fields: ["DC Fast Charge"], label: "DC Fast Charge", level: "Core" },
+  { fields: [], label: "AC Slow Charge", level: "Core" },
+  { fields: [], label: "Seating", level: "Standard" },
+  { fields: ["Household Charging"], label: "Household Charging", level: "Standard" },
+  { fields: [], label: "Battery Warranty", level: "Standard" },
+  { fields: ["Boot Volume (L)", "fld6DyIXUd", "Boot Volume"], label: "Boot Volume", level: "Standard" },
+  { fields: [], label: "Seating Capacity", level: "Standard" },
+  { fields: [], label: "Sunroof", level: "Standard" },
+  { fields: ["Ground Clearance (mm)", "fldTZtzcZi", "Ground Clearance"], label: "Ground Clearance", level: "Standard" },
+  { fields: [], label: "Airbags", level: "Standard" },
+  { fields: [], label: "V2L Support", level: "Standard" },
+] as const;
+
+function specsFromModelFields(fields: Record<string, unknown>) {
+  const specsLeft: { label: string; value: string }[] = [];
+  const specsRight: { label: string; value: string }[] = [];
+
+  for (const specField of PRODUCT_DETAIL_SPEC_FIELDS) {
+    let value = fieldText(fields, [...specField.fields]);
+    if (specField.label === "Boot Volume") value = formatBootVolume(fields);
+    if (specField.label === "Ground Clearance") value = formatGroundClearance(fields);
+    if (specField.label === "Household Charging") value = formatHouseholdCharging(fields);
+    if (specField.label === "Sunroof") value = formatSunroofAvailability(fields);
+    if (specField.label === "Airbags") value = formatAirbags(fields);
+    if (specField.label === "V2L Support") value = formatV2lSupport(fields);
+    if (!value) {
+      if (specField.label === "Guide Price") value = formatUsdGuidePrice(fields);
+      if (specField.label === "CLTC Range") value = formatNumberRange(fields, "CLTC Range Min KM", "CLTC Range Max KM", "km", { precision: 0 });
+      if (specField.label === "Battery Capacity") value = formatNumberRange(fields, "Battery Capacity Min kWh", "Battery Capacity Max kWh", "kWh", { precision: 1, thousands: false });
+      if (specField.label === "Battery Chemistry") value = formatBatteryChemistryMetric(fields);
+      if (specField.label === "Dimensions (LxWxH)") value = formatDimensions(fields);
+      if (specField.label === "Wheelbase") value = formatNumberRange(fields, "Wheelbase MM", "Wheelbase MM", "mm", { precision: 0 });
+      if (specField.label === "Motor Power") value = formatNumberRange(fields, "Motor Power Min KW", "Motor Power Max KW", "kW", { precision: 0, thousands: false });
+      if (specField.label === "0 - 100 km/h") value = formatAcceleration(fields);
+      if (specField.label === "Top Speed") value = formatNumberRange(fields, "Top Speed Min KMH", "Top Speed Max KMH", "km/h", { precision: 0, thousands: false });
+      if (specField.label === "AC Slow Charge") value = formatAcSlowCharge(fields);
+      if (specField.label === "Seating" || specField.label === "Seating Capacity") value = formatNumberRange(fields, "Seats Min", "Seats Max", "seats", { precision: 0, thousands: false });
+      if (specField.label === "Battery Warranty") value = formatBatteryWarranty(fields);
+    }
+    if (!value) continue;
+    const spec = { label: specField.label, value };
+    if (specField.level === "Core") {
+      specsLeft.push(spec);
+    } else {
+      specsRight.push(spec);
+    }
+  }
+
+  return { specsLeft, specsRight };
+}
+
+function valueForModelSpecField(fields: Record<string, unknown>, names: string[]) {
+  for (const name of names) {
+    const value = asText(fields[name]).trim();
+    if (value) return value;
+  }
+  return "";
+}
+
 async function handlePublicProduct(slug: string, env: Env) {
   const cacheKey = `product:${slug}`;
   const cached = getCached(cacheKey);
   if (cached) return json(cached);
 
   const vehicleModelTableId = requireEnv(env, "FEISHU_TABLE_VEHICLE_MODELS");
-  const vehicleModelSpecTableId = optionalEnv(env, "FEISHU_TABLE_VEHICLE_MODEL_SPECS");
 
   const models = await searchRecords(env, vehicleModelTableId, { pageSize: 100 });
-  const modelRecord = models.find((m) => {
-    const sourceUrl = cleanUrl(m.fields["Source URL"]).split('?')[0].split('#')[0].trim();
-    return sourceUrl.endsWith(`/${slug}`) || sourceUrl.endsWith(`/${slug}/`);
-  });
+  const modelRecord = latestProductModelRecords(models.filter(isActiveModel)).find((m) => productSlugFromFields(m.fields).endsWith(`/${slug}`));
 
   if (!modelRecord) {
     return problem(`Product ${slug} not found`, 404);
   }
 
   const modelId = asText(modelRecord.fields["Model ID"]);
-  let specs: any[] = [];
-  if (vehicleModelSpecTableId) {
-    try {
-      specs = await searchRecords(env, vehicleModelSpecTableId, {
-        filter: equalsFilter("Model ID", modelId),
-        pageSize: 100,
-      });
-    } catch (e: any) {
-      console.warn("handlePublicProduct: failed to query specs table, using fallback synthesis:", e.message);
-    }
-  }
-
-  if (!specs || specs.length === 0) {
-    specs = synthesizeSpecsFromModel(modelRecord);
-  }
-
   const fields = modelRecord.fields;
-  const specsLeft: { label: string; value: string }[] = [];
-  const specsRight: { label: string; value: string }[] = [];
+  const { specsLeft, specsRight } = specsFromModelFields(fields);
 
-  const sortedSpecs = specs
-    .map((s) => (s.fields ? mapVehicleModelSpec(s) : s))
-    .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
-
-  for (const s of sortedSpecs) {
-    const spec = { label: s.name, value: s.value };
-    if (s.visibleLevel?.toLowerCase() === "core") {
-      specsLeft.push(spec);
-    } else if (s.visibleLevel?.toLowerCase() === "standard") {
-      specsRight.push(spec);
-    }
-  }
-
-  const sourceUrl = asText(fields["Source URL"]);
-  const parts = sourceUrl.split("/");
+  const productPath = productPathFromFields(fields);
+  const parts = productPath.split("/");
   let category = "revenue-king";
   const catIdx = parts.indexOf("products");
   if (catIdx !== -1 && catIdx + 1 < parts.length) {
     category = parts[catIdx + 1];
   }
 
-  const valueForSpec = (names: string[]) => {
-    for (const name of names) {
-      const found = sortedSpecs.find((s) => s.name === name);
-      if (found?.value) return found.unit ? `${found.value} ${found.unit}`.trim() : found.value;
-    }
-    return "";
-  };
-
   const brand = asText(fields["Brand"]);
   const modelName = asText(fields["Model"]);
-  const msrpChina = asText(fields["China Guide Price CN..."]) || asText(fields["China Guide Price CNY"]) || asText(fields["MSRP China"]);
+  const msrpChina = formatUsdGuidePrice(fields);
 
-  const battery = asText(fields["Battery Capacity"]) || asText(fields.Battery) || valueForSpec(["Battery Capacity", "电池容量"]);
-  const batteryType = asText(fields["Battery Type"]) || valueForSpec(["Battery Type", "电池类型"]);
-  const range = asText(fields["CLTC Range"]) || asText(fields.Range) || valueForSpec(["Range (CLTC)", "Range", "CLTC Range", "CLTC续航"]);
-  const charging = asText(fields.Charging) || valueForSpec(["DC Fast Charge", "AC Slow Charge", "Charging", "充电说明", "快充时间 30-80%", "快充峰值功率"]);
+  const battery = formatNumberRange(fields, "Battery Capacity Min kWh", "Battery Capacity Max kWh", "kWh", { precision: 1, thousands: false });
+  const batteryType = formatBatteryChemistryMetric(fields);
+  const range = formatNumberRange(fields, "CLTC Range Min KM", "CLTC Range Max KM", "km", { precision: 0 });
+  const charging = valueForModelSpecField(fields, ["Charging", "DC Fast Charge", "AC Slow Charge Full Time Hours", "AC Slow Charge"]);
   const imageUrl = asText(fields["Image URL"]);
 
   let status = "in-stock";
@@ -1525,7 +2107,7 @@ async function handlePublicProduct(slug: string, env: Env) {
     }
   }
 
-  const batchLevels = safeJsonParse(fields.batchLevels, []);
+  const batchLevels = buildBatchLevels();
   const batchMargin = computeBatchMargin(batchLevels);
 
   const data = {
@@ -1542,82 +2124,30 @@ async function handlePublicProduct(slug: string, env: Env) {
       statusText
     },
     category,
-    title: asText(fields.title) || `${brand} ${modelName}`,
-    subtitle: asText(fields.subtitle) || asText(fields.Version) || "",
-    heroDesc: asText(fields.heroDesc) || asText(fields["Review Notes"]) || "",
-    stat1Label: asText(fields.stat1Label),
-    stat1Value: asText(fields.stat1Value),
-    stat2Label: asText(fields.stat2Label),
-    stat2Value: asText(fields.stat2Value),
-    stat3Label: asText(fields.stat3Label),
-    stat3Value: asText(fields.stat3Value),
-    whyTitle: asText(fields.whyTitle),
-    whyDesc: asText(fields.whyDesc),
-    features: safeJsonParse(fields.features, []),
+    title: fieldText(fields, ["Page Title", "title"]) || `${brand} ${modelName}`,
+    subtitle: fieldText(fields, ["Page Subtitle", "subtitle", "Version"]),
+    heroDesc: fieldText(fields, ["Hero Description", "heroDesc", "Review Notes"]),
+    stat1Label: "km CLTC Range",
+    stat1Value: formatHeroCltcRangeValue(fields),
+    stat2Label: "USD Guide Price",
+    stat2Value: formatUsdGuidePrice(fields),
+    stat3Label: "Battery Chemistry",
+    stat3Value: formatBatteryChemistryMetric(fields),
+    whyTitle: "Why Dealers Add It",
+    whyDesc: fieldText(fields, ["Why Section Description", "whyDesc"]),
+    features: buildFeatureCards(fields, { batteryType, range, charging }),
     specsLeft,
     specsRight,
-    fits: safeJsonParse(fields.fits, []),
-    relatedModels: safeJsonParse(fields.relatedModels, []),
-    tags: safeJsonParse(fields.tags, []),
-    galleryImages: safeJsonParse(fields.galleryImages, []),
+    fits: buildUseCases(fields),
+    relatedModels: [],
+    tags: buildCatalogTags(fields, category, status),
+    galleryImages: safeJsonParse(fields["Gallery Images JSON"] || fields.galleryImages, []),
     batchLevels,
     batchMargin,
-    trimData: safeJsonParse(fields.trimData, [])
+    trimData: safeJsonParse(fields["Trim Data JSON"] || fields.trimData, [])
   };
 
   setCached(cacheKey, data, env);
-  return json(data);
-}
-
-async function handlePublicTranslations(env: Env) {
-  // 实时测试模式下不使用 Worker 内部缓存，每次直接向飞书拉取最新数据
-  const tableId = requireEnv(env, "FEISHU_TABLE_I18N");
-  const records = await searchRecords(env, tableId, { pageSize: 500 });
-  
-  const zhRecords: any[] = [];
-  const enRecords: any[] = [];
-  const amRecords: any[] = [];
-  
-  for (const item of records) {
-    const key = asText(item.fields.Key);
-    if (!key) continue;
-    zhRecords.push({ key, value: asText(item.fields.ZH) });
-    enRecords.push({ key, value: asText(item.fields.EN) });
-    amRecords.push({ key, value: asText(item.fields.AM) });
-  }
-
-  const buildNested = (list: any[]) => {
-    const root: any = {};
-    for (const { key, value } of list) {
-      const parts = key.split(".");
-      let current = root;
-      for (let i = 0; i < parts.length - 1; i++) {
-        const part = parts[i];
-        if (current[part] === undefined || typeof current[part] !== "object") {
-          current[part] = {};
-        }
-        current = current[part];
-      }
-      const lastPart = parts[parts.length - 1];
-      if (typeof value === "string" && value.trimStart().startsWith("[")) {
-        try {
-          current[lastPart] = JSON.parse(value);
-        } catch {
-          current[lastPart] = value;
-        }
-      } else {
-        current[lastPart] = value;
-      }
-    }
-    return root;
-  };
-
-  const data = {
-    zh: buildNested(zhRecords),
-    en: buildNested(enRecords),
-    am: buildNested(amRecords)
-  };
-
   return json(data);
 }
 
@@ -1628,37 +2158,52 @@ async function handlePublicProducts(env: Env) {
 
   const vehicleModelTableId = requireEnv(env, "FEISHU_TABLE_VEHICLE_MODELS");
   const models = await searchRecords(env, vehicleModelTableId, { pageSize: 100 });
+  const vehiclesTableId = optionalEnv(env, "FEISHU_TABLE_VEHICLES");
+  const vehiclesByModelId = new Map<string, FeishuRecord[]>();
+  if (vehiclesTableId) {
+    const vehicles = await searchRecords(env, vehiclesTableId, { pageSize: 200 });
+    for (const vehicle of vehicles) {
+      const modelId = asText(vehicle.fields["Model ID"]);
+      if (!modelId) continue;
+      const list = vehiclesByModelId.get(modelId) || [];
+      list.push(vehicle);
+      vehiclesByModelId.set(modelId, list);
+    }
+  }
 
-  const activeModels = models.filter((m) => asText(m.fields.Status) !== "Inactive");
+  const activeModels = latestProductModelRecords(models.filter(isActiveModel));
 
   const products = activeModels.map((m) => {
     const fields = m.fields;
     const brand = asText(fields["Brand"]);
     const modelName = asText(fields["Model"]);
-    const msrpChina = asText(fields["China Guide Price CN..."]) || asText(fields["China Guide Price CNY"]) || asText(fields["MSRP China"]);
+    const modelId = asText(fields["Model ID"]);
+    const msrpChina = formatUsdGuidePrice(fields);
+    const guidePriceMinUsd = fieldNumber(fields, ["Guide Price Min USD"]);
+    const guidePriceMaxUsd = fieldNumber(fields, ["Guide Price Max USD"]);
 
-    const battery = asText(fields["Battery Capacity"]) || asText(fields.Battery);
-    const batteryType = asText(fields["Battery Type"]);
-    const range = asText(fields["CLTC Range"]) || asText(fields.Range);
+    const battery = formatNumberRange(fields, "Battery Capacity Min kWh", "Battery Capacity Max kWh", "kWh", { precision: 1, thousands: false });
+    const batteryType = formatBatteryChemistryMetric(fields);
+    const range = formatNumberRange(fields, "CLTC Range Min KM", "CLTC Range Max KM", "km", { precision: 0 });
     const charging = asText(fields.Charging);
     const imageUrl = asText(fields["Image URL"]);
 
-    const sourceUrl = cleanUrl(fields["Source URL"]);
-    const parts = sourceUrl.split("/");
+    const productPath = productPathFromFields(fields);
+    const parts = productPath.split("/");
     let category = "revenue-king";
     const catIdx = parts.indexOf("products");
     if (catIdx !== -1 && catIdx + 1 < parts.length) {
       category = parts[catIdx + 1];
     }
 
-    const slug = sourceUrl.split("/").filter(Boolean).pop() || "";
+    const slug = productPath.split("/").filter(Boolean).pop() || "";
 
-    const stat2Value = asText(fields.stat2Value);
-    const stat2Label = asText(fields.stat2Label);
+    const stat2Value = formatUsdGuidePrice(fields);
+    const stat2Label = "USD Guide Price";
 
-    const subtitle = asText(fields.subtitle) || asText(fields.Version) || "";
-    const heroDesc = asText(fields.heroDesc) || asText(fields["Review Notes"]) || "";
-    const whyDesc = asText(fields.whyDesc) || asText(fields["Review Notes"]) || "";
+    const subtitle = fieldText(fields, ["Page Subtitle", "subtitle", "Version"]);
+    const heroDesc = fieldText(fields, ["Hero Description", "heroDesc", "Review Notes"]);
+    const whyDesc = fieldText(fields, ["Why Section Description", "whyDesc", "Review Notes"]);
 
     let badge = asText(fields.badge) || asText(fields.Badge) || null;
 
@@ -1676,24 +2221,15 @@ async function handlePublicProducts(env: Env) {
       }
     }
 
-    let showcaseTags = safeJsonParse(fields.tags || fields.Tags, []);
-    if (category === "revenue-king") {
-      const cleanRange = range ? `${range.replace(/\s+/g, "")} Range` : "";
-      if (slug === "byd-seagull") {
-        showcaseTags = ["LFP Blade", "405km Range"];
-      } else if (slug === "gac-aion-rt") {
-        showcaseTags = ["LiDAR ADAS", "520km Range"];
-      } else if (slug === "byd-qin-plus") {
-        showcaseTags = ["Million-Unit Proof", "510km Range"];
-      } else if (slug === "geely-galaxy-e5") {
-        showcaseTags = ["Aegis Battery", "530km Range"];
-      } else {
-        showcaseTags = [];
-        if (batteryType) showcaseTags.push(batteryType);
-        else if (battery) showcaseTags.push(battery);
-        if (cleanRange) showcaseTags.push(cleanRange);
-      }
+    let status = "factory";
+    const vehicleRecords = vehiclesByModelId.get(modelId) || [];
+    const activeVehicle = vehicleRecords.find(v => asBool(v.fields["Is Listed"])) || vehicleRecords[0];
+    if (activeVehicle) {
+      const vStatus = asText(activeVehicle.fields.Status).toLowerCase();
+      if (vStatus.includes("in stock") || vStatus.includes("stock")) status = "in-stock";
     }
+
+    const showcaseTags = buildCatalogTags(fields, category, status);
 
     let cardImg = imageUrl;
     if (slug === "byd-seagull") {
@@ -1747,6 +2283,8 @@ async function handlePublicProducts(env: Env) {
       range,
       charging,
       img: cardImg,
+      guidePriceMinUsd,
+      guidePriceMaxUsd,
       category,
       slug,
       badge,
@@ -1934,9 +2472,6 @@ export async function handlePortalRequest(request: Request, env: Env) {
 
   try {
     if (path.startsWith("/api/portal/public/")) {
-      if (path === "/api/portal/public/translations" && request.method === "GET") {
-        return await handlePublicTranslations(env);
-      }
       if (path === "/api/portal/public/insights" && request.method === "GET") {
         return await handlePublicInsights(env);
       }
@@ -1971,11 +2506,6 @@ export async function handlePortalRequest(request: Request, env: Env) {
     if (path === "/api/portal/dev-session" && request.method === "POST") {
       return await handleDevLogin(request, env);
     }
-    if (path === "/api/portal/session" && request.method === "GET") {
-      const session = await readSession(request, env);
-      if (!session) return problem("Not signed in", 401);
-      return json({ user: publicUser(session) });
-    }
     if (path === "/api/portal/session" && request.method === "POST") {
       return await handleLogin(request, env);
     }
@@ -1989,9 +2519,16 @@ export async function handlePortalRequest(request: Request, env: Env) {
       return await handleCreateInquiry(request, env);
     }
 
+    if (path === "/api/portal/vehicles" && request.method === "POST") {
+      return await handleCreateVehicle(request, env);
+    }
+
     const vehicleMatch = path.match(/^\/api\/portal\/vehicles\/([^/]+)$/);
     if (vehicleMatch && request.method === "PATCH") {
       return await handleUpdateVehicle(request, env, decodeURIComponent(vehicleMatch[1]));
+    }
+    if (vehicleMatch && request.method === "DELETE") {
+      return await handleDeleteVehicle(request, env, decodeURIComponent(vehicleMatch[1]));
     }
 
     const counterMatch = path.match(/^\/api\/portal\/quotes\/([^/]+)\/counter$/);

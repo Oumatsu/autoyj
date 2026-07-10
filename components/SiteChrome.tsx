@@ -17,16 +17,16 @@ export function SiteChrome({ children }: { children: ReactNode }) {
     document.documentElement.lang = locale;
     document.documentElement.dir = localeLabels[locale].dir;
     
-    // 渐进式切换 html 字体类，不直接覆写整个 className
+    // 渐进式切换 body 字体类，不直接覆写整个 body.className
     if (locale === "en") {
-      document.documentElement.classList.add("font-inter");
-      document.documentElement.classList.remove("font-sans", "font-ethiopic");
+      document.body.classList.add("font-inter");
+      document.body.classList.remove("font-sans", "font-ethiopic");
     } else if (locale === "am") {
-      document.documentElement.classList.add("font-ethiopic");
-      document.documentElement.classList.remove("font-inter", "font-sans");
+      document.body.classList.add("font-ethiopic");
+      document.body.classList.remove("font-inter", "font-sans");
     } else {
-      document.documentElement.classList.add("font-sans");
-      document.documentElement.classList.remove("font-inter", "font-ethiopic");
+      document.body.classList.add("font-sans");
+      document.body.classList.remove("font-inter", "font-ethiopic");
     }
   }, [pathname]);
 

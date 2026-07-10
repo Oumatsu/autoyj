@@ -126,7 +126,7 @@ function TrimPoster({ data, v }: { data: DetailData; v: DetailData["vehicle"] })
       title: "Core specs",
       items: compactItems([
         data.specsLeft.find((s) => /Motor/.test(s.label))?.value,
-        data.specsLeft.find((s) => /Battery Type/.test(s.label))?.value,
+        data.specsLeft.find((s) => /Battery Type|Battery Chemistry/.test(s.label))?.value,
         data.specsLeft.find((s) => /DC Fast/.test(s.label))?.value,
       ]),
     },
@@ -198,8 +198,8 @@ function TrimPoster({ data, v }: { data: DetailData; v: DetailData["vehicle"] })
                 </div>
               </div>
               <div className="space-y-2">
-                {[trim.range, trim.sunroof, trim.seat].map((item) => (
-                  <div key={item} className="flex items-center gap-2 text-[10px] font-black uppercase tracking-wider text-gray-400">
+                {[trim.range, trim.sunroof, trim.seat].map((item, itemIndex) => (
+                  <div key={`${trim.name}-${itemIndex}-${item}`} className="flex items-center gap-2 text-[10px] font-black uppercase tracking-wider text-gray-400">
                     <span className={`h-1.5 w-1.5 rounded-full ${trim.rec ? "bg-accent" : "bg-theme"}`} />
                     {item}
                   </div>
@@ -288,8 +288,8 @@ function TrimPoster({ data, v }: { data: DetailData; v: DetailData["vehicle"] })
               <div key={group.title} className="rounded-2xl bg-black/20 border border-white/5 p-5">
                 <div className="text-[10px] font-black uppercase tracking-[.18em] text-theme mb-4">{group.title}</div>
                 <div className="space-y-2">
-                  {group.items.map((item) => (
-                    <div key={item} className="flex gap-2 text-xs text-gray-400 font-light leading-relaxed">
+                  {group.items.map((item, itemIndex) => (
+                    <div key={`${group.title}-${itemIndex}-${item}`} className="flex gap-2 text-xs text-gray-400 font-light leading-relaxed">
                       <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-accent flex-shrink-0" />
                       {item}
                     </div>
@@ -317,8 +317,8 @@ export default function VehicleDetail({ data }: { data: DetailData }) {
   }, [t]);
 
   const v = data.vehicle;
-  const gallery: GalleryImage[] = data.galleryImages || DEFAULT_GALLERY;
-  const batchLevels = data.batchLevels || DEFAULT_BATCH_LEVELS;
+  const gallery: GalleryImage[] = data.galleryImages?.length ? data.galleryImages : DEFAULT_GALLERY;
+  const batchLevels = data.batchLevels?.length ? data.batchLevels : DEFAULT_BATCH_LEVELS;
   const batchMargin = data.batchMargin || DEFAULT_BATCH_MARGIN;
   const [galIdx, setGalIdx] = useState(0);
   const [animating, setAnimating] = useState(false);

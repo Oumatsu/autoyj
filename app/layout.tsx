@@ -1,44 +1,11 @@
 import type { Metadata } from "next";
-import { Inter, Noto_Sans, Noto_Sans_SC, Noto_Sans_Ethiopic } from "next/font/google";
 import "./globals.css";
 import { SiteChrome } from "@/components/SiteChrome";
 
 export const dynamic = "force-dynamic";
 
-const inter = Inter({
-  subsets: ["latin", "latin-ext"],
-  weight: ["300", "400", "500", "600", "700", "800"],
-  style: ["normal", "italic"],
-  display: "swap",
-  variable: "--font-inter",
-});
-
-const notoSans = Noto_Sans({
-  subsets: ["latin", "latin-ext"],
-  weight: ["300", "400", "500", "600", "700", "800"],
-  style: ["normal"],
-  display: "swap",
-  variable: "--font-sans",
-});
-
-const notoSansSc = Noto_Sans_SC({
-  subsets: ["latin"],
-  weight: ["400", "500", "700"],
-  style: ["normal"],
-  display: "swap",
-  variable: "--font-sc",
-});
-
-const notoSansEthiopic = Noto_Sans_Ethiopic({
-  subsets: ["ethiopic"],
-  weight: ["400", "500", "600", "700"],
-  style: ["normal"],
-  display: "swap",
-  variable: "--font-ethiopic",
-});
-
 export const metadata: Metadata = {
-  title: "autoYJ — Your Dedicated EV Sourcing Expert for Africa",
+  title: "autoYJ - Your Dedicated EV Sourcing Expert for Africa",
   description:
     "China's premier EV export partner for African dealers. Expert sourcing, transparent PDI, turnkey dealer empowerment.",
   icons: {
@@ -55,7 +22,7 @@ export default function RootLayout({
     <html
       lang="zh"
       dir="ltr"
-      className={`${inter.variable} ${notoSans.variable} ${notoSansSc.variable} ${notoSansEthiopic.variable} font-sans`}
+      className="font-sans"
       suppressHydrationWarning
     >
       <head>
@@ -83,7 +50,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body>
+      <body className="font-inter">
         <SiteChrome>{children}</SiteChrome>
       </body>
     </html>

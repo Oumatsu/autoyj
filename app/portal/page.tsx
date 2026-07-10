@@ -6,7 +6,7 @@ import type { ReactNode } from "react";
 type PortalRole = "admin" | "sales" | "sourcing" | "finance" | "partner" | "customer";
 type PriceTier = "hidden" | "partner" | "vip" | "internal";
 type AccountType = "internal" | "external";
-type AdminModule = "dashboard" | "profiles" | "vehicles" | "quotes" | "orders" | "payments" | "logistics" | "customers" | "staff" | "files";
+type AdminModule = "dashboard" | "profiles" | "vehicles" | "quotes" | "orders" | "payments" | "logistics" | "customers" | "staff" | "files" | "logs";
 type AdminIconName = AdminModule;
 
 type PortalUser = {
@@ -81,7 +81,6 @@ type VehicleModel = {
   marketPosition: string;
   exportNotes: string;
   imageUrl: string;
-  brochureUrl: string;
   sourceUrl: string;
   sourceName: string;
   lastSyncedAt: string;
@@ -268,6 +267,23 @@ type Order = {
   createdAt: string;
 };
 
+type AuditLog = {
+  id: string;
+  time: string;
+  operatorId: string;
+  operatorName: string;
+  operatorEmail: string;
+  role: PortalRole;
+  action: string;
+  targetType: string;
+  targetId: string;
+  targetSummary: string;
+  changedFields: string;
+  before: string;
+  after: string;
+  result: string;
+};
+
 type BootstrapData = {
   user: PortalUser;
   permissions: {
@@ -284,6 +300,7 @@ type BootstrapData = {
   orders: Order[];
   internalUsers: InternalUser[];
   customers: Customer[];
+  auditLogs: AuditLog[];
 };
 
 type InquiryForm = {
@@ -330,7 +347,7 @@ const adminRoleLabels: Record<PortalRole, string> = {
 const adminNavItems: { key: AdminModule; label: string; roles: PortalRole[]; icon: AdminIconName }[] = [
   { key: "dashboard", label: "首页看板", roles: ["admin", "sales", "sourcing", "finance"], icon: "dashboard" },
   { key: "profiles", label: "车型库", roles: ["admin", "sales", "sourcing"], icon: "profiles" },
-  { key: "vehicles", label: "车辆资源", roles: ["admin", "sales", "sourcing"], icon: "vehicles" },
+  { key: "vehicles", label: "车辆资源", roles: ["admin", "sales"], icon: "vehicles" },
   { key: "quotes", label: "询价管理", roles: ["admin", "sales"], icon: "quotes" },
   { key: "orders", label: "订单管理", roles: ["admin", "sales", "finance"], icon: "orders" },
   { key: "payments", label: "收款财务", roles: ["admin", "finance"], icon: "payments" },
@@ -338,7 +355,11 @@ const adminNavItems: { key: AdminModule; label: string; roles: PortalRole[]; ico
   { key: "customers", label: "客户资料", roles: ["admin"], icon: "customers" },
   { key: "staff", label: "员工账号", roles: ["admin"], icon: "staff" },
   { key: "files", label: "文件中心", roles: ["admin", "sales"], icon: "files" },
+  { key: "logs", label: "Operation Logs", roles: ["admin"], icon: "logs" },
 ];
+
+const vehicleStatusOptions = ["In Stock", "Preorder", "Unavailable"];
+const vehicleExportStatusOptions = ["Exportable Now", "Later in 2026", "Check Permit"];
 
 const modelCoreSpecNames = [
   "中国官方指导价",
@@ -459,11 +480,7 @@ export default function PortalPage() {
   useEffect(() => {
     const host = window.location.hostname.toLowerCase();
     setIsLocalDev(host === "localhost" || host === "127.0.0.1" || host === "::1" || host === "[::1]");
-    setShowPreviewTestLogin(
-      host.includes("workers.dev") ||
-      host.includes("autoyj-preview") ||
-      host.includes("preview")
-    );
+    setShowPreviewTestLogin(host === "autoyj-preview.haipee.workers.dev" || host.includes("autoyj-preview"));
     void load();
   }, []);
 
@@ -493,11 +510,6 @@ export default function PortalPage() {
         body: JSON.stringify({ email, accessCode }),
       });
       await load();
-      const params = new URLSearchParams(window.location.search);
-      const redirect = params.get("redirect");
-      if (redirect) {
-        window.location.href = redirect;
-      }
     } catch (loginError) {
       setError(loginError instanceof Error ? loginError.message : "Sign in failed");
     } finally {
@@ -630,14 +642,16 @@ export default function PortalPage() {
             </div>
             {(isLocalDev || showPreviewTestLogin) && (
               <div className="grid gap-3 rounded-xl border border-gold/20 bg-gold/[.06] p-3">
-                <p className="text-[10px] font-black uppercase tracking-widest text-gold">Test accounts</p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-gold">
+                  {isLocalDev ? "Local quick login" : "Preview test accounts"}
+                </p>
                 <div className="grid grid-cols-2 gap-2">
                   {devLoginOptions.map((option) => (
                     <button
                       key={option.role}
                       type="button"
                       disabled={busy}
-                      onClick={() => fillTestCredentials(option)}
+                      onClick={() => (isLocalDev ? devLogin(option.role) : fillTestCredentials(option))}
                       className="rounded-lg border border-white/10 bg-black/25 px-3 py-3 text-left transition hover:border-gold/60 disabled:opacity-60"
                     >
                       <span className="block text-xs font-black uppercase italic text-white">{option.label}</span>
@@ -971,6 +985,7 @@ function AdminPortal({
   error: string;
 }) {
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
+  const [creatingVehicle, setCreatingVehicle] = useState(false);
   const visibleNav = adminNavItems.filter((item) => item.roles.includes(data.user.role));
   const normalizedActiveModule = visibleNav.some((item) => item.key === activeModule) ? activeModule : "dashboard";
   const activeItem = visibleNav.find((item) => item.key === normalizedActiveModule) || visibleNav[0];
@@ -1044,15 +1059,26 @@ function AdminPortal({
 
           {error && <p className="mb-5 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm font-bold text-red-300">{error}</p>}
 
-          <AdminModuleContent activeModule={normalizedActiveModule} data={data} onEditVehicle={setEditingVehicle} />
+          <AdminModuleContent activeModule={normalizedActiveModule} data={data} onEditVehicle={setEditingVehicle} onCreateVehicle={() => setCreatingVehicle(true)} onReload={onReload} />
         </section>
       </div>
       {editingVehicle && (
         <VehicleEditModal
           vehicle={editingVehicle}
+          data={data}
           onClose={() => setEditingVehicle(null)}
           onSaved={async () => {
             setEditingVehicle(null);
+            await onReload();
+          }}
+        />
+      )}
+      {creatingVehicle && (
+        <VehicleEditModal
+          data={data}
+          onClose={() => setCreatingVehicle(false)}
+          onSaved={async () => {
+            setCreatingVehicle(false);
             await onReload();
           }}
         />
@@ -1061,12 +1087,24 @@ function AdminPortal({
   );
 }
 
-function AdminModuleContent({ activeModule, data, onEditVehicle }: { activeModule: AdminModule; data: BootstrapData; onEditVehicle: (vehicle: Vehicle) => void }) {
+function AdminModuleContent({
+  activeModule,
+  data,
+  onEditVehicle,
+  onCreateVehicle,
+  onReload,
+}: {
+  activeModule: AdminModule;
+  data: BootstrapData;
+  onEditVehicle: (vehicle: Vehicle) => void;
+  onCreateVehicle: () => void;
+  onReload: () => Promise<void>;
+}) {
   switch (activeModule) {
     case "profiles":
       return <AdminProfiles data={data} />;
     case "vehicles":
-      return <AdminVehicles data={data} onEdit={onEditVehicle} />;
+      return <AdminVehicles data={data} onEdit={onEditVehicle} onCreate={onCreateVehicle} onReload={onReload} />;
     case "quotes":
       return <AdminQuotes data={data} />;
     case "orders":
@@ -1081,6 +1119,8 @@ function AdminModuleContent({ activeModule, data, onEditVehicle }: { activeModul
       return <AdminStaff data={data} />;
     case "files":
       return <AdminFiles data={data} />;
+    case "logs":
+      return <AdminLogs data={data} />;
     default:
       return <AdminDashboard data={data} />;
   }
@@ -1441,11 +1481,23 @@ function AdminProfiles({ data }: { data: BootstrapData }) {
   );
 }
 
-function AdminVehicles({ data, onEdit }: { data: BootstrapData; onEdit: (vehicle: Vehicle) => void }) {
+function AdminVehicles({
+  data,
+  onEdit,
+  onCreate,
+  onReload,
+}: {
+  data: BootstrapData;
+  onEdit: (vehicle: Vehicle) => void;
+  onCreate: () => void;
+  onReload: () => Promise<void>;
+}) {
   const sellableModels = buildSellableModels(data);
   const [expandedModels, setExpandedModels] = useState<Set<string>>(() => new Set());
   const [searchQuery, setSearchQuery] = useState("");
   const [supplyFilter, setSupplyFilter] = useState("all");
+  const [deletingId, setDeletingId] = useState("");
+  const canManage = canManageVehicleResources(data.user);
   const normalizedSearch = searchQuery.trim().toLowerCase();
   const visibleModels = sellableModels
     .map((item) => {
@@ -1470,8 +1522,30 @@ function AdminVehicles({ data, onEdit }: { data: BootstrapData; onEdit: (vehicle
     });
   }
 
+  async function deleteVehicle(vehicle: Vehicle) {
+    if (!window.confirm(`Delete ${vehicle.id} from Feishu Vehicles permanently?`)) return;
+    setDeletingId(vehicle.id);
+    try {
+      await api(`/api/portal/vehicles/${encodeURIComponent(vehicle.id)}`, { method: "DELETE" });
+      await onReload();
+    } finally {
+      setDeletingId("");
+    }
+  }
+
   return (
     <div className="grid gap-5">
+      {canManage && (
+        <div className="flex justify-end">
+          <button
+            type="button"
+            onClick={onCreate}
+            className="rounded-xl bg-[#22b8aa] px-5 py-3 text-[10px] font-black uppercase tracking-widest text-[#0c1322] transition hover:bg-[#5ee6d8]"
+          >
+            New Vehicle
+          </button>
+        </div>
+      )}
       <section className="grid gap-3 rounded-xl border border-white/10 bg-white/[.045] p-4 sm:grid-cols-[minmax(0,1fr)_180px] sm:items-end sm:p-5">
         <label className="grid gap-2 text-xs font-black uppercase tracking-widest text-slate-500">
           搜索车源
@@ -1791,7 +1865,264 @@ function AdminFiles({ data }: { data: BootstrapData }) {
   );
 }
 
-function VehicleEditModal({ vehicle, onClose, onSaved }: { vehicle: Vehicle; onClose: () => void; onSaved: () => Promise<void> }) {
+function AdminLogs({ data }: { data: BootstrapData }) {
+  const logs = data.auditLogs || [];
+  return (
+    <AdminPanel title="Operation Logs" subtitle="Portal vehicle resource audit trail written from Worker to Feishu Base">
+      <AdminTable
+        headers={["Time", "Operator", "Role", "Action", "Target", "Changed Fields", "Result"]}
+        rows={logs.map((log) => [
+          formatDate(log.time),
+          compactJoin([log.operatorName, log.operatorEmail]),
+          log.role,
+          <AdminStatusBadge key="action" status={log.action} />,
+          compactJoin([log.targetType, log.targetId, log.targetSummary]),
+          log.changedFields || "-",
+          log.result || "-",
+        ])}
+        emptyText="No operation logs yet. Configure FEISHU_TABLE_PORTAL_AUDIT_LOG to persist audit records."
+      />
+    </AdminPanel>
+  );
+}
+
+function VehicleEditModal({
+  vehicle,
+  data,
+  onClose,
+  onSaved,
+}: {
+  vehicle?: Vehicle;
+  data: BootstrapData;
+  onClose: () => void;
+  onSaved: () => Promise<void>;
+}) {
+  const models = (data.vehicleModels || []).filter((model) => model.id && !/archived/i.test(model.status));
+  const fallbackModelId = vehicle?.modelId || models[0]?.id || "";
+  const [form, setForm] = useState({
+    modelId: fallbackModelId,
+    color: vehicle?.color || vehicle?.exteriorColor || optionFallback(optionValues(data.vehicles, "color")),
+    exteriorColor: vehicle?.exteriorColor || optionFallback(optionValues(data.vehicles, "exteriorColor")),
+    interiorColor: vehicle?.interiorColor || optionFallback(optionValues(data.vehicles, "interiorColor")),
+    supplierExteriorColor: vehicle?.supplierExteriorColor || "",
+    supplierInteriorColor: vehicle?.supplierInteriorColor || "",
+    colorCode: vehicle?.colorCode || "",
+    colorNotes: vehicle?.colorNotes || "",
+    colorConfirmed: vehicle?.colorConfirmed || false,
+    configuration: vehicle?.configuration || optionFallback(optionValues(data.vehicles, "configuration")),
+    supplier: vehicle?.supplier || optionFallback(optionValues(data.vehicles, "supplier")),
+    recorder: vehicle?.recorder || data.user.name || data.user.email,
+    location: vehicle?.location || optionFallback(optionValues(data.vehicles, "location")),
+    status: vehicle?.status || "In Stock",
+    stockQuantity: String(vehicle?.stockQuantity ?? 0),
+    leadTime: vehicle?.leadTime || "",
+    partnerPrice: vehicle?.partnerPrice ? String(vehicle.partnerPrice) : "",
+    customerPrice: vehicle?.customerPrice ? String(vehicle.customerPrice) : "",
+    cost: vehicle?.cost ? String(vehicle.cost) : "",
+    priceValidUntil: vehicle?.priceValidUntil || "",
+    publicNotes: vehicle?.publicNotes || "",
+    imageUrl: vehicle?.imageUrl || "",
+    exportStatus: vehicle?.exportStatus || "Exportable Now",
+    isListed: vehicle?.isListed ?? true,
+  });
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  const selectedModel = models.find((model) => model.id === form.modelId);
+  const mode = vehicle ? "edit" : "create";
+
+  const selectOptions = {
+    color: optionValues(data.vehicles, "color"),
+    exteriorColor: optionValues(data.vehicles, "exteriorColor"),
+    interiorColor: optionValues(data.vehicles, "interiorColor"),
+    configuration: optionValues(data.vehicles, "configuration"),
+    supplier: optionValues(data.vehicles, "supplier"),
+    location: optionValues(data.vehicles, "location"),
+  };
+
+  function updateField(key: keyof typeof form, value: string | boolean) {
+    setForm((current) => ({ ...current, [key]: value }));
+  }
+
+  async function submit(event: React.FormEvent) {
+    event.preventDefault();
+    setSaving(true);
+    setError("");
+    try {
+      const payload = {
+        modelId: form.modelId,
+        color: form.color,
+        exteriorColor: form.exteriorColor,
+        interiorColor: form.interiorColor,
+        supplierExteriorColor: form.supplierExteriorColor,
+        supplierInteriorColor: form.supplierInteriorColor,
+        colorCode: form.colorCode,
+        colorNotes: form.colorNotes,
+        colorConfirmed: form.colorConfirmed,
+        configuration: form.configuration,
+        supplier: form.supplier,
+        recorder: form.recorder,
+        location: form.location,
+        status: form.status,
+        stockQuantity: Number(form.stockQuantity || 0),
+        leadTime: form.leadTime,
+        partnerPrice: form.partnerPrice === "" ? null : Number(form.partnerPrice),
+        customerPrice: form.customerPrice === "" ? null : Number(form.customerPrice),
+        cost: form.cost === "" ? null : Number(form.cost),
+        priceValidUntil: form.priceValidUntil,
+        publicNotes: form.publicNotes,
+        imageUrl: form.imageUrl,
+        exportStatus: form.exportStatus,
+        isListed: form.isListed,
+      };
+      await api(vehicle ? `/api/portal/vehicles/${encodeURIComponent(vehicle.id)}` : "/api/portal/vehicles", {
+        method: vehicle ? "PATCH" : "POST",
+        body: JSON.stringify(payload),
+      });
+      await onSaved();
+    } catch (saveError) {
+      setError(saveError instanceof Error ? saveError.message : "Save failed");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <Modal title={`${mode === "create" ? "New" : "Edit"} Vehicle Resource${vehicle ? ` / ${vehicle.id}` : ""}`} onClose={onClose}>
+      <form onSubmit={submit} className="grid gap-4">
+        <div className="rounded-xl border border-[#22b8aa]/20 bg-[#22b8aa]/10 p-4">
+          <div className="grid gap-3 sm:grid-cols-2">
+            <FormField label="Existing Model">
+              <select value={form.modelId} onChange={(event) => updateField("modelId", event.target.value)} required>
+                {models.map((model) => (
+                  <option key={model.id} value={model.id}>
+                    {model.brand} {model.model} {model.year} {model.trim || model.id}
+                  </option>
+                ))}
+              </select>
+            </FormField>
+            <FormField label="Model ID">
+              <input value={selectedModel?.id || form.modelId} readOnly />
+            </FormField>
+            <FormField label="Brand">
+              <input value={selectedModel?.brand || ""} readOnly />
+            </FormField>
+            <FormField label="Model">
+              <input value={selectedModel?.model || ""} readOnly />
+            </FormField>
+            <FormField label="Year">
+              <input value={selectedModel?.year || ""} readOnly />
+            </FormField>
+            <FormField label="Trim">
+              <input value={selectedModel?.trim || ""} readOnly />
+            </FormField>
+          </div>
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-2">
+          <ControlledSelect label="Status" value={form.status} options={vehicleStatusOptions} onChange={(value) => updateField("status", value)} />
+          <ControlledSelect label="Export Status" value={form.exportStatus} options={vehicleExportStatusOptions} onChange={(value) => updateField("exportStatus", value)} />
+          <ControlledSelect label="Display Color" value={form.color} options={selectOptions.color} onChange={(value) => updateField("color", value)} />
+          <ControlledSelect label="Exterior Color" value={form.exteriorColor} options={selectOptions.exteriorColor} onChange={(value) => updateField("exteriorColor", value)} />
+          <ControlledSelect label="Interior Color" value={form.interiorColor} options={selectOptions.interiorColor} onChange={(value) => updateField("interiorColor", value)} />
+          <FormField label="Supplier Exterior">
+            <input value={form.supplierExteriorColor} onChange={(event) => updateField("supplierExteriorColor", event.target.value)} placeholder="Optional supplier source color" />
+          </FormField>
+          <FormField label="Supplier Interior">
+            <input value={form.supplierInteriorColor} onChange={(event) => updateField("supplierInteriorColor", event.target.value)} placeholder="Optional supplier source interior" />
+          </FormField>
+          <ControlledSelect label="Configuration" value={form.configuration} options={selectOptions.configuration} onChange={(value) => updateField("configuration", value)} />
+          <ControlledSelect label="Supplier" value={form.supplier} options={selectOptions.supplier} onChange={(value) => updateField("supplier", value)} />
+          <ControlledSelect label="Location" value={form.location} options={selectOptions.location} onChange={(value) => updateField("location", value)} />
+          <FormField label="Recorder">
+            <input value={form.recorder} onChange={(event) => updateField("recorder", event.target.value)} />
+          </FormField>
+          <FormField label="Color Code">
+            <input value={form.colorCode} onChange={(event) => updateField("colorCode", event.target.value)} />
+          </FormField>
+          <FormField label="Stock Quantity">
+            <input type="number" min="0" value={form.stockQuantity} onChange={(event) => updateField("stockQuantity", event.target.value)} />
+          </FormField>
+          <FormField label="Lead Time">
+            <input value={form.leadTime} onChange={(event) => updateField("leadTime", event.target.value)} placeholder="30-45 days after deposit" />
+          </FormField>
+          <FormField label="Partner Price">
+            <input type="number" value={form.partnerPrice} onChange={(event) => updateField("partnerPrice", event.target.value)} />
+          </FormField>
+          <FormField label="Customer Price">
+            <input type="number" value={form.customerPrice} onChange={(event) => updateField("customerPrice", event.target.value)} />
+          </FormField>
+          <FormField label="Cost">
+            <input type="number" value={form.cost} onChange={(event) => updateField("cost", event.target.value)} />
+          </FormField>
+          <FormField label="Price Valid Until">
+            <input value={form.priceValidUntil} onChange={(event) => updateField("priceValidUntil", event.target.value)} placeholder="2026-07-31" />
+          </FormField>
+          <FormField label="Image URL">
+            <input value={form.imageUrl} onChange={(event) => updateField("imageUrl", event.target.value)} />
+          </FormField>
+        </div>
+
+        <FormField label="Public Notes">
+          <textarea value={form.publicNotes} onChange={(event) => updateField("publicNotes", event.target.value)} />
+        </FormField>
+        <FormField label="Color Notes">
+          <textarea value={form.colorNotes} onChange={(event) => updateField("colorNotes", event.target.value)} />
+        </FormField>
+
+        <label className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[.04] px-4 py-3 text-xs font-bold text-slate-300">
+          <input checked={form.colorConfirmed} onChange={(event) => updateField("colorConfirmed", event.target.checked)} type="checkbox" className="h-4 w-4 accent-[#22b8aa]" />
+          Color confirmed
+        </label>
+        <label className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[.04] px-4 py-3 text-xs font-bold text-slate-300">
+          <input checked={form.isListed} onChange={(event) => updateField("isListed", event.target.checked)} type="checkbox" className="h-4 w-4 accent-[#22b8aa]" />
+          Listed externally
+        </label>
+
+        {error && <p className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-xs font-bold text-red-300">{error}</p>}
+
+        <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
+          <button type="button" onClick={onClose} className="rounded-xl border border-white/15 px-5 py-3 text-[10px] font-black uppercase tracking-widest text-slate-300 transition hover:border-white/30">
+            Cancel
+          </button>
+          <button disabled={saving || !form.modelId} className="btn-primary rounded-xl px-5 py-3 text-[10px] font-black uppercase tracking-widest disabled:opacity-60">
+            {saving ? "Saving..." : "Save to Feishu"}
+          </button>
+        </div>
+      </form>
+    </Modal>
+  );
+}
+
+function ControlledSelect({ label, value, options, onChange }: { label: string; value: string; options: string[]; onChange: (value: string) => void }) {
+  const normalizedOptions = ensureOption(options, value);
+  return (
+    <FormField label={label}>
+      <select value={value} onChange={(event) => onChange(event.target.value)} required>
+        {normalizedOptions.length === 0 ? <option value="">No options</option> : null}
+        {normalizedOptions.map((option) => (
+          <option key={option} value={option}>
+            {option}
+          </option>
+        ))}
+      </select>
+    </FormField>
+  );
+}
+
+function optionValues<T extends keyof Vehicle>(vehicles: Vehicle[], key: T) {
+  return Array.from(new Set(vehicles.map((vehicle) => String(vehicle[key] ?? "").trim()).filter(Boolean))).sort((a, b) => a.localeCompare(b));
+}
+
+function optionFallback(options: string[]) {
+  return options[0] || "";
+}
+
+function ensureOption(options: string[], value: string) {
+  if (!value || options.includes(value)) return options;
+  return [value, ...options];
+}
+
+function LegacyVehicleEditModal({ vehicle, onClose, onSaved }: { vehicle: Vehicle; onClose: () => void; onSaved: () => Promise<void> }) {
   const editableFields = new Set(vehicle.editableFields || []);
   const canEditOptionalField = (fieldName: string) => editableFields.has(fieldName);
   const [form, setForm] = useState({
@@ -2200,6 +2531,15 @@ function AdminNavIcon({ name }: { name: AdminIconName }) {
           <path d="M15 16v4" />
         </svg>
       );
+    case "logs":
+      return (
+        <svg {...common}>
+          <path d="M5 4h14v16H5z" />
+          <path d="M8 8h8" />
+          <path d="M8 12h8" />
+          <path d="M8 16h5" />
+        </svg>
+      );
   }
 }
 
@@ -2215,6 +2555,10 @@ function findCustomer(data: BootstrapData, customerId: string) {
 
 function isInternalUser(user: PortalUser) {
   return user.accountType === "internal" || ["admin", "sales", "sourcing", "finance"].includes(user.role);
+}
+
+function canManageVehicleResources(user: PortalUser) {
+  return user.role === "admin" || user.role === "sales";
 }
 
 function buildModelProfileGroups(data: BootstrapData): ModelProfileGroup[] {

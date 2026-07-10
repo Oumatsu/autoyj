@@ -5,9 +5,15 @@ import { useTranslation } from "@/i18n/useTranslation";
 
 const mediaSlots = [
   {
+    title: "",
+    label: "",
+    featured: true,
+    plain: true,
+    images: ["/pic/company/Main/20260706-144222.webp"],
+  },
+  {
     title: "Business License",
     label: "License Scan Album",
-    featured: true,
     images: [
       "/pic/company/Business License/4.webp",
       "/pic/company/Business License/3.webp",
@@ -17,30 +23,33 @@ const mediaSlots = [
     ],
   },
   {
-    title: "China Office",
-    label: "Office Photo Album",
-    images: [
-      "/pic/company/China Office/0.webp",
-      "/pic/company/China Office/2.webp",
-      "/pic/company/China Office/1.webp",
-    ],
-  },
-  {
     title: "Core Team",
     label: "Team Member Album",
     images: [
       "/pic/company/Core Team/0.webp",
-      "/pic/company/Core Team/1.webp",
       "/pic/company/Core Team/2.webp",
+      "/pic/company/Core Team/3.webp",
+      "/pic/company/Core Team/4.webp",
+      "/pic/company/Core Team/5.webp",
     ],
   },
   {
     title: "Company Activity",
     label: "Team Building Album",
     images: [
-      "/pic/company/Company Activity/1.webp",
       "/pic/company/Company Activity/0.webp",
+      "/pic/company/Company Activity/1.webp",
       "/pic/company/Company Activity/2.webp",
+      "/pic/company/Company Activity/3.webp",
+      "/pic/company/Company Activity/4.webp",
+      "/pic/company/Company Activity/5.webp",
+      "/pic/company/Company Activity/6.webp",
+      "/pic/company/Company Activity/7.webp",
+      "/pic/company/Company Activity/8.webp",
+      "/pic/company/Company Activity/9.webp",
+      "/pic/company/Company Activity/10.webp",
+      "/pic/company/Company Activity/12.webp",
+      "/pic/company/Company Activity/13.webp",
     ],
   },
   {
@@ -56,7 +65,7 @@ const mediaSlots = [
 ];
 
 export default function AboutPage() {
-  const { t, tArray } = useTranslation();
+  const { t } = useTranslation();
   const [lightbox, setLightbox] = useState<{
     albumIndex: number;
     imageIndex: number;
@@ -78,12 +87,17 @@ export default function AboutPage() {
     });
   };
 
-  const heritageStats = tArray("about.heritage.stats");
-  const proofStats = tArray("about.verification.stats");
-  const capabilities = tArray("about.capability.items");
-  const presenceNodes = tArray("about.presence.nodes");
-  const galleryAlbums = tArray("about.gallery.albums");
-  const logisticsItems = tArray("about.logistics.items");
+  const getArray = (key: string) => {
+    const val = t(key);
+    return Array.isArray(val) ? val : [];
+  };
+
+  const heritageStats = getArray("about.heritage.stats");
+  const proofStats = getArray("about.verification.stats");
+  const capabilities = getArray("about.capability.items");
+  const presenceNodes = getArray("about.presence.nodes");
+  const galleryAlbums = getArray("about.gallery.albums");
+  const logisticsItems = getArray("about.logistics.items");
 
   return (
     <>
@@ -242,7 +256,7 @@ export default function AboutPage() {
       </section>
 
       {/* Verified Business Scope */}
-      <section className="py-24 sm:py-32 bg-a scroll-mt-48">
+      <section id="capability" className="py-24 sm:py-32 bg-a scroll-mt-48">
         <div className="container mx-auto px-4 sm:px-6 md:px-12">
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-14">
             <div className="max-w-2xl">
@@ -339,7 +353,7 @@ export default function AboutPage() {
       </section>
 
       {/* Evidence Gallery */}
-      <section className="py-24 sm:py-32 bg-a scroll-mt-48">
+      <section id="evidence" className="py-24 sm:py-32 bg-a scroll-mt-48">
         <div className="container mx-auto px-4 sm:px-6 md:px-12">
           <div className="text-center mb-16">
             <div className="label justify-center mb-5">{t("about.gallery.label")}</div>
@@ -358,6 +372,39 @@ export default function AboutPage() {
               const albumTranslation = galleryAlbums[albumIndex] || {};
               const title = albumTranslation.title || slot.title;
               const label = albumTranslation.label || slot.label;
+
+              if (!slot.images || slot.images.length === 0) {
+                return (
+                  <div
+                    key={albumIndex}
+                    className={slot.featured ? "lg:col-span-2 lg:row-span-2" : ""}
+                  />
+                );
+              }
+
+              if ((slot as any).plain) {
+                return (
+                  <div
+                    key={albumIndex}
+                    className={`rounded-[2rem] overflow-hidden ${
+                      slot.featured ? "lg:col-span-2 lg:row-span-2" : ""
+                    }`}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setLightbox({ albumIndex, imageIndex: 0 })}
+                      className="group block w-full h-full"
+                    >
+                      <img
+                        src={slot.images[0]}
+                        alt=""
+                        className="w-full h-full object-cover scale-100 group-hover:scale-105 transition-transform duration-700"
+                      />
+                    </button>
+                  </div>
+                );
+              }
+
               return (
                 <div
                   key={albumIndex}

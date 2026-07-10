@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { HeroSlider } from "@/components/HeroSlider";
 import { SectionTabs } from "@/components/SectionTabs";
@@ -6,18 +6,9 @@ import { TcoCounter } from "@/components/TcoCounter";
 import { ScrollColorCard } from "@/components/ScrollColorCard";
 import { useTranslation } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
-import { useState, useEffect } from "react";
 
 export default function HomePage() {
-  const { t, tArray, locale } = useTranslation();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [showLoginModal, setShowLoginModal] = useState(false);
-
-  useEffect(() => {
-    fetch("/api/portal/session", { credentials: "include" })
-      .then((res) => { setIsLoggedIn(res.ok); })
-      .catch(() => { setIsLoggedIn(false); });
-  }, []);
+  const { t } = useTranslation();
 
   return (
     <>
@@ -36,7 +27,7 @@ export default function HomePage() {
               {t("home.trustBar.label")}
             </span>
             <div className="flex flex-wrap items-center gap-6 sm:gap-10 md:gap-14 opacity-25 grayscale">
-              {tArray("home.trustBar.partners").map(
+              {(t("home.trustBar.partners", "") as unknown as string[]).map(
                 (name) => (
                   <span
                     key={name}
@@ -89,7 +80,7 @@ export default function HomePage() {
               category={t("home.products.revenueKing.category")}
               title={t("home.products.revenueKing.title")}
               desc={t("home.products.revenueKing.desc")}
-              tags={tArray("home.products.revenueKing.tags")}
+              tags={t("home.products.revenueKing.tags") as unknown as string[]}
               tagColor="green"
             />
 
@@ -102,7 +93,7 @@ export default function HomePage() {
               category={t("home.products.eliteFlagship.category")}
               title={t("home.products.eliteFlagship.title")}
               desc={t("home.products.eliteFlagship.desc")}
-              tags={tArray("home.products.eliteFlagship.tags")}
+              tags={t("home.products.eliteFlagship.tags") as unknown as string[]}
               tagColor="gold"
               cardStyle={{ boxShadow: "0 0 40px rgba(197,160,89,.07)" }}
               borderColor="border-theme/25"
@@ -117,7 +108,7 @@ export default function HomePage() {
               category={t("home.products.utilityPro.category")}
               title={t("home.products.utilityPro.title")}
               desc={t("home.products.utilityPro.desc")}
-              tags={tArray("home.products.utilityPro.tags")}
+              tags={t("home.products.utilityPro.tags") as unknown as string[]}
               tagColor="green"
             />
           </div>
@@ -283,18 +274,16 @@ export default function HomePage() {
               <div className="label label-gold mb-5">
                 {t("home.tco.label")}
               </div>
-              <h2 className="sh mb-6">
-                {(() => {
-                  const title1 = t("home.tco.title1").replace(/\n$/, "");
-                  if (locale === "zh") {
-                    const parts = title1.split(" vs ");
-                    if (parts.length === 2) return <>{parts[0]}<br />vs<br />{parts[1]}<br /></>;
-                  }
-                  return <>{title1}<br /></>;
-                })()}
-                <span className="text-theme">{t("home.tco.titleAccent1")}</span><br />
-                <span className="text-accent">{t("home.tco.titleAccent2")}</span>
-                {t("home.tco.title4") && <><br /><span>{t("home.tco.title4")}</span></>}
+              <h2 className="sh mb-6 whitespace-pre-line">
+                {t("home.tco.title1")}
+                <span className="text-theme">
+                  {t("home.tco.titleAccent1")}
+                </span>
+                {t("home.tco.title3")}
+                <span className="text-accent">
+                  {t("home.tco.titleAccent2")}
+                </span>
+                {t("home.tco.title4")}
               </h2>
               <p className="text-gray-500 text-lg font-light leading-relaxed mb-8 italic">
                 {t("home.tco.desc")}
@@ -386,7 +375,7 @@ export default function HomePage() {
                   />
                 </div>
                 <div className="flex gap-3 mt-2">
-                  {tArray("home.tco.evBreakdown").map(
+                  {(t("home.tco.evBreakdown") as unknown as string[]).map(
                     (text, i) => (
                       <span key={i} className="text-[9px] text-gray-600">
                         {text}
@@ -422,7 +411,7 @@ export default function HomePage() {
                   />
                 </div>
                 <div className="flex gap-3 mt-2">
-                  {tArray("home.tco.iceBreakdown").map(
+                  {(t("home.tco.iceBreakdown") as unknown as string[]).map(
                     (text, i) => (
                       <span key={i} className="text-[9px] text-gray-600">
                         {text}
@@ -635,19 +624,29 @@ export default function HomePage() {
             </p>
 
             <div className="glass rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-8 md:p-10 text-left">
-              <button
-                onClick={() => {
-                  if (isLoggedIn) {
-                    const a = document.createElement("a");
-                    a.href = "/reports/global_ev_outlook_report_2025.pdf";
-                    a.download = "Global_EV_Outlook_Report_2025.pdf";
-                    a.click();
-                  } else {
-                    setShowLoginModal(true);
-                  }
-                }}
-                className="w-full btn-primary py-5 rounded-xl text-sm font-black tracking-widest uppercase italic cursor-pointer transition-all duration-300 hover:scale-[1.02]"
-              >
+              <div className="flex flex-col gap-4 mb-5">
+                <input
+                  type="email"
+                  placeholder={t("home.leadMagnet.emailPlaceholder")}
+                  className="w-full px-5 py-4 rounded-xl text-sm font-medium outline-none"
+                  style={{
+                    background: "rgba(255,255,255,.04)",
+                    border: "1px solid rgba(197,160,89,.15)",
+                    color: "#fff",
+                  }}
+                />
+                <input
+                  type="tel"
+                  placeholder={t("home.leadMagnet.phonePlaceholder")}
+                  className="w-full px-5 py-4 rounded-xl text-sm font-medium outline-none"
+                  style={{
+                    background: "rgba(255,255,255,.04)",
+                    border: "1px solid rgba(197,160,89,.15)",
+                    color: "#fff",
+                  }}
+                />
+              </div>
+              <button className="w-full btn-primary py-5 rounded-xl text-sm font-black tracking-widest uppercase italic">
                 {t("home.leadMagnet.cta")}
               </button>
               <p className="text-[10px] text-gray-700 mt-4 text-center">
@@ -657,34 +656,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
-      {/* Login Guidance Modal */}
-      {showLoginModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm transition-all duration-300">
-          <div className="glass w-full max-w-md p-6 sm:p-8 rounded-[2rem] border border-theme/20 shadow-2xl relative text-left">
-            <h3 className="text-lg font-bold text-white mb-2">
-              {t("home.leadMagnet.modalTitle")}
-            </h3>
-            <p className="text-sm text-gray-400 leading-relaxed mb-6">
-              {t("home.leadMagnet.modalDesc")}
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3">
-              <button
-                onClick={() => setShowLoginModal(false)}
-                className="flex-1 px-5 py-3.5 rounded-xl text-xs font-black tracking-widest uppercase border border-white/10 text-gray-400 hover:text-white hover:border-white/20 transition-all cursor-pointer text-center"
-              >
-                {t("home.leadMagnet.modalCancel")}
-              </button>
-              <a
-                href="/portal?redirect=%2F%23lead-magnet"
-                className="flex-1 px-5 py-3.5 rounded-xl text-xs font-black tracking-widest uppercase btn-primary text-center cursor-pointer transition-all hover:scale-[1.02] flex items-center justify-center"
-              >
-                {t("home.leadMagnet.modalCta")}
-              </a>
-            </div>
-          </div>
-        </div>
-      )}
     </>
   );
 }

@@ -24,7 +24,7 @@
 
 **Interfaces:**
 * Consumes: Bitable settings in `.dev.vars` (App ID, App Secret, Base Token)
-* Produces: Script that loads existing TSX metadata, transforms it, and inserts it into Feishu Bitable tables (`Vehicle Models`, `Vehicle Model Specs`, `Articles`, `Academy Lessons`, `Academy Vault`).
+* Produces: Script that loads existing TSX metadata, transforms it, and inserts it into Feishu Bitable tables (`Vehicle Models`, `Articles`, `Academy Lessons`, `Academy Vault`).
 
 - [ ] **Step 1: Write the migration script**
   Create `scripts/import-frontend-to-feishu.mjs` with full parsing and Feishu insert logic:
@@ -132,7 +132,7 @@
     if (cached) return json(cached);
 
     // Fetch model by slug from FEISHU_TABLE_VEHICLE_MODELS
-    // Fetch specs linked to the model from FEISHU_TABLE_VEHICLE_MODEL_SPECS
+    // Synthesize specs from FEISHU_TABLE_VEHICLE_MODELS fields
     // Format JSON matching <VehicleDetail> specifications structure
     // setCached(`product:${slug}`, data);
     // return json(data);

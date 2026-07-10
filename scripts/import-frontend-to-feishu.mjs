@@ -157,7 +157,10 @@ function getTableFields(tableId) {
   return fields.map(f => ({ field_name: f.name }));
 }
 
-function createField(tableId, fieldName, type) {
+function createField(tableId, fieldDefinition) {
+  const definition = typeof fieldDefinition === "string"
+    ? { name: fieldDefinition, type: "text" }
+    : fieldDefinition;
   return runLarkCli([
     "base",
     "+field-create",
@@ -168,10 +171,7 @@ function createField(tableId, fieldName, type) {
     "--table-id",
     tableId,
     "--json",
-    JSON.stringify({
-      name: fieldName,
-      type: "text"
-    })
+    JSON.stringify(definition)
   ]);
 }
 
@@ -365,19 +365,10 @@ const bydSeagullData = {
     statusText: "In Stock: Shenzhen",
   },
   category: "revenue-king",
-  title: "BYD Seagull",
-  subtitle: "The Global #1 EV",
-  heroDesc: "The world's top-selling compact EV. The strongest weapon against the used ICE market — your customers save up to $250 every month.",
-  stat1Label: "km CLTC Range", stat1Value: "405",
-  stat2Label: "Max Monthly Saving", stat2Value: "$250",
-  stat3Label: "LFP Battery", stat3Value: "Blade",
-  whyTitle: "Why It Sells",
-  whyDesc: "The strongest weapon against used ICE.",
-  features: [
-    { icon: "🛡️", title: "Blade Battery Safety", desc: "BYD's proprietary LFP Blade cell design eliminates thermal runaway — the #1 safety concern your customers ask about. Zero fire risk, maximum owner confidence." },
-    { icon: "📱", title: "Rotating 10.1\" Touchscreen", desc: "A premium feature typically seen in $30,000+ cars — now standard in a budget EV. Your showroom's strongest visual closer when customers sit inside." },
-    { icon: "✅", title: "1M+ Units Validated", desc: "Over one million Seagulls in daily operation worldwide. The maturity of this platform means lower defect rates, globally available parts, and minimal after-sales headache." }
-  ],
+  "Page Title": "BYD Seagull",
+  "Page Subtitle": "The Global #1 EV",
+  "Hero Description": "The world's top-selling compact EV. The strongest weapon against the used ICE market — your customers save up to $250 every month.",
+  "Why Section Description": "The strongest weapon against used ICE.",
   specsLeft: [
     { label: "Vehicle Class", value: "Small Sedan" },
     { label: "Range (CLTC)", value: "405 km" },
@@ -385,13 +376,13 @@ const bydSeagullData = {
     { label: "Battery Type", value: "LFP Blade" },
     { label: "Motor Power", value: "70 kW (95 hp)" },
     { label: "Drive Type", value: "Front-Wheel Drive" },
-    { label: "0 – 100 km/h", value: "9.7 sec" },
+    { label: "0 – 100 km/h", value: "13 sec" },
     { label: "Top Speed", value: "130 km/h" },
     { label: "DC Fast Charge", value: "~30 min (30%→80%)" },
-    { label: "AC Slow Charge", value: "~6 hrs (0→100%)" }
+    { label: "AC Slow Charge", value: "6 hrs (0-100%)" }
   ],
   specsRight: [
-    { label: "Household Charging", value: "Yes — 220V / ~18 hrs" },
+    { label: "Household Charging", value: "Yes - export charger depends on market" },
     { label: "Battery Warranty", value: "8 Yrs / 150,000 km" },
     { label: "Dimensions (L×W×H)", value: "3,780 × 1,715 × 1,540 mm" },
     { label: "Boot Volume", value: "226 L" },
@@ -401,17 +392,7 @@ const bydSeagullData = {
     { label: "Airbags", value: "6 (Front + Side + Curtain)" },
     { label: "V2L Support", value: "Not Supported" }
   ],
-  fits: [
-    { icon: "🚕", title: "Network Taxi", desc: "Perfect for ride-hailing with low operational costs.", accent: "High yield" },
-    { icon: "🏢", title: "Urban Fleet", desc: "Reliable city runner for business operations.", accent: "Fleet ready" },
-    { icon: "👨‍👩‍👧‍👦", title: "Family 2nd Car", desc: "Ideal school and shopping runner.", accent: "Smart commute" }
-  ],
-  relatedModels: [
-    { name: "BYD Dolphin", href: "/products/revenue-king/byd-dolphin" },
-    { name: "Geely Geome", href: "/products/revenue-king/geely-geome" }
-  ],
-  tags: ["Hatchback (Sub-Compact)", "LFP (Lithium Iron Phosphate)", "300 km - 450 km", "Under $15,000", "LHD (Left-Hand Drive)", "In Stock (Port)"],
-  galleryImages: [
+  "Gallery Images JSON": [
     { src: "/pic/revenue-king/seagull/0.webp", cat: "Exterior", label: "" },
     { src: "/pic/revenue-king/seagull/1.webp", cat: "Exterior", label: "" },
     { src: "/pic/revenue-king/seagull/2.webp", cat: "Exterior", label: "" },
@@ -428,16 +409,10 @@ const bydSeagullData = {
     { src: "/pic/revenue-king/seagull/15.webp", cat: "Detail", label: "" },
     { src: "/pic/revenue-king/seagull/16.webp", cat: "Detail", label: "" }
   ],
-  batchLevels: [
-    { units: 10, display: "$45K – $65K" },
-    { units: 20, display: "$90K – $130K" },
-    { units: 50, display: "$225K – $325K" },
-    { units: 100, display: "$450K – $650K" }
-  ],
-  trimData: [
+  "Trim Data JSON": [
     { name: "Standard", range: "305 km", accel: "10.9 sec", sunroof: "✗ None", airbags: "4", seat: "Fabric", fob: "Lowest" },
     { name: "Comfort", range: "305 km", accel: "10.9 sec", sunroof: "✗ None", airbags: "6", seat: "Fabric", fob: "Low" },
-    { name: "Honor", range: "405 km", accel: "9.7 sec", sunroof: "○ Optional", airbags: "6", seat: "Leatherette", fob: "Mid ★", rec: true },
+    { name: "Honor", range: "405 km", accel: "13 sec", sunroof: "○ Optional", airbags: "6", seat: "Leatherette", fob: "Mid ★", rec: true },
     { name: "Distinguished", range: "405 km", accel: "9.7 sec", sunroof: "✓ Standard", airbags: "6", seat: "Full Leather", fob: "Premium" }
   ]
 };
@@ -534,14 +509,35 @@ async function main() {
   const modelFields = getTableFields(tables["Vehicle Models"]);
   const existingFieldNames = new Set(modelFields.map(f => f.field_name));
   const requiredFields = [
-    "subtitle", "heroDesc", "stat1Label", "stat1Value", "stat2Label", "stat2Value",
-    "stat3Label", "stat3Value", "whyTitle", "whyDesc", "features", "fits",
-    "relatedModels", "tags", "galleryImages", "batchLevels", "trimData"
+    "Page Subtitle", "Hero Description",
+    "Why Section Description",
+    "Gallery Images JSON",
+    "Trim Data JSON", "Guide Price Display", "Guide Price Min USD", "Guide Price Max USD",
+    "Model Year Text", "Model Year", "Battery Capacity Text", "Battery Capacity Min kWh", "Battery Capacity Max kWh",
+    { name: "Battery Chemistry", type: "select", multiple: false, description: "Normalized battery chemistry for filtering, statistics, and Hero Metric 3. Use Battery Technology for Blade/Magazine branding.", options: [{ name: "LFP" }, { name: "NCM" }, { name: "NMC" }, { name: "NCM / LFP" }] },
+    { name: "Battery Technology", type: "select", multiple: false, description: "Battery technology or structural battery family such as Blade, 2nd Gen Blade, Magazine, or Aegis Short Blade. Leave blank when the source only identifies a supplier product line or when not verified.", options: [{ name: "Blade" }, { name: "2nd Gen Blade" }, { name: "Magazine" }, { name: "Aegis Short Blade" }] },
+    "CLTC Range Text", "CLTC Range Min KM", "CLTC Range Max KM", "Motor Power Text", "Motor Power Min KW", "Motor Power Max KW",
+    { name: "AC Slow Charge Supported", type: "checkbox" },
+    { name: "AC Slow Charge Full Time Hours", type: "number", style: { type: "plain", precision: 2, percentage: false, thousands_separator: false } },
+    { name: "0 - 100 km/h (sec)", type: "number", style: { type: "plain", precision: 2, percentage: false, thousands_separator: false } },
+    "Top Speed Text", "Top Speed Min KMH", "Top Speed Max KMH", "Battery Warranty Text", "Battery Warranty Years", "Battery Warranty Distance KM",
+    "Dimensions Text", "Dimensions LxWxH Text", "Length MM", "Width MM", "Height MM", "Wheelbase Text", "Wheelbase MM",
+    "Seating Text", "Seating Capacity Text", "Seats Min", "Seats Max",
+    { name: "Sunroof Availability", type: "select", multiple: false, description: "Normalized model-level sunroof availability. Use Standard when broadly standard, Optional when offered as an option, By Trim when availability varies by trim, Not Available when verified unavailable, and leave blank when not verified.", options: [{ name: "Standard" }, { name: "Optional" }, { name: "By Trim" }, { name: "Not Available" }] },
+    { name: "Airbags", type: "number", description: "Verified airbag count for the catalog model or representative export trim. Store numeric count only; leave blank when exact count is not verified.", style: { type: "plain", precision: 0, percentage: false, thousands_separator: false } },
+    { name: "V2L Availability", type: "select", multiple: false, description: "Normalized model-level V2L / vehicle-to-load availability. Use Standard when broadly standard, Optional when offered as an option, By Trim when availability varies by trim, Market Dependent when export/market equipment varies, Not Supported when verified unavailable, and leave blank when not verified.", options: [{ name: "Standard" }, { name: "Optional" }, { name: "By Trim" }, { name: "Market Dependent" }, { name: "Not Supported" }] },
+    { name: "V2L Output Power (kW)", type: "number", description: "Verified V2L / vehicle-to-load output power in kilowatts. Store numeric kW only; leave blank when the exact output is not verified.", style: { type: "plain", precision: 1, percentage: false, thousands_separator: false } },
+    { name: "Steering Setup", type: "select", multiple: false, description: "Normalized steering configuration for catalog filtering. Store option only; frontend displays the long label.", options: [{ name: "LHD" }, { name: "RHD" }, { name: "LHD / RHD" }] },
+    { name: "Voltage Platform (V)", type: "number", description: "Nominal high-voltage platform in volts. Store numeric volts only, for example 400, 800, 900, or 1000.", style: { type: "plain", precision: 0, percentage: false, thousands_separator: false } },
+    { name: "Powertrain Type", type: "select", multiple: false, description: "Normalized powertrain type for filtering and frontend tags.", options: [{ name: "BEV" }, { name: "PHEV" }, { name: "EREV" }, { name: "HEV" }] },
+    { name: "Household Charging", type: "checkbox", description: "Whether household charging is supported. If checked, frontend displays Yes - export charger depends on market; unchecked is hidden." },
+    "Product Path"
   ];
-  for (const fieldName of requiredFields) {
+  for (const fieldDefinition of requiredFields) {
+    const fieldName = typeof fieldDefinition === "string" ? fieldDefinition : fieldDefinition.name;
     if (!existingFieldNames.has(fieldName)) {
       console.log(`Adding missing field ${fieldName} to Vehicle Models table...`);
-      createField(tables["Vehicle Models"], fieldName, 1);
+      createField(tables["Vehicle Models"], fieldDefinition);
     }
   }
 

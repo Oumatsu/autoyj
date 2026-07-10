@@ -30,13 +30,13 @@ The setup script creates these tables:
 
 - `Internal Users`: company staff accounts, roles, permissions, and commission rates.
 - `External Accounts`: partner/customer accounts, company details, and price permissions.
-- `Vehicle Models`: model/version master table. It stores model identity, guide price, status, image/source metadata, and review notes.
-- `Vehicle Model Specs`: full parameter detail table. It stores category/spec/value rows for complete Dongchedi-style configuration data.
+- `Vehicle Models`: model/version master table. It stores model identity, guide price, status, image/source metadata, review notes, and fixed specification fields used by public product pages and portal comparison views.
 - `Vehicles`: supply/inventory resources. It describes whether that model has stock, colors, supplier, price, and lead time.
 - `Inquiries`
 - `Quotes`
 - `Negotiations`
 - `Orders`
+- `Portal Audit Log`: append-only portal operation audit events for vehicle resource create, update, delete, and key read actions.
 
 Field names are intentionally stable English API names, for example `User ID`, `Account ID`, `Model ID`, `Vehicle ID`, `Partner Price`, and `Quote No`. Staff can create Chinese views in Feishu without changing API field names.
 
@@ -49,8 +49,7 @@ In production, users do not choose a role. The role and permissions come from th
 
 `Vehicle Models` and `Vehicles` are deliberately separated:
 
-- `Vehicle Models` stores stable model identity and metadata: brand, model, year, version, China guide price, source, image, status, and review notes.
-- `Vehicle Model Specs` stores full configuration facts as rows: model ID, category, spec name, spec value, unit, visibility level, sort order, confidence, source, and notes. This lets AI add new parameters as data rows instead of changing table schema.
+- `Vehicle Models` stores stable model identity, metadata, public images, and fixed specification facts such as vehicle class, range, battery, dimensions, wheelbase, charging, seating, airbags, and V2L support. Worker synthesizes portal comparison specs from these fields.
 - `Vehicles` stores supply facts: resource ID, model ID, external display color, supplier original color, configuration, supplier, recorder, location, stock quantity, preorder lead time, FOB prices, cost, price validity, and listing status.
 
 External color and internal color are separate:
@@ -113,12 +112,12 @@ FEISHU_TABLE_INTERNAL_USERS=
 FEISHU_TABLE_EXTERNAL_ACCOUNTS=
 FEISHU_TABLE_CUSTOMERS=
 FEISHU_TABLE_VEHICLE_MODELS=
-FEISHU_TABLE_VEHICLE_MODEL_SPECS=
 FEISHU_TABLE_VEHICLES=
 FEISHU_TABLE_INQUIRIES=
 FEISHU_TABLE_QUOTES=
 FEISHU_TABLE_NEGOTIATIONS=
 FEISHU_TABLE_ORDERS=
+FEISHU_TABLE_PORTAL_AUDIT_LOG=
 FEISHU_TABLE_ARTICLES=
 FEISHU_TABLE_ACADEMY_LESSONS=
 FEISHU_TABLE_ACADEMY_VAULT=

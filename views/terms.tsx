@@ -3,8 +3,8 @@
 import { useTranslation } from "@/i18n/useTranslation";
 
 export default function TermsPage() {
-  const { t, tArray } = useTranslation();
-  const sections = tArray("terms.sections");
+  const { t } = useTranslation();
+  const sections = (t("terms.sections") as any[]) || [];
 
   return (
     <main className="pt-32 pb-24 bg-a min-h-screen">

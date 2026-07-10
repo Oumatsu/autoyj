@@ -1,4 +1,8 @@
 export default {
+  meta: {
+    title: "autoYJ — Your Dedicated African EV Procurement Expert",
+    description: "China's leading EV export partner for African dealers. Expert sourcing, transparent PDI, one-stop dealer empowerment.",
+  },
   nav: {
     vehicles: "Vehicles",
     revenueKing: "Revenue King",
@@ -10,6 +14,9 @@ export default {
     about: "About",
     portal: "Portal",
     contactUs: "Contact",
+  },
+  locale: {
+    switch: "Switch Language",
   },
   footer: {
     cta: "Start a Conversation",
@@ -172,7 +179,7 @@ export default {
     },
     tco: {
       label: "The Numbers Don't Lie",
-      title1: "EV vs ICE",
+      title1: "EV vs ICE.\n",
       title2: "",
       titleAccent1: "Real",
       title3: "",
@@ -216,7 +223,7 @@ export default {
       label: "Knowledge Is Your Edge",
       title1: "",
       titleAccent1: "Expert-Grade",
-      title2: "Tools\nBuilt for Dealers",
+      title2: "Tools\nBuilt for Dealers.",
       report: {
         label: "Market Intelligence",
         title: "2025 Africa EV\nExport Report",
@@ -224,7 +231,7 @@ export default {
       },
       academy: {
         label: "EV Growth Academy",
-        title: "Turn Your Team\nInto EV Experts",
+        title: "Turn Your Team\nInto EV Experts.",
         desc: "Free training modules: EV fundamentals, battery safety for African climates, sales scripts, and showroom SOPs. Ready to use from day one.",
         freeAccess: "Free Access",
       },
@@ -258,18 +265,14 @@ export default {
     },
     leadMagnet: {
       label: "Free Insider Report",
-      title1: "2025 Global EV\n",
-      titleAccent: "Outlook Report",
+      title1: "2025 China EV\n",
+      titleAccent: "Export Report",
       title2: "",
       desc: "Top 20 vehicles by African ROI. Real import margin data. Used by dealers across Ethiopia to source smarter.",
       emailPlaceholder: "Your email address",
       phonePlaceholder: "WhatsApp number (with country code)",
       cta: "Download Free Report →",
       privacy: "No spam. Unsubscribe anytime.",
-      modalTitle: "Dealer Sign In Required",
-      modalDesc: "Please sign in to your dealer portal account to access and download this exclusive export report.",
-      modalCancel: "Close",
-      modalCta: "Go to Sign In →",
     },
   },
   sectionTabs: {
@@ -393,16 +396,13 @@ export default {
       label: "Evidence Gallery",
       heading: "Verified",
       headingAccent: "Assets.",
-      description: "Photo albums including scanned business licenses, China office photos, team records, company events, Ethiopia showroom assets, and local partner contact verification.",
+      description: "Photo albums including scanned business licenses, core team records, company events, Ethiopia showroom assets, and local partner contact verification.",
       photos: "photos",
       albums: [
+        {},
         {
           title: "Business License",
           label: "License Scan Album",
-        },
-        {
-          title: "China Office",
-          label: "Office Photo Album",
         },
         {
           title: "Core Team",
@@ -1575,25 +1575,5 @@ export default {
       whatsappButton: "WhatsApp Priority Window",
       applicationButton: "Submit Dealer Application",
     },
-  },
-  specs: {
-    "Battery Capacity": "Battery Capacity",
-    "Battery Type": "Battery Type",
-    "CLTC Range": "CLTC Range",
-    "NEDC Range": "NEDC Range",
-    Range: "Range",
-    "Max Power": "Max Power",
-    "Max Torque": "Max Torque",
-    "Top Speed": "Top Speed",
-    "0-100 km/h": "0-100 km/h",
-    "DC Fast Charge": "DC Fast Charge",
-    "AC Slow Charge": "AC Slow Charge",
-    "Dimensions (LxWxH)": "Dimensions (LxWxH)",
-    Wheelbase: "Wheelbase",
-    "Curb Weight": "Curb Weight",
-    "Seating Capacity": "Seating Capacity",
-    "Drive Type": "Drive Type",
-    Airbags: "Airbags",
-    Sunroof: "Sunroof",
   },
 };
