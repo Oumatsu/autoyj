@@ -268,8 +268,8 @@ export default {
       privacy: "No spam. Unsubscribe anytime.",
       modalTitle: "Dealer Sign In Required",
       modalDesc: "Please sign in to your dealer portal account to access and download this exclusive export report.",
-      modalCancel: "Close",
       modalCta: "Go to Sign In →",
+      modalCancel: "Close",
     },
   },
   sectionTabs: {

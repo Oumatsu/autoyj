@@ -20,6 +20,8 @@ type Env = {
   FEISHU_TABLE_ARTICLES?: string;
   FEISHU_TABLE_ACADEMY_LESSONS?: string;
   FEISHU_TABLE_ACADEMY_VAULT?: string;
+  FEISHU_TABLE_I18N?: string;
+  FEISHU_TABLE_INSIGHTS?: string;
   DEV?: boolean;
 };
 
@@ -443,7 +445,7 @@ async function searchRecords(
 ) {
   const appToken = optionalEnv(env, "FEISHU_BASE_APP_TOKEN");
   if (!appToken) return [];
-  const pageSize = options.pageSize || 100;
+  const pageSize = Math.min(options.pageSize || 100, 200);
   const filter = normalizeBaseFilter(options.filter);
   const records: FeishuRecord[] = [];
   let offset = 0;

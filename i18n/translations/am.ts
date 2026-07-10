@@ -172,7 +172,7 @@ export default {
     },
     tco: {
       label: "ቁጥሮች አይዋሹም",
-      title1: "ኤሌክትሪክ መኪና vs ነዳጅ መኪና\n",
+      title1: "ኤሌክትሪክ መኪና vs ነዳጅ መኪና",
       title2: "",
       titleAccent1: "እውነተኛ",
       title3: "",
@@ -268,8 +268,8 @@ export default {
       privacy: "አይፈለጌ መልእክት የለም። በማንኛውም ጊዜ ምዝገባ መሰረዝ ይቻላል።",
       modalTitle: "የነጋዴ መግቢያ ያስፈልጋል",
       modalDesc: "እባክዎን ይህንን ልዩ የወጪ ንግድ ሪፖርት ለማግኘት እና ለማውረድ መጀመሪያ ወደ ነጋዴ ፖርታልዎ ይግቡ።",
-      modalCancel: "ዝጋ",
       modalCta: "ወደ መግቢያ ይሂዱ →",
+      modalCancel: "ዝጋ",
     },
   },
   sectionTabs: {

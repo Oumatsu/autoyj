@@ -268,8 +268,8 @@ export default {
       privacy: "无垃圾邮件。随时取消订阅。",
       modalTitle: "需要经销商登录",
       modalDesc: "请先登录您的经销商门户账号，以访问并下载此独家出口报告。",
-      modalCancel: "关闭",
       modalCta: "前往登录 →",
+      modalCancel: "关闭",
     },
   },
   sectionTabs: {
@@ -455,7 +455,7 @@ export default {
     badge: "联系我们",
     heading: "建立您在非洲的",
     headingAccent1: "新能源汽车事业",
-    headingAccent2: "Room",
+    headingAccent2: "",
     description: "无论是大宗车队采购、经销商代理加盟，还是售后技术支持咨询，我们的一站式团队都已准备就绪，为您提供 2 小时内的即刻回复与全程跟进服务。",
     whatsapp: {
       label: "优先渠道",
@@ -1237,7 +1237,7 @@ export default {
     badgeAccent: "Intelligence",
     heading: "为您提供深入浅出的",
     headingAccent1: "非洲电动车智库支持",
-    headingAccent2: "Desk",
+    headingAccent2: "",
     description: "我们扎根中非新能源贸易一线，为您提供第一手关税政策变动解析、热销车型投资回报率（ROI）评测以及出海避坑指南，助您在红利期抢占市场先机。",
     loading: "正在加载情报洞察...",
     authorLabel: "autoYJ Intelligence",
