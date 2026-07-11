@@ -9,6 +9,7 @@ type Env = {
   FEISHU_TABLE_EXTERNAL_ACCOUNTS?: string;
   FEISHU_TABLE_CUSTOMERS?: string;
   FEISHU_TABLE_VEHICLE_MODELS?: string;
+  FEISHU_TABLE_VEHICLE_TRIM_CONFIGURATIONS?: string;
   FEISHU_TABLE_VEHICLES?: string;
   FEISHU_TABLE_INQUIRIES?: string;
   FEISHU_TABLE_QUOTES?: string;
@@ -2083,6 +2084,231 @@ function valueForModelSpecField(fields: Record<string, unknown>, names: string[]
   return "";
 }
 
+function stringListFromValue(value: unknown): string[] {
+  if (!value) return [];
+  if (Array.isArray(value)) return value.map(asText).map((item) => item.trim()).filter(Boolean);
+  const text = asText(value).trim();
+  if (!text) return [];
+  const parsed = safeJsonParse(text, null);
+  if (Array.isArray(parsed)) return parsed.map(asText).map((item) => item.trim()).filter(Boolean);
+  return text
+    .split(/\r?\n|;/)
+    .map((item) => item.replace(/^[-*]\s*/, "").trim())
+    .filter(Boolean);
+}
+
+function featureGroupsFromValue(value: unknown): Array<{ category: string; items: string[] }> {
+  if (!value) return [];
+  const parsed = typeof value === "string" ? safeJsonParse(value, null) : value;
+  if (Array.isArray(parsed)) {
+    return parsed
+      .map((group) => {
+        const item = group as Record<string, unknown>;
+        const category = asText(item.category || item.title || item.name).trim();
+        const items = stringListFromValue(item.items || item.features || item.values);
+        return category && items.length ? { category, items } : null;
+      })
+      .filter(Boolean) as Array<{ category: string; items: string[] }>;
+  }
+  return [];
+}
+
+function fallbackCommonFeaturesFromSpecs(
+  specsLeft: Array<{ label: string; value: string }>,
+  specsRight: Array<{ label: string; value: string }>,
+  fields: Record<string, unknown>,
+  summary: { battery: string; batteryType: string; charging: string },
+) {
+  const findSpec = (pattern: RegExp) => [...specsLeft, ...specsRight].find((spec) => pattern.test(spec.label))?.value;
+  return [
+    {
+      category: "EV platform",
+      items: [summary.batteryType, findSpec(/Drive Type/), findSpec(/Motor Power/), findSpec(/Top Speed/)].filter(Boolean),
+    },
+    {
+      category: "Battery & charging",
+      items: [summary.battery, summary.charging, findSpec(/Battery Warranty/), findSpec(/V2L Support/)].filter(Boolean),
+    },
+    {
+      category: "Body basics",
+      items: [findSpec(/Dimensions/), findSpec(/Wheelbase/), findSpec(/Seating/), findSpec(/Boot Volume/)].filter(Boolean),
+    },
+    {
+      category: "Export fit",
+      items: [fieldText(fields, ["Steering Setup"]), fieldText(fields, ["Household Charging"]), fieldText(fields, ["ADAS"])].filter(Boolean),
+    },
+  ].filter((group) => group.items.length > 0);
+}
+
+function fallbackTrimComparisonFromLegacy(
+  fields: Record<string, unknown>,
+  specsLeft: Array<{ label: string; value: string }>,
+  specsRight: Array<{ label: string; value: string }>,
+  summary: { battery: string; batteryType: string; charging: string },
+) {
+  const legacy = safeJsonParse(fields["Trim Data JSON"] || fields.trimData, []);
+  if (!Array.isArray(legacy) || legacy.length === 0) {
+    return {
+      status: "TBC",
+      trims: [],
+      commonFeatures: fallbackCommonFeaturesFromSpecs(specsLeft, specsRight, fields, summary),
+      sourceSummary: "Trim package data is pending source verification. Shared model-level specs are shown below; version-level additions remain TBC.",
+    };
+  }
+
+  return {
+    status: "TBC",
+    trims: legacy.map((item, index) => {
+      const trim = item as Record<string, unknown>;
+      return {
+        name: asText(trim.name) || `Trim ${index + 1}`,
+        order: index + 1,
+        priceDisplay: asText(trim.fob),
+        rangeDisplay: asText(trim.range),
+        keySpecs: [
+          { label: "Range", value: asText(trim.range) },
+          { label: "0-100 km/h", value: asText(trim.accel) },
+          { label: "Airbags", value: asText(trim.airbags) },
+          { label: "Seat", value: asText(trim.seat) },
+        ].filter((spec) => spec.value),
+        baseFeatures: [asText(trim.range), asText(trim.sunroof), asText(trim.seat)].filter(Boolean),
+        addedFeatures: index === 0 ? [] : [asText(trim.sunroof), asText(trim.airbags), asText(trim.seat)].filter(Boolean),
+        upgradedFeatures: [],
+        sourceStatus: "TBC",
+        recommended: Boolean(trim.rec),
+      };
+    }),
+    commonFeatures: fallbackCommonFeaturesFromSpecs(specsLeft, specsRight, fields, summary),
+    sourceSummary: "Legacy trim rows are displayed for structure only. Replace with verified trim configuration records before quoting.",
+  };
+}
+
+function trimComparisonFromTrimRecords(
+  trimRecords: FeishuRecord[],
+  fields: Record<string, unknown>,
+  specsLeft: Array<{ label: string; value: string }>,
+  specsRight: Array<{ label: string; value: string }>,
+  summary: { battery: string; batteryType: string; charging: string },
+) {
+  if (trimRecords.length === 0) return null;
+  const trimPriceDisplay = (row: Record<string, unknown>) => {
+    const price = fieldNumber(row, ["Trim Price Display", "fldbuQeJuG"]);
+    if (price !== undefined) return `RMB ${formatNumericValue(price, { precision: 0 })}`;
+    return fieldText(row, ["Legacy Trim Price Display", "Price Display"]);
+  };
+  const trimRangeDisplay = (row: Record<string, unknown>) => {
+    const rangeKm = fieldNumber(row, ["Range Display", "fldh8ueiM7"]);
+    if (rangeKm !== undefined) return `${formatNumericValue(rangeKm, { precision: 0, thousands: false })} km CLTC`;
+    return fieldText(row, ["Legacy Range Display", "CLTC Range"]);
+  };
+  const trimBatteryDisplay = (row: Record<string, unknown>) => {
+    const capacity = fieldNumber(row, ["Battery Capacity kWh", "fldmA8GNjc"]);
+    const chemistry = fieldText(row, ["Battery Chemistry", "fldg4YG87Q"]);
+    const capacityText = capacity === undefined ? "" : `${formatNumericValue(capacity, { precision: 3, thousands: false }).replace(/\.?0+$/, "")} kWh`;
+    const chemistryText = chemistry ? `${chemistry} battery` : "";
+    return [capacityText, chemistryText].filter(Boolean).join(" ") || fieldText(row, ["Legacy Battery Display", "Battery"]);
+  };
+  const trimMotorDisplay = (row: Record<string, unknown>) => {
+    const power = fieldNumber(row, ["Motor Power kW", "fld4Mfbskb"]);
+    const torque = fieldNumber(row, ["Motor Torque N-m", "fldtZk7tzH"]);
+    const powerText = power === undefined ? "" : `${formatNumericValue(power, { precision: 0, thousands: false })} kW`;
+    const torqueText = torque === undefined ? "" : `${formatNumericValue(torque, { precision: 0, thousands: false })} N-m`;
+    return [powerText, torqueText].filter(Boolean).join(" / ") || fieldText(row, ["Legacy Motor Display", "Motor"]);
+  };
+  const trimChargingDisplay = (row: Record<string, unknown>) => {
+    const supported = asBool(row["DC Fast Charge Supported"] ?? row.fldy1DpFF2);
+    const timeHours = fieldNumber(row, ["DC Fast Charge Time Hours", "fldq2VIfTl"]);
+    const minPercent = fieldNumber(row, ["DC Fast Charge Min Percent", "fldkLJ721S"]);
+    const maxPercent = fieldNumber(row, ["DC Fast Charge Max Percent", "fldQhck4Cx"]);
+    if (!supported && timeHours === undefined && minPercent === undefined && maxPercent === undefined) {
+      return fieldText(row, ["Legacy Charging Display", "Charging"]);
+    }
+    const parts = ["DC fast charge: supported"];
+    if (timeHours !== undefined) parts.push(`${formatNumericValue(timeHours, { precision: 2, thousands: false }).replace(/\.?0+$/, "")} h`);
+    if (minPercent !== undefined && maxPercent !== undefined) {
+      parts.push(`${formatNumericValue(minPercent, { precision: 0, thousands: false })}-${formatNumericValue(maxPercent, { precision: 0, thousands: false })}%`);
+    } else if (maxPercent !== undefined) {
+      parts.push(`${formatNumericValue(maxPercent, { precision: 0, thousands: false })}%`);
+    }
+    return parts.join(" / ");
+  };
+  const trims = trimRecords
+    .map((record, index) => {
+      const row = record.fields;
+      const name = fieldText(row, ["Trim Name", "Version", "Trim"]);
+      const priceDisplay = trimPriceDisplay(row);
+      const rangeDisplay = trimRangeDisplay(row);
+      const batteryDisplay = trimBatteryDisplay(row);
+      const drivetrainDisplay = fieldText(row, ["Drivetrain Display", "Legacy Drivetrain Display", "Drive Type"]);
+      const motorDisplay = trimMotorDisplay(row);
+      const chargingDisplay = trimChargingDisplay(row);
+      return {
+        name: name || `Trim ${index + 1}`,
+        order: fieldNumber(row, ["Trim Order"]) ?? index + 1,
+        priceRmb: fieldNumber(row, ["Trim Price Display", "fldbuQeJuG"]),
+        priceDisplay,
+        rangeKm: fieldNumber(row, ["Range Display", "fldh8ueiM7"]),
+        rangeDisplay,
+        batteryCapacityKwh: fieldNumber(row, ["Battery Capacity kWh", "fldmA8GNjc"]),
+        batteryChemistry: fieldText(row, ["Battery Chemistry", "fldg4YG87Q"]),
+        batteryDisplay,
+        drivetrain: fieldText(row, ["Drivetrain Display", "fldpJlVH81"]),
+        drivetrainDisplay,
+        motorPowerKw: fieldNumber(row, ["Motor Power kW", "fld4Mfbskb"]),
+        motorTorqueNm: fieldNumber(row, ["Motor Torque N-m", "fldtZk7tzH"]),
+        motorDisplay,
+        dcFastChargeSupported: asBool(row["DC Fast Charge Supported"] ?? row.fldy1DpFF2),
+        dcFastChargeTimeHours: fieldNumber(row, ["DC Fast Charge Time Hours", "fldq2VIfTl"]),
+        dcFastChargeMinPercent: fieldNumber(row, ["DC Fast Charge Min Percent", "fldkLJ721S"]),
+        dcFastChargeMaxPercent: fieldNumber(row, ["DC Fast Charge Max Percent", "fldQhck4Cx"]),
+        chargingDisplay,
+        keySpecs: [
+          { label: "Price", value: priceDisplay },
+          { label: "Range", value: rangeDisplay },
+          { label: "Battery", value: batteryDisplay },
+          { label: "Drive", value: drivetrainDisplay },
+        ].filter((spec) => spec.value),
+        baseFeatures: stringListFromValue(row["Base Spec Summary JSON"] || row["Base Features"]),
+        addedFeatures: stringListFromValue(row["Added Features JSON"] || row["Added Features"]),
+        upgradedFeatures: stringListFromValue(row["Upgraded Features JSON"] || row["Upgraded Features"]),
+        sourceStatus: fieldText(row, ["Source Status"]) || "TBC",
+        sourceUrl: cleanUrl(row["Source URL"]),
+        recommended: asBool(row.Recommended),
+      };
+    })
+    .sort((a, b) => a.order - b.order);
+
+  return {
+    status: fieldText(fields, ["Trim Section Status Pruned", "Trim Section Status"]) || (trims.every((trim) => trim.sourceStatus === "Verified") ? "Verified" : "Partial"),
+    trims,
+    commonFeatures: featureGroupsFromValue(fields["Common Features JSON Pruned"] || fields["Common Features JSON"]) || fallbackCommonFeaturesFromSpecs(specsLeft, specsRight, fields, summary),
+    sourceSummary: fieldText(fields, ["Trim Source Summary Pruned", "Trim Source Summary"]) || "Trim configuration is sourced from vehicle trim records.",
+    lastVerifiedAt: fieldText(fields, ["Trim Last Verified At"]),
+  };
+}
+
+async function buildTrimComparison(
+  env: Env,
+  modelId: string,
+  fields: Record<string, unknown>,
+  specsLeft: Array<{ label: string; value: string }>,
+  specsRight: Array<{ label: string; value: string }>,
+  summary: { battery: string; batteryType: string; charging: string },
+) {
+  const trimTableId = optionalEnv(env, "FEISHU_TABLE_VEHICLE_TRIM_CONFIGURATIONS");
+  if (trimTableId && modelId) {
+    try {
+      const records = await searchRecords(env, trimTableId, { pageSize: 100 });
+      const matching = records.filter((record) => fieldText(record.fields, ["Model ID"]) === modelId);
+      const fromRecords = trimComparisonFromTrimRecords(matching, fields, specsLeft, specsRight, summary);
+      if (fromRecords) return fromRecords;
+    } catch (error) {
+      console.warn("Unable to load vehicle trim configurations", error);
+    }
+  }
+  return fallbackTrimComparisonFromLegacy(fields, specsLeft, specsRight, summary);
+}
+
 async function handlePublicProduct(slug: string, env: Env) {
   const cacheKey = `product:${slug}`;
   const cached = getCached(cacheKey);
@@ -2125,6 +2351,7 @@ async function handlePublicProduct(slug: string, env: Env) {
 
   const batchLevels = buildBatchLevels();
   const batchMargin = computeBatchMargin(batchLevels);
+  const trimComparison = await buildTrimComparison(env, modelId, fields, specsLeft, specsRight, { battery, batteryType, charging });
 
   const data = {
     vehicle: {
@@ -2161,6 +2388,7 @@ async function handlePublicProduct(slug: string, env: Env) {
     galleryImages: safeJsonParse(fields["Gallery Images JSON"] || fields.galleryImages, []),
     batchLevels,
     batchMargin,
+    trimComparison,
     trimData: safeJsonParse(fields["Trim Data JSON"] || fields.trimData, [])
   };
 
