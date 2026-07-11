@@ -2118,29 +2118,10 @@ async function handlePublicProduct(slug: string, env: Env) {
   const range = formatNumberRange(fields, "CLTC Range Min KM", "CLTC Range Max KM", "km", { precision: 0 });
   const charging = valueForModelSpecField(fields, ["Charging", "DC Fast Charge", "AC Slow Charge Full Time Hours", "AC Slow Charge"]);
   const imageUrl = asText(fields["Image URL"]);
+  const inventoryStatus = inventoryStatusFromFields(fields);
 
-  let status = "in-stock";
-  let statusText = "In Stock: Shenzhen";
-  const vehiclesTableId = optionalEnv(env, "FEISHU_TABLE_VEHICLES");
-  if (vehiclesTableId) {
-    const vehicles = await searchRecords(env, vehiclesTableId, {
-      filter: equalsFilter("Model ID", modelId),
-      pageSize: 10,
-    });
-    const activeVehicle = vehicles.find(v => asBool(v.fields["Is Listed"])) || vehicles[0];
-    if (activeVehicle) {
-      const vStatus = asText(activeVehicle.fields.Status).toLowerCase();
-      const location = asText(activeVehicle.fields.Location);
-      const leadTime = asText(activeVehicle.fields["Lead Time"]);
-      if (vStatus.includes("in stock") || vStatus.includes("stock")) {
-        status = "in-stock";
-        statusText = `In Stock: ${location || "Shenzhen"}`;
-      } else {
-        status = "factory";
-        statusText = leadTime ? `Factory Order: ${leadTime}` : "Factory Order: 21 Days";
-      }
-    }
-  }
+  const status = inventoryStatus.status;
+  const statusText = inventoryStatus.statusText;
 
   const batchLevels = buildBatchLevels();
   const batchMargin = computeBatchMargin(batchLevels);
@@ -2156,7 +2137,8 @@ async function handlePublicProduct(slug: string, env: Env) {
       charging,
       img: imageUrl,
       status,
-      statusText
+      statusText,
+      inventoryStatus: inventoryStatus.inventoryStatus
     },
     category,
     title: fieldText(fields, ["Page Title", "title"]) || `${brand} ${modelName}`,
