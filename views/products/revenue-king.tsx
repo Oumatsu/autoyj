@@ -75,8 +75,9 @@ export default function RevenueKingPage() {
             range: p.range || (fallback ? fallback.range : ""),
             charging: p.charging || p.desc || (fallback ? fallback.charging : ""),
             img: p.img || (fallback ? fallback.img : ""),
-            status: fallback ? fallback.status : "factory",
-            statusText: fallback ? fallback.statusText : "Factory Order: 21 Days",
+            status: p.status || (fallback ? fallback.status : "tbc"),
+            statusText: p.statusText || (fallback ? fallback.statusText : "TBC"),
+            inventoryStatus: p.inventoryStatus || "",
             link: p.link || (fallback ? fallback.link : `/products/revenue-king/${p.slug}`),
             tags: p.tags && p.tags.length ? p.tags : (fallback ? fallback.tags : []),
           };
@@ -448,9 +449,8 @@ function VehicleCard({
     { label: t("productsRevenueKing.filterGroups.steeringSetup") || "Spec", value: vehicle.charging },
   ];
 
-  const statusText = vehicle.status === "in-stock"
-    ? t("productsRevenueKing.filterOptions.inStock")
-    : t("productsRevenueKing.filterOptions.factoryOrder");
+  const statusText = vehicle.statusText || "TBC";
+  const statusDotClass = inventoryDotClass(vehicle.status);
 
   return (
     <LocaleLink href={vehicle.link || "#"} className={`v-card-compact group ${!vehicle.link ? "pointer-events-none" : ""}`}>
@@ -470,11 +470,7 @@ function VehicleCard({
         <div className="v-card-compact-overlay" />
         <div className="absolute bottom-4 left-5 flex items-center gap-2">
           <span
-            className={
-              vehicle.status === "in-stock"
-                ? "pulse-dot w-1.5 h-1.5"
-                : "w-1.5 h-1.5 rounded-full bg-theme shadow-[0_0_8px_rgba(197,160,89,0.8)]"
-            }
+            className={statusDotClass}
           />
           <span className="text-[9px] font-black tracking-[0.2em] uppercase text-white drop-shadow-md">
             {statusText}
@@ -531,4 +527,10 @@ function VehicleCard({
       </div>
     </LocaleLink>
   );
+}
+
+function inventoryDotClass(status: string) {
+  if (status === "in-stock") return "inventory-dot inventory-dot-in-stock";
+  if (status === "production" || status === "factory") return "inventory-dot inventory-dot-production";
+  return "inventory-dot inventory-dot-tbc";
 }

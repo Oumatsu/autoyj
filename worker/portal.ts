@@ -480,6 +480,41 @@ function availabilityCatalogTag(status: string, category: string) {
   return "Factory Order (21+ Days)";
 }
 
+function inventoryStatusFromFields(fields: Record<string, unknown>) {
+  const rawStatus = fieldText(fields, ["Inventory Status", "fldniKLbQN"]).trim();
+  const normalized = rawStatus.toLowerCase();
+
+  if (!rawStatus || normalized === "tbc") {
+    return {
+      inventoryStatus: rawStatus || "TBC",
+      status: "tbc",
+      statusText: "TBC",
+    };
+  }
+
+  if (normalized.includes("in stock") || rawStatus.includes("现货")) {
+    return {
+      inventoryStatus: rawStatus,
+      status: "in-stock",
+      statusText: "In Stock (Port)",
+    };
+  }
+
+  if (normalized.includes("production") || rawStatus.includes("排产")) {
+    return {
+      inventoryStatus: rawStatus,
+      status: "production",
+      statusText: rawStatus,
+    };
+  }
+
+  return {
+    inventoryStatus: rawStatus,
+    status: "tbc",
+    statusText: rawStatus,
+  };
+}
+
 function buildCatalogTags(fields: Record<string, unknown>, category: string, availabilityStatus = "factory") {
   const tags: string[] = [];
   const push = (value: string) => {
@@ -2158,18 +2193,6 @@ async function handlePublicProducts(env: Env) {
 
   const vehicleModelTableId = requireEnv(env, "FEISHU_TABLE_VEHICLE_MODELS");
   const models = await searchRecords(env, vehicleModelTableId, { pageSize: 100 });
-  const vehiclesTableId = optionalEnv(env, "FEISHU_TABLE_VEHICLES");
-  const vehiclesByModelId = new Map<string, FeishuRecord[]>();
-  if (vehiclesTableId) {
-    const vehicles = await searchRecords(env, vehiclesTableId, { pageSize: 200 });
-    for (const vehicle of vehicles) {
-      const modelId = asText(vehicle.fields["Model ID"]);
-      if (!modelId) continue;
-      const list = vehiclesByModelId.get(modelId) || [];
-      list.push(vehicle);
-      vehiclesByModelId.set(modelId, list);
-    }
-  }
 
   const activeModels = latestProductModelRecords(models.filter(isActiveModel));
 
@@ -2177,7 +2200,6 @@ async function handlePublicProducts(env: Env) {
     const fields = m.fields;
     const brand = asText(fields["Brand"]);
     const modelName = asText(fields["Model"]);
-    const modelId = asText(fields["Model ID"]);
     const msrpChina = formatUsdGuidePrice(fields);
     const guidePriceMinUsd = fieldNumber(fields, ["Guide Price Min USD"]);
     const guidePriceMaxUsd = fieldNumber(fields, ["Guide Price Max USD"]);
@@ -2221,13 +2243,9 @@ async function handlePublicProducts(env: Env) {
       }
     }
 
-    let status = "factory";
-    const vehicleRecords = vehiclesByModelId.get(modelId) || [];
-    const activeVehicle = vehicleRecords.find(v => asBool(v.fields["Is Listed"])) || vehicleRecords[0];
-    if (activeVehicle) {
-      const vStatus = asText(activeVehicle.fields.Status).toLowerCase();
-      if (vStatus.includes("in stock") || vStatus.includes("stock")) status = "in-stock";
-    }
+    const inventoryStatus = inventoryStatusFromFields(fields);
+    const status = inventoryStatus.status;
+    const statusText = inventoryStatus.statusText;
 
     const showcaseTags = buildCatalogTags(fields, category, status);
 
@@ -2287,6 +2305,9 @@ async function handlePublicProducts(env: Env) {
       guidePriceMaxUsd,
       category,
       slug,
+      status,
+      statusText,
+      inventoryStatus: inventoryStatus.inventoryStatus,
       badge,
       stat2Label,
       stat2Value,
