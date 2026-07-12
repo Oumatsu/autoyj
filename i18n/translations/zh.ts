@@ -83,14 +83,14 @@ export default {
     products: {
       label: "为您精选高回报车型",
       title1: "",
-      titleAccent1: "Ecosystem",
+      titleAccent1: "生态",
       title2: "",
-      titleAccent2: "Winners",
-      title3: "生态赢家",
+      titleAccent2: "赢家",
+      title3: "",
       revenueKing: {
-        badge: "极高投资回报率 (ROI)",
+        badge: "高投资回报率",
         category: "新能源车型 01",
-        title: "Revenue King",
+        title: "营收之王",
         desc: "专为网约客运与城市车队打造，单车月均可节省高达 350 美元运营成本。",
         tags: [
           "网约车首选",
@@ -100,7 +100,7 @@ export default {
       eliteFlagship: {
         badge: "高端商业溢价",
         category: "新能源车型 02",
-        title: "Elite Flagship",
+        title: "旗舰精英",
         desc: "适用于商务接待与政企大宗采购，彰显绿色出行高端名片。",
         tags: [
           "政企公务采购",
@@ -110,7 +110,7 @@ export default {
       utilityPro: {
         badge: "耐用全路况越野",
         category: "新能源车型 03",
-        title: "Utility Pro",
+        title: "全能先锋",
         desc: "全路况无忧适应，专攻物流与重载，较燃油车节省 50%–60% 燃料能耗。",
         tags: [
           "全路况越野",
@@ -121,40 +121,39 @@ export default {
     process: {
       label: "端到端透明流程",
       title1: "",
-      titleAccent1: "Gold",
+      titleAccent1: "金牌",
       title2: "",
-      titleAccent2: "Eco Standard",
-      title3: "金牌生态标准",
+      titleAccent2: "生态标准",
       steps: [
         {
           num: "01",
           title: "需求评估",
-          desc: "深入了解您的本地市场、预算和运营场景，我们在 2 小时内为您精准匹配合适车型。",
-          badge: "2小时快速询价承诺",
+          desc: "深入了解您的本地市场、预算和使用场景，我们在 2 小时内为您精准匹配合适车型。",
+          badge: "2小时响应承诺",
         },
         {
           num: "02",
-          title: "一手采购",
-          desc: "直连主机厂，锁定最优离岸价（FOB），凭借强大供应链网络确保整批订货稳定排期。",
+          title: "快速寻源",
+          desc: "直达厂商，锁定最优离岸价，凭借强大的供应链网络确保整批订货稳定排期。",
           badge: "直连一线厂商",
         },
         {
           num: "03",
-          title: "透明 PDI 检测",
-          desc: "进行 50 项专业级 PDI 检查，提供装箱离港前的全程高清视频，确保到港状态完美无意外。",
-          badge: "50项出厂深度检验",
+          title: "透明售前检测",
+          desc: "进行 50 项专业级 PDI 检查，提供装箱离港前的全程高清视频，确保到港无意外。",
+          badge: "50项出厂检验",
         },
         {
           num: "04",
           title: "交付与赋能",
-          desc: "不仅交车，更提供 Starter Parts Kit 售后套装、营销素材、销售培训及长期技术支持，助您快速打开本地市场。",
+          desc: "不止于交车，我们还提供 Starter Parts Kit 售后套装、营销素材、销售培训及长期技术支持，帮助您快速打开本地市场。",
           badge: "一站式经销商运营赋能",
         },
       ],
       stats: [
         {
           num: "50+",
-          label: "PDI 专业检验项",
+          label: "售前检验项",
         },
         {
           num: "2h",
@@ -169,6 +168,7 @@ export default {
           label: "全透明端到端交付",
         },
       ],
+      title3: "",
     },
     tco: {
       label: "用数据说话",
@@ -178,19 +178,19 @@ export default {
       title3: "",
       titleAccent2: "利润",
       title4: "",
-      desc: "您的客户选择电动车，是因为它每月都能省下真金白银。为您提供最有力、能迅速促成交易的硬核数据支持。",
+      desc: "您的客户转向新能源汽车，是因为它每个月都能省下一笔实实在在的优惠。用真实的数据向客户证明这一点，轻松助力成交。",
       benefits: [
         {
           prefix: "燃料成本节省：",
-          value: "每月可节省 $180 – $500",
+          value: "每月节省 ¥1,225–¥3,402",
         },
         {
           prefix: "售后维保大减：",
-          value: "零换油保养，更少刹车磨损及易损件维护",
+          value: "无需更换机油，更少刹车磨损及易损件维护",
         },
         {
           prefix: "3年单车累计节省：",
-          value: "每台车辆可节省 $6,000 – $18,000",
+          value: "每辆车节省约 ¥40,000–¥120,000",
           accent: true,
         },
       ],

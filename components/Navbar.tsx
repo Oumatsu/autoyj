@@ -10,11 +10,11 @@ import { LocaleSwitcher } from "@/i18n/LocaleSwitcher";
 
 export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [mobileVehiclesOpen, setMobileVehiclesOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pathname = usePathname();
   const { t } = useTranslation();
-
   const openDropdown = useCallback(() => {
     if (closeTimerRef.current) {
       clearTimeout(closeTimerRef.current);
@@ -34,6 +34,12 @@ export function Navbar() {
       if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
     };
   }, []);
+
+  useEffect(() => {
+    if (!mobileOpen) {
+      setMobileVehiclesOpen(false);
+    }
+  }, [mobileOpen]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -62,7 +68,10 @@ export function Navbar() {
     return () => observer.disconnect();
   }, []);
 
-  const closeMobile = useCallback(() => setMobileOpen(false), []);
+  const closeMobile = useCallback(() => {
+    setMobileOpen(false);
+    setMobileVehiclesOpen(false);
+  }, []);
 
   return (
     <>
@@ -192,13 +201,73 @@ export function Navbar() {
           >
             ✕
           </button>
-          <LocaleLink
-            href="/products"
-            onClick={closeMobile}
-            className="text-white hover:text-theme transition"
-          >
-            {t("nav.vehicles")}
-          </LocaleLink>
+          <div className="w-full max-w-sm flex flex-col items-center">
+            <button
+              type="button"
+              onClick={() => setMobileVehiclesOpen((prev) => !prev)}
+              aria-expanded={mobileVehiclesOpen}
+              className={`flex w-full items-center justify-center gap-3 text-xl sm:text-2xl font-black uppercase italic tracking-tight transition-all duration-300 ${mobileVehiclesOpen
+                ? "text-accent"
+                : "text-white hover:text-theme"}`}
+            >
+              <span>{t("nav.vehicles")}</span>
+              <svg
+                className={`h-3 w-3 transition-transform duration-300 ${mobileVehiclesOpen ? "rotate-180" : ""}`}
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                viewBox="0 0 10 6"
+              >
+                <path d="M1 1l4 4 4-4" />
+              </svg>
+            </button>
+            <div
+              className={`grid w-full transition-all duration-400 ease-out ${mobileVehiclesOpen ? "grid-rows-[1fr] opacity-100 mt-3" : "grid-rows-[0fr] opacity-0 mt-0"}`}
+            >
+              <div className="overflow-hidden flex justify-center">
+                <div
+                  className={`inline-flex min-w-0 flex-col rounded-[12px] border border-white/10 bg-white/[0.06] p-0.5 text-[11px] sm:text-[12px] font-bold not-italic tracking-[.06em] uppercase transition-all duration-300 ${mobileVehiclesOpen ? "translate-y-0 scale-100" : "-translate-y-2 scale-[0.98]"}`}
+                >
+                  <LocaleLink
+                    href="/products/revenue-king"
+                    onClick={closeMobile}
+                    className={`flex items-center justify-between gap-4 rounded-[9px] pl-1.5 pr-2 py-1.5 transition-all duration-200 ${pathname?.includes("/revenue-king")
+                      ? "bg-accent/12 text-accent"
+                      : "text-gray-300 hover:bg-white/6 hover:text-white"}`}
+                  >
+                    <span>{t("nav.revenueKing")}</span>
+                    <span
+                      className={`h-1.5 w-1.5 shrink-0 rounded-full ${pathname?.includes("/revenue-king") ? "bg-accent" : "bg-white/20"}`}
+                    />
+                  </LocaleLink>
+                  <LocaleLink
+                    href="/products/elite-flagship"
+                    onClick={closeMobile}
+                    className={`mt-0.5 flex items-center justify-between gap-4 rounded-[9px] pl-1.5 pr-2 py-1.5 transition-all duration-200 ${pathname?.includes("/elite-flagship")
+                      ? "bg-accent/12 text-accent"
+                      : "text-gray-300 hover:bg-white/6 hover:text-white"}`}
+                  >
+                    <span>{t("nav.eliteFlagship")}</span>
+                    <span
+                      className={`h-1.5 w-1.5 shrink-0 rounded-full ${pathname?.includes("/elite-flagship") ? "bg-accent" : "bg-white/20"}`}
+                    />
+                  </LocaleLink>
+                  <LocaleLink
+                    href="/products/utility-pro"
+                    onClick={closeMobile}
+                    className={`mt-0.5 flex items-center justify-between gap-4 rounded-[9px] pl-1.5 pr-2 py-1.5 transition-all duration-200 ${pathname?.includes("/utility-pro")
+                      ? "bg-accent/12 text-accent"
+                      : "text-gray-300 hover:bg-white/6 hover:text-white"}`}
+                  >
+                    <span>{t("nav.utilityPro")}</span>
+                    <span
+                      className={`h-1.5 w-1.5 shrink-0 rounded-full ${pathname?.includes("/utility-pro") ? "bg-accent" : "bg-white/20"}`}
+                    />
+                  </LocaleLink>
+                </div>
+              </div>
+            </div>
+          </div>
           <LocaleLink
             href="/solutions"
             onClick={closeMobile}

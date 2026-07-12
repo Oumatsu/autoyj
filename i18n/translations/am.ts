@@ -124,7 +124,6 @@ export default {
       titleAccent1: "ወርቅ",
       title2: "",
       titleAccent2: "ስታንዳርድ",
-      title3: "",
       steps: [
         {
           num: "01",
@@ -169,6 +168,7 @@ export default {
           label: "ግልጽነት",
         },
       ],
+      title3: "",
     },
     tco: {
       label: "ቁጥሮች አይዋሹም",
