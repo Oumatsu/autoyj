@@ -131,12 +131,11 @@ export default {
       titleAccent1: "Gold",
       title2: "",
       titleAccent2: "Eco Standard",
-      title3: "",
       steps: [
         {
           num: "01",
           title: "Needs Assessment",
-          desc: "Tell us your market, budget, and use case. We match vehicles within 2 hours.",
+          desc: "Tell us your market, budget, and use case. We'll match vehicles within 2 hours.",
           badge: "2-Hour Response SLA",
         },
         {
@@ -176,6 +175,7 @@ export default {
           label: "Transparency",
         },
       ],
+      title3: "",
     },
     tco: {
       label: "The Numbers Don't Lie",
