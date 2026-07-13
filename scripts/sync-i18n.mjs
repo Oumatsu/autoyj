@@ -214,15 +214,15 @@ async function resolveTableIdByName(token, baseToken, tableName) {
 async function main() {
   console.log("🌐 autoYJ i18n Sync V2 — 飞书单表 → 本地三语 TS\n");
 
+  console.log("🔑 获取飞书 Access Token...");
+  const token = await getToken();
+  console.log("   ✅ 授权成功");
+
   const baseToken = requireEnv("FEISHU_BASE_APP_TOKEN");
   const tableName = "I18n Locale";
   console.log(`🔍 按名称 "${tableName}" 从飞书 Base 中查找表 ID...`);
   const tableId = await resolveTableIdByName(token, baseToken, tableName);
   console.log(`   ✅ 找到表: ${tableId}`);
-
-  console.log("🔑 获取飞书 Access Token...");
-  const token = await getToken();
-  console.log("   ✅ 授权成功");
 
   console.log(`📥 正在从表 ${tableId} 同步数据...`);
   const { zhRecords, enRecords, amRecords } = await fetchAllLocales(token, baseToken, tableId);

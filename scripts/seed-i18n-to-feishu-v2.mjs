@@ -138,6 +138,24 @@ function batchCreateRecords(baseToken, tableId, rows) {
 /**
  * 按表名从飞书 Base 解析 table_id
  */
+async function getToken() {
+  const appId = requireEnv("FEISHU_APP_ID");
+  const appSecret = requireEnv("FEISHU_APP_SECRET");
+  const res = await fetch(
+    `${FEISHU_API}/open-apis/auth/v3/tenant_access_token/internal`,
+    {
+      method: "POST",
+      headers: { "content-type": "application/json; charset=utf-8" },
+      body: JSON.stringify({ app_id: appId, app_secret: appSecret }),
+    }
+  );
+  const data = await res.json();
+  if (data.code !== 0 || !data.tenant_access_token) {
+    throw new Error(`Feishu auth failed: ${data.msg || res.statusText}`);
+  }
+  return data.tenant_access_token;
+}
+
 async function resolveTableIdByName(token, baseToken, tableName) {
   const url = `${FEISHU_API}/open-apis/base/v3/bases/${baseToken}/tables`;
   const res = await fetch(url, {
@@ -159,6 +177,10 @@ async function main() {
   console.log("🌱 autoYJ i18n Seed V2 — 本地三语合并 → 飞书单表\n");
 
   if (isDryRun) console.log("⚠️  DRY RUN 模式：不会实际写入飞书。\n");
+
+  console.log("🔑 获取飞书 Access Token...");
+  const token = await getToken();
+  console.log("   ✅ 授权成功");
 
   const baseToken = requireEnv("FEISHU_BASE_APP_TOKEN");
   // 按表名动态解析，不再依赖 FEISHU_TABLE_I18N 环境变量
