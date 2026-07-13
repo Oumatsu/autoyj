@@ -15,7 +15,8 @@ export default function HomePage() {
 
   useEffect(() => {
     fetch("/api/portal/session", { credentials: "include" })
-      .then((res) => { setIsLoggedIn(res.ok); })
+      .then((res) => res.json() as Promise<{ user?: unknown }>)
+      .then((data) => { setIsLoggedIn(Boolean(data.user)); })
       .catch(() => { setIsLoggedIn(false); });
   }, []);
 

@@ -1997,7 +1997,7 @@ export async function handlePortalRequest(request: Request, env: Env) {
     }
     if (path === "/api/portal/session" && request.method === "GET") {
       const session = await readSession(request, env);
-      if (!session) return problem("Not signed in", 401);
+      if (!session) return json({ user: null });
       return json({ user: publicUser(session) });
     }
     if (path === "/api/portal/session" && request.method === "POST") {
