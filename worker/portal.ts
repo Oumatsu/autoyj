@@ -20,7 +20,6 @@ type Env = {
   FEISHU_TABLE_ARTICLES?: string;
   FEISHU_TABLE_ACADEMY_LESSONS?: string;
   FEISHU_TABLE_ACADEMY_VAULT?: string;
-  FEISHU_TABLE_I18N?: string;
   FEISHU_TABLE_INSIGHTS?: string;
   DEV?: boolean;
 };
@@ -1571,9 +1570,32 @@ async function handlePublicProduct(slug: string, env: Env) {
   return json(data);
 }
 
+// 按表名从飞书 Base 解析 table_id，带内存缓存
+const tableIdCache = new Map<string, { tableId: string; expiresAt: number }>();
+async function resolveTableIdByName(env: Env, tableName: string): Promise<string> {
+  const appToken = optionalEnv(env, "FEISHU_BASE_APP_TOKEN");
+  if (!appToken) throw new Error("FEISHU_BASE_APP_TOKEN 未配置，无法按表名查找");
+
+  // 检查缓存（10 分钟有效）
+  const cached = tableIdCache.get(tableName);
+  if (cached && cached.expiresAt > Date.now()) return cached.tableId;
+
+  // 列出 Base 下所有表
+  const data = await feishuRequest<{ items: { table_id: string; name: string }[]; has_more: boolean }>(
+    env,
+    "GET",
+    `/open-apis/base/v3/bases/${appToken}/tables`,
+  );
+  const found = data.items.find((t) => t.name === tableName);
+  if (!found) throw new Error(`飞书 Base 中未找到名为 "${tableName}" 的表`);
+
+  tableIdCache.set(tableName, { tableId: found.table_id, expiresAt: Date.now() + 600_000 });
+  return found.table_id;
+}
+
 async function handlePublicTranslations(env: Env) {
-  // 实时测试模式下不使用 Worker 内部缓存，每次直接向飞书拉取最新数据
-  const tableId = requireEnv(env, "FEISHU_TABLE_I18N");
+  // 按表名动态解析 table_id，不再依赖 FEISHU_TABLE_I18N 环境变量
+  const tableId = await resolveTableIdByName(env, "I18n Locale");
   const records = await searchRecords(env, tableId, { pageSize: 500 });
   
   const zhRecords: any[] = [];

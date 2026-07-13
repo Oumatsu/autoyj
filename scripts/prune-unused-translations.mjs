@@ -68,12 +68,34 @@ function extractText(fieldVal) {
   return String(fieldVal);
 }
 
+/**
+ * 按表名从飞书 Base 解析 table_id
+ */
+async function fetchTokenAndResolveTable(token, baseToken, tableName) {
+  const url = `${FEISHU_API}/open-apis/base/v3/bases/${baseToken}/tables`;
+  const res = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "content-type": "application/json; charset=utf-8",
+    },
+  });
+  if (!res.ok) throw new Error(`Feishu API error: ${res.status} ${res.statusText}`);
+  const data = await res.json();
+  if (data.code !== 0) throw new Error(`Feishu API error ${data.code}: ${data.msg}`);
+  const found = data.data?.items?.find((t) => t.name === tableName);
+  if (!found) throw new Error(`飞书 Base 中未找到名为 "${tableName}" 的表`);
+  return found.table_id;
+}
+
 async function run() {
   try {
     console.log("🔑 获取飞书 Access Token...");
     const token = await getToken();
     const baseToken = requireEnv("FEISHU_BASE_APP_TOKEN");
-    const tableId = requireEnv("FEISHU_TABLE_I18N");
+    const tableName = "I18n Locale";
+    console.log(`🔍 按名称 "${tableName}" 从飞书 Base 中查找表 ID...`);
+    const tableId = await fetchTokenAndResolveTable(token, baseToken, tableName);
+    console.log(`   ✅ 找到表: ${tableId}`);
 
     console.log(`📥 从飞书表 ${tableId} 中拉取全部记录以查找要清理的 Key...`);
     const baseUrl = `${FEISHU_API}/open-apis/bitable/v1/apps/${baseToken}/tables/${tableId}/records`;
