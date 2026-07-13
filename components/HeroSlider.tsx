@@ -318,7 +318,7 @@ export function HeroSlider() {
               fontSize: `calc(clamp(1.8rem, 7vw, 6.5rem) * ${fontSizeScale})`,
             }}
           >
-            {d.lines.map((line, i) => (
+            {slide.lines.map((line, i) => (
               <React.Fragment key={i}>
                 {i > 0 && <br />}
                 {line.map((seg, j) =>
@@ -346,7 +346,7 @@ export function HeroSlider() {
               href="#products"
               className="btn-primary px-6 lg:px-10 py-3 lg:py-5 rounded text-[10px] lg:text-sm font-black tracking-widest uppercase italic"
             >
-              {d.cta}
+              {slide.cta}
             </a>
             <a
               href="#solutions"
@@ -356,6 +356,8 @@ export function HeroSlider() {
             </a>
           </div>
         </div>
+        );
+      })}
       </div>
 
       <div
@@ -387,6 +389,7 @@ export function HeroSlider() {
         </span>
         <span> / 05</span>
       </div>
+    </div>
     </section>
   );
 }
