@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useTranslation } from "@/i18n/useTranslation";
@@ -259,6 +259,8 @@ export function HeroSlider() {
     resetTimer();
   };
 
+  const d = slidesData[cur];
+
   return (
     <section
       id="hero"
@@ -292,24 +294,13 @@ export function HeroSlider() {
       ))}
 
       <div className="absolute inset-0 z-10 flex flex-col justify-center px-4 md:px-12 lg:px-20 pt-4 lg:pt-20 pb-8 lg:pb-24">
-        <div className="grid max-w-3xl w-full">
-          {slidesData.map((slide, slideIndex) => {
-            const isActive = slideIndex === cur;
-            return (
-              <div
-                key={slideIndex}
-                aria-hidden={!isActive}
-                className={`transition-opacity duration-700 ${
-                  isActive ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
-                }`}
-                style={{ gridArea: "1 / 1" }}
-              >
-                <div className="flex items-center gap-2 mb-3 lg:mb-6">
-                  <div className="pulse-dot" />
-                  <span className="text-accent text-[8px] lg:text-[10px] font-black uppercase tracking-[.2em] lg:tracking-[.3em]">
-                    <span>{slide.label}</span>
-                  </span>
-                </div>
+        <div className="max-w-3xl w-full">
+          <div className="flex items-center gap-2 mb-3 lg:mb-6">
+            <div className="pulse-dot" />
+            <span className="text-accent text-[8px] lg:text-[10px] font-black uppercase tracking-[.2em] lg:tracking-[.3em]">
+              {d.label}
+            </span>
+          </div>
 
           <h1
             ref={h1Ref}
@@ -334,12 +325,12 @@ export function HeroSlider() {
             ))}
           </h1>
 
-                <p
-                  className="hidden min-[376px]:block text-xs lg:text-lg md:text-xl text-gray-500 mb-6 lg:mb-12 max-w-xl leading-relaxed italic border-l-2 pl-4 lg:pl-8"
-                  style={{ borderColor: "rgba(197,160,89,.3)" }}
-                >
-                  <span>{slide.sub}</span>
-                </p>
+          <p
+            className="hidden min-[376px]:block text-xs lg:text-lg md:text-xl text-gray-500 mb-6 lg:mb-12 max-w-xl leading-relaxed italic border-l-2 pl-4 lg:pl-8"
+            style={{ borderColor: "rgba(197,160,89,.3)" }}
+          >
+            {d.sub}
+          </p>
 
           <div ref={btnRowRef} className="flex flex-wrap gap-2 lg:gap-4">
             <a
@@ -384,8 +375,8 @@ export function HeroSlider() {
       >
         <span className="text-theme">
           {String(cur + 1).padStart(2, "0")}
-        </span>
-        <span> / 05</span>
+        </span>{" "}
+        / 05
       </div>
     </section>
   );
