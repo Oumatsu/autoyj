@@ -195,7 +195,9 @@ function serializeToTS(obj, indent = 2) {
  * 按表名从飞书 Base 解析 table_id
  */
 async function resolveTableIdByName(token, baseToken, tableName) {
-  const url = `${FEISHU_API}/open-apis/base/v3/bases/${baseToken}/tables`;
+  // 用多维表格 API（bitable/v1）列 Base 里的所有表，按 name 匹配
+  // ⚠️ 不能用 base/v3/bases/{token}/tables —— 那个端点拒绝多表 Base，会返回 400
+  const url = `${FEISHU_API}/open-apis/bitable/v1/apps/${baseToken}/tables?page_size=100`;
   const res = await fetch(url, {
     headers: {
       Authorization: `Bearer ${token}`,

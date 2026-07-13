@@ -458,7 +458,7 @@ async function searchRecords(
     const data = await feishuRequest<BaseRecordListResponse>(
       env,
       "GET",
-      `/open-apis/base/v3/bases/${appToken}/tables/${tableId}/records?${query.toString()}`,
+      `/open-apis/bitable/v1/apps/${appToken}/tables/${tableId}/records?${query.toString()}`,
     );
     const pageRecords = normalizeBaseRecords(data);
     records.push(...pageRecords);
@@ -473,7 +473,7 @@ async function createRecord(env: Env, tableId: string, fields: Record<string, un
   const data = await feishuRequest<{ record?: FeishuRecord }>(
     env,
     "POST",
-    `/open-apis/base/v3/bases/${appToken}/tables/${tableId}/records`,
+    `/open-apis/bitable/v1/apps/${appToken}/tables/${tableId}/records`,
     fields,
   );
   return data.record;
@@ -484,7 +484,7 @@ async function updateRecord(env: Env, tableId: string, recordId: string, fields:
   await feishuRequest(
     env,
     "PATCH",
-    `/open-apis/base/v3/bases/${appToken}/tables/${tableId}/records/${recordId}`,
+    `/open-apis/bitable/v1/apps/${appToken}/tables/${tableId}/records/${recordId}`,
     fields,
   );
 }
@@ -1584,7 +1584,7 @@ async function resolveTableIdByName(env: Env, tableName: string): Promise<string
   const data = await feishuRequest<{ items: { table_id: string; name: string }[]; has_more: boolean }>(
     env,
     "GET",
-    `/open-apis/base/v3/bases/${appToken}/tables`,
+    `/open-apis/bitable/v1/apps/${appToken}/tables`,
   );
   const found = data.items.find((t) => t.name === tableName);
   if (!found) throw new Error(`飞书 Base 中未找到名为 "${tableName}" 的表`);

@@ -157,7 +157,8 @@ async function getToken() {
 }
 
 async function resolveTableIdByName(token, baseToken, tableName) {
-  const url = `${FEISHU_API}/open-apis/base/v3/bases/${baseToken}/tables`;
+  // ⚠️ 不能用 base/v3 —— 那个端点拒绝多表 Base，会返回 400
+  const url = `${FEISHU_API}/open-apis/bitable/v1/apps/${baseToken}/tables?page_size=100`;
   const res = await fetch(url, {
     headers: {
       Authorization: `Bearer ${token}`,
