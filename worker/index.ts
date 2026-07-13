@@ -32,7 +32,6 @@ interface Env {
   FEISHU_TABLE_ARTICLES?: string;
   FEISHU_TABLE_ACADEMY_LESSONS?: string;
   FEISHU_TABLE_ACADEMY_VAULT?: string;
-  FEISHU_TABLE_I18N?: string;
   FEISHU_TABLE_INSIGHTS?: string;
 }
 

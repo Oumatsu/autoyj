@@ -191,18 +191,34 @@ function serializeToTS(obj, indent = 2) {
   return `export default ${serialize(obj, 0)};\n`;
 }
 
+/**
+ * 按表名从飞书 Base 解析 table_id
+ */
+async function resolveTableIdByName(token, baseToken, tableName) {
+  const url = `${FEISHU_API}/open-apis/base/v3/bases/${baseToken}/tables`;
+  const res = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "content-type": "application/json; charset=utf-8",
+    },
+  });
+  if (!res.ok) throw new Error(`Feishu API error: ${res.status} ${res.statusText}`);
+  const data = await res.json();
+  if (data.code !== 0) throw new Error(`Feishu API error ${data.code}: ${data.msg}`);
+  const found = data.data?.items?.find((t) => t.name === tableName);
+  if (!found) throw new Error(`飞书 Base 中未找到名为 "${tableName}" 的表`);
+  return found.table_id;
+}
+
 // ─── 主流程 ───────────────────────────────────────────────────
 async function main() {
   console.log("🌐 autoYJ i18n Sync V2 — 飞书单表 → 本地三语 TS\n");
 
   const baseToken = requireEnv("FEISHU_BASE_APP_TOKEN");
-  const tableId = env.FEISHU_TABLE_I18N;
-
-  if (!tableId) {
-    console.warn("⚠️  FEISHU_TABLE_I18N 未配置。");
-    console.warn("   请先运行 npm run setup:i18n 在飞书中创建单张翻译表。");
-    process.exit(1);
-  }
+  const tableName = "I18n Locale";
+  console.log(`🔍 按名称 "${tableName}" 从飞书 Base 中查找表 ID...`);
+  const tableId = await resolveTableIdByName(token, baseToken, tableName);
+  console.log(`   ✅ 找到表: ${tableId}`);
 
   console.log("🔑 获取飞书 Access Token...");
   const token = await getToken();

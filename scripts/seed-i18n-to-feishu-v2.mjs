@@ -135,6 +135,25 @@ function batchCreateRecords(baseToken, tableId, rows) {
   return created;
 }
 
+/**
+ * 按表名从飞书 Base 解析 table_id
+ */
+async function resolveTableIdByName(token, baseToken, tableName) {
+  const url = `${FEISHU_API}/open-apis/base/v3/bases/${baseToken}/tables`;
+  const res = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "content-type": "application/json; charset=utf-8",
+    },
+  });
+  if (!res.ok) throw new Error(`Feishu API error: ${res.status} ${res.statusText}`);
+  const data = await res.json();
+  if (data.code !== 0) throw new Error(`Feishu API error ${data.code}: ${data.msg}`);
+  const found = data.data?.items?.find((t) => t.name === tableName);
+  if (!found) throw new Error(`飞书 Base 中未找到名为 "${tableName}" 的表`);
+  return found.table_id;
+}
+
 // ─── 主流程 ───────────────────────────────────────────────────
 async function main() {
   console.log("🌱 autoYJ i18n Seed V2 — 本地三语合并 → 飞书单表\n");
@@ -142,7 +161,11 @@ async function main() {
   if (isDryRun) console.log("⚠️  DRY RUN 模式：不会实际写入飞书。\n");
 
   const baseToken = requireEnv("FEISHU_BASE_APP_TOKEN");
-  const tableId = requireEnv("FEISHU_TABLE_I18N");
+  // 按表名动态解析，不再依赖 FEISHU_TABLE_I18N 环境变量
+  const tableName = "I18n Locale";
+  console.log(`🔍 按名称 "${tableName}" 从飞书 Base 中查找表 ID...`);
+  const tableId = await resolveTableIdByName(token, baseToken, tableName);
+  console.log(`   ✅ 找到表: ${tableId}`);
 
   console.log("📥 读取本地三语翻译文件...");
   const zhObj = loadLocalTranslation("i18n/translations/zh.ts");
