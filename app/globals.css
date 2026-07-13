@@ -416,6 +416,38 @@ body {
   }
 }
 
+.inventory-dot {
+  --inventory-dot-rgb: 239 68 68;
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: rgb(var(--inventory-dot-rgb));
+  box-shadow: 0 0 0 0 rgb(var(--inventory-dot-rgb) / .55);
+  animation: inventory-pulse 2s infinite;
+}
+
+.inventory-dot-in-stock {
+  --inventory-dot-rgb: 16 185 129;
+}
+
+.inventory-dot-production {
+  --inventory-dot-rgb: 59 130 246;
+}
+
+.inventory-dot-tbc {
+  --inventory-dot-rgb: 239 68 68;
+}
+
+@keyframes inventory-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgb(var(--inventory-dot-rgb) / .55);
+  }
+  60% {
+    box-shadow: 0 0 0 8px rgb(var(--inventory-dot-rgb) / 0);
+  }
+}
+
 .nav-group:hover .nav-dropdown {
   opacity: 1 !important;
   visibility: visible !important;
