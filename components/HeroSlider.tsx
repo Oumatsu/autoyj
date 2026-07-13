@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useEffect, useMemo, useRef, useCallback } from "react";
 import { useTranslation } from "@/i18n/useTranslation";
 import { Locale } from "@/i18n/config";
 
@@ -191,14 +191,16 @@ function getSlidesData(locale: Locale): Slide[] {
 
 export function HeroSlider() {
   const { locale, t } = useTranslation();
-  const slidesData = getSlidesData(locale);
-  const [cur, setCur] = useState(0);
-  const [dotsOnRight, setDotsOnRight] = useState(false);
-  const [fontSizeScale, setFontSizeScale] = useState(1);
+  const slidesData = useMemo(() => getSlidesData(locale), [locale]);
+  const currentIndexRef = useRef(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const btnRowRef = useRef<HTMLDivElement>(null);
   const dotsRef = useRef<HTMLDivElement>(null);
-  const h1Ref = useRef<HTMLHeadingElement>(null);
+  const counterRef = useRef<HTMLSpanElement>(null);
+  const slideRefs = useRef<Array<HTMLDivElement | null>>([]);
+  const panelRefs = useRef<Array<HTMLDivElement | null>>([]);
+  const dotRefs = useRef<Array<HTMLButtonElement | null>>([]);
+  const h1Refs = useRef<Array<HTMLHeadingElement | null>>([]);
 
   const checkOverlap = useCallback(() => {
     const btnRow = btnRowRef.current;
@@ -212,36 +214,83 @@ export function HeroSlider() {
       btnRect.bottom < dotsRect.top ||
       btnRect.top > dotsRect.bottom
     );
-    setDotsOnRight(overlap);
+    dots.classList.toggle("right-4", overlap);
+    dots.classList.toggle("sm:right-6", overlap);
+    dots.classList.toggle("md:right-20", overlap);
+    dots.classList.toggle("left-4", !overlap);
+    dots.classList.toggle("sm:left-6", !overlap);
+    dots.classList.toggle("md:left-20", !overlap);
+
+    const counter = counterRef.current?.parentElement;
+    if (counter) {
+      counter.classList.toggle("left-4", overlap);
+      counter.classList.toggle("sm:left-6", overlap);
+      counter.classList.toggle("md:left-20", overlap);
+      counter.classList.toggle("right-4", !overlap);
+      counter.classList.toggle("sm:right-6", !overlap);
+      counter.classList.toggle("md:right-20", !overlap);
+    }
   }, []);
 
   const checkTitleLines = useCallback(() => {
-    const el = h1Ref.current;
+    const el = h1Refs.current[currentIndexRef.current];
     if (!el) return;
     const lineHeight = parseFloat(getComputedStyle(el).lineHeight);
     if (isNaN(lineHeight) || lineHeight === 0) return;
     const lines = Math.round(el.scrollHeight / lineHeight);
+    let scale = 1;
     if (lines > 4) {
       const scales = [1, 1, 1, 1, 0.82, 0.7, 0.6, 0.52, 0.46];
-      setFontSizeScale(scales[lines - 1] || 0.46);
-    } else {
-      setFontSizeScale(1);
+      scale = scales[lines - 1] || 0.46;
     }
+    el.style.fontSize = `calc(clamp(1.8rem, 7vw, 6.5rem) * ${scale})`;
   }, []);
+
+  const showSlide = useCallback((nextIndex: number) => {
+    const total = slidesData.length;
+    if (total === 0) return;
+    const normalizedIndex = ((nextIndex % total) + total) % total;
+    currentIndexRef.current = normalizedIndex;
+
+    slideRefs.current.forEach((slide, index) => {
+      slide?.classList.toggle("active", index === normalizedIndex);
+    });
+    panelRefs.current.forEach((panel, index) => {
+      if (!panel) return;
+      const active = index === normalizedIndex;
+      panel.classList.toggle("opacity-100", active);
+      panel.classList.toggle("pointer-events-auto", active);
+      panel.classList.toggle("opacity-0", !active);
+      panel.classList.toggle("pointer-events-none", !active);
+      panel.setAttribute("aria-hidden", String(!active));
+    });
+    dotRefs.current.forEach((dot, index) => {
+      dot?.classList.toggle("active", index === normalizedIndex);
+    });
+    if (counterRef.current) {
+      counterRef.current.textContent = String(normalizedIndex + 1).padStart(2, "0");
+    }
+
+    btnRowRef.current = panelRefs.current[normalizedIndex]?.querySelector("[data-hero-buttons]") ?? null;
+    checkOverlap();
+    checkTitleLines();
+  }, [checkOverlap, checkTitleLines, slidesData.length]);
 
   const resetTimer = useCallback(() => {
     if (timerRef.current) clearInterval(timerRef.current);
     timerRef.current = setInterval(() => {
-      setCur((prev) => (prev + 1) % slidesData.length);
+      showSlide(currentIndexRef.current + 1);
     }, 5500);
-  }, [slidesData.length]);
+  }, [showSlide]);
 
   useEffect(() => {
+    currentIndexRef.current = 0;
+    showSlide(0);
     resetTimer();
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [resetTimer]);
+  }, [resetTimer, showSlide]);
 
   useEffect(() => {
     checkOverlap();
@@ -252,10 +301,10 @@ export function HeroSlider() {
     };
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
-  }, [cur, checkOverlap, checkTitleLines]);
+  }, [checkOverlap, checkTitleLines]);
 
   const goSlide = (n: number) => {
-    setCur(n);
+    showSlide(n);
     resetTimer();
   };
 
@@ -267,7 +316,13 @@ export function HeroSlider() {
     >
       <style>{`@media (min-width: 1024px) { #hero { aspect-ratio: auto; height: 100vh; } }`}</style>
       {slidesData.map((slide, i) => (
-        <div key={i} className={`slide ${i === cur ? "active" : ""}`}>
+        <div
+          key={i}
+          ref={(node) => {
+            slideRefs.current[i] = node;
+          }}
+          className={`slide ${i === 0 ? "active" : ""}`}
+        >
           <img
             src={slide.img}
             className="absolute inset-0 w-full h-full object-cover"
@@ -294,10 +349,13 @@ export function HeroSlider() {
       <div className="absolute inset-0 z-10 flex flex-col justify-center px-4 md:px-12 lg:px-20 pt-4 lg:pt-20 pb-8 lg:pb-24">
         <div className="grid max-w-3xl w-full">
           {slidesData.map((slide, slideIndex) => {
-            const isActive = slideIndex === cur;
+            const isActive = slideIndex === 0;
             return (
               <div
                 key={slideIndex}
+                ref={(node) => {
+                  panelRefs.current[slideIndex] = node;
+                }}
                 aria-hidden={!isActive}
                 className={`transition-opacity duration-700 ${
                   isActive ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
@@ -312,11 +370,11 @@ export function HeroSlider() {
                 </div>
 
                 <h1
-                  ref={isActive ? h1Ref : null}
-                  className="sh mb-3 lg:mb-8"
-                  style={{
-                    fontSize: `calc(clamp(1.8rem, 7vw, 6.5rem) * ${fontSizeScale})`,
+                  ref={(node) => {
+                    h1Refs.current[slideIndex] = node;
                   }}
+                  className="sh mb-3 lg:mb-8"
+                  style={{ fontSize: "calc(clamp(1.8rem, 7vw, 6.5rem) * 1)" }}
                 >
                   {slide.lines.map((line, i) => (
                     <React.Fragment key={i}>
@@ -341,7 +399,13 @@ export function HeroSlider() {
                   <span>{slide.sub}</span>
                 </p>
 
-                <div ref={isActive ? btnRowRef : null} className="flex flex-wrap gap-2 lg:gap-4">
+                <div
+                  ref={(node) => {
+                    if (slideIndex === 0) btnRowRef.current = node;
+                  }}
+                  data-hero-buttons
+                  className="flex flex-wrap gap-2 lg:gap-4"
+                >
                   <a
                     href="#products"
                     className="btn-primary px-6 lg:px-10 py-3 lg:py-5 rounded text-[10px] lg:text-sm font-black tracking-widest uppercase italic"
@@ -363,32 +427,27 @@ export function HeroSlider() {
 
       <div
         ref={dotsRef}
-        className={`absolute bottom-4 sm:bottom-10 z-10 flex gap-2 sm:gap-3 items-center transition-all duration-300 ${
-          dotsOnRight
-            ? "right-4 sm:right-6 md:right-20"
-            : "left-4 sm:left-6 md:left-20"
-        }`}
+        className="absolute bottom-4 sm:bottom-10 z-10 flex gap-2 sm:gap-3 items-center transition-all duration-300 left-4 sm:left-6 md:left-20"
       >
         {slidesData.map((_, i) => (
-          <div
+          <button
             key={i}
-            className={`dot ${i === cur ? "active" : ""}`}
+            ref={(node) => {
+              dotRefs.current[i] = node;
+            }}
+            type="button"
+            aria-label={`Go to hero slide ${i + 1}`}
+            className={`dot ${i === 0 ? "active" : ""}`}
             onClick={() => goSlide(i)}
           />
         ))}
       </div>
 
       <div
-        className={`absolute bottom-4 sm:bottom-10 z-10 text-[9px] sm:text-[10px] font-black tracking-widest text-gray-700 uppercase transition-all duration-300 ${
-          dotsOnRight
-            ? "left-4 sm:left-6 md:left-20"
-            : "right-4 sm:right-6 md:right-20"
-        }`}
+        className="absolute bottom-4 sm:bottom-10 z-10 text-[9px] sm:text-[10px] font-black tracking-widest text-gray-700 uppercase transition-all duration-300 right-4 sm:right-6 md:right-20"
       >
-        <span className="text-theme">
-          {String(cur + 1).padStart(2, "0")}
-        </span>{" "}
-        / {String(slidesData.length).padStart(2, "0")}
+        <span ref={counterRef} className="text-theme">01</span>
+        <span> / {String(slidesData.length).padStart(2, "0")}</span>
       </div>
     </section>
   );
