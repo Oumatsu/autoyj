@@ -86,6 +86,7 @@ interface TrimComparisonData {
 
 interface TrimLadderFeature {
   text: string;
+  value: string;
   sourceLevel: number;
   sourceTrim: string;
 }
@@ -93,6 +94,7 @@ interface TrimLadderFeature {
 interface TrimLadderRow {
   trim: TrimComparisonTrim;
   currentFeatures: string[];
+  entryFeatures: string[];
   inheritedFeatures: TrimLadderFeature[];
 }
 
@@ -163,23 +165,81 @@ function uniqueItems(items: string[]): string[] {
   return Array.from(new Set(items.map((item) => item.trim()).filter(Boolean)));
 }
 
+function stripCarriedPrefix(item: string) {
+  return item.replace(/^Carried from [^:]+:\s*/i, "").trim();
+}
+
+function normalizeFeatureKey(label: string) {
+  return label.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+}
+
+function parseTrimFeature(item: string) {
+  const clean = stripCarriedPrefix(item);
+  const colonIndex = clean.indexOf(":");
+  if (colonIndex === -1) {
+    const label = clean.trim();
+    return {
+      key: normalizeFeatureKey(label),
+      label,
+      value: "Standard",
+      display: label,
+    };
+  }
+
+  const label = clean.slice(0, colonIndex).trim();
+  const rawValue = clean.slice(colonIndex + 1).trim();
+  const parts = rawValue.split(/\s*->\s*/).map((part) => part.trim()).filter(Boolean);
+  const value = parts.length ? parts[parts.length - 1] : rawValue;
+
+  return {
+    key: normalizeFeatureKey(label),
+    label,
+    value,
+    display: value ? `${label}: ${value}` : label,
+  };
+}
+
 function buildTrimLadderRows(trims: TrimComparisonTrim[]): TrimLadderRow[] {
   const inherited: TrimLadderFeature[] = [];
 
   return trims.map((trim, index) => {
-    const currentFeatures = uniqueItems([...(trim.addedFeatures || []), ...(trim.upgradedFeatures || [])]);
+    const entryFeatures = index === 0 ? uniqueItems(trim.baseFeatures || []).map(stripCarriedPrefix) : [];
+    const inheritedFeatures = inherited.map((feature) => ({ ...feature }));
+    const levelFeatures = uniqueItems([...(trim.addedFeatures || []), ...(trim.upgradedFeatures || [])]).map(parseTrimFeature);
+    const levelFinals = new Map<string, ReturnType<typeof parseTrimFeature>>();
+    levelFeatures.forEach((feature) => {
+      if (feature.key) levelFinals.set(feature.key, feature);
+    });
+    const currentFeatures: string[] = [];
+
+    levelFinals.forEach((feature) => {
+      const previous = inherited.find((item) => normalizeFeatureKey(parseTrimFeature(item.text).label) === feature.key);
+      if (previous?.value === feature.value) return;
+      currentFeatures.push(previous ? `${feature.label}: ${previous.value} -> ${feature.value}` : feature.display);
+    });
+
     const row: TrimLadderRow = {
       trim,
       currentFeatures,
-      inheritedFeatures: [...inherited],
+      entryFeatures,
+      inheritedFeatures,
     };
 
-    currentFeatures.forEach((text) => {
-      if (!inherited.some((feature) => feature.text === text)) {
+    const nextFeatures = index === 0 ? entryFeatures.map(parseTrimFeature) : Array.from(levelFinals.values());
+    nextFeatures.forEach((feature) => {
+      if (!feature.key) return;
+      const existingIndex = inherited.findIndex((item) => normalizeFeatureKey(parseTrimFeature(item.text).label) === feature.key);
+      const next = {
+        text: feature.display,
+        value: feature.value,
+        sourceLevel: index + 1,
+        sourceTrim: trim.name,
+      };
+      if (existingIndex >= 0) {
+        if (inherited[existingIndex].value !== feature.value) inherited[existingIndex] = next;
+      } else {
         inherited.push({
-          text,
-          sourceLevel: index + 1,
-          sourceTrim: trim.name,
+          ...next,
         });
       }
     });
@@ -283,8 +343,7 @@ function TrimPoster({ data, v }: { data: DetailData; v: DetailData["vehicle"] })
         {trims.length > 0 ? (
         <div className="max-w-full overflow-x-auto pb-2 mb-8">
           <div className="flex min-w-[720px] items-end gap-4">
-            {ladderRows.map(({ trim, currentFeatures, inheritedFeatures }, index) => {
-              const entryFeatures = trim.baseFeatures || [];
+            {ladderRows.map(({ trim, currentFeatures, entryFeatures, inheritedFeatures }, index) => {
               const inheritedGroups = groupTrimLadderFeatures(inheritedFeatures);
               return (
             <div
@@ -336,11 +395,11 @@ function TrimPoster({ data, v }: { data: DetailData; v: DetailData["vehicle"] })
                     {inheritedGroups.map((group) => (
                       <div key={`${trim.name}-inherited-level-${group.sourceLevel}`} className="space-y-2">
                         {group.items.map((item, itemIndex) => (
-                          <div key={`${trim.name}-inherited-${group.sourceLevel}-${itemIndex}-${item}`} className="text-[10px] font-bold uppercase tracking-wider text-gray-600">
+                          <div key={`${trim.name}-inherited-${group.sourceLevel}-${itemIndex}-${item}`} className="text-[10px] font-bold uppercase tracking-wider text-gray-500">
                             {item}
                           </div>
                         ))}
-                        <div className="text-[9px] font-black uppercase tracking-[.14em] text-gray-700">
+                        <div className="text-[9px] font-black uppercase tracking-[.14em] text-gray-600">
                           (from Level {group.sourceLevel})
                         </div>
                       </div>
@@ -821,7 +880,7 @@ export default function VehicleDetail({ data }: { data: DetailData }) {
         </section>
       )}
 
-      {/* Fit For */}
+      {data.fits.length > 0 && (
       <section className="py-12 md:py-16 bg-b">
         <div className="container mx-auto px-6 md:px-12">
           <div className="text-center mb-12"><div className="label justify-center mb-3">Ideal Customer Profile</div><h2 className="text-2xl font-black uppercase italic tracking-tight text-white">Who Should Buy This Vehicle?</h2></div>
@@ -837,6 +896,7 @@ export default function VehicleDetail({ data }: { data: DetailData }) {
           </div>
         </div>
       </section>
+      )}
 
       {/* CTA + Related — removed to avoid duplication with global footer */}
     </>
