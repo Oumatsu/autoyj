@@ -6,6 +6,16 @@ import { LocaleLink } from "@/i18n/LocaleLink";
 import { vehicles } from "../../app/products/revenue-king/data";
 
 const ITEMS_PER_PAGE = 6;
+const DEFAULT_ORDER = vehicles.map((vehicle) => vehicle.link.split("/").pop()).filter(Boolean);
+
+function defaultOrderRank(vehicle: { link?: string; name?: string }) {
+  const slug = vehicle.link?.split("/").pop();
+  const slugRank = slug ? DEFAULT_ORDER.indexOf(slug) : -1;
+  if (slugRank >= 0) return slugRank;
+
+  const nameRank = vehicles.findIndex((item) => item.name.toLowerCase() === vehicle.name?.toLowerCase());
+  return nameRank >= 0 ? nameRank : Number.MAX_SAFE_INTEGER;
+}
 
 function generatePageNumbers(current: number, total: number): (number | "ellipsis")[] {
   if (total <= 7) {
@@ -48,6 +58,22 @@ function parseRangeNum(range: string): number {
   return parseInt(match[1].replace(/,/g, ""), 10);
 }
 
+function inventoryDotClass(status?: string) {
+  const normalized = (status || "").toLowerCase();
+  if (normalized === "in-stock" || normalized.startsWith("in stock")) return "inventory-dot inventory-dot-in-stock";
+  if (normalized.includes("production")) return "inventory-dot inventory-dot-production";
+  return "inventory-dot inventory-dot-tbc";
+}
+
+function inventoryStatusText(vehicle: any, fallbackInStock: string, fallbackFactory: string) {
+  if (vehicle.statusText) return vehicle.statusText;
+  const normalized = (vehicle.status || "").toLowerCase();
+  if (normalized === "in-stock" || normalized.startsWith("in stock")) return fallbackInStock;
+  if (normalized.includes("production")) return "Production";
+  if (normalized.includes("tbc")) return "TBC";
+  return fallbackFactory;
+}
+
 export default function RevenueKingPage() {
   const { t } = useTranslation();
   const [products, setProducts] = useState<any[] | null>(null);
@@ -75,8 +101,8 @@ export default function RevenueKingPage() {
             range: p.range || (fallback ? fallback.range : ""),
             charging: p.charging || p.desc || (fallback ? fallback.charging : ""),
             img: p.img || (fallback ? fallback.img : ""),
-            status: fallback ? fallback.status : "factory",
-            statusText: fallback ? fallback.statusText : "Factory Order: 21 Days",
+            status: p.status || (fallback ? fallback.status : "tbc"),
+            statusText: p.statusText || (fallback ? fallback.statusText : "TBC"),
             link: p.link || (fallback ? fallback.link : `/products/revenue-king/${p.slug}`),
             tags: p.tags && p.tags.length ? p.tags : (fallback ? fallback.tags : []),
           };
@@ -109,6 +135,7 @@ export default function RevenueKingPage() {
     const sorted = [...displayVehicles];
     switch (sortBy) {
       case "default":
+        sorted.sort((a, b) => defaultOrderRank(a) - defaultOrderRank(b));
         break;
       case "price_low":
         sorted.sort((a, b) => parsePriceLow(a.fob) - parsePriceLow(b.fob));
@@ -448,9 +475,11 @@ function VehicleCard({
     { label: t("productsRevenueKing.filterGroups.steeringSetup") || "Spec", value: vehicle.charging },
   ];
 
-  const statusText = vehicle.status === "in-stock"
-    ? t("productsRevenueKing.filterOptions.inStock")
-    : t("productsRevenueKing.filterOptions.factoryOrder");
+  const statusText = inventoryStatusText(
+    vehicle,
+    t("productsRevenueKing.filterOptions.inStock"),
+    t("productsRevenueKing.filterOptions.factoryOrder"),
+  );
 
   return (
     <LocaleLink href={vehicle.link || "#"} className={`v-card-compact group ${!vehicle.link ? "pointer-events-none" : ""}`}>
@@ -469,13 +498,7 @@ function VehicleCard({
         />
         <div className="v-card-compact-overlay" />
         <div className="absolute bottom-4 left-5 flex items-center gap-2">
-          <span
-            className={
-              vehicle.status === "in-stock"
-                ? "pulse-dot w-1.5 h-1.5"
-                : "w-1.5 h-1.5 rounded-full bg-theme shadow-[0_0_8px_rgba(197,160,89,0.8)]"
-            }
-          />
+          <span className={inventoryDotClass(vehicle.status)} />
           <span className="text-[9px] font-black tracking-[0.2em] uppercase text-white drop-shadow-md">
             {statusText}
           </span>

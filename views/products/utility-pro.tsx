@@ -48,6 +48,22 @@ function parseRangeNum(range: string): number {
   return parseInt(match[1].replace(/,/g, ""), 10);
 }
 
+function inventoryDotClass(status?: string) {
+  const normalized = (status || "").toLowerCase();
+  if (normalized === "in-stock" || normalized.startsWith("in stock")) return "inventory-dot inventory-dot-in-stock";
+  if (normalized.includes("production")) return "inventory-dot inventory-dot-production";
+  return "inventory-dot inventory-dot-tbc";
+}
+
+function inventoryStatusText(vehicle: any, fallbackInStock: string, fallbackFactory: string) {
+  if (vehicle.statusText) return vehicle.statusText;
+  const normalized = (vehicle.status || "").toLowerCase();
+  if (normalized === "in-stock" || normalized.startsWith("in stock")) return fallbackInStock;
+  if (normalized.includes("production")) return "Production";
+  if (normalized.includes("tbc")) return "TBC";
+  return fallbackFactory;
+}
+
 export default function UtilityProPage() {
   const { t } = useTranslation();
   const [products, setProducts] = useState<any[] | null>(null);
@@ -75,8 +91,8 @@ export default function UtilityProPage() {
             range: p.range || (fallback ? fallback.range : ""),
             charging: p.charging || p.desc || (fallback ? fallback.charging : ""),
             img: p.img || (fallback ? fallback.img : ""),
-            status: fallback ? fallback.status : "factory",
-            statusText: fallback ? fallback.statusText : "Factory Order: 21 Days",
+            status: p.status || (fallback ? fallback.status : "tbc"),
+            statusText: p.statusText || (fallback ? fallback.statusText : "TBC"),
             link: p.link || (fallback ? fallback.link : `/products/utility-pro/${p.slug}`),
             tags: p.tags && p.tags.length ? p.tags : (fallback ? fallback.tags : []),
           };
@@ -447,9 +463,11 @@ function VehicleCard({
     { label: t("productsUtilityPro.filterGroups.capability") || "Spec", value: vehicle.charging },
   ];
 
-  const statusText = vehicle.status === "in-stock"
-    ? t("productsUtilityPro.filterOptions.inStock")
-    : t("productsUtilityPro.filterOptions.factoryOrder");
+  const statusText = inventoryStatusText(
+    vehicle,
+    t("productsUtilityPro.filterOptions.inStock"),
+    t("productsUtilityPro.filterOptions.factoryOrder"),
+  );
 
   return (
     <LocaleLink href={vehicle.link || "#"} className={`v-card-compact group ${!vehicle.link ? "pointer-events-none" : ""}`}>
@@ -461,13 +479,7 @@ function VehicleCard({
         />
         <div className="v-card-compact-overlay" />
         <div className="absolute bottom-4 left-5 flex items-center gap-2">
-          <span
-            className={
-              vehicle.status === "in-stock"
-                ? "pulse-dot w-1.5 h-1.5"
-                : "w-1.5 h-1.5 rounded-full bg-theme shadow-[0_0_8px_rgba(197,160,89,0.8)]"
-            }
-          />
+          <span className={inventoryDotClass(vehicle.status)} />
           <span className="text-[9px] font-black tracking-[0.2em] uppercase text-white drop-shadow-md">
             {statusText}
           </span>

@@ -330,12 +330,18 @@ function inventoryDisplay(fields: Record<string, unknown>) {
   const inventory = asText(fields["Inventory Status"]);
   const normalized = inventory.toLowerCase();
   if (!inventory) {
-    return { status: "factory", statusText: "Factory Order" };
+    return { status: "tbc", statusText: "TBC" };
   }
   if (normalized.includes("in stock")) {
     return { status: "in-stock", statusText: inventory };
   }
-  return { status: "factory", statusText: inventory };
+  if (normalized.includes("production")) {
+    return { status: "production", statusText: inventory };
+  }
+  if (normalized.includes("tbc") || normalized.includes("to be confirmed")) {
+    return { status: "tbc", statusText: inventory };
+  }
+  return { status: "tbc", statusText: inventory };
 }
 
 function cleanEnglishFeatureText(value: unknown) {
@@ -1882,6 +1888,7 @@ async function handlePublicProducts(env: Env) {
     }
 
     const slug = sourceUrl.split("/").filter(Boolean).pop() || "";
+    const { status, statusText } = inventoryDisplay(fields);
 
     const stat2Value = asText(fields.stat2Value);
     const stat2Label = asText(fields.stat2Label);
@@ -1986,6 +1993,8 @@ async function handlePublicProducts(env: Env) {
       tag: cardTag,
       desc: cardDesc,
       label: cardLabel,
+      status,
+      statusText,
       link: `/products/${category}/${slug}`
     };
   });
