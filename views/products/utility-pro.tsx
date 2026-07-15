@@ -3,6 +3,8 @@
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { useTranslation } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
+import { ProductCatalogSkeleton, ProductCatalogUnavailable } from "@/components/ProductCatalogState";
+import { buildCatalogFilterGroups, filterCatalogProducts } from "./catalogFilters";
 import { vehicles } from "../../app/products/utility-pro/data";
 
 const ITEMS_PER_PAGE = 6;
@@ -66,7 +68,8 @@ function inventoryStatusText(vehicle: any, fallbackInStock: string, fallbackFact
 
 export default function UtilityProPage() {
   const { t } = useTranslation();
-  const [products, setProducts] = useState<any[] | null>(null);
+  const [products, setProducts] = useState<any[]>([]);
+  const [loadState, setLoadState] = useState<"loading" | "ready" | "error">("loading");
   const [currentPage, setCurrentPage] = useState(1);
   const [sortBy, setSortBy] = useState<"default" | "price_low" | "price_high" | "range_high" | "range_low">("default");
   const [search, setSearch] = useState("");
@@ -95,14 +98,20 @@ export default function UtilityProPage() {
             statusText: p.statusText || (fallback ? fallback.statusText : "TBC"),
             link: p.link || (fallback ? fallback.link : `/products/utility-pro/${p.slug}`),
             tags: p.tags && p.tags.length ? p.tags : (fallback ? fallback.tags : []),
+            filterData: p.filterData,
           };
         });
         setProducts(mapped);
+        setLoadState("ready");
       })
-      .catch(() => {});
+      .catch(() => setLoadState("error"));
   }, []);
 
-  const displayVehicles = products || vehicles;
+  const displayVehicles = loadState === "ready" ? products : [];
+  const filterGroups = useMemo(
+    () => buildCatalogFilterGroups("utility-pro", displayVehicles, t),
+    [displayVehicles, t],
+  );
 
   const handleFilterToggle = useCallback((group: string, label: string) => {
     setActiveFilters(prev => {
@@ -151,16 +160,8 @@ export default function UtilityProPage() {
         v.name.toLowerCase().includes(q)
       );
     }
-    const groups = Object.keys(activeFilters);
-    if (groups.length === 0) return result;
-    return result.filter(v =>
-      groups.every(group => {
-        const checked = activeFilters[group];
-        if (!checked || checked.size === 0) return true;
-        return v.tags.some((tag: string) => checked.has(tag));
-      })
-    );
-  }, [sortedVehicles, search, activeFilters]);
+    return filterCatalogProducts(result, activeFilters, filterGroups);
+  }, [sortedVehicles, search, activeFilters, filterGroups]);
 
   const handleSortChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
     setSortBy(e.target.value as typeof sortBy);
@@ -268,56 +269,38 @@ export default function UtilityProPage() {
                   <span className="text-xs">&times;</span> {t("productsUtilityPro.clearAllFilters")}
                 </button>
 
-                <FilterGroup title={t("productsUtilityPro.filterGroups.vehicleType")}>
-                  <FilterCheckbox label={t("productsUtilityPro.filterOptions.pickup")} checked={activeFilters["Vehicle Type"]?.has("Pickup Truck") || false} onChange={() => handleFilterToggle("Vehicle Type", "Pickup Truck")} />
-                  <FilterCheckbox label={t("productsUtilityPro.filterOptions.cargoVan")} checked={activeFilters["Vehicle Type"]?.has("Cargo Van") || false} onChange={() => handleFilterToggle("Vehicle Type", "Cargo Van")} />
-                  <FilterCheckbox label={t("productsUtilityPro.filterOptions.microTruck")} checked={activeFilters["Vehicle Type"]?.has("Micro Truck") || false} onChange={() => handleFilterToggle("Vehicle Type", "Micro Truck")} />
-                  <FilterCheckbox label={t("productsUtilityPro.filterOptions.shuttleBus")} checked={activeFilters["Vehicle Type"]?.has("Shuttle Bus") || false} onChange={() => handleFilterToggle("Vehicle Type", "Shuttle Bus")} />
-                </FilterGroup>
-
-                <FilterGroup title={t("productsUtilityPro.filterGroups.batteryChemistry")}>
-                  <FilterCheckbox label={t("productsUtilityPro.filterOptions.lfp")} checked={activeFilters["Battery Chemistry"]?.has("LFP (Lithium Iron Phosphate)") || false} onChange={() => handleFilterToggle("Battery Chemistry", "LFP (Lithium Iron Phosphate)")} />
-                  <FilterCheckbox label={t("productsUtilityPro.filterOptions.ncm")} checked={activeFilters["Battery Chemistry"]?.has("NCM (Ternary Lithium)") || false} onChange={() => handleFilterToggle("Battery Chemistry", "NCM (Ternary Lithium)")} />
-                </FilterGroup>
-
-                <FilterGroup title={t("productsUtilityPro.filterGroups.range")}>
-                  <FilterCheckbox label={t("productsUtilityPro.filterOptions.rangeUnder250")} checked={activeFilters["Range (NEDC)"]?.has("Under 250 km") || false} onChange={() => handleFilterToggle("Range (NEDC)", "Under 250 km")} />
-                  <FilterCheckbox label={t("productsUtilityPro.filterOptions.range250to350")} checked={activeFilters["Range (NEDC)"]?.has("250 km - 350 km") || false} onChange={() => handleFilterToggle("Range (NEDC)", "250 km - 350 km")} />
-                  <FilterCheckbox label={t("productsUtilityPro.filterOptions.rangeAbove350")} checked={activeFilters["Range (NEDC)"]?.has("350 km +") || false} onChange={() => handleFilterToggle("Range (NEDC)", "350 km +")} />
-                </FilterGroup>
-
-                <FilterGroup title={t("productsUtilityPro.filterGroups.price")}>
-                  <FilterCheckbox label={t("productsUtilityPro.filterOptions.priceUnder20k")} checked={activeFilters["Price"]?.has("Under $20,000") || false} onChange={() => handleFilterToggle("Price", "Under $20,000")} />
-                  <FilterCheckbox label={t("productsUtilityPro.filterOptions.price20to35k")} checked={activeFilters["Price"]?.has("$20,000 - $35,000") || false} onChange={() => handleFilterToggle("Price", "$20,000 - $35,000")} />
-                  <FilterCheckbox label={t("productsUtilityPro.filterOptions.priceAbove35k")} checked={activeFilters["Price"]?.has("Above $35,000") || false} onChange={() => handleFilterToggle("Price", "Above $35,000")} />
-                </FilterGroup>
-
-                <FilterGroup title={t("productsUtilityPro.filterGroups.capability")}>
-                  <FilterCheckbox label={t("productsUtilityPro.filterOptions.v2l")} checked={activeFilters["Capability"]?.has("V2L Power Export") || false} onChange={() => handleFilterToggle("Capability", "V2L Power Export")} />
-                  <FilterCheckbox label={t("productsUtilityPro.filterOptions.fourWheelDrive")} checked={activeFilters["Capability"]?.has("4WD / AWD") || false} onChange={() => handleFilterToggle("Capability", "4WD / AWD")} />
-                  <FilterCheckbox label={t("productsUtilityPro.filterOptions.highClearance")} checked={activeFilters["Capability"]?.has("High Clearance (200mm+)") || false} onChange={() => handleFilterToggle("Capability", "High Clearance (200mm+)")} />
-                </FilterGroup>
-
-                <FilterGroup title={t("productsUtilityPro.filterGroups.availability")} last>
-                  <FilterCheckbox label={t("productsUtilityPro.filterOptions.inStock")} checked={activeFilters["Availability"]?.has("In Stock (Port)") || false} onChange={() => handleFilterToggle("Availability", "In Stock (Port)")} />
-                  <FilterCheckbox label={t("productsUtilityPro.filterOptions.factoryOrder")} checked={activeFilters["Availability"]?.has("Factory Order (18+ Days)") || false} onChange={() => handleFilterToggle("Availability", "Factory Order (18+ Days)")} />
-                </FilterGroup>
+                {filterGroups.map((group, index) => (
+                  <FilterGroup key={group.id} title={group.label} last={index === filterGroups.length - 1}>
+                    {group.options.map((option) => (
+                      <FilterCheckbox
+                        key={option.id}
+                        label={option.label}
+                        checked={activeFilters[group.id]?.has(option.id) || false}
+                        onChange={() => handleFilterToggle(group.id, option.id)}
+                      />
+                    ))}
+                  </FilterGroup>
+                ))}
               </div>
             </aside>
 
             <div className="lg:col-span-9">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 border-b border-white/5 pb-6">
-                <div className="text-[10px] font-black tracking-widest uppercase text-gray-500">
-                  {t("productsUtilityPro.showing")
-                    .replace("{start}", String(showingStart))
-                    .replace("{end}", String(showingEnd))
-                    .replace("{total}", String(filteredVehicles.length))}
-                </div>
+                {loadState === "ready" ? (
+                  <div className="text-[10px] font-black tracking-widest uppercase text-gray-500">
+                    {t("productsUtilityPro.showing")
+                      .replace("{start}", String(showingStart))
+                      .replace("{end}", String(showingEnd))
+                      .replace("{total}", String(filteredVehicles.length))}
+                  </div>
+                ) : (
+                  <div className="h-2.5 w-32 animate-pulse rounded-full bg-white/[0.08]" aria-hidden="true" />
+                )}
                 <div className="flex gap-4 items-center">
                   <span className="text-[10px] font-black uppercase tracking-widest text-gray-600">
                     {t("productsUtilityPro.sortBy")}
                   </span>
-                  <select value={sortBy} onChange={handleSortChange} className="bg-transparent border-none text-gold text-[10px] font-black uppercase tracking-widest outline-none cursor-pointer">
+                  <select value={sortBy} onChange={handleSortChange} disabled={loadState !== "ready"} className="bg-transparent border-none text-gold text-[10px] font-black uppercase tracking-widest outline-none cursor-pointer disabled:cursor-default disabled:opacity-40">
                     <option value="default" className="bg-bg text-white">
                       {t("productsUtilityPro.sortOptions.default")}
                     </option>
@@ -337,16 +320,23 @@ export default function UtilityProPage() {
                 </div>
               </div>
 
-              <div className="grid md:grid-cols-2 gap-8 mb-0">
-                {pageVehicles.map((v) => (
-                  <VehicleCard key={`${v.brand}-${v.name}`} vehicle={v} />
-                ))}
-              </div>
+              {loadState === "loading" ? (
+                <ProductCatalogSkeleton />
+              ) : loadState === "error" ? (
+                <ProductCatalogUnavailable />
+              ) : (
+                <div className="grid md:grid-cols-2 gap-8 mb-0">
+                  {pageVehicles.map((v) => (
+                    <VehicleCard key={`${v.brand}-${v.name}`} vehicle={v} />
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
       </main>
 
+      {loadState === "ready" && (
       <div className="relative overflow-hidden bg-a">
         <div className="relative z-10 container mx-auto px-6 md:px-12 pt-16 pb-12">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 xl:gap-16">
@@ -389,6 +379,7 @@ export default function UtilityProPage() {
           </div>
         </div>
       </div>
+      )}
     </>
   );
 }

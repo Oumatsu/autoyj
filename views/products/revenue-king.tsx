@@ -3,6 +3,8 @@
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { useTranslation } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
+import { ProductCatalogSkeleton, ProductCatalogUnavailable } from "@/components/ProductCatalogState";
+import { buildCatalogFilterGroups, filterCatalogProducts } from "./catalogFilters";
 import { vehicles } from "../../app/products/revenue-king/data";
 
 const ITEMS_PER_PAGE = 6;
@@ -76,7 +78,8 @@ function inventoryStatusText(vehicle: any, fallbackInStock: string, fallbackFact
 
 export default function RevenueKingPage() {
   const { t } = useTranslation();
-  const [products, setProducts] = useState<any[] | null>(null);
+  const [products, setProducts] = useState<any[]>([]);
+  const [loadState, setLoadState] = useState<"loading" | "ready" | "error">("loading");
   const [currentPage, setCurrentPage] = useState(1);
   const [sortBy, setSortBy] = useState<"default" | "price_low" | "price_high" | "range_high" | "range_low">("default");
   const [search, setSearch] = useState("");
@@ -105,14 +108,20 @@ export default function RevenueKingPage() {
             statusText: p.statusText || (fallback ? fallback.statusText : "TBC"),
             link: p.link || (fallback ? fallback.link : `/products/revenue-king/${p.slug}`),
             tags: p.tags && p.tags.length ? p.tags : (fallback ? fallback.tags : []),
+            filterData: p.filterData,
           };
         });
         setProducts(mapped);
+        setLoadState("ready");
       })
-      .catch(() => {});
+      .catch(() => setLoadState("error"));
   }, []);
 
-  const displayVehicles = products || vehicles;
+  const displayVehicles = loadState === "ready" ? products : [];
+  const filterGroups = useMemo(
+    () => buildCatalogFilterGroups("revenue-king", displayVehicles, t),
+    [displayVehicles, t],
+  );
 
   const handleFilterToggle = useCallback((group: string, label: string) => {
     setActiveFilters(prev => {
@@ -162,16 +171,8 @@ export default function RevenueKingPage() {
         v.name.toLowerCase().includes(q)
       );
     }
-    const groups = Object.keys(activeFilters);
-    if (groups.length === 0) return result;
-    return result.filter(v =>
-      groups.every(group => {
-        const checked = activeFilters[group];
-        if (!checked || checked.size === 0) return true;
-        return v.tags.some((tag: string) => checked.has(tag));
-      })
-    );
-  }, [sortedVehicles, search, activeFilters]);
+    return filterCatalogProducts(result, activeFilters, filterGroups);
+  }, [sortedVehicles, search, activeFilters, filterGroups]);
 
   const handleSortChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
     setSortBy(e.target.value as typeof sortBy);
@@ -281,55 +282,39 @@ export default function RevenueKingPage() {
                   <span className="text-xs">&times;</span> {t("productsRevenueKing.clearAllFilters")}
                 </button>
 
-                <FilterGroup title={t("productsRevenueKing.filterGroups.bodyStyle")}>
-                  <FilterCheckbox label={t("productsRevenueKing.filterOptions.hatchback")} checked={activeFilters["Body Style"]?.has("Hatchback (Sub-Compact)") || false} onChange={() => handleFilterToggle("Body Style", "Hatchback (Sub-Compact)")} />
-                  <FilterCheckbox label={t("productsRevenueKing.filterOptions.compactSuv")} checked={activeFilters["Body Style"]?.has("Compact SUV") || false} onChange={() => handleFilterToggle("Body Style", "Compact SUV")} />
-                  <FilterCheckbox label={t("productsRevenueKing.filterOptions.sedan")} checked={activeFilters["Body Style"]?.has("Sedan") || false} onChange={() => handleFilterToggle("Body Style", "Sedan")} />
-                </FilterGroup>
-
-                <FilterGroup title={t("productsRevenueKing.filterGroups.batteryChemistry")}>
-                  <FilterCheckbox label={t("productsRevenueKing.filterOptions.lfp")} checked={activeFilters["Battery Chemistry"]?.has("LFP (Lithium Iron Phosphate)") || false} onChange={() => handleFilterToggle("Battery Chemistry", "LFP (Lithium Iron Phosphate)")} />
-                  <FilterCheckbox label={t("productsRevenueKing.filterOptions.ncm")} checked={activeFilters["Battery Chemistry"]?.has("NCM (Ternary Lithium)") || false} onChange={() => handleFilterToggle("Battery Chemistry", "NCM (Ternary Lithium)")} />
-                </FilterGroup>
-
-                <FilterGroup title={t("productsRevenueKing.filterGroups.range")}>
-                  <FilterCheckbox label={t("productsRevenueKing.filterOptions.rangeUnder300")} checked={activeFilters["Urban Range (NEDC)"]?.has("Under 300 km") || false} onChange={() => handleFilterToggle("Urban Range (NEDC)", "Under 300 km")} />
-                  <FilterCheckbox label={t("productsRevenueKing.filterOptions.range300to450")} checked={activeFilters["Urban Range (NEDC)"]?.has("300 km - 450 km") || false} onChange={() => handleFilterToggle("Urban Range (NEDC)", "300 km - 450 km")} />
-                  <FilterCheckbox label={t("productsRevenueKing.filterOptions.rangeAbove450")} checked={activeFilters["Urban Range (NEDC)"]?.has("450 km +") || false} onChange={() => handleFilterToggle("Urban Range (NEDC)", "450 km +")} />
-                </FilterGroup>
-
-                <FilterGroup title={t("productsRevenueKing.filterGroups.price")}>
-                  <FilterCheckbox label={t("productsRevenueKing.filterOptions.priceUnder15k")} checked={activeFilters["Price"]?.has("Under $15,000") || false} onChange={() => handleFilterToggle("Price", "Under $15,000")} />
-                  <FilterCheckbox label={t("productsRevenueKing.filterOptions.price15to20k")} checked={activeFilters["Price"]?.has("$15,000 - $20,000") || false} onChange={() => handleFilterToggle("Price", "$15,000 - $20,000")} />
-                  <FilterCheckbox label={t("productsRevenueKing.filterOptions.priceAbove20k")} checked={activeFilters["Price"]?.has("Above $20,000") || false} onChange={() => handleFilterToggle("Price", "Above $20,000")} />
-                </FilterGroup>
-
-                <FilterGroup title={t("productsRevenueKing.filterGroups.steeringSetup")}>
-                  <FilterCheckbox label={t("productsRevenueKing.filterOptions.lhd")} checked={activeFilters["Steering Setup"]?.has("LHD (Left-Hand Drive)") || false} onChange={() => handleFilterToggle("Steering Setup", "LHD (Left-Hand Drive)")} />
-                  <FilterCheckbox label={t("productsRevenueKing.filterOptions.rhd")} checked={activeFilters["Steering Setup"]?.has("RHD (Right-Hand Drive)") || false} onChange={() => handleFilterToggle("Steering Setup", "RHD (Right-Hand Drive)")} />
-                </FilterGroup>
-
-                <FilterGroup title={t("productsRevenueKing.filterGroups.availability")} last>
-                  <FilterCheckbox label={t("productsRevenueKing.filterOptions.inStock")} checked={activeFilters["Availability"]?.has("In Stock (Port)") || false} onChange={() => handleFilterToggle("Availability", "In Stock (Port)")} />
-                  <FilterCheckbox label={t("productsRevenueKing.filterOptions.factoryOrder")} checked={activeFilters["Availability"]?.has("Factory Order (14+ Days)") || false} onChange={() => handleFilterToggle("Availability", "Factory Order (14+ Days)")} />
-                </FilterGroup>
+                {filterGroups.map((group, index) => (
+                  <FilterGroup key={group.id} title={group.label} last={index === filterGroups.length - 1}>
+                    {group.options.map((option) => (
+                      <FilterCheckbox
+                        key={option.id}
+                        label={option.label}
+                        checked={activeFilters[group.id]?.has(option.id) || false}
+                        onChange={() => handleFilterToggle(group.id, option.id)}
+                      />
+                    ))}
+                  </FilterGroup>
+                ))}
               </div>
             </aside>
 
             {/* Vehicle Grid */}
             <div className="lg:col-span-9">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 border-b border-white/5 pb-6">
-                <div className="text-[10px] font-black tracking-widest uppercase text-gray-500">
-                  {t("productsRevenueKing.showing")
-                    .replace("{start}", String(showingStart))
-                    .replace("{end}", String(showingEnd))
-                    .replace("{total}", String(filteredVehicles.length))}
-                </div>
+                {loadState === "ready" ? (
+                  <div className="text-[10px] font-black tracking-widest uppercase text-gray-500">
+                    {t("productsRevenueKing.showing")
+                      .replace("{start}", String(showingStart))
+                      .replace("{end}", String(showingEnd))
+                      .replace("{total}", String(filteredVehicles.length))}
+                  </div>
+                ) : (
+                  <div className="h-2.5 w-32 animate-pulse rounded-full bg-white/[0.08]" aria-hidden="true" />
+                )}
                 <div className="flex gap-4 items-center">
                   <span className="text-[10px] font-black uppercase tracking-widest text-gray-600">
                     {t("productsRevenueKing.sortBy")}
                   </span>
-                  <select value={sortBy} onChange={handleSortChange} className="bg-transparent border-none text-gold text-[10px] font-black uppercase tracking-widest outline-none cursor-pointer">
+                  <select value={sortBy} onChange={handleSortChange} disabled={loadState !== "ready"} className="bg-transparent border-none text-gold text-[10px] font-black uppercase tracking-widest outline-none cursor-pointer disabled:cursor-default disabled:opacity-40">
                     <option value="default" className="bg-bg text-white">
                       {t("productsRevenueKing.sortOptions.default")}
                     </option>
@@ -349,16 +334,23 @@ export default function RevenueKingPage() {
                 </div>
               </div>
 
-              <div className="grid md:grid-cols-2 gap-8 mb-0">
-                {pageVehicles.map((v) => (
-                  <VehicleCard key={`${v.brand}-${v.name}`} vehicle={v} />
-                ))}
-              </div>
+              {loadState === "loading" ? (
+                <ProductCatalogSkeleton />
+              ) : loadState === "error" ? (
+                <ProductCatalogUnavailable />
+              ) : (
+                <div className="grid md:grid-cols-2 gap-8 mb-0">
+                  {pageVehicles.map((v) => (
+                    <VehicleCard key={`${v.brand}-${v.name}`} vehicle={v} />
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
       </main>
 
+      {loadState === "ready" && (
       <div className="relative overflow-hidden bg-a">
         <div className="relative z-10 container mx-auto px-6 md:px-12 pt-16 pb-12">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 xl:gap-16">
@@ -401,6 +393,7 @@ export default function RevenueKingPage() {
           </div>
         </div>
       </div>
+      )}
     </>
   );
 }

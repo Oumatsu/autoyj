@@ -1,5 +1,7 @@
 /// <reference types="@cloudflare/workers-types" />
 
+import { buildProductFilterData } from "./productFilters";
+
 type Env = {
   FEISHU_API_URL?: string;
   FEISHU_APP_ID?: string;
@@ -1995,6 +1997,7 @@ async function handlePublicProducts(env: Env) {
       label: cardLabel,
       status,
       statusText,
+      filterData: buildProductFilterData(fields),
       link: `/products/${category}/${slug}`
     };
   });

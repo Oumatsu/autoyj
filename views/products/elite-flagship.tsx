@@ -3,6 +3,8 @@
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { useTranslation } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
+import { ProductCatalogSkeleton, ProductCatalogUnavailable } from "@/components/ProductCatalogState";
+import { buildCatalogFilterGroups, filterCatalogProducts } from "./catalogFilters";
 import { vehicles } from "../../app/products/elite-flagship/data";
 
 const ITEMS_PER_PAGE = 6;
@@ -66,7 +68,8 @@ function inventoryStatusText(vehicle: any, fallbackInStock: string, fallbackFact
 
 export default function EliteFlagshipPage() {
   const { t } = useTranslation();
-  const [products, setProducts] = useState<any[] | null>(null);
+  const [products, setProducts] = useState<any[]>([]);
+  const [loadState, setLoadState] = useState<"loading" | "ready" | "error">("loading");
   const [currentPage, setCurrentPage] = useState(1);
   const [sortBy, setSortBy] = useState<"default" | "price_low" | "price_high" | "range_high" | "range_low">("default");
   const [search, setSearch] = useState("");
@@ -95,14 +98,20 @@ export default function EliteFlagshipPage() {
             statusText: p.statusText || (fallback ? fallback.statusText : "TBC"),
             link: p.link || (fallback ? fallback.link : `/products/elite-flagship/${p.slug}`),
             tags: p.tags && p.tags.length ? p.tags : (fallback ? fallback.tags : []),
+            filterData: p.filterData,
           };
         });
         setProducts(mapped);
+        setLoadState("ready");
       })
-      .catch(() => {});
+      .catch(() => setLoadState("error"));
   }, []);
 
-  const displayVehicles = products || vehicles;
+  const displayVehicles = loadState === "ready" ? products : [];
+  const filterGroups = useMemo(
+    () => buildCatalogFilterGroups("elite-flagship", displayVehicles, t),
+    [displayVehicles, t],
+  );
 
   const handleFilterToggle = useCallback((group: string, label: string) => {
     setActiveFilters(prev => {
@@ -151,16 +160,8 @@ export default function EliteFlagshipPage() {
         v.name.toLowerCase().includes(q)
       );
     }
-    const groups = Object.keys(activeFilters);
-    if (groups.length === 0) return result;
-    return result.filter(v =>
-      groups.every(group => {
-        const checked = activeFilters[group];
-        if (!checked || checked.size === 0) return true;
-        return v.tags.some((tag: string) => checked.has(tag));
-      })
-    );
-  }, [sortedVehicles, search, activeFilters]);
+    return filterCatalogProducts(result, activeFilters, filterGroups);
+  }, [sortedVehicles, search, activeFilters, filterGroups]);
 
   const handleSortChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
     setSortBy(e.target.value as typeof sortBy);
@@ -268,56 +269,38 @@ export default function EliteFlagshipPage() {
                   <span className="text-xs">&times;</span> {t("productsEliteFlagship.clearAllFilters")}
                 </button>
 
-                <FilterGroup title={t("productsEliteFlagship.filterGroups.bodyStyle")}>
-                  <FilterCheckbox label={t("productsEliteFlagship.filterOptions.executiveSedan")} checked={activeFilters["Body Style"]?.has("Executive Sedan") || false} onChange={() => handleFilterToggle("Body Style", "Executive Sedan")} />
-                  <FilterCheckbox label={t("productsEliteFlagship.filterOptions.premiumSuv")} checked={activeFilters["Body Style"]?.has("Premium SUV") || false} onChange={() => handleFilterToggle("Body Style", "Premium SUV")} />
-                  <FilterCheckbox label={t("productsEliteFlagship.filterOptions.diplomaticMpv")} checked={activeFilters["Body Style"]?.has("Diplomatic MPV") || false} onChange={() => handleFilterToggle("Body Style", "Diplomatic MPV")} />
-                </FilterGroup>
-
-                <FilterGroup title={t("productsEliteFlagship.filterGroups.batteryChemistry")}>
-                  <FilterCheckbox label={t("productsEliteFlagship.filterOptions.lfpBlade")} checked={activeFilters["Battery Chemistry"]?.has("LFP Blade (BYD)") || false} onChange={() => handleFilterToggle("Battery Chemistry", "LFP Blade (BYD)")} />
-                  <FilterCheckbox label={t("productsEliteFlagship.filterOptions.ncm")} checked={activeFilters["Battery Chemistry"]?.has("NCM (Ternary Lithium)") || false} onChange={() => handleFilterToggle("Battery Chemistry", "NCM (Ternary Lithium)")} />
-                  <FilterCheckbox label={t("productsEliteFlagship.filterOptions.semiSolid")} checked={activeFilters["Battery Chemistry"]?.has("Semi-Solid State") || false} onChange={() => handleFilterToggle("Battery Chemistry", "Semi-Solid State")} />
-                </FilterGroup>
-
-                <FilterGroup title={t("productsEliteFlagship.filterGroups.range")}>
-                  <FilterCheckbox label={t("productsEliteFlagship.filterOptions.rangeUnder500")} checked={activeFilters["Range (CLTC)"]?.has("Under 500 km") || false} onChange={() => handleFilterToggle("Range (CLTC)", "Under 500 km")} />
-                  <FilterCheckbox label={t("productsEliteFlagship.filterOptions.range500to700")} checked={activeFilters["Range (CLTC)"]?.has("500 km - 700 km") || false} onChange={() => handleFilterToggle("Range (CLTC)", "500 km - 700 km")} />
-                  <FilterCheckbox label={t("productsEliteFlagship.filterOptions.rangeAbove700")} checked={activeFilters["Range (CLTC)"]?.has("700 km +") || false} onChange={() => handleFilterToggle("Range (CLTC)", "700 km +")} />
-                </FilterGroup>
-
-                <FilterGroup title={t("productsEliteFlagship.filterGroups.price")}>
-                  <FilterCheckbox label={t("productsEliteFlagship.filterOptions.price35to50k")} checked={activeFilters["Price"]?.has("$35,000 - $50,000") || false} onChange={() => handleFilterToggle("Price", "$35,000 - $50,000")} />
-                  <FilterCheckbox label={t("productsEliteFlagship.filterOptions.price50to65k")} checked={activeFilters["Price"]?.has("$50,000 - $65,000") || false} onChange={() => handleFilterToggle("Price", "$50,000 - $65,000")} />
-                  <FilterCheckbox label={t("productsEliteFlagship.filterOptions.priceAbove65k")} checked={activeFilters["Price"]?.has("Above $65,000") || false} onChange={() => handleFilterToggle("Price", "Above $65,000")} />
-                </FilterGroup>
-
-                <FilterGroup title={t("productsEliteFlagship.filterGroups.chargingStandard")}>
-                  <FilterCheckbox label={t("productsEliteFlagship.filterOptions.charging800v")} checked={activeFilters["Charging Standard"]?.has("800V Platform") || false} onChange={() => handleFilterToggle("Charging Standard", "800V Platform")} />
-                  <FilterCheckbox label={t("productsEliteFlagship.filterOptions.batterySwap")} checked={activeFilters["Charging Standard"]?.has("Battery Swap (NIO)") || false} onChange={() => handleFilterToggle("Charging Standard", "Battery Swap (NIO)")} />
-                  <FilterCheckbox label={t("productsEliteFlagship.filterOptions.erev")} checked={activeFilters["Charging Standard"]?.has("EREV (Extended Range)") || false} onChange={() => handleFilterToggle("Charging Standard", "EREV (Extended Range)")} />
-                </FilterGroup>
-
-                <FilterGroup title={t("productsEliteFlagship.filterGroups.availability")} last>
-                  <FilterCheckbox label={t("productsEliteFlagship.filterOptions.inStock")} checked={activeFilters["Availability"]?.has("In Stock (Port)") || false} onChange={() => handleFilterToggle("Availability", "In Stock (Port)")} />
-                  <FilterCheckbox label={t("productsEliteFlagship.filterOptions.factoryOrder")} checked={activeFilters["Availability"]?.has("Factory Order (21+ Days)") || false} onChange={() => handleFilterToggle("Availability", "Factory Order (21+ Days)")} />
-                </FilterGroup>
+                {filterGroups.map((group, index) => (
+                  <FilterGroup key={group.id} title={group.label} last={index === filterGroups.length - 1}>
+                    {group.options.map((option) => (
+                      <FilterCheckbox
+                        key={option.id}
+                        label={option.label}
+                        checked={activeFilters[group.id]?.has(option.id) || false}
+                        onChange={() => handleFilterToggle(group.id, option.id)}
+                      />
+                    ))}
+                  </FilterGroup>
+                ))}
               </div>
             </aside>
 
             <div className="lg:col-span-9">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 border-b border-white/5 pb-6">
-                <div className="text-[10px] font-black tracking-widest uppercase text-gray-500">
-                  {t("productsEliteFlagship.showing")
-                    .replace("{start}", String(showingStart))
-                    .replace("{end}", String(showingEnd))
-                    .replace("{total}", String(filteredVehicles.length))}
-                </div>
+                {loadState === "ready" ? (
+                  <div className="text-[10px] font-black tracking-widest uppercase text-gray-500">
+                    {t("productsEliteFlagship.showing")
+                      .replace("{start}", String(showingStart))
+                      .replace("{end}", String(showingEnd))
+                      .replace("{total}", String(filteredVehicles.length))}
+                  </div>
+                ) : (
+                  <div className="h-2.5 w-32 animate-pulse rounded-full bg-white/[0.08]" aria-hidden="true" />
+                )}
                 <div className="flex gap-4 items-center">
                   <span className="text-[10px] font-black uppercase tracking-widest text-gray-600">
                     {t("productsEliteFlagship.sortBy")}
                   </span>
-                  <select value={sortBy} onChange={handleSortChange} className="bg-transparent border-none text-gold text-[10px] font-black uppercase tracking-widest outline-none cursor-pointer">
+                  <select value={sortBy} onChange={handleSortChange} disabled={loadState !== "ready"} className="bg-transparent border-none text-gold text-[10px] font-black uppercase tracking-widest outline-none cursor-pointer disabled:cursor-default disabled:opacity-40">
                     <option value="default" className="bg-bg text-white">
                       {t("productsEliteFlagship.sortOptions.default")}
                     </option>
@@ -337,16 +320,23 @@ export default function EliteFlagshipPage() {
                 </div>
               </div>
 
-              <div className="grid md:grid-cols-2 gap-8 mb-0">
-                {pageVehicles.map((v) => (
-                  <VehicleCard key={`${v.brand}-${v.name}`} vehicle={v} />
-                ))}
-              </div>
+              {loadState === "loading" ? (
+                <ProductCatalogSkeleton />
+              ) : loadState === "error" ? (
+                <ProductCatalogUnavailable />
+              ) : (
+                <div className="grid md:grid-cols-2 gap-8 mb-0">
+                  {pageVehicles.map((v) => (
+                    <VehicleCard key={`${v.brand}-${v.name}`} vehicle={v} />
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
       </main>
 
+      {loadState === "ready" && (
       <div className="relative overflow-hidden bg-a">
         <div className="relative z-10 container mx-auto px-6 md:px-12 pt-16 pb-12">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 xl:gap-16">
@@ -389,6 +379,7 @@ export default function EliteFlagshipPage() {
           </div>
         </div>
       </div>
+      )}
     </>
   );
 }
