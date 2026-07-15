@@ -1,8 +1,15 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import Link from "next/link";
 import { useTranslation } from "@/i18n/useTranslation";
+import {
+  detailModelKey,
+  detailVariantKey,
+  translatedDetailValue,
+  translatedDetailValues,
+  translatedDetailString,
+} from "@/views/products/detailTranslations";
 
 type Category = "revenue-king" | "elite-flagship" | "utility-pro";
 
@@ -48,6 +55,7 @@ interface TrimFeatureGroup {
 }
 
 interface TrimComparisonTrim {
+  trimConfigId?: string;
   name: string;
   order?: number;
   priceRmb?: number;
@@ -104,6 +112,8 @@ interface TrimLadderFeatureGroup {
 }
 
 interface DetailData {
+  modelId: string;
+  slug: string;
   vehicle: {
     brand: string;
     name: string;
@@ -312,7 +322,9 @@ function legacyTrimComparison(data: DetailData, v: DetailData["vehicle"]): TrimC
   };
 }
 
-function TrimPoster({ data, v }: { data: DetailData; v: DetailData["vehicle"] }) {
+type Translate = (key: string, fallback?: string) => unknown;
+
+function TrimPoster({ data, v, t }: { data: DetailData; v: DetailData["vehicle"]; t: Translate }) {
   const comparison = data.trimComparison || legacyTrimComparison(data, v);
   if (!comparison) return null;
 
@@ -327,16 +339,16 @@ function TrimPoster({ data, v }: { data: DetailData; v: DetailData["vehicle"] })
       <div className="container mx-auto px-6 md:px-12">
         <div className="mb-10 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
           <div>
-            <div className="label mb-3">All Versions - Side by Side</div>
+            <div className="label mb-3">{t("productsDetail.ui.allVersions", "All Versions - Side by Side") as string}</div>
             <h2 className="text-3xl md:text-4xl font-black uppercase italic tracking-tight text-white">
-              {v.brand} {v.name} Trim Map
+              {v.brand} {v.name} {t("productsDetail.ui.trimMap", "Trim Map") as string}
             </h2>
             <p className="text-gray-500 text-sm font-light mt-3 max-w-2xl">
-              Version cards first, then only the equipment that changes. Shared equipment is separated below so dealers can see the real differences faster.
+              {t("productsDetail.ui.trimMapDescription", "Version cards first, then only the equipment that changes. Shared equipment is separated below so dealers can see the real differences faster.") as string}
             </p>
           </div>
           <div className={`text-[10px] font-black uppercase tracking-[.18em] ${sourceTone}`}>
-            {comparison.status || "TBC"} trim data
+            {comparison.status || "TBC"} {t("productsDetail.ui.trimData", "trim data") as string}
           </div>
         </div>
 
@@ -357,21 +369,21 @@ function TrimPoster({ data, v }: { data: DetailData; v: DetailData["vehicle"] })
             >
               {trim.recommended && (
                 <div className="absolute -top-3 left-6 rounded-full bg-accent px-3 py-1 text-[8px] font-black uppercase tracking-[.16em] text-black">
-                  Recommended
+                  {t("productsDetail.ui.recommended", "Recommended") as string}
                 </div>
               )}
               <div className="text-[10px] font-black uppercase tracking-[.18em] text-gray-600 mb-2">
-                Level {index + 1}
+                {t("productsDetail.ui.level", "Level") as string} {index + 1}
               </div>
               <h3 className="text-xl font-black italic uppercase tracking-tight text-white mb-5">
                 {trim.name}
               </h3>
               <div className="grid grid-cols-2 gap-3 mb-5">
                 {[
-                  ["Price", trim.priceDisplay],
-                  ["Range", trim.rangeDisplay],
-                  ["Battery", trim.batteryDisplay],
-                  ["Drive", trim.drivetrainDisplay],
+                  [t("productsDetail.ui.price", "Price") as string, trim.priceDisplay],
+                  [t("productsDetail.ui.range", "Range") as string, trim.rangeDisplay],
+                  [t("productsDetail.ui.battery", "Battery") as string, trim.batteryDisplay],
+                  [t("productsDetail.ui.drive", "Drive") as string, trim.drivetrainDisplay],
                 ].filter(([, value]) => value).map(([label, value]) => (
                   <div key={`${trim.name}-${label}`}>
                     <div className="text-[8px] font-black uppercase tracking-widest text-gray-600 mb-1">{label}</div>
@@ -380,9 +392,9 @@ function TrimPoster({ data, v }: { data: DetailData; v: DetailData["vehicle"] })
                 ))}
               </div>
               {index === 0 ? (
-                <div className="text-[9px] font-black uppercase tracking-[.16em] text-gray-600 mb-3">Entry equipment</div>
+                <div className="text-[9px] font-black uppercase tracking-[.16em] text-gray-600 mb-3">{t("productsDetail.ui.entryEquipment", "Entry equipment") as string}</div>
               ) : (
-                <div className="text-[9px] font-black uppercase tracking-[.16em] text-accent mb-3">Adds over previous trim</div>
+                <div className="text-[9px] font-black uppercase tracking-[.16em] text-accent mb-3">{t("productsDetail.ui.addsOverPrevious", "Adds over previous trim") as string}</div>
               )}
               <div className="space-y-2">
                 {(currentFeatures.length ? currentFeatures : entryFeatures).map((item, itemIndex) => (
@@ -400,7 +412,7 @@ function TrimPoster({ data, v }: { data: DetailData; v: DetailData["vehicle"] })
                           </div>
                         ))}
                         <div className="text-[9px] font-black uppercase tracking-[.14em] text-gray-600">
-                          (from Level {group.sourceLevel})
+                          ({t("productsDetail.ui.fromLevel", "from Level") as string} {group.sourceLevel})
                         </div>
                       </div>
                     ))}
@@ -417,12 +429,12 @@ function TrimPoster({ data, v }: { data: DetailData; v: DetailData["vehicle"] })
         </div>
         ) : (
           <div className="mb-8 rounded-[1.25rem] border border-red-400/20 bg-red-400/[0.04] p-6">
-            <div className="text-[10px] font-black uppercase tracking-[.18em] text-red-300 mb-3">Version ladder pending</div>
+            <div className="text-[10px] font-black uppercase tracking-[.18em] text-red-300 mb-3">{t("productsDetail.ui.versionLadderPending", "Version ladder pending") as string}</div>
             <h3 className="text-xl font-black italic uppercase tracking-tight text-white mb-3">
-              Trim-level additions are not verified yet
+              {t("productsDetail.ui.trimAdditionsUnverified", "Trim-level additions are not verified yet") as string}
             </h3>
             <p className="max-w-3xl text-sm font-light leading-relaxed text-gray-400">
-              The section is ready for source-backed trim records. Until each version is verified, this page only shows shared model-level configuration below.
+              {t("productsDetail.ui.trimPendingDescription", "The section is ready for source-backed trim records. Until each version is verified, this page only shows shared model-level configuration below.") as string}
             </p>
           </div>
         )}
@@ -435,7 +447,7 @@ function TrimPoster({ data, v }: { data: DetailData; v: DetailData["vehicle"] })
               style={{ gridTemplateColumns: `220px repeat(${trims.length}, minmax(150px, 1fr))` }}
             >
               <div className="p-4 text-[10px] font-black uppercase tracking-[.2em] text-gray-600">
-                Core Spec
+                {t("productsDetail.ui.coreSpec", "Core Spec") as string}
               </div>
               {trims.map((trim) => (
                 <div
@@ -449,8 +461,8 @@ function TrimPoster({ data, v }: { data: DetailData; v: DetailData["vehicle"] })
             </div>
 
             {[
-              { group: "Powertrain", rows: [["Range", "rangeDisplay"], ["Battery", "batteryDisplay"], ["Drivetrain", "drivetrainDisplay"], ["Motor", "motorDisplay"], ["Charging", "chargingDisplay"]] },
-              { group: "Package Logic", rows: [["Base Equipment", "baseFeatures"], ["Added Features", "addedFeatures"], ["Upgrades", "upgradedFeatures"]] },
+              { group: t("productsDetail.ui.powertrain", "Powertrain") as string, rows: [[t("productsDetail.ui.range", "Range") as string, "rangeDisplay"], [t("productsDetail.ui.battery", "Battery") as string, "batteryDisplay"], [t("productsDetail.ui.drivetrain", "Drivetrain") as string, "drivetrainDisplay"], [t("productsDetail.ui.motor", "Motor") as string, "motorDisplay"], [t("productsDetail.ui.charging", "Charging") as string, "chargingDisplay"]] },
+              { group: t("productsDetail.ui.packageLogic", "Package Logic") as string, rows: [[t("productsDetail.ui.baseEquipment", "Base Equipment") as string, "baseFeatures"], [t("productsDetail.ui.addedFeatures", "Added Features") as string, "addedFeatures"], [t("productsDetail.ui.upgrades", "Upgrades") as string, "upgradedFeatures"]] },
             ].map((section) => (
               <div key={section.group}>
                 <div className="px-4 py-3 bg-white/[0.035] border-b border-white/5 text-[10px] font-black uppercase tracking-[.18em] text-accent">
@@ -493,13 +505,13 @@ function TrimPoster({ data, v }: { data: DetailData; v: DetailData["vehicle"] })
         <div className="rounded-[2rem] border border-theme/20 bg-theme/[0.045] p-6 md:p-8">
           <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 mb-6">
             <div>
-              <div className="label label-gold mb-3">All Trims Include</div>
+              <div className="label label-gold mb-3">{t("productsDetail.ui.allTrimsInclude", "All Trims Include") as string}</div>
               <h3 className="text-2xl font-black uppercase italic tracking-tight text-white">
-                Trim Framework - Standard Equipment Across Every Version
+                {t("productsDetail.ui.trimFramework", "Trim Framework - Standard Equipment Across Every Version") as string}
               </h3>
             </div>
             <Link href="/contact" className="btn-primary px-7 py-3 rounded text-xs font-black tracking-widest uppercase italic flex-shrink-0">
-              Request Trim Pricing
+              {t("productsDetail.ui.requestTrimPricing", "Request Trim Pricing") as string}
             </Link>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -528,8 +540,84 @@ function TrimPoster({ data, v }: { data: DetailData; v: DetailData["vehicle"] })
   );
 }
 
-export default function VehicleDetail({ data }: { data: DetailData }) {
+export default function VehicleDetail({ data: rawData }: { data: DetailData }) {
   const { t } = useTranslation();
+  const data = useMemo<DetailData>(() => {
+    const modelText = (field: string, fallback: string) =>
+      translatedDetailString(t, detailModelKey(rawData.slug, field), fallback);
+    const valueText = (fallback: string) => translatedDetailValue(t, fallback);
+    const valueArray = (fallback: string[]) => translatedDetailValues(t, fallback);
+    const localizeTrim = (trim: TrimComparisonTrim): TrimComparisonTrim => {
+      if (!trim.trimConfigId) return trim;
+      const variantText = (field: string, fallback: string) =>
+        translatedDetailString(t, detailVariantKey(trim.trimConfigId!, field), fallback);
+      return {
+        ...trim,
+        name: variantText("name", trim.name),
+        batteryDisplay: valueText(trim.batteryDisplay || ""),
+        drivetrain: valueText(trim.drivetrain || ""),
+        drivetrainDisplay: valueText(trim.drivetrainDisplay || ""),
+        chargingDisplay: valueText(trim.chargingDisplay || ""),
+        sourceStatus: valueText(trim.sourceStatus || ""),
+        baseFeatures: valueArray(trim.baseFeatures || []),
+        addedFeatures: valueArray(trim.addedFeatures || []),
+        upgradedFeatures: valueArray(trim.upgradedFeatures || []),
+        keySpecs: trim.keySpecs?.map((spec) => ({
+          label: valueText(spec.label),
+          value: valueText(spec.value),
+        })),
+      };
+    };
+
+    const localized: DetailData = { ...rawData };
+    (["heroDesc", "whyDesc", "trimNote"] as const).forEach((field) => {
+      const value = rawData[field];
+      if (typeof value === "string") (localized as unknown as Record<string, unknown>)[field] = modelText(field, value);
+    });
+    localized.subtitle = valueText(rawData.subtitle);
+    localized.stat1Value = valueText(rawData.stat1Value);
+    localized.stat2Value = valueText(rawData.stat2Value);
+    localized.stat3Value = valueText(rawData.stat3Value);
+    localized.vehicle = {
+      ...rawData.vehicle,
+      brand: modelText("vehicle.brand", rawData.vehicle.brand),
+      name: modelText("vehicle.name", rawData.vehicle.name),
+      charging: valueText(rawData.vehicle.charging),
+      statusText: valueText(rawData.vehicle.statusText),
+    };
+    localized.tags = valueArray(rawData.tags);
+    localized.features = rawData.features.map((feature) => ({
+      ...feature,
+      title: valueText(feature.title),
+      desc: valueText(feature.desc),
+    }));
+    localized.specsLeft = rawData.specsLeft.map((spec) => ({
+      ...spec,
+      value: valueText(spec.value),
+    }));
+    localized.specsRight = rawData.specsRight.map((spec) => ({
+      ...spec,
+      value: valueText(spec.value),
+    }));
+    localized.fits = rawData.fits.map((fit) => ({
+      ...fit,
+      title: valueText(fit.title),
+      desc: valueText(fit.desc),
+      accent: valueText(fit.accent),
+    }));
+    if (rawData.trimComparison) {
+      localized.trimComparison = {
+        ...rawData.trimComparison,
+        status: valueText(rawData.trimComparison.status || ""),
+        trims: rawData.trimComparison.trims.map(localizeTrim),
+        commonFeatures: rawData.trimComparison.commonFeatures?.map((group) => ({
+          category: valueText(group.category),
+          items: valueArray(group.items),
+        })),
+      };
+    }
+    return localized;
+  }, [rawData, t]);
   const translateSpecLabel = useCallback((label: string) => {
     const key = `specs.${label.trim()}`;
     return t(key, label);
@@ -590,10 +678,10 @@ export default function VehicleDetail({ data }: { data: DetailData }) {
 
         <div className="relative z-10 container mx-auto px-4 sm:px-6 md:px-12 pb-12 lg:pb-20 pt-20 lg:pt-36">
           <nav className="hidden min-[504px]:flex items-center gap-2 text-[10px] font-black tracking-widest uppercase mb-8 text-gray-600">
-            <Link href="/" className="hover:text-gray-400 transition">Home</Link>
+            <Link href="/" className="hover:text-gray-400 transition">{t("productsDetail.ui.home", "Home")}</Link>
             <span>/</span>
             <Link href={`/products/${data.category}`} className="hover:text-accent transition text-accent">
-              {data.category === "revenue-king" ? "Revenue King" : data.category === "elite-flagship" ? "Elite Flagship" : "Utility Pro"}
+              {data.category === "revenue-king" ? t("productsDetail.ui.revenueKing", "Revenue King") : data.category === "elite-flagship" ? t("productsDetail.ui.eliteFlagship", "Elite Flagship") : t("productsDetail.ui.utilityPro", "Utility Pro")}
             </Link>
             <span>/</span>
             <span className="text-gray-500">{v.brand} {v.name}</span>
@@ -610,17 +698,17 @@ export default function VehicleDetail({ data }: { data: DetailData }) {
               <p className="text-2xl font-light italic text-gray-500 mb-8">{data.subtitle}</p>
               <p className="hidden lg:block text-gray-300 text-base font-light leading-relaxed mb-10 max-w-lg italic border-l-2 pl-6" style={{ borderColor: "rgba(16,185,129,.45)" }}>{data.heroDesc}</p>
               <div className="hidden min-[456px]:flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4">
-                <a href="/qr" className="btn-primary px-6 sm:px-9 py-3 sm:py-4 rounded text-xs sm:text-sm font-black tracking-widest uppercase italic shadow-lg text-center">WhatsApp Inquiry</a>
-                <Link href="#specs" className="px-6 sm:px-9 py-3 sm:py-4 rounded text-xs sm:text-sm font-black tracking-widest uppercase italic border border-accent/40 text-accent hover:bg-accent hover:text-black transition text-center">View Full Specs ↓</Link>
+                <a href="/qr" className="btn-primary px-6 sm:px-9 py-3 sm:py-4 rounded text-xs sm:text-sm font-black tracking-widest uppercase italic shadow-lg text-center">{t("productsDetail.ui.whatsappInquiry", "WhatsApp Inquiry")}</a>
+                <Link href="#specs" className="px-6 sm:px-9 py-3 sm:py-4 rounded text-xs sm:text-sm font-black tracking-widest uppercase italic border border-accent/40 text-accent hover:bg-accent hover:text-black transition text-center">{t("productsDetail.ui.viewFullSpecs", "View Full Specs") as string} ↓</Link>
               </div>
             </div>
             <div className="hidden min-[812px]:grid grid-cols-3 gap-3">
-              <div className="glass rounded-[1.5rem] p-5 text-center border-accent/20"><div className="text-3xl font-black italic text-accent mb-1">{data.stat1Value}</div><div className="text-[8px] font-black tracking-[.25em] uppercase text-gray-600">{data.stat1Label}</div></div>
-              <div className="glass rounded-[1.5rem] p-5 text-center border-theme/20"><div className="text-3xl font-black italic text-theme mb-1">{data.stat2Value}</div><div className="text-[8px] font-black tracking-[.25em] uppercase text-gray-600">{data.stat2Label}</div></div>
-              <div className="glass rounded-[1.5rem] p-5 text-center border-accent/20"><div className="text-xl font-black italic text-white mb-1">{data.stat3Value}</div><div className="text-[8px] font-black tracking-[.25em] uppercase text-gray-600">{data.stat3Label}</div></div>
+              <div className="glass rounded-[1.5rem] p-5 text-center border-accent/20"><div className="text-3xl font-black italic text-accent mb-1">{data.stat1Value}</div><div className="text-[8px] font-black tracking-[.25em] uppercase text-gray-600">{t("productsDetail.ui.range", "Range")}</div></div>
+              <div className="glass rounded-[1.5rem] p-5 text-center border-theme/20"><div className="text-3xl font-black italic text-theme mb-1">{data.stat2Value}</div><div className="text-[8px] font-black tracking-[.25em] uppercase text-gray-600">{t("productsDetail.ui.price", "Price")}</div></div>
+              <div className="glass rounded-[1.5rem] p-5 text-center border-accent/20"><div className="text-xl font-black italic text-white mb-1">{data.stat3Value}</div><div className="text-[8px] font-black tracking-[.25em] uppercase text-gray-600">{t("productsDetail.ui.battery", "Battery")}</div></div>
               <div className="col-span-3 glass rounded-[1.5rem] px-6 py-4 flex items-center justify-between border-theme/10">
-                <div className="flex items-center gap-2.5"><div className="pulse-dot" /><span className="text-[10px] font-black tracking-widest uppercase text-gray-500">Factory Price</span></div>
-                <Link href="/solutions/request-quote" className="text-[10px] font-black tracking-widest uppercase text-theme hover:text-white transition">Request Batch Quote →</Link>
+                <div className="flex items-center gap-2.5"><div className="pulse-dot" /><span className="text-[10px] font-black tracking-widest uppercase text-gray-500">{t("productsDetail.ui.factoryPrice", "Factory Price")}</span></div>
+                <Link href="/solutions/request-quote" className="text-[10px] font-black tracking-widest uppercase text-theme hover:text-white transition">{t("productsDetail.ui.requestBatchQuote", "Request Batch Quote") as string} →</Link>
               </div>
             </div>
           </div>
@@ -701,7 +789,7 @@ export default function VehicleDetail({ data }: { data: DetailData }) {
         <div className="container mx-auto px-6 md:px-12">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-start">
             <div>
-              <div className="label mb-5">{data.whyTitle}</div>
+              <div className="label mb-5">{t("productsDetail.ui.whyThisModel", "Why this model")}</div>
               <h2 className="sh mb-6" style={{ fontSize: "clamp(2rem,4.5vw,3.5rem)" }}>{data.whyDesc}</h2>
               <p className="text-gray-300 text-base font-light leading-relaxed mb-8">{v.charging}</p>
               <div className="flex flex-wrap gap-3">{data.tags.slice(1).map((tag: string) => (<span key={tag} className="text-[9px] font-black px-3 py-1.5 rounded-full tracking-widest uppercase" style={{ background: "rgba(16,185,129,.1)", color: "var(--color-green)" }}>{tag}</span>))}</div>
@@ -730,36 +818,36 @@ export default function VehicleDetail({ data }: { data: DetailData }) {
         <div className="relative z-10 container mx-auto px-6 md:px-12">
           <div className="grid lg:grid-cols-2 gap-14 lg:gap-20 items-center">
             <div>
-              <div className="label label-gold mb-5">The Business Case</div>
-              <h2 className="sh mb-5" style={{ fontSize: "clamp(2rem,4.5vw,3.5rem)" }}>Your Margin.<br /><span className="text-theme">Your Market</span>.</h2>
-              <p className="text-gray-300 text-base font-light leading-relaxed mb-8">Forward-thinking fleet buyers are ready to transition from ICE to EV — but they need the right price point. The {v.brand} {v.name} lands exactly in that gap: an accessible entry price backed by a powerful total-cost-of-ownership story. That gap is your margin.</p>
+              <div className="label label-gold mb-5">{t("productsDetail.ui.businessCase", "The Business Case")}</div>
+              <h2 className="sh mb-5" style={{ fontSize: "clamp(2rem,4.5vw,3.5rem)" }}>{t("productsDetail.ui.yourMargin", "Your Margin.")}<br /><span className="text-theme">{t("productsDetail.ui.yourMarket", "Your Market")}</span>.</h2>
+              <p className="text-gray-300 text-base font-light leading-relaxed mb-8">{t("productsDetail.ui.businessCaseDescription", `Forward-thinking fleet buyers are ready to transition from ICE to EV — but they need the right price point. The ${v.brand} ${v.name} lands exactly in that gap: an accessible entry price backed by a powerful total-cost-of-ownership story. That gap is your margin.`)}</p>
               <div className="space-y-4 mb-8">
-                {["Low entry price — accessible minimum order quantity", "Fast inventory turnover — strong monthly savings close deals quickly", `Typical 10-unit batch gross: ${batchMargin.low} – ${batchMargin.high}`].map((text, i) => (
+                {[t("productsDetail.ui.lowEntryPrice", "Low entry price — accessible minimum order quantity"), t("productsDetail.ui.fastTurnover", "Fast inventory turnover — strong monthly savings close deals quickly"), `${t("productsDetail.ui.typicalBatchGross", "Typical 10-unit batch gross")}: ${batchMargin.low} – ${batchMargin.high}`].map((text, i) => (
                   <div key={i} className="flex items-center gap-3"><div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 text-[9px] font-black" style={{ background: "rgba(197,160,89,.15)", color: "var(--color-gold)", border: "1px solid rgba(197,160,89,.3)" }}>{i + 1}</div><p className="text-xs font-black uppercase tracking-wider text-gray-400">{text}</p></div>
                 ))}
               </div>
               <div className="glass rounded-[1.5rem] p-6 inline-block" style={{ background: "rgba(0,0,0,.4)", borderColor: "rgba(197,160,89,.25)" }}>
-                <div className="text-[9px] font-black tracking-widest uppercase text-gray-600 mb-1">Estimated Gross Margin per Unit</div>
+                <div className="text-[9px] font-black tracking-widest uppercase text-gray-600 mb-1">{t("productsDetail.ui.estimatedMarginPerUnit", "Estimated Gross Margin per Unit")}</div>
                 <div className="text-4xl font-black italic text-theme">{batchMargin.low} – {batchMargin.high}</div>
               </div>
             </div>
             <div className="glass rounded-[2.5rem] p-8 md:p-10" style={{ background: "rgba(0,0,0,.48)" }}>
-              <div className="text-[9px] font-black tracking-widest uppercase text-gray-600 mb-8">Batch Profit Estimator</div>
+              <div className="text-[9px] font-black tracking-widest uppercase text-gray-600 mb-8">{t("productsDetail.ui.batchProfitEstimator", "Batch Profit Estimator")}</div>
               <div className="mb-8">
-                <div className="flex justify-between mb-4"><span className="text-xs font-black uppercase tracking-wider text-white">Units Ordered</span><span className="text-xs font-black text-theme">{batch.units} units</span></div>
+                <div className="flex justify-between mb-4"><span className="text-xs font-black uppercase tracking-wider text-white">{t("productsDetail.ui.unitsOrdered", "Units Ordered")}</span><span className="text-xs font-black text-theme">{batch.units} {t("productsDetail.ui.unitsLower", "units")}</span></div>
                 <div className="flex gap-2">{batchLevels.map((lvl, i) => (<button key={i} onClick={() => setBatchIdx(i)} className="flex-1 py-2.5 rounded-xl text-xs font-black tracking-wider transition" style={i === batchIdx ? { background: "var(--color-gold)", color: "#000" } : { background: "rgba(255,255,255,.06)", color: "#6B7280" }}>{lvl.units}</button>))}</div>
               </div>
               <div className="rounded-2xl p-6 text-center mb-6" style={{ background: "rgba(197,160,89,.08)", border: "1px solid rgba(197,160,89,.25)" }}>
-                <div className="text-[9px] font-black tracking-widest uppercase text-gray-500 mb-1">Estimated Gross Profit</div>
+                <div className="text-[9px] font-black tracking-widest uppercase text-gray-500 mb-1">{t("productsDetail.ui.estimatedGrossProfit", "Estimated Gross Profit")}</div>
                 <div className="text-4xl font-black italic text-white mb-1">{batch.display}</div>
-                <div className="text-[9px] font-black tracking-widest uppercase text-theme">Before import duties & local costs</div>
+                <div className="text-[9px] font-black tracking-widest uppercase text-theme">{t("productsDetail.ui.beforeDuties", "Before import duties & local costs")}</div>
               </div>
               <div className="space-y-3 mb-5">
-                <div className="flex justify-between text-xs"><span className="text-gray-600 font-black uppercase tracking-wider">Units</span><span className="text-white font-black">{batch.units}</span></div>
-                <div className="flex justify-between text-xs"><span className="text-gray-600 font-black uppercase tracking-wider">Margin / unit</span><span className="text-theme font-black">{batchMargin.low} – {batchMargin.high}</span></div>
-                <div className="flex justify-between text-xs border-t pt-3" style={{ borderColor: "rgba(255,255,255,.05)" }}><span className="text-gray-400 font-black uppercase tracking-wider">Total gross</span><span className="text-accent font-black">{batch.display}</span></div>
+                <div className="flex justify-between text-xs"><span className="text-gray-600 font-black uppercase tracking-wider">{t("productsDetail.ui.units", "Units")}</span><span className="text-white font-black">{batch.units}</span></div>
+                <div className="flex justify-between text-xs"><span className="text-gray-600 font-black uppercase tracking-wider">{t("productsDetail.ui.marginPerUnit", "Margin / unit")}</span><span className="text-theme font-black">{batchMargin.low} – {batchMargin.high}</span></div>
+                <div className="flex justify-between text-xs border-t pt-3" style={{ borderColor: "rgba(255,255,255,.05)" }}><span className="text-gray-400 font-black uppercase tracking-wider">{t("productsDetail.ui.totalGross", "Total gross")}</span><span className="text-accent font-black">{batch.display}</span></div>
               </div>
-             <p className="text-[9px] text-gray-700 text-center">*Based on typical emerging market retail pricing. <Link href="/solutions/request-quote" className="text-theme hover:text-white transition">Request a detailed quote</Link>.</p>
+             <p className="text-[9px] text-gray-700 text-center">*{t("productsDetail.ui.pricingDisclaimer", "Based on typical emerging market retail pricing.")} <Link href="/solutions/request-quote" className="text-theme hover:text-white transition">{t("productsDetail.ui.requestDetailedQuote", "Request a detailed quote")}</Link>.</p>
             </div>
           </div>
         </div>
@@ -775,15 +863,15 @@ export default function VehicleDetail({ data }: { data: DetailData }) {
         <div className="relative z-10 container mx-auto px-6 md:px-12">
           <div className="flex items-end justify-between mb-10 flex-wrap gap-4">
             <div>
-              <div className="label mb-3">Full Specifications</div>
+              <div className="label mb-3">{t("productsDetail.ui.fullSpecifications", "Full Specifications")}</div>
               <h2 className="text-2xl font-black uppercase italic tracking-tight text-white">
-                {v.brand} {v.name} — {new Date().getFullYear()} Model
+                {v.brand} {v.name} — {new Date().getFullYear()} {t("productsDetail.ui.model", "Model")}
               </h2>
             </div>
           </div>
            <div className="grid md:grid-cols-2 gap-6">
             <div className="glass rounded-[2rem] p-8" style={{ background: "rgba(0,0,0,.45)", borderColor: "rgba(16,185,129,.2)" }}>
-              <div className="text-[9px] font-black tracking-widest uppercase text-accent mb-6 flex items-center gap-2"><span className="w-4 h-px bg-accent inline-block" /> Performance & Range</div>
+              <div className="text-[9px] font-black tracking-widest uppercase text-accent mb-6 flex items-center gap-2"><span className="w-4 h-px bg-accent inline-block" /> {t("productsDetail.ui.performanceRange", "Performance & Range")}</div>
               {data.specsLeft.map((spec, j) => {
                 const g = spec.green ?? /Range|Motor|Fast Charge|Top Speed|0 .100|100 km|Efficiency|kW|hp/.test(spec.label);
                 const o = spec.gold ?? /Battery Type|Battery Capacity|Battery Chem|Drive Type|Platform|Energy Density/.test(spec.label);
@@ -796,7 +884,7 @@ export default function VehicleDetail({ data }: { data: DetailData }) {
               })}
             </div>
             <div className="glass rounded-[2rem] p-8" style={{ background: "rgba(0,0,0,.45)", borderColor: "rgba(197,160,89,.2)" }}>
-              <div className="text-[9px] font-black tracking-widest uppercase text-theme mb-6 flex items-center gap-2"><span className="w-4 h-px bg-theme inline-block" /> Dimensions & Features</div>
+              <div className="text-[9px] font-black tracking-widest uppercase text-theme mb-6 flex items-center gap-2"><span className="w-4 h-px bg-theme inline-block" /> {t("productsDetail.ui.dimensionsFeatures", "Dimensions & Features")}</div>
               {data.specsRight.map((spec, j) => {
                 const g = spec.green ?? /Charge|Export|V2L|Warranty/.test(spec.label);
                 const o = spec.gold ?? /Dimensions|Seating?|Airbag|Audio|Ambient|Sunroof|Boot|Wheelbase/.test(spec.label);
@@ -809,11 +897,11 @@ export default function VehicleDetail({ data }: { data: DetailData }) {
               })}
             </div>
           </div>
-          <p className="text-[10px] text-gray-700 mt-5 text-center">Specifications shown for latest model year. Multiple trim levels available — contact us for full trim comparison.</p>
+          <p className="text-[10px] text-gray-700 mt-5 text-center">{t("productsDetail.ui.specificationsDisclaimer", "Specifications shown for latest model year. Multiple trim levels available — contact us for full trim comparison.")}</p>
         </div>
       </section>
 
-      <TrimPoster data={data} v={v} />
+      <TrimPoster data={data} v={v} t={t} />
 
       {/* Legacy Trim Comparison */}
       {data.trimData && data.trimData.length > 0 && (
@@ -883,7 +971,7 @@ export default function VehicleDetail({ data }: { data: DetailData }) {
       {data.fits.length > 0 && (
       <section className="py-12 md:py-16 bg-b">
         <div className="container mx-auto px-6 md:px-12">
-          <div className="text-center mb-12"><div className="label justify-center mb-3">Ideal Customer Profile</div><h2 className="text-2xl font-black uppercase italic tracking-tight text-white">Who Should Buy This Vehicle?</h2></div>
+          <div className="text-center mb-12"><div className="label justify-center mb-3">{t("productsDetail.ui.idealCustomerProfile", "Ideal Customer Profile")}</div><h2 className="text-2xl font-black uppercase italic tracking-tight text-white">{t("productsDetail.ui.whoShouldBuy", "Who Should Buy This Vehicle?")}</h2></div>
           <div className="grid md:grid-cols-3 gap-5">
             {data.fits.map((fit, i) => (
               <div key={i} className="rounded-[2rem] p-7 bg-white/[0.015] border border-theme/10 hover:border-accent/25 hover:bg-accent/[0.03] transition-all">

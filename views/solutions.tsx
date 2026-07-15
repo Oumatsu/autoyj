@@ -4,10 +4,10 @@ import { useTranslation } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
 
 export default function SolutionsPage() {
-  const { t } = useTranslation();
+  const { t, tArray } = useTranslation();
 
   const pdiChecklist = (t("solutions.pdi.checklist") as any[]) || [];
-  const kitItems = (t("solutions.partsKit.kitItems") as any[]) || [];
+  const kitItems = tArray("solutions.partsKit.kitItems");
   const serviceCentreItems = (t("solutions.serviceCentre.items") as any[]) || [];
 
   return (
@@ -144,7 +144,7 @@ export default function SolutionsPage() {
             <h2 className="sh mb-8">
               {t("solutions.loading.heading")}
               <br />
-              <span className="text-theme">{t("solutions.loading.headingAccent")}</span>.
+              <span className="text-theme">{t("solutions.loading.headingAccent")}</span>
             </h2>
             <p className="text-gray-400 text-lg font-light italic leading-relaxed mb-12">
               {t("solutions.loading.description")}
@@ -317,7 +317,7 @@ export default function SolutionsPage() {
             </div>
             <h2 className="sh mb-8">
               {t("solutions.marketing.heading")}{" "}
-              <span className="text-theme">{t("solutions.marketing.headingAccent")}</span>.
+              <span className="text-theme">{t("solutions.marketing.headingAccent")}</span>
             </h2>
             <p className="text-gray-400 text-lg font-light italic leading-relaxed mb-12">
               {t("solutions.marketing.description")}

@@ -5,6 +5,7 @@ import { useTranslation } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
 import { ProductCatalogSkeleton, ProductCatalogUnavailable } from "@/components/ProductCatalogState";
 import { buildCatalogFilterGroups, filterCatalogProducts } from "./catalogFilters";
+import { catalogFilterKey, catalogModelKey } from "./catalogTranslations.ts";
 import { vehicles } from "../../app/products/elite-flagship/data";
 
 const ITEMS_PER_PAGE = 6;
@@ -88,6 +89,7 @@ export default function EliteFlagshipPage() {
           return {
             brand: p.brand,
             name: p.name,
+            slug: p.slug,
             fob: p.fob || (fallback ? fallback.fob : ""),
             battery: p.battery || (fallback ? fallback.battery : ""),
             batteryType: p.tags?.find((t: string) => t.includes("LFP") || t.includes("NCM")) || (fallback ? fallback.batteryType : ""),
@@ -447,25 +449,34 @@ function VehicleCard({
   vehicle: any;
 }) {
   const { t } = useTranslation();
+  const displayName = t(
+    catalogModelKey(vehicle.slug, "displayName"),
+    `${vehicle.brand} ${vehicle.name}`,
+  );
+  const cardHighlight = t(
+    catalogModelKey(vehicle.slug, "cardHighlight"),
+    vehicle.charging,
+  );
 
   const specEntries = [
     { label: t("productsEliteFlagship.filterGroups.batteryChemistry") || "Battery", value: vehicle.battery, accent: vehicle.batteryType },
     { label: t("productsEliteFlagship.filterGroups.range") || "Range", value: vehicle.range },
-    { label: t("productsEliteFlagship.filterGroups.chargingStandard") || "Spec", value: vehicle.charging },
+    { label: t("catalog.cardField.vehicleHighlights", "Vehicle Highlights"), value: cardHighlight },
   ];
 
-  const statusText = inventoryStatusText(
+  const rawStatusText = inventoryStatusText(
     vehicle,
     t("productsEliteFlagship.filterOptions.inStock"),
     t("productsEliteFlagship.filterOptions.factoryOrder"),
   );
+  const statusText = t(catalogFilterKey("inventoryStatus", rawStatusText), rawStatusText);
 
   return (
     <LocaleLink href={vehicle.link || "#"} className={`v-card-compact group ${!vehicle.link ? "pointer-events-none" : ""}`}>
       <div className="v-card-compact-img-wrap">
         <img
           src={vehicle.img}
-          alt={`${vehicle.brand} ${vehicle.name}`}
+          alt={displayName}
           className="v-card-compact-img"
         />
         <div className="v-card-compact-overlay" />
@@ -479,11 +490,8 @@ function VehicleCard({
       <div className="v-card-compact-content">
         <div className="flex justify-between items-start mb-6">
           <div>
-            <div className="text-[9px] font-black tracking-widest uppercase text-gray-500 mb-1">
-              {vehicle.brand}
-            </div>
             <h2 className="text-2xl font-black italic text-white uppercase tracking-tight">
-              {vehicle.name}
+              {displayName}
             </h2>
           </div>
           <div className="text-right">

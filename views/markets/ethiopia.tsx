@@ -62,7 +62,7 @@ export default function EthiopiaMarketPage() {
     img: vehicleImages[index] || "",
   }));
 
-  const localSteps = (t("marketsEthiopia.logistics.steps") as any[]) || [];
+  const localSteps = tArray("marketsEthiopia.logistics.steps");
   const displaySteps = localSteps.map((step, idx) => ({
     step: String(idx + 1).padStart(2, "0"),
     label: step.label,

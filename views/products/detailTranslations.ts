@@ -1,4 +1,4 @@
-export type DetailTranslate = (key: string, fallback?: unknown) => unknown;
+export type DetailTranslate = (key: string, fallback?: string) => unknown;
 
 function normalizeDetailId(value: string): string {
   return value
@@ -16,6 +16,31 @@ export function detailVariantKey(trimConfigId: string, field: string): string {
   return `productsDetail.variants.${normalizeDetailId(trimConfigId)}.${field}`;
 }
 
+export function detailValueKey(source: string): string {
+  let hash = 0x811c9dc5;
+  for (let index = 0; index < source.length; index += 1) {
+    hash ^= source.charCodeAt(index);
+    hash = Math.imul(hash, 0x01000193);
+  }
+  return `productsDetail.values.${(hash >>> 0).toString(16).padStart(8, "0")}`;
+}
+
+export function translatedDetailValue(
+  translate: DetailTranslate,
+  source: string,
+): string {
+  if (!source) return source;
+  const value = translate(detailValueKey(source), source);
+  return typeof value === "string" && value ? value : source;
+}
+
+export function translatedDetailValues(
+  translate: DetailTranslate,
+  source: string[],
+): string[] {
+  return source.map((value) => translatedDetailValue(translate, value));
+}
+
 export function translatedDetailString(
   translate: DetailTranslate,
   key: string,
@@ -30,6 +55,6 @@ export function translatedDetailArray<T>(
   key: string,
   fallback: T[],
 ): T[] {
-  const value = translate(key, fallback);
+  const value = translate(key);
   return Array.isArray(value) && value.length === fallback.length ? value as T[] : fallback;
 }

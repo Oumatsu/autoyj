@@ -414,6 +414,7 @@ function buildTrimComparison(modelFields: Record<string, unknown>, trimRecords: 
       const motorPower = asOptionalNumber(fields["Motor Power kW"]);
       const motorTorque = asOptionalNumber(fields["Motor Torque N-m"]);
       return {
+        trimConfigId: asText(fields["Trim Config ID"]),
         name: asText(fields["Trim Name"]),
         order: asOptionalNumber(fields["Trim Order"]) ?? undefined,
         priceRmb: price ?? undefined,
@@ -1742,6 +1743,8 @@ async function handlePublicProduct(slug: string, env: Env) {
   const batchMargin = computeBatchMargin(batchLevels);
 
   const data = {
+    modelId,
+    slug,
     vehicle: {
       brand,
       name: modelName,
@@ -2046,13 +2049,12 @@ async function handlePublicInsight(slug: string, env: Env) {
   if (cached) return json(cached);
 
   const articlesTableId = requireEnv(env, "FEISHU_TABLE_ARTICLES");
-  const records = await searchRecords(env, articlesTableId, {
-    filter: equalsFilter("slug", slug),
-    pageSize: 5
-  });
+  const records = await searchRecords(env, articlesTableId, { pageSize: 100 });
 
-  const record = records[0];
-  if (!record || asText(record.fields.status) !== "Published") {
+  const record = records.find(
+    (r) => asText(r.fields.slug) === slug && asText(r.fields.status) === "Published",
+  );
+  if (!record) {
     return problem(`Insight ${slug} not found`, 404);
   }
 

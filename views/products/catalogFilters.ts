@@ -1,3 +1,5 @@
+import { catalogFilterKey } from "./catalogTranslations.ts";
+
 export type NumericInterval = { min: number; max: number };
 
 export type CatalogFilterData = {
@@ -55,6 +57,7 @@ function categoricalGroup(
   label: string,
   field: ListField,
   products: CatalogProduct[],
+  t: Translate,
 ): CatalogFilterGroup | null {
   const values = [...new Set(products.flatMap((product) => product.filterData?.[field] ?? []))]
     .filter(Boolean)
@@ -66,7 +69,7 @@ function categoricalGroup(
     label,
     options: values.map((value) => ({
       id: `value:${value}`,
-      label: value,
+      label: t(catalogFilterKey(id, value), value),
       matches: (product) => product.filterData?.[field]?.includes(value) ?? false,
     })),
   };
@@ -143,30 +146,30 @@ export function buildCatalogFilterGroups(
   t: Translate,
 ): CatalogFilterGroup[] {
   const common = [
-    categoricalGroup("vehicleClass", groupLabel(t, category, category === "utility-pro" ? "vehicleType" : "bodyStyle", "Vehicle Class"), "vehicleClasses", products),
-    categoricalGroup("batteryChemistry", groupLabel(t, category, "batteryChemistry", "Battery Chemistry"), "batteryChemistries", products),
+    categoricalGroup("vehicleClass", groupLabel(t, category, category === "utility-pro" ? "vehicleType" : "bodyStyle", "Vehicle Class"), "vehicleClasses", products, t),
+    categoricalGroup("batteryChemistry", groupLabel(t, category, "batteryChemistry", "Battery Chemistry"), "batteryChemistries", products, t),
     intervalGroup("rangeKm", groupLabel(t, category, "range", "Range"), "rangeKm", rangeDefinitions[category] ?? [], products, t),
     intervalGroup("priceUsd", groupLabel(t, category, "price", "Price"), "priceUsd", priceDefinitions[category] ?? [], products, t),
   ];
 
   const categoryGroups = category === "revenue-king"
     ? [
-        categoricalGroup("steeringSetup", groupLabel(t, category, "steeringSetup", "Steering Setup"), "steeringSetups", products),
-        categoricalGroup("inventoryStatus", groupLabel(t, category, "availability", "Availability"), "inventoryStatuses", products),
+        categoricalGroup("steeringSetup", groupLabel(t, category, "steeringSetup", "Steering Setup"), "steeringSetups", products, t),
+        categoricalGroup("inventoryStatus", groupLabel(t, category, "availability", "Availability"), "inventoryStatuses", products, t),
       ]
     : category === "elite-flagship"
       ? [
-          categoricalGroup("voltagePlatform", groupLabel(t, category, "chargingStandard", "Voltage Platform"), "voltagePlatforms", products),
-          categoricalGroup("powertrainType", groupLabel(t, category, "powertrainType", "Powertrain Type"), "powertrainTypes", products),
-          categoricalGroup("inventoryStatus", groupLabel(t, category, "availability", "Availability"), "inventoryStatuses", products),
+          categoricalGroup("voltagePlatform", groupLabel(t, category, "chargingStandard", "Voltage Platform"), "voltagePlatforms", products, t),
+          categoricalGroup("powertrainType", groupLabel(t, category, "powertrainType", "Powertrain Type"), "powertrainTypes", products, t),
+          categoricalGroup("inventoryStatus", groupLabel(t, category, "availability", "Availability"), "inventoryStatuses", products, t),
         ]
       : [
-          categoricalGroup("drivetrain", groupLabel(t, category, "drivetrain", "Drivetrain"), "drivetrains", products),
-          categoricalGroup("v2lAvailability", groupLabel(t, category, "v2lAvailability", "V2L Availability"), "v2lAvailability", products),
+          categoricalGroup("drivetrain", groupLabel(t, category, "drivetrain", "Drivetrain"), "drivetrains", products, t),
+          categoricalGroup("v2lAvailability", groupLabel(t, category, "v2lAvailability", "V2L Availability"), "v2lAvailability", products, t),
           intervalGroup("groundClearanceMm", groupLabel(t, category, "groundClearance", "Ground Clearance"), "groundClearanceMm", [
             { id: "clearance-200-plus", labelKey: "productsUtilityPro.filterOptions.highClearance", fallback: "High Clearance (200mm+)", interval: { min: 200, max: Number.POSITIVE_INFINITY } },
           ], products, t),
-          categoricalGroup("inventoryStatus", groupLabel(t, category, "availability", "Availability"), "inventoryStatuses", products),
+          categoricalGroup("inventoryStatus", groupLabel(t, category, "availability", "Availability"), "inventoryStatuses", products, t),
         ];
 
   return [...common, ...categoryGroups].filter((group): group is CatalogFilterGroup => group !== null);

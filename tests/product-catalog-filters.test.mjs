@@ -20,6 +20,13 @@ test("numeric intervals match when their inclusive intersection is non-empty", (
 });
 
 test("builds categorical values from products and hides options with no matches", () => {
+  const translated = new Map([
+    ["catalog.filters.vehicleClass.compact-suv", "紧凑型 SUV"],
+    ["catalog.filters.batteryChemistry.lfp", "磷酸铁锂"],
+    ["catalog.filters.steeringSetup.lhd", "左舵"],
+    ["catalog.filters.inventoryStatus.in-stock", "现货"],
+  ]);
+  const translateCatalog = (key, fallback) => translated.get(key) ?? fallback;
   const groups = buildCatalogFilterGroups("revenue-king", [
     product("City", {
       vehicleClasses: ["Compact SUV"],
@@ -30,13 +37,14 @@ test("builds categorical values from products and hides options with no matches"
       inventoryStatuses: ["In Stock"],
     }),
     product("Unknown", {}),
-  ], translate);
+  ], translateCatalog);
 
   const byId = Object.fromEntries(groups.map((group) => [group.id, group]));
-  assert.deepEqual(byId.vehicleClass.options.map((option) => option.label), ["Compact SUV"]);
-  assert.deepEqual(byId.batteryChemistry.options.map((option) => option.label), ["LFP"]);
-  assert.deepEqual(byId.steeringSetup.options.map((option) => option.label), ["LHD"]);
-  assert.deepEqual(byId.inventoryStatus.options.map((option) => option.label), ["In Stock"]);
+  assert.deepEqual(byId.vehicleClass.options.map((option) => option.label), ["紧凑型 SUV"]);
+  assert.deepEqual(byId.batteryChemistry.options.map((option) => option.label), ["磷酸铁锂"]);
+  assert.deepEqual(byId.steeringSetup.options.map((option) => option.label), ["左舵"]);
+  assert.deepEqual(byId.inventoryStatus.options.map((option) => option.label), ["现货"]);
+  assert.equal(byId.vehicleClass.options[0].id, "value:Compact SUV");
   assert.deepEqual(byId.rangeKm.options.map((option) => option.id), [
     "range-under-300",
     "range-300-450",

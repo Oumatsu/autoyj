@@ -4,7 +4,8 @@ import { usePathname } from "next/navigation";
 import { useCallback, useMemo, useState, useEffect } from "react";
 import { Locale, defaultLocale, locales } from "./config";
 import { translations as staticTranslations } from "./translations";
-import { getLocaleFromPath, getNestedValue } from "./utils";
+import { getLocaleFromPath } from "./utils";
+import { resolveTranslationValue } from "./translationFallback";
 
 let globalDynamicTranslations: any = null;
 let globalTranslationListeners = new Set<() => void>();
@@ -48,27 +49,12 @@ export function useTranslation() {
 
   const t = useCallback(
     (key: string, fallback?: string): any => {
-      const activeTranslations = globalDynamicTranslations
-        ? globalDynamicTranslations[locale]
-        : staticTranslations[locale];
-
-      const value = getNestedValue(
-        activeTranslations as Record<string, unknown>,
-        key
-      );
-      if (value !== undefined) return value;
-
-      const activeEnTranslations = globalDynamicTranslations
-        ? globalDynamicTranslations.en
-        : staticTranslations.en;
-
-      const enValue = getNestedValue(
-        activeEnTranslations as Record<string, unknown>,
-        key
-      );
-      if (enValue !== undefined) return enValue;
-
-      return fallback ?? key;
+      return resolveTranslationValue(key, [
+        globalDynamicTranslations?.[locale],
+        staticTranslations[locale] as Record<string, unknown>,
+        globalDynamicTranslations?.en,
+        staticTranslations.en as Record<string, unknown>,
+      ], fallback);
     },
     [locale]
   );

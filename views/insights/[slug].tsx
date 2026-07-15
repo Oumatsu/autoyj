@@ -4,6 +4,7 @@ import { use, useEffect, useState } from "react";
 import { useTranslation } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
 import MarkdownRenderer from "@/components/MarkdownRenderer";
+import { asStringArray } from "@/i18n/translationFallback";
 
 interface ArticleData {
   title: string;
@@ -58,13 +59,13 @@ function getSubcategory(category: string, t: any): string {
 
 function getTagsForCategory(category: string, t: any): string[] {
   const cat = category?.toLowerCase().trim() || "";
-  if (cat.includes("market")) return t("insightsDetail.tags.market") || ["Market Analysis", "Africa EV Market", "Industry Report"];
-  if (cat.includes("policy")) return t("insightsDetail.tags.policy") || ["China Export Policy", "Import Compliance", "Africa Market"];
-  if (cat.includes("sourcing")) return t("insightsDetail.tags.sourcing") || ["Sourcing Intelligence", "Supplier Vetting", "China Export"];
-  if (cat.includes("operator")) return t("insightsDetail.tags.operator") || ["Operator Hub", "Charging Solutions", "Local Infrastructure"];
-  if (cat.includes("product")) return t("insightsDetail.tags.product") || ["Product Watch", "Chinese EV Brands", "Battery Technology"];
-  if (cat.includes("pricing") || cat.includes("trade")) return t("insightsDetail.tags.pricing") || ["Pricing & Trade", "Exchange Rates", "Freight Costs"];
-  return t("insightsDetail.tags.default") || ["EV Export", "Africa EV Sourcing"];
+  if (cat.includes("market")) return asStringArray(t("insightsDetail.tags.market"), ["Market Analysis", "Africa EV Market", "Industry Report"]);
+  if (cat.includes("policy")) return asStringArray(t("insightsDetail.tags.policy"), ["China Export Policy", "Import Compliance", "Africa Market"]);
+  if (cat.includes("sourcing")) return asStringArray(t("insightsDetail.tags.sourcing"), ["Sourcing Intelligence", "Supplier Vetting", "China Export"]);
+  if (cat.includes("operator")) return asStringArray(t("insightsDetail.tags.operator"), ["Operator Hub", "Charging Solutions", "Local Infrastructure"]);
+  if (cat.includes("product")) return asStringArray(t("insightsDetail.tags.product"), ["Product Watch", "Chinese EV Brands", "Battery Technology"]);
+  if (cat.includes("pricing") || cat.includes("trade")) return asStringArray(t("insightsDetail.tags.pricing"), ["Pricing & Trade", "Exchange Rates", "Freight Costs"]);
+  return asStringArray(t("insightsDetail.tags.default"), ["EV Export", "Africa EV Sourcing"]);
 }
 
 function getCategoryLabel(category: string, t: any): string {
