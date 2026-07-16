@@ -5,6 +5,7 @@ import { useTranslation } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
 import MarkdownRenderer from "@/components/MarkdownRenderer";
 import { asStringArray } from "@/i18n/translationFallback";
+import { translateInsightArticle } from "@/views/insights/articleTranslations";
 
 interface ArticleData {
   title: string;
@@ -119,9 +120,10 @@ export default function DynamicInsightPage({ params }: any) {
     );
   }
 
-  const subcategory = getSubcategory(article.category, t);
-  const tags = getTagsForCategory(article.category, t);
-  const coverImageUrl = `/insights/images/${article.slug}/${article.coverImage}`;
+  const localizedArticle = translateInsightArticle(article, t);
+  const subcategory = getSubcategory(localizedArticle.category, t);
+  const tags = getTagsForCategory(localizedArticle.category, t);
+  const coverImageUrl = `/insights/images/${localizedArticle.slug}/${localizedArticle.coverImage}`;
 
   return (
     <>
@@ -139,20 +141,20 @@ export default function DynamicInsightPage({ params }: any) {
             <div className="lg:col-span-8 xl:col-span-8">
               <header className="mb-12">
                 <span
-                  className={`inline-block px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-wider mb-6 border ${getTagClass(article.category)}`}
+                  className={`inline-block px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-wider mb-6 border ${getTagClass(localizedArticle.category)}`}
                   style={{
-                    background: getTagStyle(article.category).bg,
-                    color: getTagStyle(article.category).color,
-                    borderColor: getTagStyle(article.category).border,
+                    background: getTagStyle(localizedArticle.category).bg,
+                    color: getTagStyle(localizedArticle.category).color,
+                    borderColor: getTagStyle(localizedArticle.category).border,
                   }}
                 >
-                  {getCategoryLabel(article.category, t)}
+                  {getCategoryLabel(localizedArticle.category, t)}
                 </span>
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-black italic text-white uppercase tracking-tighter leading-[1.05] mb-6">
-                  {article.title}
+                  {localizedArticle.title}
                 </h1>
                 <p className="text-xl text-gray-400 font-light italic border-l-2 border-theme/30 pl-6 mb-8 max-w-2xl">
-                  {article.overview}
+                  {localizedArticle.overview}
                 </p>
                 <div className="flex items-center gap-6 text-[10px] font-black uppercase tracking-widest text-gray-500 border-t border-white/10 pt-6">
                   <div className="flex items-center gap-3">
@@ -164,24 +166,24 @@ export default function DynamicInsightPage({ params }: any) {
                     </div>
                     <span className="text-white">{t("insightsDetail.authorLabel")}</span>
                   </div>
-                  <div>{article.date}</div>
+                  <div>{localizedArticle.date}</div>
                   <div className="flex items-center gap-2 text-gold">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <circle cx="12" cy="12" r="10"></circle>
                       <polyline points="12 6 12 12 16 14"></polyline>
                     </svg>
-                    {article.readTime}
+                    {localizedArticle.readTime}
                   </div>
                 </div>
               </header>
 
               <div className="w-full aspect-[21/9] rounded-[2rem] overflow-hidden mb-16 relative">
-                <img src={coverImageUrl} alt={article.title} className="w-full h-full object-cover" />
+                <img src={coverImageUrl} alt={localizedArticle.title} className="w-full h-full object-cover" />
                 <div className="absolute inset-0 border border-white/10 rounded-[2rem] pointer-events-none"></div>
               </div>
 
               <article className="article-body max-w-3xl">
-                <MarkdownRenderer content={article.content} imageBasePath={`/insights/images/${article.slug}`} />
+                <MarkdownRenderer content={localizedArticle.content} imageBasePath={`/insights/images/${localizedArticle.slug}`} />
               </article>
 
               <div className="mt-16 pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-6">

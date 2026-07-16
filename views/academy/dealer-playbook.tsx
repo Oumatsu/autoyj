@@ -3,6 +3,10 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
+import {
+  getAcademyLessonDate,
+  translateAcademyLesson,
+} from "@/views/academy/academyTranslations";
 
 const IMGS = [
   "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=600&q=80",
@@ -17,14 +21,15 @@ const getReadTime = (slug: string) => {
   return "8 min";
 };
 
-const getDate = (slug: string) => {
-  if (slug.includes("drive")) return "May 17, 2026";
-  return "May 16, 2026";
-};
-
 export default function DealerPlaybookPage() {
   const { t } = useTranslation();
   const [articles, setArticles] = useState<any[]>([]);
+  const localizedArticles = articles.map((article) =>
+    translateAcademyLesson(
+      { ...article, date: getAcademyLessonDate(article.slug) },
+      t,
+    ),
+  );
 
   useEffect(() => {
     fetch("/api/portal/public/academy")
@@ -69,7 +74,7 @@ export default function DealerPlaybookPage() {
       <main className="py-16 bg-bg min-h-screen">
         <div className="container mx-auto px-6 md:px-12">
           <div className="max-w-3xl mx-auto space-y-6">
-            {articles.map((a, i) => (
+            {localizedArticles.map((a, i) => (
               <LocaleLink key={a.slug} href={`/academy/dealer-playbook/${a.slug}`} className="glass rounded-[1.5rem] p-8 block hover:border-gold/30 transition-all duration-300 group relative overflow-hidden">
                 <img src={a.img || IMGS[i % IMGS.length]} className="absolute inset-0 w-full h-full object-cover z-0 transition-transform duration-500 group-hover:scale-105" style={{ filter: "brightness(0.35)" }} alt="" />
                 <div className="absolute inset-0 bg-gradient-to-t from-bg via-bg/60 to-transparent z-[1]" />
@@ -83,7 +88,7 @@ export default function DealerPlaybookPage() {
                   </div>
                   <h2 className="text-xl font-black italic text-white uppercase tracking-tight mb-2 group-hover:text-theme transition-colors">{a.title}</h2>
                   <p className="text-gray-300 text-sm font-light leading-relaxed mb-3">{a.desc}</p>
-                  <span className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider">{getDate(a.slug)}</span>
+                  <span className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider">{a.date}</span>
                 </div>
               </LocaleLink>
             ))}

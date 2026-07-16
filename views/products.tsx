@@ -6,6 +6,7 @@ import { LocaleLink } from "@/i18n/LocaleLink";
 import { vehicles as fallbackRevenue } from "../app/products/revenue-king/data";
 import { vehicles as fallbackElite } from "../app/products/elite-flagship/data";
 import { vehicles as fallbackUtility } from "../app/products/utility-pro/data";
+import { translateOverviewCard } from "./products/productsOverviewTranslations.ts";
 
 function getBadgeCls(slug: string, badge: string | null): string {
   if (!badge) return "";
@@ -27,9 +28,16 @@ function getLocalizedBadge(slug: string, badge: string | null, t: any): string |
   return badge;
 }
 
-function formatSaving(value: string | undefined): string {
+function formatSaving(value: string | undefined, t: any): string {
   if (!value) return "";
-  return value.startsWith("Save") ? value : `${value}/mo`;
+  const amount = value
+    .replace(/^Save\s*/i, "")
+    .replace(/\s*\/\s*mo(?:nth)?$/i, "")
+    .trim();
+  const template = t("products.savePerMonthTemplate", "Save {amount}/month");
+  return typeof template === "string"
+    ? template.replace("{amount}", amount)
+    : `Save ${amount}/month`;
 }
 
 export default function ProductsPage() {
@@ -121,7 +129,7 @@ export default function ProductsPage() {
       ];
 
   const utilityList = products
-    ? ["byd-shark", "radar-rd6", "farizon-super-van"].map(slug => products.find(p => p.slug === slug)).filter(Boolean)
+    ? ["byd-shark", "radar-rd6", "farizon-xingxiang-v"].map(slug => products.find(p => p.slug === slug)).filter(Boolean)
     : [
         {
           name: "BYD Shark",
@@ -140,12 +148,12 @@ export default function ProductsPage() {
           link: "/products/utility-pro/radar-rd6",
         },
         {
-          name: "Super Van",
+          name: "Farizon Xingxiang V",
           tag: t("products.utilityPro.digitalCargo"),
-          desc: "The future of city cargo. Steer-by-wire with flat-floor cargo optimization for 11m³+ volume.",
+          desc: "Farizon urban delivery van with 6 m³ cargo capacity, proven reliability, and mature aftersales support.",
           label: t("products.utilityPro.digitalCargo"),
-          img: "/pic/hero/supervan display.webp",
-          link: "/products/utility-pro/farizon-super-van",
+          img: "/pic/utility-pro/xingxiangv/5.webp",
+          link: "/products/utility-pro/farizon-xingxiang-v",
         },
       ];
 
@@ -161,6 +169,11 @@ export default function ProductsPage() {
     ? products.filter((p) => p.category === "utility-pro").length
     : fallbackUtility.length;
 
+  const localizedRevenueKingList = revenueKingList.map((card) => translateOverviewCard(card, t));
+  const localizedAitoM9 = translateOverviewCard(aitoM9, t);
+  const localizedEliteSmallList = eliteSmallList.map((card) => translateOverviewCard(card, t));
+  const localizedUtilityList = utilityList.map((card) => translateOverviewCard(card, t));
+
   return (
     <>
       <div className="h-[var(--navbar-h,56px)] lg:hidden bg-black w-full" />
@@ -170,7 +183,7 @@ export default function ProductsPage() {
           src="/pic/hero/Our-solutions-durability-and-fatigue.webp"
           className="absolute inset-0 h-full w-full object-cover"
           style={{ filter: "contrast(1.1)" }}
-          alt="Curated Selection Background"
+          alt={t("products.hero.imageAlt", "Curated vehicle selection")}
         />
         <div
           className="absolute inset-0"
@@ -267,40 +280,40 @@ export default function ProductsPage() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-              {revenueKingList.map((car: any, i: number) => {
+              {localizedRevenueKingList.map((localizedCar: any, i: number) => {
                 const CardContent = (
                   <div className="group relative bg-bg3/30 rounded-[2.5rem] overflow-hidden border border-white/5 hover:border-accent/30 transition-all duration-500 cursor-pointer">
                     <div className="aspect-[4/5] overflow-hidden relative">
                       <img
-                        src={car.img}
-                        alt={car.name}
+                        src={localizedCar.img}
+                        alt={localizedCar.name}
                         className="w-full h-full object-cover scale-100 group-hover:scale-110 transition-all duration-700"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-bg via-transparent to-transparent opacity-60" />
-                      {car.badge && (
+                      {localizedCar.badge && (
                         <div className="absolute top-6 left-6 flex flex-col gap-2">
                           <span
                             className={`text-[8px] font-black px-2.5 py-1.5 rounded-full uppercase tracking-wider ${getBadgeCls(
-                              car.slug,
-                              car.badge
+                              localizedCar.slug,
+                              localizedCar.badge
                             )}`}
                           >
-                            {getLocalizedBadge(car.slug, car.badge, t)}
+                            {getLocalizedBadge(localizedCar.slug, localizedCar.badge, t)}
                           </span>
                         </div>
                       )}
                       <div className="absolute bottom-6 left-6 right-6">
                         <div className="text-[9px] font-black text-accent uppercase tracking-[0.2em] mb-1">
-                          {formatSaving(car.stat2Value)}
+                          {formatSaving(localizedCar.stat2Value, t)}
                         </div>
                         <h3 className="text-xl font-black italic text-white uppercase tracking-tight">
-                          {car.name}
+                          {localizedCar.name}
                         </h3>
                       </div>
                     </div>
                     <div className="p-5 sm:p-8">
                       <div className="flex flex-wrap gap-2 mb-3 sm:mb-4">
-                        {(car.tags || []).map((tag: string, j: number) => (
+                        {(localizedCar.tags || []).map((tag: string, j: number) => (
                           <span
                             key={j}
                             className="text-[8px] font-black px-2 py-1 rounded bg-white/5 text-gray-500 uppercase"
@@ -310,7 +323,7 @@ export default function ProductsPage() {
                         ))}
                       </div>
                       <div className="text-[10px] font-black text-theme uppercase tracking-widest flex items-center gap-2">
-                        {car.link
+                        {localizedCar.link
                           ? t("products.revenueKing.cardLink")
                           : t("products.revenueKing.cardComingSoon")}
                       </div>
@@ -318,8 +331,8 @@ export default function ProductsPage() {
                   </div>
                 );
 
-                return car.link ? (
-                  <LocaleLink key={i} href={car.link}>
+                return localizedCar.link ? (
+                  <LocaleLink key={i} href={localizedCar.link}>
                     {CardContent}
                   </LocaleLink>
                 ) : (
@@ -369,32 +382,32 @@ export default function ProductsPage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
               {/* AITO M9 - Mobile Card (matches Zeekr 001 style) */}
               <LocaleLink
-                href={aitoM9.link || "/products/elite-flagship/aito-m9"}
+                href={localizedAitoM9.link || "/products/elite-flagship/aito-m9"}
                 className="lg:hidden group relative bg-bg3/30 rounded-[2.5rem] overflow-hidden border border-white/5 hover:border-theme/30 transition-all duration-500 cursor-pointer"
               >
                 <div className="aspect-[16/10] overflow-hidden relative">
                   <img
-                    src={aitoM9.img}
-                    alt={aitoM9.name}
+                    src={localizedAitoM9.img}
+                    alt={localizedAitoM9.name}
                     className="w-full h-full object-cover scale-100 group-hover:scale-105 transition-all duration-700"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-bg via-transparent to-transparent opacity-60" />
                   <div className="absolute bottom-6 left-6 right-6">
                     <div className="text-[9px] font-black text-theme uppercase tracking-[0.2em] mb-1">
-                      {aitoM9.tag || "Performance King"}
+                      {localizedAitoM9.tag || t("products.eliteFlagship.performanceKing")}
                     </div>
                     <h3 className="text-2xl font-black italic text-white uppercase tracking-tight">
-                      {aitoM9.name}
+                      {localizedAitoM9.name}
                     </h3>
                   </div>
                 </div>
                 <div className="p-5 sm:p-8">
                   <p className="text-gray-500 text-xs font-light leading-relaxed mb-4 sm:mb-6">
-                    {aitoM9.desc}
+                    {localizedAitoM9.desc}
                   </p>
                   <div className="flex items-center justify-between pt-4 sm:pt-6 border-t border-white/5">
                     <div className="text-[10px] font-black text-theme uppercase tracking-widest">
-                      {aitoM9.label || "Tech Pinnacle"}
+                      {localizedAitoM9.label || t("products.eliteFlagship.techPinnacleLabel")}
                     </div>
                     <div className="text-[10px] font-black text-gray-600 uppercase">
                       {t("products.viewDetails")}
@@ -405,64 +418,64 @@ export default function ProductsPage() {
 
               {/* AITO M9 - Desktop Large Card */}
               <LocaleLink
-                href={aitoM9.link || "/products/elite-flagship/aito-m9"}
+                href={localizedAitoM9.link || "/products/elite-flagship/aito-m9"}
                 className="hidden lg:block group relative bg-bg3/30 rounded-[3rem] overflow-hidden border border-white/5 hover:border-theme/30 transition-all duration-500 cursor-pointer col-span-1 lg:col-span-2"
               >
                 <div className="aspect-[21/9] overflow-hidden relative">
                   <img
-                    src={aitoM9.img}
-                    alt={aitoM9.name}
+                    src={localizedAitoM9.img}
+                    alt={localizedAitoM9.name}
                     className="w-full h-full object-cover scale-100 group-hover:scale-105 transition-all duration-700"
                   />
                   <div className="absolute inset-0 bg-gradient-to-r from-bg via-bg/20 to-transparent opacity-80" />
                   <div className="absolute inset-0 flex flex-col justify-center p-8 md:p-16">
                     <div className="label label-gold mb-4">
-                      {aitoM9.label || "Tech Pinnacle"}
+                      {localizedAitoM9.label || t("products.eliteFlagship.techPinnacleLabel")}
                     </div>
                     <h3 className="text-4xl md:text-6xl font-black italic text-white uppercase tracking-tighter mb-4">
-                      {aitoM9.name}
+                      {localizedAitoM9.name}
                     </h3>
                     <p className="text-gray-400 text-sm md:text-base font-light italic max-w-md leading-relaxed mb-8">
-                      {aitoM9.desc}
+                      {localizedAitoM9.desc}
                     </p>
                     <div className="flex flex-wrap gap-4">
                       <div className="px-6 py-3 rounded-full bg-theme text-black text-[10px] font-black uppercase tracking-widest">
-                        {aitoM9.tag || "Performance King"}
+                        {localizedAitoM9.tag || t("products.eliteFlagship.performanceKing")}
                       </div>
                       <div className="px-6 py-3 rounded-full border border-white/10 text-white text-[10px] font-black uppercase tracking-widest">
-                        {formatSaving(aitoM9.stat2Value) || t("products.eliteFlagship.savePerMonth")}
+                        {formatSaving(localizedAitoM9.stat2Value, t) || t("products.eliteFlagship.savePerMonth")}
                       </div>
                     </div>
                   </div>
                 </div>
               </LocaleLink>
 
-              {eliteSmallList.map((car: any, i: number) => {
+              {localizedEliteSmallList.map((localizedCar: any, i: number) => {
                 const CardContent = (
                   <div className="group relative bg-bg3/30 rounded-[2.5rem] overflow-hidden border border-white/5 hover:border-theme/30 transition-all duration-500 cursor-pointer">
                     <div className="aspect-[16/10] overflow-hidden relative">
                       <img
-                        src={car.img}
-                        alt={car.name}
+                        src={localizedCar.img}
+                        alt={localizedCar.name}
                         className="w-full h-full object-cover scale-100 group-hover:scale-105 transition-all duration-700"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-bg via-transparent to-transparent opacity-60" />
                       <div className="absolute bottom-6 left-6 right-6">
                         <div className="text-[9px] font-black text-theme uppercase tracking-[0.2em] mb-1">
-                          {car.tag}
+                          {localizedCar.tag}
                         </div>
                         <h3 className="text-2xl font-black italic text-white uppercase tracking-tight">
-                          {car.name}
+                          {localizedCar.name}
                         </h3>
                       </div>
                     </div>
                     <div className="p-5 sm:p-8">
                       <p className="text-gray-500 text-xs font-light leading-relaxed mb-4 sm:mb-6">
-                        {car.desc}
+                        {localizedCar.desc}
                       </p>
                       <div className="flex items-center justify-between pt-4 sm:pt-6 border-t border-white/5">
                         <div className="text-[10px] font-black text-theme uppercase tracking-widest">
-                          {car.label}
+                          {localizedCar.label}
                         </div>
                         <div className="text-[10px] font-black text-gray-600 uppercase">
                           {t("products.viewDetails")}
@@ -472,8 +485,8 @@ export default function ProductsPage() {
                   </div>
                 );
 
-                return car.link ? (
-                  <LocaleLink key={i} href={car.link}>
+                return localizedCar.link ? (
+                  <LocaleLink key={i} href={localizedCar.link}>
                     {CardContent}
                   </LocaleLink>
                 ) : (
@@ -521,32 +534,32 @@ export default function ProductsPage() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-              {utilityList.map((car: any, i: number) => {
+              {localizedUtilityList.map((localizedCar: any, i: number) => {
                 const CardContent = (
                   <div className="group relative bg-bg3/30 rounded-[2.5rem] overflow-hidden border border-white/5 hover:border-accent/30 transition-all duration-500 cursor-pointer">
                     <div className="aspect-[16/9] overflow-hidden relative">
                       <img
-                        src={car.img}
-                        alt={car.name}
+                        src={localizedCar.img}
+                        alt={localizedCar.name}
                         className="w-full h-full object-cover scale-100 group-hover:scale-105 transition-all duration-700"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-bg via-transparent to-transparent opacity-60" />
                       <div className="absolute bottom-6 left-6 right-6">
                         <div className="text-[9px] font-black text-accent uppercase tracking-[0.2em] mb-1">
-                          {car.tag}
+                          {localizedCar.tag}
                         </div>
                         <h3 className="text-2xl font-black italic text-white uppercase tracking-tight">
-                          {car.name}
+                          {localizedCar.name}
                         </h3>
                       </div>
                     </div>
                     <div className="p-5 sm:p-8">
                       <p className="text-gray-500 text-xs font-light leading-relaxed mb-4 sm:mb-6">
-                        {car.desc}
+                        {localizedCar.desc}
                       </p>
                       <div className="flex items-center justify-between pt-4 sm:pt-6 border-t border-white/5">
                         <div className="text-[10px] font-black text-accent uppercase tracking-widest">
-                          {car.label}
+                          {localizedCar.label}
                         </div>
                         <div className="text-[10px] font-black text-gray-600 uppercase italic">
                           {t("products.viewDetails")}
@@ -556,8 +569,8 @@ export default function ProductsPage() {
                   </div>
                 );
 
-                return car.link ? (
-                  <LocaleLink key={i} href={car.link}>
+                return localizedCar.link ? (
+                  <LocaleLink key={i} href={localizedCar.link}>
                     {CardContent}
                   </LocaleLink>
                 ) : (

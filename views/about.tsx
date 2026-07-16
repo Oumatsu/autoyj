@@ -83,7 +83,7 @@ export default function AboutPage() {
   const capabilities = tArray("about.capability.items");
   const presenceNodes = tArray("about.presence.nodes");
   const galleryAlbums = tArray("about.gallery.albums");
-  const logisticsItems = tArray("about.logistics.items");
+  const logisticsItems = tArray("about.logistics.features");
 
   return (
     <>

@@ -3,6 +3,10 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useTranslation } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
+import {
+  translateAcademyLesson,
+  translateAcademyVaultItem,
+} from "@/views/academy/academyTranslations";
 
 const tabSectionIds = ["hero", "fundamentals", "playbook", "workshop", "vault"];
 
@@ -16,6 +20,19 @@ export default function AcademyPage() {
   const [playbookArticles, setPlaybookArticles] = useState<any[]>([]);
   const [workshopArticles, setWorkshopArticles] = useState<any[]>([]);
   const [vaultItems, setVaultItems] = useState<any[]>([]);
+
+  const localizedFundamentals = fundamentalsArticles.map((lesson) =>
+    translateAcademyLesson(lesson, t),
+  );
+  const localizedPlaybook = playbookArticles.map((lesson) =>
+    translateAcademyLesson(lesson, t),
+  );
+  const localizedWorkshop = workshopArticles.map((lesson) =>
+    translateAcademyLesson(lesson, t),
+  );
+  const localizedVault = vaultItems.map((item) =>
+    translateAcademyVaultItem(item, t),
+  );
 
   const syncTabTop = useCallback(() => {
     const navbar = document.getElementById("navbar");
@@ -177,19 +194,19 @@ export default function AcademyPage() {
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            {fundamentalsArticles.map((a, i) => (
+            {localizedFundamentals.map((lesson, i) => (
               <LocaleLink
-                key={i}
-                href={`/academy/ev-fundamentals/${a.slug}`}
+                key={lesson.slug}
+                href={`/academy/ev-fundamentals/${lesson.slug}`}
                 className="article-card block"
               >
                 <div className="article-img-wrap">
-                  <img src={a.img} className="article-img" alt={a.title} />
+                  <img src={lesson.img} className="article-img" alt={lesson.title} />
                 </div>
                 <div className="article-content">
-                  <span className="tag tag-basics">{a.tag}</span>
-                  <h3 className="text-xl font-bold text-white mb-3">{a.title}</h3>
-                  <p className="text-gray-400 text-xs leading-relaxed font-light mb-6">{a.desc}</p>
+                  <span className="tag tag-basics">{lesson.tag}</span>
+                  <h3 className="text-xl font-bold text-white mb-3">{lesson.title}</h3>
+                  <p className="text-gray-400 text-xs leading-relaxed font-light mb-6">{lesson.desc}</p>
                   <div className="mt-auto pt-4 border-t border-white/5 text-[9px] font-black uppercase tracking-widest text-gold">
                     {t("academy.fundamentals.readLink")}
                   </div>
@@ -230,16 +247,16 @@ export default function AcademyPage() {
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            {playbookArticles.map((a, i) => (
+            {localizedPlaybook.map((lesson) => (
               <LocaleLink
-                key={i}
-                href={`/academy/dealer-playbook/${a.slug}`}
+                key={lesson.slug}
+                href={`/academy/dealer-playbook/${lesson.slug}`}
                 className="article-card block"
               >
                 <div className="article-content">
-                  <span className="tag tag-sales">{a.tag}</span>
-                  <h3 className="text-2xl font-black italic text-white mb-4">{a.title}</h3>
-                  <p className="text-gray-400 text-sm leading-relaxed font-light mb-6">{a.desc}</p>
+                  <span className="tag tag-sales">{lesson.tag}</span>
+                  <h3 className="text-2xl font-black italic text-white mb-4">{lesson.title}</h3>
+                  <p className="text-gray-400 text-sm leading-relaxed font-light mb-6">{lesson.desc}</p>
                   <div className="mt-auto pt-4 border-t border-white/5 text-[9px] font-black uppercase tracking-widest text-gold">
                     {t("academy.playbook.accessLink")}
                   </div>
@@ -280,19 +297,19 @@ export default function AcademyPage() {
           </div>
 
           <div className="grid md:grid-cols-2 gap-8">
-            {workshopArticles.slice(0, 2).map((a, i) => (
+            {localizedWorkshop.slice(0, 2).map((lesson) => (
               <LocaleLink
-                key={i}
-                href={`/academy/technical-workshop/${a.slug}`}
+                key={lesson.slug}
+                href={`/academy/technical-workshop/${lesson.slug}`}
                 className="article-card flex md:flex-row block"
               >
                 <div className="article-img-wrap md:w-2/5 md:aspect-auto">
-                  <img src={a.img} className="article-img" alt={a.title} />
+                  <img src={lesson.img} className="article-img" alt={lesson.title} />
                 </div>
                 <div className="article-content md:w-3/5">
-                  <span className="tag tag-maintenance">{a.tag}</span>
-                  <h3 className="text-xl font-bold text-white mb-3">{a.title}</h3>
-                  <p className="text-gray-400 text-xs leading-relaxed font-light mb-6">{a.desc}</p>
+                  <span className="tag tag-maintenance">{lesson.tag}</span>
+                  <h3 className="text-xl font-bold text-white mb-3">{lesson.title}</h3>
+                  <p className="text-gray-400 text-xs leading-relaxed font-light mb-6">{lesson.desc}</p>
                   <div className="mt-auto pt-4 border-t border-white/5 text-[9px] font-black uppercase tracking-widest text-green">
                     {t("academy.workshop.viewLink")}
                   </div>
@@ -352,8 +369,8 @@ export default function AcademyPage() {
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {vaultItems.map((item, i) => (
-              <div key={i} className="vault-card group">
+            {localizedVault.map((vaultItem) => (
+              <div key={vaultItem.translationId} className="vault-card group">
                 <div className="vault-lock">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
@@ -361,10 +378,10 @@ export default function AcademyPage() {
                   </svg>
                 </div>
                 <div className="text-[10px] font-black tracking-[.2em] uppercase text-gray-500 mb-4">
-                  {item.type}
+                  {vaultItem.type}
                 </div>
-                <h3 className="text-2xl font-black italic text-white mb-4">{item.title}</h3>
-                <p className="text-gray-400 text-xs font-light leading-relaxed mb-8">{item.desc}</p>
+                <h3 className="text-2xl font-black italic text-white mb-4">{vaultItem.title}</h3>
+                <p className="text-gray-400 text-xs font-light leading-relaxed mb-8">{vaultItem.desc}</p>
                 <LocaleLink
                   href="/qr"
                   className="text-[9px] font-black uppercase tracking-widest text-gold flex items-center gap-2 group-hover:gap-4 transition-all"

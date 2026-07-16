@@ -32,10 +32,11 @@ test("catalog translation keys are stable for model slugs and raw filter values"
 test("synced locale dictionaries cover the complete live catalog manifest", () => {
   for (const locale of [zh, en, am]) {
     assert.equal(Object.keys(locale.catalog.models).length, 47);
-    assert.equal(leafCount(locale.catalog.models), 94);
+    assert.equal(leafCount(locale.catalog.models), 109);
     assert.equal(leafCount(locale.catalog.filters), 39);
     assert.equal(leafCount(locale.catalog.cardField), 1);
-    assert.equal(leafCount(locale.catalog), 134);
+    assert.equal(leafCount(locale.catalog.cardValues), 8);
+    assert.equal(leafCount(locale.catalog), 157);
   }
 
   assert.equal(zh.catalog.models["geely-geome"].displayName, "吉利星愿");

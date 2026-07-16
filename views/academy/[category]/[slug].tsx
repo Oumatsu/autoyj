@@ -4,6 +4,10 @@ import { use, useEffect, useState } from "react";
 import { useTranslation } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
 import MarkdownRenderer from "@/components/MarkdownRenderer";
+import {
+  getAcademyLessonDate,
+  translateAcademyLesson,
+} from "@/views/academy/academyTranslations";
 
 interface Lesson {
   title: string;
@@ -106,9 +110,18 @@ export default function DynamicLessonPage({ params }: any) {
   }
 
   const meta = getCategoryMeta(category, t);
+  const localizedLesson = translateAcademyLesson(
+    { ...lesson, slug, date: getAcademyLessonDate(slug) },
+    t,
+  );
+  const localizedSiblings = siblings.map((sibling) =>
+    translateAcademyLesson(sibling, t),
+  );
 
   // Parse estimated read time based on length of content
-  const wordCount = lesson.content ? lesson.content.replace(/<[^>]*>/g, "").split(/\s+/).length : 0;
+  const wordCount = localizedLesson.content
+    ? localizedLesson.content.replace(/<[^>]*>/g, "").split(/\s+/).length
+    : 0;
   const readTime = Math.max(3, Math.ceil(wordCount / 180)) + " min";
 
   return (
@@ -125,7 +138,7 @@ export default function DynamicLessonPage({ params }: any) {
               {meta.label}
             </LocaleLink>
             <span className="mx-2">/</span>
-            <span className="text-white">{lesson.title}</span>
+            <span className="text-white">{localizedLesson.title}</span>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 xl:gap-20">
@@ -139,11 +152,11 @@ export default function DynamicLessonPage({ params }: any) {
                   {meta.label}
                 </span>
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-black italic text-white uppercase tracking-tighter leading-[1.05] mb-6">
-                  {lesson.title}
+                  {localizedLesson.title}
                 </h1>
-                {lesson.desc && (
+                {localizedLesson.desc && (
                   <p className="text-xl text-gray-400 font-light italic border-l-2 border-theme/30 pl-6 mb-8 max-w-2xl">
-                    {lesson.desc}
+                    {localizedLesson.desc}
                   </p>
                 )}
                 <div className="flex items-center gap-6 text-[10px] font-black uppercase tracking-widest text-gray-500 border-t border-white/10 pt-6">
@@ -156,7 +169,7 @@ export default function DynamicLessonPage({ params }: any) {
                     </div>
                     <span className="text-white">{t("academyDetail.authorLabel")}</span>
                   </div>
-                  <div>{t("academyDetail.date")}</div>
+                  <div>{localizedLesson.date}</div>
                   <div className="flex items-center gap-2 text-gold">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <circle cx="12" cy="12" r="10" />
@@ -168,23 +181,23 @@ export default function DynamicLessonPage({ params }: any) {
               </header>
 
               {/* Cover Image */}
-              {lesson.img && (
+              {localizedLesson.img && (
                 <div className="w-full aspect-[21/9] rounded-[2rem] overflow-hidden mb-16 relative bg-mid">
-                  <img src={lesson.img} alt={lesson.title} className="w-full h-full object-cover" />
+                  <img src={localizedLesson.img} alt={localizedLesson.title} className="w-full h-full object-cover" />
                   <div className="absolute inset-0 border border-white/10 rounded-[2rem] pointer-events-none" />
                 </div>
               )}
 
               {/* Article Body */}
               <article className="article-body max-w-3xl">
-                <MarkdownRenderer content={lesson.content} />
+                <MarkdownRenderer content={localizedLesson.content} />
               </article>
 
               {/* Footer tags */}
               <div className="mt-16 pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-6">
                 <div className="flex flex-wrap gap-2">
                   <span className="px-4 py-1.5 rounded-full bg-white/5 border border-white/5 text-[10px] font-black uppercase text-gray-400">
-                    {lesson.tag || meta.label}
+                    {localizedLesson.tag || meta.label}
                   </span>
                   <span className="px-4 py-1.5 rounded-full bg-white/5 border border-white/5 text-[10px] font-black uppercase text-gray-400">
                     {t("academyDetail.tags.youguard")}
@@ -200,7 +213,7 @@ export default function DynamicLessonPage({ params }: any) {
             <aside className="lg:col-span-4 xl:col-span-4">
               <div className="sticky top-28 space-y-6">
                 {/* Siblings Widget */}
-                {siblings.length > 0 && (
+                {localizedSiblings.length > 0 && (
                   <div className="glass rounded-[2rem] p-8 relative overflow-hidden group">
                     <div className="relative z-10">
                       <div className="w-12 h-12 rounded-xl bg-gold/10 flex items-center justify-center mb-6 text-gold">
@@ -217,15 +230,15 @@ export default function DynamicLessonPage({ params }: any) {
                         {meta.sidebarTitle}
                       </h3>
                       <div className="space-y-3">
-                        {siblings.map((sib) => (
+                        {localizedSiblings.map((localizedSibling) => (
                           <LocaleLink
-                            key={sib.slug}
-                            href={`/academy/${meta.path}/${sib.slug}`}
+                            key={localizedSibling.slug}
+                            href={`/academy/${meta.path}/${localizedSibling.slug}`}
                             className={`block text-xs text-gray-400 hover:text-white transition border-l-2 pl-3 py-1 ${
                               meta.key === "workshop" ? "border-accent/30 hover:border-accent" : "border-gold/30 hover:border-gold"
                             }`}
                           >
-                            {sib.title}
+                            {localizedSibling.title}
                           </LocaleLink>
                         ))}
                       </div>

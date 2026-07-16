@@ -679,19 +679,20 @@ function delay(ms: number) {
 async function searchRecords(
   env: Env,
   tableId: string,
-  options: { filter?: Record<string, unknown>; sort?: unknown[]; pageSize?: number } = {},
+  options: { filter?: Record<string, unknown>; sort?: unknown[]; pageSize?: number; maxPages?: number } = {},
 ) {
   const appToken = optionalEnv(env, "FEISHU_BASE_APP_TOKEN");
   if (!appToken) return [];
-  const pageSize = Math.min(options.pageSize || 100, 200);
+  const pageSize = Math.min(options.pageSize || 100, 500);
   const filter = normalizeBaseFilter(options.filter);
   const records: FeishuRecord[] = [];
-  let offset = 0;
-  for (let page = 0; page < 20; page++) {
+  let pageToken = "";
+  const maxPages = Math.max(1, options.maxPages || 20);
+  for (let page = 0; page < maxPages; page++) {
     const query = new URLSearchParams({
-      limit: String(pageSize),
-      offset: String(offset),
+      page_size: String(pageSize),
     });
+    if (pageToken) query.set("page_token", pageToken);
     if (filter) query.set("filter", JSON.stringify(filter));
     if (options.sort) query.set("sort", JSON.stringify(options.sort));
     const data = await feishuRequest<BaseRecordListResponse>(
@@ -701,8 +702,9 @@ async function searchRecords(
     );
     const pageRecords = normalizeBaseRecords(data);
     records.push(...pageRecords);
-    offset += pageSize;
-    if (!data.has_more || pageRecords.length < pageSize) break;
+    if (!data.has_more) break;
+    pageToken = data.page_token || "";
+    if (!pageToken) break;
   }
   return records;
 }
@@ -1813,7 +1815,7 @@ async function resolveTableIdByName(env: Env, tableName: string): Promise<string
 async function handlePublicTranslations(env: Env) {
   // 闂傚倸鍊风粈浣革耿闁秮鈧箓宕奸妷瀣喘楠炲酣鎸婃竟鈹垮劦閺屾盯骞囬棃娑欑亪闁荤喐鐟辨俊鍥焵椤掆偓缁犲秹宕曢柆宥呯疇閹兼番鍊ら弶浠嬫⒒閸屾瑦绁版い鏇熺墵瀹曟鈽夊Ο蹇撶秺瀹曞爼顢斿鍡樼槥闂?table_id闂傚倸鍊烽悞锔锯偓绗涘懐鐭欓柟瀵稿仧闂勫嫰鏌￠崘銊モ偓鑽ょ不閺傛鐔嗛柤鎼佹涧婵洨绱掗埀顒勫礃椤忎礁浜炬鐐茬仢閸旀岸鎮楀鐓庢灓闁瑰嘲缍婇崺锟犲川椤旈棿鍖?FEISHU_TABLE_I18N 闂傚倸鍊烽懗鍓佸垝椤栨粌鍨濋柣妯款嚙閸ㄥ倸霉閸忚偐鏆橀柍褜鍓欓崐鎸庝繆閹间礁鐓涘ù锝堟閸橆剚绻濆▓鍨灍闁靛洦鐩畷鎴﹀箻缂佹鍘?
   const tableId = await resolveTableIdByName(env, "I18n Locale");
-  const records = await searchRecords(env, tableId, { pageSize: 500 });
+  const records = await searchRecords(env, tableId, { pageSize: 500, maxPages: 100 });
   
   const zhRecords: any[] = [];
   const enRecords: any[] = [];
@@ -2121,6 +2123,7 @@ async function handlePublicAcademy(env: Env) {
   const vault = vaultRecords.map(r => {
     const fields = r.fields;
     return {
+      translationId: r.record_id,
       title: asText(fields.title),
       type: asText(fields.type),
       desc: asText(fields.description),
@@ -2149,12 +2152,15 @@ async function handlePublicAcademyLesson(category: string, slug: string, env: En
 
   const lessonsTableId = requireEnv(env, "FEISHU_TABLE_ACADEMY_LESSONS");
   const records = await searchRecords(env, lessonsTableId, {
-    filter: equalsFilter("slug", slug),
-    pageSize: 5
+    pageSize: 100
   });
 
-  const record = records.find(r => normalizeAcademyCategory(asText(r.fields.category)) === normalizeAcademyCategory(category));
-  if (!record || asText(record.fields.status) !== "Published") {
+  const record = records.find(r =>
+    asText(r.fields.slug) === slug
+    && normalizeAcademyCategory(asText(r.fields.category)) === normalizeAcademyCategory(category)
+    && asText(r.fields.status) === "Published"
+  );
+  if (!record) {
     return problem(`Academy lesson ${slug} in category ${category} not found`, 404);
   }
 

@@ -1,4 +1,8 @@
-export type CatalogModelTranslationField = "displayName" | "cardHighlight";
+export type CatalogModelTranslationField =
+  | "displayName"
+  | "cardHighlight"
+  | "cardTag"
+  | "cardLabel";
 
 export function catalogValueId(value: string): string {
   return value
@@ -17,4 +21,8 @@ export function catalogModelKey(
 
 export function catalogFilterKey(field: string, value: string): string {
   return `catalog.filters.${field}.${catalogValueId(value)}`;
+}
+
+export function catalogCardValueKey(value: string): string {
+  return `catalog.cardValues.${catalogValueId(value)}`;
 }

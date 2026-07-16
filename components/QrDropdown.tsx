@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useCallback, useRef } from "react";
+import { useTranslation } from "@/i18n/useTranslation";
 
 export function QrDropdown({ children }: { children: React.ReactNode }) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -41,12 +43,12 @@ export function QrDropdown({ children }: { children: React.ReactNode }) {
       >
         <img
           src="/pic/0.webp"
-          alt="Scan to contact us on WhatsApp"
+          alt={t("qr.badge", "Scan to Connect on WhatsApp") as string}
           className="w-full block rounded-lg"
           style={{ aspectRatio: "1 / 1" }}
         />
         <p className="text-[8px] font-black tracking-widest uppercase text-center text-gray-500 mt-2">
-          Scan to WhatsApp
+          {t("qr.badge", "Scan to Connect on WhatsApp")}
         </p>
       </div>
     </div>

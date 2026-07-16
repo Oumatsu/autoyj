@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
+import { translateInsightArticle } from "@/views/insights/articleTranslations";
 
 type SortMode = "recommended" | "newest" | "oldest";
 
@@ -81,7 +82,8 @@ export default function InsightsPage() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [filterCat, sortBy]);
 
-  const sorted = [...articles].sort((a, b) => {
+  const localizedArticles = articles.map((article) => translateInsightArticle(article, t));
+  const sorted = [...localizedArticles].sort((a, b) => {
     if (sortBy === "newest") return b.sortDate.localeCompare(a.sortDate);
     if (sortBy === "oldest") return a.sortDate.localeCompare(b.sortDate);
     return a.sortOrder - b.sortOrder;
@@ -233,7 +235,7 @@ export default function InsightsPage() {
                       </div>
                       <div className="flex flex-col gap-2">
                         {ALL_CATEGORIES.map((cat) => {
-                          const count = articles.filter((a) => a.category === cat).length;
+                          const count = localizedArticles.filter((a) => a.category === cat).length;
                           const active = filterCat === cat;
                           return (
                             <button key={cat} onClick={() => handleFilter(cat)} className={`group flex items-center justify-between px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${active ? "bg-gold text-black" : "text-gray-400 hover:text-white bg-white/[0.03] hover:bg-white/[0.06]"}`}>
