@@ -11,8 +11,6 @@ type Env = {
   FEISHU_TABLE_EXTERNAL_ACCOUNTS?: string;
   FEISHU_TABLE_CUSTOMERS?: string;
   FEISHU_TABLE_VEHICLE_MODELS?: string;
-  FEISHU_TABLE_VEHICLE_MODEL_SPECS?: string;
-  FEISHU_TABLE_VEHICLES?: string;
   FEISHU_TABLE_INQUIRIES?: string;
   FEISHU_TABLE_QUOTES?: string;
   FEISHU_TABLE_NEGOTIATIONS?: string;
@@ -22,6 +20,7 @@ type Env = {
   FEISHU_TABLE_ARTICLES?: string;
   FEISHU_TABLE_ACADEMY_LESSONS?: string;
   FEISHU_TABLE_ACADEMY_VAULT?: string;
+  FEISHU_TABLE_I18N?: string;
   FEISHU_TABLE_INSIGHTS?: string;
   FEISHU_TABLE_VEHICLE_TRIM_CONFIGURATIONS?: string;
   DEV?: boolean;
@@ -215,7 +214,7 @@ function cleanUrl(value: unknown): string {
 }
 
 function productPath(fields: Record<string, unknown>) {
-  return cleanUrl(fields["Product Path"]) || cleanUrl(fields["Source URL"]);
+  return cleanUrl(fields.product_path);
 }
 
 function normalizeAcademyCategory(category: string): string {
@@ -294,42 +293,40 @@ function metricDisplay(
 }
 
 function guidePriceDisplay(fields: Record<string, unknown>) {
-  const autoMin = asOptionalNumber(fields["Guide Price Min USD Auto"]);
-  const autoMax = asOptionalNumber(fields["Guide Price Max USD Auto"]);
-  const autoRange = formatUsdRange(autoMin, autoMax);
-  if (autoRange) return autoRange;
-
-  return asText(fields["China Guide Price CN..."]) || asText(fields["China Guide Price CNY"]) || asText(fields["MSRP China"]);
+  return formatUsdRange(
+    asOptionalNumber(fields.guide_price_min_usd_auto),
+    asOptionalNumber(fields.guide_price_max_usd_auto),
+  );
 }
 
 function cltcRangeDisplay(fields: Record<string, unknown>) {
-  return metricDisplay(fields, "CLTC Range Min KM Auto", "CLTC Range Max KM Auto", "km");
+  return metricDisplay(fields, "cltc_range_min_km_auto", "cltc_range_max_km_auto", "km");
 }
 
 function batteryCapacityDisplay(fields: Record<string, unknown>) {
   return metricDisplay(
     fields,
-    "Battery Capacity Min kWh Auto",
-    "Battery Capacity Max kWh Auto",
+    "battery_capacity_min_kwh_auto",
+    "battery_capacity_max_kwh_auto",
     "kWh",
     3,
   );
 }
 
 function motorPowerDisplay(fields: Record<string, unknown>) {
-  return metricDisplay(fields, "Motor Power Min KW Auto", "Motor Power Max KW Auto", "kW");
+  return metricDisplay(fields, "motor_power_min_kw_auto", "motor_power_max_kw_auto", "kW");
 }
 
 function batteryChemistryDisplay(fields: Record<string, unknown>) {
-  return asText(fields["Battery Chemistry Auto"]);
+  return asText(fields.battery_chemistry_auto);
 }
 
 function drivetrainDisplay(fields: Record<string, unknown>) {
-  return asText(fields["Drivetrain Display Auto"]);
+  return asText(fields.drivetrain_display_auto);
 }
 
 function inventoryDisplay(fields: Record<string, unknown>) {
-  const inventory = asText(fields["Inventory Status"]);
+  const inventory = asText(fields.inventory_status);
   const normalized = inventory.toLowerCase();
   if (!inventory) {
     return { status: "tbc", statusText: "TBC" };
@@ -379,16 +376,16 @@ function trimFeatureGroups(value: unknown) {
 }
 
 function trimBatteryDisplay(fields: Record<string, unknown>) {
-  const capacity = asOptionalNumber(fields["Battery Capacity kWh"]);
-  const chemistry = asText(fields["Battery Chemistry"]);
+  const capacity = asOptionalNumber(fields.battery_capacity_kwh);
+  const chemistry = asText(fields.battery_chemistry);
   if (capacity !== null && chemistry) return `${formatNumber(capacity, 3)} kWh ${chemistry} battery`;
   if (capacity !== null) return `${formatNumber(capacity, 3)} kWh battery`;
   return chemistry ? `${chemistry} battery` : "";
 }
 
 function trimMotorDisplay(fields: Record<string, unknown>) {
-  const power = asOptionalNumber(fields["Motor Power kW"]);
-  const torque = asOptionalNumber(fields["Motor Torque N-m"]);
+  const power = asOptionalNumber(fields.motor_power_kw);
+  const torque = asOptionalNumber(fields.motor_torque_n_m);
   if (power !== null && torque !== null) return `${formatNumber(power)} kW / ${formatNumber(torque)} N-m`;
   if (power !== null) return `${formatNumber(power)} kW`;
   if (torque !== null) return `${formatNumber(torque)} N-m`;
@@ -396,10 +393,10 @@ function trimMotorDisplay(fields: Record<string, unknown>) {
 }
 
 function trimChargingDisplay(fields: Record<string, unknown>) {
-  if (!asBool(fields["DC Fast Charge Supported"])) return "";
-  const time = asOptionalNumber(fields["DC Fast Charge Time Hours"]);
-  const min = asOptionalNumber(fields["DC Fast Charge Min Percent"]);
-  const max = asOptionalNumber(fields["DC Fast Charge Max Percent"]);
+  if (!asBool(fields.dc_fast_charge_supported)) return "";
+  const time = asOptionalNumber(fields.dc_fast_charge_time_hours);
+  const min = asOptionalNumber(fields.dc_fast_charge_min_percent);
+  const max = asOptionalNumber(fields.dc_fast_charge_max_percent);
   const window = min !== null && max !== null ? `${formatNumber(min)}-${formatNumber(max)}%` : "DC fast charge";
   return time !== null ? `${window} in ${formatNumber(time, 2)} h` : window;
 }
@@ -408,50 +405,50 @@ function buildTrimComparison(modelFields: Record<string, unknown>, trimRecords: 
   const trims = trimRecords
     .map((record) => {
       const fields = record.fields;
-      const price = asOptionalNumber(fields["Trim Price Display"]);
-      const range = asOptionalNumber(fields["Range Display"]);
-      const batteryCapacity = asOptionalNumber(fields["Battery Capacity kWh"]);
-      const motorPower = asOptionalNumber(fields["Motor Power kW"]);
-      const motorTorque = asOptionalNumber(fields["Motor Torque N-m"]);
+      const price = asOptionalNumber(fields.trim_price_display);
+      const range = asOptionalNumber(fields.range_display);
+      const batteryCapacity = asOptionalNumber(fields.battery_capacity_kwh);
+      const motorPower = asOptionalNumber(fields.motor_power_kw);
+      const motorTorque = asOptionalNumber(fields.motor_torque_n_m);
       return {
-        trimConfigId: asText(fields["Trim Config ID"]),
-        name: asText(fields["Trim Name"]),
-        order: asOptionalNumber(fields["Trim Order"]) ?? undefined,
+        trimConfigId: asText(fields.trim_config_id),
+        name: asText(fields.variant),
+        order: asOptionalNumber(fields.trim_order) ?? undefined,
         priceRmb: price ?? undefined,
         priceDisplay: price !== null ? formatUsd(price) : "",
         rangeKm: range ?? undefined,
         rangeDisplay: range !== null ? `${formatNumber(range)} km CLTC` : "",
         batteryCapacityKwh: batteryCapacity ?? undefined,
-        batteryChemistry: asText(fields["Battery Chemistry"]),
+        batteryChemistry: asText(fields.battery_chemistry),
         batteryDisplay: trimBatteryDisplay(fields),
-        drivetrainDisplay: asText(fields["Drivetrain Display"]),
+        drivetrainDisplay: asText(fields.drivetrain_display),
         motorPowerKw: motorPower ?? undefined,
         motorTorqueNm: motorTorque ?? undefined,
         motorDisplay: trimMotorDisplay(fields),
-        dcFastChargeSupported: asBool(fields["DC Fast Charge Supported"]),
-        dcFastChargeTimeHours: asOptionalNumber(fields["DC Fast Charge Time Hours"]) ?? undefined,
-        dcFastChargeMinPercent: asOptionalNumber(fields["DC Fast Charge Min Percent"]) ?? undefined,
-        dcFastChargeMaxPercent: asOptionalNumber(fields["DC Fast Charge Max Percent"]) ?? undefined,
+        dcFastChargeSupported: asBool(fields.dc_fast_charge_supported),
+        dcFastChargeTimeHours: asOptionalNumber(fields.dc_fast_charge_time_hours) ?? undefined,
+        dcFastChargeMinPercent: asOptionalNumber(fields.dc_fast_charge_min_percent) ?? undefined,
+        dcFastChargeMaxPercent: asOptionalNumber(fields.dc_fast_charge_max_percent) ?? undefined,
         chargingDisplay: trimChargingDisplay(fields),
-        baseFeatures: jsonList(fields["Base Spec Summary JSON"]),
-        addedFeatures: jsonList(fields["Added Features JSON"]),
-        upgradedFeatures: jsonList(fields["Upgraded Features JSON"]),
-        recommended: asBool(fields.Recommended),
-        sourceStatus: asText(fields["Source Status"]),
-        sourceUrl: cleanUrl(fields["Source URL"]),
+        baseFeatures: jsonList(fields.base_spec_summary_json),
+        addedFeatures: jsonList(fields.added_features_json),
+        upgradedFeatures: jsonList(fields.upgraded_features_json),
+        recommended: asBool(fields.recommended),
+        sourceStatus: asText(fields.source_status),
+        sourceUrl: cleanUrl(fields.source_url),
       };
     })
     .filter((trim) => trim.name)
     .sort((a, b) => (a.order || 0) - (b.order || 0));
 
-  if (!trims.length && !asText(modelFields["Common Features JSON Pruned"])) return null;
+  if (!trims.length && !asText(modelFields.common_features_json_pruned)) return null;
 
   return {
-    status: asText(modelFields["Trim Section Status Pruned"]),
+    status: asText(modelFields.trim_section_status_pruned),
     trims,
-    commonFeatures: trimFeatureGroups(modelFields["Common Features JSON Pruned"]),
-    sourceSummary: asText(modelFields["Trim Source Summary Pruned"]),
-    lastVerifiedAt: asText(modelFields["Trim Last Verified At"]),
+    commonFeatures: trimFeatureGroups(modelFields.common_features_json_pruned),
+    sourceSummary: asText(modelFields.trim_source_summary_pruned),
+    lastVerifiedAt: asText(modelFields.trim_last_verified_at),
   };
 }
 
@@ -784,17 +781,17 @@ function mapInternalUser(record: FeishuRecord): PortalInternalUser {
   const fields = record.fields;
   return {
     recordId: record.record_id,
-    userId: asText(fields["User ID"]),
-    name: asText(fields.Name),
-    email: asText(fields.Email).toLowerCase(),
-    role: normalizeRole(fields.Role),
-    status: asText(fields.Status) || "Active",
-    department: asText(fields.Department),
-    canEditVehicles: asBool(fields["Can Edit Vehicles"]),
-    canSeeCost: asBool(fields["Can See Cost"]),
-    canSeeSupplier: asBool(fields["Can See Supplier"]),
-    sourcingCommissionRate: asNumber(fields["Sourcing Commission Rate"]),
-    salesCommissionRate: asNumber(fields["Sales Commission Rate"]),
+    userId: asText(fields.user_id),
+    name: asText(fields.name),
+    email: asText(fields.email).toLowerCase(),
+    role: normalizeRole(fields.role),
+    status: asText(fields.status) || "Active",
+    department: asText(fields.department),
+    canEditVehicles: asBool(fields.can_edit_vehicles),
+    canSeeCost: asBool(fields.can_see_cost),
+    canSeeSupplier: asBool(fields.can_see_supplier),
+    sourcingCommissionRate: asNumber(fields.sourcing_commission_rate),
+    salesCommissionRate: asNumber(fields.sales_commission_rate),
   };
 }
 
@@ -802,15 +799,15 @@ function mapCustomer(record: FeishuRecord): PortalCustomer {
   const fields = record.fields;
   return {
     recordId: record.record_id,
-    customerId: asText(fields["Account ID"]) || asText(fields["Customer ID"]),
-    company: asText(fields.Company),
-    contact: asText(fields.Contact),
-    email: asText(fields.Email).toLowerCase(),
-    role: normalizeRole(fields.Role),
-    priceTier: normalizePriceTier(fields["Price Tier"]),
-    status: asText(fields.Status) || "Active",
-    country: asText(fields.Country),
-    owner: asText(fields.Owner),
+    customerId: asText(fields.account_id),
+    company: asText(fields.company),
+    contact: asText(fields.contact),
+    email: asText(fields.email).toLowerCase(),
+    role: normalizeRole(fields.role),
+    priceTier: normalizePriceTier(fields.price_tier),
+    status: asText(fields.status) || "Active",
+    country: asText(fields.country),
+    owner: asText(fields.owner),
   };
 }
 
@@ -855,67 +852,67 @@ function publicUser(session: PortalSession) {
 
 function mapVehicleModel(record: FeishuRecord): PortalVehicleModel {
   const fields = record.fields;
+  const dimensions = [fields.length_mm, fields.width_mm, fields.height_mm]
+    .map(asOptionalNumber);
+  const seats = formatMetricRange(
+    asOptionalNumber(fields.seats_min),
+    asOptionalNumber(fields.seats_max),
+    "seats",
+  );
+  const topSpeed = formatMetricRange(
+    asOptionalNumber(fields.top_speed_min_kmh),
+    asOptionalNumber(fields.top_speed_max_kmh),
+    "km/h",
+  );
+  const warrantyYears = asOptionalNumber(fields.battery_warranty_years);
+  const warrantyDistance = asOptionalNumber(fields.battery_warranty_distance_km);
   return {
-    id: asText(fields["Model ID"]),
-    brand: asText(fields.Brand),
-    model: asText(fields.Model),
-    trim: asText(fields.Version) || asText(fields.Trim),
-    year: asText(fields.Year),
-    bodyType: asText(fields.Segment) || asText(fields["Body Type"]),
-    fuelType: asText(fields["Energy Type"]) || asText(fields["Fuel Type"]),
-    msrpChina: asText(fields["China Guide Price CN..."]) || asText(fields["China Guide Price CNY"]) || asText(fields["MSRP China"]),
-    battery: batteryCapacityDisplay(fields) || asText(fields["Battery Capacity"]) || asText(fields.Battery),
+    id: asText(fields.model_id),
+    brand: asText(fields.brand),
+    model: asText(fields.model),
+    trim: asText(fields.version),
+    year: asText(fields.model_year),
+    bodyType: asText(fields.vehicle_class) || asText(fields.segment),
+    fuelType: asText(fields.powertrain_type),
+    msrpChina: guidePriceDisplay(fields),
+    battery: batteryCapacityDisplay(fields),
     batteryType: batteryChemistryDisplay(fields),
-    batteryMaker: asText(fields["Battery Maker"]),
-    range: cltcRangeDisplay(fields) || asText(fields["CLTC Range"]) || asText(fields.Range),
-    energyConsumption: asText(fields["Energy Consumption"]),
-    motorPower: motorPowerDisplay(fields) || asText(fields["Motor Power"]),
-    motorTorque: asText(fields["Motor Torque"]),
+    batteryMaker: "",
+    range: cltcRangeDisplay(fields),
+    energyConsumption: "",
+    motorPower: motorPowerDisplay(fields),
+    motorTorque: "",
     driveType: drivetrainDisplay(fields),
-    topSpeed: asText(fields["Top Speed"]),
-    acceleration: asText(fields.Acceleration),
-    seats: asText(fields.Seats),
-    doors: asText(fields.Doors),
-    dimensions: asText(fields.Dimensions),
-    wheelbase: asText(fields.Wheelbase),
-    curbWeight: asText(fields["Curb Weight"]),
-    trunkCapacity: asText(fields["Trunk Capacity"]),
-    charging: asText(fields.Charging),
-    frontSuspension: asText(fields["Front Suspension"]),
-    rearSuspension: asText(fields["Rear Suspension"]),
-    adas: asText(fields.ADAS),
-    warranty: asText(fields.Warranty),
-    marketPosition: asText(fields["Market Position"]),
-    exportNotes: asText(fields["Review Notes"]) || asText(fields["Export Notes"]),
-    imageUrl: asText(fields["Image URL"]),
-    brochureUrl: asText(fields["Brochure URL"]),
+    topSpeed,
+    acceleration: asOptionalNumber(fields["0_100_km_h_sec"]) !== null ? `${formatNumber(asOptionalNumber(fields["0_100_km_h_sec"])!, 2)} sec` : "",
+    seats,
+    doors: "",
+    dimensions: dimensions.every((value) => value !== null) ? `${dimensions.map((value) => formatNumber(value!)).join(" x ")} mm` : "",
+    wheelbase: asOptionalNumber(fields.wheelbase_mm) !== null ? `${formatNumber(asOptionalNumber(fields.wheelbase_mm)!)} mm` : "",
+    curbWeight: "",
+    trunkCapacity: asOptionalNumber(fields.boot_volume_l) !== null ? `${formatNumber(asOptionalNumber(fields.boot_volume_l)!)} L` : "",
+    charging: asText(fields.charging),
+    frontSuspension: "",
+    rearSuspension: "",
+    adas: "",
+    warranty: warrantyYears !== null || warrantyDistance !== null
+      ? [warrantyYears !== null ? `${formatNumber(warrantyYears)} years` : "", warrantyDistance !== null ? `${formatNumber(warrantyDistance)} km` : ""].filter(Boolean).join(" / ")
+      : "",
+    marketPosition: asText(fields.page_subtitle),
+    exportNotes: asText(fields.review_notes),
+    imageUrl: asText(fields.image_url),
+    brochureUrl: "",
     sourceUrl: productPath(fields),
-    sourceName: asText(fields["Source Name"]),
-    lastSyncedAt: asText(fields["Last Synced At"]),
-    fullSpecsJson: asText(fields["Full Specs JSON"]),
-    status: asText(fields.Status) || "Active",
-  };
-}
-
-function mapVehicleModelSpec(record: FeishuRecord): PortalVehicleModelSpec {
-  const fields = record.fields;
-  return {
-    modelId: asText(fields["Model ID"]),
-    category: asText(fields.Category),
-    name: asText(fields["Spec Name"]),
-    value: asText(fields["Spec Value"]),
-    unit: asText(fields.Unit),
-    visibleLevel: asText(fields["Visible Level"]),
-    sortOrder: asNumber(fields["Sort Order"]),
-    sourceName: asText(fields["Source Name"]),
-    sourceUrl: productPath(fields),
-    confidence: asText(fields.Confidence),
+    sourceName: "",
+    lastSyncedAt: asText(fields.last_synced_at),
+    fullSpecsJson: "",
+    status: asText(fields.status) || "Active",
   };
 }
 
 function synthesizeSpecsFromModel(record: FeishuRecord): PortalVehicleModelSpec[] {
   const fields = record.fields;
-  const modelId = asText(fields["Model ID"]);
+  const modelId = asText(fields.model_id);
   if (!modelId) return [];
 
   const specs: PortalVehicleModelSpec[] = [];
@@ -938,65 +935,65 @@ function synthesizeSpecsFromModel(record: FeishuRecord): PortalVehicleModelSpec[
   };
 
   const dimensions = (() => {
-    const length = asOptionalNumber(fields["Length MM"]);
-    const width = asOptionalNumber(fields["Width MM"]);
-    const height = asOptionalNumber(fields["Height MM"]);
+    const length = asOptionalNumber(fields.length_mm);
+    const width = asOptionalNumber(fields.width_mm);
+    const height = asOptionalNumber(fields.height_mm);
     if (length !== null && width !== null && height !== null) {
       return `${formatNumber(length)} x ${formatNumber(width)} x ${formatNumber(height)} mm`;
     }
-    return asText(fields["Dimensions (LxWxH)"]) || asText(fields.Dimensions);
+    return "";
   })();
   const seats = (() => {
-    const min = asOptionalNumber(fields["Seats Min"]);
-    const max = asOptionalNumber(fields["Seats Max"]);
+    const min = asOptionalNumber(fields.seats_min);
+    const max = asOptionalNumber(fields.seats_max);
     if (min !== null && max !== null) return Math.round(min) === Math.round(max) ? `${formatNumber(min)} seats` : `${formatNumber(min)} - ${formatNumber(max)} seats`;
     if (min !== null) return `${formatNumber(min)} seats`;
     if (max !== null) return `${formatNumber(max)} seats`;
-    return asText(fields.Seats) || asText(fields.Seating) || asText(fields["Seating Capacity"]);
+    return "";
   })();
   const warranty = (() => {
-    const years = asOptionalNumber(fields["Battery Warranty Years"]);
-    const km = asOptionalNumber(fields["Battery Warranty Distance KM"]);
+    const years = asOptionalNumber(fields.battery_warranty_years);
+    const km = asOptionalNumber(fields.battery_warranty_distance_km);
     if (years !== null && km !== null) return `${formatNumber(years)} years / ${formatNumber(km)} km`;
     if (years !== null) return `${formatNumber(years)} years`;
     if (km !== null) return `${formatNumber(km)} km`;
-    return asText(fields.Warranty) || asText(fields["Battery Warranty"]);
+    return "";
   })();
   const acSlowCharge = (() => {
-    const hours = asOptionalNumber(fields["AC Slow Charge Full Time Hours"]);
+    const hours = asOptionalNumber(fields.ac_slow_charge_full_time_hours);
     if (hours !== null) return `${formatNumber(hours, 2)} h`;
-    return asBool(fields["AC Slow Charge Supported"]) ? "Supported" : "";
+    return asBool(fields.ac_slow_charge_supported) ? "Supported" : "";
   })();
   const v2l = (() => {
-    const availability = asText(fields["V2L Availability"]);
-    const power = asOptionalNumber(fields["V2L Output Power (kW)"]);
+    const availability = asText(fields.v2l_availability);
+    const power = asOptionalNumber(fields.v2l_output_power_kw);
     if (availability && power !== null) return `${availability}, ${formatNumber(power, 1)} kW`;
     return availability || (power !== null ? `${formatNumber(power, 1)} kW` : "");
   })();
 
   addSpec("Guide Price", guidePriceDisplay(fields), "Core", 0, "Basic");
-  addSpec("Powertrain", asText(fields["Powertrain Type"]) || asText(fields["Energy Type"]) || asText(fields["Fuel Type"]), "Core", 5, "Basic");
+  addSpec("Powertrain", asText(fields.powertrain_type), "Core", 5, "Basic");
   addSpec("Drivetrain", drivetrainDisplay(fields), "Core", 10, "Performance");
-  addSpec("0-100 km/h", asOptionalNumber(fields["0 - 100 km/h (sec)"]) !== null ? `${formatNumber(asOptionalNumber(fields["0 - 100 km/h (sec)"])!, 2)} sec` : asText(fields.Acceleration), "Core", 11, "Performance");
-  addSpec("Motor Power", motorPowerDisplay(fields) || asText(fields["Motor Power"]), "Core", 12, "Performance");
+  addSpec("0-100 km/h", asOptionalNumber(fields["0_100_km_h_sec"]) !== null ? `${formatNumber(asOptionalNumber(fields["0_100_km_h_sec"])!, 2)} sec` : "", "Core", 11, "Performance");
+  addSpec("Motor Power", motorPowerDisplay(fields), "Core", 12, "Performance");
   addSpec("Battery Chemistry", batteryChemistryDisplay(fields), "Core", 13, "Battery");
-  addSpec("CLTC Range", cltcRangeDisplay(fields) || asText(fields["CLTC Range"]) || asText(fields.Range), "Core", 14, "Battery");
-  addSpec("Battery Capacity", batteryCapacityDisplay(fields) || asText(fields["Battery Capacity"]) || asText(fields.Battery), "Core", 15, "Battery");
+  addSpec("CLTC Range", cltcRangeDisplay(fields), "Core", 14, "Battery");
+  addSpec("Battery Capacity", batteryCapacityDisplay(fields), "Core", 15, "Battery");
   addSpec("AC Slow Charge", acSlowCharge, "Core", 16, "Battery");
-  addSpec("Household Charging", fields["Household Charging"] === undefined ? "" : (asBool(fields["Household Charging"]) ? "Supported" : "Not supported"), "Core", 17, "Battery");
+  addSpec("Household Charging", fields.household_charging === undefined ? "" : (asBool(fields.household_charging) ? "Supported" : "Not supported"), "Core", 17, "Battery");
 
-  addSpec("Vehicle Class", asText(fields["Vehicle Class"]) || asText(fields.Segment) || asText(fields["Body Type"]), "Standard", 30, "Dimensions");
+  addSpec("Vehicle Class", asText(fields.vehicle_class) || asText(fields.segment), "Standard", 30, "Dimensions");
   addSpec("Dimensions", dimensions, "Standard", 31, "Dimensions");
-  addSpec("Wheelbase", asOptionalNumber(fields["Wheelbase MM"]) !== null ? `${formatNumber(asOptionalNumber(fields["Wheelbase MM"])!)} mm` : asText(fields.Wheelbase), "Standard", 32, "Dimensions");
-  addSpec("Ground Clearance", asOptionalNumber(fields["Ground Clearance (mm)"]) !== null ? `${formatNumber(asOptionalNumber(fields["Ground Clearance (mm)"])!)} mm` : asText(fields["Ground Clearance"]), "Standard", 33, "Dimensions");
-  addSpec("Boot Volume", asOptionalNumber(fields["Boot Volume (L)"]) !== null ? `${formatNumber(asOptionalNumber(fields["Boot Volume (L)"])!)} L` : asText(fields["Boot Volume"]) || asText(fields["Trunk Capacity"]), "Standard", 34, "Dimensions");
+  addSpec("Wheelbase", asOptionalNumber(fields.wheelbase_mm) !== null ? `${formatNumber(asOptionalNumber(fields.wheelbase_mm)!)} mm` : "", "Standard", 32, "Dimensions");
+  addSpec("Ground Clearance", asOptionalNumber(fields.ground_clearance_mm) !== null ? `${formatNumber(asOptionalNumber(fields.ground_clearance_mm)!)} mm` : "", "Standard", 33, "Dimensions");
+  addSpec("Boot Volume", asOptionalNumber(fields.boot_volume_l) !== null ? `${formatNumber(asOptionalNumber(fields.boot_volume_l)!)} L` : "", "Standard", 34, "Dimensions");
   addSpec("Seats", seats, "Standard", 35, "Dimensions");
-  addSpec("Airbags", asOptionalNumber(fields.Airbags) !== null ? `${formatNumber(asOptionalNumber(fields.Airbags)!)} airbags` : "", "Standard", 36, "Safety");
-  addSpec("Sunroof", asText(fields["Sunroof Availability"]) || asText(fields.Sunroof), "Standard", 37, "Comfort");
+  addSpec("Airbags", asOptionalNumber(fields.airbags) !== null ? `${formatNumber(asOptionalNumber(fields.airbags)!)} airbags` : "", "Standard", 36, "Safety");
+  addSpec("Sunroof", asText(fields.sunroof_availability), "Standard", 37, "Comfort");
   addSpec("V2L", v2l, "Standard", 38, "Utility");
-  addSpec("Voltage Platform", asOptionalNumber(fields["Voltage Platform (V)"]) !== null ? `${formatNumber(asOptionalNumber(fields["Voltage Platform (V)"])!)} V` : "", "Standard", 39, "Battery");
+  addSpec("Voltage Platform", asOptionalNumber(fields.voltage_platform_v) !== null ? `${formatNumber(asOptionalNumber(fields.voltage_platform_v)!)} V` : "", "Standard", 39, "Battery");
   addSpec("Battery Warranty", warranty, "Standard", 40, "Warranty");
-  addSpec("Steering", asText(fields["Steering Setup"]), "Standard", 41, "Export");
+  addSpec("Steering", asText(fields.steering_setup), "Standard", 41, "Export");
 
   return specs;
 }
@@ -1005,106 +1002,22 @@ function enrichVehicleModelsWithSpecs(models: PortalVehicleModel[], _specs: Port
   return models;
 }
 
-function mapVehicle(record: FeishuRecord, session: PortalSession) {
-  const fields = record.fields;
-  const partnerPrice = asNumber(fields["Partner Price"]);
-  const customerPrice = asNumber(fields["Customer Price"]);
-  const cost = asNumber(fields.Cost);
-  const isInternal = isInternalSession(session);
-  const canSeePrice = canSeePortalPrice(session);
-  const visiblePrice =
-    (session.priceTier === "vip" || session.priceTier === "internal") && customerPrice > 0
-      ? customerPrice
-      : partnerPrice;
-  return {
-    id: asText(fields["Vehicle ID"]),
-    modelId: asText(fields["Model ID"]),
-    brand: asText(fields.Brand),
-    model: asText(fields.Model),
-    trim: asText(fields.Trim),
-    year: asText(fields.Year),
-    color: asText(fields.Color),
-    exteriorColor: asText(fields["Exterior Color"]) || asText(fields.Color),
-    interiorColor: asText(fields["Interior Color"]),
-    supplierExteriorColor: isInternal ? asText(fields["Supplier Exterior Color"]) : "",
-    supplierInteriorColor: isInternal ? asText(fields["Supplier Interior Color"]) : "",
-    colorCode: isInternal ? asText(fields["Color Code"]) : "",
-    colorNotes: isInternal ? asText(fields["Color Notes"]) : "",
-    colorConfirmed: isInternal ? asBool(fields["Color Confirmed"]) : false,
-    configuration: asText(fields.Configuration),
-    supplier: asText(fields.Supplier),
-    recorder: isInternal ? asText(fields.Recorder) : "",
-    location: asText(fields.Location),
-    status: asText(fields.Status),
-    exportStatus: asText(fields["Export Status"]),
-    stockQuantity: asNumber(fields["Stock Quantity"]),
-    leadTime: asText(fields["Lead Time"]),
-    priceValidUntil: asText(fields["Price Valid Until"]),
-    imageUrl: asText(fields["Image URL"]),
-    publicNotes: asText(fields["Public Notes"]),
-    canSeePrice,
-    price: canSeePrice ? visiblePrice : null,
-    partnerPrice: isInternal ? partnerPrice : null,
-    customerPrice: isInternal ? customerPrice : null,
-    cost: isInternal ? cost : null,
-    isListed: asBool(fields["Is Listed"]),
-    editableFields: isInternal ? Object.keys(fields) : [],
-    priceLabel: canSeePrice
-      ? isInternal
-        ? "Internal portal price"
-        : session.priceTier === "vip"
-          ? "VIP cooperation price"
-          : "Cooperation price"
-      : "Request quote",
-  };
-}
-
-function deriveVehicleModelsFromVehicles(vehicles: ReturnType<typeof mapVehicle>[]): PortalVehicleModel[] {
-  const grouped = new Map<string, PortalVehicleModel>();
-  for (const vehicle of vehicles) {
-    const id = vehicle.modelId || `${vehicle.brand}-${vehicle.model}-${vehicle.trim}-${vehicle.year}`.replace(/\s+/g, "-").toUpperCase();
-    if (grouped.has(id)) continue;
-    grouped.set(id, {
-      id,
-      brand: vehicle.brand,
-      model: vehicle.model,
-      trim: vehicle.trim,
-      year: vehicle.year,
-      bodyType: "",
-      battery: "",
-      range: "",
-      motorPower: "",
-      driveType: "",
-      seats: "",
-      dimensions: "",
-      charging: "",
-      warranty: "",
-      marketPosition: vehicle.publicNotes,
-      exportNotes: vehicle.exportStatus,
-      imageUrl: vehicle.imageUrl,
-      brochureUrl: "",
-      status: vehicle.status || "Active",
-    } as unknown as PortalVehicleModel);
-  }
-  return Array.from(grouped.values());
-}
-
 function mapInquiry(record: FeishuRecord) {
   const fields = record.fields;
   return {
     id: record.record_id,
-    inquiryNo: asText(fields["Inquiry No"]),
-    customerId: asText(fields["Customer ID"]),
-    vehicleId: asText(fields["Vehicle ID"]),
-    vehicleModel: asText(fields["Vehicle Model"]),
-    quantity: asNumber(fields.Quantity),
-    destinationPort: asText(fields["Destination Port"]),
-    tradeTerm: asText(fields["Trade Term"]),
-    targetPrice: asNumber(fields["Target Price"]),
-    notes: asText(fields.Notes),
-    status: asText(fields.Status),
-    createdAt: asText(fields["Created At"]),
-    updatedAt: asText(fields["Updated At"]),
+    inquiryNo: asText(fields.inquiry_no),
+    customerId: asText(fields.customer_id),
+    vehicleId: asText(fields.vehicle_id),
+    vehicleModel: asText(fields.vehicle_model),
+    quantity: asNumber(fields.quantity),
+    destinationPort: asText(fields.destination_port),
+    tradeTerm: asText(fields.trade_term),
+    targetPrice: asNumber(fields.target_price),
+    notes: asText(fields.notes),
+    status: asText(fields.status),
+    createdAt: asText(fields.created_at),
+    updatedAt: asText(fields.updated_at),
   };
 }
 
@@ -1112,19 +1025,19 @@ function mapQuote(record: FeishuRecord) {
   const fields = record.fields;
   return {
     id: record.record_id,
-    quoteNo: asText(fields["Quote No"]),
-    inquiryNo: asText(fields["Inquiry No"]),
-    version: asNumber(fields.Version),
-    vehicleId: asText(fields["Vehicle ID"]),
-    quantity: asNumber(fields.Quantity),
-    unitPrice: asNumber(fields["Unit Price"]),
-    currency: asText(fields.Currency) || "USD",
-    tradeTerm: asText(fields["Trade Term"]),
-    paymentTerms: asText(fields["Payment Terms"]),
-    validUntil: asText(fields["Valid Until"]),
-    status: asText(fields.Status),
-    changeReason: asText(fields["Change Reason"]),
-    createdAt: asText(fields["Created At"]),
+    quoteNo: asText(fields.quote_no),
+    inquiryNo: asText(fields.inquiry_no),
+    version: asNumber(fields.version),
+    vehicleId: asText(fields.vehicle_id),
+    quantity: asNumber(fields.quantity),
+    unitPrice: asNumber(fields.unit_price),
+    currency: asText(fields.currency) || "USD",
+    tradeTerm: asText(fields.trade_term),
+    paymentTerms: asText(fields.payment_terms),
+    validUntil: asText(fields.valid_until),
+    status: asText(fields.status),
+    changeReason: asText(fields.change_reason),
+    createdAt: asText(fields.created_at),
   };
 }
 
@@ -1132,15 +1045,15 @@ function mapNegotiation(record: FeishuRecord) {
   const fields = record.fields;
   return {
     id: record.record_id,
-    logNo: asText(fields["Log No"]),
-    inquiryNo: asText(fields["Inquiry No"]),
-    quoteNo: asText(fields["Quote No"]),
-    actor: asText(fields.Actor),
-    action: asText(fields.Action),
-    offeredPrice: asNumber(fields["Offered Price"]),
-    quantity: asNumber(fields.Quantity),
-    message: asText(fields.Message),
-    createdAt: asText(fields["Created At"]),
+    logNo: asText(fields.log_no),
+    inquiryNo: asText(fields.inquiry_no),
+    quoteNo: asText(fields.quote_no),
+    actor: asText(fields.actor),
+    action: asText(fields.action),
+    offeredPrice: asNumber(fields.offered_price),
+    quantity: asNumber(fields.quantity),
+    message: asText(fields.message),
+    createdAt: asText(fields.created_at),
   };
 }
 
@@ -1148,30 +1061,30 @@ function mapOrder(record: FeishuRecord) {
   const fields = record.fields;
   return {
     id: record.record_id,
-    orderNo: asText(fields["Order No"]),
-    inquiryNo: asText(fields["Inquiry No"]),
-    quoteNo: asText(fields["Quote No"]),
-    customerId: asText(fields["Customer ID"]),
-    vehicleId: asText(fields["Vehicle ID"]),
-    quantity: asNumber(fields.Quantity),
-    finalUnitPrice: asNumber(fields["Final Unit Price"]),
-    total: asNumber(fields.Total),
-    currency: asText(fields.Currency) || "USD",
-    paymentTerms: asText(fields["Payment Terms"]),
-    status: asText(fields.Status),
-    createdAt: asText(fields["Created At"]),
+    orderNo: asText(fields.order_no),
+    inquiryNo: asText(fields.inquiry_no),
+    quoteNo: asText(fields.quote_no),
+    customerId: asText(fields.customer_id),
+    vehicleId: asText(fields.vehicle_id),
+    quantity: asNumber(fields.quantity),
+    finalUnitPrice: asNumber(fields.final_unit_price),
+    total: asNumber(fields.total),
+    currency: asText(fields.currency) || "USD",
+    paymentTerms: asText(fields.payment_terms),
+    status: asText(fields.status),
+    createdAt: asText(fields.created_at),
   };
 }
 
 async function recordsByEmail(env: Env, tableId: string, email: string) {
-  return searchRecords(env, tableId, { filter: equalsFilter("Email", email.toLowerCase()), pageSize: 10 });
+  return searchRecords(env, tableId, { filter: equalsFilter("email", email.toLowerCase()), pageSize: 10 });
 }
 
 async function findLoginAccount(env: Env, email: string, accessCode: string): Promise<Omit<PortalSession, "exp"> | null> {
   const internalTableId = optionalEnv(env, "FEISHU_TABLE_INTERNAL_USERS");
   if (internalTableId) {
     const records = await recordsByEmail(env, internalTableId, email);
-    const match = records.find((record) => asText(record.fields["Access Code"]).trim() === accessCode);
+    const match = records.find((record) => asText(record.fields.access_code).trim() === accessCode);
     if (match) {
       const user = mapInternalUser(match);
       if (user.status && user.status.toLowerCase() !== "active") throw problem("This internal account is not active", 403);
@@ -1182,7 +1095,7 @@ async function findLoginAccount(env: Env, email: string, accessCode: string): Pr
   const externalTableId = optionalEnv(env, "FEISHU_TABLE_EXTERNAL_ACCOUNTS") || optionalEnv(env, "FEISHU_TABLE_CUSTOMERS");
   if (externalTableId) {
     const records = await recordsByEmail(env, externalTableId, email);
-    const match = records.find((record) => asText(record.fields["Access Code"]).trim() === accessCode);
+    const match = records.find((record) => asText(record.fields.access_code).trim() === accessCode);
     if (match) {
       const account = mapCustomer(match);
       if (account.status && account.status.toLowerCase() !== "active") throw problem("This portal account is not active", 403);
@@ -1304,24 +1217,16 @@ async function handleBootstrap(request: Request, env: Env) {
   const session = await requireSession(request, env);
   const isInternal = isInternalSession(session);
   const vehicleModelTableId = optionalEnv(env, "FEISHU_TABLE_VEHICLE_MODELS");
-  const vehicleModelSpecTableId = optionalEnv(env, "FEISHU_TABLE_VEHICLE_MODEL_SPECS");
-  const [vehicleRecords, vehicleModelRecords, vehicleModelSpecRecords] = await Promise.all([
-    searchRecords(env, requireEnv(env, "FEISHU_TABLE_VEHICLES"), {
-      pageSize: 100,
-    }),
-    vehicleModelTableId ? searchRecords(env, vehicleModelTableId, { pageSize: 100 }) : Promise.resolve([]),
-    vehicleModelSpecTableId ? searchRecords(env, vehicleModelSpecTableId, { pageSize: 200 }).catch(e => {
-      console.warn("Bootstrap: failed to search specs table, returning empty:", e.message);
-      return [];
-    }) : Promise.resolve([]),
-  ]);
+  const vehicleModelRecords = vehicleModelTableId
+    ? await searchRecords(env, vehicleModelTableId, { pageSize: 100 })
+    : [];
   const [inquiryRecords, orderRecords] = await Promise.all([
     searchRecords(env, requireEnv(env, "FEISHU_TABLE_INQUIRIES"), {
-      filter: isInternal ? undefined : equalsFilter("Customer ID", session.customerId),
+      filter: isInternal ? undefined : equalsFilter("customer_id", session.customerId),
       pageSize: 100,
     }),
     searchRecords(env, requireEnv(env, "FEISHU_TABLE_ORDERS"), {
-      filter: isInternal ? undefined : equalsFilter("Customer ID", session.customerId),
+      filter: isInternal ? undefined : equalsFilter("customer_id", session.customerId),
       pageSize: 100,
     }),
   ]);
@@ -1334,14 +1239,9 @@ async function handleBootstrap(request: Request, env: Env) {
       ])
     : [[], []];
 
-  const vehicles = vehicleRecords
-    .filter((record) => asBool(record.fields["Is Listed"]))
-    .map((record) => mapVehicle(record, session));
-  const vehicleModelSpecs = [
-    ...vehicleModelSpecRecords.map(mapVehicleModelSpec),
-    ...vehicleModelRecords.flatMap(synthesizeSpecsFromModel),
-  ];
-  const vehicleModels = vehicleModelRecords.length ? enrichVehicleModelsWithSpecs(vehicleModelRecords.map(mapVehicleModel), vehicleModelSpecs) : deriveVehicleModelsFromVehicles(vehicles);
+  const vehicles: unknown[] = [];
+  const vehicleModelSpecs = vehicleModelRecords.flatMap(synthesizeSpecsFromModel);
+  const vehicleModels = enrichVehicleModelsWithSpecs(vehicleModelRecords.map(mapVehicleModel), vehicleModelSpecs);
   const inquiries = inquiryRecords.map(mapInquiry);
   const inquiryNos = new Set(inquiries.map((inquiry) => inquiry.inquiryNo));
 
@@ -1379,106 +1279,13 @@ async function handleBootstrap(request: Request, env: Env) {
 }
 
 async function handleCreateInquiry(request: Request, env: Env) {
-  const session = await requireSession(request, env);
-  const body = (await request.json().catch(() => null)) as Record<string, unknown> | null;
-  const vehicleId = asText(body?.vehicleId).trim();
-  const quantity = Math.max(1, Math.floor(asNumber(body?.quantity) || 1));
-  if (!vehicleId) return problem("Vehicle ID is required");
-
-  const vehicles = await searchRecords(env, requireEnv(env, "FEISHU_TABLE_VEHICLES"), {
-    filter: equalsFilter("Vehicle ID", vehicleId),
-    pageSize: 5,
-  });
-  const vehicle = vehicles[0];
-  if (!vehicle || !asBool(vehicle.fields["Is Listed"])) return problem("Vehicle is not available", 404);
-
-  const inquiryNo = nextId("INQ");
-  const createdAt = nowText();
-  await createRecord(env, requireEnv(env, "FEISHU_TABLE_INQUIRIES"), {
-    "Inquiry No": inquiryNo,
-    "Customer ID": session.customerId,
-    "Vehicle ID": vehicleId,
-    "Vehicle Model": `${asText(vehicle.fields.Brand)} ${asText(vehicle.fields.Model)} ${asText(vehicle.fields.Trim)}`.trim(),
-    Quantity: quantity,
-    "Destination Port": asText(body?.destinationPort) || "To be confirmed",
-    "Trade Term": asText(body?.tradeTerm) || "FOB",
-    "Target Price": asNumber(body?.targetPrice),
-    Notes: asText(body?.notes),
-    Status: "New Inquiry",
-    Source: "Customer Portal",
-    "Created At": createdAt,
-    "Updated At": createdAt,
-  });
-  await createRecord(env, requireEnv(env, "FEISHU_TABLE_NEGOTIATIONS"), {
-    "Log No": nextId("LOG"),
-    "Inquiry No": inquiryNo,
-    "Quote No": "",
-    Actor: "Customer",
-    Action: "Inquiry Created",
-    "Offered Price": asNumber(body?.targetPrice),
-    Quantity: quantity,
-    Message: asText(body?.notes),
-    "Created At": createdAt,
-  });
-
-  return json({ inquiryNo }, { status: 201 });
+  await requireSession(request, env);
+  return problem("Vehicle inventory is not connected", 503);
 }
 
-async function handleUpdateVehicle(request: Request, env: Env, vehicleId: string) {
-  const session = await requireSession(request, env);
-  if (!isInternalSession(session)) return problem("Only internal users can update vehicle resources", 403);
-
-  const body = (await request.json().catch(() => null)) as Record<string, unknown> | null;
-  if (!body) return problem("Request body is required");
-
-  const records = await searchRecords(env, requireEnv(env, "FEISHU_TABLE_VEHICLES"), {
-    filter: equalsFilter("Vehicle ID", vehicleId),
-    pageSize: 5,
-  });
-  const record = records[0];
-  if (!record) return problem("Vehicle resource not found", 404);
-
-  const updates: Record<string, unknown> = {};
-  const setText = (fieldName: string, bodyKey: string) => {
-    if (bodyKey in body && hasField(record, fieldName)) updates[fieldName] = asText(body[bodyKey]);
-  };
-  const setNumber = (fieldName: string, bodyKey: string) => {
-    if (!(bodyKey in body) || !hasField(record, fieldName)) return;
-    const number = asOptionalNumber(body[bodyKey]);
-    updates[fieldName] = number ?? 0;
-  };
-  const setBool = (fieldName: string, bodyKey: string) => {
-    if (bodyKey in body && hasField(record, fieldName)) updates[fieldName] = Boolean(body[bodyKey]);
-  };
-
-  setText("Model ID", "modelId");
-  setText("Color", "color");
-  setText("Exterior Color", "exteriorColor");
-  setText("Interior Color", "interiorColor");
-  setText("Supplier Exterior Color", "supplierExteriorColor");
-  setText("Supplier Interior Color", "supplierInteriorColor");
-  setText("Color Code", "colorCode");
-  setText("Color Notes", "colorNotes");
-  setBool("Color Confirmed", "colorConfirmed");
-  setText("Configuration", "configuration");
-  setText("Supplier", "supplier");
-  setText("Recorder", "recorder");
-  setText("Location", "location");
-  setText("Status", "status");
-  setNumber("Stock Quantity", "stockQuantity");
-  setText("Lead Time", "leadTime");
-  setNumber("Partner Price", "partnerPrice");
-  setNumber("Customer Price", "customerPrice");
-  setNumber("Cost", "cost");
-  setText("Price Valid Until", "priceValidUntil");
-  setText("Public Notes", "publicNotes");
-  setText("Image URL", "imageUrl");
-  setText("Export Status", "exportStatus");
-  setBool("Is Listed", "isListed");
-
-  if (Object.keys(updates).length === 0) return problem("No editable fields were provided");
-  await updateRecord(env, requireEnv(env, "FEISHU_TABLE_VEHICLES"), record.record_id, updates);
-  return json({ ok: true });
+async function handleUpdateVehicle(request: Request, env: Env, _vehicleId: string) {
+  await requireSession(request, env);
+  return problem("Vehicle inventory is not connected", 503);
 }
 
 async function handleCounterOffer(request: Request, env: Env, quoteNo: string) {
@@ -1489,7 +1296,7 @@ async function handleCounterOffer(request: Request, env: Env, quoteNo: string) {
   if (!offeredPrice && !message) return problem("Counteroffer price or message is required");
 
   const quoteRecords = await searchRecords(env, requireEnv(env, "FEISHU_TABLE_QUOTES"), {
-    filter: equalsFilter("Quote No", quoteNo),
+    filter: equalsFilter("quote_no", quoteNo),
     pageSize: 5,
   });
   const quoteRecord = quoteRecords[0];
@@ -1497,32 +1304,32 @@ async function handleCounterOffer(request: Request, env: Env, quoteNo: string) {
   const quote = mapQuote(quoteRecord);
 
   const inquiryRecords = await searchRecords(env, requireEnv(env, "FEISHU_TABLE_INQUIRIES"), {
-    filter: equalsFilter("Inquiry No", quote.inquiryNo),
+    filter: equalsFilter("inquiry_no", quote.inquiryNo),
     pageSize: 5,
   });
   const inquiryRecord = inquiryRecords[0];
-  if (!inquiryRecord || (!isInternalSession(session) && asText(inquiryRecord.fields["Customer ID"]) !== session.customerId)) {
+  if (!inquiryRecord || (!isInternalSession(session) && asText(inquiryRecord.fields.customer_id) !== session.customerId)) {
     return problem("Quote not found", 404);
   }
 
   const now = nowText();
   await createRecord(env, requireEnv(env, "FEISHU_TABLE_NEGOTIATIONS"), {
-    "Log No": nextId("LOG"),
-    "Inquiry No": quote.inquiryNo,
-    "Quote No": quote.quoteNo,
-    Actor: isInternalSession(session) ? "autoYJ" : "Customer",
-    Action: "Counteroffer",
-    "Offered Price": offeredPrice,
-    Quantity: quote.quantity,
-    Message: message,
-    "Created At": now,
+    log_no: nextId("LOG"),
+    inquiry_no: quote.inquiryNo,
+    quote_no: quote.quoteNo,
+    actor: isInternalSession(session) ? "autoYJ" : "Customer",
+    action: "Counteroffer",
+    offered_price: offeredPrice,
+    quantity: quote.quantity,
+    message,
+    created_at: now,
   });
   await updateRecord(env, requireEnv(env, "FEISHU_TABLE_QUOTES"), quoteRecord.record_id, {
-    Status: "Counteroffer Received",
+    status: "Counteroffer Received",
   });
   await updateRecord(env, requireEnv(env, "FEISHU_TABLE_INQUIRIES"), inquiryRecord.record_id, {
-    Status: "Negotiating",
-    "Updated At": now,
+    status: "Negotiating",
+    updated_at: now,
   });
   return json({ ok: true });
 }
@@ -1530,7 +1337,7 @@ async function handleCounterOffer(request: Request, env: Env, quoteNo: string) {
 async function handleAcceptQuote(request: Request, env: Env, quoteNo: string) {
   const session = await requireSession(request, env);
   const quoteRecords = await searchRecords(env, requireEnv(env, "FEISHU_TABLE_QUOTES"), {
-    filter: equalsFilter("Quote No", quoteNo),
+    filter: equalsFilter("quote_no", quoteNo),
     pageSize: 5,
   });
   const quoteRecord = quoteRecords[0];
@@ -1538,49 +1345,49 @@ async function handleAcceptQuote(request: Request, env: Env, quoteNo: string) {
   const quote = mapQuote(quoteRecord);
 
   const inquiryRecords = await searchRecords(env, requireEnv(env, "FEISHU_TABLE_INQUIRIES"), {
-    filter: equalsFilter("Inquiry No", quote.inquiryNo),
+    filter: equalsFilter("inquiry_no", quote.inquiryNo),
     pageSize: 5,
   });
   const inquiryRecord = inquiryRecords[0];
-  if (!inquiryRecord || (!isInternalSession(session) && asText(inquiryRecord.fields["Customer ID"]) !== session.customerId)) {
+  if (!inquiryRecord || (!isInternalSession(session) && asText(inquiryRecord.fields.customer_id) !== session.customerId)) {
     return problem("Quote not found", 404);
   }
 
   const now = nowText();
   const orderNo = nextId("ORD");
   const total = quote.unitPrice * quote.quantity;
-  const customerId = asText(inquiryRecord.fields["Customer ID"]) || session.customerId;
+  const customerId = asText(inquiryRecord.fields.customer_id) || session.customerId;
   await createRecord(env, requireEnv(env, "FEISHU_TABLE_NEGOTIATIONS"), {
-    "Log No": nextId("LOG"),
-    "Inquiry No": quote.inquiryNo,
-    "Quote No": quote.quoteNo,
-    Actor: isInternalSession(session) ? "autoYJ" : "Customer",
-    Action: "Quote Accepted",
-    "Offered Price": quote.unitPrice,
-    Quantity: quote.quantity,
-    Message: isInternalSession(session) ? "autoYJ accepted quote in portal." : "Customer accepted quote in portal.",
-    "Created At": now,
+    log_no: nextId("LOG"),
+    inquiry_no: quote.inquiryNo,
+    quote_no: quote.quoteNo,
+    actor: isInternalSession(session) ? "autoYJ" : "Customer",
+    action: "Quote Accepted",
+    offered_price: quote.unitPrice,
+    quantity: quote.quantity,
+    message: isInternalSession(session) ? "autoYJ accepted quote in portal." : "Customer accepted quote in portal.",
+    created_at: now,
   });
   await updateRecord(env, requireEnv(env, "FEISHU_TABLE_QUOTES"), quoteRecord.record_id, {
-    Status: "Accepted",
+    status: "Accepted",
   });
   await updateRecord(env, requireEnv(env, "FEISHU_TABLE_INQUIRIES"), inquiryRecord.record_id, {
-    Status: "Accepted",
-    "Updated At": now,
+    status: "Accepted",
+    updated_at: now,
   });
   await createRecord(env, requireEnv(env, "FEISHU_TABLE_ORDERS"), {
-    "Order No": orderNo,
-    "Inquiry No": quote.inquiryNo,
-    "Quote No": quote.quoteNo,
-    "Customer ID": customerId,
-    "Vehicle ID": quote.vehicleId,
-    Quantity: quote.quantity,
-    "Final Unit Price": quote.unitPrice,
-    Total: total,
-    Currency: quote.currency,
-    "Payment Terms": quote.paymentTerms,
-    Status: "Draft Order",
-    "Created At": now,
+    order_no: orderNo,
+    inquiry_no: quote.inquiryNo,
+    quote_no: quote.quoteNo,
+    customer_id: customerId,
+    vehicle_id: quote.vehicleId,
+    quantity: quote.quantity,
+    final_unit_price: quote.unitPrice,
+    total,
+    currency: quote.currency,
+    payment_terms: quote.paymentTerms,
+    status: "Draft Order",
+    created_at: now,
   });
 
   return json({ orderNo }, { status: 201 });
@@ -1630,7 +1437,6 @@ async function handlePublicProduct(slug: string, env: Env) {
   if (cached) return json(cached);
 
   const vehicleModelTableId = requireEnv(env, "FEISHU_TABLE_VEHICLE_MODELS");
-  const vehicleModelSpecTableId = optionalEnv(env, "FEISHU_TABLE_VEHICLE_MODEL_SPECS");
 
   const models = await searchRecords(env, vehicleModelTableId, { pageSize: 100 });
   const modelRecord = models.find((m) => {
@@ -1642,22 +1448,8 @@ async function handlePublicProduct(slug: string, env: Env) {
     return problem(`Product ${slug} not found`, 404);
   }
 
-  const modelId = asText(modelRecord.fields["Model ID"]);
-  let specs: any[] = [];
-  if (vehicleModelSpecTableId) {
-    try {
-      specs = await searchRecords(env, vehicleModelSpecTableId, {
-        filter: equalsFilter("Model ID", modelId),
-        pageSize: 100,
-      });
-    } catch (e: any) {
-      console.warn("handlePublicProduct: failed to query specs table, using fallback synthesis:", e.message);
-    }
-  }
-
-  if (!specs || specs.length === 0) {
-    specs = synthesizeSpecsFromModel(modelRecord);
-  }
+  const modelId = asText(modelRecord.fields.model_id);
+  const specs = synthesizeSpecsFromModel(modelRecord);
 
   const fields = modelRecord.fields;
   let trimRecords: FeishuRecord[] = [];
@@ -1665,9 +1457,9 @@ async function handlePublicProduct(slug: string, env: Env) {
   if (trimTableId && modelId) {
     try {
       const allTrimRecords = await searchRecords(env, trimTableId, { pageSize: 200 });
-      trimRecords = allTrimRecords.filter((record) => asText(record.fields["Model ID"]) === modelId);
+      trimRecords = allTrimRecords.filter((record) => asText(record.fields.model_id) === modelId);
     } catch (e: any) {
-      console.warn("handlePublicProduct: failed to query trim table, using legacy trim fallback:", e.message);
+      console.warn("handlePublicProduct: failed to query trim table:", e.message);
     }
   }
   const trimComparison = buildTrimComparison(fields, trimRecords);
@@ -1675,7 +1467,6 @@ async function handlePublicProduct(slug: string, env: Env) {
   const specsRight: { label: string; value: string }[] = [];
 
   const sortedSpecs = specs
-    .map((s) => (s.fields ? mapVehicleModelSpec(s) : s))
     .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
 
   for (const s of sortedSpecs) {
@@ -1703,45 +1494,21 @@ async function handlePublicProduct(slug: string, env: Env) {
     return "";
   };
 
-  const brand = asText(fields["Brand"]);
-  const modelName = asText(fields["Model"]);
+  const brand = asText(fields.brand);
+  const modelName = asText(fields.model);
   const msrpChina = guidePriceDisplay(fields);
 
-  const battery = batteryCapacityDisplay(fields) || asText(fields["Battery Capacity"]) || asText(fields.Battery) || valueForSpec(["Battery Capacity"]);
+  const battery = batteryCapacityDisplay(fields) || valueForSpec(["Battery Capacity"]);
   const batteryType = batteryChemistryDisplay(fields) || valueForSpec(["Battery Type"]);
-  const range = cltcRangeDisplay(fields) || asText(fields["CLTC Range"]) || asText(fields.Range) || valueForSpec(["Range (CLTC)", "Range", "CLTC Range"]);
-  const whyDescription = asText(fields["Why Section Description"]) || asText(fields.whyDesc) || asText(fields["Review Notes"]) || "";
-  const chargingText = asText(fields.Charging) || asText(fields["Review Notes"]) || valueForSpec(["AC Slow Charge", "Charging"]);
+  const range = cltcRangeDisplay(fields) || valueForSpec(["Range (CLTC)", "Range", "CLTC Range"]);
+  const whyDescription = asText(fields.why_section_description) || asText(fields.review_notes);
+  const chargingText = asText(fields.charging) || valueForSpec(["AC Slow Charge", "Charging"]);
   const charging = chargingText && chargingText !== whyDescription ? chargingText : "";
-  const imageUrl = asText(fields["Image URL"]);
+  const imageUrl = asText(fields.image_url);
 
-  let { status, statusText } = inventoryDisplay(fields);
-  const vehiclesTableId = optionalEnv(env, "FEISHU_TABLE_VEHICLES");
-  if (vehiclesTableId) {
-    try {
-      const vehicles = await searchRecords(env, vehiclesTableId, {
-        filter: equalsFilter("Model ID", modelId),
-        pageSize: 10,
-      });
-      const activeVehicle = vehicles.find(v => asBool(v.fields["Is Listed"])) || vehicles[0];
-      if (activeVehicle) {
-        const vStatus = asText(activeVehicle.fields.Status).toLowerCase();
-        const location = asText(activeVehicle.fields.Location);
-        const leadTime = asText(activeVehicle.fields["Lead Time"]);
-        if (vStatus.includes("in stock") || vStatus.includes("stock")) {
-          status = "in-stock";
-          statusText = `In Stock: ${location || "Shenzhen"}`;
-        } else {
-          status = "factory";
-          statusText = leadTime ? `Factory Order: ${leadTime}` : "Factory Order: 21 Days";
-        }
-      }
-    } catch (e: any) {
-      console.warn("handlePublicProduct: failed to query vehicles table, using model inventory status:", e.message);
-    }
-  }
+  const { status, statusText } = inventoryDisplay(fields);
 
-  const batchLevels = safeJsonParse(fields.batchLevels, []);
+  const batchLevels: { units: number; display: string }[] = [];
   const batchMargin = computeBatchMargin(batchLevels);
 
   const data = {
@@ -1760,29 +1527,29 @@ async function handlePublicProduct(slug: string, env: Env) {
       statusText
     },
     category,
-    title: asText(fields["Page Title"]) || asText(fields.title) || `${brand} ${modelName}`,
-    subtitle: asText(fields["Page Subtitle"]) || asText(fields.subtitle) || asText(fields.Version) || "",
-    heroDesc: asText(fields["Hero Description"]) || asText(fields.heroDesc) || asText(fields["Review Notes"]) || "",
-    stat1Label: asText(fields.stat1Label) || "Range",
-    stat1Value: asText(fields.stat1Value) || range,
-    stat2Label: asText(fields.stat2Label) || "Price",
-    stat2Value: asText(fields.stat2Value) || msrpChina,
-    stat3Label: asText(fields.stat3Label) || "Battery",
-    stat3Value: asText(fields.stat3Value) || batteryType || battery,
-    whyTitle: asText(fields.whyTitle) || "Why this model",
+    title: asText(fields.page_title) || `${brand} ${modelName}`,
+    subtitle: asText(fields.page_subtitle),
+    heroDesc: asText(fields.hero_description) || asText(fields.review_notes),
+    stat1Label: "Range",
+    stat1Value: range,
+    stat2Label: "Price",
+    stat2Value: msrpChina,
+    stat3Label: "Battery",
+    stat3Value: batteryType || battery,
+    whyTitle: "Why this model",
     whyDesc: whyDescription,
     features: detailFeatures(fields, range, battery, batteryType, statusText),
     specsLeft,
     specsRight,
-    fits: safeJsonParse(fields.fits, []),
-    relatedModels: safeJsonParse(fields.relatedModels, []),
-    tags: safeJsonParse(fields.tags, []),
-    galleryImages: safeJsonParse(fields["Gallery Images JSON"], safeJsonParse(fields.galleryImages, [])),
+    fits: [],
+    relatedModels: [],
+    tags: [],
+    galleryImages: safeJsonParse(fields.gallery_images_json, []),
     batchLevels,
     batchMargin,
     trimComparison,
-    trimData: safeJsonParse(fields.trimData, []),
-    trimNote: asText(fields["Trim Source Summary Pruned"])
+    trimData: [],
+    trimNote: asText(fields.trim_source_summary_pruned)
   };
 
   setCached(cacheKey, data, env);
@@ -1814,7 +1581,7 @@ async function resolveTableIdByName(env: Env, tableName: string): Promise<string
 
 async function handlePublicTranslations(env: Env) {
   // 闂傚倸鍊风粈浣革耿闁秮鈧箓宕奸妷瀣喘楠炲酣鎸婃竟鈹垮劦閺屾盯骞囬棃娑欑亪闁荤喐鐟辨俊鍥焵椤掆偓缁犲秹宕曢柆宥呯疇閹兼番鍊ら弶浠嬫⒒閸屾瑦绁版い鏇熺墵瀹曟鈽夊Ο蹇撶秺瀹曞爼顢斿鍡樼槥闂?table_id闂傚倸鍊烽悞锔锯偓绗涘懐鐭欓柟瀵稿仧闂勫嫰鏌￠崘銊モ偓鑽ょ不閺傛鐔嗛柤鎼佹涧婵洨绱掗埀顒勫礃椤忎礁浜炬鐐茬仢閸旀岸鎮楀鐓庢灓闁瑰嘲缍婇崺锟犲川椤旈棿鍖?FEISHU_TABLE_I18N 闂傚倸鍊烽懗鍓佸垝椤栨粌鍨濋柣妯款嚙閸ㄥ倸霉閸忚偐鏆橀柍褜鍓欓崐鎸庝繆閹间礁鐓涘ù锝堟閸橆剚绻濆▓鍨灍闁靛洦鐩畷鎴﹀箻缂佹鍘?
-  const tableId = await resolveTableIdByName(env, "I18n Locale");
+  const tableId = await resolveTableIdByName(env, "i18n_locale");
   const records = await searchRecords(env, tableId, { pageSize: 500, maxPages: 100 });
   
   const zhRecords: any[] = [];
@@ -1822,11 +1589,11 @@ async function handlePublicTranslations(env: Env) {
   const amRecords: any[] = [];
   
   for (const item of records) {
-    const key = asText(item.fields.Key);
+    const key = asText(item.fields.key);
     if (!key) continue;
-    zhRecords.push({ key, value: asText(item.fields.ZH) });
-    enRecords.push({ key, value: asText(item.fields.EN) });
-    amRecords.push({ key, value: asText(item.fields.AM) });
+    zhRecords.push({ key, value: asText(item.fields.zh) });
+    enRecords.push({ key, value: asText(item.fields.en) });
+    amRecords.push({ key, value: asText(item.fields.am) });
   }
 
   const buildNested = (list: any[]) => {
@@ -1872,19 +1639,19 @@ async function handlePublicProducts(env: Env) {
   const vehicleModelTableId = requireEnv(env, "FEISHU_TABLE_VEHICLE_MODELS");
   const models = await searchRecords(env, vehicleModelTableId, { pageSize: 100 });
 
-  const activeModels = models.filter((m) => asText(m.fields.Status) !== "Inactive");
+  const activeModels = models.filter((m) => asText(m.fields.status) !== "Inactive");
 
   const products = activeModels.map((m) => {
     const fields = m.fields;
-    const brand = asText(fields["Brand"]);
-    const modelName = asText(fields["Model"]);
+    const brand = asText(fields.brand);
+    const modelName = asText(fields.model);
     const msrpChina = guidePriceDisplay(fields);
 
-  const battery = batteryCapacityDisplay(fields) || asText(fields["Battery Capacity"]) || asText(fields.Battery) || valueForSpec(["Battery Capacity"]);
-  const batteryType = batteryChemistryDisplay(fields) || valueForSpec(["Battery Type"]);
-  const range = cltcRangeDisplay(fields) || asText(fields["CLTC Range"]) || asText(fields.Range) || valueForSpec(["Range (CLTC)", "Range", "CLTC Range"]);
-    const charging = asText(fields.Charging);
-    const imageUrl = asText(fields["Image URL"]);
+    const battery = batteryCapacityDisplay(fields);
+    const batteryType = batteryChemistryDisplay(fields);
+    const range = cltcRangeDisplay(fields);
+    const charging = asText(fields.charging);
+    const imageUrl = asText(fields.image_url);
 
     const sourceUrl = productPath(fields);
     const parts = sourceUrl.split("/");
@@ -1897,14 +1664,13 @@ async function handlePublicProducts(env: Env) {
     const slug = sourceUrl.split("/").filter(Boolean).pop() || "";
     const { status, statusText } = inventoryDisplay(fields);
 
-    const stat2Value = asText(fields.stat2Value);
-    const stat2Label = asText(fields.stat2Label);
+    const stat2Value = msrpChina;
+    const stat2Label = "Price";
 
-    const subtitle = asText(fields.subtitle) || asText(fields.Version) || "";
-    const heroDesc = asText(fields.heroDesc) || asText(fields["Review Notes"]) || "";
-    const whyDesc = asText(fields.whyDesc) || asText(fields["Review Notes"]) || "";
+    const subtitle = asText(fields.page_subtitle);
+    const heroDesc = asText(fields.hero_description) || asText(fields.review_notes);
 
-    let badge = asText(fields.badge) || asText(fields.Badge) || null;
+    let badge: string | null = null;
 
     if (!badge && subtitle) {
       if (subtitle.includes("Global #1") || slug === "byd-seagull") {
@@ -1920,7 +1686,7 @@ async function handlePublicProducts(env: Env) {
       }
     }
 
-    let showcaseTags = safeJsonParse(fields.tags || fields.Tags, []);
+    let showcaseTags: string[] = [];
     if (category === "revenue-king") {
       const cleanRange = range ? `${range.replace(/\s+/g, "")} Range` : "";
       if (slug === "byd-seagull") {

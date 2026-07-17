@@ -3,23 +3,23 @@ import test from "node:test";
 
 import { buildProductFilterData } from "../worker/productFilters.ts";
 
-test("maps existing Feishu fields into structured product filter data", () => {
+test("maps new Base snake_case fields into structured product filter data", () => {
   assert.deepEqual(
     buildProductFilterData({
-      "Vehicle Class": ["Premium SUV"],
-      Segment: "Ignored fallback",
-      "Battery Chemistry Auto": "LFP/NCM + Semi-solid-state",
-      "CLTC Range Min KM Auto": "480",
-      "CLTC Range Max KM Auto": 720,
-      "Guide Price Min USD Auto": "34900",
-      "Guide Price Max USD Auto": 65100,
-      "Steering Setup": ["LHD", "RHD"],
-      "Powertrain Type": "BEV",
-      "Inventory Status": "Production 30 days",
-      "Voltage Platform (V)": 800,
-      "V2L Availability": "Yes",
-      "Drivetrain Display Auto": "AWD / 4WD",
-      "Ground Clearance (mm)": "205",
+      vehicle_class: ["Premium SUV"],
+      segment: "Ignored fallback",
+      battery_chemistry_auto: "LFP/NCM + Semi-solid-state",
+      cltc_range_min_km_auto: "480",
+      cltc_range_max_km_auto: 720,
+      guide_price_min_usd_auto: "34900",
+      guide_price_max_usd_auto: 65100,
+      steering_setup: ["LHD", "RHD"],
+      powertrain_type: "BEV",
+      inventory_status: "Production 30 days",
+      voltage_platform_v: 800,
+      v2l_availability: "Yes",
+      drivetrain_display_auto: "AWD / 4WD",
+      ground_clearance_mm: "205",
     }),
     {
       vehicleClasses: ["Premium SUV"],
@@ -37,8 +37,8 @@ test("maps existing Feishu fields into structured product filter data", () => {
   );
 });
 
-test("uses Segment only as a vehicle-class fallback and preserves unknowns", () => {
-  assert.deepEqual(buildProductFilterData({ Segment: "Cargo Van" }), {
+test("uses segment only as a vehicle-class fallback and preserves unknowns", () => {
+  assert.deepEqual(buildProductFilterData({ segment: "Cargo Van" }), {
     vehicleClasses: ["Cargo Van"],
     batteryChemistries: [],
     rangeKm: null,
@@ -55,10 +55,10 @@ test("uses Segment only as a vehicle-class fallback and preserves unknowns", () 
 
 test("normalizes reversed numeric bounds without inventing zero values", () => {
   const data = buildProductFilterData({
-    "CLTC Range Min KM Auto": 600,
-    "CLTC Range Max KM Auto": 500,
-    "Guide Price Min USD Auto": "not available",
-    "Guide Price Max USD Auto": 20000,
+    cltc_range_min_km_auto: 600,
+    cltc_range_max_km_auto: 500,
+    guide_price_min_usd_auto: "not available",
+    guide_price_max_usd_auto: 20000,
   });
 
   assert.deepEqual(data.rangeKm, { min: 500, max: 600 });

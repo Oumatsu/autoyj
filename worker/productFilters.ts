@@ -58,19 +58,19 @@ function voltageValues(value: unknown): string[] {
 }
 
 export function buildProductFilterData(fields: Record<string, unknown>): ProductFilterData {
-  const vehicleClass = textValues(fields["Vehicle Class"]);
+  const vehicleClass = textValues(fields.vehicle_class);
 
   return {
-    vehicleClasses: vehicleClass.length ? vehicleClass : textValues(fields.Segment),
-    batteryChemistries: atomicValues(fields["Battery Chemistry Auto"]),
-    rangeKm: interval(fields["CLTC Range Min KM Auto"], fields["CLTC Range Max KM Auto"]),
-    priceUsd: interval(fields["Guide Price Min USD Auto"], fields["Guide Price Max USD Auto"]),
-    steeringSetups: textValues(fields["Steering Setup"]),
-    powertrainTypes: textValues(fields["Powertrain Type"]),
-    inventoryStatuses: textValues(fields["Inventory Status"]),
-    voltagePlatforms: voltageValues(fields["Voltage Platform (V)"]),
-    v2lAvailability: textValues(fields["V2L Availability"]),
-    drivetrains: atomicValues(fields["Drivetrain Display Auto"]),
-    groundClearanceMm: interval(fields["Ground Clearance (mm)"], fields["Ground Clearance (mm)"]),
+    vehicleClasses: vehicleClass.length ? vehicleClass : textValues(fields.segment),
+    batteryChemistries: atomicValues(fields.battery_chemistry_auto),
+    rangeKm: interval(fields.cltc_range_min_km_auto, fields.cltc_range_max_km_auto),
+    priceUsd: interval(fields.guide_price_min_usd_auto, fields.guide_price_max_usd_auto),
+    steeringSetups: textValues(fields.steering_setup),
+    powertrainTypes: textValues(fields.powertrain_type),
+    inventoryStatuses: textValues(fields.inventory_status),
+    voltagePlatforms: voltageValues(fields.voltage_platform_v),
+    v2lAvailability: textValues(fields.v2l_availability),
+    drivetrains: atomicValues(fields.drivetrain_display_auto),
+    groundClearanceMm: interval(fields.ground_clearance_mm, fields.ground_clearance_mm),
   };
 }

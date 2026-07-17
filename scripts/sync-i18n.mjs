@@ -1,7 +1,7 @@
 /**
  * sync-i18n.mjs
  *
- * 从飞书单张多语言翻译表（I18n Locale）中一次性拉取所有记录，
+ * 从飞书单张多语言翻译表（i18n_locale）中一次性拉取所有记录，
  * 分流解析为 zh / en / am 三语嵌套结构，并写入对应的本地 *.ts 文件。
  *
  * Usage:
@@ -90,12 +90,12 @@ async function fetchAllLocales(token, baseToken, tableId) {
 
     const items = data.data?.items || [];
     for (const item of items) {
-      const key = extractText(item.fields?.Key);
+      const key = extractText(item.fields?.key);
       if (!key) continue;
 
-      const zhVal = extractText(item.fields?.ZH);
-      const enVal = extractText(item.fields?.EN);
-      const amVal = extractText(item.fields?.AM);
+      const zhVal = extractText(item.fields?.zh);
+      const enVal = extractText(item.fields?.en);
+      const amVal = extractText(item.fields?.am);
 
       zhRecords.push({ key, value: zhVal });
       enRecords.push({ key, value: enVal });
@@ -221,7 +221,7 @@ async function main() {
   console.log("   ✅ 授权成功");
 
   const baseToken = requireEnv("FEISHU_BASE_APP_TOKEN");
-  const tableName = "I18n Locale";
+  const tableName = "i18n_locale";
   console.log(`🔍 按名称 "${tableName}" 从飞书 Base 中查找表 ID...`);
   const tableId = await resolveTableIdByName(token, baseToken, tableName);
   console.log(`   ✅ 找到表: ${tableId}`);

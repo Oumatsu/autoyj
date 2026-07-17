@@ -83,7 +83,7 @@ test("public product detail payload exposes stable model and Trim identities", a
 
   assert.match(
     source,
-    /trimConfigId:\s*asText\(fields\["Trim Config ID"\]\)/,
+    /trimConfigId:\s*asText\(fields\.trim_config_id\)/,
   );
   assert.match(source, /const data = \{\s*modelId,\s*slug,/s);
 });
