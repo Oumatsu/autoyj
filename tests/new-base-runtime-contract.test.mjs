@@ -68,3 +68,9 @@ test("both Worker deployments point at the new Base and new table IDs", async ()
     assert.doesNotMatch(config, /FEISHU_TABLE_VEHICLE_MODEL_SPECS/);
   }
 });
+
+test("production builds do not require Feishu credentials", async () => {
+  const pkg = JSON.parse(await readFile(new URL("package.json", root), "utf8"));
+  assert.equal(pkg.scripts.build, "vinext build");
+  assert.equal(pkg.scripts["sync:i18n"], "node scripts/sync-i18n.mjs");
+});

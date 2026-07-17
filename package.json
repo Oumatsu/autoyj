@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vinext dev",
-    "build": "npm run sync:i18n && vinext build",
+    "build": "vinext build",
     "start": "vinext start",
     "deploy": "vinext deploy",
     "check": "vinext check",
