@@ -59,12 +59,13 @@ function voltageValues(value: unknown): string[] {
 
 export function buildProductFilterData(fields: Record<string, unknown>): ProductFilterData {
   const vehicleClass = textValues(fields.vehicle_class);
+  const displayPrice = interval(fields.display_price_low, fields.display_price_high);
 
   return {
     vehicleClasses: vehicleClass.length ? vehicleClass : textValues(fields.segment),
     batteryChemistries: atomicValues(fields.battery_chemistry_auto),
     rangeKm: interval(fields.cltc_range_min_km_auto, fields.cltc_range_max_km_auto),
-    priceUsd: interval(fields.guide_price_min_usd_auto, fields.guide_price_max_usd_auto),
+    priceUsd: displayPrice ?? interval(fields.guide_price_min_usd_auto, fields.guide_price_max_usd_auto),
     steeringSetups: textValues(fields.steering_setup),
     powertrainTypes: textValues(fields.powertrain_type),
     inventoryStatuses: textValues(fields.inventory_status),

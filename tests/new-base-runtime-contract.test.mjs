@@ -74,3 +74,10 @@ test("production builds do not require Feishu credentials", async () => {
   assert.equal(pkg.scripts.build, "vinext build");
   assert.equal(pkg.scripts["sync:i18n"], "node scripts/sync-i18n.mjs");
 });
+
+test("catalog and detail prices prefer company display prices", async () => {
+  const source = await readFile(new URL("worker/portal.ts", root), "utf8");
+  assert.match(source, /fields\.display_price_low/);
+  assert.match(source, /fields\.display_price_high/);
+  assert.match(source, /if \(displayPrice\) return displayPrice/);
+});

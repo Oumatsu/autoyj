@@ -293,6 +293,11 @@ function metricDisplay(
 }
 
 function guidePriceDisplay(fields: Record<string, unknown>) {
+  const displayPrice = formatUsdRange(
+    asOptionalNumber(fields.display_price_low),
+    asOptionalNumber(fields.display_price_high),
+  );
+  if (displayPrice) return displayPrice;
   return formatUsdRange(
     asOptionalNumber(fields.guide_price_min_usd_auto),
     asOptionalNumber(fields.guide_price_max_usd_auto),
