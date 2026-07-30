@@ -1,0 +1,1052 @@
+[
+  {
+    "type": "model",
+    "model_id": "MDL-065",
+    "record_id": "recvqDh6sadvbf",
+    "patch": {
+      "vehicle_class": "Compact SUV",
+      "model_year": 2024,
+      "length_mm": 4270,
+      "width_mm": 1822,
+      "height_mm": 1636,
+      "wheelbase_mm": 2750,
+      "seats_min": 5,
+      "seats_max": 5,
+      "powertrain_type": "BEV",
+      "segment": "Compact SUV"
+    },
+    "data": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "height_mm": 1636,
+            "length_mm": 4270,
+            "model_year": 2024,
+            "powertrain_type": [
+              "BEV"
+            ],
+            "seats_max": 5,
+            "seats_min": 5,
+            "segment": "Compact SUV",
+            "vehicle_class": "Compact SUV",
+            "wheelbase_mm": 2750,
+            "width_mm": 1822
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    }
+  },
+  {
+    "type": "model",
+    "model_id": "MDL-066",
+    "record_id": "recvqDh6saev7l",
+    "patch": {
+      "vehicle_class": "Compact crossover SUV",
+      "model_year": 2024,
+      "length_mm": 4400,
+      "width_mm": 1844,
+      "height_mm": 1556,
+      "wheelbase_mm": 2785,
+      "seats_min": 5,
+      "seats_max": 5,
+      "powertrain_type": "BEV",
+      "segment": "Compact SUV"
+    },
+    "data": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "height_mm": 1556,
+            "length_mm": 4400,
+            "model_year": 2024,
+            "powertrain_type": [
+              "BEV"
+            ],
+            "seats_max": 5,
+            "seats_min": 5,
+            "segment": "Compact SUV",
+            "vehicle_class": "Compact crossover SUV",
+            "wheelbase_mm": 2785,
+            "width_mm": 1844
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    }
+  },
+  {
+    "type": "model",
+    "model_id": "MDL-067",
+    "record_id": "recvqDh6saLG7d",
+    "patch": {
+      "vehicle_class": "Mid-size SUV",
+      "model_year": 2024,
+      "width_mm": 1920,
+      "wheelbase_mm": 2900,
+      "seats_min": 5,
+      "seats_max": 5,
+      "powertrain_type": "BEV",
+      "segment": "Mid-size SUV"
+    },
+    "data": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "model_year": 2024,
+            "powertrain_type": [
+              "BEV"
+            ],
+            "seats_max": 5,
+            "seats_min": 5,
+            "segment": "Mid-size SUV",
+            "vehicle_class": "Mid-size SUV",
+            "wheelbase_mm": 2900,
+            "width_mm": 1920
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    }
+  },
+  {
+    "type": "model",
+    "model_id": "MDL-068",
+    "record_id": "recvqDh6sau1Ut",
+    "patch": {
+      "vehicle_class": "Mid-size sedan",
+      "model_year": 2025,
+      "length_mm": 4855,
+      "width_mm": 1960,
+      "height_mm": 1450,
+      "wheelbase_mm": 2940,
+      "seats_min": 5,
+      "seats_max": 5,
+      "segment": "Mid-size sedan"
+    },
+    "data": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "height_mm": 1450,
+            "length_mm": 4855,
+            "model_year": 2025,
+            "seats_max": 5,
+            "seats_min": 5,
+            "segment": "Mid-size sedan",
+            "vehicle_class": "Mid-size sedan",
+            "wheelbase_mm": 2940,
+            "width_mm": 1960
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    }
+  },
+  {
+    "type": "model",
+    "model_id": "MDL-073",
+    "record_id": "recvqDh6saBVYB",
+    "patch": {
+      "vehicle_class": "Compact hatchback",
+      "model_year": 2025,
+      "seats_min": 5,
+      "seats_max": 5,
+      "powertrain_type": "BEV",
+      "segment": "Compact hatchback"
+    },
+    "data": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "model_year": 2025,
+            "powertrain_type": [
+              "BEV"
+            ],
+            "seats_max": 5,
+            "seats_min": 5,
+            "segment": "Compact hatchback",
+            "vehicle_class": "Compact hatchback"
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    }
+  },
+  {
+    "type": "model",
+    "model_id": "MDL-074",
+    "record_id": "recvqDh6saeCX1",
+    "patch": {
+      "vehicle_class": "Compact SUV",
+      "model_year": 2025,
+      "length_mm": 4600,
+      "width_mm": 1850,
+      "height_mm": 1645,
+      "wheelbase_mm": 2765,
+      "seats_min": 5,
+      "seats_max": 5,
+      "powertrain_type": "BEV",
+      "segment": "Compact SUV"
+    },
+    "data": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "height_mm": 1645,
+            "length_mm": 4600,
+            "model_year": 2025,
+            "powertrain_type": [
+              "BEV"
+            ],
+            "seats_max": 5,
+            "seats_min": 5,
+            "segment": "Compact SUV",
+            "vehicle_class": "Compact SUV",
+            "wheelbase_mm": 2765,
+            "width_mm": 1850
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    }
+  },
+  {
+    "type": "model",
+    "model_id": "MDL-088",
+    "record_id": "recvqDh6sa2UPv",
+    "patch": {
+      "vehicle_class": "Micro car",
+      "model_year": 2025,
+      "length_mm": 3268,
+      "width_mm": 1520,
+      "height_mm": 1575,
+      "wheelbase_mm": 2190,
+      "seats_min": 4,
+      "seats_max": 4,
+      "powertrain_type": "BEV",
+      "segment": "Micro EV"
+    },
+    "data": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "height_mm": 1575,
+            "length_mm": 3268,
+            "model_year": 2025,
+            "powertrain_type": [
+              "BEV"
+            ],
+            "seats_max": 4,
+            "seats_min": 4,
+            "segment": "Micro EV",
+            "vehicle_class": "Micro car",
+            "wheelbase_mm": 2190,
+            "width_mm": 1520
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    }
+  },
+  {
+    "type": "model",
+    "model_id": "MDL-093",
+    "record_id": "recvqDh6saeSyW",
+    "patch": {
+      "vehicle_class": "Mid-size sedan",
+      "model_year": 2026,
+      "length_mm": 4885,
+      "width_mm": 1916,
+      "height_mm": 1496,
+      "wheelbase_mm": 2922,
+      "seats_min": 5,
+      "seats_max": 5,
+      "powertrain_type": "BEV",
+      "segment": "Mid-size sedan"
+    },
+    "data": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "height_mm": 1496,
+            "length_mm": 4885,
+            "model_year": 2026,
+            "powertrain_type": [
+              "BEV"
+            ],
+            "seats_max": 5,
+            "seats_min": 5,
+            "segment": "Mid-size sedan",
+            "vehicle_class": "Mid-size sedan",
+            "wheelbase_mm": 2922,
+            "width_mm": 1916
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    }
+  },
+  {
+    "type": "model",
+    "model_id": "MDL-105",
+    "record_id": "recvqDh6saNrNN",
+    "patch": {
+      "vehicle_class": "Mid-size sedan",
+      "model_year": 2025,
+      "length_mm": 4835,
+      "width_mm": 1860,
+      "height_mm": 1515,
+      "seats_min": 5,
+      "seats_max": 5,
+      "powertrain_type": "BEV",
+      "segment": "Mid-size sedan"
+    },
+    "data": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "height_mm": 1515,
+            "length_mm": 4835,
+            "model_year": 2025,
+            "powertrain_type": [
+              "BEV"
+            ],
+            "seats_max": 5,
+            "seats_min": 5,
+            "segment": "Mid-size sedan",
+            "vehicle_class": "Mid-size sedan",
+            "width_mm": 1860
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    }
+  },
+  {
+    "type": "model",
+    "model_id": "MDL-107",
+    "record_id": "recvqDh6saBVbX",
+    "patch": {
+      "vehicle_class": "Mid-size sedan",
+      "model_year": 2026,
+      "length_mm": 4997,
+      "width_mm": 1963,
+      "height_mm": 1455,
+      "wheelbase_mm": 3000,
+      "seats_min": 5,
+      "seats_max": 5,
+      "powertrain_type": "BEV",
+      "segment": "Mid-size sedan"
+    },
+    "data": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "height_mm": 1455,
+            "length_mm": 4997,
+            "model_year": 2026,
+            "powertrain_type": [
+              "BEV"
+            ],
+            "seats_max": 5,
+            "seats_min": 5,
+            "segment": "Mid-size sedan",
+            "vehicle_class": "Mid-size sedan",
+            "wheelbase_mm": 3000,
+            "width_mm": 1963
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    }
+  },
+  {
+    "type": "variant-update",
+    "record_id": "recvqDuNsKilFV",
+    "model_id": "MDL-066",
+    "patch": {
+      "trim_order": 1,
+      "trim_price_display": 27273,
+      "range_display": 415,
+      "battery_capacity_kwh": 49,
+      "battery_chemistry": "LFP",
+      "drivetrain_display": "Rear motor RWD",
+      "motor_power_kw": 200,
+      "motor_torque_n_m": 343,
+      "dc_fast_charge_supported": true,
+      "dc_fast_charge_time_hours": 0.5,
+      "dc_fast_charge_min_percent": 10,
+      "dc_fast_charge_max_percent": 80,
+      "base_spec_summary_json": "[]",
+      "added_features_json": "[]",
+      "upgraded_features_json": "[]",
+      "recommended": false,
+      "source_url": "https://car.autohome.com.cn/config/spec/67703.html",
+      "last_verified_at": "2026-07-30 00:00:00",
+      "source_status": "Verified"
+    },
+    "data": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "added_features_json": "[]",
+            "base_spec_summary_json": "[]",
+            "battery_capacity_kwh": 49,
+            "battery_chemistry": [
+              "LFP"
+            ],
+            "dc_fast_charge_max_percent": 80,
+            "dc_fast_charge_min_percent": 10,
+            "dc_fast_charge_supported": true,
+            "dc_fast_charge_time_hours": 0.5,
+            "drivetrain_display": [
+              "Rear motor RWD"
+            ],
+            "last_verified_at": "2026-07-30 00:00:00",
+            "motor_power_kw": 200,
+            "motor_torque_n_m": 343,
+            "range_display": 415,
+            "recommended": false,
+            "source_status": [
+              "Verified"
+            ],
+            "source_url": "https://car.autohome.com.cn/config/spec/67703.html",
+            "trim_order": 1,
+            "trim_price_display": 27273,
+            "upgraded_features_json": "[]"
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    }
+  },
+  {
+    "type": "variant-update",
+    "record_id": "recvqDuNsKTMAG",
+    "model_id": "MDL-067",
+    "patch": {
+      "trim_order": 1,
+      "trim_price_display": 35385,
+      "range_display": 570,
+      "battery_capacity_kwh": 76,
+      "battery_chemistry": "NCM",
+      "drivetrain_display": "Rear motor RWD",
+      "motor_power_kw": 250,
+      "motor_torque_n_m": 373,
+      "dc_fast_charge_supported": true,
+      "dc_fast_charge_time_hours": 0.5,
+      "dc_fast_charge_min_percent": 10,
+      "dc_fast_charge_max_percent": 80,
+      "base_spec_summary_json": "[]",
+      "added_features_json": "[]",
+      "upgraded_features_json": "[]",
+      "recommended": false,
+      "source_url": "https://car.autohome.com.cn/config/spec/68743.html",
+      "last_verified_at": "2026-07-30 00:00:00",
+      "source_status": "Verified"
+    },
+    "data": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "added_features_json": "[]",
+            "base_spec_summary_json": "[]",
+            "battery_capacity_kwh": 76,
+            "battery_chemistry": [
+              "NCM"
+            ],
+            "dc_fast_charge_max_percent": 80,
+            "dc_fast_charge_min_percent": 10,
+            "dc_fast_charge_supported": true,
+            "dc_fast_charge_time_hours": 0.5,
+            "drivetrain_display": [
+              "Rear motor RWD"
+            ],
+            "last_verified_at": "2026-07-30 00:00:00",
+            "motor_power_kw": 250,
+            "motor_torque_n_m": 373,
+            "range_display": 570,
+            "recommended": false,
+            "source_status": [
+              "Verified"
+            ],
+            "source_url": "https://car.autohome.com.cn/config/spec/68743.html",
+            "trim_order": 1,
+            "trim_price_display": 35385,
+            "upgraded_features_json": "[]"
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    }
+  },
+  {
+    "type": "variant-update",
+    "record_id": "recvqDuNsKbast",
+    "model_id": "MDL-068",
+    "patch": {
+      "trim_order": 1,
+      "trim_price_display": 35385,
+      "range_display": 230,
+      "battery_capacity_kwh": 31.7,
+      "battery_chemistry": "LFP",
+      "drivetrain_display": "Rear motor RWD",
+      "motor_power_kw": 231,
+      "dc_fast_charge_supported": true,
+      "dc_fast_charge_time_hours": 0.17,
+      "dc_fast_charge_min_percent": 30,
+      "dc_fast_charge_max_percent": 80,
+      "base_spec_summary_json": "[]",
+      "added_features_json": "[]",
+      "upgraded_features_json": "[]",
+      "recommended": false,
+      "source_url": "https://www.avatr.com/configuration?car=06",
+      "last_verified_at": "2026-07-30 00:00:00",
+      "source_status": "Verified"
+    },
+    "data": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "added_features_json": "[]",
+            "base_spec_summary_json": "[]",
+            "battery_capacity_kwh": 31.7,
+            "battery_chemistry": [
+              "LFP"
+            ],
+            "dc_fast_charge_max_percent": 80,
+            "dc_fast_charge_min_percent": 30,
+            "dc_fast_charge_supported": true,
+            "dc_fast_charge_time_hours": 0.17,
+            "drivetrain_display": [
+              "Rear motor RWD"
+            ],
+            "last_verified_at": "2026-07-30 00:00:00",
+            "motor_power_kw": 231,
+            "range_display": 230,
+            "recommended": false,
+            "source_status": [
+              "Verified"
+            ],
+            "source_url": "https://www.avatr.com/configuration?car=06",
+            "trim_order": 1,
+            "trim_price_display": 35385,
+            "upgraded_features_json": "[]"
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    }
+  },
+  {
+    "type": "variant-update",
+    "record_id": "recvqDuNsK1mPu",
+    "model_id": "MDL-073",
+    "patch": {
+      "trim_order": 1,
+      "trim_price_display": 10738,
+      "range_display": 430,
+      "battery_capacity_kwh": 41.9,
+      "battery_chemistry": "LFP",
+      "drivetrain_display": "Front motor FWD",
+      "motor_power_kw": 75,
+      "motor_torque_n_m": 180,
+      "dc_fast_charge_supported": true,
+      "base_spec_summary_json": "[]",
+      "added_features_json": "[]",
+      "upgraded_features_json": "[]",
+      "recommended": false,
+      "source_url": "https://www.wuling.com/carDetail?id=306",
+      "last_verified_at": "2026-07-30 00:00:00",
+      "source_status": "Verified"
+    },
+    "data": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "added_features_json": "[]",
+            "base_spec_summary_json": "[]",
+            "battery_capacity_kwh": 41.9,
+            "battery_chemistry": [
+              "LFP"
+            ],
+            "dc_fast_charge_supported": true,
+            "drivetrain_display": [
+              "Front motor FWD"
+            ],
+            "last_verified_at": "2026-07-30 00:00:00",
+            "motor_power_kw": 75,
+            "motor_torque_n_m": 180,
+            "range_display": 430,
+            "recommended": false,
+            "source_status": [
+              "Verified"
+            ],
+            "source_url": "https://www.wuling.com/carDetail?id=306",
+            "trim_order": 1,
+            "trim_price_display": 10738,
+            "upgraded_features_json": "[]"
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    }
+  },
+  {
+    "type": "variant-update",
+    "record_id": "recvqDuNsK0K0F",
+    "model_id": "MDL-093",
+    "patch": {
+      "trim_order": 1,
+      "trim_price_display": 22160,
+      "range_display": 630,
+      "battery_capacity_kwh": 63.2,
+      "battery_chemistry": "LFP",
+      "drivetrain_display": "Rear motor RWD",
+      "motor_torque_n_m": 290,
+      "dc_fast_charge_supported": true,
+      "base_spec_summary_json": "[]",
+      "added_features_json": "[]",
+      "upgraded_features_json": "[]",
+      "recommended": false,
+      "source_url": "https://data.carnewschina.com/database/changan-nevo/changan-nevo-a06",
+      "last_verified_at": "2026-07-30 00:00:00",
+      "source_status": "Verified"
+    },
+    "data": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "added_features_json": "[]",
+            "base_spec_summary_json": "[]",
+            "battery_capacity_kwh": 63.2,
+            "battery_chemistry": [
+              "LFP"
+            ],
+            "dc_fast_charge_supported": true,
+            "drivetrain_display": [
+              "Rear motor RWD"
+            ],
+            "last_verified_at": "2026-07-30 00:00:00",
+            "motor_torque_n_m": 290,
+            "range_display": 630,
+            "recommended": false,
+            "source_status": [
+              "Verified"
+            ],
+            "source_url": "https://data.carnewschina.com/database/changan-nevo/changan-nevo-a06",
+            "trim_order": 1,
+            "trim_price_display": 22160,
+            "upgraded_features_json": "[]"
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    }
+  },
+  {
+    "type": "variant-create",
+    "model_id": "MDL-065",
+    "payload": {
+      "trim_config_id": "MDL-065-DEFAULT",
+      "model_id": "MDL-065",
+      "variant": "Default Pro Spec",
+      "trim_order": 1,
+      "trim_price_display": 25000,
+      "range_display": 400,
+      "battery_capacity_kwh": 49,
+      "battery_chemistry": "LFP",
+      "drivetrain_display": "Rear motor RWD",
+      "motor_power_kw": 200,
+      "motor_torque_n_m": 343,
+      "dc_fast_charge_supported": true,
+      "dc_fast_charge_time_hours": 0.5,
+      "dc_fast_charge_min_percent": 10,
+      "dc_fast_charge_max_percent": 80,
+      "source_url": "https://car.autohome.com.cn/config/spec/66341.html",
+      "base_spec_summary_json": "[]",
+      "added_features_json": "[]",
+      "upgraded_features_json": "[]",
+      "recommended": false,
+      "source_status": "Verified",
+      "last_verified_at": "2026-07-30 00:00:00",
+      "notes": "Default detailed version created to support model formula fields.",
+      "vehicle_model_pruned": [
+        {
+          "id": "recvqDh6sadvbf"
+        }
+      ]
+    },
+    "created": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "created": true,
+        "record": {
+          "record_id_list": [
+            "recvqRJOX5pmsH"
+          ]
+        }
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    }
+  },
+  {
+    "type": "variant-create",
+    "model_id": "MDL-074",
+    "payload": {
+      "trim_config_id": "MDL-074-DEFAULT",
+      "model_id": "MDL-074",
+      "variant": "Default 520 Pro+ Spec",
+      "trim_order": 1,
+      "trim_price_display": 15100,
+      "range_display": 520,
+      "battery_capacity_kwh": 58.3,
+      "battery_chemistry": "LFP",
+      "drivetrain_display": "Front motor FWD",
+      "motor_power_kw": 150,
+      "motor_torque_n_m": 200,
+      "dc_fast_charge_supported": true,
+      "source_url": "https://carnewschina.com/2025/03/07/all-electric-toyota-bz3x-suv-launched-for-15100-usd-its-65-chinese/",
+      "base_spec_summary_json": "[]",
+      "added_features_json": "[]",
+      "upgraded_features_json": "[]",
+      "recommended": false,
+      "source_status": "Verified",
+      "last_verified_at": "2026-07-30 00:00:00",
+      "notes": "Default detailed version created to support model formula fields.",
+      "vehicle_model_pruned": [
+        {
+          "id": "recvqDh6saeCX1"
+        }
+      ]
+    },
+    "created": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "created": true,
+        "record": {
+          "record_id_list": [
+            "recvqRJPARvvCD"
+          ]
+        }
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    }
+  },
+  {
+    "type": "variant-create",
+    "model_id": "MDL-088",
+    "payload": {
+      "trim_config_id": "MDL-088-DEFAULT",
+      "model_id": "MDL-088",
+      "variant": "Default 301km Spec",
+      "trim_order": 1,
+      "trim_price_display": 8083,
+      "range_display": 301,
+      "battery_chemistry": "LFP",
+      "drivetrain_display": "Rear motor RWD",
+      "dc_fast_charge_supported": true,
+      "dc_fast_charge_time_hours": 0.58,
+      "dc_fast_charge_min_percent": 30,
+      "dc_fast_charge_max_percent": 80,
+      "source_url": "https://wuling.com/carDetail?id=321",
+      "base_spec_summary_json": "[]",
+      "added_features_json": "[]",
+      "upgraded_features_json": "[]",
+      "recommended": false,
+      "source_status": "Verified",
+      "last_verified_at": "2026-07-30 00:00:00",
+      "notes": "Default detailed version created to support model formula fields.",
+      "vehicle_model_pruned": [
+        {
+          "id": "recvqDh6sa2UPv"
+        }
+      ]
+    },
+    "created": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "created": true,
+        "record": {
+          "record_id_list": [
+            "recvqRJQa5tFsb"
+          ]
+        }
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    }
+  },
+  {
+    "type": "variant-create",
+    "model_id": "MDL-105",
+    "payload": {
+      "trim_config_id": "MDL-105-DEFAULT",
+      "model_id": "MDL-105",
+      "variant": "Default 610km Flagship Spec",
+      "trim_order": 1,
+      "trim_price_display": 18556,
+      "range_display": 610,
+      "battery_capacity_kwh": 69.2,
+      "battery_chemistry": "LFP",
+      "drivetrain_display": "Front motor FWD",
+      "dc_fast_charge_supported": true,
+      "source_url": "https://www.wuling.com/carDetail?id=305",
+      "base_spec_summary_json": "[]",
+      "added_features_json": "[]",
+      "upgraded_features_json": "[]",
+      "recommended": false,
+      "source_status": "Verified",
+      "last_verified_at": "2026-07-30 00:00:00",
+      "notes": "Default detailed version created to support model formula fields.",
+      "vehicle_model_pruned": [
+        {
+          "id": "recvqDh6saNrNN"
+        }
+      ]
+    },
+    "created": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "created": true,
+        "record": {
+          "record_id_list": [
+            "recvqRJQGLxXUA"
+          ]
+        }
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    }
+  },
+  {
+    "type": "variant-create",
+    "model_id": "MDL-107",
+    "payload": {
+      "trim_config_id": "MDL-107-DEFAULT",
+      "model_id": "MDL-107",
+      "variant": "Default 2026 Max Spec",
+      "trim_order": 1,
+      "trim_price_display": 44825,
+      "range_display": 835,
+      "battery_capacity_kwh": 101.7,
+      "battery_chemistry": "NCM",
+      "drivetrain_display": "Dual-motor AWD",
+      "dc_fast_charge_supported": true,
+      "source_url": "https://www.xiaomiev.com/car-config",
+      "base_spec_summary_json": "[]",
+      "added_features_json": "[]",
+      "upgraded_features_json": "[]",
+      "recommended": false,
+      "source_status": "Verified",
+      "last_verified_at": "2026-07-30 00:00:00",
+      "notes": "Default detailed version created to support model formula fields.",
+      "vehicle_model_pruned": [
+        {
+          "id": "recvqDh6saBVbX"
+        }
+      ]
+    },
+    "created": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "created": true,
+        "record": {
+          "record_id_list": [
+            "recvqRJRdtbeRr"
+          ]
+        }
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    }
+  }
+]

@@ -1,0 +1,22 @@
+{
+  "trim_order": 1,
+  "trim_price_display": 8835,
+  "range_display": 310,
+  "battery_capacity_kwh": 31.9,
+  "battery_chemistry": "LFP",
+  "motor_power_kw": 55,
+  "motor_torque_n_m": 114,
+  "drivetrain_display": "Front motor FWD",
+  "dc_fast_charge_supported": true,
+  "dc_fast_charge_time_hours": 0.6,
+  "dc_fast_charge_min_percent": 30,
+  "dc_fast_charge_max_percent": 80,
+  "base_spec_summary_json": "[]",
+  "added_features_json": "[]",
+  "upgraded_features_json": "[]",
+  "recommended": false,
+  "source_url": "https://db.m.auto.sohu.com/trim_176465",
+  "last_verified_at": "2026-07-30 00:00:00",
+  "source_status": "Verified",
+  "notes": "Filled from existing verified Leapmotor T03 310 Comfort Enjoy Edition row and Sohu trim page."
+}

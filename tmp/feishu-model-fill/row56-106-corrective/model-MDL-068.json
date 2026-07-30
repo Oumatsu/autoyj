@@ -1,0 +1,11 @@
+{
+  "vehicle_class": "Mid-size sedan",
+  "model_year": 2025,
+  "length_mm": 4855,
+  "width_mm": 1960,
+  "height_mm": 1450,
+  "wheelbase_mm": 2940,
+  "seats_min": 5,
+  "seats_max": 5,
+  "segment": "Mid-size sedan"
+}

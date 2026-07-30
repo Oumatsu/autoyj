@@ -1,0 +1,16 @@
+{
+  "variant": "Default reference version",
+  "trim_config_id": "MDL-087-DEFAULT",
+  "model_id": "MDL-087",
+  "trim_order": 1,
+  "recommended": false,
+  "source_url": "https://www.autohome.com.cn/config/series/7781.html#pvareaid=3454437",
+  "source_status": "Needs Source",
+  "last_verified_at": "2026-07-30 00:00:00",
+  "notes": "Model-level reference placeholder only; not a full trim list.",
+  "vehicle_model_pruned": [
+    {
+      "id": "recvqDh6saRn5V"
+    }
+  ]
+}

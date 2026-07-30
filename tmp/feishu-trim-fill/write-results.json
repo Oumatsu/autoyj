@@ -1,0 +1,614 @@
+[
+  {
+    "record_id": "recvpzJP21yB6y",
+    "variant": "Top Spec Edition",
+    "status": 0,
+    "stdout": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "added_features_json": "[]",
+            "base_spec_summary_json": "[]",
+            "battery_capacity_kwh": 38.88,
+            "battery_chemistry": [
+              "LFP"
+            ],
+            "dc_fast_charge_max_percent": 80,
+            "dc_fast_charge_min_percent": 30,
+            "dc_fast_charge_supported": true,
+            "dc_fast_charge_time_hours": 0.5,
+            "drivetrain_display": [
+              "Front motor FWD"
+            ],
+            "last_verified_at": "2026-07-30 00:00:00",
+            "motor_power_kw": 55,
+            "motor_torque_n_m": 135,
+            "notes": "Filled as BYD Seagull 405km/Fly high-spec placeholder from public spec sources.",
+            "range_display": 405,
+            "recommended": false,
+            "source_status": [
+              "Verified"
+            ],
+            "source_url": "https://www.byd.com.et/vehicles/byd/seagull/",
+            "trim_order": 5,
+            "trim_price_display": 12656,
+            "upgraded_features_json": "[]"
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "stderr": ""
+  },
+  {
+    "record_id": "recvqDuNsKvMRr",
+    "variant": "Active Edition",
+    "status": 0,
+    "stdout": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "added_features_json": "[]",
+            "base_spec_summary_json": "[]",
+            "battery_capacity_kwh": 30.08,
+            "battery_chemistry": [
+              "LFP"
+            ],
+            "dc_fast_charge_max_percent": 80,
+            "dc_fast_charge_min_percent": 30,
+            "dc_fast_charge_supported": true,
+            "dc_fast_charge_time_hours": 0.5,
+            "drivetrain_display": [
+              "Front motor FWD"
+            ],
+            "last_verified_at": "2026-07-30 00:00:00",
+            "motor_power_kw": 55,
+            "motor_torque_n_m": 135,
+            "notes": "Filled as BYD Seagull 305km/Active placeholder from public spec sources.",
+            "range_display": 305,
+            "recommended": false,
+            "source_status": [
+              "Verified"
+            ],
+            "source_url": "https://www.byd.com.et/vehicles/byd/seagull/",
+            "trim_order": 1,
+            "trim_price_display": 10296,
+            "upgraded_features_json": "[]"
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "stderr": ""
+  },
+  {
+    "record_id": "recvqDuNsKAdx0",
+    "variant": "2025 Model Geely Galaxy M9 / 2025款吉利银河M9 M9-210KM 四驱领航版",
+    "status": 0,
+    "stdout": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "added_features_json": "[]",
+            "base_spec_summary_json": "[]",
+            "battery_capacity_kwh": 41.46,
+            "battery_chemistry": [
+              "LFP"
+            ],
+            "dc_fast_charge_max_percent": 80,
+            "dc_fast_charge_min_percent": 30,
+            "dc_fast_charge_supported": true,
+            "dc_fast_charge_time_hours": 0.25,
+            "drivetrain_display": [
+              "Front-engine AWD"
+            ],
+            "last_verified_at": "2026-07-30 00:00:00",
+            "motor_power_kw": 520,
+            "motor_torque_n_m": 910,
+            "notes": "Filled from existing verified Galaxy M9 210km AWD Pilot Edition row and public launch/spec pages.",
+            "range_display": 210,
+            "recommended": false,
+            "source_status": [
+              "Verified"
+            ],
+            "source_url": "https://www.autohome.com.cn/config/series/7165.html#pvareaid=3454437",
+            "trim_order": 5,
+            "trim_price_display": 36698,
+            "upgraded_features_json": "[\"Seat material: Synthetic leather -> Leather\"]"
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "stderr": ""
+  },
+  {
+    "record_id": "recvqDuNsK0riP",
+    "variant": "2025 Model Geely Galaxy M9 / 2025款吉利银河M9 M9-230KM 两驱探索版",
+    "status": 0,
+    "stdout": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "added_features_json": "[\"Hands-free tailgate: Standard\",\"Heated steering wheel: Standard\",\"Second-row seat functions: heating; ventilation; massage\",\"Cabin air purifier: Standard\",\"PM2.5 filter: Standard\",\"Negative ion generator: Standard\"]",
+            "base_spec_summary_json": "[]",
+            "battery_capacity_kwh": 41.46,
+            "battery_chemistry": [
+              "LFP"
+            ],
+            "dc_fast_charge_max_percent": 80,
+            "dc_fast_charge_min_percent": 30,
+            "dc_fast_charge_supported": true,
+            "dc_fast_charge_time_hours": 0.25,
+            "drivetrain_display": [
+              "Front motor FWD"
+            ],
+            "last_verified_at": "2026-07-30 00:00:00",
+            "motor_power_kw": 180,
+            "motor_torque_n_m": 350,
+            "notes": "Filled from existing verified Galaxy M9 230km 2WD Explorer row and Sohu trim page.",
+            "range_display": 230,
+            "recommended": false,
+            "source_status": [
+              "Verified"
+            ],
+            "source_url": "https://db.m.auto.sohu.com/trim_179004",
+            "trim_order": 4,
+            "trim_price_display": 33453,
+            "upgraded_features_json": "[\"Center display size: 15.4in -> 30in\",\"Driver seat adjustment: fore-aft adjustment; backrest adjustment; height adjustment(2-way) -> fore-aft adjustment; backrest adjustment; height adjustment(2-way); lumbar support(4-way); side bolster support(active)\",\"Passenger seat adjustment: fore-aft adjustment; backrest adjustment -> fore-aft adjustment; backrest adjustment; leg-rest adjustment; lumbar support(4-way)\",\"Front seat functions: heating; ventilation; headrestspeakers(only driver side) -> heating; ventilation; massage; headrestspeakers(only driver side)\",\"Second-row seat adjustment: fore-aft adjustment; backrest adjustment -> fore-aft adjustment; backrest adjustment; lumbar adjustment; leg-rest adjustment\"]"
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "stderr": ""
+  },
+  {
+    "record_id": "recvqDuNsK72Wo",
+    "variant": "yu7 2025款 后驱长续航版",
+    "status": 0,
+    "stdout": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "added_features_json": "[]",
+            "base_spec_summary_json": "[]",
+            "battery_capacity_kwh": 96.3,
+            "battery_chemistry": [
+              "LFP"
+            ],
+            "dc_fast_charge_max_percent": 80,
+            "dc_fast_charge_min_percent": 10,
+            "dc_fast_charge_supported": true,
+            "dc_fast_charge_time_hours": 0.35,
+            "drivetrain_display": [
+              "Rear motor RWD"
+            ],
+            "last_verified_at": "2026-07-30 00:00:00",
+            "motor_power_kw": 235,
+            "motor_torque_n_m": 528,
+            "notes": "Filled from existing verified YU7 Long Range Edition row and Xiaomi YU7 public spec pages.",
+            "range_display": 835,
+            "recommended": false,
+            "source_status": [
+              "Verified"
+            ],
+            "source_url": "https://www.xiaomiev.com/car-config",
+            "trim_order": 2,
+            "trim_price_display": 37391,
+            "upgraded_features_json": "[\"Driver seat adjustment: fore-aft adjustment; backrest adjustment; height adjustment(4-way); lumbar support(4-way) -> fore-aft adjustment; backrest adjustment; height adjustment(4-way); leg-rest adjustment: Optional; lumbar support(4-way)\",\"Passenger seat adjustment: fore-aft adjustment; backrest adjustment; height adjustment(2-way) -> fore-aft adjustment; backrest adjustment; height adjustment(2-way); height adjustment(4-way): Optional; leg-rest adjustment: Optional\",\"Front seat functions: heating; ventilation; headrestspeakers(only driver side) -> heating; ventilation; massage: Optional; headrestspeakers(only driver side)\"]"
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "stderr": ""
+  },
+  {
+    "record_id": "recvqDuNsKBbpe",
+    "variant": "yu7 2025款 四驱Pro版",
+    "status": 0,
+    "stdout": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "added_features_json": "[]",
+            "base_spec_summary_json": "[]",
+            "battery_capacity_kwh": 96.3,
+            "battery_chemistry": [
+              "LFP"
+            ],
+            "dc_fast_charge_max_percent": 80,
+            "dc_fast_charge_min_percent": 10,
+            "dc_fast_charge_supported": true,
+            "dc_fast_charge_time_hours": 0.35,
+            "drivetrain_display": [
+              "Dual-motor AWD"
+            ],
+            "last_verified_at": "2026-07-30 00:00:00",
+            "motor_power_kw": 365,
+            "motor_torque_n_m": 690,
+            "notes": "Filled from existing verified YU7 Pro Edition row and public spec pages.",
+            "range_display": 770,
+            "recommended": false,
+            "source_status": [
+              "Verified"
+            ],
+            "source_url": "https://car.autohome.com.cn/config/spec/71839.html",
+            "trim_order": 3,
+            "trim_price_display": 41285,
+            "upgraded_features_json": "[]"
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "stderr": ""
+  },
+  {
+    "record_id": "recvqDuNsKDllQ",
+    "variant": "yu7 2026款 四驱Max版",
+    "status": 0,
+    "stdout": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "added_features_json": "[\"Steering wheel memory: Standard\"]",
+            "base_spec_summary_json": "[]",
+            "battery_capacity_kwh": 101.7,
+            "battery_chemistry": [
+              "NCM"
+            ],
+            "dc_fast_charge_max_percent": 80,
+            "dc_fast_charge_min_percent": 10,
+            "dc_fast_charge_supported": true,
+            "dc_fast_charge_time_hours": 0.2,
+            "drivetrain_display": [
+              "Dual-motor AWD"
+            ],
+            "last_verified_at": "2026-07-30 00:00:00",
+            "motor_power_kw": 508,
+            "motor_torque_n_m": 866,
+            "notes": "Filled as YU7 Max placeholder from existing verified Max Edition row and public spec pages.",
+            "range_display": 760,
+            "recommended": false,
+            "source_status": [
+              "Verified"
+            ],
+            "source_url": "https://www.xiaomiev.com/car-config",
+            "trim_order": 4,
+            "trim_price_display": 48660,
+            "upgraded_features_json": "[\"Speaker count: 14speakers; 25speakers: Optional -> 25speakers\"]"
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "stderr": ""
+  },
+  {
+    "record_id": "recvqDuNsKR2gE",
+    "variant": "2025款310舒享版",
+    "status": 0,
+    "stdout": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "added_features_json": "[]",
+            "base_spec_summary_json": "[]",
+            "battery_capacity_kwh": 31.9,
+            "battery_chemistry": [
+              "LFP"
+            ],
+            "dc_fast_charge_max_percent": 80,
+            "dc_fast_charge_min_percent": 30,
+            "dc_fast_charge_supported": true,
+            "dc_fast_charge_time_hours": 0.6,
+            "drivetrain_display": [
+              "Front motor FWD"
+            ],
+            "last_verified_at": "2026-07-30 00:00:00",
+            "motor_power_kw": 55,
+            "motor_torque_n_m": 114,
+            "notes": "Filled from existing verified Leapmotor T03 310 Comfort Enjoy Edition row and Sohu trim page.",
+            "range_display": 310,
+            "recommended": false,
+            "source_status": [
+              "Verified"
+            ],
+            "source_url": "https://db.m.auto.sohu.com/trim_176465",
+            "trim_order": 1,
+            "trim_price_display": 8835,
+            "upgraded_features_json": "[]"
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "stderr": ""
+  },
+  {
+    "record_id": "recvqDuNsKl5Gc",
+    "variant": "2025款403舒享版",
+    "status": 0,
+    "stdout": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "added_features_json": "[]",
+            "base_spec_summary_json": "[]",
+            "battery_capacity_kwh": 41.3,
+            "battery_chemistry": [
+              "LFP"
+            ],
+            "dc_fast_charge_max_percent": 80,
+            "dc_fast_charge_min_percent": 30,
+            "dc_fast_charge_supported": true,
+            "dc_fast_charge_time_hours": 0.6,
+            "drivetrain_display": [
+              "Front motor FWD"
+            ],
+            "last_verified_at": "2026-07-30 00:00:00",
+            "motor_power_kw": 80,
+            "motor_torque_n_m": 158,
+            "notes": "Filled from existing verified Leapmotor T03 403 Comfort Enjoy Edition row and Autohome article.",
+            "range_display": 403,
+            "recommended": false,
+            "source_status": [
+              "Verified"
+            ],
+            "source_url": "https://chejiahao.m.autohome.com.cn/info/21738539",
+            "trim_order": 2,
+            "trim_price_display": 10310,
+            "upgraded_features_json": "[]"
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "stderr": ""
+  },
+  {
+    "record_id": "recvqDuNsKogvk",
+    "variant": "Lumin 宝藏版205km纯爱米",
+    "status": 0,
+    "stdout": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "added_features_json": "[]",
+            "base_spec_summary_json": "[]",
+            "battery_capacity_kwh": 17.65,
+            "battery_chemistry": [
+              "LFP"
+            ],
+            "dc_fast_charge_max_percent": 80,
+            "dc_fast_charge_min_percent": 30,
+            "dc_fast_charge_supported": true,
+            "dc_fast_charge_time_hours": 0.58,
+            "drivetrain_display": [
+              "Front motor FWD"
+            ],
+            "last_verified_at": "2026-07-30 00:00:00",
+            "motor_power_kw": 35,
+            "motor_torque_n_m": 85,
+            "notes": "Filled from public Lumin Treasure Edition price/spec sources.",
+            "range_display": 205,
+            "recommended": false,
+            "source_status": [
+              "Verified"
+            ],
+            "source_url": "https://db.auto.sina.cn/4932/price_35_3/",
+            "trim_order": 1,
+            "trim_price_display": 6918,
+            "upgraded_features_json": "[]"
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "stderr": ""
+  },
+  {
+    "record_id": "recvqDuNsK7RdE",
+    "variant": "Lumin 宝藏版205km酷爱米",
+    "status": 0,
+    "stdout": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "added_features_json": "[]",
+            "base_spec_summary_json": "[]",
+            "battery_capacity_kwh": 17.65,
+            "battery_chemistry": [
+              "LFP"
+            ],
+            "dc_fast_charge_max_percent": 80,
+            "dc_fast_charge_min_percent": 30,
+            "dc_fast_charge_supported": true,
+            "dc_fast_charge_time_hours": 0.58,
+            "drivetrain_display": [
+              "Front motor FWD"
+            ],
+            "last_verified_at": "2026-07-30 00:00:00",
+            "motor_power_kw": 35,
+            "motor_torque_n_m": 85,
+            "notes": "Filled from public Lumin Treasure Edition price/spec sources.",
+            "range_display": 205,
+            "recommended": false,
+            "source_status": [
+              "Verified"
+            ],
+            "source_url": "https://db.auto.sina.cn/4932/price_35_3/",
+            "trim_order": 2,
+            "trim_price_display": 7655,
+            "upgraded_features_json": "[]"
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "stderr": ""
+  },
+  {
+    "record_id": "recvqDuNsKFQLt",
+    "variant": "Lumin 宝藏版301km臻爱米",
+    "status": 0,
+    "stdout": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "added_features_json": "[]",
+            "base_spec_summary_json": "[]",
+            "battery_capacity_kwh": 28.08,
+            "battery_chemistry": [
+              "LFP"
+            ],
+            "dc_fast_charge_max_percent": 80,
+            "dc_fast_charge_min_percent": 30,
+            "dc_fast_charge_supported": true,
+            "dc_fast_charge_time_hours": 0.58,
+            "drivetrain_display": [
+              "Front motor FWD"
+            ],
+            "last_verified_at": "2026-07-30 00:00:00",
+            "motor_power_kw": 35,
+            "motor_torque_n_m": 85,
+            "notes": "Filled from public Lumin Treasure Edition price/spec sources.",
+            "range_display": 301,
+            "recommended": false,
+            "source_status": [
+              "Verified"
+            ],
+            "source_url": "https://db.m.auto.sohu.com/trim_180057",
+            "trim_order": 3,
+            "trim_price_display": 8688,
+            "upgraded_features_json": "[]"
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "stderr": ""
+  }
+]

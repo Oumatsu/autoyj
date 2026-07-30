@@ -1,0 +1,1062 @@
+{
+  "MDL-002": {
+    "record_id": "recvpzJLm94Tz3",
+    "model_id": "MDL-002",
+    "brand": "BYD",
+    "model": "Seagull",
+    "MODEL": "BYD Seagull",
+    "product_path": "/products/revenue-king/byd-seagull",
+    "powertrain_type": null,
+    "status": "Active"
+  },
+  "MDL-003": {
+    "record_id": "recvpzJLm94ix0",
+    "model_id": "MDL-003",
+    "brand": "Geely",
+    "model": "Galaxy E5",
+    "MODEL": "Geely Galaxy E5",
+    "product_path": "/products/revenue-king/geely-galaxy-e5",
+    "powertrain_type": null,
+    "status": "Active"
+  },
+  "MDL-004": {
+    "record_id": "recvpzJLm9YQ5S",
+    "model_id": "MDL-004",
+    "brand": "BYD",
+    "model": "Seal",
+    "MODEL": "BYD Seal",
+    "product_path": "/products/elite-flagship/byd-seal",
+    "powertrain_type": null,
+    "status": "Active"
+  },
+  "MDL-005": {
+    "record_id": "recvpzJLm9Lkn0",
+    "model_id": "MDL-005",
+    "brand": "BYD",
+    "model": "Han EV",
+    "MODEL": "BYD Han EV",
+    "product_path": "/products/elite-flagship/byd-han-ev",
+    "powertrain_type": null,
+    "status": "Active"
+  },
+  "MDL-006": {
+    "record_id": "recvpzJLm9r3El",
+    "model_id": "MDL-006",
+    "brand": "Geely",
+    "model": "Galaxy M9",
+    "MODEL": "Geely Galaxy M9",
+    "product_path": "/products/elite-flagship/geely-galaxy-m9",
+    "powertrain_type": "EREV",
+    "status": "Active"
+  },
+  "MDL-007": {
+    "record_id": "recvpzJLm9djpy",
+    "model_id": "MDL-007",
+    "brand": "BYD",
+    "model": "Sealion 7",
+    "MODEL": "BYD Sealion 7",
+    "product_path": "/products/elite-flagship/byd-sealion-7",
+    "powertrain_type": null,
+    "status": "Active"
+  },
+  "MDL-008": {
+    "record_id": "recvpzJLm9LukQ",
+    "model_id": "MDL-008",
+    "brand": "Fangchengbao",
+    "model": "Leopard 5",
+    "MODEL": "Fangchengbao Leopard 5",
+    "product_path": "/products/elite-flagship/fangchengbao-leopard-5",
+    "powertrain_type": "EREV",
+    "status": "Active"
+  },
+  "MDL-009": {
+    "record_id": "recvpzJLm9u5Ei",
+    "model_id": "MDL-009",
+    "brand": "Fangchengbao",
+    "model": "Ti 7",
+    "MODEL": "Fangchengbao Ti 7",
+    "product_path": "/products/elite-flagship/fangchengbao-ti7",
+    "powertrain_type": null,
+    "status": "Active"
+  },
+  "MDL-010": {
+    "record_id": "recvpzJLm96GjD",
+    "model_id": "MDL-010",
+    "brand": "Xiaomi",
+    "model": "YU7",
+    "MODEL": "Xiaomi YU7",
+    "product_path": "/products/elite-flagship/xiaomi-yu7",
+    "powertrain_type": null,
+    "status": "Active"
+  },
+  "MDL-011": {
+    "record_id": "recvpzJLm90cGu",
+    "model_id": "MDL-011",
+    "brand": "BYD",
+    "model": "Tang L EV",
+    "MODEL": "BYD Tang L EV",
+    "product_path": "/products/elite-flagship/byd-tang-l-ev",
+    "powertrain_type": null,
+    "status": "Active"
+  },
+  "MDL-012": {
+    "record_id": "recvpzJLm9nkH5",
+    "model_id": "MDL-012",
+    "brand": "Leapmotor",
+    "model": "D19",
+    "MODEL": "Leapmotor D19",
+    "product_path": "/products/elite-flagship/leapmotor-d19",
+    "powertrain_type": "EREV",
+    "status": "Active"
+  },
+  "MDL-013": {
+    "record_id": "recvpzJLm9J4Sd",
+    "model_id": "MDL-013",
+    "brand": "Voyah",
+    "model": "Taishan X8",
+    "MODEL": "Voyah Taishan X8",
+    "product_path": "/products/elite-flagship/voyah-taishan-x8",
+    "powertrain_type": "EREV",
+    "status": "Active"
+  },
+  "MDL-014": {
+    "record_id": "recvpzJLm9u8h0",
+    "model_id": "MDL-014",
+    "brand": "Li Auto",
+    "model": "L6",
+    "MODEL": "Li Auto L6",
+    "product_path": "/products/elite-flagship/li-auto-l6",
+    "powertrain_type": "EREV",
+    "status": "Active"
+  },
+  "MDL-015": {
+    "record_id": "recvpzJLm9CrI9",
+    "model_id": "MDL-015",
+    "brand": "XPENG",
+    "model": "G9",
+    "MODEL": "XPENG G9",
+    "product_path": "/products/elite-flagship/xpeng-g9",
+    "powertrain_type": null,
+    "status": "Active"
+  },
+  "MDL-016": {
+    "record_id": "recvpzJLm9hXQf",
+    "model_id": "MDL-016",
+    "brand": "Zeekr",
+    "model": "001",
+    "MODEL": "Zeekr 001",
+    "product_path": "/products/elite-flagship/zeekr-001",
+    "powertrain_type": null,
+    "status": "Active"
+  },
+  "MDL-017": {
+    "record_id": "recvpzJLm9nAXL",
+    "model_id": "MDL-017",
+    "brand": "Xiaomi",
+    "model": "SU7 Ultra",
+    "MODEL": "Xiaomi SU7 Ultra",
+    "product_path": "/products/elite-flagship/xiaomi-su7-ultra",
+    "powertrain_type": null,
+    "status": "Active"
+  },
+  "MDL-018": {
+    "record_id": "recvpzJLm9QG4o",
+    "model_id": "MDL-018",
+    "brand": "Stelato",
+    "model": "S9",
+    "MODEL": "Stelato S9",
+    "product_path": "/products/elite-flagship/stelato-s9",
+    "powertrain_type": null,
+    "status": "Active"
+  },
+  "MDL-019": {
+    "record_id": "recvpzJLm97m1i",
+    "model_id": "MDL-019",
+    "brand": "AITO",
+    "model": "M9",
+    "MODEL": "AITO M9",
+    "product_path": "/products/elite-flagship/aito-m9",
+    "powertrain_type": "EREV",
+    "status": "Active"
+  },
+  "MDL-020": {
+    "record_id": "recvpzJLm9CA5i",
+    "model_id": "MDL-020",
+    "brand": "Hongqi",
+    "model": "E-HS9",
+    "MODEL": "Hongqi E-HS9",
+    "product_path": "/products/elite-flagship/hongqi-e-hs9",
+    "powertrain_type": null,
+    "status": "Active"
+  },
+  "MDL-021": {
+    "record_id": "recvpzJLm9245p",
+    "model_id": "MDL-021",
+    "brand": "Geely",
+    "model": "Geome",
+    "MODEL": "Geely Geome",
+    "product_path": "/products/revenue-king/geely-geome",
+    "powertrain_type": null,
+    "status": "Active"
+  },
+  "MDL-022": {
+    "record_id": "recvpzJLm90NJm",
+    "model_id": "MDL-022",
+    "brand": "BYD",
+    "model": "Yuan UP",
+    "MODEL": "BYD Yuan UP",
+    "product_path": "/products/revenue-king/byd-yuan-up",
+    "powertrain_type": null,
+    "status": "Active"
+  },
+  "MDL-023": {
+    "record_id": "recvpzJLm9gKxL",
+    "model_id": "MDL-023",
+    "brand": "Leapmotor",
+    "model": "Lafa 5",
+    "MODEL": "Leapmotor Lafa 5",
+    "product_path": "/products/revenue-king/leapmotor-lafa5",
+    "powertrain_type": null,
+    "status": "Active"
+  },
+  "MDL-024": {
+    "record_id": "recvpzJLm9p7Pi",
+    "model_id": "MDL-024",
+    "brand": "Leapmotor",
+    "model": "T03",
+    "MODEL": "Leapmotor T03",
+    "product_path": "/products/revenue-king/leapmotor-t03",
+    "powertrain_type": null,
+    "status": "Active"
+  },
+  "MDL-025": {
+    "record_id": "recvpzJLm9Kztt",
+    "model_id": "MDL-025",
+    "brand": "Changan",
+    "model": "Lumin",
+    "MODEL": "Changan Lumin",
+    "product_path": "/products/revenue-king/changan-lumin",
+    "powertrain_type": null,
+    "status": "Active"
+  },
+  "MDL-026": {
+    "record_id": "recvpzJLm9fpTa",
+    "model_id": "MDL-026",
+    "brand": "Wuling",
+    "model": "Bingo Plus",
+    "MODEL": "Wuling Bingo Plus",
+    "product_path": "/products/revenue-king/wuling-bingo-plus",
+    "powertrain_type": null,
+    "status": "Active"
+  },
+  "MDL-027": {
+    "record_id": "recvpzJLm9TDeo",
+    "model_id": "MDL-027",
+    "brand": "BYD",
+    "model": "Dolphin",
+    "MODEL": "BYD Dolphin",
+    "product_path": "/products/revenue-king/byd-dolphin",
+    "powertrain_type": null,
+    "status": "Active"
+  },
+  "MDL-028": {
+    "record_id": "recvpzJLm9CrlS",
+    "model_id": "MDL-028",
+    "brand": "GAC Aion",
+    "model": "RT",
+    "MODEL": "GAC Aion RT",
+    "product_path": "/products/revenue-king/gac-aion-rt",
+    "powertrain_type": null,
+    "status": "Active"
+  },
+  "MDL-029": {
+    "record_id": "recvpzJLm9yfTA",
+    "model_id": "MDL-029",
+    "brand": "GAC Aion",
+    "model": "i60",
+    "MODEL": "GAC Aion i60",
+    "product_path": "/products/revenue-king/gac-aion-i60",
+    "powertrain_type": "EREV",
+    "status": "Active"
+  },
+  "MDL-030": {
+    "record_id": "recvpzJLm9iXsX",
+    "model_id": "MDL-030",
+    "brand": "GAC Aion",
+    "model": "V",
+    "MODEL": "GAC Aion V",
+    "product_path": "/products/revenue-king/gac-aion-v",
+    "powertrain_type": null,
+    "status": "Active"
+  },
+  "MDL-031": {
+    "record_id": "recvpzJLm9kIk0",
+    "model_id": "MDL-031",
+    "brand": "Deepal",
+    "model": "S07",
+    "MODEL": "Deepal S07",
+    "product_path": "/products/revenue-king/deepal-s07",
+    "powertrain_type": null,
+    "status": "Active"
+  },
+  "MDL-032": {
+    "record_id": "recvpzJLm9u1Nn",
+    "model_id": "MDL-032",
+    "brand": "Deepal",
+    "model": "S05",
+    "MODEL": "Deepal S05",
+    "product_path": "/products/revenue-king/deepal-s05",
+    "powertrain_type": null,
+    "status": "Active"
+  },
+  "MDL-035": {
+    "record_id": "recvpzJLm9kL3L",
+    "model_id": "MDL-035",
+    "brand": "Dongfeng",
+    "model": "Nammi 01",
+    "MODEL": "Dongfeng Nammi 01",
+    "product_path": "/products/revenue-king/dongfeng-nammi-01",
+    "powertrain_type": null,
+    "status": "Active"
+  },
+  "MDL-036": {
+    "record_id": "recvpzJLm9eJVt",
+    "model_id": "MDL-036",
+    "brand": "Changan Nevo",
+    "model": "Q05",
+    "MODEL": "Changan Nevo Q05",
+    "product_path": "/products/revenue-king/changan-nevo-q05",
+    "powertrain_type": null,
+    "status": "Active"
+  },
+  "MDL-037": {
+    "record_id": "recvpzJLm9zgBR",
+    "model_id": "MDL-037",
+    "brand": "Fangchengbao",
+    "model": "Ti 3",
+    "MODEL": "Fangchengbao Ti 3",
+    "product_path": "/products/revenue-king/leopard-ti3",
+    "powertrain_type": null,
+    "status": "Active"
+  },
+  "MDL-038": {
+    "record_id": "recvpzJLm9MmpL",
+    "model_id": "MDL-038",
+    "brand": "GAC Motor",
+    "model": "Aion Y Plus",
+    "MODEL": "GAC Motor Aion Y Plus",
+    "product_path": "/products/revenue-king/gac-aion-y-plus",
+    "powertrain_type": null,
+    "status": "Active"
+  },
+  "MDL-039": {
+    "record_id": "recvpzJLm9hPkT",
+    "model_id": "MDL-039",
+    "brand": "BYD",
+    "model": "Qin PLUS EV",
+    "MODEL": "BYD Qin PLUS EV",
+    "product_path": "/products/revenue-king/byd-qin-plus",
+    "powertrain_type": null,
+    "status": "Active"
+  },
+  "MDL-040": {
+    "record_id": "recvpzJLm9Cy9y",
+    "model_id": "MDL-040",
+    "brand": "Geely",
+    "model": "Geometry C",
+    "MODEL": "Geely Geometry C",
+    "product_path": "/products/revenue-king/geely-geometry-c",
+    "powertrain_type": null,
+    "status": "Active"
+  },
+  "MDL-041": {
+    "record_id": "recvpzJLm9kKH4",
+    "model_id": "MDL-041",
+    "brand": "BYD",
+    "model": "Shark",
+    "MODEL": "BYD Shark",
+    "product_path": "/products/utility-pro/byd-shark",
+    "powertrain_type": null,
+    "status": "Active"
+  },
+  "MDL-042": {
+    "record_id": "recvpzJLm9Gmcq",
+    "model_id": "MDL-042",
+    "brand": "Radar",
+    "model": "RD6",
+    "MODEL": "Radar RD6",
+    "product_path": "/products/utility-pro/radar-rd6",
+    "powertrain_type": null,
+    "status": "Active"
+  },
+  "MDL-043": {
+    "record_id": "recvpzJLm9iXp6",
+    "model_id": "MDL-043",
+    "brand": "Tank",
+    "model": "500 Hi4-T",
+    "MODEL": "Tank 500 Hi4-T",
+    "product_path": "/products/utility-pro/tank-500-hi4t",
+    "powertrain_type": "PHEV",
+    "status": "Active"
+  },
+  "MDL-044": {
+    "record_id": "recvpzJLm9JBB7",
+    "model_id": "MDL-044",
+    "brand": "Fangchengbao",
+    "model": "Leopard 8",
+    "MODEL": "Fangchengbao Leopard 8",
+    "product_path": "/products/utility-pro/fangchengbao-leopard-8",
+    "powertrain_type": null,
+    "status": "Active"
+  },
+  "MDL-045": {
+    "record_id": "recvpzJLm9LguZ",
+    "model_id": "MDL-045",
+    "brand": "Zeekr",
+    "model": "9X",
+    "MODEL": "Zeekr 9X",
+    "product_path": "/products/utility-pro/zeekr-9x",
+    "powertrain_type": null,
+    "status": "Active"
+  },
+  "MDL-046": {
+    "record_id": "recvpzJLm9YxuX",
+    "model_id": "MDL-046",
+    "brand": "GWM",
+    "model": "Cannon EV",
+    "MODEL": "GWM Cannon EV",
+    "product_path": "/products/utility-pro/gwm-cannon-ev",
+    "powertrain_type": null,
+    "status": "Active"
+  },
+  "MDL-047": {
+    "record_id": "recvpzJLm9nGBg",
+    "model_id": "MDL-047",
+    "brand": "Dongfeng",
+    "model": "Rich 6 EV",
+    "MODEL": "Dongfeng Rich 6 EV",
+    "product_path": "/products/utility-pro/dongfeng-rich-6-ev",
+    "powertrain_type": null,
+    "status": "Active"
+  },
+  "MDL-048": {
+    "record_id": "recvpzJLm9CXeO",
+    "model_id": "MDL-048",
+    "brand": "Farizon",
+    "model": "Xingxiang V",
+    "MODEL": "Farizon Xingxiang V",
+    "product_path": "/products/utility-pro/farizon-xingxiang-v",
+    "powertrain_type": null,
+    "status": "Active"
+  },
+  "MDL-053": {
+    "record_id": "recvpzJLm9F9sp",
+    "model_id": "MDL-053",
+    "brand": "Linghui",
+    "model": "e7",
+    "MODEL": "Linghui e7",
+    "product_path": "/products/revenue-king/linghui-e7",
+    "powertrain_type": null,
+    "status": "Active"
+  },
+  "MDL-054": {
+    "record_id": "recvpzJLm97vt9",
+    "model_id": "MDL-054",
+    "brand": "MG",
+    "model": "MG4 EV",
+    "MODEL": "MG MG4 EV",
+    "product_path": "/products/revenue-king/mg-mg4-ev",
+    "powertrain_type": null,
+    "status": "Active"
+  },
+  "MDL-055": {
+    "record_id": "recvpzJLm91Vuc",
+    "model_id": "MDL-055",
+    "brand": "BYD",
+    "model": "Sealion 6 DM-i",
+    "MODEL": "BYD Sealion 6 DM-i",
+    "product_path": "/products/revenue-king/byd-sealion-6-dmi",
+    "powertrain_type": "PHEV",
+    "status": "Inactive"
+  },
+  "MDL-058": {
+    "record_id": "recvpzJLm9WmL3",
+    "model_id": "MDL-058",
+    "brand": "Denza",
+    "model": "D9 DM-i",
+    "MODEL": "Denza D9 DM-i",
+    "product_path": "/products/elite-flagship/denza-d9-dmi",
+    "powertrain_type": "PHEV",
+    "status": "Inactive"
+  },
+  "MDL-059": {
+    "record_id": "recvpzJLm992MY",
+    "model_id": "MDL-059",
+    "brand": "Yangwang",
+    "model": "U8 L",
+    "MODEL": "Yangwang U8 L",
+    "product_path": "/products/elite-flagship/yangwang-u8-l",
+    "powertrain_type": "EREV",
+    "status": "Inactive"
+  },
+  "MDL-060": {
+    "record_id": "recvpzJLm9erPo",
+    "model_id": "MDL-060",
+    "brand": "BYD",
+    "model": "Destroyer 05",
+    "MODEL": "BYD Destroyer 05",
+    "product_path": "/products/revenue-king/byd-destroyer-05",
+    "powertrain_type": "PHEV",
+    "status": "Inactive"
+  },
+  "MDL-061": {
+    "record_id": "recvpzJLm97ZzL",
+    "model_id": "MDL-061",
+    "brand": "Dongfeng",
+    "model": "eπ 007",
+    "MODEL": "Dongfeng eπ 007",
+    "product_path": "/products/revenue-king/dongfeng-epi-007",
+    "powertrain_type": null,
+    "status": "Active"
+  },
+  "MDL-062": {
+    "record_id": "recvpzJLm9eK3J",
+    "model_id": "MDL-062",
+    "brand": "Dongfeng",
+    "model": "eπ 008",
+    "MODEL": "Dongfeng eπ 008",
+    "product_path": "/products/revenue-king/dongfeng-epi-008",
+    "powertrain_type": null,
+    "status": "Active"
+  },
+  "MDL-063": {
+    "record_id": "recvpzJLm98zSy",
+    "model_id": "MDL-063",
+    "brand": "Dongfeng",
+    "model": "Aeolus L7",
+    "MODEL": "Dongfeng Aeolus L7",
+    "product_path": "/products/revenue-king/dongfeng-aeolus-l7",
+    "powertrain_type": null,
+    "status": "Active"
+  },
+  "MDL-064": {
+    "record_id": "recvpzJLm9qLc6",
+    "model_id": "MDL-064",
+    "brand": "Dongfeng",
+    "model": "Aeolus L8",
+    "MODEL": "Dongfeng Aeolus L8",
+    "product_path": "/products/revenue-king/dongfeng-aeolus-l8",
+    "powertrain_type": "PHEV",
+    "status": "Inactive"
+  },
+  "MDL-065": {
+    "record_id": "recvqDh6sadvbf",
+    "model_id": "MDL-065",
+    "brand": "Smart",
+    "model": "#1",
+    "MODEL": "Smart #1",
+    "product_path": null,
+    "powertrain_type": null,
+    "status": "Inactive"
+  },
+  "MDL-066": {
+    "record_id": "recvqDh6saev7l",
+    "model_id": "MDL-066",
+    "brand": "Smart",
+    "model": "#3",
+    "MODEL": "Smart #3",
+    "product_path": null,
+    "powertrain_type": null,
+    "status": "Inactive"
+  },
+  "MDL-067": {
+    "record_id": "recvqDh6saLG7d",
+    "model_id": "MDL-067",
+    "brand": "Smart",
+    "model": "#5",
+    "MODEL": "Smart #5",
+    "product_path": null,
+    "powertrain_type": null,
+    "status": "Inactive"
+  },
+  "MDL-068": {
+    "record_id": "recvqDh6sau1Ut",
+    "model_id": "MDL-068",
+    "brand": "Avatr",
+    "model": "06",
+    "MODEL": "Avatr 06",
+    "product_path": null,
+    "powertrain_type": null,
+    "status": "Inactive"
+  },
+  "MDL-069": {
+    "record_id": "recvqDh6saN8xF",
+    "model_id": "MDL-069",
+    "brand": "Avatr",
+    "model": "11",
+    "MODEL": "Avatr 11",
+    "product_path": null,
+    "powertrain_type": null,
+    "status": "Inactive"
+  },
+  "MDL-070": {
+    "record_id": "recvqDh6saeHYS",
+    "model_id": "MDL-070",
+    "brand": "Wuling",
+    "model": "12",
+    "MODEL": "Wuling 12",
+    "product_path": null,
+    "powertrain_type": null,
+    "status": "Inactive"
+  },
+  "MDL-072": {
+    "record_id": "recvqDh6samlep",
+    "model_id": "MDL-072",
+    "brand": "BYD",
+    "model": "Atto 3",
+    "MODEL": "BYD Atto 3",
+    "product_path": null,
+    "powertrain_type": null,
+    "status": "Inactive"
+  },
+  "MDL-073": {
+    "record_id": "recvqDh6saBVYB",
+    "model_id": "MDL-073",
+    "brand": "Wuling",
+    "model": "Bingo S",
+    "MODEL": "Wuling Bingo S",
+    "product_path": null,
+    "powertrain_type": null,
+    "status": "Inactive"
+  },
+  "MDL-074": {
+    "record_id": "recvqDh6saeCX1",
+    "model_id": "MDL-074",
+    "brand": "Toyota",
+    "model": "bZ3X",
+    "MODEL": "Toyota bZ3X",
+    "product_path": null,
+    "powertrain_type": null,
+    "status": "Inactive"
+  },
+  "MDL-075": {
+    "record_id": "recvqDh6saldTB",
+    "model_id": "MDL-075",
+    "brand": "Geely",
+    "model": "Cowboy",
+    "MODEL": "Geely Cowboy",
+    "product_path": null,
+    "powertrain_type": null,
+    "status": "Inactive"
+  },
+  "MDL-076": {
+    "record_id": "recvqDh6saovmK",
+    "model_id": "MDL-076",
+    "brand": "Changan",
+    "model": "CS55 Plus",
+    "MODEL": "Changan CS55 Plus",
+    "product_path": null,
+    "powertrain_type": null,
+    "status": "Inactive"
+  },
+  "MDL-077": {
+    "record_id": "recvqDh6sahmcr",
+    "model_id": "MDL-077",
+    "brand": "Changan",
+    "model": "CS75 Plus",
+    "MODEL": "Changan CS75 Plus",
+    "product_path": null,
+    "powertrain_type": null,
+    "status": "Inactive"
+  },
+  "MDL-078": {
+    "record_id": "recvqDh6sa2iIi",
+    "model_id": "MDL-078",
+    "brand": "Changan",
+    "model": "CS75 PRO",
+    "MODEL": "Changan CS75 PRO",
+    "product_path": null,
+    "powertrain_type": null,
+    "status": "Inactive"
+  },
+  "MDL-079": {
+    "record_id": "recvqDh6sajFhf",
+    "model_id": "MDL-079",
+    "brand": "Changan",
+    "model": "Deepal SL03",
+    "MODEL": "Changan Deepal SL03",
+    "product_path": null,
+    "powertrain_type": null,
+    "status": "Inactive"
+  },
+  "MDL-080": {
+    "record_id": "recvqDh6saAcHv",
+    "model_id": "MDL-080",
+    "brand": "Changan",
+    "model": "Eado",
+    "MODEL": "Changan Eado",
+    "product_path": null,
+    "powertrain_type": null,
+    "status": "Inactive"
+  },
+  "MDL-081": {
+    "record_id": "recvqDh6sac3Mz",
+    "model_id": "MDL-081",
+    "brand": "Changan",
+    "model": "Eado EV",
+    "MODEL": "Changan Eado EV",
+    "product_path": null,
+    "powertrain_type": null,
+    "status": "Inactive"
+  },
+  "MDL-084": {
+    "record_id": "recvqDh6saoCjO",
+    "model_id": "MDL-084",
+    "brand": "Geely",
+    "model": "Galaxy A7",
+    "MODEL": "Geely Galaxy A7",
+    "product_path": null,
+    "powertrain_type": null,
+    "status": "Inactive"
+  },
+  "MDL-085": {
+    "record_id": "recvqDh6samxZc",
+    "model_id": "MDL-085",
+    "brand": "Geely",
+    "model": "Galaxy L6",
+    "MODEL": "Geely Galaxy L6",
+    "product_path": null,
+    "powertrain_type": null,
+    "status": "Inactive"
+  },
+  "MDL-086": {
+    "record_id": "recvqDh6saFAyd",
+    "model_id": "MDL-086",
+    "brand": "Geely",
+    "model": "Haoyue L",
+    "MODEL": "Geely Haoyue L",
+    "product_path": null,
+    "powertrain_type": null,
+    "status": "Inactive"
+  },
+  "MDL-087": {
+    "record_id": "recvqDh6saRn5V",
+    "model_id": "MDL-087",
+    "brand": "Wuling",
+    "model": "Hongguang EV",
+    "MODEL": "Wuling Hongguang EV",
+    "product_path": null,
+    "powertrain_type": null,
+    "status": "Inactive"
+  },
+  "MDL-088": {
+    "record_id": "recvqDh6sa2UPv",
+    "model_id": "MDL-088",
+    "brand": "Wuling",
+    "model": "Hongguang MINI EV",
+    "MODEL": "Wuling Hongguang MINI EV",
+    "product_path": null,
+    "powertrain_type": null,
+    "status": "Inactive"
+  },
+  "MDL-089": {
+    "record_id": "recvqDh6saGXFv",
+    "model_id": "MDL-089",
+    "brand": "Wuling",
+    "model": "Huajing S PHEV",
+    "MODEL": "Wuling Huajing S PHEV",
+    "product_path": null,
+    "powertrain_type": null,
+    "status": "Inactive"
+  },
+  "MDL-090": {
+    "record_id": "recvqDh6saXqjc",
+    "model_id": "MDL-090",
+    "brand": "Shandong EV",
+    "model": "KW",
+    "MODEL": "Shandong EV KW",
+    "product_path": null,
+    "powertrain_type": null,
+    "status": "Inactive"
+  },
+  "MDL-091": {
+    "record_id": "recvqDh6saYq7E",
+    "model_id": "MDL-091",
+    "brand": "IM Motors",
+    "model": "LS6",
+    "MODEL": "IM Motors LS6",
+    "product_path": null,
+    "powertrain_type": null,
+    "status": "Inactive"
+  },
+  "MDL-092": {
+    "record_id": "recvqDh6saA3gu",
+    "model_id": "MDL-092",
+    "brand": "Wuling",
+    "model": "MPV",
+    "MODEL": "Wuling MPV",
+    "product_path": null,
+    "powertrain_type": null,
+    "status": "Inactive"
+  },
+  "MDL-093": {
+    "record_id": "recvqDh6saeSyW",
+    "model_id": "MDL-093",
+    "brand": "Changan",
+    "model": "Nevo A06",
+    "MODEL": "Changan Nevo A06",
+    "product_path": null,
+    "powertrain_type": null,
+    "status": "Inactive"
+  },
+  "MDL-094": {
+    "record_id": "recvqDh6sarkfS",
+    "model_id": "MDL-094",
+    "brand": "Changan",
+    "model": "Nevo A07",
+    "MODEL": "Changan Nevo A07",
+    "product_path": null,
+    "powertrain_type": null,
+    "status": "Inactive"
+  },
+  "MDL-095": {
+    "record_id": "recvqDh6saGaYb",
+    "model_id": "MDL-095",
+    "brand": "Changan",
+    "model": "Nevo Q05",
+    "MODEL": "Changan Nevo Q05",
+    "product_path": null,
+    "powertrain_type": null,
+    "status": "Inactive"
+  },
+  "MDL-096": {
+    "record_id": "recvqDh6saq6ch",
+    "model_id": "MDL-096",
+    "brand": "Changan",
+    "model": "Nevo Q07",
+    "MODEL": "Changan Nevo Q07",
+    "product_path": null,
+    "powertrain_type": null,
+    "status": "Inactive"
+  },
+  "MDL-097": {
+    "record_id": "recvqDh6saxxVs",
+    "model_id": "MDL-097",
+    "brand": "Geely",
+    "model": "Panda",
+    "MODEL": "Geely Panda",
+    "product_path": null,
+    "powertrain_type": null,
+    "status": "Inactive"
+  },
+  "MDL-098": {
+    "record_id": "recvqDh6saXR5V",
+    "model_id": "MDL-098",
+    "brand": "BYD",
+    "model": "Qin L EV",
+    "MODEL": "BYD Qin L EV",
+    "product_path": null,
+    "powertrain_type": null,
+    "status": "Inactive"
+  },
+  "MDL-099": {
+    "record_id": "recvqDh6sarqum",
+    "model_id": "MDL-099",
+    "brand": "Wuling",
+    "model": "Rongguang",
+    "MODEL": "Wuling Rongguang",
+    "product_path": null,
+    "powertrain_type": null,
+    "status": "Inactive"
+  },
+  "MDL-100": {
+    "record_id": "recvqDh6saxOwu",
+    "model_id": "MDL-100",
+    "brand": "BYD",
+    "model": "Sealion 06 DM-i",
+    "MODEL": "BYD Sealion 06 DM-i",
+    "product_path": null,
+    "powertrain_type": null,
+    "status": "Inactive"
+  },
+  "MDL-101": {
+    "record_id": "recvqDh6sakJi5",
+    "model_id": "MDL-101",
+    "brand": "BYD",
+    "model": "Sealion 06 EV",
+    "MODEL": "BYD Sealion 06 EV",
+    "product_path": null,
+    "powertrain_type": null,
+    "status": "Inactive"
+  },
+  "MDL-102": {
+    "record_id": "recvqDh6saQ8tC",
+    "model_id": "MDL-102",
+    "brand": "BYD",
+    "model": "Song L DM-i",
+    "MODEL": "BYD Song L DM-i",
+    "product_path": null,
+    "powertrain_type": null,
+    "status": "Inactive"
+  },
+  "MDL-103": {
+    "record_id": "recvqDh6sa2fue",
+    "model_id": "MDL-103",
+    "brand": "Wuling",
+    "model": "Starlight 560 EV",
+    "MODEL": "Wuling Starlight 560 EV",
+    "product_path": null,
+    "powertrain_type": null,
+    "status": "Inactive"
+  },
+  "MDL-104": {
+    "record_id": "recvqDh6sapLXt",
+    "model_id": "MDL-104",
+    "brand": "Wuling",
+    "model": "Starlight 730 EV",
+    "MODEL": "Wuling Starlight 730 EV",
+    "product_path": null,
+    "powertrain_type": null,
+    "status": "Inactive"
+  },
+  "MDL-105": {
+    "record_id": "recvqDh6saNrNN",
+    "model_id": "MDL-105",
+    "brand": "Wuling",
+    "model": "Starlight EV",
+    "MODEL": "Wuling Starlight EV",
+    "product_path": null,
+    "powertrain_type": null,
+    "status": "Inactive"
+  },
+  "MDL-106": {
+    "record_id": "recvqDh6saayBx",
+    "model_id": "MDL-106",
+    "brand": "Geely",
+    "model": "Starshine 6",
+    "MODEL": "Geely Starshine 6",
+    "product_path": null,
+    "powertrain_type": null,
+    "status": "Inactive"
+  },
+  "MDL-107": {
+    "record_id": "recvqDh6saBVbX",
+    "model_id": "MDL-107",
+    "brand": "Xiaomi",
+    "model": "SU7",
+    "MODEL": "Xiaomi SU7",
+    "product_path": null,
+    "powertrain_type": null,
+    "status": "Inactive"
+  },
+  "MDL-108": {
+    "record_id": "recvqDh6sb4M8I",
+    "model_id": "MDL-108",
+    "brand": "Wuling",
+    "model": "SUV",
+    "MODEL": "Wuling SUV",
+    "product_path": null,
+    "powertrain_type": null,
+    "status": "Inactive"
+  },
+  "MDL-109": {
+    "record_id": "recvqDh6sbc9WX",
+    "model_id": "MDL-109",
+    "brand": "Changan",
+    "model": "UNI-V",
+    "MODEL": "Changan UNI-V",
+    "product_path": null,
+    "powertrain_type": null,
+    "status": "Inactive"
+  },
+  "MDL-110": {
+    "record_id": "recvqDh6sbfy5k",
+    "model_id": "MDL-110",
+    "brand": "Changan",
+    "model": "UNI-Z",
+    "MODEL": "Changan UNI-Z",
+    "product_path": null,
+    "powertrain_type": null,
+    "status": "Inactive"
+  },
+  "MDL-111": {
+    "record_id": "recvqDh6sbzW2g",
+    "model_id": "MDL-111",
+    "brand": "Wuling",
+    "model": "Wuling Sunshine",
+    "MODEL": "Wuling Wuling Sunshine",
+    "product_path": null,
+    "powertrain_type": null,
+    "status": "Inactive"
+  },
+  "MDL-112": {
+    "record_id": "recvqDh6sbGzWi",
+    "model_id": "MDL-112",
+    "brand": "Wuling",
+    "model": "Wuling Sunshine EV",
+    "MODEL": "Wuling Wuling Sunshine EV",
+    "product_path": null,
+    "powertrain_type": null,
+    "status": "Inactive"
+  },
+  "MDL-113": {
+    "record_id": "recvqDh6sbBG6H",
+    "model_id": "MDL-113",
+    "brand": "Changan",
+    "model": "X5 Plus",
+    "MODEL": "Changan X5 Plus",
+    "product_path": null,
+    "powertrain_type": null,
+    "status": "Inactive"
+  },
+  "MDL-114": {
+    "record_id": "recvqDh6sbkq5t",
+    "model_id": "MDL-114",
+    "brand": "Shandong EV",
+    "model": "XGP",
+    "MODEL": "Shandong EV XGP",
+    "product_path": null,
+    "powertrain_type": null,
+    "status": "Inactive"
+  },
+  "MDL-115": {
+    "record_id": "recvqDh6sbK4Hw",
+    "model_id": "MDL-115",
+    "brand": "Bestune",
+    "model": "Xiaoma",
+    "MODEL": "Bestune Xiaoma",
+    "product_path": null,
+    "powertrain_type": null,
+    "status": "Inactive"
+  },
+  "MDL-116": {
+    "record_id": "recvqDh6sbQst0",
+    "model_id": "MDL-116",
+    "brand": "Wuling",
+    "model": "Xingchi",
+    "MODEL": "Wuling Xingchi",
+    "product_path": null,
+    "powertrain_type": null,
+    "status": "Inactive"
+  },
+  "MDL-117": {
+    "record_id": "recvqDh6sbw4dL",
+    "model_id": "MDL-117",
+    "brand": "Wuling",
+    "model": "Yangguang EV",
+    "MODEL": "Wuling Yangguang EV",
+    "product_path": null,
+    "powertrain_type": null,
+    "status": "Inactive"
+  },
+  "MDL-118": {
+    "record_id": "recvqDh6sbSSbQ",
+    "model_id": "MDL-118",
+    "brand": "Wuling",
+    "model": "Yunhai EV",
+    "MODEL": "Wuling Yunhai EV",
+    "product_path": null,
+    "powertrain_type": null,
+    "status": "Inactive"
+  }
+}

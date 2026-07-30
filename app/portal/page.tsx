@@ -88,6 +88,7 @@ type VehicleModel = {
   lastSyncedAt: string;
   fullSpecsJson: string;
   status: string;
+  trimVariants?: VehicleModel[];
 };
 
 type VehicleModelSpec = {
@@ -138,6 +139,53 @@ type Vehicle = {
   editableFields: string[];
   priceLabel: string;
 };
+
+type SourceImportRecord = {
+  id: string;
+  sourceStage: SourceImportStage;
+  supplier: string;
+  reviewer: string;
+  developer: string;
+  brand: string;
+  model: string;
+  modelId: string;
+  variant: string;
+  variantId: string;
+  year: string;
+  month: string;
+  exteriorColor: string;
+  interiorColor: string;
+  stock: number;
+  minOrderQuantity: number;
+  fullOrderQuantity: number;
+  leadTime: string;
+  waitDays: number | null;
+  steering: string;
+  marketVersion: string;
+  inventoryStatus: string;
+  costCny: number | null;
+  exwUsd: number | null;
+  fcaUsd: number | null;
+  fobUsd: number | null;
+  wholesaleLocation: string;
+  aiConfidence: number | null;
+  notes: string;
+  displayPriceLow: number | null;
+  displayPriceHigh: number | null;
+  sourcePath: string;
+  syncBatchId: string;
+  rawFields: Record<string, unknown>;
+};
+
+type SourceImportField = {
+  id: string;
+  name: string;
+  type: string;
+  reason?: string;
+  options?: string[];
+};
+
+type SourceImportStage = "unreviewed" | "connected";
 
 type SellableModel = {
   key: string;
@@ -279,6 +327,7 @@ type BootstrapData = {
   vehicleModels: VehicleModel[];
   vehicleModelSpecs: VehicleModelSpec[];
   vehicles: Vehicle[];
+  sourceImports?: SourceImportRecord[];
   inquiries: Inquiry[];
   quotes: Quote[];
   negotiations: Negotiation[];
@@ -781,6 +830,9 @@ export default function PortalPage() {
     />
   );
 
+  if (!data) return null;
+  const d = data;
+
   return (
     <main className="min-h-screen bg-bg px-4 pb-24 pt-28 sm:px-6">
       <section className="mx-auto grid max-w-7xl gap-8">
@@ -788,10 +840,10 @@ export default function PortalPage() {
           <div>
             <div className="label label-gold mb-4">autoYJ Dashboard</div>
             <h1 className="text-4xl font-black uppercase italic tracking-tight text-white sm:text-5xl">
-              {data.user.company}
+              {data!.user.company}
             </h1>
             <p className="mt-3 text-sm text-gray-500">
-              {roleLabels[data.user.role].toUpperCase()} / {data.user.accountType.toUpperCase()} / {data.user.priceTier.toUpperCase()} / {data.user.customerId}
+              {roleLabels[data!.user.role].toUpperCase()} / {data!.user.accountType.toUpperCase()} / {data!.user.priceTier.toUpperCase()} / {data!.user.customerId}
             </p>
           </div>
           <button onClick={logout} className="w-fit rounded-full border border-white/15 px-5 py-2 text-[10px] font-black uppercase tracking-widest text-gray-400 transition hover:border-white/40 hover:text-white">
@@ -803,9 +855,9 @@ export default function PortalPage() {
 
         <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <Metric label="Sellable Models" value={String(sellableModels.length)} />
-          <Metric label="Open Inquiries" value={String(data.inquiries.filter((item) => !["Accepted", "Closed"].includes(item.status)).length)} />
-          <Metric label="Quote Versions" value={String(data.quotes.length)} />
-          <Metric label="Draft Orders" value={String(data.orders.length)} />
+          <Metric label="Open Inquiries" value={String(data!.inquiries.filter((item) => !["Accepted", "Closed"].includes(item.status)).length)} />
+          <Metric label="Quote Versions" value={String(data!.quotes.length)} />
+          <Metric label="Draft Orders" value={String(data!.orders.length)} />
         </section>
 
         <section>
@@ -852,8 +904,8 @@ export default function PortalPage() {
           <div className="glass rounded-[1.5rem] p-5">
             <h2 className="mb-4 text-2xl font-black uppercase italic text-white">Inquiries and Quotes</h2>
             <div className="grid gap-4">
-              {data.inquiries.length === 0 && <Empty text="No inquiries yet." />}
-              {data.inquiries.map((inquiry) => {
+              {data!.inquiries.length === 0 && <Empty text="No inquiries yet." />}
+              {data!.inquiries.map((inquiry) => {
                 const quotes = quoteByInquiry.get(inquiry.inquiryNo) || [];
                 return (
                   <article key={inquiry.inquiryNo} className="rounded-xl border border-white/10 bg-white/[.03] p-4">
@@ -897,8 +949,8 @@ export default function PortalPage() {
           <div className="glass rounded-[1.5rem] p-5">
             <h2 className="mb-4 text-2xl font-black uppercase italic text-white">Orders</h2>
             <div className="grid gap-3">
-              {data.orders.length === 0 && <Empty text="Accepted quotes will create draft orders here." />}
-              {data.orders.map((order) => (
+              {data!.orders.length === 0 && <Empty text="Accepted quotes will create draft orders here." />}
+              {data!.orders.map((order) => (
                 <article key={order.orderNo} className="rounded-xl border border-white/10 bg-white/[.03] p-4">
                   <p className="text-[10px] font-black uppercase tracking-widest text-accent">{order.status}</p>
                   <h3 className="mt-1 font-black text-white">{order.orderNo}</h3>
@@ -917,8 +969,8 @@ export default function PortalPage() {
         <section className="glass rounded-[1.5rem] p-5">
           <h2 className="mb-4 text-2xl font-black uppercase italic text-white">Negotiation Log</h2>
           <div className="grid gap-3">
-            {data.negotiations.length === 0 && <Empty text="Portal inquiry and counteroffer actions will appear here." />}
-            {data.negotiations.map((log) => (
+            {data!.negotiations.length === 0 && <Empty text="Portal inquiry and counteroffer actions will appear here." />}
+            {data!.negotiations.map((log) => (
               <div key={log.id} className="grid gap-2 rounded-xl border border-white/10 bg-white/[.03] p-4 sm:grid-cols-[1fr_auto]">
                 <div>
                   <p className="text-[10px] font-black uppercase tracking-widest text-theme">{log.actor} / {log.action}</p>
@@ -936,12 +988,12 @@ export default function PortalPage() {
       </section>
 
       {selectedSellableModel && (
-        <Modal title={`${selectedSellableModel.brand} ${selectedSellableModel.model} ${formatModelYear(selectedSellableModel.year)} / Sources`} onClose={() => setSelectedSellableModel(null)}>
+        <Modal title={`${selectedSellableModel!.brand} ${selectedSellableModel!.model} ${formatModelYear(selectedSellableModel!.year)} / Sources`} onClose={() => setSelectedSellableModel(null)}>
           <div className="grid gap-4">
             <div className="grid gap-3 sm:grid-cols-3">
-              <Info label="Segment" value={selectedSellableModel.segment || "EV"} />
-              <Info label="In-stock Qty" value={`${selectedSellableModel.stockQuantity} units`} />
-              <Info label="FOB Range" value={selectedSellableModel.fobPriceRange} highlight />
+              <Info label="Segment" value={selectedSellableModel!.segment || "EV"} />
+              <Info label="In-stock Qty" value={`${selectedSellableModel!.stockQuantity} units`} />
+              <Info label="FOB Range" value={selectedSellableModel!.fobPriceRange} highlight />
             </div>
             <div className="max-w-full overflow-x-auto">
               <table className="w-full min-w-[760px] border-separate border-spacing-0 text-left text-sm">
@@ -955,7 +1007,7 @@ export default function PortalPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {selectedSellableModel.offers.map((offer) => (
+                  {selectedSellableModel!.offers.map((offer) => (
                     <tr key={offer.key} className="align-top">
                       <td className="border-b border-white/[.06] px-3 py-3 text-gray-300">{offer.year || "-"}</td>
                       <td className="border-b border-white/[.06] px-3 py-3 text-gray-300">
@@ -991,12 +1043,12 @@ export default function PortalPage() {
       )}
 
       {selectedVehicle && (
-        <Modal title={`Request quote / ${selectedVehicle.brand} ${selectedVehicle.model} ${selectedVehicle.trim}`.trim()} onClose={() => setSelectedVehicle(null)}>
+        <Modal title={`Request quote / ${selectedVehicle!.brand} ${selectedVehicle!.model} ${selectedVehicle!.trim}`.trim()} onClose={() => setSelectedVehicle(null)}>
           <form onSubmit={createInquiry} className="grid gap-4">
             <div className="grid gap-3 sm:grid-cols-3">
-              <Info label="Year" value={selectedVehicle.year || "-"} />
-              <Info label="Color" value={formatColorPair(selectedVehicle.exteriorColor, selectedVehicle.interiorColor)} />
-              <Info label="FOB" value={selectedVehicle.price ? formatUsdStrict(selectedVehicle.price) : selectedVehicle.priceLabel} highlight={selectedVehicle.canSeePrice} />
+              <Info label="Year" value={selectedVehicle!.year || "-"} />
+              <Info label="Color" value={formatColorPair(selectedVehicle!.exteriorColor, selectedVehicle!.interiorColor)} />
+              <Info label="FOB" value={selectedVehicle!.price ? formatUsdStrict(selectedVehicle!.price as number) : selectedVehicle!.priceLabel} highlight={selectedVehicle!.canSeePrice} />
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
               <FormField label="Quantity">
@@ -1028,7 +1080,7 @@ export default function PortalPage() {
       )}
 
       {counterQuote && (
-        <Modal title={`Counteroffer / ${counterQuote.quoteNo}`} onClose={() => setCounterQuote(null)}>
+        <Modal title={`Counteroffer / ${counterQuote!.quoteNo}`} onClose={() => setCounterQuote(null)}>
           <form onSubmit={submitCounter} className="grid gap-4">
             <FormField label="Your Target Unit Price">
               <input value={counterPrice} onChange={(event) => setCounterPrice(event.target.value)} placeholder="18300" type="number" />
@@ -1145,7 +1197,7 @@ function AdminPortal({
 
           {error && <p className="mb-5 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm font-bold text-red-300">{error}</p>}
 
-          <AdminModuleContent activeModule={normalizedActiveModule} data={data} onEditVehicle={setEditingVehicle} />
+          <AdminModuleContent activeModule={normalizedActiveModule} data={data} />
         </section>
       </div>
       {editingVehicle && (
@@ -1162,14 +1214,14 @@ function AdminPortal({
   );
 }
 
-function AdminModuleContent({ activeModule, data, onEditVehicle }: { activeModule: AdminModule; data: BootstrapData; onEditVehicle: (vehicle: Vehicle) => void }) {
+function AdminModuleContent({ activeModule, data }: { activeModule: AdminModule; data: BootstrapData }) {
   switch (activeModule) {
     case "source_imports":
-      return <AdminSourceImportsDemo />;
+      return <AdminSourceImports data={data} />;
     case "vehicle_models":
       return <AdminProfiles data={data} />;
     case "vehicles":
-      return <AdminVehicles data={data} onEdit={onEditVehicle} />;
+      return <AdminVehicles data={data} />;
     case "quotes":
       return <AdminQuotes data={data} />;
     case "orders":
@@ -1189,72 +1241,589 @@ function AdminModuleContent({ activeModule, data, onEditVehicle }: { activeModul
   }
 }
 
-function AdminSourceImportsDemo() {
+function AdminSourceImports({ data }: { data: BootstrapData }) {
+  const [records, setRecords] = useState<SourceImportRecord[]>(data.sourceImports || []);
+  const [fields, setFields] = useState<SourceImportField[]>([]);
+  const [loading, setLoading] = useState(!data.sourceImports?.length);
+  const [loadError, setLoadError] = useState("");
+  const [readLimit, setReadLimit] = useState(1500);
+  const [activeStage, setActiveStage] = useState<SourceImportStage>("unreviewed");
+  const [selectedRecord, setSelectedRecord] = useState<SourceImportRecord | null>(null);
+
+  async function reloadSourceImports() {
+    setLoading(true);
+    setLoadError("");
+    try {
+      const res = await api<{ records: SourceImportRecord[]; fields?: SourceImportField[]; readLimit?: number }>("/api/portal/source-imports");
+      setRecords(res.records || []);
+      setFields(res.fields || []);
+      setReadLimit(res.readLimit || 1500);
+      setSelectedRecord((current) => {
+        if (!current) return null;
+        return (res.records || []).find((record) => record.id === current.id) || current;
+      });
+    } catch (err) {
+      setLoadError(err instanceof Error ? err.message : "车源录入记录加载失败");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setLoadError("");
+    api<{ records: SourceImportRecord[]; fields?: SourceImportField[]; readLimit?: number }>("/api/portal/source-imports")
+      .then((res) => {
+        if (cancelled) return;
+        setRecords(res.records || []);
+        setFields(res.fields || []);
+        setReadLimit(res.readLimit || 1500);
+      })
+      .catch((err) => {
+        if (!cancelled) setLoadError(err instanceof Error ? err.message : "车源录入记录加载失败");
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const unreviewed = records.filter((record) => sourceImportStage(record) === "unreviewed").length;
+  const connected = records.filter((record) => sourceImportStage(record) === "connected").length;
+  const withModelId = records.filter((record) => record.modelId && record.variantId).length;
+  const avgConfidence = records.length
+    ? records.reduce((sum, record) => sum + (record.aiConfidence || 0), 0) / records.length
+    : 0;
+  const duplicateGroups = new Map<string, number>();
+  for (const record of records) {
+    const key = [record.brand, record.model, record.variant, record.exteriorColor, record.interiorColor]
+      .map((value) => safeText(value, "-").toLowerCase())
+      .join("|");
+    duplicateGroups.set(key, (duplicateGroups.get(key) || 0) + 1);
+  }
+  const duplicateCount = [...duplicateGroups.values()].filter((count) => count > 1).length;
+  const stageTabs: { key: SourceImportStage; label: string; count: number }[] = [
+    { key: "unreviewed", label: "未审核", count: unreviewed },
+    { key: "connected", label: "已接入网站", count: connected },
+  ];
+  const filteredRecords = records.filter((record) => sourceImportStage(record) === activeStage);
+  const visibleRecords = filteredRecords.slice(0, 80);
+
   return (
     <div className="grid min-w-0 gap-6">
-      <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-5 text-amber-300">
-        <div className="flex items-center gap-3">
-          <span className="rounded-md bg-amber-400 px-2 py-0.5 text-xs font-black uppercase text-black">开发中 / Demo</span>
-          <h2 className="text-lg font-black tracking-tight text-white">车源录入与审查静态设计（开发中）</h2>
+      <div className="rounded-2xl border border-[#22b8aa]/25 bg-[#22b8aa]/10 p-5 text-[#5ee6d8]">
+        <div className="flex flex-wrap items-center gap-3">
+          <span className="rounded-md bg-[#22b8aa] px-2 py-0.5 text-xs font-black uppercase text-black">Live</span>
+          <h2 className="text-lg font-black tracking-tight text-white">车源录入与审查</h2>
         </div>
-        <p className="mt-2 text-xs text-amber-200/80">
-          包含批量素材上传、AI/OCR 中间产物解析、重合度风险判定警报、车源候选列表及审查抽屉预演界面。
+        <p className="mt-2 text-xs text-[#b8fff7]/80">
+          已接入 Feishu Base `tblte61W3fKoXmSw`。以 `审核状态` 勾选框字段驱动分页状态，勾选即视为“已接入网站”。
         </p>
       </div>
 
+      {loadError ? (
+        <p className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm font-bold text-red-300">{loadError}</p>
+      ) : null}
+
       <section className="grid gap-4 md:grid-cols-4">
         <div className="rounded-xl border border-white/10 bg-white/[.04] p-4">
-          <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">待审查素材</span>
-          <strong className="mt-2 block text-2xl font-black text-white">12 份</strong>
-          <span className="mt-1 block text-xs text-slate-400">PDF / 图片 / 微信聊天记录</span>
+          <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">已读取记录</span>
+          <strong className="mt-2 block text-2xl font-black text-white">{loading ? "..." : records.length}</strong>
+          <span className="mt-1 block text-xs text-slate-400">读取上限 {readLimit} 条，按当前飞书视图过滤</span>
         </div>
         <div className="rounded-xl border border-white/10 bg-white/[.04] p-4">
-          <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">AI 解析完成度</span>
-          <strong className="mt-2 block text-2xl font-black text-[#22b8aa]">98.5%</strong>
-          <span className="mt-1 block text-xs text-slate-400">结合 Nemotron / GPT 视觉模型</span>
+          <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">未审核</span>
+          <strong className="mt-2 block text-2xl font-black text-amber-300">{unreviewed}</strong>
+          <span className="mt-1 block text-xs text-slate-400">来自飞书未审核视图</span>
         </div>
         <div className="rounded-xl border border-white/10 bg-white/[.04] p-4">
-          <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">疑似重复车源警报</span>
-          <strong className="mt-2 block text-2xl font-black text-amber-400">2 组</strong>
-          <span className="mt-1 block text-xs text-amber-300/80">同 VIN / 车架号交叉校验</span>
+          <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">已接入网站</span>
+          <strong className="mt-2 block text-2xl font-black text-white">{connected}</strong>
+          <span className="mt-1 block text-xs text-slate-400">全部视图减去未审核视图</span>
         </div>
         <div className="rounded-xl border border-white/10 bg-white/[.04] p-4">
-          <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">已入库待发布</span>
-          <strong className="mt-2 block text-2xl font-black text-white">35 台</strong>
-          <span className="mt-1 block text-xs text-slate-400">符合出口 PDI 准备标准</span>
+          <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">疑似重复组</span>
+          <strong className="mt-2 block text-2xl font-black text-[#22b8aa]">{duplicateCount}</strong>
+          <span className="mt-1 block text-xs text-slate-400">品牌/型号/版本/颜色相同</span>
         </div>
       </section>
 
-      <div className="grid gap-5 xl:grid-cols-2">
-        <div className="rounded-2xl border border-white/10 bg-white/[.03] p-5">
-          <h3 className="text-base font-black text-white">批量素材导入与智能识别 (Demo)</h3>
-          <p className="mt-1 text-xs text-slate-400">支持拖拽 Excel、车辆识别登记表、供应商朋友圈图片或微信截图</p>
-          <div className="mt-4 grid h-36 place-items-center rounded-xl border border-dashed border-white/20 bg-black/20 text-center">
-            <div>
-              <p className="text-xs font-bold text-slate-300">点击或将车源资料文件拖拽至此处</p>
-              <p className="mt-1 text-[10px] text-slate-500">自动提取 VIN、外观/内饰颜色、指导价、车商报价与定金要求</p>
+      <section className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_360px]">
+        <AdminPanel
+          title={
+            <div className="flex min-w-0 items-center justify-between gap-3">
+              <span className="truncate">审查队列</span>
+              <button
+                type="button"
+                onClick={() => void reloadSourceImports()}
+                disabled={loading}
+                title="刷新审查队列"
+                className="grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-white/10 text-slate-400 transition hover:border-[#22b8aa]/40 hover:text-[#5ee6d8] disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <svg className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M21 12a9 9 0 0 1-15.5 6.2" />
+                  <path d="M3 12A9 9 0 0 1 18.5 5.8" />
+                  <path d="M18 2v4h4" />
+                  <path d="M6 22v-4H2" />
+                </svg>
+              </button>
             </div>
+          }
+          subtitle={loading ? "正在读取飞书记录" : `当前分页 ${filteredRecords.length} 条，显示前 ${visibleRecords.length} 条`}
+        >
+          <div className="mb-4 grid grid-cols-2 gap-2 rounded-xl border border-white/10 bg-black/20 p-1">
+            {stageTabs.map((tab) => (
+              <button
+                key={tab.key}
+                type="button"
+                onClick={() => setActiveStage(tab.key)}
+                className={`min-h-10 rounded-lg px-3 text-xs font-black transition ${
+                  activeStage === tab.key
+                    ? "bg-[#22b8aa] text-black"
+                    : "text-slate-400 hover:bg-white/[.06] hover:text-white"
+                }`}
+              >
+                <span className="block truncate">{tab.label}</span>
+                <span className="mt-0.5 block font-mono text-[10px] opacity-80">{tab.count}</span>
+              </button>
+            ))}
+          </div>
+          <div className="grid max-h-[680px] gap-2 overflow-auto pr-1">
+            {loading ? (
+              <Empty text="正在读取车源录入记录" />
+            ) : visibleRecords.length ? (
+              visibleRecords.map((record) => (
+                <button
+                  key={record.id}
+                  type="button"
+                  onClick={() => setSelectedRecord(record)}
+                  className="grid w-full gap-3 rounded-xl border border-white/10 bg-white/[.035] p-4 text-left transition hover:border-[#22b8aa]/40 hover:bg-[#22b8aa]/[.06] lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)_140px]"
+                >
+                  <div className="min-w-0">
+                    <div className="truncate text-sm font-black text-white">{compactJoin([record.brand, record.model]) || "-"}</div>
+                    <div className="mt-1 truncate text-xs text-slate-400">{record.variant || "-"}</div>
+                    <div className="mt-2 font-mono text-[10px] text-slate-600">{record.id}</div>
+                  </div>
+                  <div className="min-w-0 text-xs text-slate-300">
+                    <div className="truncate">{compactJoin([record.exteriorColor, record.interiorColor]) || "颜色 -"}</div>
+                    <div className="mt-1 truncate text-slate-500">{compactJoin([record.supplier, record.wholesaleLocation]) || "供应商 -"}</div>
+                    <div className="mt-1 truncate font-mono text-[10px] text-slate-500">{compactJoin([record.modelId, record.variantId]) || "关联 -"}</div>
+                  </div>
+                  <div className="flex items-center justify-between gap-3 lg:grid lg:justify-items-end">
+                    <div className="text-right">
+                      <div className="text-xs font-black text-[#5ee6d8]">{sourceImportPrice(record)}</div>
+                      <div className="mt-1 text-[10px] text-slate-500">{record.sourcePath ? "有素材路径" : "素材路径 -"}</div>
+                    </div>
+                    <AdminStatusBadge status={sourceImportStageLabel(sourceImportStage(record))} />
+                  </div>
+                </button>
+              ))
+            ) : (
+              <Empty text="当前分页暂无记录" />
+            )}
+          </div>
+        </AdminPanel>
+
+        <div className="grid gap-5">
+          <AdminPanel title="字段完整度" subtitle="按当前读取范围计算">
+            <div className="grid gap-3 text-xs text-slate-300">
+              <SourceImportCompleteness label="价格" done={records.filter((record) => record.fobUsd || record.exwUsd || record.costCny).length} total={records.length} />
+              <SourceImportCompleteness label="车型关联" done={withModelId} total={records.length} />
+              <SourceImportCompleteness label="颜色" done={records.filter((record) => record.exteriorColor || record.interiorColor).length} total={records.length} />
+              <SourceImportCompleteness label="素材路径" done={records.filter((record) => record.sourcePath).length} total={records.length} />
+              <SourceImportCompleteness label="疑似重复组" done={duplicateCount} total={records.length} />
+            </div>
+          </AdminPanel>
+
+          <AdminPanel title="审查提示" subtitle="用于人工复核优先级">
+            <div className="grid gap-3 text-xs">
+              <ReviewCue tone="amber" label="未审核" value={`${unreviewed} 条`} />
+              <ReviewCue tone="teal" label="平均 AI 置信度" value={records.length ? `${(avgConfidence * 100).toFixed(1)}%` : "-"} />
+            </div>
+          </AdminPanel>
+        </div>
+      </section>
+      {selectedRecord ? (
+        <SourceImportDetailModal
+          record={selectedRecord}
+          fields={fields}
+          onClose={() => setSelectedRecord(null)}
+          onSaved={(updated) => {
+            setRecords((current) => current.map((item) => item.id === updated.id ? updated : item));
+            setSelectedRecord(updated);
+          }}
+        />
+      ) : null}
+    </div>
+  );
+}
+
+function SourceImportCompleteness({ label, done, total }: { label: string; done: number; total: number }) {
+  const ratio = total ? Math.round((done / total) * 100) : 0;
+  return (
+    <div>
+      <div className="mb-1 flex items-center justify-between gap-3">
+        <span className="font-bold text-slate-300">{label}</span>
+        <span className="font-mono text-slate-500">{done}/{total}</span>
+      </div>
+      <div className="h-2 overflow-hidden rounded-full bg-white/10">
+        <div className="h-full rounded-full bg-[#22b8aa]" style={{ width: `${ratio}%` }} />
+      </div>
+    </div>
+  );
+}
+
+function sourceImportStage(record: SourceImportRecord): SourceImportStage {
+  return record.sourceStage === "connected" ? "connected" : "unreviewed";
+}
+
+function sourceImportStageLabel(stage: SourceImportStage) {
+  return stage === "connected" ? "已接入网站" : "未审核";
+}
+
+function sourceImportPrice(record: SourceImportRecord) {
+  if (record.fobUsd) return `FOB ${formatUsdStrict(record.fobUsd)}`;
+  if (record.displayPriceLow && record.displayPriceHigh) return `${formatUsdStrict(record.displayPriceLow)} - ${formatUsdStrict(record.displayPriceHigh)}`;
+  if (record.displayPriceLow) return `网站 ${formatUsdStrict(record.displayPriceLow)}`;
+  if (record.exwUsd) return `EXW ${formatUsdStrict(record.exwUsd)}`;
+  if (record.costCny) return `¥${record.costCny.toLocaleString()}`;
+  return "-";
+}
+
+function sourceImportFieldTypeLabel(type: string) {
+  const labels: Record<string, string> = {
+    text: "文本",
+    number: "数字",
+    select: "单选",
+    multi_select: "多选",
+    datetime: "时间",
+    user: "人员",
+    not_support: "暂不支持",
+    Text: "文本",
+    Number: "数字",
+    SingleSelect: "单选",
+    MultiSelect: "多选",
+    DateTime: "时间",
+    User: "人员",
+  };
+  return labels[type] || type || "-";
+}
+
+function hasSourceImportValue(value: unknown) {
+  if (value === null || value === undefined) return false;
+  if (Array.isArray(value)) return value.length > 0;
+  if (typeof value === "string") return value.trim().length > 0;
+  return true;
+}
+
+function formatSourceImportFieldValue(value: unknown) {
+  if (!hasSourceImportValue(value)) return "空";
+  const text = safeText(value, "");
+  if (text) return text;
+  try {
+    return JSON.stringify(value);
+  } catch {
+    return String(value);
+  }
+}
+
+function fallbackSourceImportFields(record: SourceImportRecord): SourceImportField[] {
+  return Object.keys(record.rawFields || {}).map((name) => ({ id: name, name, type: "" }));
+}
+
+function isEditableSourceImportField(field: SourceImportField) {
+  if (field.reason || field.type === "not_support") return false;
+  if (field.name === "流程" || field.name === "审核人" || field.name === "审核状态") return false;
+  return ["Text", "Number", "SingleSelect", "MultiSelect", "DateTime", "text", "number", "select", "multi_select", "datetime"].includes(field.type);
+}
+
+function sourceImportInitialEditValue(value: unknown) {
+  if (!hasSourceImportValue(value)) return "";
+  if (Array.isArray(value)) return value.map((item) => safeText(item, "")).filter(Boolean).join(", ");
+  return safeText(value, "");
+}
+
+function sourceImportDateInputValue(value: string) {
+  const match = value.match(/^\d{4}-\d{2}-\d{2}/);
+  return match ? match[0] : "";
+}
+
+function SourceImportEditControl({
+  field,
+  value,
+  customSelect,
+  onChange,
+  onCustomSelectChange,
+}: {
+  field: SourceImportField;
+  value: string;
+  customSelect: boolean;
+  onChange: (value: string) => void;
+  onCustomSelectChange: (enabled: boolean) => void;
+}) {
+  const commonClass = "min-h-10 w-full rounded-lg border border-white/10 bg-[#07101d] px-3 text-xs font-medium text-white outline-none transition focus:border-[#22b8aa]/60";
+
+  if (field.type === "Number" || field.type === "number") {
+    return <input type="number" value={value} onChange={(event) => onChange(event.target.value)} className={commonClass} />;
+  }
+
+  if (field.type === "DateTime" || field.type === "datetime") {
+    return <input type="date" value={sourceImportDateInputValue(value)} onChange={(event) => onChange(event.target.value)} className={commonClass} />;
+  }
+
+  if (field.type === "SingleSelect" || field.type === "select") {
+    const options = field.options || [];
+    const isKnownOption = !value || options.includes(value);
+    const selectValue = customSelect || !isKnownOption ? "__other__" : value;
+    return (
+      <div className="grid gap-2">
+        <select
+          value={selectValue}
+          onChange={(event) => {
+            if (event.target.value === "__other__") {
+              onCustomSelectChange(true);
+              onChange(isKnownOption ? "" : value);
+            } else {
+              onCustomSelectChange(false);
+              onChange(event.target.value);
+            }
+          }}
+          className={commonClass}
+        >
+          <option value="">空</option>
+          {options.map((option) => (
+            <option key={option} value={option}>{option}</option>
+          ))}
+          <option value="__other__">其他</option>
+        </select>
+        {selectValue === "__other__" ? (
+          <input
+            type="text"
+            value={value}
+            onChange={(event) => onChange(event.target.value)}
+            placeholder="输入新选项"
+            className={commonClass}
+          />
+        ) : null}
+      </div>
+    );
+  }
+
+  if (field.type === "MultiSelect" || field.type === "multi_select") {
+    return <input type="text" value={value} onChange={(event) => onChange(event.target.value)} placeholder="多个选项用英文逗号分隔" className={commonClass} />;
+  }
+
+  return <textarea value={value} onChange={(event) => onChange(event.target.value)} className={`${commonClass} min-h-20 py-2`} />;
+}
+
+function SourceImportDetailModal({
+  record,
+  fields,
+  onClose,
+  onSaved,
+  readOnly = false,
+}: {
+  record: SourceImportRecord;
+  fields: SourceImportField[];
+  onClose: () => void;
+  onSaved: (record: SourceImportRecord) => void;
+  readOnly?: boolean;
+}) {
+  const activeFields = fields.length ? fields : fallbackSourceImportFields(record);
+  const stage = sourceImportStage(record);
+  const [editValues, setEditValues] = useState<Record<string, string>>(() =>
+    Object.fromEntries(activeFields.map((field) => [field.name, sourceImportInitialEditValue(record.rawFields?.[field.name])]))
+  );
+  const [dirtyFields, setDirtyFields] = useState<Set<string>>(() => new Set());
+  const [customSelectFields, setCustomSelectFields] = useState<Set<string>>(() => new Set());
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState("");
+  const [togglingReview, setTogglingReview] = useState(false);
+
+  async function toggleReviewStatus() {
+    setTogglingReview(true);
+    setSaveError("");
+    try {
+      const newStatus = stage !== "connected";
+      const res = await api<{ record: SourceImportRecord | null; noop?: boolean }>(`/api/portal/source-imports/${encodeURIComponent(record.id)}`, {
+        method: "PATCH",
+        body: JSON.stringify({ fields: { "审核状态": newStatus } }),
+      });
+      if (res.record) onSaved(res.record);
+    } catch (err) {
+      setSaveError(err instanceof Error ? err.message : "审核状态切换失败");
+    } finally {
+      setTogglingReview(false);
+    }
+  }
+
+  function setFieldValue(fieldName: string, value: string) {
+    setEditValues((current) => ({ ...current, [fieldName]: value }));
+    setDirtyFields((current) => {
+      const next = new Set(current);
+      next.add(fieldName);
+      return next;
+    });
+    setSaveError("");
+  }
+
+  function setCustomSelectField(fieldName: string, enabled: boolean) {
+    setCustomSelectFields((current) => {
+      const next = new Set(current);
+      if (enabled) next.add(fieldName);
+      else next.delete(fieldName);
+      return next;
+    });
+  }
+
+  async function saveChanges() {
+    const patch: Record<string, unknown> = {};
+    for (const fieldName of dirtyFields) {
+      const field = activeFields.find((item) => item.name === fieldName);
+      if (!field || !isEditableSourceImportField(field)) continue;
+      const value = editValues[fieldName] ?? "";
+      patch[fieldName] = field.type === "MultiSelect" || field.type === "multi_select"
+        ? value.split(",").map((item) => item.trim()).filter(Boolean)
+        : value;
+    }
+    if (!Object.keys(patch).length) return;
+
+    setSaving(true);
+    setSaveError("");
+    try {
+      const res = await api<{ record: SourceImportRecord | null; noop?: boolean; ignoredFields?: { name: string; reason: string }[] }>(`/api/portal/source-imports/${encodeURIComponent(record.id)}`, {
+        method: "PATCH",
+        body: JSON.stringify({ fields: patch }),
+      });
+      if (res.record) onSaved(res.record);
+      if (res.noop) {
+        setSaveError(res.ignoredFields?.length ? `没有可保存字段：${res.ignoredFields.map((item) => item.name).join(", ")}` : "没有可保存字段");
+      }
+      setDirtyFields(new Set());
+    } catch (err) {
+      setSaveError(err instanceof Error ? err.message : "保存失败");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <Modal title={`车源详情 / ${compactJoin([record.brand, record.model]) || record.id}`} onClose={onClose}>
+      <div className="grid gap-5">
+        <div className="grid gap-3 rounded-xl border border-white/10 bg-white/[.035] p-4 text-xs sm:grid-cols-2">
+          <Info label="记录 ID" value={record.id} />
+          <Info label="当前分页状态" value={sourceImportStageLabel(stage)} highlight={stage === "connected"} />
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] font-bold text-gray-500">审核状态</span>
+            {readOnly ? (
+              <span className={`rounded-full px-3 py-1 text-[11px] font-black uppercase tracking-wider ${
+                stage === "connected"
+                  ? "bg-[#22b8aa]/20 text-[#22b8aa] border border-[#22b8aa]/40"
+                  : "bg-amber-500/10 text-amber-400 border border-amber-500/30"
+              }`}>
+                {stage === "connected" ? "✓ 已审核" : "○ 未审核"}
+              </span>
+            ) : (
+              <button
+                type="button"
+                onClick={toggleReviewStatus}
+                disabled={togglingReview}
+                className={`rounded-full px-3 py-1 text-[11px] font-black uppercase tracking-wider transition ${
+                  stage === "connected"
+                    ? "bg-[#22b8aa]/20 text-[#22b8aa] border border-[#22b8aa]/40 hover:bg-[#22b8aa]/30"
+                    : "bg-amber-500/10 text-amber-400 border border-amber-500/30 hover:bg-amber-500/20"
+                }`}
+              >
+                {togglingReview ? "..." : stage === "connected" ? "✓ 已审核" : "○ 未审核"}
+              </button>
+            )}
+          </div>
+          <Info label="车源" value={compactJoin([record.brand, record.model, record.variant]) || "-"} />
+          <Info label="供应商" value={compactJoin([record.supplier, record.wholesaleLocation]) || "-"} />
+          <Info label="网站价格" value={sourceImportPrice(record)} highlight={sourceImportPrice(record) !== "-"} />
+          <Info label="关联" value={compactJoin([record.modelId, record.variantId]) || "-"} highlight={Boolean(record.modelId && record.variantId)} />
+        </div>
+
+        <div className="grid gap-2">
+          <div className="flex items-center justify-between gap-3">
+            <h3 className="text-sm font-black text-white">全部字段状态</h3>
+            <span className="font-mono text-[10px] text-slate-500">{activeFields.length} fields{!readOnly ? ` / ${dirtyFields.size} changed` : ""}</span>
+          </div>
+          <div className="grid max-h-[58vh] gap-2 overflow-auto pr-1">
+            {activeFields.map((field) => {
+              const value = record.rawFields?.[field.name];
+              const filled = hasSourceImportValue(value);
+              const unsupported = field.type === "not_support";
+              const editable = isEditableSourceImportField(field);
+              return (
+                <div key={field.id} className="grid gap-2 rounded-xl border border-white/10 bg-black/20 p-3 text-xs sm:grid-cols-[170px_minmax(0,1fr)_92px]">
+                  <div className="min-w-0">
+                    <div className="truncate font-black text-slate-200">{field.name}</div>
+                    <div className="mt-1 font-mono text-[10px] text-slate-600">{sourceImportFieldTypeLabel(field.type)}</div>
+                  </div>
+                  <div className={`min-w-0 break-words ${filled ? "text-slate-300" : "text-slate-600"}`}>
+                    {readOnly
+                      ? (unsupported ? field.reason || "OpenAPI 暂不支持读取" : formatSourceImportFieldValue(value))
+                      : editable
+                        ? <SourceImportEditControl field={field} value={editValues[field.name] ?? ""} customSelect={customSelectFields.has(field.name)} onChange={(nextValue) => setFieldValue(field.name, nextValue)} onCustomSelectChange={(enabled) => setCustomSelectField(field.name, enabled)} />
+                        : unsupported ? field.reason || "OpenAPI 暂不支持读取" : formatSourceImportFieldValue(value)
+                    }
+                  </div>
+                  <div className="flex items-start justify-start sm:justify-end">
+                    <span className={`rounded-full border px-2 py-1 text-[10px] font-black ${
+                      !editable && unsupported
+                        ? "border-slate-500/20 bg-slate-500/10 text-slate-400"
+                        : dirtyFields.has(field.name)
+                          ? "border-indigo-300/25 bg-indigo-300/10 text-indigo-200"
+                          : filled
+                          ? "border-[#22b8aa]/25 bg-[#22b8aa]/10 text-[#5ee6d8]"
+                          : "border-amber-300/20 bg-amber-300/10 text-amber-200"
+                    }`}>
+                      {!editable && unsupported ? "不可读" : dirtyFields.has(field.name) ? "已修改" : filled ? "已填写" : "空字段"}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
 
-        <div className="rounded-2xl border border-white/10 bg-white/[.03] p-5">
-          <h3 className="text-base font-black text-white">审查工作流提示 (Workflow Preview)</h3>
-          <div className="mt-4 grid gap-3 text-xs text-slate-300">
-            <div className="flex items-center justify-between rounded-lg border border-white/10 bg-black/20 p-3">
-              <span>1. 原始凭证采集 (Excel / 图片 OCR)</span>
-              <span className="text-[#22b8aa] font-bold">通过</span>
-            </div>
-            <div className="flex items-center justify-between rounded-lg border border-white/10 bg-black/20 p-3">
-              <span>2. 结构化字段映射 (字段校验无空格)</span>
-              <span className="text-[#22b8aa] font-bold">通过</span>
-            </div>
-            <div className="flex items-center justify-between rounded-lg border border-white/10 bg-black/20 p-3">
-              <span>3. 多维表格 `vehicle_sources` 增量同步</span>
-              <span className="text-amber-400 font-bold">开发中</span>
-            </div>
-          </div>
+        {saveError ? <p className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm font-bold text-red-300">{saveError}</p> : null}
+
+        <div className="sticky bottom-0 -mx-1 flex flex-wrap items-center justify-end gap-3 border-t border-white/10 bg-[#07101d]/95 px-1 pt-4">
+          <button type="button" onClick={onClose} className="rounded-xl border border-white/15 px-5 py-3 text-[10px] font-black uppercase tracking-widest text-slate-300 transition hover:border-white/30">
+            关闭
+          </button>
+          {!readOnly && (
+            <button
+              type="button"
+              onClick={() => void saveChanges()}
+              disabled={saving || dirtyFields.size === 0}
+              className="rounded-xl bg-[#22b8aa] px-5 py-3 text-[10px] font-black uppercase tracking-widest text-black transition hover:bg-[#5ee6d8] disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {saving ? "保存中" : "保存到飞书"}
+            </button>
+          )}
         </div>
       </div>
+    </Modal>
+  );
+}
+
+function ReviewCue({ tone, label, value }: { tone: "amber" | "teal" | "slate"; label: string; value: string }) {
+  const toneClass =
+    tone === "amber"
+      ? "border-amber-300/20 bg-amber-300/10 text-amber-200"
+      : tone === "teal"
+        ? "border-[#22b8aa]/20 bg-[#22b8aa]/10 text-[#5ee6d8]"
+        : "border-white/10 bg-white/[.04] text-slate-300";
+  return (
+    <div className={`flex items-center justify-between rounded-lg border px-3 py-2 ${toneClass}`}>
+      <span>{label}</span>
+      <strong>{value}</strong>
     </div>
   );
 }
@@ -1339,8 +1908,6 @@ function ModelFullSpecsCard({ group }: { group: ModelProfileGroup }) {
 
   const adasVal = safeText(v.adas) || getModelSpecValue(group.specsByModel, v.id, ["ADAS"]) || "-";
   const warrantyVal = safeText(v.warranty) || "-";
-  const msrpVal = safeText(group.guidePriceSummary || v.msrpChina) || "-";
-  const exportNotesVal = safeText(v.exportNotes) || "符合海关出口通用检验标准";
 
   return (
     <div className="grid gap-4 rounded-xl border border-white/10 bg-[#0c1322] p-4 text-xs">
@@ -1891,150 +2458,149 @@ function AdminProfiles({ data }: { data: BootstrapData }) {
   );
 }
 
-function AdminVehicles({ data, onEdit }: { data: BootstrapData; onEdit: (vehicle: Vehicle) => void }) {
-  const sellableModels = buildSellableModels(data);
-  const [expandedModels, setExpandedModels] = useState<Set<string>>(() => new Set());
-  const [searchQuery, setSearchQuery] = useState("");
-  const [supplyFilter, setSupplyFilter] = useState("all");
-  const normalizedSearch = searchQuery.trim().toLowerCase();
-  const visibleModels = sellableModels
-    .map((item) => {
-      const rawVehicles = vehiclesForSellableModel(data.vehicles, item).filter((vehicle) => vehicleMatchesAdminFilters(vehicle, item, normalizedSearch, supplyFilter));
-      const offers = item.offers.filter((offer) => offerMatchesAdminFilters(offer, item, normalizedSearch, supplyFilter));
-      const modelMatches = modelMatchesAdminSearch(item, normalizedSearch);
-      return {
-        ...item,
-        offers: modelMatches && supplyFilter === "all" ? item.offers : offers,
-        rawVehicles: modelMatches && supplyFilter === "all" ? vehiclesForSellableModel(data.vehicles, item) : rawVehicles,
-        modelMatches,
-      };
-    })
-    .filter((item) => item.modelMatches || item.offers.length > 0 || item.rawVehicles.length > 0);
+function AdminVehicles({ data }: { data: BootstrapData }) {
+  const [records, setRecords] = useState<SourceImportRecord[]>([]);
+  const [fields, setFields] = useState<SourceImportField[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
+  const [selectedRecord, setSelectedRecord] = useState<SourceImportRecord | null>(null);
 
-  function toggleModel(key: string) {
-    setExpandedModels((current) => {
-      const next = new Set(current);
-      if (next.has(key)) next.delete(key);
-      else next.add(key);
-      return next;
-    });
+  async function reloadSourceImports() {
+    setLoading(true);
+    setLoadError("");
+    try {
+      const res = await api<{ records: SourceImportRecord[]; fields?: SourceImportField[]; readLimit?: number }>("/api/portal/source-imports");
+      setRecords((res.records || []).filter((record) => record.sourceStage === "connected"));
+      setFields(res.fields || []);
+    } catch (err) {
+      setLoadError(err instanceof Error ? err.message : "已审核车源加载失败");
+    } finally {
+      setLoading(false);
+    }
   }
 
+  useEffect(() => {
+    reloadSourceImports();
+  }, []);
+
+  const visibleRecords = records.slice(0, 80);
+  const uniqueBrands = [...new Set(records.map((record) => record.brand).filter(Boolean))].length;
+  const uniqueModels = new Set(records.map((record) => `${record.brand ?? ""}|${record.model ?? ""}`)).size;
+
   return (
-    <div className="grid gap-5">
-      <section className="grid gap-3 rounded-xl border border-white/10 bg-white/[.045] p-4 sm:grid-cols-[minmax(0,1fr)_180px] sm:items-end sm:p-5">
-        <label className="grid gap-2 text-xs font-black uppercase tracking-widest text-slate-500">
-          搜索车源
-          <input
-            value={searchQuery}
-            onChange={(event) => setSearchQuery(event.target.value)}
-            className="rounded-xl border border-white/10 bg-[#0c1322] px-4 py-3 text-sm font-medium normal-case tracking-normal text-white outline-none transition placeholder:text-slate-600 focus:border-[#22b8aa]"
-            placeholder="品牌、车型、版本、颜色、供应商、资源 ID"
-          />
-        </label>
-        <label className="grid gap-2 text-xs font-black uppercase tracking-widest text-slate-500">
-          供应类型
-          <select
-            value={supplyFilter}
-            onChange={(event) => setSupplyFilter(event.target.value)}
-            className="rounded-xl border border-white/10 bg-[#0c1322] px-4 py-3 text-sm font-bold normal-case tracking-normal text-white outline-none transition focus:border-[#22b8aa]"
-          >
-            <option value="all">全部</option>
-            <option value="in-stock">现车</option>
-            <option value="preorder">可订车</option>
-            <option value="no-stock">暂无库存</option>
-          </select>
-        </label>
+    <div className="grid min-w-0 gap-6">
+      <div className="rounded-2xl border border-[#22b8aa]/25 bg-[#22b8aa]/10 p-5 text-[#5ee6d8]">
+        <div className="flex flex-wrap items-center gap-3">
+          <span className="rounded-md bg-[#22b8aa] px-2 py-0.5 text-xs font-black uppercase text-black">Live</span>
+          <h2 className="text-lg font-black tracking-tight text-white">已审核车源</h2>
+        </div>
+        <p className="mt-2 text-xs text-[#b8fff7]/80">
+          链接 Feishu Base `tblte61W3fKoXmSw`。仅展示 `审核状态` 已勾选的记录，单击条目查看详情。
+        </p>
+      </div>
+
+      {loadError ? (
+        <p className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm font-bold text-red-300">{loadError}</p>
+      ) : null}
+
+      <section className="grid gap-4 md:grid-cols-3">
+        <div className="rounded-xl border border-white/10 bg-white/[.04] p-4">
+          <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">已审核车源</span>
+          <strong className="mt-2 block text-2xl font-black text-white">{records.length}</strong>
+          <span className="mt-1 block text-xs text-slate-400">审核通过的记录</span>
+        </div>
+        <div className="rounded-xl border border-white/10 bg-white/[.04] p-4">
+          <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">覆盖品牌</span>
+          <strong className="mt-2 block text-2xl font-black text-[#22b8aa]">{uniqueBrands}</strong>
+          <span className="mt-1 block text-xs text-slate-400">去重品牌数</span>
+        </div>
+        <div className="rounded-xl border border-white/10 bg-white/[.04] p-4">
+          <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">车型组合</span>
+          <strong className="mt-2 block text-2xl font-black text-[#22b8aa]">{uniqueModels}</strong>
+          <span className="mt-1 block text-xs text-slate-400">品牌·型号组合数</span>
+        </div>
       </section>
 
-      {sellableModels.length === 0 && <AdminPanel title="车辆资源" subtitle="按车型管理车源"><Empty text="暂无车辆资源" /></AdminPanel>}
-      {sellableModels.length > 0 && visibleModels.length === 0 && <AdminPanel title="搜索结果" subtitle="没有匹配的车型或车源"><Empty text="没有找到匹配车源" /></AdminPanel>}
-      {visibleModels.map((item) => {
-        const rawVehicles = item.rawVehicles;
-        const isExpanded = expandedModels.has(item.key);
-
-        return (
-          <section key={item.key} className="min-w-0 overflow-hidden rounded-xl border border-white/10 bg-white/[.045] p-4 shadow-2xl shadow-black/10 sm:p-5">
-            <header className="grid gap-3 border-b border-white/10 pb-3 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-center">
-              <div className="min-w-0">
-                <p className="text-[10px] font-black uppercase tracking-[.24em] text-[#22b8aa]">可售车型 / 车源分组</p>
-                <div className="mt-2 flex min-w-0 flex-wrap items-center gap-2">
-                  <h2 className="break-words text-2xl font-black text-white">{item.brand} {item.model} {formatModelYear(item.year)}</h2>
-                  <AdminSummaryChip label="级别" value={item.segment || "EV"} />
-                  <AdminSummaryChip label="供应" value={formatSupplySummary(item)} />
-                </div>
-              </div>
-              <div className="flex min-w-0 flex-wrap items-center gap-2 xl:justify-end">
-                <AdminSummaryChip label="FOB" value={item.fobPriceRange.replace(/^FOB\s*/i, "")} tone="accent" />
-                <AdminSummaryChip label="现车" value={`${item.stockQuantity} 台`} />
-                <AdminSummaryChip label="明细" value={`${item.offers.length} 条`} />
-                <button
-                  type="button"
-                  onClick={() => toggleModel(item.key)}
-                  className="inline-flex h-9 items-center gap-2 rounded-lg border border-white/10 bg-white/[.035] px-3 text-[10px] font-black uppercase tracking-widest text-slate-300 transition hover:border-[#22b8aa]/40 hover:bg-[#22b8aa]/10"
-                  aria-expanded={isExpanded}
-                >
-                  {isExpanded ? "收起" : "展开"}
-                  <span className="text-xs text-[#5ee6d8]" aria-hidden="true">{isExpanded ? "▲" : "▼"}</span>
-                </button>
-              </div>
-            </header>
-
-            {isExpanded && (
-            <div className="mt-4 grid gap-5">
-              <div>
-                <div className="mb-3 flex items-center justify-between gap-3">
-                  <h3 className="text-sm font-black text-white">车源明细</h3>
-                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">客户可见合并结果</span>
-                </div>
-                <AdminTable
-                  headers={["年款", "版本/配置", "外部颜色", "数量", "供应", "周期/地点", "FOB"]}
-                  rows={item.offers.map((offer) => [
-                    offer.year || "-",
-                    compactJoin([offer.trim, offer.configuration]),
-                    formatColorPair(offer.exteriorColor, offer.interiorColor),
-                    `${offer.quantity} 台`,
-                    <AdminStatusBadge key="supply" status={offer.supplyType} />,
-                    compactJoin([offer.leadTime || (offer.supplyType === "In Stock" ? "现车" : ""), offer.location]),
-                    offer.price ? `FOB ${formatUsdStrict(offer.price)}` : offer.priceLabel,
-                  ])}
-                  emptyText="暂无车源明细"
-                />
-              </div>
-
-              <div>
-                <div className="mb-3 flex items-center justify-between gap-3">
-                  <h3 className="text-sm font-black text-white">原始批次</h3>
-                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">内部供应商和编辑入口</span>
-                </div>
-                <AdminTable
-                  headers={["资源 ID", "车型版本", "外部颜色", "内部颜色", "供应商/录入人", "地点", "库存/供应", "FOB/成本", "操作"]}
-                  rows={rawVehicles.map((vehicle) => [
-                    <span key="id" className="font-mono text-xs text-[#22b8aa]">{vehicle.id}</span>,
-                    vehicleName(vehicle),
-                    formatColorPair(vehicle.exteriorColor || vehicle.color, vehicle.interiorColor),
-                    compactJoin([vehicle.supplierExteriorColor, vehicle.supplierInteriorColor, vehicle.colorCode]),
-                    compactJoin([vehicle.supplier, vehicle.recorder]),
-                    vehicle.location || "-",
-                    compactJoin([`${vehicle.stockQuantity} 台`, getSupplyType(vehicle), vehicle.status === "Preorder" ? vehicle.leadTime || "周期待确认" : vehicle.leadTime]),
-                    compactJoin([vehicle.partnerPrice ? `FOB ${formatUsdStrict(vehicle.partnerPrice)}` : formatUsd(vehicle.price), vehicle.cost ? `成本 ${formatUsdStrict(vehicle.cost)}` : ""]),
-                    <button
-                      key="edit"
-                      type="button"
-                      onClick={() => onEdit(vehicle)}
-                      className="min-w-[64px] rounded-lg border border-[#22b8aa]/40 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-[#5ee6d8] transition hover:border-[#22b8aa] hover:bg-[#22b8aa]/10"
-                    >
-                      编辑
-                    </button>,
-                  ])}
-                  emptyText="暂无原始批次"
-                />
-              </div>
+      <section className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_360px]">
+        <AdminPanel
+          title={
+            <div className="flex min-w-0 items-center justify-between gap-3">
+              <span className="truncate">车源列表</span>
+              <button
+                type="button"
+                onClick={() => void reloadSourceImports()}
+                disabled={loading}
+                title="刷新"
+                className="grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-white/10 text-slate-400 transition hover:border-[#22b8aa]/40 hover:text-[#5ee6d8] disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <svg className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M21 12a9 9 0 0 1-15.5 6.2" />
+                  <path d="M3 12A9 9 0 0 1 18.5 5.8" />
+                  <path d="M18 2v4h4" />
+                  <path d="M6 22v-4H2" />
+                </svg>
+              </button>
             </div>
+          }
+          subtitle={loading ? "正在读取飞书记录" : `共 ${records.length} 条，显示前 ${visibleRecords.length} 条`}
+        >
+          <div className="grid max-h-[680px] gap-2 overflow-auto pr-1">
+            {loading ? (
+              <Empty text="正在读取已审核车源" />
+            ) : visibleRecords.length ? (
+              visibleRecords.map((record) => (
+                <button
+                  key={record.id}
+                  type="button"
+                  onClick={() => setSelectedRecord(record)}
+                  className="grid w-full gap-3 rounded-xl border border-white/10 bg-white/[.035] p-4 text-left transition hover:border-[#22b8aa]/40 hover:bg-[#22b8aa]/[.06] lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)_140px]"
+                >
+                  <div className="min-w-0">
+                    <div className="truncate text-sm font-black text-white">{compactJoin([record.brand, record.model]) || "-"}</div>
+                    <div className="mt-1 truncate text-xs text-slate-400">{record.variant || "-"}</div>
+                    <div className="mt-2 font-mono text-[10px] text-slate-600">{record.id}</div>
+                  </div>
+                  <div className="min-w-0 text-xs text-slate-300">
+                    <div className="truncate">{compactJoin([record.exteriorColor, record.interiorColor]) || "颜色 -"}</div>
+                    <div className="mt-1 truncate text-slate-500">{compactJoin([record.supplier, record.wholesaleLocation]) || "供应商 -"}</div>
+                    <div className="mt-1 truncate font-mono text-[10px] text-slate-500">{compactJoin([record.modelId, record.variantId]) || "关联 -"}</div>
+                  </div>
+                  <div className="flex items-center justify-between gap-3 lg:grid lg:justify-items-end">
+                    <div className="text-right">
+                      <div className="text-xs font-black text-[#5ee6d8]">{sourceImportPrice(record)}</div>
+                      <div className="mt-1 text-[10px] text-slate-500">{record.sourcePath ? "有素材路径" : "素材路径 -"}</div>
+                    </div>
+                    <AdminStatusBadge status="已接入网站" />
+                  </div>
+                </button>
+              ))
+            ) : (
+              <Empty text="暂无已审核车源" />
             )}
-          </section>
-        );
-      })}
+          </div>
+        </AdminPanel>
+
+        <AdminPanel title="统计摘要" subtitle="当前视图指标">
+          <div className="grid gap-3 text-xs">
+            <ReviewCue tone="teal" label="已审核总数" value={`${records.length} 条`} />
+            <ReviewCue tone="amber" label="唯一品牌" value={`${uniqueBrands}`} />
+            <ReviewCue tone="slate" label="车型组合" value={`${uniqueModels}`} />
+          </div>
+        </AdminPanel>
+      </section>
+
+      {selectedRecord ? (
+        <SourceImportDetailModal
+          record={selectedRecord}
+          fields={fields}
+          onClose={() => setSelectedRecord(null)}
+          onSaved={(updated) => {
+            setRecords((current) => current.map((record) => (record.id === updated.id ? updated : record)));
+            setSelectedRecord(updated);
+          }}
+          readOnly
+        />
+      ) : null}
     </div>
   );
 }
@@ -2455,11 +3021,11 @@ function VehicleEditModal({ vehicle, onClose, onSaved }: { vehicle: Vehicle; onC
   );
 }
 
-function AdminPanel({ title, subtitle, children }: { title: string; subtitle: string; children: ReactNode }) {
+function AdminPanel({ title, subtitle, children }: { title: ReactNode; subtitle: string; children: ReactNode }) {
   return (
     <section className="min-w-0 overflow-hidden rounded-xl border border-white/10 bg-white/[.045] p-4 shadow-2xl shadow-black/10 sm:p-5">
       <div className="mb-4">
-        <h2 className="text-lg font-black text-white">{title}</h2>
+        {typeof title === "string" ? <h2 className="text-lg font-black text-white">{title}</h2> : title}
         <p className="mt-1 text-xs leading-5 text-slate-500">{subtitle}</p>
       </div>
       {children}
@@ -2679,15 +3245,17 @@ function buildModelProfileGroups(data: BootstrapData): ModelProfileGroup[] {
   }
 
   const activeModels = (data.vehicleModels || []).filter((model) => !/archived/i.test(model.status));
-  const models = activeModels.length ? activeModels : data.vehicleModels || [];
+  const models = (activeModels.length ? activeModels : data.vehicleModels || []).filter((model) => safeText(model.brand) && safeText(model.model));
   const grouped = new Map<string, ModelProfileGroup>();
   for (const model of models) {
-    const key = normalizeKey(model.brand, model.model);
+    const brand = safeText(model.brand);
+    const modelName = safeText(model.model);
+    const key = normalizeKey(brand, modelName);
     if (!grouped.has(key)) {
       grouped.set(key, {
         key,
-        brand: model.brand,
-        model: model.model,
+        brand,
+        model: modelName,
         years: [],
         variants: [],
         specsByModel,
@@ -2699,7 +3267,8 @@ function buildModelProfileGroups(data: BootstrapData): ModelProfileGroup[] {
       });
     }
     const group = grouped.get(key)!;
-    group.variants.push(model);
+    const variants = model.trimVariants?.length ? model.trimVariants : [model];
+    group.variants.push(...variants);
     if (model.year && !group.years.includes(model.year)) group.years.push(model.year);
   }
 
@@ -2715,7 +3284,7 @@ function buildModelProfileGroups(data: BootstrapData): ModelProfileGroup[] {
     group.segment = getModelSpecValue(group.specsByModel, first?.id || "", ["车身级别"]) || first?.bodyType || "";
     group.energyType = getModelSpecValue(group.specsByModel, first?.id || "", ["能源类型"]) || first?.fuelType || "";
     group.marketPosition = getModelSpecValue(group.specsByModel, first?.id || "", ["市场定位"]) || first?.marketPosition || "";
-    group.rangeSummary = summarizeGroupSpec(group, ["CLTC续航"]);
+    group.rangeSummary = summarizeGroupSpec(group, ["CLTC续航", "CLTC Range"]) || first?.range || "";
     group.guidePriceSummary = summarizeGuidePriceGroup(group);
   }
   return groups.sort((a, b) => `${a.brand} ${a.model}`.localeCompare(`${b.brand} ${b.model}`));
@@ -2757,7 +3326,7 @@ function summarizeGroupSpec(group: ModelProfileGroup, names: string[]) {
 
 function summarizeGuidePriceGroup(group: ModelProfileGroup) {
   const values = group.variants
-    .map((variant) => getModelSpecValue(group.specsByModel, variant.id, ["中国官方指导价"]))
+    .map((variant) => getModelSpecValue(group.specsByModel, variant.id, ["中国官方指导价", "Guide Price"]) || variant.msrpChina)
     .filter(Boolean);
   const numbers = values
     .map((value) => Number(String(value).match(/[\d,.]+/)?.[0]?.replace(/,/g, "")))
@@ -2765,6 +3334,9 @@ function summarizeGuidePriceGroup(group: ModelProfileGroup) {
   if (numbers.length === 0) return "";
   const min = Math.min(...numbers);
   const max = Math.max(...numbers);
+  if (values.some((value) => String(value).includes("$"))) {
+    return min === max ? formatUsdStrict(min) : `${formatUsdStrict(min)} - ${formatUsdStrict(max)}`;
+  }
   return min === max ? formatCnyCompact(min) : `${formatCnyCompact(min)}-${formatCnyCompact(max)}`;
 }
 

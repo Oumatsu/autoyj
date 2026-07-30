@@ -1,0 +1,1776 @@
+[
+  {
+    "model_id": "MDL-075",
+    "skipped": "default_already_exists",
+    "trim_config_id": "MDL-075-DEFAULT"
+  },
+  {
+    "model_id": "MDL-069",
+    "model_record_id": "recvqDh6saN8xF",
+    "created_record_id": "recvqRTSWtc730",
+    "payload": {
+      "variant": "Default reference version",
+      "trim_config_id": "MDL-069-DEFAULT",
+      "model_id": "MDL-069",
+      "trim_order": 1,
+      "recommended": false,
+      "source_url": "https://www.autohome.com.cn/config/series/6354.html#pvareaid=3454437",
+      "source_status": "Needs Source",
+      "last_verified_at": "2026-07-30 00:00:00",
+      "notes": "Model-level reference placeholder only; not a full trim list.",
+      "vehicle_model_pruned": [
+        {
+          "id": "recvqDh6saN8xF"
+        }
+      ]
+    },
+    "create": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "created": true,
+        "record": {
+          "record_id_list": [
+            "recvqRTSWtc730"
+          ]
+        }
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "recordIdWrite": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "record_id": "recvqRTSWtc730"
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    }
+  },
+  {
+    "model_id": "MDL-072",
+    "model_record_id": "recvqDh6samlep",
+    "created_record_id": "recvqRTTLpiqyb",
+    "payload": {
+      "variant": "Default reference version",
+      "trim_config_id": "MDL-072-DEFAULT",
+      "model_id": "MDL-072",
+      "trim_order": 1,
+      "recommended": false,
+      "source_url": "https://www.byd.com/zh-hk/car/atto3",
+      "source_status": "Needs Source",
+      "last_verified_at": "2026-07-30 00:00:00",
+      "notes": "Model-level reference placeholder only; not a full trim list.",
+      "vehicle_model_pruned": [
+        {
+          "id": "recvqDh6samlep"
+        }
+      ]
+    },
+    "create": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "created": true,
+        "record": {
+          "record_id_list": [
+            "recvqRTTLpiqyb"
+          ]
+        }
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "recordIdWrite": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "record_id": "recvqRTTLpiqyb"
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    }
+  },
+  {
+    "model_id": "MDL-073",
+    "model_record_id": "recvqDh6saBVYB",
+    "created_record_id": "recvqRTUCSJttc",
+    "payload": {
+      "variant": "Default reference version",
+      "trim_config_id": "MDL-073-DEFAULT",
+      "model_id": "MDL-073",
+      "trim_order": 1,
+      "recommended": false,
+      "source_url": "https://www.autohome.com.cn/config/series/8189.html#pvareaid=3454437",
+      "source_status": "Needs Source",
+      "last_verified_at": "2026-07-30 00:00:00",
+      "notes": "Model-level reference placeholder only; not a full trim list.",
+      "vehicle_model_pruned": [
+        {
+          "id": "recvqDh6saBVYB"
+        }
+      ]
+    },
+    "create": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "created": true,
+        "record": {
+          "record_id_list": [
+            "recvqRTUCSJttc"
+          ]
+        }
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "recordIdWrite": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "record_id": "recvqRTUCSJttc"
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    }
+  },
+  {
+    "model_id": "MDL-076",
+    "model_record_id": "recvqDh6saovmK",
+    "created_record_id": "recvqRTVo0LDpy",
+    "payload": {
+      "variant": "Default reference version",
+      "trim_config_id": "MDL-076-DEFAULT",
+      "model_id": "MDL-076",
+      "trim_order": 1,
+      "recommended": false,
+      "source_url": "https://www.autohome.com.cn/config/series/5498.html#pvareaid=3454437",
+      "source_status": "Needs Source",
+      "last_verified_at": "2026-07-30 00:00:00",
+      "notes": "Model-level reference placeholder only; not a full trim list.",
+      "vehicle_model_pruned": [
+        {
+          "id": "recvqDh6saovmK"
+        }
+      ]
+    },
+    "create": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "created": true,
+        "record": {
+          "record_id_list": [
+            "recvqRTVo0LDpy"
+          ]
+        }
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "recordIdWrite": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "record_id": "recvqRTVo0LDpy"
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    }
+  },
+  {
+    "model_id": "MDL-077",
+    "model_record_id": "recvqDh6sahmcr",
+    "created_record_id": "recvqRTWa3gWtZ",
+    "payload": {
+      "variant": "Default reference version",
+      "trim_config_id": "MDL-077-DEFAULT",
+      "model_id": "MDL-077",
+      "trim_order": 1,
+      "recommended": false,
+      "source_url": "https://www.autohome.com.cn/config/series/5179.html#pvareaid=3454437",
+      "source_status": "Needs Source",
+      "last_verified_at": "2026-07-30 00:00:00",
+      "notes": "Model-level reference placeholder only; not a full trim list.",
+      "vehicle_model_pruned": [
+        {
+          "id": "recvqDh6sahmcr"
+        }
+      ]
+    },
+    "create": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "created": true,
+        "record": {
+          "record_id_list": [
+            "recvqRTWa3gWtZ"
+          ]
+        }
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "recordIdWrite": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "record_id": "recvqRTWa3gWtZ"
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    }
+  },
+  {
+    "model_id": "MDL-079",
+    "model_record_id": "recvqDh6sajFhf",
+    "created_record_id": "recvqRTWV5QSnw",
+    "payload": {
+      "variant": "Default reference version",
+      "trim_config_id": "MDL-079-DEFAULT",
+      "model_id": "MDL-079",
+      "trim_order": 1,
+      "recommended": false,
+      "source_url": "https://www.autohome.com.cn/config/series/6353.html#pvareaid=3454437",
+      "source_status": "Needs Source",
+      "last_verified_at": "2026-07-30 00:00:00",
+      "notes": "Model-level reference placeholder only; not a full trim list.",
+      "vehicle_model_pruned": [
+        {
+          "id": "recvqDh6sajFhf"
+        }
+      ]
+    },
+    "create": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "created": true,
+        "record": {
+          "record_id_list": [
+            "recvqRTWV5QSnw"
+          ]
+        }
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "recordIdWrite": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "record_id": "recvqRTWV5QSnw"
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    }
+  },
+  {
+    "model_id": "MDL-080",
+    "model_record_id": "recvqDh6saAcHv",
+    "created_record_id": "recvqRTXKHSDNS",
+    "payload": {
+      "variant": "Default reference version",
+      "trim_config_id": "MDL-080-DEFAULT",
+      "model_id": "MDL-080",
+      "trim_order": 1,
+      "recommended": false,
+      "source_url": "https://www.autohome.com.cn/config/series/2429.html#pvareaid=3454437",
+      "source_status": "Needs Source",
+      "last_verified_at": "2026-07-30 00:00:00",
+      "notes": "Model-level reference placeholder only; not a full trim list.",
+      "vehicle_model_pruned": [
+        {
+          "id": "recvqDh6saAcHv"
+        }
+      ]
+    },
+    "create": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "created": true,
+        "record": {
+          "record_id_list": [
+            "recvqRTXKHSDNS"
+          ]
+        }
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "recordIdWrite": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "record_id": "recvqRTXKHSDNS"
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    }
+  },
+  {
+    "model_id": "MDL-084",
+    "model_record_id": "recvqDh6saoCjO",
+    "created_record_id": "recvqRTYups1TQ",
+    "payload": {
+      "variant": "Default reference version",
+      "trim_config_id": "MDL-084-DEFAULT",
+      "model_id": "MDL-084",
+      "trim_order": 1,
+      "recommended": false,
+      "source_url": "https://www.autohome.com.cn/config/series/8158.html#pvareaid=3454437",
+      "source_status": "Needs Source",
+      "last_verified_at": "2026-07-30 00:00:00",
+      "notes": "Model-level reference placeholder only; not a full trim list.",
+      "vehicle_model_pruned": [
+        {
+          "id": "recvqDh6saoCjO"
+        }
+      ]
+    },
+    "create": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "created": true,
+        "record": {
+          "record_id_list": [
+            "recvqRTYups1TQ"
+          ]
+        }
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "recordIdWrite": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "record_id": "recvqRTYups1TQ"
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    }
+  },
+  {
+    "model_id": "MDL-085",
+    "model_record_id": "recvqDh6samxZc",
+    "created_record_id": "recvqRTZftl5Uq",
+    "payload": {
+      "variant": "Default reference version",
+      "trim_config_id": "MDL-085-DEFAULT",
+      "model_id": "MDL-085",
+      "trim_order": 1,
+      "recommended": false,
+      "source_url": "https://www.autohome.com.cn/config/series/7167.html#pvareaid=3454437",
+      "source_status": "Needs Source",
+      "last_verified_at": "2026-07-30 00:00:00",
+      "notes": "Model-level reference placeholder only; not a full trim list.",
+      "vehicle_model_pruned": [
+        {
+          "id": "recvqDh6samxZc"
+        }
+      ]
+    },
+    "create": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "created": true,
+        "record": {
+          "record_id_list": [
+            "recvqRTZftl5Uq"
+          ]
+        }
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "recordIdWrite": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "record_id": "recvqRTZftl5Uq"
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    }
+  },
+  {
+    "model_id": "MDL-086",
+    "model_record_id": "recvqDh6saFAyd",
+    "created_record_id": "recvqRTZZ9snv7",
+    "payload": {
+      "variant": "Default reference version",
+      "trim_config_id": "MDL-086-DEFAULT",
+      "model_id": "MDL-086",
+      "trim_order": 1,
+      "recommended": false,
+      "source_url": "https://www.autohome.com.cn/config/series/6978.html#pvareaid=3454437",
+      "source_status": "Needs Source",
+      "last_verified_at": "2026-07-30 00:00:00",
+      "notes": "Model-level reference placeholder only; not a full trim list.",
+      "vehicle_model_pruned": [
+        {
+          "id": "recvqDh6saFAyd"
+        }
+      ]
+    },
+    "create": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "created": true,
+        "record": {
+          "record_id_list": [
+            "recvqRTZZ9snv7"
+          ]
+        }
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "recordIdWrite": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "record_id": "recvqRTZZ9snv7"
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    }
+  },
+  {
+    "model_id": "MDL-087",
+    "model_record_id": "recvqDh6saRn5V",
+    "created_record_id": "recvqRU0Hl14JG",
+    "payload": {
+      "variant": "Default reference version",
+      "trim_config_id": "MDL-087-DEFAULT",
+      "model_id": "MDL-087",
+      "trim_order": 1,
+      "recommended": false,
+      "source_url": "https://www.autohome.com.cn/config/series/7781.html#pvareaid=3454437",
+      "source_status": "Needs Source",
+      "last_verified_at": "2026-07-30 00:00:00",
+      "notes": "Model-level reference placeholder only; not a full trim list.",
+      "vehicle_model_pruned": [
+        {
+          "id": "recvqDh6saRn5V"
+        }
+      ]
+    },
+    "create": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "created": true,
+        "record": {
+          "record_id_list": [
+            "recvqRU0Hl14JG"
+          ]
+        }
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "recordIdWrite": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "record_id": "recvqRU0Hl14JG"
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    }
+  },
+  {
+    "model_id": "MDL-089",
+    "model_record_id": "recvqDh6saGXFv",
+    "created_record_id": "recvqRU1pzCMy9",
+    "payload": {
+      "variant": "Default reference version",
+      "trim_config_id": "MDL-089-DEFAULT",
+      "model_id": "MDL-089",
+      "trim_order": 1,
+      "recommended": false,
+      "source_url": "https://www.autohome.com.cn/config/series/8283.html#pvareaid=3454437",
+      "source_status": "Needs Source",
+      "last_verified_at": "2026-07-30 00:00:00",
+      "notes": "Model-level reference placeholder only; not a full trim list.",
+      "vehicle_model_pruned": [
+        {
+          "id": "recvqDh6saGXFv"
+        }
+      ]
+    },
+    "create": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "created": true,
+        "record": {
+          "record_id_list": [
+            "recvqRU1pzCMy9"
+          ]
+        }
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "recordIdWrite": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "record_id": "recvqRU1pzCMy9"
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    }
+  },
+  {
+    "model_id": "MDL-093",
+    "model_record_id": "recvqDh6saeSyW",
+    "created_record_id": "recvqRU27e8rXG",
+    "payload": {
+      "variant": "Default reference version",
+      "trim_config_id": "MDL-093-DEFAULT",
+      "model_id": "MDL-093",
+      "trim_order": 1,
+      "recommended": false,
+      "source_url": "https://www.autohome.com.cn/config/series/8140.html#pvareaid=3454437",
+      "source_status": "Needs Source",
+      "last_verified_at": "2026-07-30 00:00:00",
+      "notes": "Model-level reference placeholder only; not a full trim list.",
+      "vehicle_model_pruned": [
+        {
+          "id": "recvqDh6saeSyW"
+        }
+      ]
+    },
+    "create": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "created": true,
+        "record": {
+          "record_id_list": [
+            "recvqRU27e8rXG"
+          ]
+        }
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "recordIdWrite": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "record_id": "recvqRU27e8rXG"
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    }
+  },
+  {
+    "model_id": "MDL-094",
+    "model_record_id": "recvqDh6sarkfS",
+    "created_record_id": "recvqRU2OpfwMi",
+    "payload": {
+      "variant": "Default reference version",
+      "trim_config_id": "MDL-094-DEFAULT",
+      "model_id": "MDL-094",
+      "trim_order": 1,
+      "recommended": false,
+      "source_url": "https://www.autohome.com.cn/config/series/7209.html#pvareaid=3454437",
+      "source_status": "Needs Source",
+      "last_verified_at": "2026-07-30 00:00:00",
+      "notes": "Model-level reference placeholder only; not a full trim list.",
+      "vehicle_model_pruned": [
+        {
+          "id": "recvqDh6sarkfS"
+        }
+      ]
+    },
+    "create": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "created": true,
+        "record": {
+          "record_id_list": [
+            "recvqRU2OpfwMi"
+          ]
+        }
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "recordIdWrite": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "record_id": "recvqRU2OpfwMi"
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    }
+  },
+  {
+    "model_id": "MDL-095",
+    "model_record_id": "recvqDh6saGaYb",
+    "created_record_id": "recvqRU3w9PSBm",
+    "payload": {
+      "variant": "Default reference version",
+      "trim_config_id": "MDL-095-DEFAULT",
+      "model_id": "MDL-095",
+      "trim_order": 1,
+      "recommended": false,
+      "source_url": "https://www.autohome.com.cn/config/series/8241.html#pvareaid=3454437",
+      "source_status": "Needs Source",
+      "last_verified_at": "2026-07-30 00:00:00",
+      "notes": "Model-level reference placeholder only; not a full trim list.",
+      "vehicle_model_pruned": [
+        {
+          "id": "recvqDh6saGaYb"
+        }
+      ]
+    },
+    "create": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "created": true,
+        "record": {
+          "record_id_list": [
+            "recvqRU3w9PSBm"
+          ]
+        }
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "recordIdWrite": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "record_id": "recvqRU3w9PSBm"
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    }
+  },
+  {
+    "model_id": "MDL-096",
+    "model_record_id": "recvqDh6saq6ch",
+    "created_record_id": "recvqRU4eB0iyg",
+    "payload": {
+      "variant": "Default reference version",
+      "trim_config_id": "MDL-096-DEFAULT",
+      "model_id": "MDL-096",
+      "trim_order": 1,
+      "recommended": false,
+      "source_url": "https://www.autohome.com.cn/config/series/7975.html#pvareaid=3454437",
+      "source_status": "Needs Source",
+      "last_verified_at": "2026-07-30 00:00:00",
+      "notes": "Model-level reference placeholder only; not a full trim list.",
+      "vehicle_model_pruned": [
+        {
+          "id": "recvqDh6saq6ch"
+        }
+      ]
+    },
+    "create": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "created": true,
+        "record": {
+          "record_id_list": [
+            "recvqRU4eB0iyg"
+          ]
+        }
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "recordIdWrite": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "record_id": "recvqRU4eB0iyg"
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    }
+  },
+  {
+    "model_id": "MDL-097",
+    "model_record_id": "recvqDh6saxxVs",
+    "created_record_id": "recvqRU4Vb6K2r",
+    "payload": {
+      "variant": "Default reference version",
+      "trim_config_id": "MDL-097-DEFAULT",
+      "model_id": "MDL-097",
+      "trim_order": 1,
+      "recommended": false,
+      "source_url": "https://www.autohome.com.cn/config/series/6924.html#pvareaid=3454437",
+      "source_status": "Needs Source",
+      "last_verified_at": "2026-07-30 00:00:00",
+      "notes": "Model-level reference placeholder only; not a full trim list.",
+      "vehicle_model_pruned": [
+        {
+          "id": "recvqDh6saxxVs"
+        }
+      ]
+    },
+    "create": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "created": true,
+        "record": {
+          "record_id_list": [
+            "recvqRU4Vb6K2r"
+          ]
+        }
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "recordIdWrite": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "record_id": "recvqRU4Vb6K2r"
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    }
+  },
+  {
+    "model_id": "MDL-098",
+    "model_record_id": "recvqDh6saXR5V",
+    "created_record_id": "recvqRU5GnmYWY",
+    "payload": {
+      "variant": "Default reference version",
+      "trim_config_id": "MDL-098-DEFAULT",
+      "model_id": "MDL-098",
+      "trim_order": 1,
+      "recommended": false,
+      "source_url": "https://www.autohome.com.cn/config/series/7578.html#pvareaid=3454437",
+      "source_status": "Needs Source",
+      "last_verified_at": "2026-07-30 00:00:00",
+      "notes": "Model-level reference placeholder only; not a full trim list.",
+      "vehicle_model_pruned": [
+        {
+          "id": "recvqDh6saXR5V"
+        }
+      ]
+    },
+    "create": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "created": true,
+        "record": {
+          "record_id_list": [
+            "recvqRU5GnmYWY"
+          ]
+        }
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "recordIdWrite": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "record_id": "recvqRU5GnmYWY"
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    }
+  },
+  {
+    "model_id": "MDL-099",
+    "model_record_id": "recvqDh6sarqum",
+    "created_record_id": "recvqRU6otHRK5",
+    "payload": {
+      "variant": "Default reference version",
+      "trim_config_id": "MDL-099-DEFAULT",
+      "model_id": "MDL-099",
+      "trim_order": 1,
+      "recommended": false,
+      "source_url": "https://www.autohome.com.cn/config/series/2451.html#pvareaid=3454437",
+      "source_status": "Needs Source",
+      "last_verified_at": "2026-07-30 00:00:00",
+      "notes": "Model-level reference placeholder only; not a full trim list.",
+      "vehicle_model_pruned": [
+        {
+          "id": "recvqDh6sarqum"
+        }
+      ]
+    },
+    "create": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "created": true,
+        "record": {
+          "record_id_list": [
+            "recvqRU6otHRK5"
+          ]
+        }
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "recordIdWrite": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "record_id": "recvqRU6otHRK5"
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    }
+  },
+  {
+    "model_id": "MDL-102",
+    "model_record_id": "recvqDh6saQ8tC",
+    "created_record_id": "recvqRU77w44jT",
+    "payload": {
+      "variant": "Default reference version",
+      "trim_config_id": "MDL-102-DEFAULT",
+      "model_id": "MDL-102",
+      "trim_order": 1,
+      "recommended": false,
+      "source_url": "https://www.autohome.com.cn/config/series/7815.html#pvareaid=3454437",
+      "source_status": "Needs Source",
+      "last_verified_at": "2026-07-30 00:00:00",
+      "notes": "Model-level reference placeholder only; not a full trim list.",
+      "vehicle_model_pruned": [
+        {
+          "id": "recvqDh6saQ8tC"
+        }
+      ]
+    },
+    "create": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "created": true,
+        "record": {
+          "record_id_list": [
+            "recvqRU77w44jT"
+          ]
+        }
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "recordIdWrite": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "record_id": "recvqRU77w44jT"
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    }
+  },
+  {
+    "model_id": "MDL-103",
+    "model_record_id": "recvqDh6sa2fue",
+    "created_record_id": "recvqRU7PT3x6V",
+    "payload": {
+      "variant": "Default reference version",
+      "trim_config_id": "MDL-103-DEFAULT",
+      "model_id": "MDL-103",
+      "trim_order": 1,
+      "recommended": false,
+      "source_url": "https://www.autohome.com.cn/config/series/8468.html#pvareaid=3454437",
+      "source_status": "Needs Source",
+      "last_verified_at": "2026-07-30 00:00:00",
+      "notes": "Model-level reference placeholder only; not a full trim list.",
+      "vehicle_model_pruned": [
+        {
+          "id": "recvqDh6sa2fue"
+        }
+      ]
+    },
+    "create": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "created": true,
+        "record": {
+          "record_id_list": [
+            "recvqRU7PT3x6V"
+          ]
+        }
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "recordIdWrite": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "record_id": "recvqRU7PT3x6V"
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    }
+  },
+  {
+    "model_id": "MDL-106",
+    "model_record_id": "recvqDh6saayBx",
+    "created_record_id": "recvqRU8CE2Vyr",
+    "payload": {
+      "variant": "Default reference version",
+      "trim_config_id": "MDL-106-DEFAULT",
+      "model_id": "MDL-106",
+      "trim_order": 1,
+      "recommended": false,
+      "source_url": "https://www.autohome.com.cn/config/series/8211.html#pvareaid=3454437",
+      "source_status": "Needs Source",
+      "last_verified_at": "2026-07-30 00:00:00",
+      "notes": "Model-level reference placeholder only; not a full trim list.",
+      "vehicle_model_pruned": [
+        {
+          "id": "recvqDh6saayBx"
+        }
+      ]
+    },
+    "create": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "created": true,
+        "record": {
+          "record_id_list": [
+            "recvqRU8CE2Vyr"
+          ]
+        }
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "recordIdWrite": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "record_id": "recvqRU8CE2Vyr"
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    }
+  },
+  {
+    "model_id": "MDL-109",
+    "model_record_id": "recvqDh6sbc9WX",
+    "created_record_id": "recvqRU9q536cs",
+    "payload": {
+      "variant": "Default reference version",
+      "trim_config_id": "MDL-109-DEFAULT",
+      "model_id": "MDL-109",
+      "trim_order": 1,
+      "recommended": false,
+      "source_url": "https://www.autohome.com.cn/config/series/6335.html#pvareaid=3454437",
+      "source_status": "Needs Source",
+      "last_verified_at": "2026-07-30 00:00:00",
+      "notes": "Model-level reference placeholder only; not a full trim list.",
+      "vehicle_model_pruned": [
+        {
+          "id": "recvqDh6sbc9WX"
+        }
+      ]
+    },
+    "create": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "created": true,
+        "record": {
+          "record_id_list": [
+            "recvqRU9q536cs"
+          ]
+        }
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "recordIdWrite": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "record_id": "recvqRU9q536cs"
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    }
+  },
+  {
+    "model_id": "MDL-112",
+    "model_record_id": "recvqDh6sbGzWi",
+    "created_record_id": "recvqRUa8AHKJz",
+    "payload": {
+      "variant": "Default reference version",
+      "trim_config_id": "MDL-112-DEFAULT",
+      "model_id": "MDL-112",
+      "trim_order": 1,
+      "recommended": false,
+      "source_url": "https://www.autohome.com.cn/config/series/7897.html#pvareaid=3454437",
+      "source_status": "Needs Source",
+      "last_verified_at": "2026-07-30 00:00:00",
+      "notes": "Model-level reference placeholder only; not a full trim list.",
+      "vehicle_model_pruned": [
+        {
+          "id": "recvqDh6sbGzWi"
+        }
+      ]
+    },
+    "create": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "created": true,
+        "record": {
+          "record_id_list": [
+            "recvqRUa8AHKJz"
+          ]
+        }
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "recordIdWrite": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "record_id": "recvqRUa8AHKJz"
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    }
+  },
+  {
+    "model_id": "MDL-113",
+    "model_record_id": "recvqDh6sbBG6H",
+    "created_record_id": "recvqRUaStxtjq",
+    "payload": {
+      "variant": "Default reference version",
+      "trim_config_id": "MDL-113-DEFAULT",
+      "model_id": "MDL-113",
+      "trim_order": 1,
+      "recommended": false,
+      "source_url": "https://www.autohome.com.cn/config/series/7552.html#pvareaid=3454437",
+      "source_status": "Needs Source",
+      "last_verified_at": "2026-07-30 00:00:00",
+      "notes": "Model-level reference placeholder only; not a full trim list.",
+      "vehicle_model_pruned": [
+        {
+          "id": "recvqDh6sbBG6H"
+        }
+      ]
+    },
+    "create": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "created": true,
+        "record": {
+          "record_id_list": [
+            "recvqRUaStxtjq"
+          ]
+        }
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "recordIdWrite": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "record_id": "recvqRUaStxtjq"
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    }
+  },
+  {
+    "model_id": "MDL-115",
+    "model_record_id": "recvqDh6sbK4Hw",
+    "created_record_id": "recvqRUbECR1nH",
+    "payload": {
+      "variant": "Default reference version",
+      "trim_config_id": "MDL-115-DEFAULT",
+      "model_id": "MDL-115",
+      "trim_order": 1,
+      "recommended": false,
+      "source_url": "https://www.autohome.com.cn/config/series/7231.html#pvareaid=3454437",
+      "source_status": "Needs Source",
+      "last_verified_at": "2026-07-30 00:00:00",
+      "notes": "Model-level reference placeholder only; not a full trim list.",
+      "vehicle_model_pruned": [
+        {
+          "id": "recvqDh6sbK4Hw"
+        }
+      ]
+    },
+    "create": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "created": true,
+        "record": {
+          "record_id_list": [
+            "recvqRUbECR1nH"
+          ]
+        }
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "recordIdWrite": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "record_id": "recvqRUbECR1nH"
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    }
+  },
+  {
+    "model_id": "MDL-116",
+    "model_record_id": "recvqDh6sbQst0",
+    "created_record_id": "recvqRUcor4ArC",
+    "payload": {
+      "variant": "Default reference version",
+      "trim_config_id": "MDL-116-DEFAULT",
+      "model_id": "MDL-116",
+      "trim_order": 1,
+      "recommended": false,
+      "source_url": "https://www.autohome.com.cn/config/series/6777.html#pvareaid=3454437",
+      "source_status": "Needs Source",
+      "last_verified_at": "2026-07-30 00:00:00",
+      "notes": "Model-level reference placeholder only; not a full trim list.",
+      "vehicle_model_pruned": [
+        {
+          "id": "recvqDh6sbQst0"
+        }
+      ]
+    },
+    "create": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "created": true,
+        "record": {
+          "record_id_list": [
+            "recvqRUcor4ArC"
+          ]
+        }
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "recordIdWrite": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "record_id": "recvqRUcor4ArC"
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    }
+  },
+  {
+    "model_id": "MDL-117",
+    "model_record_id": "recvqDh6sbw4dL",
+    "created_record_id": "recvqRUd9xOmVg",
+    "payload": {
+      "variant": "Default reference version",
+      "trim_config_id": "MDL-117-DEFAULT",
+      "model_id": "MDL-117",
+      "trim_order": 1,
+      "recommended": false,
+      "source_url": "https://www.autohome.com.cn/config/series/7563.html#pvareaid=3454437",
+      "source_status": "Needs Source",
+      "last_verified_at": "2026-07-30 00:00:00",
+      "notes": "Model-level reference placeholder only; not a full trim list.",
+      "vehicle_model_pruned": [
+        {
+          "id": "recvqDh6sbw4dL"
+        }
+      ]
+    },
+    "create": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "created": true,
+        "record": {
+          "record_id_list": [
+            "recvqRUd9xOmVg"
+          ]
+        }
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "recordIdWrite": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "record_id": "recvqRUd9xOmVg"
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    }
+  },
+  {
+    "model_id": "MDL-118",
+    "model_record_id": "recvqDh6sbSSbQ",
+    "created_record_id": "recvqRUe0ta9VX",
+    "payload": {
+      "variant": "Default reference version",
+      "trim_config_id": "MDL-118-DEFAULT",
+      "model_id": "MDL-118",
+      "trim_order": 1,
+      "recommended": false,
+      "source_url": "https://www.autohome.com.cn/config/series/7741.html#pvareaid=3454437",
+      "source_status": "Needs Source",
+      "last_verified_at": "2026-07-30 00:00:00",
+      "notes": "Model-level reference placeholder only; not a full trim list.",
+      "vehicle_model_pruned": [
+        {
+          "id": "recvqDh6sbSSbQ"
+        }
+      ]
+    },
+    "create": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "created": true,
+        "record": {
+          "record_id_list": [
+            "recvqRUe0ta9VX"
+          ]
+        }
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "recordIdWrite": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "record_id": "recvqRUe0ta9VX"
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    }
+  }
+]

@@ -1,0 +1,20 @@
+{
+  "trim_order": 1,
+  "trim_price_display": 35385,
+  "range_display": 230,
+  "battery_capacity_kwh": 31.7,
+  "battery_chemistry": "LFP",
+  "drivetrain_display": "Rear motor RWD",
+  "motor_power_kw": 231,
+  "dc_fast_charge_supported": true,
+  "dc_fast_charge_time_hours": 0.17,
+  "dc_fast_charge_min_percent": 30,
+  "dc_fast_charge_max_percent": 80,
+  "base_spec_summary_json": "[]",
+  "added_features_json": "[]",
+  "upgraded_features_json": "[]",
+  "recommended": false,
+  "source_url": "https://www.avatr.com/configuration?car=06",
+  "last_verified_at": "2026-07-30 00:00:00",
+  "source_status": "Verified"
+}

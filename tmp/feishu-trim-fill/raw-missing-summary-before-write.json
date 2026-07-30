@@ -1,0 +1,114 @@
+[
+  {
+    "field": "dc_fast_charge_min_percent",
+    "missing": 244
+  },
+  {
+    "field": "dc_fast_charge_time_hours",
+    "missing": 228
+  },
+  {
+    "field": "dc_fast_charge_max_percent",
+    "missing": 227
+  },
+  {
+    "field": "motor_torque_n_m",
+    "missing": 204
+  },
+  {
+    "field": "battery_capacity_kwh",
+    "missing": 195
+  },
+  {
+    "field": "range_display",
+    "missing": 194
+  },
+  {
+    "field": "trim_price_display",
+    "missing": 191
+  },
+  {
+    "field": "battery_chemistry",
+    "missing": 181
+  },
+  {
+    "field": "motor_power_kw",
+    "missing": 181
+  },
+  {
+    "field": "trim_order",
+    "missing": 180
+  },
+  {
+    "field": "drivetrain_display",
+    "missing": 180
+  },
+  {
+    "field": "dc_fast_charge_supported",
+    "missing": 180
+  },
+  {
+    "field": "base_spec_summary_json",
+    "missing": 180
+  },
+  {
+    "field": "added_features_json",
+    "missing": 180
+  },
+  {
+    "field": "upgraded_features_json",
+    "missing": 180
+  },
+  {
+    "field": "recommended",
+    "missing": 180
+  },
+  {
+    "field": "source_url",
+    "missing": 180
+  },
+  {
+    "field": "last_verified_at",
+    "missing": 180
+  },
+  {
+    "field": "record_id",
+    "missing": 0
+  },
+  {
+    "field": "trim_config_id",
+    "missing": 0
+  },
+  {
+    "field": "model_id",
+    "missing": 0
+  },
+  {
+    "field": "variant",
+    "missing": 0
+  },
+  {
+    "field": "source_status",
+    "missing": 0
+  },
+  {
+    "field": "notes",
+    "missing": 0
+  },
+  {
+    "field": "vehicle_model_pruned",
+    "missing": 0
+  },
+  {
+    "field": "i18n_locale",
+    "missing": 0
+  },
+  {
+    "field": "vehicle_models_copy",
+    "missing": 0
+  },
+  {
+    "field": "vehicle_models_ch",
+    "missing": 0
+  }
+]

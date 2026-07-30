@@ -1,0 +1,12 @@
+{
+  "vehicle_class": "Mid-size sedan",
+  "model_year": 2026,
+  "length_mm": 4885,
+  "width_mm": 1916,
+  "height_mm": 1496,
+  "wheelbase_mm": 2922,
+  "seats_min": 5,
+  "seats_max": 5,
+  "powertrain_type": "BEV",
+  "segment": "Mid-size sedan"
+}

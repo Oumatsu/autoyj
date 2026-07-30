@@ -1,0 +1,25 @@
+{
+  "trim_config_id": "MDL-107-DEFAULT",
+  "model_id": "MDL-107",
+  "variant": "Default 2026 Max Spec",
+  "trim_order": 1,
+  "trim_price_display": 44825,
+  "range_display": 835,
+  "battery_capacity_kwh": 101.7,
+  "battery_chemistry": "NCM",
+  "drivetrain_display": "Dual-motor AWD",
+  "dc_fast_charge_supported": true,
+  "source_url": "https://www.xiaomiev.com/car-config",
+  "base_spec_summary_json": "[]",
+  "added_features_json": "[]",
+  "upgraded_features_json": "[]",
+  "recommended": false,
+  "source_status": "Verified",
+  "last_verified_at": "2026-07-30 00:00:00",
+  "notes": "Default detailed version created to support model formula fields.",
+  "vehicle_model_pruned": [
+    {
+      "id": "recvqDh6saBVbX"
+    }
+  ]
+}

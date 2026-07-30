@@ -1,0 +1,22 @@
+{
+  "trim_order": 5,
+  "trim_price_display": 12656,
+  "range_display": 405,
+  "battery_capacity_kwh": 38.88,
+  "battery_chemistry": "LFP",
+  "motor_power_kw": 55,
+  "motor_torque_n_m": 135,
+  "drivetrain_display": "Front motor FWD",
+  "dc_fast_charge_supported": true,
+  "dc_fast_charge_time_hours": 0.5,
+  "dc_fast_charge_min_percent": 30,
+  "dc_fast_charge_max_percent": 80,
+  "base_spec_summary_json": "[]",
+  "added_features_json": "[]",
+  "upgraded_features_json": "[]",
+  "recommended": false,
+  "source_url": "https://www.byd.com.et/vehicles/byd/seagull/",
+  "last_verified_at": "2026-07-30 00:00:00",
+  "source_status": "Verified",
+  "notes": "Filled as BYD Seagull 405km/Fly high-spec placeholder from public spec sources."
+}

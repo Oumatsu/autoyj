@@ -12,6 +12,10 @@ type Env = {
   FEISHU_TABLE_INTERNAL_USERS?: string;
   FEISHU_TABLE_CUSTOMERS?: string;
   FEISHU_TABLE_VEHICLE_MODELS?: string;
+  FEISHU_VIEW_PROFILES?: string;
+  FEISHU_TABLE_SOURCE_IMPORTS?: string;
+  FEISHU_VIEW_SOURCE_IMPORTS?: string;
+  FEISHU_VIEW_SOURCE_IMPORTS_UNREVIEWED?: string;
   FEISHU_TABLE_INQUIRIES?: string;
   FEISHU_TABLE_QUOTES?: string;
   FEISHU_TABLE_NEGOTIATIONS?: string;
@@ -44,6 +48,24 @@ type BaseRecordListResponse = {
   has_more?: boolean;
   page_token?: string;
   total?: number;
+};
+
+type BaseRecordGetResponse = {
+  record?: FeishuRecord;
+};
+
+type BaseField = {
+  id: string;
+  name: string;
+  type: string;
+  reason?: string;
+  options?: string[];
+};
+
+type BaseFieldListResponse = {
+  items?: BaseField[];
+  has_more?: boolean;
+  page_token?: string;
 };
 
 type PortalSession = {
@@ -125,6 +147,7 @@ type PortalVehicleModel = {
   lastSyncedAt: string;
   fullSpecsJson: string;
   status: string;
+  trimVariants?: PortalVehicleModel[];
 };
 
 type PortalVehicleModelSpec = {
@@ -699,20 +722,21 @@ function delay(ms: number) {
 async function searchRecords(
   env: Env,
   tableId: string,
-  options: { filter?: Record<string, unknown>; sort?: unknown[]; pageSize?: number; maxPages?: number } = {},
+  options: { filter?: Record<string, unknown>; sort?: unknown[]; pageSize?: number; maxPages?: number; viewId?: string } = {},
 ) {
   const appToken = optionalEnv(env, "FEISHU_BASE_APP_TOKEN");
   if (!appToken) return [];
   const pageSize = Math.min(options.pageSize || 100, 500);
   const records: FeishuRecord[] = [];
   let pageToken = "";
-  const maxPages = Math.min(options.maxPages || 1, 3);
+  const maxPages = Math.min(options.maxPages || 1, 20);
 
   for (let page = 0; page < maxPages; page++) {
     const body: Record<string, unknown> = {
       page_size: pageSize,
     };
     if (pageToken) body.page_token = pageToken;
+    if (options.viewId) body.view_id = options.viewId;
     if (options.filter) body.filter = options.filter;
     if (options.sort) body.sort = options.sort;
 
@@ -731,6 +755,78 @@ async function searchRecords(
   return records;
 }
 
+async function listRecords(
+  env: Env,
+  tableId: string,
+  options: { pageSize?: number; maxPages?: number; viewId?: string } = {},
+) {
+  const appToken = optionalEnv(env, "FEISHU_BASE_APP_TOKEN");
+  if (!appToken) return [];
+  const pageSize = Math.min(options.pageSize || 100, 500);
+  const records: FeishuRecord[] = [];
+  let pageToken = "";
+  const maxPages = Math.min(options.maxPages || 1, 20);
+
+  for (let page = 0; page < maxPages; page++) {
+    const query = new URLSearchParams({ page_size: String(pageSize) });
+    if (pageToken) query.set("page_token", pageToken);
+    if (options.viewId) query.set("view_id", options.viewId);
+
+    const data = await feishuRequest<BaseRecordListResponse>(
+      env,
+      "GET",
+      `/open-apis/bitable/v1/apps/${appToken}/tables/${tableId}/records?${query.toString()}`,
+    );
+    const pageRecords = normalizeBaseRecords(data);
+    records.push(...pageRecords);
+    if (!data.has_more) break;
+    pageToken = data.page_token || "";
+    if (!pageToken) break;
+  }
+  return records;
+}
+
+async function getRecord(env: Env, tableId: string, recordId: string) {
+  const appToken = requireEnv(env, "FEISHU_BASE_APP_TOKEN");
+  const data = await feishuRequest<BaseRecordGetResponse>(
+    env,
+    "GET",
+    `/open-apis/bitable/v1/apps/${appToken}/tables/${tableId}/records/${recordId}`,
+  );
+  return data.record || null;
+}
+
+async function listFields(env: Env, tableId: string) {
+  const appToken = optionalEnv(env, "FEISHU_BASE_APP_TOKEN");
+  if (!appToken) return [];
+  const fields: BaseField[] = [];
+  let pageToken = "";
+
+  for (let page = 0; page < 5; page++) {
+    const query = new URLSearchParams({ page_size: "100" });
+    if (pageToken) query.set("page_token", pageToken);
+    const data = await feishuRequest<BaseFieldListResponse>(
+      env,
+      "GET",
+      `/open-apis/bitable/v1/apps/${appToken}/tables/${tableId}/fields?${query.toString()}`,
+    );
+    fields.push(...(data.items || []).map((field) => ({
+      id: asText((field as Record<string, unknown>).id || (field as Record<string, unknown>).field_id),
+      name: asText((field as Record<string, unknown>).name || (field as Record<string, unknown>).field_name),
+      type: asText((field as Record<string, unknown>).ui_type || (field as Record<string, unknown>).type),
+      reason: asText(field.reason),
+      options: Array.isArray((field as Record<string, any>).property?.options)
+        ? (field as Record<string, any>).property.options.map((option: Record<string, unknown>) => asText(option.name)).filter(Boolean)
+        : [],
+    })).filter((field) => field.id && field.name));
+    if (!data.has_more) break;
+    pageToken = data.page_token || "";
+    if (!pageToken) break;
+  }
+
+  return fields;
+}
+
 async function createRecord(env: Env, tableId: string, fields: Record<string, unknown>) {
   const appToken = requireEnv(env, "FEISHU_BASE_APP_TOKEN");
   const data = await feishuRequest<{ record?: FeishuRecord }>(
@@ -746,9 +842,9 @@ async function updateRecord(env: Env, tableId: string, recordId: string, fields:
   const appToken = requireEnv(env, "FEISHU_BASE_APP_TOKEN");
   await feishuRequest(
     env,
-    "PATCH",
+    "PUT",
     `/open-apis/bitable/v1/apps/${appToken}/tables/${tableId}/records/${recordId}`,
-    fields,
+    { fields },
   );
 }
 
@@ -936,6 +1032,68 @@ function mapVehicleModel(record: FeishuRecord): PortalVehicleModel {
   };
 }
 
+function mapTrimVariantModel(model: PortalVehicleModel, record: FeishuRecord): PortalVehicleModel {
+  const fields = record.fields;
+  const trimId = asText(fields.trim_config_id) || record.record_id;
+  const price = asOptionalNumber(fields.trim_price_display);
+  const range = asOptionalNumber(fields.range_display);
+  const batteryCapacity = asOptionalNumber(fields.battery_capacity_kwh);
+  const motorPower = asOptionalNumber(fields.motor_power_kw);
+  const motorTorque = asOptionalNumber(fields.motor_torque_n_m);
+  return {
+    ...model,
+    id: trimId,
+    trim: asText(fields.variant) || trimId,
+    msrpChina: price !== null ? formatUsd(price) : model.msrpChina,
+    battery: batteryCapacity !== null ? `${formatNumber(batteryCapacity, 3)} kWh` : model.battery,
+    batteryType: asText(fields.battery_chemistry) || model.batteryType,
+    range: range !== null ? `${formatNumber(range)} km` : model.range,
+    motorPower: motorPower !== null ? `${formatNumber(motorPower)} kW` : model.motorPower,
+    motorTorque: motorTorque !== null ? `${formatNumber(motorTorque)} N-m` : model.motorTorque,
+    driveType: asText(fields.drivetrain_display) || model.driveType,
+    charging: trimChargingDisplay(fields) || model.charging,
+    sourceUrl: cleanUrl(fields.source_url) || model.sourceUrl,
+    sourceName: asText(fields.source_status) || model.sourceName,
+    lastSyncedAt: asText(fields.last_verified_at) || model.lastSyncedAt,
+  };
+}
+
+function synthesizeSpecsFromTrimVariant(variant: PortalVehicleModel): PortalVehicleModelSpec[] {
+  const specs: PortalVehicleModelSpec[] = [];
+  const addSpec = (name: string, value: string, visibleLevel: string, sortOrder: number, category: string) => {
+    if (!value) return;
+    specs.push({
+      modelId: variant.id,
+      category,
+      name,
+      value,
+      unit: "",
+      visibleLevel,
+      sortOrder,
+      sourceName: variant.sourceName || "autoYJ",
+      sourceUrl: variant.sourceUrl || "",
+      confidence: "High",
+    });
+  };
+
+  addSpec("中国官方指导价", variant.msrpChina, "Core", 0, "基本参数");
+  addSpec("车身级别", variant.bodyType, "Core", 1, "基本参数");
+  addSpec("能源类型", variant.fuelType, "Core", 2, "基本参数");
+  addSpec("CLTC续航", variant.range, "Core", 3, "电池/充电");
+  addSpec("电池容量", variant.battery, "Core", 4, "电池/充电");
+  addSpec("电池类型", variant.batteryType, "Core", 5, "电池/充电");
+  addSpec("电机总功率", variant.motorPower, "Core", 6, "电动机");
+  addSpec("电机总扭矩", variant.motorTorque, "Core", 7, "电动机");
+  addSpec("驱动方式", variant.driveType, "Core", 8, "底盘转向");
+  addSpec("长宽高", variant.dimensions, "Core", 9, "车身");
+  addSpec("轴距", variant.wheelbase, "Core", 10, "车身");
+  addSpec("座位数", variant.seats, "Core", 11, "车身");
+  addSpec("后备厢容积", variant.trunkCapacity, "Core", 12, "车身");
+  addSpec("充电说明", variant.charging, "Core", 13, "电池/充电");
+  addSpec("市场定位", variant.marketPosition, "Core", 14, "基本参数");
+  return specs;
+}
+
 function mapVehicleSource(record: FeishuRecord, canSeePrice: boolean): Record<string, unknown> {
   const fields = record.fields;
   const extColor = asText(fields.exterior_color);
@@ -977,6 +1135,47 @@ function mapVehicleSource(record: FeishuRecord, canSeePrice: boolean): Record<st
     isListed: true,
     editableFields: [],
     priceLabel: priceVal !== null ? `$${priceVal.toLocaleString()}` : "Inquire for price",
+  };
+}
+
+function mapSourceImport(record: FeishuRecord): Record<string, unknown> {
+  const fields = record.fields;
+  const reviewStatus = asBool(fields["审核状态"]);
+  return {
+    id: record.record_id,
+    sourceStage: reviewStatus ? "connected" : "unreviewed",
+    supplier: asText(fields["供应商"]),
+    reviewer: asText(fields["审核人"]),
+    developer: asText(fields["开发者"]),
+    brand: asText(fields["品牌"]),
+    model: asText(fields["型号"]),
+    modelId: asText(fields.model_id),
+    variant: asText(fields["细分型号"]),
+    variantId: asText(fields.variant_id),
+    year: asText(fields["生产年份"]),
+    month: asText(fields["生产月份"]),
+    exteriorColor: asText(fields["外饰颜色"]),
+    interiorColor: asText(fields["内饰颜色"]),
+    stock: asNumber(fields["库存"]),
+    minOrderQuantity: asNumber(fields["起订数量"]),
+    fullOrderQuantity: asNumber(fields["满订数量"]),
+    leadTime: asText(fields.lead_time),
+    waitDays: asOptionalNumber(fields["下单后需要等待天数"]),
+    steering: asText(fields["左右舵"]),
+    marketVersion: asText(fields["国际国内版本（多选）"]),
+    inventoryStatus: asText(fields["库存状态"]),
+    costCny: asOptionalNumber(fields["人民币成本价"]),
+    exwUsd: asOptionalNumber(fields["EXW美金价"]),
+    fcaUsd: asOptionalNumber(fields["FCA美金价"]),
+    fobUsd: asOptionalNumber(fields["FOB美金价"]),
+    wholesaleLocation: asText(fields["批发地点"]),
+    aiConfidence: asOptionalNumber(fields["AI置信度"]),
+    notes: asText(fields["备注"]),
+    displayPriceLow: asOptionalNumber(fields["网站显示最低价"] ?? fields["网站显示美金最低价"]),
+    displayPriceHigh: asOptionalNumber(fields["网站显示最高价"] ?? fields["网站显示美金最高价"]),
+    sourcePath: asText(fields["素材源文件路径"]),
+    syncBatchId: asText(fields.sync_batch_id),
+    rawFields: fields,
   };
 }
 
@@ -1291,19 +1490,23 @@ async function handleBootstrap(request: Request, env: Env) {
   const session = await requireSession(request, env);
   const isInternal = isInternalSession(session);
 
-  const cacheKey = `bootstrap_v2:${session.role}:${session.customerId || "internal"}`;
+  const cacheKey = `bootstrap_v3:${session.role}:${session.customerId || "internal"}`;
   const cachedData = getCached(cacheKey);
   if (cachedData) {
     return json(cachedData);
   }
 
   const vehicleModelTableId = optionalEnv(env, "FEISHU_TABLE_VEHICLE_MODELS") || "tblxVNjP9dnJ7b3o";
+  const vehicleModelViewId = optionalEnv(env, "FEISHU_VIEW_PROFILES") || "vewppBx2ht";
+  const vehicleTrimTableId = optionalEnv(env, "FEISHU_TABLE_VEHICLE_TRIM_CONFIGURATIONS");
   const vehicleSourceTableId = optionalEnv(env, "FEISHU_TABLE_VEHICLES") || optionalEnv(env, "FEISHU_TABLE_VEHICLE_SOURCES") || "tbl6wBgVcvrXN6mz";
   const internalUserTableId = optionalEnv(env, "FEISHU_TABLE_INTERNAL_USERS");
   const customerTableId = optionalEnv(env, "FEISHU_TABLE_CUSTOMERS");
 
   const payload = await singleFlight(cacheKey, async () => {
-    const vehicleModelRecords = vehicleModelTableId ? await searchRecords(env, vehicleModelTableId, { pageSize: 100 }) : [];
+    const vehicleModelRecords = vehicleModelTableId ? await listRecords(env, vehicleModelTableId, { pageSize: 500, maxPages: 3, viewId: vehicleModelViewId || undefined }) : [];
+    await delay(20);
+    const trimRecords = vehicleTrimTableId ? await listRecords(env, vehicleTrimTableId, { pageSize: 500, maxPages: 10 }) : [];
     await delay(20);
     const vehicleSourceRecords = vehicleSourceTableId ? await searchRecords(env, vehicleSourceTableId, { pageSize: 100 }) : [];
     await delay(20);
@@ -1324,9 +1527,26 @@ async function handleBootstrap(request: Request, env: Env) {
     await delay(20);
     const allNegotiations = await searchRecords(env, requireEnv(env, "FEISHU_TABLE_NEGOTIATIONS"), { pageSize: 100 });
 
+    const trimRecordsByModelId = new Map<string, FeishuRecord[]>();
+    for (const record of trimRecords) {
+      const modelId = asText(record.fields.model_id);
+      if (!modelId) continue;
+      if (!trimRecordsByModelId.has(modelId)) trimRecordsByModelId.set(modelId, []);
+      trimRecordsByModelId.get(modelId)!.push(record);
+    }
+
     const vehicles = vehicleSourceRecords.map((record) => mapVehicleSource(record, canSeePortalPrice(session)));
-    const vehicleModelSpecs = vehicleModelRecords.flatMap(synthesizeSpecsFromModel);
-    const vehicleModels = enrichVehicleModelsWithSpecs(vehicleModelRecords.map(mapVehicleModel), vehicleModelSpecs);
+    const baseVehicleModels = vehicleModelRecords.map(mapVehicleModel);
+    const vehicleModels = enrichVehicleModelsWithSpecs(baseVehicleModels.map((model) => {
+      const variants = (trimRecordsByModelId.get(model.id) || [])
+        .sort((a, b) => (asOptionalNumber(a.fields.trim_order) ?? 9999) - (asOptionalNumber(b.fields.trim_order) ?? 9999) || asText(a.fields.variant).localeCompare(asText(b.fields.variant)))
+        .map((record) => mapTrimVariantModel(model, record))
+      return variants.length ? { ...model, trimVariants: variants } : model;
+    }), []);
+    const vehicleModelSpecs = [
+      ...vehicleModelRecords.flatMap(synthesizeSpecsFromModel),
+      ...vehicleModels.flatMap((model) => (model.trimVariants || []).flatMap(synthesizeSpecsFromTrimVariant)),
+    ];
     const inquiries = inquiryRecords.map(mapInquiry);
     const inquiryNos = new Set(inquiries.map((inquiry) => inquiry.inquiryNo));
 
@@ -1359,6 +1579,104 @@ async function handleBootstrap(request: Request, env: Env) {
   });
 
   return json(payload);
+}
+
+async function handleSourceImports(request: Request, env: Env) {
+  const session = await requireSession(request, env);
+  if (!isInternalSession(session)) return problem("Source imports are only available to internal reviewers", 403);
+
+  const tableId = requireEnv(env, "FEISHU_TABLE_SOURCE_IMPORTS");
+  const viewId = optionalEnv(env, "FEISHU_VIEW_SOURCE_IMPORTS");
+  const fields = await listFields(env, tableId);
+  const records = await listRecords(env, tableId, {
+    pageSize: 500,
+    maxPages: 3,
+    viewId: viewId || undefined,
+  });
+
+  return json({
+    ok: true,
+    tableId,
+    viewId,
+    readLimit: 1500,
+    fields,
+    records: records.map(mapSourceImport),
+  });
+}
+
+function isEditableSourceImportField(field: BaseField) {
+  if (field.reason || field.type === "not_support") return false;
+  if (field.name === "流程" || field.name === "审核人") return false;
+  if (field.name === "审核状态") return true;
+  return ["Text", "Number", "SingleSelect", "MultiSelect", "DateTime", "text", "number", "select", "multi_select", "datetime"].includes(field.type);
+}
+
+function normalizeSourceImportValue(field: BaseField, value: unknown) {
+  const type = field.type;
+  if (value === null) return null;
+  if (type === "Number" || type === "number") {
+    if (value === "") return null;
+    const number = Number(value);
+    if (!Number.isFinite(number)) throw new Error(`${field.name} must be a number`);
+    return number;
+  }
+  if (type === "DateTime" || type === "datetime") {
+    const text = asText(value).trim();
+    if (!text) return null;
+    if (/^\d{4}-\d{2}-\d{2}$/.test(text)) return `${text} 00:00:00`;
+    return text;
+  }
+  if (type === "MultiSelect" || type === "multi_select") {
+    if (!Array.isArray(value)) return asText(value) ? [asText(value)] : null;
+    const values = value.map(asText).filter(Boolean);
+    return values.length ? values : null;
+  }
+  if (type === "Checkbox" || type === "checkbox") {
+    return Boolean(value);
+  }
+  return asText(value).trim() || null;
+}
+
+async function handleUpdateSourceImport(request: Request, env: Env, recordId: string) {
+  const session = await requireSession(request, env);
+  if (!isInternalSession(session)) return problem("Source imports are only available to internal reviewers", 403);
+
+  const tableId = requireEnv(env, "FEISHU_TABLE_SOURCE_IMPORTS");
+  const fields = await listFields(env, tableId);
+  const fieldsByName = new Map(fields.map((field) => [field.name, field]));
+  const body = (await request.json().catch(() => null)) as { fields?: Record<string, unknown> } | null;
+  const input = body?.fields || {};
+  const patch: Record<string, unknown> = {};
+  const ignoredFields: { name: string; reason: string }[] = [];
+
+  for (const [name, value] of Object.entries(input)) {
+    const field = fieldsByName.get(name);
+    if (!field) {
+      ignoredFields.push({ name, reason: "field was not found in Feishu schema" });
+      continue;
+    }
+    if (!isEditableSourceImportField(field)) {
+      ignoredFields.push({ name, reason: "field is not editable in this unified editor" });
+      continue;
+    }
+    patch[name] = normalizeSourceImportValue(field, value);
+  }
+
+  if (!Object.keys(patch).length) {
+    const current = await getRecord(env, tableId, recordId);
+    return json({
+      ok: true,
+      noop: true,
+      ignoredFields,
+      record: current ? mapSourceImport(current) : null,
+    });
+  }
+
+  await updateRecord(env, tableId, recordId, patch);
+  cacheMap.clear();
+
+  const updated = await getRecord(env, tableId, recordId);
+  return json({ ok: true, record: updated ? mapSourceImport(updated) : null });
 }
 
 async function handleCreateInquiry(request: Request, env: Env) {
@@ -1660,58 +1978,6 @@ async function resolveTableIdByName(env: Env, tableName: string): Promise<string
 
   tableIdCache.set(tableName, { tableId: found.table_id, expiresAt: Date.now() + 600_000 });
   return found.table_id;
-}
-
-async function handlePublicTranslations(env: Env) {
-  // 闂傚倸鍊风粈浣革耿闁秮鈧箓宕奸妷瀣喘楠炲酣鎸婃竟鈹垮劦閺屾盯骞囬棃娑欑亪闁荤喐鐟辨俊鍥焵椤掆偓缁犲秹宕曢柆宥呯疇閹兼番鍊ら弶浠嬫⒒閸屾瑦绁版い鏇熺墵瀹曟鈽夊Ο蹇撶秺瀹曞爼顢斿鍡樼槥闂?table_id闂傚倸鍊烽悞锔锯偓绗涘懐鐭欓柟瀵稿仧闂勫嫰鏌￠崘銊モ偓鑽ょ不閺傛鐔嗛柤鎼佹涧婵洨绱掗埀顒勫礃椤忎礁浜炬鐐茬仢閸旀岸鎮楀鐓庢灓闁瑰嘲缍婇崺锟犲川椤旈棿鍖?FEISHU_TABLE_I18N 闂傚倸鍊烽懗鍓佸垝椤栨粌鍨濋柣妯款嚙閸ㄥ倸霉閸忚偐鏆橀柍褜鍓欓崐鎸庝繆閹间礁鐓涘ù锝堟閸橆剚绻濆▓鍨灍闁靛洦鐩畷鎴﹀箻缂佹鍘?
-  const tableId = await resolveTableIdByName(env, "i18n_locale");
-  const records = await searchRecords(env, tableId, { pageSize: 500, maxPages: 100 });
-  
-  const zhRecords: any[] = [];
-  const enRecords: any[] = [];
-  const amRecords: any[] = [];
-  
-  for (const item of records) {
-    const key = asText(item.fields.key);
-    if (!key) continue;
-    zhRecords.push({ key, value: asText(item.fields.zh) });
-    enRecords.push({ key, value: asText(item.fields.en) });
-    amRecords.push({ key, value: asText(item.fields.am) });
-  }
-
-  const buildNested = (list: any[]) => {
-    const root: any = {};
-    for (const { key, value } of list) {
-      const parts = key.split(".");
-      let current = root;
-      for (let i = 0; i < parts.length - 1; i++) {
-        const part = parts[i];
-        if (current[part] === undefined || typeof current[part] !== "object") {
-          current[part] = {};
-        }
-        current = current[part];
-      }
-      const lastPart = parts[parts.length - 1];
-      if (typeof value === "string" && value.trimStart().startsWith("[")) {
-        try {
-          current[lastPart] = JSON.parse(value);
-        } catch {
-          current[lastPart] = value;
-        }
-      } else {
-        current[lastPart] = value;
-      }
-    }
-    return root;
-  };
-
-  const data = {
-    zh: buildNested(zhRecords),
-    en: buildNested(enRecords),
-    am: buildNested(amRecords)
-  };
-
-  return json(data);
 }
 
 async function handlePublicProducts(env: Env) {
@@ -2118,6 +2384,13 @@ export async function handlePortalRequest(request: Request, env: Env) {
     }
     if (path === "/api/portal/bootstrap" && request.method === "GET") {
       return await handleBootstrap(request, env);
+    }
+    if (path === "/api/portal/source-imports" && request.method === "GET") {
+      return await handleSourceImports(request, env);
+    }
+    const sourceImportMatch = path.match(/^\/api\/portal\/source-imports\/([^/]+)$/);
+    if (sourceImportMatch && request.method === "PATCH") {
+      return await handleUpdateSourceImport(request, env, decodeURIComponent(sourceImportMatch[1]));
     }
     if (path === "/api/portal/inquiries" && request.method === "POST") {
       return await handleCreateInquiry(request, env);

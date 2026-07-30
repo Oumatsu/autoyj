@@ -1,0 +1,1098 @@
+[
+  {
+    "record_id": "recvpzJLm94Tz3",
+    "model_id": "MDL-002",
+    "brand": "BYD",
+    "model": "Seagull",
+    "patch": {
+      "powertrain_type": "BEV"
+    },
+    "status": 0,
+    "stdout": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "powertrain_type": [
+              "BEV"
+            ]
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "stderr": ""
+  },
+  {
+    "record_id": "recvpzJLm94ix0",
+    "model_id": "MDL-003",
+    "brand": "Geely",
+    "model": "Galaxy E5",
+    "patch": {
+      "powertrain_type": "BEV"
+    },
+    "status": 0,
+    "stdout": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "powertrain_type": [
+              "BEV"
+            ]
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "stderr": ""
+  },
+  {
+    "record_id": "recvpzJLm9djpy",
+    "model_id": "MDL-007",
+    "brand": "BYD",
+    "model": "Sealion 7",
+    "patch": {
+      "powertrain_type": "BEV"
+    },
+    "status": 0,
+    "stdout": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "powertrain_type": [
+              "BEV"
+            ]
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "stderr": ""
+  },
+  {
+    "record_id": "recvpzJLm96GjD",
+    "model_id": "MDL-010",
+    "brand": "Xiaomi",
+    "model": "YU7",
+    "patch": {
+      "powertrain_type": "BEV"
+    },
+    "status": 0,
+    "stdout": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "powertrain_type": [
+              "BEV"
+            ]
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "stderr": ""
+  },
+  {
+    "record_id": "recvpzJLm9J4Sd",
+    "model_id": "MDL-013",
+    "brand": "Voyah",
+    "model": "Taishan X8",
+    "patch": {
+      "display_price_low": 56035,
+      "display_price_high": 75210
+    },
+    "status": 0,
+    "stdout": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "display_price_high": 75210,
+            "display_price_low": 56035
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "stderr": ""
+  },
+  {
+    "record_id": "recvpzJLm9u8h0",
+    "model_id": "MDL-014",
+    "brand": "Li Auto",
+    "model": "L6",
+    "patch": {
+      "display_price_low": 36846,
+      "display_price_high": 41271
+    },
+    "status": 0,
+    "stdout": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "display_price_high": 41271,
+            "display_price_low": 36846
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "stderr": ""
+  },
+  {
+    "record_id": "recvpzJLm9CrI9",
+    "model_id": "MDL-015",
+    "brand": "XPENG",
+    "model": "G9",
+    "patch": {
+      "display_price_low": 36698,
+      "display_price_high": 41123,
+      "powertrain_type": "BEV"
+    },
+    "status": 0,
+    "stdout": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "display_price_high": 41123,
+            "display_price_low": 36698,
+            "powertrain_type": [
+              "BEV"
+            ]
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "stderr": ""
+  },
+  {
+    "record_id": "recvpzJLm9hXQf",
+    "model_id": "MDL-016",
+    "brand": "Zeekr",
+    "model": "001",
+    "patch": {
+      "display_price_low": 39796,
+      "display_price_high": 53838
+    },
+    "status": 0,
+    "stdout": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "display_price_high": 53838,
+            "display_price_low": 39796
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "stderr": ""
+  },
+  {
+    "record_id": "recvpzJLm9nAXL",
+    "model_id": "MDL-017",
+    "brand": "Xiaomi",
+    "model": "SU7 Ultra",
+    "patch": {
+      "display_price_low": 32435,
+      "display_price_high": 44825
+    },
+    "status": 0,
+    "stdout": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "display_price_high": 44825,
+            "display_price_low": 32435
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "stderr": ""
+  },
+  {
+    "record_id": "recvpzJLm9QG4o",
+    "model_id": "MDL-018",
+    "brand": "Stelato",
+    "model": "S9",
+    "patch": {
+      "display_price_low": 45696,
+      "display_price_high": 56021
+    },
+    "status": 0,
+    "stdout": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "display_price_high": 56021,
+            "display_price_low": 45696
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "stderr": ""
+  },
+  {
+    "record_id": "recvpzJLm97m1i",
+    "model_id": "MDL-019",
+    "brand": "AITO",
+    "model": "M9",
+    "patch": {
+      "display_price_low": 70771,
+      "display_price_high": 97321
+    },
+    "status": 0,
+    "stdout": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "display_price_high": 97321,
+            "display_price_low": 70771
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "stderr": ""
+  },
+  {
+    "record_id": "recvpzJLm9CA5i",
+    "model_id": "MDL-020",
+    "brand": "Hongqi",
+    "model": "E-HS9",
+    "patch": {
+      "display_price_low": 86996,
+      "display_price_high": 115021
+    },
+    "status": 0,
+    "stdout": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "display_price_high": 115021,
+            "display_price_low": 86996
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "stderr": ""
+  },
+  {
+    "record_id": "recvpzJLm90NJm",
+    "model_id": "MDL-022",
+    "brand": "BYD",
+    "model": "Yuan UP",
+    "patch": {
+      "powertrain_type": "BEV"
+    },
+    "status": 0,
+    "stdout": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "powertrain_type": [
+              "BEV"
+            ]
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "stderr": ""
+  },
+  {
+    "record_id": "recvpzJLm9p7Pi",
+    "model_id": "MDL-024",
+    "brand": "Leapmotor",
+    "model": "T03",
+    "patch": {
+      "powertrain_type": "BEV"
+    },
+    "status": 0,
+    "stdout": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "powertrain_type": [
+              "BEV"
+            ]
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "stderr": ""
+  },
+  {
+    "record_id": "recvpzJLm9Kztt",
+    "model_id": "MDL-025",
+    "brand": "Changan",
+    "model": "Lumin",
+    "patch": {
+      "powertrain_type": "BEV"
+    },
+    "status": 0,
+    "stdout": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "powertrain_type": [
+              "BEV"
+            ]
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "stderr": ""
+  },
+  {
+    "record_id": "recvpzJLm9fpTa",
+    "model_id": "MDL-026",
+    "brand": "Wuling",
+    "model": "Bingo Plus",
+    "patch": {
+      "display_price_low": 11181,
+      "display_price_high": 14573
+    },
+    "status": 0,
+    "stdout": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "display_price_high": 14573,
+            "display_price_low": 11181
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "stderr": ""
+  },
+  {
+    "record_id": "recvpzJLm9TDeo",
+    "model_id": "MDL-027",
+    "brand": "BYD",
+    "model": "Dolphin",
+    "patch": {
+      "powertrain_type": "BEV"
+    },
+    "status": 0,
+    "stdout": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "powertrain_type": [
+              "BEV"
+            ]
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "stderr": ""
+  },
+  {
+    "record_id": "recvpzJLm9CrlS",
+    "model_id": "MDL-028",
+    "brand": "GAC Aion",
+    "model": "RT",
+    "patch": {
+      "display_price_low": 14721,
+      "display_price_high": 24456
+    },
+    "status": 0,
+    "stdout": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "display_price_high": 24456,
+            "display_price_low": 14721
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "stderr": ""
+  },
+  {
+    "record_id": "recvpzJLm9iXsX",
+    "model_id": "MDL-030",
+    "brand": "GAC Aion",
+    "model": "V",
+    "patch": {
+      "display_price_low": 16196,
+      "display_price_high": 28556
+    },
+    "status": 0,
+    "stdout": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "display_price_high": 28556,
+            "display_price_low": 16196
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "stderr": ""
+  },
+  {
+    "record_id": "recvpzJLm9Cy9y",
+    "model_id": "MDL-040",
+    "brand": "Geely",
+    "model": "Geometry C",
+    "patch": {
+      "display_price_low": 20016,
+      "display_price_high": 30651,
+      "powertrain_type": "BEV"
+    },
+    "status": 0,
+    "stdout": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "display_price_high": 30651,
+            "display_price_low": 20016,
+            "powertrain_type": [
+              "BEV"
+            ]
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "stderr": ""
+  },
+  {
+    "record_id": "recvpzJLm9kKH4",
+    "model_id": "MDL-041",
+    "brand": "BYD",
+    "model": "Shark",
+    "patch": {
+      "powertrain_type": "PHEV"
+    },
+    "status": 0,
+    "stdout": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "powertrain_type": [
+              "PHEV"
+            ]
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "stderr": ""
+  },
+  {
+    "record_id": "recvpzJLm9Gmcq",
+    "model_id": "MDL-042",
+    "brand": "Radar",
+    "model": "RD6",
+    "patch": {
+      "powertrain_type": "BEV"
+    },
+    "status": 0,
+    "stdout": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "powertrain_type": [
+              "BEV"
+            ]
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "stderr": ""
+  },
+  {
+    "record_id": "recvpzJLm9iXp6",
+    "model_id": "MDL-043",
+    "brand": "Tank",
+    "model": "500 Hi4-T",
+    "patch": {
+      "display_price_low": 49413,
+      "display_price_high": 56788
+    },
+    "status": 0,
+    "stdout": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "display_price_high": 56788,
+            "display_price_low": 49413
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "stderr": ""
+  },
+  {
+    "record_id": "recvpzJLm9JBB7",
+    "model_id": "MDL-044",
+    "brand": "Fangchengbao",
+    "model": "Leopard 8",
+    "patch": {
+      "powertrain_type": "PHEV"
+    },
+    "status": 0,
+    "stdout": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "powertrain_type": [
+              "PHEV"
+            ]
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "stderr": ""
+  },
+  {
+    "record_id": "recvpzJLm9LguZ",
+    "model_id": "MDL-045",
+    "brand": "Zeekr",
+    "model": "9X",
+    "patch": {
+      "powertrain_type": "PHEV",
+      "length_mm": 5239,
+      "width_mm": 2029,
+      "height_mm": 1819,
+      "wheelbase_mm": 3169,
+      "seats_min": 6,
+      "seats_max": 6,
+      "v2l_availability": "Standard",
+      "v2l_output_power_kw": 6,
+      "voltage_platform_v": 900
+    },
+    "status": 0,
+    "stdout": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "height_mm": 1819,
+            "length_mm": 5239,
+            "powertrain_type": [
+              "PHEV"
+            ],
+            "seats_max": 6,
+            "seats_min": 6,
+            "v2l_availability": [
+              "Standard"
+            ],
+            "v2l_output_power_kw": 6,
+            "voltage_platform_v": 900,
+            "wheelbase_mm": 3169,
+            "width_mm": 2029
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "stderr": ""
+  },
+  {
+    "record_id": "recvpzJLm9YxuX",
+    "model_id": "MDL-046",
+    "brand": "GWM",
+    "model": "Cannon EV",
+    "patch": {
+      "display_price_low": 22096,
+      "display_price_high": 39501
+    },
+    "status": 0,
+    "stdout": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "display_price_high": 39501,
+            "display_price_low": 22096
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "stderr": ""
+  },
+  {
+    "record_id": "recvpzJLm9nGBg",
+    "model_id": "MDL-047",
+    "brand": "Dongfeng",
+    "model": "Rich 6 EV",
+    "patch": {
+      "display_price_low": 27996,
+      "display_price_high": 39796,
+      "powertrain_type": "BEV",
+      "seats_min": 5,
+      "seats_max": 5
+    },
+    "status": 0,
+    "stdout": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "display_price_high": 39796,
+            "display_price_low": 27996,
+            "powertrain_type": [
+              "BEV"
+            ],
+            "seats_max": 5,
+            "seats_min": 5
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "stderr": ""
+  },
+  {
+    "record_id": "recvpzJLm9CXeO",
+    "model_id": "MDL-048",
+    "brand": "Farizon",
+    "model": "Xingxiang V",
+    "patch": {
+      "display_price_low": 13998,
+      "display_price_high": 25931,
+      "powertrain_type": "BEV"
+    },
+    "status": 0,
+    "stdout": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "display_price_high": 25931,
+            "display_price_low": 13998,
+            "powertrain_type": [
+              "BEV"
+            ]
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "stderr": ""
+  },
+  {
+    "record_id": "recvpzJLm97vt9",
+    "model_id": "MDL-054",
+    "brand": "MG",
+    "model": "MG4 EV",
+    "patch": {
+      "powertrain_type": "BEV"
+    },
+    "status": 0,
+    "stdout": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "powertrain_type": [
+              "BEV"
+            ]
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "stderr": ""
+  },
+  {
+    "record_id": "recvpzJLm97ZzL",
+    "model_id": "MDL-061",
+    "brand": "Dongfeng",
+    "model": "eπ 007",
+    "patch": {
+      "display_price_low": 17095,
+      "display_price_high": 26535
+    },
+    "status": 0,
+    "stdout": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "display_price_high": 26535,
+            "display_price_low": 17095
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "stderr": ""
+  },
+  {
+    "record_id": "recvpzJLm9eK3J",
+    "model_id": "MDL-062",
+    "brand": "Dongfeng",
+    "model": "eπ 008",
+    "patch": {
+      "display_price_low": 25060,
+      "display_price_high": 33896
+    },
+    "status": 0,
+    "stdout": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "display_price_high": 33896,
+            "display_price_low": 25060
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "stderr": ""
+  },
+  {
+    "record_id": "recvpzJLm98zSy",
+    "model_id": "MDL-063",
+    "brand": "Dongfeng",
+    "model": "Aeolus L7",
+    "patch": {
+      "display_price_low": 13998,
+      "display_price_high": 33114
+    },
+    "status": 0,
+    "stdout": {
+      "ok": true,
+      "identity": "user",
+      "data": {
+        "record": {
+          "update": {
+            "display_price_high": 33114,
+            "display_price_low": 13998
+          }
+        },
+        "updated": true
+      },
+      "_notice": {
+        "update": {
+          "command": "lark-cli update",
+          "current": "1.0.68",
+          "latest": "1.0.80",
+          "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+        }
+      }
+    },
+    "stderr": ""
+  }
+]

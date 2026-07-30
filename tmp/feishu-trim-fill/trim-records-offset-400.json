@@ -1,0 +1,3158 @@
+﻿{
+  "ok": true,
+  "identity": "user",
+  "data": {
+    "data": [
+      [
+        "recvqDuNsKBiFL",
+        "MDL-091-V05",
+        "MDL-091",
+        "星光560 EV 欧标右舵版 F520SR EV European Standard Right Hand Drive LV1",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6saYq7E"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6saYq7E"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsKwg4o",
+        "MDL-091-V06",
+        "MDL-091",
+        "星光560 EV 欧标右舵版 F520SR EV European Standard Right Hand Drive LV2",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6saYq7E"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6saYq7E"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsKxQqV",
+        "MDL-091-V01",
+        "MDL-091",
+        "星光730 EV 欧标右舵版 F520MR EV European Standard Right Hand Drive LV1",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6saYq7E"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6saYq7E"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsKgNhS",
+        "MDL-091-V02",
+        "MDL-091",
+        "星光730 EV 欧标右舵版 F520MR EV European Standard Right Hand Drive LV2",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6saYq7E"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6saYq7E"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsKgbuL",
+        "MDL-091-V07",
+        "MDL-091",
+        "BINGO S Export Ver 缤果S 英文版 E261 MCE English Version LV2",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 4",
+        [
+          {
+            "id": "recvqDh6saYq7E"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6saYq7E"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsKirDm",
+        "MDL-092-V01",
+        "MDL-092",
+        "su7 2026款 后驱标准版",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6saA3gu"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6saA3gu"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsKYtNc",
+        "MDL-092-V02",
+        "MDL-092",
+        "su7 2026款 后驱Pro版",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6saA3gu"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6saA3gu"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsKYoXb",
+        "MDL-092-V03",
+        "MDL-092",
+        "su7 2026款 四驱Max版",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6saA3gu"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6saA3gu"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsK0K0F",
+        "MDL-093-V02",
+        "MDL-093",
+        "215激光旗舰PLUS",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6saeSyW"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6saeSyW"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsKqjpv",
+        "MDL-094-V02",
+        "MDL-094",
+        "新款 230 MAX领航版",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6sarkfS"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6sarkfS"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsK37kg",
+        "MDL-094-V03",
+        "MDL-094",
+        "新款 230 MAX巡航版",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6sarkfS"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6sarkfS"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsKrXCR",
+        "MDL-094-V01",
+        "MDL-094",
+        "新款 300Pro巡航版",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6sarkfS"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6sarkfS"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsKB9oR",
+        "MDL-094-V05",
+        "MDL-094",
+        "新款 550 MAX领航版",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6sarkfS"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6sarkfS"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsLw5wf",
+        "MDL-094-V06",
+        "MDL-094",
+        "新款 550 MAX巡航版",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6sarkfS"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6sarkfS"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsLnzjC",
+        "MDL-094-V04",
+        "MDL-094",
+        "新款 550Air巡航版",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6sarkfS"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6sarkfS"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsLkrup",
+        "MDL-094-V07",
+        "MDL-094",
+        "新款 650 MAX领航版",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6sarkfS"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6sarkfS"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsL19aX",
+        "MDL-094-V08",
+        "MDL-094",
+        "新款 650 MAX巡航版",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6sarkfS"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6sarkfS"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsL2eiz",
+        "MDL-096-V02",
+        "MDL-096",
+        "2025款",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6saq6ch"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6saq6ch"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsLEnQp",
+        "MDL-096-V01",
+        "MDL-096",
+        "2025款-新款",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6saq6ch"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6saq6ch"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsL6IRQ",
+        "MDL-096-V03",
+        "MDL-096",
+        "四激光版",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6saq6ch"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6saq6ch"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsLAs2v",
+        "MDL-097-V01",
+        "MDL-097",
+        "2025款",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6saxxVs"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6saxxVs"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsLYmbF",
+        "MDL-097-V02",
+        "MDL-097",
+        "2025款-1",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6saxxVs"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6saxxVs"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsLWQAh",
+        "MDL-098-V01",
+        "MDL-098",
+        "230 Ultra",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 2",
+        [
+          {
+            "id": "recvqDh6saXR5V"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6saXR5V"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsLUtOi",
+        "MDL-098-V08",
+        "MDL-098",
+        "230MAX",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6saXR5V"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6saXR5V"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsLcrfW",
+        "MDL-098-V09",
+        "MDL-098",
+        "230ULTRA",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6saXR5V"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6saXR5V"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsLlmu2",
+        "MDL-098-V10",
+        "MDL-098",
+        "300ULTRA",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6saXR5V"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6saXR5V"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsLUMta",
+        "MDL-098-V03",
+        "MDL-098",
+        "520 MAX",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6saXR5V"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6saXR5V"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsLSdz9",
+        "MDL-098-V02",
+        "MDL-098",
+        "520 PLUS",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6saXR5V"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6saXR5V"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsL19kf",
+        "MDL-098-V04",
+        "MDL-098",
+        "520 ULTRA",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6saXR5V"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6saXR5V"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsLEslU",
+        "MDL-098-V11",
+        "MDL-098",
+        "550MAX",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6saXR5V"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6saXR5V"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsLjrE7",
+        "MDL-098-V12",
+        "MDL-098",
+        "550ULTRA",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6saXR5V"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6saXR5V"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsLhnc0",
+        "MDL-098-V15",
+        "MDL-098",
+        "560MAX",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6saXR5V"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6saXR5V"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsLegHt",
+        "MDL-098-V16",
+        "MDL-098",
+        "560ULTRA",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6saXR5V"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6saXR5V"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsLjeZG",
+        "MDL-098-V06",
+        "MDL-098",
+        "620 MAX",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6saXR5V"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6saXR5V"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsLrAtO",
+        "MDL-098-V05",
+        "MDL-098",
+        "620 PLUS",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6saXR5V"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6saXR5V"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsLAAjf",
+        "MDL-098-V07",
+        "MDL-098",
+        "620Ultra",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6saXR5V"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6saXR5V"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsLR0Hg",
+        "MDL-098-V13",
+        "MDL-098",
+        "630MAX",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6saXR5V"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6saXR5V"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsLK9Sp",
+        "MDL-098-V14",
+        "MDL-098",
+        "630ULTRA",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6saXR5V"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6saXR5V"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsLZdm3",
+        "MDL-098-V17",
+        "MDL-098",
+        "670MAX",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6saXR5V"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6saXR5V"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsL2D66",
+        "MDL-098-V18",
+        "MDL-098",
+        "670ULTRA",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6saXR5V"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6saXR5V"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsLNNXu",
+        "MDL-099-V04",
+        "MDL-099",
+        "智慧新蓝鲸 500Bar PRO  幕夜黑",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6sarqum"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6sarqum"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsL77YK",
+        "MDL-099-V01",
+        "MDL-099",
+        "智慧新蓝鲸130km 进取型",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6sarqum"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6sarqum"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsLH5ms",
+        "MDL-099-V02",
+        "MDL-099",
+        "智慧新蓝鲸130km 战舰型",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6sarqum"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6sarqum"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsLX2D8",
+        "MDL-099-V03",
+        "MDL-099",
+        "智慧新蓝鲸130km 卓越型",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6sarqum"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6sarqum"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsL8WgV",
+        "MDL-100-V01",
+        "MDL-100",
+        "500Bar劲享型",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6saxOwu"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6saxOwu"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsLcTMB",
+        "MDL-100-V02",
+        "MDL-100",
+        "500Bar悦享型 含驭风静享选装包",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6saxOwu"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6saxOwu"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsLEjN1",
+        "MDL-100-V03",
+        "MDL-100",
+        "500Bar智享型",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6saxOwu"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6saxOwu"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsL1f9x",
+        "MDL-101-V02",
+        "MDL-101",
+        "新蓝鲸 智航型",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6sakJi5"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6sakJi5"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsLapJ5",
+        "MDL-101-V01",
+        "MDL-101",
+        "新蓝鲸 智领型",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6sakJi5"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6sakJi5"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsLDC0l",
+        "MDL-102-V01",
+        "MDL-102",
+        "2.0T新蓝鲸劲擎型",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6saQ8tC"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6saQ8tC"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsLY4mE",
+        "MDL-103-V02",
+        "MDL-103",
+        "新蓝鲸1.5精英型",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6sa2fue"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6sa2fue"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsLtSWn",
+        "MDL-103-V01",
+        "MDL-103",
+        "新蓝鲸1.5领先型",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6sa2fue"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6sa2fue"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsLFbis",
+        "MDL-103-V03",
+        "MDL-103",
+        "新蓝鲸1.5天枢豪华型",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6sa2fue"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6sa2fue"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsLHMCM",
+        "MDL-103-V04",
+        "MDL-103",
+        "新蓝鲸1.5天枢尊贵型",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6sa2fue"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6sa2fue"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsLuuxS",
+        "MDL-104-V01",
+        "MDL-104",
+        "500Bar 尊贵型",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6sapLXt"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6sapLXt"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsLDYCM",
+        "MDL-104-V02",
+        "MDL-104",
+        "500Bar 尊贵运动型",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6sapLXt"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6sapLXt"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsLCoZt",
+        "MDL-104-V05",
+        "MDL-104",
+        "劲擎型",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6sapLXt"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6sapLXt"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsLkOV1",
+        "MDL-104-V04",
+        "MDL-104",
+        "劲擎型  杜比影音包",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6sapLXt"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6sapLXt"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsLdVt4",
+        "MDL-104-V03",
+        "MDL-104",
+        "劲速型",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6sapLXt"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6sapLXt"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsLtbZk",
+        "MDL-105-V04",
+        "MDL-105",
+        "超越PRO",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6saNrNN"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6saNrNN"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsLcyxu",
+        "MDL-105-V02",
+        "MDL-105",
+        "高能PRO",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6saNrNN"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6saNrNN"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsLAccW",
+        "MDL-105-V03",
+        "MDL-105",
+        "先锋PRO",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6saNrNN"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6saNrNN"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsLl1PY",
+        "MDL-105-V05",
+        "MDL-105",
+        "卓越PRO",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6saNrNN"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6saNrNN"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsLOA0Q",
+        "MDL-105-V01",
+        "MDL-105",
+        "MT豪华版",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6saNrNN"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6saNrNN"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsLJBrI",
+        "MDL-106-V01",
+        "MDL-106",
+        "2026款CS75",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6saayBx"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6saayBx"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsLdSPG",
+        "MDL-107-V02",
+        "MDL-107",
+        "启源A06 240激光Ultra",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6saBVbX"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6saBVbX"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsLNFNq",
+        "MDL-107-V01",
+        "MDL-107",
+        "启源A06 630激光Ultra",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6saBVbX"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6saBVbX"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsLdy3O",
+        "MDL-108-V03",
+        "MDL-108",
+        "310豪华型",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6sb4M8I"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6sb4M8I"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsLth8D",
+        "MDL-108-V04",
+        "MDL-108",
+        "310旗舰型",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6sb4M8I"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6sb4M8I"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsL1Dvx",
+        "MDL-108-V01",
+        "MDL-108",
+        "550优享版",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6sb4M8I"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6sb4M8I"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsLe2M2",
+        "MDL-108-V02",
+        "MDL-108",
+        "730旗舰型",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6sb4M8I"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6sb4M8I"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsLMzwv",
+        "MDL-109-V02",
+        "MDL-109",
+        "520 Pilot Edition",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 2",
+        [
+          {
+            "id": "recvqDh6sbc9WX"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6sbc9WX"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsLqNTK",
+        "MDL-112-V01",
+        "MDL-112",
+        "Qin L EV 545km Cloud Chariot Edition",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6sbGzWi"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6sbGzWi"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsLa8WP",
+        "MDL-113-V01",
+        "MDL-113",
+        "2025款 520 Pro",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 2",
+        [
+          {
+            "id": "recvqDh6sbBG6H"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6sbBG6H"
+          }
+        ]
+      ],
+      [
+        "recvqDuNsLB9lI",
+        "MDL-113-V02",
+        "MDL-113",
+        "2025款 610 Max",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          "Needs Source"
+        ],
+        null,
+        "Strict placeholder imported from vehicle_b; source rows: 1",
+        [
+          {
+            "id": "recvqDh6sbBG6H"
+          }
+        ],
+        null,
+        [],
+        [
+          {
+            "id": "recvqDh6sbBG6H"
+          }
+        ]
+      ]
+    ],
+    "field_id_list": [
+      "fldrIlwJoO",
+      "fld1EHNNKf",
+      "fldjHPf8lc",
+      "fldpbyMGl9",
+      "fldSwGCHwr",
+      "fldmHYMmI7",
+      "fldnI6xf8Z",
+      "fldlhSUUne",
+      "fldTFFEpy1",
+      "fldhhDNskV",
+      "fld1AlzHWQ",
+      "fldYETPH07",
+      "fldfDtflzW",
+      "fldCUm9kWv",
+      "fldQINKUlu",
+      "fldoeu7F99",
+      "fld8sa8W8D",
+      "fld86VCOug",
+      "fldeNajAxv",
+      "fldqIgfHWy",
+      "fldmlojkXD",
+      "fldrlqEt2m",
+      "fldabZbHfE",
+      "flda81jcNB",
+      "fld0NNrCNL",
+      "fldqr3hJ0H",
+      "fldhuWNBW6",
+      "fldNhL9BWU"
+    ],
+    "fields": [
+      "record_id",
+      "trim_config_id",
+      "model_id",
+      "variant",
+      "trim_order",
+      "trim_price_display",
+      "range_display",
+      "battery_capacity_kwh",
+      "battery_chemistry",
+      "drivetrain_display",
+      "motor_power_kw",
+      "motor_torque_n_m",
+      "dc_fast_charge_suppo...",
+      "dc_fast_charge_time_...",
+      "dc_fast_charge_min_p...",
+      "dc_fast_charge_max_p...",
+      "base_spec_summary_js...",
+      "added_features_json",
+      "upgraded_features_js...",
+      "recommended",
+      "source_url",
+      "source_status",
+      "last_verified_at",
+      "notes",
+      "vehicle_model_pruned",
+      "i18n_locale",
+      "vehicle_models_copy",
+      "vehicle_models_ch"
+    ],
+    "has_more": false,
+    "query_context": {
+      "field_scope": "view_visible_fields",
+      "record_scope": "view_filtered_records"
+    },
+    "record_id_list": [
+      "recvqDuNsKBiFL",
+      "recvqDuNsKwg4o",
+      "recvqDuNsKxQqV",
+      "recvqDuNsKgNhS",
+      "recvqDuNsKgbuL",
+      "recvqDuNsKirDm",
+      "recvqDuNsKYtNc",
+      "recvqDuNsKYoXb",
+      "recvqDuNsK0K0F",
+      "recvqDuNsKqjpv",
+      "recvqDuNsK37kg",
+      "recvqDuNsKrXCR",
+      "recvqDuNsKB9oR",
+      "recvqDuNsLw5wf",
+      "recvqDuNsLnzjC",
+      "recvqDuNsLkrup",
+      "recvqDuNsL19aX",
+      "recvqDuNsL2eiz",
+      "recvqDuNsLEnQp",
+      "recvqDuNsL6IRQ",
+      "recvqDuNsLAs2v",
+      "recvqDuNsLYmbF",
+      "recvqDuNsLWQAh",
+      "recvqDuNsLUtOi",
+      "recvqDuNsLcrfW",
+      "recvqDuNsLlmu2",
+      "recvqDuNsLUMta",
+      "recvqDuNsLSdz9",
+      "recvqDuNsL19kf",
+      "recvqDuNsLEslU",
+      "recvqDuNsLjrE7",
+      "recvqDuNsLhnc0",
+      "recvqDuNsLegHt",
+      "recvqDuNsLjeZG",
+      "recvqDuNsLrAtO",
+      "recvqDuNsLAAjf",
+      "recvqDuNsLR0Hg",
+      "recvqDuNsLK9Sp",
+      "recvqDuNsLZdm3",
+      "recvqDuNsL2D66",
+      "recvqDuNsLNNXu",
+      "recvqDuNsL77YK",
+      "recvqDuNsLH5ms",
+      "recvqDuNsLX2D8",
+      "recvqDuNsL8WgV",
+      "recvqDuNsLcTMB",
+      "recvqDuNsLEjN1",
+      "recvqDuNsL1f9x",
+      "recvqDuNsLapJ5",
+      "recvqDuNsLDC0l",
+      "recvqDuNsLY4mE",
+      "recvqDuNsLtSWn",
+      "recvqDuNsLFbis",
+      "recvqDuNsLHMCM",
+      "recvqDuNsLuuxS",
+      "recvqDuNsLDYCM",
+      "recvqDuNsLCoZt",
+      "recvqDuNsLkOV1",
+      "recvqDuNsLdVt4",
+      "recvqDuNsLtbZk",
+      "recvqDuNsLcyxu",
+      "recvqDuNsLAccW",
+      "recvqDuNsLl1PY",
+      "recvqDuNsLOA0Q",
+      "recvqDuNsLJBrI",
+      "recvqDuNsLdSPG",
+      "recvqDuNsLNFNq",
+      "recvqDuNsLdy3O",
+      "recvqDuNsLth8D",
+      "recvqDuNsL1Dvx",
+      "recvqDuNsLe2M2",
+      "recvqDuNsLMzwv",
+      "recvqDuNsLqNTK",
+      "recvqDuNsLa8WP",
+      "recvqDuNsLB9lI"
+    ]
+  },
+  "_notice": {
+    "update": {
+      "command": "lark-cli update",
+      "current": "1.0.68",
+      "latest": "1.0.80",
+      "message": "lark-cli 1.0.80 available, current 1.0.68, run: lark-cli update"
+    }
+  }
+}

@@ -526,30 +526,30 @@ const DISPLAY_FEATURE_FIELDS = [
 ];
 
 const TRIM_FIELDS = [
-  "Trim Config ID",
-  "Model ID",
-  "Vehicle Model",
-  "Trim Name",
-  "Trim Order",
-  "Trim Price Display",
-  "Range Display",
-  "Battery Capacity kWh",
-  "Battery Chemistry",
-  "Drivetrain Display",
-  "Motor Power kW",
-  "Motor Torque N-m",
-  "DC Fast Charge Supported",
-  "DC Fast Charge Time Hours",
-  "DC Fast Charge Min Percent",
-  "DC Fast Charge Max Percent",
-  "Base Spec Summary JSON",
-  "Added Features JSON",
-  "Upgraded Features JSON",
-  "Recommended",
-  "Source URL",
-  "Source Status",
-  "Last Verified At",
-  "Notes",
+  "trim_config_id",
+  "model_id",
+  "vehicle_model_pruned",
+  "variant",
+  "trim_order",
+  "trim_price_display",
+  "range_display",
+  "battery_capacity_kwh",
+  "battery_chemistry",
+  "drivetrain_display",
+  "motor_power_kw",
+  "motor_torque_n_m",
+  "dc_fast_charge_supported",
+  "dc_fast_charge_time_hours",
+  "dc_fast_charge_min_percent",
+  "dc_fast_charge_max_percent",
+  "base_spec_summary_json",
+  "added_features_json",
+  "upgraded_features_json",
+  "recommended",
+  "source_url",
+  "source_status",
+  "last_verified_at",
+  "notes",
 ];
 
 function readDotEnv(file) {
@@ -815,20 +815,25 @@ function readModels(cfg) {
     "--as", "user",
     "--format", "json",
     "--limit", "100",
-    "--field-id", "Model ID",
-    "--field-id", "Brand",
-    "--field-id", "Model",
-    "--field-id", "Status",
-    "--field-id", "Product Path",
+    "--field-id", "model_id",
+    "--field-id", "brand",
+    "--field-id", "model",
+    "--field-id", "status",
+    "--field-id", "product_path",
   ]);
-  return data.data.map((row, index) => ({
+  const models = data.data.map((row, index) => ({
     recordId: data.record_id_list[index],
     modelId: row[0],
     brand: row[1],
     model: row[2],
     status: Array.isArray(row[3]) ? row[3][0] : row[3],
     productPath: row[4],
-  })).filter((row) => row.status === "Active");
+  }));
+  const only = process.argv.find((arg) => arg.startsWith("--model-id="))?.slice("--model-id=".length);
+  const includeInactive = process.argv.includes("--include-inactive");
+  return models
+    .filter((row) => includeInactive || row.status === "Active")
+    .filter((row) => !only || row.modelId === only);
 }
 
 async function buildSeriesIndex() {
@@ -845,7 +850,12 @@ async function buildSeriesIndex() {
   return series;
 }
 
-function matchSeries(model, seriesIndex) {
+function matchSeries(model, seriesIndex, sourceUrl = "") {
+  const seriesId = String(sourceUrl).match(/\/series\/(\d+)/)?.[1];
+  if (seriesId) {
+    const series = seriesIndex.find((item) => String(item.seriesid) === seriesId);
+    if (series) return { score: 2000, alias: `source:${seriesId}`, series };
+  }
   const key = `${model.brand} ${model.model}`;
   const preferredSeriesId = PREFERRED_SERIES_IDS.get(key);
   if (preferredSeriesId) {
@@ -869,30 +879,30 @@ function trimRowValues(model, match, comparison, trim, index, verifiedAt) {
   const motor = parseMotorStructured(trim.motorDisplay);
   const charging = parseChargingStructured(trim.chargingDisplay);
   const fields = {
-    "Trim Config ID": `${model.modelId}-${match.series.seriesid}-${trim.order || index + 1}`,
-    "Model ID": model.modelId,
-    "Vehicle Model": [{ id: model.recordId }],
-    "Trim Name": trim.name,
-    "Trim Order": trim.order || index + 1,
-    "Trim Price Display": parsePriceRmb(trim.priceDisplay),
-    "Range Display": parseRangeKm(trim.rangeDisplay),
-    "Battery Capacity kWh": battery.capacity,
-    "Battery Chemistry": battery.chemistry || null,
-    "Drivetrain Display": trim.drivetrainDisplay,
-    "Motor Power kW": motor.power,
-    "Motor Torque N-m": motor.torque,
-    "DC Fast Charge Supported": charging.supported,
-    "DC Fast Charge Time Hours": charging.timeHours,
-    "DC Fast Charge Min Percent": charging.minPercent,
-    "DC Fast Charge Max Percent": charging.maxPercent,
-    "Base Spec Summary JSON": JSON.stringify(trim.baseFeatures || []),
-    "Added Features JSON": JSON.stringify(trim.addedFeatures || []),
-    "Upgraded Features JSON": JSON.stringify(trim.upgradedFeatures || []),
-    "Recommended": false,
-    "Source URL": comparison.sourceUrl,
-    "Source Status": "Verified",
-    "Last Verified At": verifiedAt,
-    "Notes": `Autohome series ${match.series.seriesid}; matched for ${model.brand} ${model.model}`,
+    trim_config_id: `${model.modelId}-${match.series.seriesid}-${trim.order || index + 1}`,
+    model_id: model.modelId,
+    vehicle_model_pruned: [{ id: model.recordId }],
+    variant: trim.name,
+    trim_order: trim.order || index + 1,
+    trim_price_display: parsePriceRmb(trim.priceDisplay),
+    range_display: parseRangeKm(trim.rangeDisplay),
+    battery_capacity_kwh: battery.capacity,
+    battery_chemistry: battery.chemistry || null,
+    drivetrain_display: trim.drivetrainDisplay,
+    motor_power_kw: motor.power,
+    motor_torque_n_m: motor.torque,
+    dc_fast_charge_supported: charging.supported,
+    dc_fast_charge_time_hours: charging.timeHours,
+    dc_fast_charge_min_percent: charging.minPercent,
+    dc_fast_charge_max_percent: charging.maxPercent,
+    base_spec_summary_json: JSON.stringify(trim.baseFeatures || []),
+    added_features_json: JSON.stringify(trim.addedFeatures || []),
+    upgraded_features_json: JSON.stringify(trim.upgradedFeatures || []),
+    recommended: false,
+    source_url: comparison.sourceUrl,
+    source_status: "Verified",
+    last_verified_at: verifiedAt,
+    notes: `Autohome series ${match.series.seriesid}; matched for ${model.brand} ${model.model}`,
   };
   return TRIM_FIELDS.map((field) => fields[field] ?? null);
 }
@@ -965,8 +975,9 @@ function readExistingTrimRecords(cfg) {
       "--format", "json",
       "--limit", "200",
       "--offset", String(offset),
-      "--field-id", "Model ID",
-      "--field-id", "Trim Config ID",
+      "--field-id", "model_id",
+      "--field-id", "trim_config_id",
+      "--field-id", "source_url",
     ]);
     const rows = data.data || [];
     rows.forEach((row, index) => {
@@ -974,6 +985,7 @@ function readExistingTrimRecords(cfg) {
         recordId: data.record_id_list[index],
         modelId: row[0],
         trimConfigId: row[1],
+        sourceUrl: row[2],
       });
     });
     if (rows.length < 200) break;
@@ -1022,7 +1034,8 @@ async function main() {
   const cfg = config();
   const verifiedAt = new Date().toISOString().slice(0, 10) + " 00:00:00";
   const models = readModels(cfg);
-  console.log(`active_models=${models.length}`);
+  const existingTrimRecords = readExistingTrimRecords(cfg);
+  console.log(`models=${models.length}`);
   const seriesIndex = await buildSeriesIndex();
   console.log(`series_index=${seriesIndex.length}`);
 
@@ -1030,7 +1043,8 @@ async function main() {
   const rows = [];
   const updates = [];
   for (const model of models) {
-    const match = matchSeries(model, seriesIndex);
+    const sourceUrl = existingTrimRecords.find((item) => item.modelId === model.modelId && item.sourceUrl)?.sourceUrl || "";
+    const match = matchSeries(model, seriesIndex, sourceUrl);
     if (!match) {
       report.push({ model: `${model.brand} ${model.model}`, modelId: model.modelId, status: "unmatched" });
       continue;
@@ -1047,10 +1061,10 @@ async function main() {
         recordId: model.recordId,
         modelId: model.modelId,
         fields: {
-          "Trim Section Status": "Verified",
-          "Common Features JSON": JSON.stringify(comparison.commonFeatures),
-          "Trim Source Summary": `Trim data verified from Autohome configuration page: ${comparison.sourceUrl}`,
-          "Trim Last Verified At": verifiedAt,
+          trim_section_status_pruned: "Verified",
+          common_features_json_pruned: JSON.stringify(comparison.commonFeatures),
+          trim_source_summary_pruned: `Trim data verified from Autohome configuration page: ${comparison.sourceUrl}`,
+          trim_last_verified_at: verifiedAt,
         },
       });
       report.push({
@@ -1077,7 +1091,7 @@ async function main() {
 
   if (mode === "write") {
     const updatedModelIds = new Set(updates.map((item) => item.modelId));
-    const existing = readExistingTrimRecords(cfg).filter((item) => updatedModelIds.has(item.modelId));
+    const existing = existingTrimRecords.filter((item) => updatedModelIds.has(item.modelId));
     console.log(`delete_existing=${existing.length}`);
     if (existing.length) deleteRecords(cfg, existing.map((item) => item.recordId));
     batchCreate(cfg, rows);

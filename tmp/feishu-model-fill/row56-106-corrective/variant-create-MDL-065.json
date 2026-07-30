@@ -1,0 +1,30 @@
+{
+  "trim_config_id": "MDL-065-DEFAULT",
+  "model_id": "MDL-065",
+  "variant": "Default Pro Spec",
+  "trim_order": 1,
+  "trim_price_display": 25000,
+  "range_display": 400,
+  "battery_capacity_kwh": 49,
+  "battery_chemistry": "LFP",
+  "drivetrain_display": "Rear motor RWD",
+  "motor_power_kw": 200,
+  "motor_torque_n_m": 343,
+  "dc_fast_charge_supported": true,
+  "dc_fast_charge_time_hours": 0.5,
+  "dc_fast_charge_min_percent": 10,
+  "dc_fast_charge_max_percent": 80,
+  "source_url": "https://car.autohome.com.cn/config/spec/66341.html",
+  "base_spec_summary_json": "[]",
+  "added_features_json": "[]",
+  "upgraded_features_json": "[]",
+  "recommended": false,
+  "source_status": "Verified",
+  "last_verified_at": "2026-07-30 00:00:00",
+  "notes": "Default detailed version created to support model formula fields.",
+  "vehicle_model_pruned": [
+    {
+      "id": "recvqDh6sadvbf"
+    }
+  ]
+}

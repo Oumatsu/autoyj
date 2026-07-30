@@ -1,0 +1,427 @@
+[
+  {
+    "field_id": "fldrIlwJoO",
+    "field_name": "record_id",
+    "is_extend": false,
+    "is_primary": true,
+    "is_synced": false,
+    "property": null,
+    "type": 1,
+    "ui_type": "Text"
+  },
+  {
+    "field_id": "fld1EHNNKf",
+    "field_name": "trim_config_id",
+    "is_extend": false,
+    "is_primary": false,
+    "is_synced": false,
+    "property": null,
+    "type": 1,
+    "ui_type": "Text"
+  },
+  {
+    "field_id": "fldjHPf8lc",
+    "field_name": "model_id",
+    "is_extend": false,
+    "is_primary": false,
+    "is_synced": false,
+    "property": null,
+    "type": 1,
+    "ui_type": "Text"
+  },
+  {
+    "field_id": "fldpbyMGl9",
+    "field_name": "variant",
+    "is_extend": false,
+    "is_primary": false,
+    "is_synced": false,
+    "property": null,
+    "type": 1,
+    "ui_type": "Text"
+  },
+  {
+    "description": "Pruned display order from entry trim to highest trim.",
+    "field_id": "fldSwGCHwr",
+    "field_name": "trim_order",
+    "is_extend": false,
+    "is_primary": false,
+    "is_synced": false,
+    "property": {
+      "formatter": "0"
+    },
+    "type": 2,
+    "ui_type": "Number"
+  },
+  {
+    "description": "China MSRP converted from RMB to USD using 2026-07-14 mid-market rate 1 CNY = 0.1475 USD. Frontend formats currency.",
+    "field_id": "fldmHYMmI7",
+    "field_name": "trim_price_display",
+    "is_extend": false,
+    "is_primary": false,
+    "is_synced": false,
+    "property": {
+      "currency_code": "USD",
+      "formatter": "0"
+    },
+    "type": 2,
+    "ui_type": "Currency"
+  },
+  {
+    "description": "CLTC electric range as a pure numeric kilometer value. Frontend appends km CLTC.",
+    "field_id": "fldnI6xf8Z",
+    "field_name": "range_display",
+    "is_extend": false,
+    "is_primary": false,
+    "is_synced": false,
+    "property": {
+      "formatter": "0"
+    },
+    "type": 2,
+    "ui_type": "Number"
+  },
+  {
+    "description": "Battery capacity as a pure numeric kWh value. Frontend appends kWh.",
+    "field_id": "fldlhSUUne",
+    "field_name": "battery_capacity_kwh",
+    "is_extend": false,
+    "is_primary": false,
+    "is_synced": false,
+    "property": {
+      "formatter": "0.000"
+    },
+    "type": 2,
+    "ui_type": "Number"
+  },
+  {
+    "description": "Battery chemistry without the word battery.",
+    "field_id": "fldTFFEpy1",
+    "field_name": "battery_chemistry",
+    "is_extend": false,
+    "is_primary": false,
+    "is_synced": false,
+    "property": {
+      "options": [
+        {
+          "color": 9,
+          "id": "optYepjchQ",
+          "name": "LFP"
+        },
+        {
+          "color": 0,
+          "id": "optkhEwfBD",
+          "name": "NCM"
+        },
+        {
+          "color": 2,
+          "id": "opt6HJx92j",
+          "name": "NMC"
+        },
+        {
+          "color": 6,
+          "id": "optb7sJfbT",
+          "name": "NCM+LFP"
+        },
+        {
+          "color": 5,
+          "id": "optUvuqaLv",
+          "name": "Semi-solid-state"
+        }
+      ]
+    },
+    "type": 3,
+    "ui_type": "SingleSelect"
+  },
+  {
+    "description": "Normalized drivetrain option.",
+    "field_id": "fldhhDNskV",
+    "field_name": "drivetrain_display",
+    "is_extend": false,
+    "is_primary": false,
+    "is_synced": false,
+    "property": {
+      "options": [
+        {
+          "color": 3,
+          "id": "optVxSyncC",
+          "name": "Dual-motor AWD"
+        },
+        {
+          "color": 10,
+          "id": "optNNp1jpv",
+          "name": "Front motor FWD"
+        },
+        {
+          "color": 0,
+          "id": "optdHqgiQi",
+          "name": "Front motor RWD"
+        },
+        {
+          "color": 1,
+          "id": "opt9LPhyNp",
+          "name": "Front-engine AWD"
+        },
+        {
+          "color": 8,
+          "id": "optk1bith6",
+          "name": "Rear motor RWD"
+        },
+        {
+          "color": 5,
+          "id": "optzl7hTNu",
+          "name": "Tri-motor AWD"
+        },
+        {
+          "color": 6,
+          "id": "optiblUJh3",
+          "name": "Quad-motor AWD"
+        }
+      ]
+    },
+    "type": 3,
+    "ui_type": "SingleSelect"
+  },
+  {
+    "description": "Motor power as a pure numeric kW value.",
+    "field_id": "fld1AlzHWQ",
+    "field_name": "motor_power_kw",
+    "is_extend": false,
+    "is_primary": false,
+    "is_synced": false,
+    "property": {
+      "formatter": "0"
+    },
+    "type": 2,
+    "ui_type": "Number"
+  },
+  {
+    "description": "Motor torque as a pure numeric N-m value.",
+    "field_id": "fldYETPH07",
+    "field_name": "motor_torque_n_m",
+    "is_extend": false,
+    "is_primary": false,
+    "is_synced": false,
+    "property": {
+      "formatter": "0"
+    },
+    "type": 2,
+    "ui_type": "Number"
+  },
+  {
+    "description": "Whether this trim supports DC fast charging.",
+    "field_id": "fldfDtflzW",
+    "field_name": "dc_fast_charge_supported",
+    "is_extend": false,
+    "is_primary": false,
+    "is_synced": false,
+    "property": null,
+    "type": 7,
+    "ui_type": "Checkbox"
+  },
+  {
+    "description": "DC fast charge time as a pure numeric hour value.",
+    "field_id": "fldCUm9kWv",
+    "field_name": "dc_fast_charge_time_hours",
+    "is_extend": false,
+    "is_primary": false,
+    "is_synced": false,
+    "property": {
+      "formatter": "0.00"
+    },
+    "type": 2,
+    "ui_type": "Number"
+  },
+  {
+    "description": "Lower bound of the DC fast charge percentage window.",
+    "field_id": "fldQINKUlu",
+    "field_name": "dc_fast_charge_min_percent",
+    "is_extend": false,
+    "is_primary": false,
+    "is_synced": false,
+    "property": {
+      "formatter": "0"
+    },
+    "type": 2,
+    "ui_type": "Number"
+  },
+  {
+    "description": "Upper bound of the DC fast charge percentage window.",
+    "field_id": "fldoeu7F99",
+    "field_name": "dc_fast_charge_max_percent",
+    "is_extend": false,
+    "is_primary": false,
+    "is_synced": false,
+    "property": {
+      "formatter": "0"
+    },
+    "type": 2,
+    "ui_type": "Number"
+  },
+  {
+    "field_id": "fld8sa8W8D",
+    "field_name": "base_spec_summary_json",
+    "is_extend": false,
+    "is_primary": false,
+    "is_synced": false,
+    "property": null,
+    "type": 1,
+    "ui_type": "Text"
+  },
+  {
+    "field_id": "fld86VCOug",
+    "field_name": "added_features_json",
+    "is_extend": false,
+    "is_primary": false,
+    "is_synced": false,
+    "property": null,
+    "type": 1,
+    "ui_type": "Text"
+  },
+  {
+    "field_id": "fldeNajAxv",
+    "field_name": "upgraded_features_json",
+    "is_extend": false,
+    "is_primary": false,
+    "is_synced": false,
+    "property": null,
+    "type": 1,
+    "ui_type": "Text"
+  },
+  {
+    "description": "Checked when this trim should be highlighted.",
+    "field_id": "fldqIgfHWy",
+    "field_name": "recommended",
+    "is_extend": false,
+    "is_primary": false,
+    "is_synced": false,
+    "property": null,
+    "type": 7,
+    "ui_type": "Checkbox"
+  },
+  {
+    "field_id": "fldmlojkXD",
+    "field_name": "source_url",
+    "is_extend": false,
+    "is_primary": false,
+    "is_synced": false,
+    "property": null,
+    "type": 1,
+    "ui_type": "Text"
+  },
+  {
+    "description": "Verification status for this trim row.",
+    "field_id": "fldrlqEt2m",
+    "field_name": "source_status",
+    "is_extend": false,
+    "is_primary": false,
+    "is_synced": false,
+    "property": {
+      "options": [
+        {
+          "color": 9,
+          "id": "opt35sDi1U",
+          "name": "Verified"
+        },
+        {
+          "color": 3,
+          "id": "optXWVMGAF",
+          "name": "Needs Source"
+        },
+        {
+          "color": 8,
+          "id": "optTH91weJ",
+          "name": "TBC"
+        }
+      ]
+    },
+    "type": 3,
+    "ui_type": "SingleSelect"
+  },
+  {
+    "description": "When this trim row was last source-verified.",
+    "field_id": "fldabZbHfE",
+    "field_name": "last_verified_at",
+    "is_extend": false,
+    "is_primary": false,
+    "is_synced": false,
+    "property": {
+      "auto_fill": false,
+      "date_formatter": "yyyy-MM-dd"
+    },
+    "type": 5,
+    "ui_type": "DateTime"
+  },
+  {
+    "field_id": "flda81jcNB",
+    "field_name": "notes",
+    "is_extend": false,
+    "is_primary": false,
+    "is_synced": false,
+    "property": null,
+    "type": 1,
+    "ui_type": "Text"
+  },
+  {
+    "field_id": "fld0NNrCNL",
+    "field_name": "vehicle_model_pruned",
+    "is_extend": false,
+    "is_primary": false,
+    "is_synced": false,
+    "property": {
+      "back_field_id": "fldGj4JtVr",
+      "back_field_name": "trim_configurations_pruned",
+      "multiple": true,
+      "table_id": "tblxVNjP9dnJ7b3o",
+      "table_name": "vehicle_models"
+    },
+    "type": 21,
+    "ui_type": "DuplexLink"
+  },
+  {
+    "field_id": "fldqr3hJ0H",
+    "field_name": "i18n_locale",
+    "is_extend": false,
+    "is_primary": false,
+    "is_synced": false,
+    "property": {
+      "back_field_id": "fld1DPJHzH",
+      "back_field_name": "linked_vehicle_variants",
+      "multiple": true,
+      "table_id": "tblv6UYxgYKSd8y5",
+      "table_name": "i18n_locale"
+    },
+    "type": 21,
+    "ui_type": "DuplexLink"
+  },
+  {
+    "field_id": "fldhuWNBW6",
+    "field_name": "vehicle_models_copy",
+    "is_extend": false,
+    "is_primary": false,
+    "is_synced": false,
+    "property": {
+      "back_field_id": "fldGj4JtVr",
+      "back_field_name": "trim_configurations_pruned",
+      "multiple": true,
+      "table_id": "tblnbMnks1ZKHV2L",
+      "table_name": "vehicle_models视图测试"
+    },
+    "type": 21,
+    "ui_type": "DuplexLink"
+  },
+  {
+    "field_id": "fldNhL9BWU",
+    "field_name": "vehicle_models_ch",
+    "is_extend": false,
+    "is_primary": false,
+    "is_synced": false,
+    "property": {
+      "back_field_id": "fldGj4JtVr",
+      "back_field_name": "trim_configurations_pruned",
+      "multiple": true,
+      "table_id": "tblbp2TPA7rdSDGI",
+      "table_name": "vehicle_models_ch归档"
+    },
+    "type": 21,
+    "ui_type": "DuplexLink"
+  }
+]
