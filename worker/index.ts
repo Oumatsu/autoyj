@@ -18,7 +18,6 @@ interface Env {
   FEISHU_APP_SECRET?: string;
   FEISHU_BASE_APP_TOKEN?: string;
   FEISHU_TABLE_INTERNAL_USERS?: string;
-  FEISHU_TABLE_EXTERNAL_ACCOUNTS?: string;
   FEISHU_TABLE_CUSTOMERS?: string;
   FEISHU_TABLE_VEHICLE_MODELS?: string;
   FEISHU_TABLE_I18N?: string;
@@ -43,6 +42,15 @@ interface ExecutionContext {
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
+
+    const upgradeHeader = request.headers.get("Upgrade");
+    if (upgradeHeader && upgradeHeader.toLowerCase() === "websocket") {
+      try {
+        return await env.ASSETS.fetch(request);
+      } catch {
+        return new Response(null, { status: 101, statusText: "Switching Protocols" });
+      }
+    }
 
     if (url.pathname === "/_vinext/image") {
       const allowedWidths = [...DEFAULT_DEVICE_SIZES, ...DEFAULT_IMAGE_SIZES];

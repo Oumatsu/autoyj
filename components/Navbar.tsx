@@ -73,6 +73,29 @@ export function Navbar() {
     setMobileVehiclesOpen(false);
   }, []);
 
+  const [user, setUser] = useState<{ role: string; name?: string } | null>(null);
+
+  const refreshSession = useCallback(() => {
+    fetch("/api/portal/session")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && data.user) {
+          setUser(data.user);
+        } else {
+          setUser(null);
+        }
+      })
+      .catch(() => setUser(null));
+  }, []);
+
+  useEffect(() => {
+    refreshSession();
+    window.addEventListener("autoyj-session-changed", refreshSession);
+    return () => {
+      window.removeEventListener("autoyj-session-changed", refreshSession);
+    };
+  }, [pathname, refreshSession]);
+
   return (
     <>
       <nav
@@ -159,10 +182,14 @@ export function Navbar() {
         <div className="hidden lg:flex items-center gap-3">
           <LocaleSwitcher />
           <Link
-            href="/portal"
-            className="px-7 py-2.5 rounded-full text-xs font-black tracking-widest uppercase transition border border-white/20 text-gray-300 hover:text-white hover:border-white/40"
+            href="/dashboard"
+            className={`px-6 py-2.5 rounded-full text-xs font-black tracking-widest uppercase transition border ${
+              user
+                ? "border-accent/40 bg-accent/10 text-accent hover:bg-accent hover:text-black"
+                : "border-white/20 text-gray-300 hover:text-white hover:border-white/40"
+            }`}
           >
-            {t("nav.portal")}
+            {user ? `${user.role.toUpperCase()}` : "SIGN IN"}
           </Link>
           <QrDropdown>
             <LocaleLink
@@ -297,11 +324,11 @@ export function Navbar() {
             {t("nav.about")}
           </LocaleLink>
           <Link
-            href="/portal"
+            href="/dashboard"
             onClick={closeMobile}
-            className="text-white hover:text-theme transition"
+            className="text-accent hover:text-white transition"
           >
-            {t("nav.portal")}
+            {user ? user.role.toUpperCase() : "SIGN IN"}
           </Link>
           <LocaleLink
             href="/about#verification"

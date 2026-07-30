@@ -1,7 +1,7 @@
 import { spawnSync } from "node:child_process";
 import path from "node:path";
 
-const BASE_TOKEN = "Xvdfbpk7cadLrnsVCFFcHbhOnCb";
+const BASE_TOKEN = process.env.FEISHU_BASE_APP_TOKEN || "Is6Xb3btbazhFhsDXgFcqFG1nRc";
 const TABLE_ID = "tblATd4EWHge1l1k";
 const PRODUCT_URLS = process.env.CATALOG_PRODUCTS_URL
   ? [process.env.CATALOG_PRODUCTS_URL]

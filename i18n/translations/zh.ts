@@ -8,7 +8,7 @@ export default {
     insights: "洞察",
     academy: "学院",
     about: "关于我们",
-    portal: "门户",
+    portal: "工作台",
     contactUs: "联系我们",
   },
   home: {

@@ -2,7 +2,7 @@ import { spawnSync } from "node:child_process";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
-const BASE_TOKEN = "Xvdfbpk7cadLrnsVCFFcHbhOnCb";
+const BASE_TOKEN = process.env.FEISHU_BASE_APP_TOKEN || "Is6Xb3btbazhFhsDXgFcqFG1nRc";
 const TABLE_ID = "tblJq4Un2LQQaFPU";
 const VIEW_ID = "vewyvZ3wcl";
 const TEMP_DIR = ".lark-tmp";

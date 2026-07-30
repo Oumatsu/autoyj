@@ -1,13 +1,14 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import React, { Fragment, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
+import { authClient } from "@/lib/auth-client";
 
 type PortalRole = "admin" | "sales" | "sourcing" | "finance" | "partner" | "customer";
 type PriceTier = "hidden" | "partner" | "vip" | "internal";
 type AccountType = "internal" | "external";
-type AdminModule = "dashboard" | "profiles" | "vehicles" | "quotes" | "orders" | "payments" | "logistics" | "customers" | "staff" | "files";
-type AdminIconName = AdminModule;
+type AdminModule = "dashboard" | "vehicle_models" | "vehicles" | "source_imports" | "quotes" | "orders" | "payments" | "logistics" | "customers" | "staff" | "files";
+type AdminIconName = "dashboard" | "vehicle_models" | "vehicles" | "quotes" | "orders" | "payments" | "logistics" | "customers" | "staff" | "files";
 
 type PortalUser = {
   userId: string;
@@ -327,17 +328,18 @@ const adminRoleLabels: Record<PortalRole, string> = {
   customer: "客户",
 };
 
-const adminNavItems: { key: AdminModule; label: string; roles: PortalRole[]; icon: AdminIconName }[] = [
-  { key: "dashboard", label: "首页看板", roles: ["admin", "sales", "sourcing", "finance"], icon: "dashboard" },
-  { key: "profiles", label: "车型库", roles: ["admin", "sales", "sourcing"], icon: "profiles" },
-  { key: "vehicles", label: "车辆资源", roles: ["admin", "sales", "sourcing"], icon: "vehicles" },
-  { key: "quotes", label: "询价管理", roles: ["admin", "sales"], icon: "quotes" },
-  { key: "orders", label: "订单管理", roles: ["admin", "sales", "finance"], icon: "orders" },
-  { key: "payments", label: "收款财务", roles: ["admin", "finance"], icon: "payments" },
-  { key: "logistics", label: "出口流程", roles: ["admin", "sales"], icon: "logistics" },
-  { key: "customers", label: "客户资料", roles: ["admin"], icon: "customers" },
-  { key: "staff", label: "员工账号", roles: ["admin"], icon: "staff" },
-  { key: "files", label: "文件中心", roles: ["admin", "sales"], icon: "files" },
+const adminNavItems: { key: AdminModule; label: string; roles: PortalRole[]; icon: AdminIconName; badge?: string }[] = [
+  { key: "dashboard", label: "首页看板", roles: ["admin", "sales", "sourcing", "finance", "partner", "customer"], icon: "dashboard", badge: "开发中" },
+  { key: "vehicle_models", label: "车型库", roles: ["admin", "sales", "sourcing", "partner", "customer"], icon: "vehicle_models", badge: "开发中" },
+  { key: "vehicles", label: "车辆资源", roles: ["admin", "sales", "sourcing", "partner"], icon: "vehicles", badge: "开发中" },
+  { key: "source_imports", label: "车源录入与审查", roles: ["admin", "sales", "sourcing"], icon: "vehicles", badge: "开发中" },
+  { key: "quotes", label: "询价管理", roles: ["admin", "sales", "partner", "customer"], icon: "quotes", badge: "开发中" },
+  { key: "orders", label: "订单管理", roles: ["admin", "sales", "finance", "partner", "customer"], icon: "orders", badge: "开发中" },
+  { key: "payments", label: "收款财务", roles: ["admin", "finance"], icon: "payments", badge: "开发中" },
+  { key: "logistics", label: "出口流程", roles: ["admin", "sales", "partner", "customer"], icon: "logistics", badge: "开发中" },
+  { key: "customers", label: "客户资料", roles: ["admin"], icon: "customers", badge: "开发中" },
+  { key: "staff", label: "员工账号", roles: ["admin"], icon: "staff", badge: "开发中" },
+  { key: "files", label: "文件中心", roles: ["admin", "sales", "partner", "customer"], icon: "files", badge: "开发中" },
 ];
 
 const modelCoreSpecNames = [
@@ -408,6 +410,31 @@ function formatDate(value: string) {
   return Number.isNaN(date.getTime()) ? value : date.toLocaleString();
 }
 
+function safeText(val: any, fallback = ""): string {
+  if (val === null || val === undefined) return fallback;
+  if (typeof val === "string") {
+    if (val === "[object Object]") return fallback;
+    return val.trim() || fallback;
+  }
+  if (typeof val === "number" || typeof val === "boolean") return String(val);
+  if (Array.isArray(val)) {
+    const parts = val.map((item) => safeText(item, "")).filter(Boolean);
+    return parts.length ? parts.join(", ") : fallback;
+  }
+  if (typeof val === "object") {
+    const textVal = val.text ?? val.name ?? val.label ?? val.value ?? val.title ?? val.content;
+    if (textVal !== undefined && textVal !== null && typeof textVal !== "object") {
+      const res = String(textVal).trim();
+      if (res && res !== "[object Object]") return res;
+    }
+    if (Array.isArray(val.rich_text)) {
+      const rt = val.rich_text.map((item: any) => item?.text?.content || item?.text || "").join("").trim();
+      if (rt) return rt;
+    }
+  }
+  return fallback;
+}
+
 async function api<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(path, {
     ...init,
@@ -432,7 +459,18 @@ export default function PortalPage() {
   const [error, setError] = useState("");
   const [isLocalDev, setIsLocalDev] = useState(false);
   const [showPreviewTestLogin, setShowPreviewTestLogin] = useState(false);
-  const [activeAdminModule, setActiveAdminModule] = useState<AdminModule>("dashboard");
+  const [activeAdminModule, setActiveAdminModule] = useState<AdminModule>(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const queryTab = (params.get("tab") || params.get("module") || "").toLowerCase().replaceAll("-", "_");
+      if (queryTab === "vehicle_models" || queryTab === "profiles") return "vehicle_models";
+      const validModules: AdminModule[] = ["dashboard", "vehicle_models", "vehicles", "source_imports", "quotes", "orders", "payments", "logistics", "customers", "staff", "files"];
+      if (queryTab && validModules.includes(queryTab as AdminModule)) {
+        return queryTab as AdminModule;
+      }
+    }
+    return "dashboard";
+  });
   const [selectedSellableModel, setSelectedSellableModel] = useState<SellableModel | null>(null);
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
   const [inquiryForm, setInquiryForm] = useState<InquiryForm>(emptyInquiryForm);
@@ -440,10 +478,17 @@ export default function PortalPage() {
   const [counterPrice, setCounterPrice] = useState("");
   const [counterMessage, setCounterMessage] = useState("");
 
-  async function load() {
-    setLoading(true);
+  async function checkSessionAndLoad() {
     setError("");
     try {
+      // 1. 先极速校验 Session（纯本地 Cookie 校验，<5ms 返回），无需长等待
+      const sessionRes = await api<{ user: PortalUser | null }>("/api/portal/session");
+      if (!sessionRes.user) {
+        setData(null);
+        setLoading(false);
+        return;
+      }
+      // 2. 已登录：拉取全量后台数据
       const bootstrap = await api<BootstrapData>("/api/portal/bootstrap");
       setData(bootstrap);
     } catch (loadError) {
@@ -464,8 +509,41 @@ export default function PortalPage() {
       host.includes("autoyj-preview") ||
       host.includes("preview")
     );
-    void load();
+
+    const validModules: AdminModule[] = ["dashboard", "vehicle_models", "vehicles", "source_imports", "quotes", "orders", "payments", "logistics", "customers", "staff", "files"];
+    const syncFromUrl = () => {
+      const pathname = window.location.pathname.toLowerCase();
+      const segments = pathname.split("/").filter(Boolean);
+      const lastSegment = (segments[segments.length - 1] || "").replaceAll("-", "_") as AdminModule;
+
+      const params = new URLSearchParams(window.location.search);
+      const queryTab = (params.get("tab") || params.get("module") || "").toLowerCase().replaceAll("-", "_") as AdminModule;
+
+      if (queryTab && (validModules.includes(queryTab) || queryTab === "profiles" as any)) {
+        setActiveAdminModule(queryTab === "profiles" as any ? "vehicle_models" : queryTab);
+      } else if (lastSegment && (validModules.includes(lastSegment) || lastSegment === "profiles" as any)) {
+        setActiveAdminModule(lastSegment === "profiles" as any ? "vehicle_models" : lastSegment);
+      }
+    };
+
+    syncFromUrl();
+    window.addEventListener("popstate", syncFromUrl);
+
+    void checkSessionAndLoad();
+
+    return () => {
+      window.removeEventListener("popstate", syncFromUrl);
+    };
   }, []);
+
+  const handleModuleChange = (module: AdminModule) => {
+    setActiveAdminModule(module);
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      url.searchParams.set("tab", module);
+      window.history.pushState({ module }, "", url.toString());
+    }
+  };
 
   const quoteByInquiry = useMemo(() => {
     const grouped = new Map<string, Quote[]>();
@@ -492,7 +570,10 @@ export default function PortalPage() {
         method: "POST",
         body: JSON.stringify({ email, accessCode }),
       });
-      await load();
+      await checkSessionAndLoad();
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event("autoyj-session-changed"));
+      }
       const params = new URLSearchParams(window.location.search);
       const redirect = params.get("redirect");
       if (redirect) {
@@ -513,7 +594,10 @@ export default function PortalPage() {
         method: "POST",
         body: JSON.stringify({ role }),
       });
-      await load();
+      await checkSessionAndLoad();
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event("autoyj-session-changed"));
+      }
     } catch (loginError) {
       setError(loginError instanceof Error ? loginError.message : "Development sign in failed");
     } finally {
@@ -529,10 +613,13 @@ export default function PortalPage() {
 
   async function logout() {
     await api("/api/portal/session", { method: "DELETE" });
-      setData(null);
-      setActiveAdminModule("dashboard");
-      setSelectedSellableModel(null);
-      setSelectedVehicle(null);
+    setData(null);
+    setActiveAdminModule("dashboard");
+    setSelectedSellableModel(null);
+    setSelectedVehicle(null);
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new Event("autoyj-session-changed"));
+    }
   }
 
   async function createInquiry(event: React.FormEvent) {
@@ -554,7 +641,7 @@ export default function PortalPage() {
       });
       setSelectedVehicle(null);
       setInquiryForm(emptyInquiryForm);
-      await load();
+      await checkSessionAndLoad();
     } catch (createError) {
       setError(createError instanceof Error ? createError.message : "Inquiry failed");
     } finally {
@@ -578,7 +665,7 @@ export default function PortalPage() {
       setCounterQuote(null);
       setCounterPrice("");
       setCounterMessage("");
-      await load();
+      await checkSessionAndLoad();
     } catch (counterError) {
       setError(counterError instanceof Error ? counterError.message : "Counteroffer failed");
     } finally {
@@ -591,7 +678,7 @@ export default function PortalPage() {
     setError("");
     try {
       await api(`/api/portal/quotes/${encodeURIComponent(quote.quoteNo)}/accept`, { method: "POST" });
-      await load();
+      await checkSessionAndLoad();
     } catch (acceptError) {
       setError(acceptError instanceof Error ? acceptError.message : "Accept failed");
     } finally {
@@ -612,7 +699,7 @@ export default function PortalPage() {
       <main className="min-h-screen bg-bg px-4 pb-20 pt-32">
         <section className="mx-auto grid w-full max-w-5xl gap-10 lg:grid-cols-[1.05fr_.95fr]">
           <div className="flex flex-col justify-center">
-            <div className="label label-gold mb-5">Dealer Portal</div>
+            <div className="label label-gold mb-5">Dashboard</div>
             <h1 className="sh mb-6">
               Live Stock.
               <br />
@@ -625,7 +712,7 @@ export default function PortalPage() {
 
           <form onSubmit={login} className="glass grid gap-5 rounded-[2rem] p-6 sm:p-8">
             <div>
-              <h2 className="text-2xl font-black uppercase italic text-white">Portal Sign In</h2>
+              <h2 className="text-2xl font-black uppercase italic text-white">Sign In</h2>
               <p className="mt-2 text-xs text-gray-500">Your access level is controlled in Feishu Base.</p>
             </div>
             {(isLocalDev || showPreviewTestLogin) && (
@@ -647,19 +734,25 @@ export default function PortalPage() {
                 </div>
               </div>
             )}
-            <label className="grid gap-2 text-xs font-black uppercase tracking-widest text-gray-500">
+            <label htmlFor="login-email" className="grid gap-2 text-xs font-black uppercase tracking-widest text-gray-500">
               Email
               <input
+                id="login-email"
+                name="email"
+                autoComplete="username"
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
                 className="rounded-xl border border-white/10 bg-white/[.04] px-4 py-3 text-sm font-medium normal-case tracking-normal text-white outline-none focus:border-gold"
-                placeholder="dealer@example.com"
+                placeholder="partner@example.com"
                 type="email"
               />
             </label>
-            <label className="grid gap-2 text-xs font-black uppercase tracking-widest text-gray-500">
+            <label htmlFor="login-access-code" className="grid gap-2 text-xs font-black uppercase tracking-widest text-gray-500">
               Access Code
               <input
+                id="login-access-code"
+                name="password"
+                autoComplete="current-password"
                 value={accessCode}
                 onChange={(event) => setAccessCode(event.target.value)}
                 className="rounded-xl border border-white/10 bg-white/[.04] px-4 py-3 text-sm font-medium normal-case tracking-normal text-white outline-none focus:border-gold"
@@ -669,7 +762,7 @@ export default function PortalPage() {
             </label>
             {error && <p className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-xs font-bold text-red-300">{error}</p>}
             <button disabled={busy} className="btn-primary rounded-xl px-5 py-4 text-xs font-black uppercase tracking-widest disabled:opacity-60">
-              {busy ? "Signing in..." : "Enter Portal"}
+              {busy ? "Signing in..." : "Sign In"}
             </button>
           </form>
         </section>
@@ -677,25 +770,23 @@ export default function PortalPage() {
     );
   }
 
-  if (isInternalUser(data.user)) {
-    return (
-      <AdminPortal
-        activeModule={activeAdminModule}
-        data={data}
-        error={error}
-        onLogout={logout}
-        onModuleChange={setActiveAdminModule}
-        onReload={load}
-      />
-    );
-  }
+  return (
+    <AdminPortal
+      activeModule={activeAdminModule}
+      data={data}
+      error={error}
+      onLogout={logout}
+      onModuleChange={handleModuleChange}
+      onReload={checkSessionAndLoad}
+    />
+  );
 
   return (
     <main className="min-h-screen bg-bg px-4 pb-24 pt-28 sm:px-6">
       <section className="mx-auto grid max-w-7xl gap-8">
         <header className="flex flex-col gap-5 border-b border-white/10 pb-8 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <div className="label label-gold mb-4">autoYJ Portal</div>
+            <div className="label label-gold mb-4">autoYJ Dashboard</div>
             <h1 className="text-4xl font-black uppercase italic tracking-tight text-white sm:text-5xl">
               {data.user.company}
             </h1>
@@ -996,19 +1087,29 @@ function AdminPortal({
             {visibleNav.map((item) => {
               const isActive = item.key === normalizedActiveModule;
               return (
-                <button
+                <a
                   key={item.key}
-                  type="button"
-                  onClick={() => onModuleChange(item.key)}
-                  className={`flex min-h-12 items-center gap-3 rounded-xl px-4 py-3 text-left text-base font-bold transition ${
+                  href={`/dashboard?tab=${item.key}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onModuleChange(item.key);
+                  }}
+                  className={`flex min-h-12 items-center justify-between gap-2 rounded-xl px-4 py-3 text-left text-base font-bold transition ${
                     isActive
                       ? "bg-white/10 text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,.08)]"
                       : "text-slate-400 hover:bg-white/[.06] hover:text-white"
                   }`}
                 >
-                  <AdminNavIcon name={item.icon} />
-                  <span className="truncate">{item.label}</span>
-                </button>
+                  <div className="flex items-center gap-3 min-w-0">
+                    <AdminNavIcon name={item.icon} />
+                    <span className="truncate">{item.label}</span>
+                  </div>
+                  {item.badge && (
+                    <span className="shrink-0 rounded-md border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[11px] font-semibold text-amber-400">
+                      {item.badge}
+                    </span>
+                  )}
+                </a>
               );
             })}
           </nav>
@@ -1063,7 +1164,9 @@ function AdminPortal({
 
 function AdminModuleContent({ activeModule, data, onEditVehicle }: { activeModule: AdminModule; data: BootstrapData; onEditVehicle: (vehicle: Vehicle) => void }) {
   switch (activeModule) {
-    case "profiles":
+    case "source_imports":
+      return <AdminSourceImportsDemo />;
+    case "vehicle_models":
       return <AdminProfiles data={data} />;
     case "vehicles":
       return <AdminVehicles data={data} onEdit={onEditVehicle} />;
@@ -1084,6 +1187,76 @@ function AdminModuleContent({ activeModule, data, onEditVehicle }: { activeModul
     default:
       return <AdminDashboard data={data} />;
   }
+}
+
+function AdminSourceImportsDemo() {
+  return (
+    <div className="grid min-w-0 gap-6">
+      <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-5 text-amber-300">
+        <div className="flex items-center gap-3">
+          <span className="rounded-md bg-amber-400 px-2 py-0.5 text-xs font-black uppercase text-black">开发中 / Demo</span>
+          <h2 className="text-lg font-black tracking-tight text-white">车源录入与审查静态设计（开发中）</h2>
+        </div>
+        <p className="mt-2 text-xs text-amber-200/80">
+          包含批量素材上传、AI/OCR 中间产物解析、重合度风险判定警报、车源候选列表及审查抽屉预演界面。
+        </p>
+      </div>
+
+      <section className="grid gap-4 md:grid-cols-4">
+        <div className="rounded-xl border border-white/10 bg-white/[.04] p-4">
+          <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">待审查素材</span>
+          <strong className="mt-2 block text-2xl font-black text-white">12 份</strong>
+          <span className="mt-1 block text-xs text-slate-400">PDF / 图片 / 微信聊天记录</span>
+        </div>
+        <div className="rounded-xl border border-white/10 bg-white/[.04] p-4">
+          <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">AI 解析完成度</span>
+          <strong className="mt-2 block text-2xl font-black text-[#22b8aa]">98.5%</strong>
+          <span className="mt-1 block text-xs text-slate-400">结合 Nemotron / GPT 视觉模型</span>
+        </div>
+        <div className="rounded-xl border border-white/10 bg-white/[.04] p-4">
+          <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">疑似重复车源警报</span>
+          <strong className="mt-2 block text-2xl font-black text-amber-400">2 组</strong>
+          <span className="mt-1 block text-xs text-amber-300/80">同 VIN / 车架号交叉校验</span>
+        </div>
+        <div className="rounded-xl border border-white/10 bg-white/[.04] p-4">
+          <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">已入库待发布</span>
+          <strong className="mt-2 block text-2xl font-black text-white">35 台</strong>
+          <span className="mt-1 block text-xs text-slate-400">符合出口 PDI 准备标准</span>
+        </div>
+      </section>
+
+      <div className="grid gap-5 xl:grid-cols-2">
+        <div className="rounded-2xl border border-white/10 bg-white/[.03] p-5">
+          <h3 className="text-base font-black text-white">批量素材导入与智能识别 (Demo)</h3>
+          <p className="mt-1 text-xs text-slate-400">支持拖拽 Excel、车辆识别登记表、供应商朋友圈图片或微信截图</p>
+          <div className="mt-4 grid h-36 place-items-center rounded-xl border border-dashed border-white/20 bg-black/20 text-center">
+            <div>
+              <p className="text-xs font-bold text-slate-300">点击或将车源资料文件拖拽至此处</p>
+              <p className="mt-1 text-[10px] text-slate-500">自动提取 VIN、外观/内饰颜色、指导价、车商报价与定金要求</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-white/10 bg-white/[.03] p-5">
+          <h3 className="text-base font-black text-white">审查工作流提示 (Workflow Preview)</h3>
+          <div className="mt-4 grid gap-3 text-xs text-slate-300">
+            <div className="flex items-center justify-between rounded-lg border border-white/10 bg-black/20 p-3">
+              <span>1. 原始凭证采集 (Excel / 图片 OCR)</span>
+              <span className="text-[#22b8aa] font-bold">通过</span>
+            </div>
+            <div className="flex items-center justify-between rounded-lg border border-white/10 bg-black/20 p-3">
+              <span>2. 结构化字段映射 (字段校验无空格)</span>
+              <span className="text-[#22b8aa] font-bold">通过</span>
+            </div>
+            <div className="flex items-center justify-between rounded-lg border border-white/10 bg-black/20 p-3">
+              <span>3. 多维表格 `vehicle_sources` 增量同步</span>
+              <span className="text-amber-400 font-bold">开发中</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 function AdminDashboard({ data }: { data: BootstrapData }) {
@@ -1139,11 +1312,210 @@ function AdminDashboard({ data }: { data: BootstrapData }) {
   );
 }
 
+function ModelFullSpecsCard({ group }: { group: ModelProfileGroup }) {
+  const v = group.variants[0] || ({} as VehicleModel);
+
+  const batteryVal = safeText(v.battery) || getModelSpecValue(group.specsByModel, v.id, ["电池容量"]) || "-";
+  const batteryTypeVal = safeText(v.batteryType) || getModelSpecValue(group.specsByModel, v.id, ["电池类型"]) || "-";
+  const batteryMakerVal = safeText(v.batteryMaker) || "-";
+  const rangeVal = safeText(group.rangeSummary || v.range) || "-";
+  const energyConsumptionVal = safeText(v.energyConsumption) || "-";
+  const chargingVal = safeText(v.charging) || "-";
+
+  const motorPowerVal = safeText(v.motorPower) || getModelSpecValue(group.specsByModel, v.id, ["电机总功率"]) || "-";
+  const motorTorqueVal = safeText(v.motorTorque) || getModelSpecValue(group.specsByModel, v.id, ["电机总扭矩"]) || "-";
+  const driveTypeVal = safeText(v.driveType) || getModelSpecValue(group.specsByModel, v.id, ["驱动方式"]) || "-";
+  const accelerationVal = safeText(v.acceleration) || "-";
+  const topSpeedVal = safeText(v.topSpeed) || "-";
+
+  const dimensionsVal = safeText(v.dimensions) || getModelSpecValue(group.specsByModel, v.id, ["长*宽*高(mm)"]) || "-";
+  const wheelbaseVal = safeText(v.wheelbase) || getModelSpecValue(group.specsByModel, v.id, ["轴距(mm)"]) || "-";
+  const seatsVal = safeText(v.seats);
+  const doorsVal = safeText(v.doors);
+  const frontSuspensionVal = safeText(v.frontSuspension);
+  const rearSuspensionVal = safeText(v.rearSuspension);
+  const curbWeightVal = safeText(v.curbWeight);
+  const trunkCapacityVal = safeText(v.trunkCapacity);
+
+  const adasVal = safeText(v.adas) || getModelSpecValue(group.specsByModel, v.id, ["ADAS"]) || "-";
+  const warrantyVal = safeText(v.warranty) || "-";
+  const msrpVal = safeText(group.guidePriceSummary || v.msrpChina) || "-";
+  const exportNotesVal = safeText(v.exportNotes) || "符合海关出口通用检验标准";
+
+  return (
+    <div className="grid gap-4 rounded-xl border border-white/10 bg-[#0c1322] p-4 text-xs">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-3">
+        <div>
+          <div className="flex items-center gap-2">
+            <span className="rounded bg-[#22b8aa]/20 px-2 py-0.5 font-mono text-[10px] font-black uppercase text-[#5ee6d8]">
+              {safeText(group.brand)} · {safeText(group.model)}
+            </span>
+            <span className="text-[10px] text-slate-400">({group.variants.length} 个版本在库)</span>
+          </div>
+          <h4 className="mt-1 text-sm font-black text-white">{safeText(group.marketPosition) || `${safeText(group.brand)} ${safeText(group.model)} 全量技术参数图谱`}</h4>
+        </div>
+        <div className="flex flex-wrap items-center gap-2 text-[10px]">
+          <AdminSummaryChip label="数据来源" value={safeText(v.sourceName) || "飞书 Base 认证数据"} />
+          {v.sourceUrl ? (
+            <a href={v.sourceUrl} target="_blank" rel="noreferrer" className="rounded-lg border border-[#22b8aa]/30 bg-[#22b8aa]/10 px-2.5 py-1 font-bold text-[#5ee6d8] hover:bg-[#22b8aa] hover:text-black">
+              查看飞书原始源
+            </a>
+          ) : null}
+          {v.brochureUrl ? (
+            <a href={v.brochureUrl} target="_blank" rel="noreferrer" className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-2.5 py-1 font-bold text-amber-300 hover:bg-amber-500 hover:text-black">
+              官方PDF宣传册
+            </a>
+          ) : null}
+        </div>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="rounded-lg border border-[#22b8aa]/20 bg-[#22b8aa]/[0.03] p-3">
+          <div className="mb-2 flex items-center justify-between border-b border-[#22b8aa]/20 pb-1.5">
+            <strong className="font-black text-[#5ee6d8]">⚡ 三电与电池系统</strong>
+            <span className="text-[9px] text-[#22b8aa]">BATTERY & CHARGING</span>
+          </div>
+          <dl className="grid gap-1.5 text-slate-300">
+            <div className="flex justify-between">
+              <dt className="text-slate-500">电池容量:</dt>
+              <dd className="font-medium text-white">{batteryVal}</dd>
+            </div>
+            <div className="flex justify-between">
+              <dt className="text-slate-500">电池类型:</dt>
+              <dd className="font-medium text-white">{batteryTypeVal}</dd>
+            </div>
+            <div className="flex justify-between">
+              <dt className="text-slate-500">电芯/电池供应商:</dt>
+              <dd className="font-medium text-white">{batteryMakerVal}</dd>
+            </div>
+            <div className="flex justify-between">
+              <dt className="text-slate-500">CLTC / NEDC 续航:</dt>
+              <dd className="font-bold text-[#5ee6d8]">{rangeVal}</dd>
+            </div>
+            <div className="flex justify-between">
+              <dt className="text-slate-500">百公里电耗:</dt>
+              <dd className="font-medium text-white">{energyConsumptionVal}</dd>
+            </div>
+            <div className="flex justify-between">
+              <dt className="text-slate-500">快充说明/时间:</dt>
+              <dd className="font-medium text-white">{chargingVal}</dd>
+            </div>
+          </dl>
+        </div>
+
+        <div className="rounded-lg border border-indigo-500/20 bg-indigo-500/[0.03] p-3">
+          <div className="mb-2 flex items-center justify-between border-b border-indigo-500/20 pb-1.5">
+            <strong className="font-black text-indigo-300">🏁 电机驱动与性能</strong>
+            <span className="text-[9px] text-indigo-400">MOTOR & PERFORMANCE</span>
+          </div>
+          <dl className="grid gap-1.5 text-slate-300">
+            <div className="flex justify-between">
+              <dt className="text-slate-500">电机最大功率:</dt>
+              <dd className="font-medium text-white">{motorPowerVal}</dd>
+            </div>
+            <div className="flex justify-between">
+              <dt className="text-slate-500">电机最大扭矩:</dt>
+              <dd className="font-medium text-white">{motorTorqueVal}</dd>
+            </div>
+            <div className="flex justify-between">
+              <dt className="text-slate-500">驱动形式:</dt>
+              <dd className="font-medium text-white">{driveTypeVal}</dd>
+            </div>
+            <div className="flex justify-between">
+              <dt className="text-slate-500">0-100km/h 加速:</dt>
+              <dd className="font-bold text-indigo-300">{accelerationVal}</dd>
+            </div>
+            <div className="flex justify-between">
+              <dt className="text-slate-500">最高极速:</dt>
+              <dd className="font-medium text-white">{topSpeedVal}</dd>
+            </div>
+          </dl>
+        </div>
+
+        <div className="rounded-lg border border-amber-500/20 bg-amber-500/[0.03] p-3">
+          <div className="mb-2 flex items-center justify-between border-b border-amber-500/20 pb-1.5">
+            <strong className="font-black text-amber-300">🚗 车身尺寸与底盘</strong>
+            <span className="text-[9px] text-amber-400">BODY & CHASSIS</span>
+          </div>
+          <dl className="grid gap-1.5 text-slate-300">
+            <div className="flex justify-between">
+              <dt className="text-slate-500">长 × 宽 × 高 (mm):</dt>
+              <dd className="font-medium text-white">{dimensionsVal}</dd>
+            </div>
+            <div className="flex justify-between">
+              <dt className="text-slate-500">轴距 (mm):</dt>
+              <dd className="font-medium text-white">{wheelbaseVal}</dd>
+            </div>
+            <div className="flex justify-between">
+              <dt className="text-slate-500">座位 / 车门数:</dt>
+              <dd className="font-medium text-white">{seatsVal ? `${seatsVal}座` : "-"} / {doorsVal ? `${doorsVal}门` : "-"}</dd>
+            </div>
+            <div className="flex justify-between">
+              <dt className="text-slate-500">前/后悬架:</dt>
+              <dd className="font-medium text-white">{frontSuspensionVal || "-"} / {rearSuspensionVal || "-"}</dd>
+            </div>
+            <div className="flex justify-between">
+              <dt className="text-slate-500">整备质量 / 后备厢:</dt>
+              <dd className="font-medium text-white">{curbWeightVal || "-"} / {trunkCapacityVal || "-"}</dd>
+            </div>
+          </dl>
+        </div>
+
+        <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/[0.03] p-3">
+          <div className="mb-2 flex items-center justify-between border-b border-emerald-500/20 pb-1.5">
+            <strong className="font-black text-emerald-300">🛡️ 智驾、质保与出口</strong>
+            <span className="text-[9px] text-emerald-400">ADAS & COMPLIANCE</span>
+          </div>
+          <dl className="grid gap-1.5 text-slate-300">
+            <div className="flex justify-between">
+              <dt className="text-slate-500">智驾/辅助驾驶:</dt>
+              <dd className="font-bold text-emerald-300">{adasVal}</dd>
+            </div>
+            <div className="flex justify-between">
+              <dt className="text-slate-500">质保政策:</dt>
+              <dd className="font-medium text-white">{warrantyVal}</dd>
+            </div>
+            <div className="flex justify-between">
+              <dt className="text-slate-500">国内官方指导价:</dt>
+              <dd className="font-bold text-amber-300">{group.guidePriceSummary || v.msrpChina || "-"}</dd>
+            </div>
+            <div className="flex justify-between">
+              <dt className="text-slate-500">出口合规/备注:</dt>
+              <dd className="font-medium text-white">{v.exportNotes || "符合海关出口通用检验标准"}</dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+
+      {group.variants.length > 1 ? (
+        <div className="mt-2 rounded-lg border border-white/10 bg-white/[.02] p-3">
+          <strong className="block text-xs font-black text-slate-300 mb-2">包含的版本与变体 ({group.variants.length} 个):</strong>
+          <div className="grid gap-2 sm:grid-cols-2 md:grid-cols-3">
+            {group.variants.map((varItem) => (
+              <div key={varItem.id} className="rounded border border-white/10 bg-black/20 p-2 text-xs">
+                <span className="font-black text-white">{varItem.trim || varItem.id}</span>
+                <div className="mt-1 flex flex-wrap gap-2 text-[10px] text-slate-400">
+                  <span>续航: {varItem.range || "-"}</span>
+                  <span>功率: {varItem.motorPower || "-"}</span>
+                  <span>指导价: {varItem.msrpChina || "-"}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 function AdminProfiles({ data }: { data: BootstrapData }) {
   const groups = useMemo(() => buildModelProfileGroups(data), [data]);
   const [route, setRoute] = useState<ModelProfileRoute>({ view: "list" });
   const [searchQuery, setSearchQuery] = useState("");
   const [mode, setMode] = useState<"core" | "full">("core");
+  const [tableColumnMode, setTableColumnMode] = useState<"compact" | "full">("full");
+  const [expandedKey, setExpandedKey] = useState<string | null>(null);
+
   const normalizedSearch = searchQuery.trim().toLowerCase();
   const visibleGroups = groups.filter((group) => modelProfileGroupMatchesSearch(group, normalizedSearch));
   const selectedGroup = route.view === "list" ? null : groups.find((group) => group.key === route.groupKey) || null;
@@ -1172,7 +1544,7 @@ function AdminProfiles({ data }: { data: BootstrapData }) {
   return (
     <div className="grid gap-5">
       {route.view === "list" ? (
-        <AdminPanel title="车型库" subtitle="车型列表用于快速查找，进入详情后再看版本差异和完整参数">
+        <AdminPanel title="车型库" subtitle="全量展示飞书 Base 关联数据：包含三电系统、电机驱动、尺寸轴距、智驾等级与合规出口字段">
           <div className="mb-4 grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
             <label className="grid gap-2 text-xs font-black uppercase tracking-widest text-slate-500">
               搜索车型
@@ -1180,20 +1552,43 @@ function AdminProfiles({ data }: { data: BootstrapData }) {
                 value={searchQuery}
                 onChange={(event) => setSearchQuery(event.target.value)}
                 className="rounded-xl border border-white/10 bg-[#0c1322] px-4 py-3 text-sm font-medium normal-case tracking-normal text-white outline-none transition placeholder:text-slate-600 focus:border-[#22b8aa]"
-                placeholder="品牌、车型、年款、版本、级别、能源"
+                placeholder="品牌、车型、年款、版本、级别、电池类型、电机功率、智驾等级"
               />
             </label>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="flex rounded-xl border border-white/10 bg-white/[.04] p-1">
+                <button
+                  type="button"
+                  onClick={() => setTableColumnMode("compact")}
+                  className={`rounded-lg px-3 py-1.5 text-[10px] font-black uppercase tracking-widest transition ${
+                    tableColumnMode === "compact" ? "bg-[#22b8aa] text-[#07111f]" : "text-slate-400 hover:text-white"
+                  }`}
+                >
+                  精简视图
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setTableColumnMode("full")}
+                  className={`rounded-lg px-3 py-1.5 text-[10px] font-black uppercase tracking-widest transition ${
+                    tableColumnMode === "full" ? "bg-[#22b8aa] text-[#07111f]" : "text-slate-400 hover:text-white"
+                  }`}
+                >
+                  全量列视图
+                </button>
+              </div>
               <AdminSummaryChip label="车型" value={`${visibleGroups.length} / ${groups.length}`} tone="accent" />
               <AdminSummaryChip label="版本" value={`${visibleGroups.reduce((sum, group) => sum + group.variants.length, 0)} 个`} />
             </div>
           </div>
 
           <div className="max-w-full overflow-x-auto rounded-xl border border-white/10">
-            <table className="w-full min-w-[900px] border-separate border-spacing-0 text-left text-sm">
+            <table className="w-full min-w-[1100px] border-separate border-spacing-0 text-left text-sm">
               <thead>
                 <tr>
-                  {["品牌", "车型", "年款", "版本", "级别", "能源", "续航", "指导价", "操作"].map((header) => (
+                  {(tableColumnMode === "full"
+                    ? ["品牌", "车型 & 定位", "年款", "版本", "级别", "能源", "电池 / 供应商", "续航 (CLTC)", "电机 / 驱动", "尺寸 / 轴距", "智驾 / 安全", "指导价", "操作"]
+                    : ["品牌", "车型", "年款", "版本", "级别", "能源", "续航", "指导价", "操作"]
+                  ).map((header) => (
                     <th key={header} className="border-b border-white/10 px-3 py-3 text-[10px] font-black uppercase tracking-widest text-slate-500">
                       {header}
                     </th>
@@ -1201,31 +1596,86 @@ function AdminProfiles({ data }: { data: BootstrapData }) {
                 </tr>
               </thead>
               <tbody>
-                {visibleGroups.map((group) => (
-                  <tr key={group.key} className="transition hover:bg-white/[.035]">
-                    <td className="border-b border-white/[.06] px-3 py-3 align-middle text-[10px] font-black uppercase tracking-widest text-[#22b8aa]">{group.brand}</td>
-                    <td className="border-b border-white/[.06] px-3 py-3 align-middle">
-                      <button type="button" onClick={() => openDetail(group)} className="text-left">
-                        <strong className="block text-base text-white transition hover:text-[#5ee6d8]">{group.model}</strong>
-                        <span className="mt-1 block max-w-md truncate text-xs text-slate-500">{group.marketPosition || "市场定位待补充"}</span>
-                      </button>
-                    </td>
-                    <td className="whitespace-nowrap border-b border-white/[.06] px-3 py-3 align-middle text-slate-300">{group.years.join(" / ") || "-"}</td>
-                    <td className="whitespace-nowrap border-b border-white/[.06] px-3 py-3 align-middle text-slate-300">{group.variants.length} 个</td>
-                    <td className="border-b border-white/[.06] px-3 py-3 align-middle text-slate-300">{group.segment || "-"}</td>
-                    <td className="whitespace-nowrap border-b border-white/[.06] px-3 py-3 align-middle text-slate-300">{group.energyType || "-"}</td>
-                    <td className="whitespace-nowrap border-b border-white/[.06] px-3 py-3 align-middle text-slate-300">{group.rangeSummary || "-"}</td>
-                    <td className="whitespace-nowrap border-b border-white/[.06] px-3 py-3 align-middle text-slate-300">{group.guidePriceSummary || "-"}</td>
-                    <td className="whitespace-nowrap border-b border-white/[.06] px-3 py-3 align-middle">
-                      <button type="button" onClick={() => openDetail(group)} className="rounded-lg border border-[#22b8aa]/30 bg-[#22b8aa]/10 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-[#5ee6d8] transition hover:bg-[#22b8aa] hover:text-[#07111f]">
-                        查看
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                {visibleGroups.map((group) => {
+                  const firstVar = group.variants[0];
+                  const isExpanded = expandedKey === group.key;
+                  const batVal = safeText(firstVar?.battery) || getModelSpecValue(group.specsByModel, firstVar?.id || "", ["电池容量"]);
+                  const batTypeVal = safeText(firstVar?.batteryType) || getModelSpecValue(group.specsByModel, firstVar?.id || "", ["电池类型"]);
+                  const batMakerVal = safeText(firstVar?.batteryMaker) || getModelSpecValue(group.specsByModel, firstVar?.id || "", ["电池供应商", "电芯供应商"]);
+                  const motorPowVal = safeText(firstVar?.motorPower) || getModelSpecValue(group.specsByModel, firstVar?.id || "", ["电机总功率"]);
+                  const driveVal = safeText(firstVar?.driveType) || getModelSpecValue(group.specsByModel, firstVar?.id || "", ["驱动方式"]);
+                  const dimVal = safeText(firstVar?.dimensions) || getModelSpecValue(group.specsByModel, firstVar?.id || "", ["长*宽*高(mm)"]);
+                  const wbVal = safeText(firstVar?.wheelbase) || getModelSpecValue(group.specsByModel, firstVar?.id || "", ["轴距(mm)"]);
+
+                  const batteryText = safeText(batVal || batTypeVal ? `${batVal} ${batTypeVal}`.trim() : "-");
+                  const batteryMakerText = batMakerVal ? `(${safeText(batMakerVal)})` : "";
+                  const motorText = safeText(motorPowVal || driveVal ? `${motorPowVal} ${driveVal}`.trim() : "-");
+                  const dimText = safeText(dimVal || wbVal ? `${dimVal || "-"} / 轴距${wbVal || "-"}` : "-");
+                  const adasText = safeText(firstVar?.adas) || getModelSpecValue(group.specsByModel, firstVar?.id || "", ["ADAS"]) || "-";
+
+                  return (
+                    <Fragment key={group.key}>
+                      <tr className={`transition hover:bg-white/[.035] ${isExpanded ? "bg-white/[.02]" : ""}`}>
+                        <td className="border-b border-white/[.06] px-3 py-3 align-middle text-[10px] font-black uppercase tracking-widest text-[#22b8aa]">{group.brand}</td>
+                        <td className="border-b border-white/[.06] px-3 py-3 align-middle">
+                          <button type="button" onClick={() => openDetail(group)} className="text-left">
+                            <strong className="block text-base text-white transition hover:text-[#5ee6d8]">{group.model}</strong>
+                            <span className="mt-1 block max-w-xs truncate text-xs text-slate-500">{group.marketPosition || "市场定位待补充"}</span>
+                          </button>
+                        </td>
+                        <td className="whitespace-nowrap border-b border-white/[.06] px-3 py-3 align-middle text-slate-300">{group.years.join(" / ") || "-"}</td>
+                        <td className="whitespace-nowrap border-b border-white/[.06] px-3 py-3 align-middle text-slate-300">{group.variants.length} 个</td>
+                        <td className="border-b border-white/[.06] px-3 py-3 align-middle text-slate-300">{group.segment || "-"}</td>
+                        <td className="whitespace-nowrap border-b border-white/[.06] px-3 py-3 align-middle text-slate-300">{group.energyType || "-"}</td>
+                        {tableColumnMode === "full" ? (
+                          <td className="border-b border-white/[.06] px-3 py-3 align-middle text-xs text-slate-300">
+                            <span className="block font-medium text-white">{batteryText}</span>
+                            {batteryMakerText && <span className="block text-[10px] text-slate-500">{batteryMakerText}</span>}
+                          </td>
+                        ) : null}
+                        <td className="whitespace-nowrap border-b border-white/[.06] px-3 py-3 align-middle text-slate-300">{group.rangeSummary || "-"}</td>
+                        {tableColumnMode === "full" ? (
+                          <td className="border-b border-white/[.06] px-3 py-3 align-middle text-xs text-slate-300">{motorText}</td>
+                        ) : null}
+                        {tableColumnMode === "full" ? (
+                          <td className="border-b border-white/[.06] px-3 py-3 align-middle text-xs text-slate-400">{dimText}</td>
+                        ) : null}
+                        {tableColumnMode === "full" ? (
+                          <td className="border-b border-white/[.06] px-3 py-3 align-middle text-xs text-slate-400">{adasText}</td>
+                        ) : null}
+                        <td className="whitespace-nowrap border-b border-white/[.06] px-3 py-3 align-middle text-slate-300">{group.guidePriceSummary || "-"}</td>
+                        <td className="whitespace-nowrap border-b border-white/[.06] px-3 py-3 align-middle">
+                          <div className="flex gap-2">
+                            <button
+                              type="button"
+                              onClick={() => setExpandedKey(isExpanded ? null : group.key)}
+                              className={`rounded-lg border px-2.5 py-1.5 text-[10px] font-black uppercase tracking-widest transition ${
+                                isExpanded
+                                  ? "border-amber-500/50 bg-amber-500/10 text-amber-300"
+                                  : "border-white/15 text-slate-300 hover:border-white/30"
+                              }`}
+                            >
+                              {isExpanded ? "收起参数" : "展开全量字段"}
+                            </button>
+                            <button type="button" onClick={() => openDetail(group)} className="rounded-lg border border-[#22b8aa]/30 bg-[#22b8aa]/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-[#5ee6d8] transition hover:bg-[#22b8aa] hover:text-[#07111f]">
+                              详情对比
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                      {isExpanded ? (
+                        <tr>
+                          <td colSpan={tableColumnMode === "full" ? 13 : 9} className="border-b border-white/10 bg-[#070e1b] px-4 py-4">
+                            <ModelFullSpecsCard group={group} />
+                          </td>
+                        </tr>
+                      ) : null}
+                    </Fragment>
+                  );
+                })}
                 {visibleGroups.length === 0 ? (
                   <tr>
-                    <td colSpan={9} className="px-3 py-8 text-center text-sm text-slate-600">
+                    <td colSpan={tableColumnMode === "full" ? 13 : 9} className="px-3 py-8 text-center text-sm text-slate-600">
                       暂无匹配车型
                     </td>
                   </tr>
@@ -2121,7 +2571,7 @@ function AdminNavIcon({ name }: { name: AdminIconName }) {
           <rect x="14" y="14" width="7" height="7" rx="1.5" />
         </svg>
       );
-    case "profiles":
+    case "vehicle_models":
       return (
         <svg {...common}>
           <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" />
@@ -2480,8 +2930,9 @@ function getModelSpecValue(specsByModel: Map<string, VehicleModelSpec[]>, modelI
 }
 
 function formatSpecValue(spec: VehicleModelSpec) {
-  if (!spec.value) return "";
-  return spec.unit ? `${spec.value} ${spec.unit}`.trim() : spec.value;
+  const text = safeText(spec.value, "");
+  if (!text) return "";
+  return spec.unit ? `${text} ${spec.unit}`.trim() : text;
 }
 
 function categoryRank(category: string) {

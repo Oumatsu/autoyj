@@ -1,6 +1,8 @@
 /// <reference types="@cloudflare/workers-types" />
 
 import { buildProductFilterData } from "./productFilters";
+import { createFeishuAuth } from "../lib/auth";
+import { findLocalUser } from "../lib/users";
 
 type Env = {
   FEISHU_API_URL?: string;
@@ -8,7 +10,6 @@ type Env = {
   FEISHU_APP_SECRET?: string;
   FEISHU_BASE_APP_TOKEN?: string;
   FEISHU_TABLE_INTERNAL_USERS?: string;
-  FEISHU_TABLE_EXTERNAL_ACCOUNTS?: string;
   FEISHU_TABLE_CUSTOMERS?: string;
   FEISHU_TABLE_VEHICLE_MODELS?: string;
   FEISHU_TABLE_INQUIRIES?: string;
@@ -154,9 +155,8 @@ function getCached(key: string): any | null {
   return null;
 }
 
-function setCached(key: string, value: any, env?: Env) {
-  const isDev = env?.DEV === true || (typeof process !== "undefined" && process?.env?.NODE_ENV === "development");
-  const ttl = isDev ? 2000 : CACHE_TTL_MS;
+function setCached(key: string, value: any, customTtlMs?: number) {
+  const ttl = customTtlMs || CACHE_TTL_MS; // 10 minutes
   cacheMap.set(key, { value, expires: Date.now() + ttl });
 }
 
@@ -644,6 +644,18 @@ async function feishuToken(env: Env) {
   }
 }
 
+const singleFlightMap = new Map<string, Promise<any>>();
+
+function singleFlight<T>(key: string, fn: () => Promise<T>): Promise<T> {
+  const existing = singleFlightMap.get(key);
+  if (existing) return existing as Promise<T>;
+  const promise = fn().finally(() => {
+    singleFlightMap.delete(key);
+  });
+  singleFlightMap.set(key, promise);
+  return promise;
+}
+
 async function feishuRequest<T>(
   env: Env,
   method: string,
@@ -663,8 +675,14 @@ async function feishuRequest<T>(
   });
   const data = (await response.json()) as { code?: number; msg?: string; data?: T };
   if (!response.ok || data.code !== 0) {
-    if (attempt < 2 && /limited|rate/i.test(data.msg || "")) {
-      await delay(300 * (attempt + 1));
+    const isRateLimited =
+      response.status === 429 ||
+      data.code === 99991400 ||
+      data.code === 1254002 ||
+      data.code === 10001 ||
+      /limited|rate|frequency/i.test(data.msg || "");
+    if (attempt < 3 && isRateLimited) {
+      await delay(600 * Math.pow(2, attempt));
       return feishuRequest<T>(env, method, path, body, attempt + 1);
     }
     throw new Error(`Feishu API failed: ${data.msg || response.statusText}`);
@@ -686,21 +704,23 @@ async function searchRecords(
   const appToken = optionalEnv(env, "FEISHU_BASE_APP_TOKEN");
   if (!appToken) return [];
   const pageSize = Math.min(options.pageSize || 100, 500);
-  const filter = normalizeBaseFilter(options.filter);
   const records: FeishuRecord[] = [];
   let pageToken = "";
-  const maxPages = Math.max(1, options.maxPages || 20);
+  const maxPages = Math.min(options.maxPages || 1, 3);
+
   for (let page = 0; page < maxPages; page++) {
-    const query = new URLSearchParams({
-      page_size: String(pageSize),
-    });
-    if (pageToken) query.set("page_token", pageToken);
-    if (filter) query.set("filter", JSON.stringify(filter));
-    if (options.sort) query.set("sort", JSON.stringify(options.sort));
+    const body: Record<string, unknown> = {
+      page_size: pageSize,
+    };
+    if (pageToken) body.page_token = pageToken;
+    if (options.filter) body.filter = options.filter;
+    if (options.sort) body.sort = options.sort;
+
     const data = await feishuRequest<BaseRecordListResponse>(
       env,
-      "GET",
-      `/open-apis/bitable/v1/apps/${appToken}/tables/${tableId}/records?${query.toString()}`,
+      "POST",
+      `/open-apis/bitable/v1/apps/${appToken}/tables/${tableId}/records/search`,
+      body,
     );
     const pageRecords = normalizeBaseRecords(data);
     records.push(...pageRecords);
@@ -733,13 +753,14 @@ async function updateRecord(env: Env, tableId: string, recordId: string, fields:
 }
 
 function equalsFilter(fieldName: string, value: string) {
+  if (!value || !value.trim()) return undefined;
   return {
     conjunction: "and",
     conditions: [
       {
         field_name: fieldName,
         operator: "is",
-        value: [value],
+        value: [value.trim()],
       },
     ],
   };
@@ -915,6 +936,51 @@ function mapVehicleModel(record: FeishuRecord): PortalVehicleModel {
   };
 }
 
+function mapVehicleSource(record: FeishuRecord, canSeePrice: boolean): Record<string, unknown> {
+  const fields = record.fields;
+  const extColor = asText(fields.exterior_color);
+  const intColor = asText(fields.interior_color);
+  const colorStr = [extColor ? `Ext: ${extColor}` : "", intColor ? `Int: ${intColor}` : ""].filter(Boolean).join(" / ");
+  const priceVal = asOptionalNumber(fields.cost_fob_usd) || asOptionalNumber(fields.display_price_low) || null;
+
+  return {
+    id: asText(fields.record_id) || record.record_id,
+    modelId: asText(fields.model_id),
+    brand: asText(fields.brand),
+    model: asText(fields.model),
+    trim: asText(fields.variant),
+    year: asText(fields.manufacture_year),
+    color: colorStr || "Standard",
+    exteriorColor: extColor,
+    interiorColor: intColor,
+    supplierExteriorColor: "",
+    supplierInteriorColor: "",
+    colorCode: "",
+    colorNotes: "",
+    colorConfirmed: true,
+    configuration: asText(fields.version_type) || asText(fields.steering_setup) || "",
+    supplier: asText(fields.supplier),
+    recorder: "",
+    location: asText(fields.location) || "China",
+    status: asText(fields.status_vehicle) || "现车",
+    exportStatus: "Available",
+    stockQuantity: asNumber(fields.stock_quantity) || 1,
+    leadTime: asText(fields.lead_time) || (asText(fields.status_vehicle) === "现车" ? "Ready Stock" : "7-14 Days"),
+    priceValidUntil: "",
+    imageUrl: "",
+    publicNotes: asText(fields.notes),
+    canSeePrice,
+    price: canSeePrice ? priceVal : null,
+    partnerPrice: priceVal,
+    customerPrice: priceVal,
+    cost: asOptionalNumber(fields.cost_exw_usd) || asOptionalNumber(fields.supplier_price_cny),
+    isListed: true,
+    editableFields: [],
+    priceLabel: priceVal !== null ? `$${priceVal.toLocaleString()}` : "Inquire for price",
+  };
+}
+
+
 function synthesizeSpecsFromModel(record: FeishuRecord): PortalVehicleModelSpec[] {
   const fields = record.fields;
   const modelId = asText(fields.model_id);
@@ -1086,25 +1152,28 @@ async function recordsByEmail(env: Env, tableId: string, email: string) {
 }
 
 async function findLoginAccount(env: Env, email: string, accessCode: string): Promise<Omit<PortalSession, "exp"> | null> {
+  const localMatch = findLocalUser(email, accessCode);
+  if (localMatch) {
+    return {
+      userId: localMatch.userId,
+      customerId: localMatch.customerId,
+      name: localMatch.name,
+      email: localMatch.email,
+      company: localMatch.company,
+      accountType: localMatch.accountType,
+      role: localMatch.role,
+      priceTier: localMatch.priceTier,
+    };
+  }
+
   const internalTableId = optionalEnv(env, "FEISHU_TABLE_INTERNAL_USERS");
   if (internalTableId) {
-    const records = await recordsByEmail(env, internalTableId, email);
+    const records = await recordsByEmail(env, internalTableId, email).catch(() => []);
     const match = records.find((record) => asText(record.fields.access_code).trim() === accessCode);
     if (match) {
       const user = mapInternalUser(match);
       if (user.status && user.status.toLowerCase() !== "active") throw problem("This internal account is not active", 403);
       return sessionFromInternalUser(user);
-    }
-  }
-
-  const externalTableId = optionalEnv(env, "FEISHU_TABLE_EXTERNAL_ACCOUNTS") || optionalEnv(env, "FEISHU_TABLE_CUSTOMERS");
-  if (externalTableId) {
-    const records = await recordsByEmail(env, externalTableId, email);
-    const match = records.find((record) => asText(record.fields.access_code).trim() === accessCode);
-    if (match) {
-      const account = mapCustomer(match);
-      if (account.status && account.status.toLowerCase() !== "active") throw problem("This portal account is not active", 403);
-      return sessionFromExternalAccount(account);
     }
   }
 
@@ -1221,66 +1290,75 @@ async function handleDevLogin(request: Request, env: Env) {
 async function handleBootstrap(request: Request, env: Env) {
   const session = await requireSession(request, env);
   const isInternal = isInternalSession(session);
-  const vehicleModelTableId = optionalEnv(env, "FEISHU_TABLE_VEHICLE_MODELS");
-  const vehicleModelRecords = vehicleModelTableId
-    ? await searchRecords(env, vehicleModelTableId, { pageSize: 100 })
-    : [];
-  const [inquiryRecords, orderRecords] = await Promise.all([
-    searchRecords(env, requireEnv(env, "FEISHU_TABLE_INQUIRIES"), {
-      filter: isInternal ? undefined : equalsFilter("customer_id", session.customerId),
-      pageSize: 100,
-    }),
-    searchRecords(env, requireEnv(env, "FEISHU_TABLE_ORDERS"), {
-      filter: isInternal ? undefined : equalsFilter("customer_id", session.customerId),
-      pageSize: 100,
-    }),
-  ]);
+
+  const cacheKey = `bootstrap_v2:${session.role}:${session.customerId || "internal"}`;
+  const cachedData = getCached(cacheKey);
+  if (cachedData) {
+    return json(cachedData);
+  }
+
+  const vehicleModelTableId = optionalEnv(env, "FEISHU_TABLE_VEHICLE_MODELS") || "tblxVNjP9dnJ7b3o";
+  const vehicleSourceTableId = optionalEnv(env, "FEISHU_TABLE_VEHICLES") || optionalEnv(env, "FEISHU_TABLE_VEHICLE_SOURCES") || "tbl6wBgVcvrXN6mz";
   const internalUserTableId = optionalEnv(env, "FEISHU_TABLE_INTERNAL_USERS");
-  const externalAccountTableId = optionalEnv(env, "FEISHU_TABLE_EXTERNAL_ACCOUNTS") || optionalEnv(env, "FEISHU_TABLE_CUSTOMERS");
-  const [internalUserRecords, customerRecords] = isInternal
-    ? await Promise.all([
-        internalUserTableId ? searchRecords(env, internalUserTableId, { pageSize: 100 }) : Promise.resolve([]),
-        externalAccountTableId ? searchRecords(env, externalAccountTableId, { pageSize: 100 }) : Promise.resolve([]),
-      ])
-    : [[], []];
+  const customerTableId = optionalEnv(env, "FEISHU_TABLE_CUSTOMERS");
 
-  const vehicles: unknown[] = [];
-  const vehicleModelSpecs = vehicleModelRecords.flatMap(synthesizeSpecsFromModel);
-  const vehicleModels = enrichVehicleModelsWithSpecs(vehicleModelRecords.map(mapVehicleModel), vehicleModelSpecs);
-  const inquiries = inquiryRecords.map(mapInquiry);
-  const inquiryNos = new Set(inquiries.map((inquiry) => inquiry.inquiryNo));
+  const payload = await singleFlight(cacheKey, async () => {
+    const vehicleModelRecords = vehicleModelTableId ? await searchRecords(env, vehicleModelTableId, { pageSize: 100 }) : [];
+    await delay(20);
+    const vehicleSourceRecords = vehicleSourceTableId ? await searchRecords(env, vehicleSourceTableId, { pageSize: 100 }) : [];
+    await delay(20);
+    const inquiryRecords = await searchRecords(env, requireEnv(env, "FEISHU_TABLE_INQUIRIES"), {
+      filter: isInternal ? undefined : equalsFilter("customer_id", session.customerId),
+      pageSize: 100,
+    });
+    await delay(20);
+    const orderRecords = await searchRecords(env, requireEnv(env, "FEISHU_TABLE_ORDERS"), {
+      filter: isInternal ? undefined : equalsFilter("customer_id", session.customerId),
+      pageSize: 100,
+    });
+    await delay(20);
+    const internalUserRecords = isInternal && internalUserTableId ? await searchRecords(env, internalUserTableId, { pageSize: 100 }) : [];
+    await delay(20);
+    const customerRecords: FeishuRecord[] = [];
+    const allQuotes = await searchRecords(env, requireEnv(env, "FEISHU_TABLE_QUOTES"), { pageSize: 100 });
+    await delay(20);
+    const allNegotiations = await searchRecords(env, requireEnv(env, "FEISHU_TABLE_NEGOTIATIONS"), { pageSize: 100 });
 
-  const [allQuotes, allNegotiations] =
-    isInternal || inquiryNos.size
-      ? await Promise.all([
-          searchRecords(env, requireEnv(env, "FEISHU_TABLE_QUOTES"), { pageSize: 100 }),
-          searchRecords(env, requireEnv(env, "FEISHU_TABLE_NEGOTIATIONS"), { pageSize: 100 }),
-        ])
-      : [[], []];
-  const quotes = allQuotes.map(mapQuote).filter((quote) => isInternal || inquiryNos.has(quote.inquiryNo));
-  const negotiations = allNegotiations.map(mapNegotiation).filter((log) => isInternal || inquiryNos.has(log.inquiryNo));
+    const vehicles = vehicleSourceRecords.map((record) => mapVehicleSource(record, canSeePortalPrice(session)));
+    const vehicleModelSpecs = vehicleModelRecords.flatMap(synthesizeSpecsFromModel);
+    const vehicleModels = enrichVehicleModelsWithSpecs(vehicleModelRecords.map(mapVehicleModel), vehicleModelSpecs);
+    const inquiries = inquiryRecords.map(mapInquiry);
+    const inquiryNos = new Set(inquiries.map((inquiry) => inquiry.inquiryNo));
 
-  const orders = orderRecords.map(mapOrder);
-  const internalUsers = internalUserRecords.map(mapInternalUser);
-  const customers = customerRecords.map(mapCustomer);
+    const quotes = allQuotes.map(mapQuote).filter((quote) => isInternal || inquiryNos.has(quote.inquiryNo));
+    const negotiations = allNegotiations.map(mapNegotiation).filter((log) => isInternal || inquiryNos.has(log.inquiryNo));
 
-  return json({
-    user: publicUser(session),
-    permissions: {
-      canSeePrice: canSeePortalPrice(session),
-      canRequestQuote: true,
-      canCounterOffer: true,
-    },
-    vehicleModels,
-    vehicleModelSpecs,
-    vehicles,
-    inquiries,
-    quotes,
-    negotiations,
-    orders,
-    internalUsers,
-    customers,
+    const orders = orderRecords.map(mapOrder);
+    const internalUsers = internalUserRecords.map(mapInternalUser);
+    const customers = customerRecords.map(mapCustomer);
+
+    const resPayload = {
+      user: publicUser(session),
+      permissions: {
+        canSeePrice: canSeePortalPrice(session),
+        canRequestQuote: true,
+        canCounterOffer: true,
+      },
+      vehicleModels,
+      vehicleModelSpecs,
+      vehicles,
+      inquiries,
+      quotes,
+      negotiations,
+      orders,
+      internalUsers,
+      customers,
+    };
+    setCached(cacheKey, resPayload);
+    return resPayload;
   });
+
+  return json(payload);
 }
 
 async function handleCreateInquiry(request: Request, env: Env) {
@@ -1860,10 +1938,9 @@ async function handlePublicAcademy(env: Env) {
   const lessonsTableId = requireEnv(env, "FEISHU_TABLE_ACADEMY_LESSONS");
   const vaultTableId = requireEnv(env, "FEISHU_TABLE_ACADEMY_VAULT");
 
-  const [lessonsRecords, vaultRecords] = await Promise.all([
-    searchRecords(env, lessonsTableId, { pageSize: 100 }),
-    searchRecords(env, vaultTableId, { pageSize: 100 })
-  ]);
+  const lessonsRecords = await searchRecords(env, lessonsTableId, { pageSize: 100 });
+  await delay(20);
+  const vaultRecords = await searchRecords(env, vaultTableId, { pageSize: 100 });
 
   const publishedLessons = lessonsRecords.filter(r => asText(r.fields.status) === "Published");
 
@@ -1949,6 +2026,31 @@ async function handlePublicAcademyLesson(category: string, slug: string, env: En
   return json(data);
 }
 
+async function handlePublicTranslations(env: Env) {
+  const cacheKey = "public_translations_v1";
+  const cached = getCached(cacheKey);
+  if (cached) return json(cached);
+
+  const i18nTableId = optionalEnv(env, "FEISHU_TABLE_I18N");
+  if (!i18nTableId) return json({ ok: true, translations: {} });
+
+  const records = await searchRecords(env, i18nTableId, { pageSize: 500 }).catch(() => []);
+  const translations: Record<string, { en?: string; zh?: string; am?: string }> = {};
+  for (const record of records) {
+    const key = asText(record.fields.key || record.fields.Key);
+    if (key) {
+      translations[key] = {
+        en: asText(record.fields.en || record.fields.EN),
+        zh: asText(record.fields.zh || record.fields.ZH),
+        am: asText(record.fields.am || record.fields.AM),
+      };
+    }
+  }
+  const payload = { ok: true, translations };
+  setCached(cacheKey, payload);
+  return json(payload);
+}
+
 export async function handlePortalRequest(request: Request, env: Env) {
   const url = new URL(request.url);
   const path = url.pathname;
@@ -1975,6 +2077,9 @@ export async function handlePortalRequest(request: Request, env: Env) {
       if (path === "/api/portal/public/academy" && request.method === "GET") {
         return await handlePublicAcademy(env);
       }
+      if (path === "/api/portal/public/translations" && request.method === "GET") {
+        return await handlePublicTranslations(env);
+      }
       const academyLessonMatch = path.match(/^\/api\/portal\/public\/academy\/([^/]+)\/([^/]+)$/);
       if (academyLessonMatch && request.method === "GET") {
         return await handlePublicAcademyLesson(
@@ -1987,6 +2092,14 @@ export async function handlePortalRequest(request: Request, env: Env) {
     if (path === "/api/portal/webhook/sync" && request.method === "POST") {
       cacheMap.clear();
       return json({ ok: true, cleared: true });
+    }
+
+    if (path.startsWith("/api/auth/")) {
+      if (path.includes("sign-up") || path.includes("signup") || path.includes("register")) {
+        return problem("Public registration is disabled. Accounts are managed exclusively in Feishu Base.", 403);
+      }
+      const auth = createFeishuAuth(env as unknown as Record<string, string | undefined>);
+      return await auth.handler(request);
     }
 
     if (path === "/api/portal/dev-session" && request.method === "POST") {

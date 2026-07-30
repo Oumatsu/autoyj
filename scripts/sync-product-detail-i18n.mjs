@@ -10,7 +10,7 @@ import {
   translateTrimName,
 } from "./product-detail-i18n-data.mjs";
 
-const BASE_TOKEN = "Xvdfbpk7cadLrnsVCFFcHbhOnCb";
+const BASE_TOKEN = process.env.FEISHU_BASE_APP_TOKEN || "Is6Xb3btbazhFhsDXgFcqFG1nRc";
 const MODEL_TABLE = "tblJq4Un2LQQaFPU";
 const VARIANT_TABLE = "tblOFdkS6FixMeXA";
 const I18N_TABLE = "tblATd4EWHge1l1k";

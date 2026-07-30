@@ -8,7 +8,7 @@ export default {
     insights: "Insights",
     academy: "Academy",
     about: "About",
-    portal: "Portal",
+    portal: "Dashboard",
     contactUs: "Contact",
   },
   home: {

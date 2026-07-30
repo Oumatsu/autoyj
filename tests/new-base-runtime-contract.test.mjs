@@ -33,9 +33,9 @@ test("dynamic translations resolve i18n_locale and lower-case language fields", 
   assert.doesNotMatch(source, /item\.fields\.(?:Key|EN|ZH|AM)/);
 });
 
-test("vehicles are optional and bootstrap returns an empty source list", async () => {
+test("vehicles are mapped from vehicle sources table", async () => {
   const source = await readFile(new URL("worker/portal.ts", root), "utf8");
-  assert.match(source, /const vehicles:\s*unknown\[\]\s*=\s*\[\]/);
+  assert.match(source, /mapVehicleSource/);
   assert.doesNotMatch(source, /requireEnv\(env, "FEISHU_TABLE_VEHICLES"\)/);
   assert.doesNotMatch(source, /fields\["Is Listed"\]/);
 });
@@ -48,8 +48,8 @@ test("both Worker deployments point at the new Base and new table IDs", async ()
   const expected = {
     FEISHU_BASE_APP_TOKEN: "Is6Xb3btbazhFhsDXgFcqFG1nRc",
     FEISHU_TABLE_INTERNAL_USERS: "tblzuCupuStUvBwM",
-    FEISHU_TABLE_EXTERNAL_ACCOUNTS: "tbllOsQSvNTcKGYZ",
     FEISHU_TABLE_VEHICLE_MODELS: "tblxVNjP9dnJ7b3o",
+    FEISHU_TABLE_VEHICLES: "tbl6wBgVcvrXN6mz",
     FEISHU_TABLE_INQUIRIES: "tblEL6AHiMiWhkVj",
     FEISHU_TABLE_QUOTES: "tblIY4WdBVqvkZf0",
     FEISHU_TABLE_NEGOTIATIONS: "tblRytSu0oKOmmol",
@@ -64,7 +64,6 @@ test("both Worker deployments point at the new Base and new table IDs", async ()
     for (const [key, value] of Object.entries(expected)) {
       assert.match(config, new RegExp(`"${key}"\\s*:\\s*"${value}"`));
     }
-    assert.doesNotMatch(config, /FEISHU_TABLE_VEHICLES/);
     assert.doesNotMatch(config, /FEISHU_TABLE_VEHICLE_MODEL_SPECS/);
   }
 });
