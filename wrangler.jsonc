@@ -3,6 +3,9 @@
   "name": "youguard",
   "compatibility_date": "2026-05-08",
   "compatibility_flags": ["nodejs_compat"],
+  "build": {
+    "command": "bun run build"
+  },
   "main": "./worker/index.ts",
   "assets": {
     "directory": "dist/client",
