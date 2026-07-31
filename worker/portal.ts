@@ -1782,58 +1782,6 @@ async function resolveTableIdByName(env: Env, tableName: string): Promise<string
   return found.table_id;
 }
 
-async function handlePublicTranslations(env: Env) {
-  // 闂傚倸鍊风粈浣革耿闁秮鈧箓宕奸妷瀣喘楠炲酣鎸婃竟鈹垮劦閺屾盯骞囬棃娑欑亪闁荤喐鐟辨俊鍥焵椤掆偓缁犲秹宕曢柆宥呯疇閹兼番鍊ら弶浠嬫⒒閸屾瑦绁版い鏇熺墵瀹曟鈽夊Ο蹇撶秺瀹曞爼顢斿鍡樼槥闂?table_id闂傚倸鍊烽悞锔锯偓绗涘懐鐭欓柟瀵稿仧闂勫嫰鏌￠崘銊モ偓鑽ょ不閺傛鐔嗛柤鎼佹涧婵洨绱掗埀顒勫礃椤忎礁浜炬鐐茬仢閸旀岸鎮楀鐓庢灓闁瑰嘲缍婇崺锟犲川椤旈棿鍖?FEISHU_TABLE_I18N 闂傚倸鍊烽懗鍓佸垝椤栨粌鍨濋柣妯款嚙閸ㄥ倸霉閸忚偐鏆橀柍褜鍓欓崐鎸庝繆閹间礁鐓涘ù锝堟閸橆剚绻濆▓鍨灍闁靛洦鐩畷鎴﹀箻缂佹鍘?
-  const tableId = await resolveTableIdByName(env, "i18n_locale");
-  const records = await searchRecords(env, tableId, { pageSize: 500, maxPages: 100 });
-  
-  const zhRecords: any[] = [];
-  const enRecords: any[] = [];
-  const amRecords: any[] = [];
-  
-  for (const item of records) {
-    const key = asText(item.fields.key);
-    if (!key) continue;
-    zhRecords.push({ key, value: asText(item.fields.zh) });
-    enRecords.push({ key, value: asText(item.fields.en) });
-    amRecords.push({ key, value: asText(item.fields.am) });
-  }
-
-  const buildNested = (list: any[]) => {
-    const root: any = {};
-    for (const { key, value } of list) {
-      const parts = key.split(".");
-      let current = root;
-      for (let i = 0; i < parts.length - 1; i++) {
-        const part = parts[i];
-        if (current[part] === undefined || typeof current[part] !== "object") {
-          current[part] = {};
-        }
-        current = current[part];
-      }
-      const lastPart = parts[parts.length - 1];
-      if (typeof value === "string" && value.trimStart().startsWith("[")) {
-        try {
-          current[lastPart] = JSON.parse(value);
-        } catch {
-          current[lastPart] = value;
-        }
-      } else {
-        current[lastPart] = value;
-      }
-    }
-    return root;
-  };
-
-  const data = {
-    zh: buildNested(zhRecords),
-    en: buildNested(enRecords),
-    am: buildNested(amRecords)
-  };
-
-  return json(data);
-}
-
 async function handlePublicProducts(env: Env) {
   const cacheKey = "public-products";
   const cached = getCached(cacheKey);
