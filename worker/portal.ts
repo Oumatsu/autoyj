@@ -1372,32 +1372,39 @@ async function handleBootstrap(request: Request, env: Env) {
   const customerTableId = optionalEnv(env, "FEISHU_TABLE_CUSTOMERS");
 
   const payload = await singleFlight(cacheKey, async () => {
-    const vehicleModelRecords = vehicleModelTableId ? await searchRecords(env, vehicleModelTableId, { pageSize: 100 }) : [];
-    await delay(20);
-    const rawVehicleSourceRecords = vehicleSourceTableId ? await searchRecords(env, vehicleSourceTableId, { pageSize: 100 }) : [];
+    const [
+      vehicleModelRecords,
+      rawVehicleSourceRecords,
+      inquiryRecords,
+      orderRecords,
+      internalUserRecords,
+      customerRecords,
+      allQuotes,
+      allNegotiations,
+    ] = await Promise.all([
+      vehicleModelTableId ? searchRecords(env, vehicleModelTableId, { pageSize: 100 }) : Promise.resolve([]),
+      vehicleSourceTableId ? searchRecords(env, vehicleSourceTableId, { pageSize: 100 }) : Promise.resolve([]),
+      searchRecords(env, requireEnv(env, "FEISHU_TABLE_INQUIRIES"), {
+        filter: isInternal ? undefined : equalsFilter("customer_id", session.customerId),
+        pageSize: 100,
+      }),
+      searchRecords(env, requireEnv(env, "FEISHU_TABLE_ORDERS"), {
+        filter: isInternal ? undefined : equalsFilter("customer_id", session.customerId),
+        pageSize: 100,
+      }),
+      isInternal && internalUserTableId ? searchRecords(env, internalUserTableId, { pageSize: 100 }) : Promise.resolve([]),
+      isInternal && customerTableId ? searchRecords(env, customerTableId, { pageSize: 100 }) : Promise.resolve([]),
+      searchRecords(env, requireEnv(env, "FEISHU_TABLE_QUOTES"), { pageSize: 100 }),
+      searchRecords(env, requireEnv(env, "FEISHU_TABLE_NEGOTIATIONS"), { pageSize: 100 }),
+    ]);
+
+
     const vehicleSourceRecords = rawVehicleSourceRecords.filter((record) => {
       const fields = record.fields;
       const processState = asText(fields["流程"] ?? fields["审核流程"] ?? fields.source_stage);
       const isApproved = asBool(fields["审核状态"]);
       return processState === "已接入网站" || isApproved;
     });
-    await delay(20);
-    const inquiryRecords = await searchRecords(env, requireEnv(env, "FEISHU_TABLE_INQUIRIES"), {
-      filter: isInternal ? undefined : equalsFilter("customer_id", session.customerId),
-      pageSize: 100,
-    });
-    await delay(20);
-    const orderRecords = await searchRecords(env, requireEnv(env, "FEISHU_TABLE_ORDERS"), {
-      filter: isInternal ? undefined : equalsFilter("customer_id", session.customerId),
-      pageSize: 100,
-    });
-    await delay(20);
-    const internalUserRecords = isInternal && internalUserTableId ? await searchRecords(env, internalUserTableId, { pageSize: 100 }) : [];
-    await delay(20);
-    const customerRecords: FeishuRecord[] = [];
-    const allQuotes = await searchRecords(env, requireEnv(env, "FEISHU_TABLE_QUOTES"), { pageSize: 100 });
-    await delay(20);
-    const allNegotiations = await searchRecords(env, requireEnv(env, "FEISHU_TABLE_NEGOTIATIONS"), { pageSize: 100 });
 
     const vehicles = vehicleSourceRecords.map((record) => mapVehicleSource(record, canSeePortalPrice(session)));
     const vehicleModelSpecs = vehicleModelRecords.flatMap(synthesizeSpecsFromModel);
