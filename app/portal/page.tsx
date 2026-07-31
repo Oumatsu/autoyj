@@ -1065,7 +1065,13 @@ function AdminPortal({
   const visibleNav = adminNavItems.filter((item) => item.roles.includes(data.user.role));
   const normalizedActiveModule = visibleNav.some((item) => item.key === activeModule) ? activeModule : "dashboard";
   const activeItem = visibleNav.find((item) => item.key === normalizedActiveModule) || visibleNav[0];
-  const totalStock = data.vehicles.reduce((sum, vehicle) => sum + vehicle.stockQuantity, 0);
+  // 按车型去重取最大库存（同车型不同颜色共享库存池，不能累加）
+  const stockByModel = new Map<string, number>();
+  for (const v of data.vehicles) {
+    const mk = `${v.brand}|${v.model}|${v.year}`;
+    stockByModel.set(mk, Math.max(stockByModel.get(mk) || 0, v.stockQuantity));
+  }
+  const totalStock = Array.from(stockByModel.values()).reduce((s, q) => s + q, 0);
   const openInquiries = data.inquiries.filter((item) => !["accepted", "closed", "cancelled"].includes(item.status.toLowerCase())).length;
   const orderTotal = data.orders.reduce((sum, order) => sum + order.total, 0);
 
@@ -1260,7 +1266,13 @@ function AdminSourceImportsDemo() {
 }
 
 function AdminDashboard({ data }: { data: BootstrapData }) {
-  const totalStock = data.vehicles.reduce((sum, vehicle) => sum + vehicle.stockQuantity, 0);
+  // 按车型去重取最大库存（同车型不同颜色共享库存池，不能累加）
+  const stockByModel = new Map<string, number>();
+  for (const v of data.vehicles) {
+    const mk = `${v.brand}|${v.model}|${v.year}`;
+    stockByModel.set(mk, Math.max(stockByModel.get(mk) || 0, v.stockQuantity));
+  }
+  const totalStock = Array.from(stockByModel.values()).reduce((s, q) => s + q, 0);
   const modelCount = (data.vehicleModels || []).length;
   const quoteValue = data.quotes.reduce((sum, quote) => sum + quote.unitPrice * Math.max(quote.quantity, 1), 0);
   const latestInquiries = [...data.inquiries]
@@ -3131,7 +3143,10 @@ function buildSellableModels(data: BootstrapData): SellableModel[] {
 
     const entry = grouped.get(modelKey)!;
     const supplyType = getSupplyType(vehicle);
-    entry.item.stockQuantity += supplyType === "In Stock" ? vehicle.stockQuantity : 0;
+    // 同车型不同颜色共享库存池，取最大值而非累加
+    if (supplyType === "In Stock") {
+      entry.item.stockQuantity = Math.max(entry.item.stockQuantity, vehicle.stockQuantity);
+    }
     entry.item.preorderAvailable = entry.item.preorderAvailable || supplyType === "Preorder";
     if (!entry.item.imageUrl && vehicle.imageUrl) entry.item.imageUrl = vehicle.imageUrl;
     if (!entry.item.segment && modelInfo?.bodyType) entry.item.segment = modelInfo.bodyType;
