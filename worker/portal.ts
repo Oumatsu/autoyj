@@ -706,7 +706,7 @@ async function searchRecords(
   const pageSize = Math.min(options.pageSize || 100, 500);
   const records: FeishuRecord[] = [];
   let pageToken = "";
-  const maxPages = Math.min(options.maxPages || 1, 3);
+  const maxPages = Math.min(options.maxPages || 5, 10);
 
   for (let page = 0; page < maxPages; page++) {
     const body: Record<string, unknown> = {
@@ -1401,9 +1401,26 @@ async function handleBootstrap(request: Request, env: Env) {
 
     const vehicleSourceRecords = rawVehicleSourceRecords.filter((record) => {
       const fields = record.fields;
-      const processState = asText(fields["流程"] ?? fields["审核流程"] ?? fields.source_stage);
-      const isApproved = asBool(fields["审核状态"]);
-      return processState === "已接入网站" || isApproved;
+      const processState = asText(
+        fields["流程"] ??
+        fields["审核流程"] ??
+        fields["流程状态"] ??
+        fields["审核"] ??
+        fields["状态"] ??
+        fields.source_stage
+      );
+      const isApproved = asBool(fields["审核状态"] ?? fields["已接入"] ?? fields["已接入网站"]);
+      if (isApproved) return true;
+      if (!processState && rawVehicleSourceRecords.length > 0) {
+        // 如果字段结构存在但流程为空（例如测试默认环境），保留展示
+        return true;
+      }
+      return (
+        processState === "已接入网站" ||
+        processState.includes("已接入") ||
+        processState.includes("接入网站") ||
+        processState.includes("已上线")
+      );
     });
 
     const vehicles = vehicleSourceRecords.map((record) => mapVehicleSource(record, canSeePortalPrice(session)));
