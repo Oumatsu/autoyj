@@ -709,19 +709,32 @@ async function searchRecords(
   const maxPages = Math.min(options.maxPages || 1, 3);
 
   for (let page = 0; page < maxPages; page++) {
-    const body: Record<string, unknown> = {
-      page_size: pageSize,
-    };
-    if (pageToken) body.page_token = pageToken;
-    if (options.filter) body.filter = options.filter;
-    if (options.sort) body.sort = options.sort;
+    let data: BaseRecordListResponse;
+    if (options.filter) {
+      const body: Record<string, unknown> = {
+        page_size: pageSize,
+        filter: options.filter,
+      };
+      if (pageToken) body.page_token = pageToken;
+      if (options.sort) body.sort = options.sort;
 
-    const data = await feishuRequest<BaseRecordListResponse>(
-      env,
-      "POST",
-      `/open-apis/bitable/v1/apps/${appToken}/tables/${tableId}/records/search`,
-      body,
-    );
+      data = await feishuRequest<BaseRecordListResponse>(
+        env,
+        "POST",
+        `/open-apis/bitable/v1/apps/${appToken}/tables/${tableId}/records/search`,
+        body,
+      );
+    } else {
+      const query = new URLSearchParams({ page_size: String(pageSize) });
+      if (pageToken) query.set("page_token", pageToken);
+
+      data = await feishuRequest<BaseRecordListResponse>(
+        env,
+        "GET",
+        `/open-apis/bitable/v1/apps/${appToken}/tables/${tableId}/records?${query.toString()}`,
+      );
+    }
+
     const pageRecords = normalizeBaseRecords(data);
     records.push(...pageRecords);
     if (!data.has_more) break;
@@ -1189,11 +1202,15 @@ function parseSourceStage(fields: Record<string, unknown>): "connected" | "unrev
   }
 
   const text = asText(val).trim();
+  if (text.includes("已接入网站") || text.includes("已接入") || text.includes("已通过")) {
+    return "connected";
+  }
   if (text.includes("未审核") || text.includes("待审核")) {
     return "unreviewed";
   }
-  if (text.includes("已接入网站") || text.includes("已接入") || text.includes("已通过")) {
-    return "connected";
+
+  if ("审核api用字段" in fields || "audit_api_field" in fields) {
+    return "unreviewed";
   }
 
   return "connected";
@@ -1382,7 +1399,7 @@ async function handleBootstrap(request: Request, env: Env) {
   const session = await requireSession(request, env);
   const isInternal = isInternalSession(session);
 
-  const cacheKey = `bootstrap_v2:${session.role}:${session.customerId || "internal"}`;
+  const cacheKey = `bootstrap_v4_get_records_opt:${session.role}:${session.customerId || "internal"}`;
   const cachedData = getCached(cacheKey);
   if (cachedData) {
     return json(cachedData);
@@ -1406,7 +1423,7 @@ async function handleBootstrap(request: Request, env: Env) {
       allNegotiations,
     ] = await Promise.all([
       vehicleModelTableId ? searchRecords(env, vehicleModelTableId, { pageSize: 100 }).catch(() => []) : Promise.resolve([]),
-      vehicleSourceTableId ? searchRecords(env, vehicleSourceTableId, { pageSize: 100 }).catch(() => []) : Promise.resolve([]),
+      vehicleSourceTableId ? searchRecords(env, vehicleSourceTableId, { pageSize: 500, maxPages: 10 }).catch(() => []) : Promise.resolve([]),
       searchRecords(env, requireEnv(env, "FEISHU_TABLE_INQUIRIES"), {
         filter: isInternal ? undefined : equalsFilter("customer_id", session.customerId),
         pageSize: 100,
