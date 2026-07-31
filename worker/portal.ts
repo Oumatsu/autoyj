@@ -1374,7 +1374,7 @@ async function handleBootstrap(request: Request, env: Env) {
   const payload = await singleFlight(cacheKey, async () => {
     const vehicleModelRecords = vehicleModelTableId ? await searchRecords(env, vehicleModelTableId, { pageSize: 100 }) : [];
     await delay(20);
-    const rawVehicleSourceRecords = vehicleSourceTableId ? await listRecords(env, vehicleSourceTableId, { pageSize: 500, maxPages: 5, viewId: vehicleSourceViewId }) : [];
+    const rawVehicleSourceRecords = vehicleSourceTableId ? await searchRecords(env, vehicleSourceTableId, { pageSize: 100 }) : [];
     const vehicleSourceRecords = rawVehicleSourceRecords.filter((record) => {
       const fields = record.fields;
       const processState = asText(fields["流程"] ?? fields["审核流程"] ?? fields.source_stage);
