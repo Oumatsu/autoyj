@@ -706,7 +706,7 @@ async function searchRecords(
   const pageSize = Math.min(options.pageSize || 100, 500);
   const records: FeishuRecord[] = [];
   let pageToken = "";
-  const maxPages = Math.min(options.maxPages || 5, 10);
+  const maxPages = Math.min(options.maxPages || 1, 3);
 
   for (let page = 0; page < maxPages; page++) {
     const body: Record<string, unknown> = {
@@ -1382,45 +1382,32 @@ async function handleBootstrap(request: Request, env: Env) {
       allQuotes,
       allNegotiations,
     ] = await Promise.all([
-      vehicleModelTableId ? searchRecords(env, vehicleModelTableId, { pageSize: 100 }) : Promise.resolve([]),
-      vehicleSourceTableId ? searchRecords(env, vehicleSourceTableId, { pageSize: 100 }) : Promise.resolve([]),
+      vehicleModelTableId ? searchRecords(env, vehicleModelTableId, { pageSize: 100 }).catch(() => []) : Promise.resolve([]),
+      vehicleSourceTableId ? searchRecords(env, vehicleSourceTableId, { pageSize: 100 }).catch(() => []) : Promise.resolve([]),
       searchRecords(env, requireEnv(env, "FEISHU_TABLE_INQUIRIES"), {
         filter: isInternal ? undefined : equalsFilter("customer_id", session.customerId),
         pageSize: 100,
-      }),
+      }).catch(() => []),
       searchRecords(env, requireEnv(env, "FEISHU_TABLE_ORDERS"), {
         filter: isInternal ? undefined : equalsFilter("customer_id", session.customerId),
         pageSize: 100,
-      }),
-      isInternal && internalUserTableId ? searchRecords(env, internalUserTableId, { pageSize: 100 }) : Promise.resolve([]),
-      isInternal && customerTableId ? searchRecords(env, customerTableId, { pageSize: 100 }) : Promise.resolve([]),
-      searchRecords(env, requireEnv(env, "FEISHU_TABLE_QUOTES"), { pageSize: 100 }),
-      searchRecords(env, requireEnv(env, "FEISHU_TABLE_NEGOTIATIONS"), { pageSize: 100 }),
+      }).catch(() => []),
+      isInternal && internalUserTableId ? searchRecords(env, internalUserTableId, { pageSize: 100 }).catch(() => []) : Promise.resolve([]),
+      isInternal && customerTableId ? searchRecords(env, customerTableId, { pageSize: 100 }).catch(() => []) : Promise.resolve([]),
+      searchRecords(env, requireEnv(env, "FEISHU_TABLE_QUOTES"), { pageSize: 100 }).catch(() => []),
+      searchRecords(env, requireEnv(env, "FEISHU_TABLE_NEGOTIATIONS"), { pageSize: 100 }).catch(() => []),
     ]);
 
 
     const vehicleSourceRecords = rawVehicleSourceRecords.filter((record) => {
       const fields = record.fields;
-      const processState = asText(
-        fields["流程"] ??
-        fields["审核流程"] ??
-        fields["流程状态"] ??
-        fields["审核"] ??
-        fields["状态"] ??
-        fields.source_stage
-      );
-      const isApproved = asBool(fields["审核状态"] ?? fields["已接入"] ?? fields["已接入网站"]);
-      if (isApproved) return true;
-      if (!processState && rawVehicleSourceRecords.length > 0) {
-        // 如果字段结构存在但流程为空（例如测试默认环境），保留展示
+      const processState = asText(fields["流程"] ?? fields["审核流程"] ?? fields.source_stage);
+      const isApproved = asBool(fields["审核状态"]);
+      // 视图 vewCyPzSbJ 本身是飞书后台筛选好的接入视图。如果字段中没有显式的流程/审核状态列，说明已经由视图筛选，全量保留。
+      if (!processState && !("审核状态" in fields) && !("流程" in fields) && !("审核流程" in fields)) {
         return true;
       }
-      return (
-        processState === "已接入网站" ||
-        processState.includes("已接入") ||
-        processState.includes("接入网站") ||
-        processState.includes("已上线")
-      );
+      return processState === "已接入网站" || isApproved;
     });
 
     const vehicles = vehicleSourceRecords.map((record) => mapVehicleSource(record, canSeePortalPrice(session)));
