@@ -1177,32 +1177,64 @@ function mapOrder(record: FeishuRecord) {
 }
 
 function parseSourceStage(fields: Record<string, unknown>): "connected" | "unreviewed" {
-  const rawText = asText(
-    fields["审核流程"] ??
-    fields["流程"] ??
-    fields["流程状态"] ??
-    fields["文本审核流程"] ??
-    fields.source_stage ??
-    fields.stage
-  ).trim();
+  // 1. 动态检索所有包含 fx, 公式, option, 流程, 审核 等 key
+  let rawText = "";
+  for (const [key, val] of Object.entries(fields)) {
+    const k = key.toLowerCase();
+    if (
+      k.includes("fx") ||
+      k.includes("公式") ||
+      k.includes("option") ||
+      k.includes("流程") ||
+      k.includes("审核") ||
+      k.includes("stage")
+    ) {
+      if (key === "审核人" || key === "审核时间" || key === "审核意见") continue;
+      const text = asText(val).trim();
+      if (text) {
+        rawText = text;
+        break;
+      }
+    }
+  }
 
+  if (!rawText) {
+    rawText = asText(
+      fields["审核流程"] ??
+      fields["流程"] ??
+      fields["流程状态"] ??
+      fields["文本审核流程"] ??
+      fields.source_stage ??
+      fields.stage
+    ).trim();
+  }
+
+  const lowerRaw = rawText.toLowerCase();
+
+  // 2. 匹配“未审核” / “待处理”
   if (
     rawText === "未审核" ||
     rawText.includes("未审核") ||
     rawText.includes("未处理") ||
     rawText.includes("待审核") ||
     rawText.includes("审查中") ||
-    rawText.toLowerCase() === "unreviewed"
+    lowerRaw.includes("unreviewed") ||
+    lowerRaw.includes("pending") ||
+    lowerRaw.includes("reject")
   ) {
     return "unreviewed";
   }
 
+  // 3. 匹配“已接入网站” / Option ID (如 optQeQTAuY) / “已通过”
   if (
     rawText === "已接入网站" ||
     rawText.includes("已接入网站") ||
     rawText.includes("已通过") ||
     rawText.includes("已接入") ||
-    rawText.toLowerCase() === "connected"
+    lowerRaw.includes("connected") ||
+    lowerRaw.includes("approved") ||
+    lowerRaw.startsWith("opt") || // 适配飞书公式直接引用的 Option ID 格式（如 optQeQTAuY）
+    lowerRaw.includes("opt")
   ) {
     return "connected";
   }
