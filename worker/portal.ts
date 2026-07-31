@@ -706,7 +706,7 @@ async function searchRecords(
   const pageSize = Math.min(options.pageSize || 100, 500);
   const records: FeishuRecord[] = [];
   let pageToken = "";
-  const maxPages = Math.min(options.maxPages || 1, 3);
+  const maxPages = options.maxPages || 1;
 
   for (let page = 0; page < maxPages; page++) {
     let data: BaseRecordListResponse;
@@ -995,9 +995,9 @@ function mapVehicleSource(record: FeishuRecord, canSeePrice: boolean): Record<st
     location: asText(fields["批发地点"] ?? fields.location) || "China",
     status: asText(fields["库存状态"] ?? fields.status_vehicle) || "现车",
     exportStatus: "Available",
-    stockQuantity: asNumber(fields["库存"] ?? fields.stock_quantity) || 1,
-    minOrderQuantity: asNumber(fields["起订数量"] ?? fields.min_order_quantity) || 1,
-    fullOrderQuantity: asNumber(fields["满订数量"] ?? fields.full_order_quantity) || 1,
+    stockQuantity: asNumber(fields["库存"] ?? fields.stock_quantity) || 0,
+    minOrderQuantity: asNumber(fields["起订数量"] ?? fields.min_order_quantity) || 0,
+    fullOrderQuantity: asNumber(fields["满订数量"] ?? fields.full_order_quantity) || 0,
     leadTime: asText(fields.lead_time) || "7-14 Days",
     waitDays: asOptionalNumber(fields["下单后需要等待天数"]),
     priceValidUntil: "",
@@ -1399,7 +1399,7 @@ async function handleBootstrap(request: Request, env: Env) {
   const session = await requireSession(request, env);
   const isInternal = isInternalSession(session);
 
-  const cacheKey = `bootstrap_v4_get_records_opt:${session.role}:${session.customerId || "internal"}`;
+  const cacheKey = `bootstrap_v6_full_pages_opt:${session.role}:${session.customerId || "internal"}`;
   const cachedData = getCached(cacheKey);
   if (cachedData) {
     return json(cachedData);

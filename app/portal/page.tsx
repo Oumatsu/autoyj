@@ -331,7 +331,7 @@ const adminRoleLabels: Record<PortalRole, string> = {
 const adminNavItems: { key: AdminModule; label: string; roles: PortalRole[]; icon: AdminIconName; badge?: string }[] = [
   { key: "dashboard", label: "首页看板", roles: ["admin", "sales", "sourcing", "finance", "partner", "customer"], icon: "dashboard", badge: "开发中" },
   { key: "vehicle_models", label: "车型库", roles: ["admin", "sales", "sourcing", "partner", "customer"], icon: "vehicle_models", badge: "开发中" },
-  { key: "vehicles", label: "车辆资源", roles: ["admin", "sales", "sourcing", "partner"], icon: "vehicles", badge: "开发中" },
+  { key: "vehicles", label: "车辆资源", roles: ["admin", "sales", "sourcing", "partner"], icon: "vehicles", badge: "预览" },
   { key: "source_imports", label: "车源录入与审查", roles: ["admin", "sales", "sourcing"], icon: "vehicles", badge: "开发中" },
   { key: "quotes", label: "询价管理", roles: ["admin", "sales", "partner", "customer"], icon: "quotes", badge: "开发中" },
   { key: "orders", label: "订单管理", roles: ["admin", "sales", "finance", "partner", "customer"], icon: "orders", badge: "开发中" },
@@ -1105,7 +1105,7 @@ function AdminPortal({
                     <span className="truncate">{item.label}</span>
                   </div>
                   {item.badge && (
-                    <span className="shrink-0 rounded-md border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[11px] font-semibold text-amber-400">
+                    <span className={`shrink-0 rounded-md px-2 py-0.5 text-[11px] font-semibold ${item.badge === "预览" ? "border border-[#22b8aa]/30 bg-[#22b8aa]/10 text-[#5ee6d8]" : "border border-amber-500/30 bg-amber-500/10 text-amber-400"}`}>
                       {item.badge}
                     </span>
                   )}
@@ -1896,66 +1896,74 @@ function AdminVehicles({ data, onEdit }: { data: BootstrapData; onEdit: (vehicle
   const [expandedModels, setExpandedModels] = useState<Set<string>>(() => new Set());
   const [searchQuery, setSearchQuery] = useState("");
   const [supplyFilter, setSupplyFilter] = useState("all");
-  const [groupByMode, setGroupByMode] = useState<"supplier" | "model" | "flat">("supplier");
+  const [brandFilter, setBrandFilter] = useState("all");
+  const [colorFilter, setColorFilter] = useState("all");
+  const [supplierFilter, setSupplierFilter] = useState("all");
   const normalizedSearch = searchQuery.trim().toLowerCase();
 
-  // Filter connected vehicles directly from tblte61W3fKoXmSw (view vewCyPzSbJ)
-  const connectedVehicles = useMemo(() => {
-    return data.vehicles.filter((v) => {
-      const matchesSearch =
-        !normalizedSearch ||
-        safeText(v.brand).toLowerCase().includes(normalizedSearch) ||
-        safeText(v.model).toLowerCase().includes(normalizedSearch) ||
-        safeText(v.trim).toLowerCase().includes(normalizedSearch) ||
-        safeText(v.supplier).toLowerCase().includes(normalizedSearch) ||
-        safeText(v.id).toLowerCase().includes(normalizedSearch) ||
-        safeText(v.location).toLowerCase().includes(normalizedSearch);
-
-      const matchesSupply =
-        supplyFilter === "all" ||
-        (supplyFilter === "in-stock" && (v.status === "现车" || v.stockQuantity > 0)) ||
-        (supplyFilter === "preorder" && v.status === "Preorder") ||
-        (supplyFilter === "no-stock" && v.stockQuantity === 0);
-
-      return matchesSearch && matchesSupply;
+  // 从真实数据中动态提取下拉筛选选项
+  const brandOptions = useMemo(() => {
+    const set = new Set<string>();
+    data.vehicles.forEach((v) => {
+      if (v.brand?.trim()) set.add(v.brand.trim());
     });
-  }, [data.vehicles, normalizedSearch, supplyFilter]);
+    sellableModels.forEach((m) => {
+      if (m.brand?.trim()) set.add(m.brand.trim());
+    });
+    return Array.from(set).sort();
+  }, [data.vehicles, sellableModels]);
 
-  // Group vehicles by 1st-level Supplier (1级车源/供应商分组)
-  const supplierGroups = useMemo(() => {
-    const map = new Map<string, { supplier: string; vehicles: Vehicle[]; brands: Set<string>; totalStock: number; minPrice: number | null; maxPrice: number | null }>();
-    for (const v of connectedVehicles) {
-      const sup = safeText(v.supplier) || "合作车厂/合作经销商";
-      let group = map.get(sup);
-      if (!group) {
-        group = { supplier: sup, vehicles: [], brands: new Set(), totalStock: 0, minPrice: null, maxPrice: null };
-        map.set(sup, group);
-      }
-      group.vehicles.push(v);
-      if (v.brand) group.brands.add(v.brand);
-      group.totalStock += v.stockQuantity || 1;
-      const price = v.partnerPrice || v.price || (typeof v.cost === "number" ? v.cost : null);
-      if (price !== null && Number.isFinite(price)) {
-        group.minPrice = group.minPrice === null ? price : Math.min(group.minPrice, price);
-        group.maxPrice = group.maxPrice === null ? price : Math.max(group.maxPrice, price);
-      }
-    }
-    return Array.from(map.values()).sort((a, b) => b.vehicles.length - a.vehicles.length);
-  }, [connectedVehicles]);
+  const colorOptions = useMemo(() => {
+    const set = new Set<string>();
+    data.vehicles.forEach((v) => {
+      const ext = v.exteriorColor || v.color;
+      if (ext && ext.trim() && ext !== "-") set.add(ext.trim());
+      if (v.interiorColor && v.interiorColor.trim() && v.interiorColor !== "-") set.add(v.interiorColor.trim());
+    });
+    return Array.from(set).sort();
+  }, [data.vehicles]);
+
+  const supplierOptions = useMemo(() => {
+    const set = new Set<string>();
+    data.vehicles.forEach((v) => {
+      if (v.supplier?.trim()) set.add(v.supplier.trim());
+    });
+    return Array.from(set).sort();
+  }, [data.vehicles]);
+
+  const isAllDefault = !normalizedSearch && supplyFilter === "all" && brandFilter === "all" && colorFilter === "all" && supplierFilter === "all";
 
   const visibleModels = sellableModels
     .map((item) => {
-      const rawVehicles = vehiclesForSellableModel(data.vehicles, item).filter((vehicle) => vehicleMatchesAdminFilters(vehicle, item, normalizedSearch, supplyFilter));
-      const offers = item.offers.filter((offer) => offerMatchesAdminFilters(offer, item, normalizedSearch, supplyFilter));
-      const modelMatches = modelMatchesAdminSearch(item, normalizedSearch);
+      const rawVehicles = vehiclesForSellableModel(data.vehicles, item).filter((vehicle) =>
+        vehicleMatchesAdminFilters(vehicle, item, normalizedSearch, supplyFilter, brandFilter, colorFilter, supplierFilter)
+      );
+      const offers = item.offers.filter((offer) =>
+        offerMatchesAdminFilters(offer, item, normalizedSearch, supplyFilter, brandFilter, colorFilter, supplierFilter)
+      );
+      const modelMatches = modelMatchesAdminFilters(item, normalizedSearch, brandFilter);
+      // 只有当颜色/供应商/供应状态筛选都未激活时，才允许 modelMatches 回退到显示全部
+      const hasDetailFilter = colorFilter !== "all" || supplierFilter !== "all" || supplyFilter !== "all";
+
+      const effectiveOffers = isAllDefault
+        ? item.offers
+        : offers.length > 0
+          ? offers
+          : (modelMatches && !hasDetailFilter ? item.offers : []);
+      const effectiveRawVehicles = isAllDefault
+        ? vehiclesForSellableModel(data.vehicles, item)
+        : rawVehicles.length > 0
+          ? rawVehicles
+          : (modelMatches && !hasDetailFilter ? vehiclesForSellableModel(data.vehicles, item) : []);
+
       return {
         ...item,
-        offers: modelMatches && supplyFilter === "all" ? item.offers : offers,
-        rawVehicles: modelMatches && supplyFilter === "all" ? vehiclesForSellableModel(data.vehicles, item) : rawVehicles,
+        offers: effectiveOffers,
+        rawVehicles: effectiveRawVehicles,
         modelMatches,
       };
     })
-    .filter((item) => item.modelMatches || item.offers.length > 0 || item.rawVehicles.length > 0);
+    .filter((item) => item.offers.length > 0 || item.rawVehicles.length > 0 || isAllDefault);
 
   function toggleModel(key: string) {
     setExpandedModels((current) => {
@@ -1968,290 +1976,169 @@ function AdminVehicles({ data, onEdit }: { data: BootstrapData; onEdit: (vehicle
 
   return (
     <div className="grid gap-5">
-      <section className="grid gap-4 rounded-2xl border border-white/10 bg-white/[.045] p-4 sm:p-5">
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <span className="text-[10px] font-black uppercase tracking-[.24em] text-[#22b8aa]">
-              飞书 Base 多维表格接入视图 / vewCyPzSbJ
-            </span>
-            <h2 className="mt-1 text-xl font-black text-white">车辆资源 (已接入网站车源)</h2>
-            <p className="mt-1 text-xs text-slate-400">
-              数据来源于多维表格表 <code className="rounded bg-black/40 px-1.5 py-0.5 font-mono text-[#5ee6d8]">tblte61W3fKoXmSw</code>（视图 <code className="rounded bg-black/40 px-1.5 py-0.5 font-mono text-[#5ee6d8]">vewCyPzSbJ</code>），仅展示审核流程为“已接入网站”的真实车辆资源。
-            </p>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="flex rounded-xl border border-white/10 bg-white/[.04] p-1">
-              <button
-                type="button"
-                onClick={() => setGroupByMode("supplier")}
-                className={`rounded-lg px-3 py-1.5 text-[10px] font-black uppercase tracking-widest transition ${
-                  groupByMode === "supplier" ? "bg-[#22b8aa] text-[#07111f]" : "text-slate-400 hover:text-white"
-                }`}
-              >
-                1级车源分组视角
-              </button>
-              <button
-                type="button"
-                onClick={() => setGroupByMode("model")}
-                className={`rounded-lg px-3 py-1.5 text-[10px] font-black uppercase tracking-widest transition ${
-                  groupByMode === "model" ? "bg-[#22b8aa] text-[#07111f]" : "text-slate-400 hover:text-white"
-                }`}
-              >
-                按车型分组视角
-              </button>
-              <button
-                type="button"
-                onClick={() => setGroupByMode("flat")}
-                className={`rounded-lg px-3 py-1.5 text-[10px] font-black uppercase tracking-widest transition ${
-                  groupByMode === "flat" ? "bg-[#22b8aa] text-[#07111f]" : "text-slate-400 hover:text-white"
-                }`}
-              >
-                逐条拍平明细
-              </button>
-            </div>
-          </div>
+      {/* 顶部 Header 说明区 (只读模式，去除不合理的录入与新建按钮) */}
+      <section className="rounded-2xl border border-white/10 bg-[#070e1b] p-5 shadow-2xl shadow-black/20">
+        <div>
+          <h1 className="text-2xl font-black text-white sm:text-3xl">车辆资源</h1>
+          <p className="mt-1.5 text-xs font-medium text-slate-400">
+            按车型集合查看配置版本、现车数量、预订周期和价格有效期。
+          </p>
         </div>
 
-        <div className="grid gap-3 border-t border-white/10 pt-4 sm:grid-cols-[minmax(0,1fr)_180px] sm:items-end">
-          <label className="grid gap-2 text-xs font-black uppercase tracking-widest text-slate-500">
-            搜索车源资源
+        {/* 动态实用筛选与全文搜索工具栏 */}
+        <div className="mt-5 grid gap-3 border-t border-white/10 pt-4 sm:grid-cols-[minmax(0,2fr)_minmax(0,1.2fr)_minmax(0,1fr)_minmax(0,1.2fr)_minmax(0,1fr)_auto] sm:items-center">
+          {/* 全文搜索框 */}
+          <div className="relative">
+            <span className="pointer-events-none absolute inset-y-0 left-3.5 flex items-center text-slate-500">
+              🔍
+            </span>
             <input
               value={searchQuery}
-              onChange={(event) => setSearchQuery(event.target.value)}
-              className="rounded-xl border border-white/10 bg-[#0c1322] px-4 py-3 text-sm font-medium normal-case tracking-normal text-white outline-none transition placeholder:text-slate-600 focus:border-[#22b8aa]"
-              placeholder="搜索品牌、车型、细分变体、供应商、颜色、批发地点或资源 ID..."
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full rounded-xl border border-white/10 bg-[#0c1424] pl-9 pr-3 py-2.5 text-xs font-medium text-white outline-none transition placeholder:text-slate-500 focus:border-[#22b8aa]"
+              placeholder="全文搜索：车型/配置/颜色/VIN/供应商/备注/地点..."
             />
-          </label>
-          <label className="grid gap-2 text-xs font-black uppercase tracking-widest text-slate-500">
-            供应类型
-            <select
-              value={supplyFilter}
-              onChange={(event) => setSupplyFilter(event.target.value)}
-              className="rounded-xl border border-white/10 bg-[#0c1322] px-4 py-3 text-sm font-bold normal-case tracking-normal text-white outline-none transition focus:border-[#22b8aa]"
-            >
-              <option value="all">全部类型</option>
-              <option value="in-stock">现车资源</option>
-              <option value="preorder">可订车源</option>
-              <option value="no-stock">暂无库存</option>
-            </select>
-          </label>
+          </div>
+
+          {/* 全部品牌下拉 */}
+          <select
+            value={brandFilter}
+            onChange={(e) => setBrandFilter(e.target.value)}
+            className="rounded-xl border border-white/10 bg-[#0c1424] px-3 py-2.5 text-xs font-medium text-white outline-none transition focus:border-[#22b8aa]"
+          >
+            <option value="all">全部品牌</option>
+            {brandOptions.map((brand) => (
+              <option key={brand} value={brand}>{brand}</option>
+            ))}
+          </select>
+
+          {/* 全部颜色下拉 */}
+          <select
+            value={colorFilter}
+            onChange={(e) => setColorFilter(e.target.value)}
+            className="rounded-xl border border-white/10 bg-[#0c1424] px-3 py-2.5 text-xs font-medium text-white outline-none transition focus:border-[#22b8aa]"
+          >
+            <option value="all">全部颜色</option>
+            {colorOptions.map((color) => (
+              <option key={color} value={color}>{color}</option>
+            ))}
+          </select>
+
+          {/* 全部供应商下拉 */}
+          <select
+            value={supplierFilter}
+            onChange={(e) => setSupplierFilter(e.target.value)}
+            className="rounded-xl border border-white/10 bg-[#0c1424] px-3 py-2.5 text-xs font-medium text-white outline-none transition focus:border-[#22b8aa]"
+          >
+            <option value="all">全部供应商</option>
+            {supplierOptions.map((supplier) => (
+              <option key={supplier} value={supplier}>{supplier}</option>
+            ))}
+          </select>
+
+          {/* 供应状态下拉 */}
+          <select
+            value={supplyFilter}
+            onChange={(e) => setSupplyFilter(e.target.value)}
+            className="rounded-xl border border-white/10 bg-[#0c1424] px-3 py-2.5 text-xs font-medium text-white outline-none transition focus:border-[#22b8aa]"
+          >
+            <option value="all">全部状态</option>
+            <option value="in-stock">现车资源</option>
+            <option value="preorder">可订车源</option>
+            <option value="no-stock">暂时缺货</option>
+          </select>
+
+          {/* 重置按钮 */}
+          <button
+            type="button"
+            onClick={() => {
+              setSearchQuery("");
+              setBrandFilter("all");
+              setColorFilter("all");
+              setSupplierFilter("all");
+              setSupplyFilter("all");
+            }}
+            className="inline-flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/[.04] px-3.5 py-2.5 text-xs font-bold text-slate-300 transition hover:border-[#22b8aa] hover:bg-[#22b8aa]/10 hover:text-white"
+          >
+            ↻ 重置
+          </button>
         </div>
       </section>
 
-      {/* Mode 1: 1级车源/供应商分组展示 (保留1级车源分组) */}
-      {groupByMode === "supplier" && (
-        <div className="grid gap-4">
-          {supplierGroups.length === 0 ? (
-            <AdminPanel title="车辆资源" subtitle="1级车源分组视角"><Empty text="暂无已接入网站的 1 级车源分组" /></AdminPanel>
-          ) : (
-            supplierGroups.map((group) => {
-              const isExpanded = expandedModels.has(`supplier:${group.supplier}`);
-              const priceText = group.minPrice !== null
-                ? group.minPrice === group.maxPrice
-                  ? formatUsdStrict(group.minPrice)
-                  : `${formatUsdStrict(group.minPrice)} ~ ${formatUsdStrict(group.maxPrice!)}`
-                : "需询价";
-
-              return (
-                <section key={group.supplier} className="min-w-0 overflow-hidden rounded-2xl border border-white/10 bg-white/[.04] p-4 shadow-2xl shadow-black/10 sm:p-5">
-                  <header className="flex flex-col gap-3 border-b border-white/10 pb-4 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="rounded-md border border-[#22b8aa]/40 bg-[#22b8aa]/10 px-2 py-0.5 text-[10px] font-black text-[#5ee6d8]">
-                          1级车源 / 供应商
-                        </span>
-                        <span className="rounded-md border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[10px] font-black text-amber-300">
-                          已接入网站
-                        </span>
-                      </div>
-                      <h3 className="mt-2 text-2xl font-black text-white">{group.supplier}</h3>
-                      <p className="mt-1 text-xs text-slate-400">
-                        涵盖品牌: <span className="font-medium text-white">{Array.from(group.brands).join(" / ") || "全品牌"}</span>
-                      </p>
-                    </div>
-
-                    <div className="flex flex-wrap items-center gap-2">
-                      <AdminSummaryChip label="车源条数" value={`${group.vehicles.length} 条`} />
-                      <AdminSummaryChip label="总库存台数" value={`${group.totalStock} 台`} />
-                      <AdminSummaryChip label="美金价格区间" value={priceText} tone="accent" />
-                      <button
-                        type="button"
-                        onClick={() => toggleModel(`supplier:${group.supplier}`)}
-                        className="inline-flex h-9 items-center gap-2 rounded-lg border border-white/15 bg-white/[.04] px-4 text-xs font-black text-slate-200 transition hover:border-[#22b8aa] hover:bg-[#22b8aa]/10"
-                      >
-                        {isExpanded ? "收起车源列表" : "展开车源逐条明细"}
-                        <span className="text-xs text-[#5ee6d8]">{isExpanded ? "▲" : "▼"}</span>
-                      </button>
-                    </div>
-                  </header>
-
-                  {isExpanded && (
-                    <div className="mt-4 max-w-full overflow-x-auto rounded-xl border border-white/10">
-                      <table className="w-full min-w-[1000px] border-separate border-spacing-0 text-left text-sm">
-                        <thead>
-                          <tr>
-                            {["资源 ID", "品牌 & 车型", "细分变体 / 配置", "年份", "外观 / 内饰颜色", "库存台数", "起订 / 满订", "FOB 美金价", "左右舵", "批发地点", "流程状态", "操作"].map((header) => (
-                              <th key={header} className="border-b border-white/10 px-3 py-3 text-[10px] font-black uppercase tracking-widest text-slate-500">
-                                {header}
-                              </th>
-                            ))}
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {group.vehicles.map((vehicle) => (
-                            <tr key={vehicle.id} className="transition hover:bg-white/[.035]">
-                              <td className="border-b border-white/[.06] px-3 py-3 font-mono text-xs text-[#22b8aa]">{safeText(vehicle.id)}</td>
-                              <td className="border-b border-white/[.06] px-3 py-3 font-bold text-white">
-                                {safeText(vehicle.brand)} {safeText(vehicle.model)}
-                              </td>
-                              <td className="border-b border-white/[.06] px-3 py-3 text-slate-300">{safeText(vehicle.trim || vehicle.configuration || "-")}</td>
-                              <td className="border-b border-white/[.06] px-3 py-3 text-slate-300">{safeText(vehicle.year || "-")}</td>
-                              <td className="border-b border-white/[.06] px-3 py-3 text-xs text-slate-300">
-                                {formatColorPair(vehicle.exteriorColor || vehicle.color, vehicle.interiorColor)}
-                              </td>
-                              <td className="border-b border-white/[.06] px-3 py-3 font-bold text-white">{vehicle.stockQuantity || 1} 台</td>
-                              <td className="border-b border-white/[.06] px-3 py-3 text-xs text-slate-400">
-                                {vehicle.minOrderQuantity || 1} 台起 / {vehicle.fullOrderQuantity || 1} 台满
-                              </td>
-                              <td className="border-b border-white/[.06] px-3 py-3 font-bold text-amber-400">
-                                {vehicle.partnerPrice || vehicle.price ? formatUsdStrict(vehicle.partnerPrice || vehicle.price!) : vehicle.priceLabel || "询价"}
-                              </td>
-                              <td className="border-b border-white/[.06] px-3 py-3 text-xs text-slate-300">{safeText(vehicle.steering || vehicle.configuration || "左舵")}</td>
-                              <td className="border-b border-white/[.06] px-3 py-3 text-xs text-slate-400">{safeText(vehicle.location || "中国港口")}</td>
-                              <td className="border-b border-white/[.06] px-3 py-3">
-                                <span className="inline-block rounded bg-[#22b8aa]/15 px-2 py-0.5 text-[10px] font-bold text-[#5ee6d8]">
-                                  已接入网站
-                                </span>
-                              </td>
-                              <td className="border-b border-white/[.06] px-3 py-3">
-                                <button
-                                  type="button"
-                                  onClick={() => onEdit(vehicle)}
-                                  className="rounded-lg border border-[#22b8aa]/40 px-3 py-1.5 text-[10px] font-black uppercase text-[#5ee6d8] transition hover:bg-[#22b8aa] hover:text-[#07111f]"
-                                >
-                                  编辑/更新
-                                </button>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-                </section>
-              );
-            })
-          )}
+      {/* 结果统计 Summary Bar (现车总台数根据要求隐藏) */}
+      <div className="flex flex-wrap items-center justify-between gap-3 px-1 text-xs font-bold text-slate-400">
+        <div>
+          找到 <span className="font-mono font-bold text-[#5ee6d8]">{visibleModels.length}</span> 个车型集合，
+          <span className="font-mono font-bold text-[#5ee6d8]">
+            {visibleModels.reduce((acc, m) => acc + (m.offers?.length || 0), 0)}
+          </span> 个配置版本
         </div>
-      )}
+      </div>
 
-      {/* Mode 2: 全量逐条拍平展示 */}
-      {groupByMode === "flat" && (
-        <section className="rounded-2xl border border-white/10 bg-white/[.04] p-4 shadow-2xl shadow-black/10 sm:p-5">
-          <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-lg font-black text-white">已接入网站车辆资源全量逐条清单</h3>
-            <span className="text-xs font-bold text-slate-400">共计 {connectedVehicles.length} 条接入记录</span>
+      {/* 车型卡片 Accordion 逐层结构 */}
+      <div className="grid gap-4">
+        {visibleModels.length === 0 ? (
+          <div className="rounded-2xl border border-white/10 bg-[#070e1b] p-10 text-center text-sm font-medium text-slate-500">
+            没有找到匹配的车源及配置版本
           </div>
-
-          <div className="max-w-full overflow-x-auto rounded-xl border border-white/10">
-            <table className="w-full min-w-[1100px] border-separate border-spacing-0 text-left text-sm">
-              <thead>
-                <tr>
-                  {["资源 ID", "1级车源 / 供应商", "品牌 & 车型", "细分变体 / 配置", "年份", "外观 / 内饰颜色", "库存台数", "起订量 (MoQ)", "FOB 美金价", "左右舵", "批发地点", "审核流程", "操作"].map((header) => (
-                    <th key={header} className="border-b border-white/10 px-3 py-3 text-[10px] font-black uppercase tracking-widest text-slate-500">
-                      {header}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {connectedVehicles.map((vehicle) => (
-                  <tr key={vehicle.id} className="transition hover:bg-white/[.035]">
-                    <td className="border-b border-white/[.06] px-3 py-3 font-mono text-xs text-[#22b8aa]">{safeText(vehicle.id)}</td>
-                    <td className="border-b border-white/[.06] px-3 py-3 font-bold text-slate-200">{safeText(vehicle.supplier)}</td>
-                    <td className="border-b border-white/[.06] px-3 py-3 font-bold text-white">
-                      {safeText(vehicle.brand)} {safeText(vehicle.model)}
-                    </td>
-                    <td className="border-b border-white/[.06] px-3 py-3 text-slate-300">{safeText(vehicle.trim || vehicle.configuration || "-")}</td>
-                    <td className="border-b border-white/[.06] px-3 py-3 text-slate-300">{safeText(vehicle.year || "-")}</td>
-                    <td className="border-b border-white/[.06] px-3 py-3 text-xs text-slate-300">
-                      {formatColorPair(vehicle.exteriorColor || vehicle.color, vehicle.interiorColor)}
-                    </td>
-                    <td className="border-b border-white/[.06] px-3 py-3 font-bold text-white">{vehicle.stockQuantity || 1} 台</td>
-                    <td className="border-b border-white/[.06] px-3 py-3 text-xs text-slate-400">{vehicle.minOrderQuantity || 1} 台</td>
-                    <td className="border-b border-white/[.06] px-3 py-3 font-bold text-amber-400">
-                      {vehicle.partnerPrice || vehicle.price ? formatUsdStrict(vehicle.partnerPrice || vehicle.price!) : vehicle.priceLabel || "询价"}
-                    </td>
-                    <td className="border-b border-white/[.06] px-3 py-3 text-xs text-slate-300">{safeText(vehicle.steering || vehicle.configuration || "左舵")}</td>
-                    <td className="border-b border-white/[.06] px-3 py-3 text-xs text-slate-400">{safeText(vehicle.location || "中国港口")}</td>
-                    <td className="border-b border-white/[.06] px-3 py-3">
-                      <span className="inline-block rounded bg-[#22b8aa]/15 px-2 py-0.5 text-[10px] font-bold text-[#5ee6d8]">
-                        已接入网站
-                      </span>
-                    </td>
-                    <td className="border-b border-white/[.06] px-3 py-3">
-                      <button
-                        type="button"
-                        onClick={() => onEdit(vehicle)}
-                        className="rounded-lg border border-[#22b8aa]/40 px-3 py-1.5 text-[10px] font-black uppercase text-[#5ee6d8] transition hover:bg-[#22b8aa] hover:text-[#07111f]"
-                      >
-                        编辑
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-                {connectedVehicles.length === 0 && (
-                  <tr>
-                    <td colSpan={13} className="px-3 py-8 text-center text-sm text-slate-600">
-                      暂无已接入网站的车辆资源
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </section>
-      )}
-
-      {/* Mode 3: 按车型/品牌分组展示 */}
-      {groupByMode === "model" && (
-        <div className="grid gap-4">
-          {sellableModels.length === 0 && <AdminPanel title="车辆资源" subtitle="按车型管理车源"><Empty text="暂无车辆资源" /></AdminPanel>}
-          {sellableModels.length > 0 && visibleModels.length === 0 && <AdminPanel title="搜索结果" subtitle="没有匹配的车型或车源"><Empty text="没有找到匹配车源" /></AdminPanel>}
-          {visibleModels.map((item) => {
-            const rawVehicles = item.rawVehicles;
+        ) : (
+          visibleModels.map((item) => {
             const isExpanded = expandedModels.has(item.key);
+            const rawVehicles = item.rawVehicles || [];
+            const offers = item.offers || [];
 
             return (
-              <section key={item.key} className="min-w-0 overflow-hidden rounded-xl border border-white/10 bg-white/[.045] p-4 shadow-2xl shadow-black/10 sm:p-5">
-                <header className="grid gap-3 border-b border-white/10 pb-3 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-center">
-                  <div className="min-w-0">
-                    <p className="text-[10px] font-black uppercase tracking-[.24em] text-[#22b8aa]">可售车型 / 车源分组</p>
-                    <div className="mt-2 flex min-w-0 flex-wrap items-center gap-2">
-                      <h2 className="break-words text-2xl font-black text-white">{item.brand} {item.model} {formatModelYear(item.year)}</h2>
-                      <AdminSummaryChip label="级别" value={item.segment || "EV"} />
-                      <AdminSummaryChip label="供应" value={formatSupplySummary(item)} />
+              <section
+                key={item.key}
+                className="overflow-hidden rounded-2xl border border-white/10 bg-[#070e1b] shadow-xl transition"
+              >
+                {/* 1级车型 Header (包含折叠展开控制) */}
+                <header
+                  onClick={() => toggleModel(item.key)}
+                  className="flex cursor-pointer flex-col gap-4 border-b border-white/5 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5 hover:bg-white/[.02]"
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm text-[#5ee6d8] transition-transform duration-200">
+                      {isExpanded ? "▼" : "▶"}
+                    </span>
+                    <div>
+                      <h2 className="text-lg font-black text-white sm:text-xl">
+                        {item.brand} {item.model}
+                      </h2>
+                      <p className="mt-0.5 text-xs font-medium text-slate-400">
+                        {offers.length > 0 ? `${offers.length} 个配置版本` : ""}
+                        {offers.length > 0 && rawVehicles.length > 0 ? " · " : ""}
+                        {rawVehicles.length > 0 ? `${rawVehicles.length} 条原始批次` : ""}
+                        {offers.length === 0 && rawVehicles.length === 0 ? "暂无车源数据" : ""}
+                      </p>
                     </div>
                   </div>
-                  <div className="flex min-w-0 flex-wrap items-center gap-2 xl:justify-end">
-                    <AdminSummaryChip label="FOB" value={item.fobPriceRange.replace(/^FOB\s*/i, "")} tone="accent" />
-                    <AdminSummaryChip label="现车" value={`${item.stockQuantity} 台`} />
-                    <AdminSummaryChip label="明细" value={`${item.offers.length} 条`} />
+
+                  <div className="flex flex-wrap items-center gap-4 text-xs">
+                    <div className="text-right">
+                      <span className="block text-[10px] uppercase tracking-wider text-slate-500">现车</span>
+                      <span className="font-mono font-black text-white text-sm">
+                        {item.stockQuantity > 0 ? `${item.stockQuantity} 台` : "-"}
+                      </span>
+                    </div>
+                    <div className="text-right">
+                      <span className="block text-[10px] uppercase tracking-wider text-slate-500">价格</span>
+                      <span className="font-mono font-black text-amber-400">
+                        {item.fobPriceRange ? item.fobPriceRange.replace(/^FOB\s*/i, "") : "待录入价格"}
+                      </span>
+                    </div>
                     <button
                       type="button"
-                      onClick={() => toggleModel(item.key)}
-                      className="inline-flex h-9 items-center gap-2 rounded-lg border border-white/10 bg-white/[.035] px-3 text-[10px] font-black uppercase tracking-widest text-slate-300 transition hover:border-[#22b8aa]/40 hover:bg-[#22b8aa]/10"
-                      aria-expanded={isExpanded}
+                      className="ml-2 rounded-lg border border-white/10 bg-white/[.04] px-3.5 py-1.5 text-xs font-bold text-[#5ee6d8] transition hover:bg-[#22b8aa] hover:text-[#07111f]"
                     >
-                      {isExpanded ? "收起" : "展开"}
-                      <span className="text-xs text-[#5ee6d8]" aria-hidden="true">{isExpanded ? "▲" : "▼"}</span>
+                      {isExpanded ? "收起版本" : "查看版本"}
                     </button>
                   </div>
                 </header>
 
+                {/* 2级配置版本展开明细 */}
                 {isExpanded && (
-                  <div className="mt-4 grid gap-5">
+                  <div className="grid gap-5 p-4 sm:p-5">
                     <div>
                       <div className="mb-3 flex items-center justify-between gap-3">
                         <h3 className="text-sm font-black text-white">车源明细</h3>
@@ -2263,7 +2150,7 @@ function AdminVehicles({ data, onEdit }: { data: BootstrapData; onEdit: (vehicle
                           offer.year || "-",
                           compactJoin([offer.trim, offer.configuration]),
                           formatColorPair(offer.exteriorColor, offer.interiorColor),
-                          `${offer.quantity} 台`,
+                          offer.quantity > 0 ? `${offer.quantity} 台` : "-",
                           <AdminStatusBadge key="supply" status={offer.supplyType} />,
                           compactJoin([offer.leadTime || (offer.supplyType === "In Stock" ? "现车" : ""), offer.location]),
                           offer.price ? `FOB ${formatUsdStrict(offer.price)}` : offer.priceLabel,
@@ -2286,7 +2173,7 @@ function AdminVehicles({ data, onEdit }: { data: BootstrapData; onEdit: (vehicle
                           compactJoin([vehicle.supplierExteriorColor, vehicle.supplierInteriorColor, vehicle.colorCode]),
                           compactJoin([vehicle.supplier, vehicle.recorder]),
                           vehicle.location || "-",
-                          compactJoin([`${vehicle.stockQuantity} 台`, getSupplyType(vehicle), vehicle.status === "Preorder" ? vehicle.leadTime || "周期待确认" : vehicle.leadTime]),
+                          compactJoin([vehicle.stockQuantity > 0 ? `${vehicle.stockQuantity} 台` : "", getSupplyType(vehicle), vehicle.status === "Preorder" ? vehicle.leadTime || "周期待确认" : vehicle.leadTime]),
                           compactJoin([vehicle.partnerPrice ? `FOB ${formatUsdStrict(vehicle.partnerPrice)}` : formatUsd(vehicle.price), vehicle.cost ? `成本 ${formatUsdStrict(vehicle.cost)}` : ""]),
                           <button
                             key="edit"
@@ -2304,9 +2191,9 @@ function AdminVehicles({ data, onEdit }: { data: BootstrapData; onEdit: (vehicle
                 )}
               </section>
             );
-          })}
-        </div>
-      )}
+          })
+        )}
+      </div>
     </div>
   );
 }
@@ -3314,34 +3201,102 @@ function vehiclesForSellableModel(vehicles: Vehicle[], item: SellableModel) {
     });
 }
 
-function modelMatchesAdminSearch(item: SellableModel, query: string) {
+function modelMatchesAdminFilters(item: SellableModel, query: string, brandFilter: string) {
+  if (brandFilter !== "all") {
+    const itemB = (item.brand || "").toLowerCase();
+    const filterB = brandFilter.toLowerCase();
+    if (!itemB.includes(filterB) && !filterB.includes(itemB)) return false;
+  }
   if (!query) return true;
-  return adminSearchText([item.brand, item.model, item.year, item.segment, item.fobPriceRange]).includes(query);
+  const fullText = adminSearchText([item.brand, item.model, item.year, item.segment, item.fobPriceRange]);
+  const keywords = query.split(/\s+/).filter(Boolean);
+  return keywords.every((kw) => fullText.includes(kw));
 }
 
-function offerMatchesAdminFilters(offer: VehicleOffer, item: SellableModel, query: string, supplyFilter: string) {
+function offerMatchesAdminFilters(
+  offer: VehicleOffer,
+  item: SellableModel,
+  query: string,
+  supplyFilter: string,
+  brandFilter: string,
+  colorFilter: string,
+  supplierFilter: string
+) {
+  if (brandFilter !== "all") {
+    const itemB = (item.brand || "").toLowerCase();
+    const filterB = brandFilter.toLowerCase();
+    if (!itemB.includes(filterB) && !filterB.includes(itemB)) return false;
+  }
+
+  if (colorFilter !== "all") {
+    const ext = (offer.exteriorColor || "").toLowerCase();
+    const intColor = (offer.interiorColor || "").toLowerCase();
+    const target = colorFilter.toLowerCase();
+    if (!ext.includes(target) && !intColor.includes(target)) return false;
+  }
+
+  if (supplierFilter !== "all") {
+    // offer 的底层 vehicles 中至少一个供应商匹配
+    const hasMatchingSupplier = offer.vehicles.some((v) =>
+      (v.supplier || "").toLowerCase() === supplierFilter.toLowerCase()
+    );
+    if (!hasMatchingSupplier) return false;
+  }
+
   if (!supplyTypeMatchesFilter(offer.supplyType, supplyFilter)) return false;
   if (!query) return true;
-  return adminSearchText([
+
+  const fullText = adminSearchText([
     item.brand,
     item.model,
     item.segment,
     offer.year,
     offer.trim,
+    offer.specs,
     offer.configuration,
     offer.exteriorColor,
     offer.interiorColor,
+    offer.badge,
     offer.supplyType,
     offer.leadTime,
     offer.location,
     offer.price ? formatUsdStrict(offer.price) : offer.priceLabel,
-  ]).includes(query);
+  ]);
+  const keywords = query.split(/\s+/).filter(Boolean);
+  return keywords.every((kw) => fullText.includes(kw));
 }
 
-function vehicleMatchesAdminFilters(vehicle: Vehicle, item: SellableModel, query: string, supplyFilter: string) {
+function vehicleMatchesAdminFilters(
+  vehicle: Vehicle,
+  item: SellableModel,
+  query: string,
+  supplyFilter: string,
+  brandFilter: string,
+  colorFilter: string,
+  supplierFilter: string
+) {
+  if (brandFilter !== "all") {
+    const b = (vehicle.brand || item.brand || "").toLowerCase();
+    const filterB = brandFilter.toLowerCase();
+    if (!b.includes(filterB) && !filterB.includes(b)) return false;
+  }
+
+  if (colorFilter !== "all") {
+    const ext = (vehicle.exteriorColor || vehicle.color || vehicle.supplierExteriorColor || "").toLowerCase();
+    const intColor = (vehicle.interiorColor || vehicle.supplierInteriorColor || "").toLowerCase();
+    const target = colorFilter.toLowerCase();
+    if (!ext.includes(target) && !intColor.includes(target)) return false;
+  }
+
+  if (supplierFilter !== "all") {
+    const s = (vehicle.supplier || "").toLowerCase();
+    if (s !== supplierFilter.toLowerCase()) return false;
+  }
+
   if (!supplyTypeMatchesFilter(getSupplyType(vehicle), supplyFilter)) return false;
   if (!query) return true;
-  return adminSearchText([
+
+  const fullText = adminSearchText([
     item.brand,
     item.model,
     item.segment,
@@ -3358,15 +3313,21 @@ function vehicleMatchesAdminFilters(vehicle: Vehicle, item: SellableModel, query
     vehicle.supplierInteriorColor,
     vehicle.colorCode,
     vehicle.configuration,
+    vehicle.steering,
+    vehicle.marketVersion,
     vehicle.supplier,
     vehicle.recorder,
     vehicle.location,
     vehicle.status,
+    vehicle.inventoryStatus,
     vehicle.leadTime,
     vehicle.publicNotes,
     vehicle.partnerPrice ? formatUsdStrict(vehicle.partnerPrice) : "",
     vehicle.cost ? formatUsdStrict(vehicle.cost) : "",
-  ]).includes(query);
+    vehicle.price ? formatUsdStrict(vehicle.price) : "",
+  ]);
+  const keywords = query.split(/\s+/).filter(Boolean);
+  return keywords.every((kw) => fullText.includes(kw));
 }
 
 function supplyTypeMatchesFilter(supplyType: string, supplyFilter: string) {

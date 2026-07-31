@@ -6,16 +6,16 @@ import { SiteChrome } from "@/components/SiteChrome";
 export const dynamic = "force-dynamic";
 
 const inter = Inter({
-  subsets: ["latin", "latin-ext"],
-  weight: ["300", "400", "500", "600", "700", "800"],
-  style: ["normal", "italic"],
+  subsets: ["latin"],
+  weight: ["400", "500", "700", "800"],
+  style: ["normal"],
   display: "swap",
   variable: "--font-inter",
 });
 
 const notoSans = Noto_Sans({
-  subsets: ["latin", "latin-ext"],
-  weight: ["300", "400", "500", "600", "700", "800"],
+  subsets: ["latin"],
+  weight: ["400", "500", "700", "800"],
   style: ["normal"],
   display: "swap",
   variable: "--font-sans",
@@ -23,7 +23,7 @@ const notoSans = Noto_Sans({
 
 const notoSansSc = Noto_Sans_SC({
   subsets: ["latin"],
-  weight: ["400", "500", "700"],
+  weight: ["400", "700"],
   style: ["normal"],
   display: "swap",
   variable: "--font-sc",
@@ -31,7 +31,7 @@ const notoSansSc = Noto_Sans_SC({
 
 const notoSansEthiopic = Noto_Sans_Ethiopic({
   subsets: ["ethiopic"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "700"],
   style: ["normal"],
   display: "swap",
   variable: "--font-ethiopic",
@@ -59,6 +59,8 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <script
           dangerouslySetInnerHTML={{
             __html: `
