@@ -1147,6 +1147,45 @@ function mapOrder(record: FeishuRecord) {
   };
 }
 
+function mapSourceImport(record: FeishuRecord): Record<string, unknown> {
+  const fields = record.fields;
+  const reviewStatus = asBool(fields["审核状态"]);
+  return {
+    id: record.record_id,
+    sourceStage: reviewStatus ? "connected" : "unreviewed",
+    supplier: asText(fields["供应商"]),
+    reviewer: asText(fields["审核人"]),
+    developer: asText(fields["开发者"]),
+    brand: asText(fields["品牌"]),
+    model: asText(fields["型号"]),
+    modelId: asText(fields.model_id),
+    variant: asText(fields["细分型号"]),
+    variantId: asText(fields.variant_id),
+    year: asText(fields["生产年份"]),
+    month: asText(fields["生产月份"]),
+    exteriorColor: asText(fields["外饰颜色"]),
+    interiorColor: asText(fields["内饰颜色"]),
+    stock: asNumber(fields["库存"]),
+    minOrderQuantity: asNumber(fields["起订数量"]),
+    fullOrderQuantity: asNumber(fields["满订数量"]),
+    leadTime: asText(fields.lead_time),
+    waitDays: asOptionalNumber(fields["下单后需要等待天数"]),
+    steering: asText(fields["左右舵"]),
+    marketVersion: asText(fields["国际国内版本（多选）"]),
+    inventoryStatus: asText(fields["库存状态"]),
+    costCny: asOptionalNumber(fields["人民币成本价"]),
+    exwUsd: asOptionalNumber(fields["EXW美金价"]),
+    fcaUsd: asOptionalNumber(fields["FCA美金价"]),
+    fobUsd: asOptionalNumber(fields["FOB美金价"]),
+    wholesaleLocation: asText(fields["批发地点"]),
+    aiConfidence: asOptionalNumber(fields["AI置信度"]),
+    notes: asText(fields["备注"]),
+    displayPriceLow: asOptionalNumber(fields["网站显示最低价"] ?? fields["网站显示美金最低价"]),
+    displayPriceHigh: asOptionalNumber(fields["网站显示最高价"] ?? fields["网站显示美金最高价"]),
+    sourcePath: asText(fields["素材源文件路径"]),
+  };
+}
+
 async function recordsByEmail(env: Env, tableId: string, email: string) {
   return searchRecords(env, tableId, { filter: equalsFilter("email", email.toLowerCase()), pageSize: 10 });
 }
@@ -2119,6 +2158,13 @@ export async function handlePortalRequest(request: Request, env: Env) {
     if (path === "/api/portal/bootstrap" && request.method === "GET") {
       return await handleBootstrap(request, env);
     }
+    if (path === "/api/portal/source-imports" && request.method === "GET") {
+      return await handleSourceImports(request, env);
+    }
+    const sourceImportMatch = path.match(/^\/api\/portal\/source-imports\/([^/]+)$/);
+    if (sourceImportMatch && request.method === "PATCH") {
+      return await handleUpdateSourceImport(request, env, decodeURIComponent(sourceImportMatch[1]));
+    }
     if (path === "/api/portal/inquiries" && request.method === "POST") {
       return await handleCreateInquiry(request, env);
     }
@@ -2144,4 +2190,102 @@ export async function handlePortalRequest(request: Request, env: Env) {
     console.error(error);
     return problem(error instanceof Error ? error.message : "Portal request failed", 500);
   }
+}
+
+async function handleSourceImports(request: Request, env: Env) {
+  const session = await requireSession(request, env);
+  if (!isInternalSession(session)) return problem("Source imports are only available to internal reviewers", 403);
+
+  const tableId = requireEnv(env, "FEISHU_TABLE_SOURCE_IMPORTS");
+  const viewId = optionalEnv(env, "FEISHU_VIEW_SOURCE_IMPORTS");
+  const fields = await listFields(env, tableId);
+  const records = await listRecords(env, tableId, {
+    pageSize: 500,
+    maxPages: 3,
+    viewId: viewId || undefined,
+  });
+
+  return json({
+    ok: true,
+    tableId,
+    viewId,
+    readLimit: 1500,
+    fields,
+    records: records.map(mapSourceImport),
+  });
+}
+
+function isEditableSourceImportField(field: BaseField) {
+  if (field.reason || field.type === "not_support") return false;
+  if (field.name === "流程" || field.name === "审核人") return false;
+  if (field.name === "审核状态") return true;
+  return ["Text", "Number", "SingleSelect", "MultiSelect", "DateTime", "text", "number", "select", "multi_select", "datetime"].includes(field.type);
+}
+
+function normalizeSourceImportValue(field: BaseField, value: unknown) {
+  const type = field.type;
+  if (value === null) return null;
+  if (type === "Number" || type === "number") {
+    if (value === "") return null;
+    const number = Number(value);
+    if (!Number.isFinite(number)) throw new Error(`${field.name} must be a number`);
+    return number;
+  }
+  if (type === "DateTime" || type === "datetime") {
+    const text = asText(value).trim();
+    if (!text) return null;
+    if (/^\d{4}-\d{2}-\d{2}$/.test(text)) return `${text} 00:00:00`;
+    return text;
+  }
+  if (type === "MultiSelect" || type === "multi_select") {
+    if (!Array.isArray(value)) return asText(value) ? [asText(value)] : null;
+    const values = value.map(asText).filter(Boolean);
+    return values.length ? values : null;
+  }
+  if (type === "Checkbox" || type === "checkbox") {
+    return Boolean(value);
+  }
+  return asText(value).trim() || null;
+}
+
+async function handleUpdateSourceImport(request: Request, env: Env, recordId: string) {
+  const session = await requireSession(request, env);
+  if (!isInternalSession(session)) return problem("Source imports are only available to internal reviewers", 403);
+
+  const tableId = requireEnv(env, "FEISHU_TABLE_SOURCE_IMPORTS");
+  const fields = await listFields(env, tableId);
+  const fieldsByName = new Map(fields.map((field) => [field.name, field]));
+  const body = (await request.json().catch(() => null)) as { fields?: Record<string, unknown> } | null;
+  const input = body?.fields || {};
+  const patch: Record<string, unknown> = {};
+  const ignoredFields: { name: string; reason: string }[] = [];
+
+  for (const [name, value] of Object.entries(input)) {
+    const field = fieldsByName.get(name);
+    if (!field) {
+      ignoredFields.push({ name, reason: "field was not found in Feishu schema" });
+      continue;
+    }
+    if (!isEditableSourceImportField(field)) {
+      ignoredFields.push({ name, reason: "field is not editable in this unified editor" });
+      continue;
+    }
+    patch[name] = normalizeSourceImportValue(field, value);
+  }
+
+  if (!Object.keys(patch).length) {
+    const current = await getRecord(env, tableId, recordId);
+    return json({
+      ok: true,
+      noop: true,
+      ignoredFields,
+      record: current ? mapSourceImport(current) : null,
+    });
+  }
+
+  await updateRecord(env, tableId, recordId, patch);
+  cacheMap.clear();
+
+  const updated = await getRecord(env, tableId, recordId);
+  return json({ ok: true, record: updated ? mapSourceImport(updated) : null });
 }
