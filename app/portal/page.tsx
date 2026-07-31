@@ -1,8 +1,7 @@
 "use client";
 
-import React, { Fragment, useEffect, useMemo, useState } from "react";
+import React, { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
-import { authClient } from "@/lib/auth-client";
 
 type PortalRole = "admin" | "sales" | "sourcing" | "finance" | "partner" | "customer";
 type PriceTier = "hidden" | "partner" | "vip" | "internal";
@@ -479,26 +478,36 @@ export default function PortalPage() {
   const [counterMessage, setCounterMessage] = useState("");
 
   const loadPromiseRef = useRef<Promise<void> | null>(null);
+  // 防止 React StrictMode 双重 effect 和路由切换后重新挂载时重复发 bootstrap
+  const hasInitiallyLoadedRef = useRef(false);
 
   const checkSessionAndLoad = useCallback(async (force = false) => {
+    // 如果有正在进行中的请求，直接复用
     if (!force && loadPromiseRef.current) {
       return loadPromiseRef.current;
+    }
+    // 非强制调用：若已完成过初次加载，跳过（防 StrictMode 双 effect & remount 重复请求）
+    if (!force && hasInitiallyLoadedRef.current) {
+      return;
     }
     const promise = (async () => {
       setError("");
       try {
-        // 1. 先极速校验 Session（纯本地 Cookie 校验，<5ms 返回），无需长等待
+        // 1. 先极速校验 Session（纯本地 Cookie 校验，<5ms 返回）
         const sessionRes = await api<{ user: PortalUser | null }>("/api/portal/session");
         if (!sessionRes.user) {
           setData(null);
           setLoading(false);
+          hasInitiallyLoadedRef.current = true;
           return;
         }
         // 2. 已登录：拉取全量后台数据
         const bootstrap = await api<BootstrapData>("/api/portal/bootstrap");
         setData(bootstrap);
+        hasInitiallyLoadedRef.current = true;
       } catch (loadError) {
         setData(null);
+        hasInitiallyLoadedRef.current = true;
         if (loadError instanceof Error && loadError.message !== "Not signed in") {
           setError(loadError.message);
         }
@@ -623,6 +632,7 @@ export default function PortalPage() {
 
   async function logout() {
     await api("/api/portal/session", { method: "DELETE" });
+    hasInitiallyLoadedRef.current = false;
     setData(null);
     setActiveAdminModule("dashboard");
     setSelectedSellableModel(null);
@@ -651,7 +661,7 @@ export default function PortalPage() {
       });
       setSelectedVehicle(null);
       setInquiryForm(emptyInquiryForm);
-      await checkSessionAndLoad();
+      await checkSessionAndLoad(true); // 用户操作后强制刷新
     } catch (createError) {
       setError(createError instanceof Error ? createError.message : "Inquiry failed");
     } finally {
@@ -675,7 +685,7 @@ export default function PortalPage() {
       setCounterQuote(null);
       setCounterPrice("");
       setCounterMessage("");
-      await checkSessionAndLoad();
+      await checkSessionAndLoad(true); // 用户操作后强制刷新
     } catch (counterError) {
       setError(counterError instanceof Error ? counterError.message : "Counteroffer failed");
     } finally {
@@ -688,7 +698,7 @@ export default function PortalPage() {
     setError("");
     try {
       await api(`/api/portal/quotes/${encodeURIComponent(quote.quoteNo)}/accept`, { method: "POST" });
-      await checkSessionAndLoad();
+      await checkSessionAndLoad(true); // 用户操作后强制刷新
     } catch (acceptError) {
       setError(acceptError instanceof Error ? acceptError.message : "Accept failed");
     } finally {

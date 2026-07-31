@@ -94,7 +94,8 @@ export function Navbar() {
     return () => {
       window.removeEventListener("youguard-session-changed", refreshSession);
     };
-  }, [pathname, refreshSession]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // 只在 mount 时执行一次；session 变化通过 youguard-session-changed 事件推送
 
   return (
     <>
@@ -181,7 +182,7 @@ export function Navbar() {
 
         <div className="hidden lg:flex items-center gap-3">
           <LocaleSwitcher />
-          <Link
+          <a
             href="/dashboard"
             className={`px-6 py-2.5 rounded-full text-xs font-black tracking-widest uppercase transition border ${
               user
@@ -190,7 +191,7 @@ export function Navbar() {
             }`}
           >
             {user ? `${user.role.toUpperCase()}` : "SIGN IN"}
-          </Link>
+          </a>
           <QrDropdown>
             <LocaleLink
               href="/#contact"
@@ -323,13 +324,13 @@ export function Navbar() {
           >
             {t("nav.about")}
           </LocaleLink>
-          <Link
+          <a
             href="/dashboard"
             onClick={closeMobile}
             className="text-accent hover:text-white transition"
           >
             {user ? user.role.toUpperCase() : "SIGN IN"}
-          </Link>
+          </a>
           <LocaleLink
             href="/about#verification"
             onClick={closeMobile}
