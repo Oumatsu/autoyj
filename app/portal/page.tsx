@@ -1896,7 +1896,53 @@ function AdminVehicles({ data, onEdit }: { data: BootstrapData; onEdit: (vehicle
   const [expandedModels, setExpandedModels] = useState<Set<string>>(() => new Set());
   const [searchQuery, setSearchQuery] = useState("");
   const [supplyFilter, setSupplyFilter] = useState("all");
+  const [groupByMode, setGroupByMode] = useState<"supplier" | "model" | "flat">("supplier");
   const normalizedSearch = searchQuery.trim().toLowerCase();
+
+  // Filter connected vehicles directly from tblte61W3fKoXmSw (view vewCyPzSbJ)
+  const connectedVehicles = useMemo(() => {
+    return data.vehicles.filter((v) => {
+      const matchesSearch =
+        !normalizedSearch ||
+        safeText(v.brand).toLowerCase().includes(normalizedSearch) ||
+        safeText(v.model).toLowerCase().includes(normalizedSearch) ||
+        safeText(v.trim).toLowerCase().includes(normalizedSearch) ||
+        safeText(v.supplier).toLowerCase().includes(normalizedSearch) ||
+        safeText(v.id).toLowerCase().includes(normalizedSearch) ||
+        safeText(v.location).toLowerCase().includes(normalizedSearch);
+
+      const matchesSupply =
+        supplyFilter === "all" ||
+        (supplyFilter === "in-stock" && (v.status === "现车" || v.stockQuantity > 0)) ||
+        (supplyFilter === "preorder" && v.status === "Preorder") ||
+        (supplyFilter === "no-stock" && v.stockQuantity === 0);
+
+      return matchesSearch && matchesSupply;
+    });
+  }, [data.vehicles, normalizedSearch, supplyFilter]);
+
+  // Group vehicles by 1st-level Supplier (1级车源/供应商分组)
+  const supplierGroups = useMemo(() => {
+    const map = new Map<string, { supplier: string; vehicles: Vehicle[]; brands: Set<string>; totalStock: number; minPrice: number | null; maxPrice: number | null }>();
+    for (const v of connectedVehicles) {
+      const sup = safeText(v.supplier) || "合作车厂/合作经销商";
+      let group = map.get(sup);
+      if (!group) {
+        group = { supplier: sup, vehicles: [], brands: new Set(), totalStock: 0, minPrice: null, maxPrice: null };
+        map.set(sup, group);
+      }
+      group.vehicles.push(v);
+      if (v.brand) group.brands.add(v.brand);
+      group.totalStock += v.stockQuantity || 1;
+      const price = v.partnerPrice || v.price || (typeof v.cost === "number" ? v.cost : null);
+      if (price !== null && Number.isFinite(price)) {
+        group.minPrice = group.minPrice === null ? price : Math.min(group.minPrice, price);
+        group.maxPrice = group.maxPrice === null ? price : Math.max(group.maxPrice, price);
+      }
+    }
+    return Array.from(map.values()).sort((a, b) => b.vehicles.length - a.vehicles.length);
+  }, [connectedVehicles]);
+
   const visibleModels = sellableModels
     .map((item) => {
       const rawVehicles = vehiclesForSellableModel(data.vehicles, item).filter((vehicle) => vehicleMatchesAdminFilters(vehicle, item, normalizedSearch, supplyFilter));
@@ -1922,119 +1968,345 @@ function AdminVehicles({ data, onEdit }: { data: BootstrapData; onEdit: (vehicle
 
   return (
     <div className="grid gap-5">
-      <section className="grid gap-3 rounded-xl border border-white/10 bg-white/[.045] p-4 sm:grid-cols-[minmax(0,1fr)_180px] sm:items-end sm:p-5">
-        <label className="grid gap-2 text-xs font-black uppercase tracking-widest text-slate-500">
-          搜索车源
-          <input
-            value={searchQuery}
-            onChange={(event) => setSearchQuery(event.target.value)}
-            className="rounded-xl border border-white/10 bg-[#0c1322] px-4 py-3 text-sm font-medium normal-case tracking-normal text-white outline-none transition placeholder:text-slate-600 focus:border-[#22b8aa]"
-            placeholder="品牌、车型、版本、颜色、供应商、资源 ID"
-          />
-        </label>
-        <label className="grid gap-2 text-xs font-black uppercase tracking-widest text-slate-500">
-          供应类型
-          <select
-            value={supplyFilter}
-            onChange={(event) => setSupplyFilter(event.target.value)}
-            className="rounded-xl border border-white/10 bg-[#0c1322] px-4 py-3 text-sm font-bold normal-case tracking-normal text-white outline-none transition focus:border-[#22b8aa]"
-          >
-            <option value="all">全部</option>
-            <option value="in-stock">现车</option>
-            <option value="preorder">可订车</option>
-            <option value="no-stock">暂无库存</option>
-          </select>
-        </label>
+      <section className="grid gap-4 rounded-2xl border border-white/10 bg-white/[.045] p-4 sm:p-5">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <span className="text-[10px] font-black uppercase tracking-[.24em] text-[#22b8aa]">
+              飞书 Base 多维表格接入视图 / vewCyPzSbJ
+            </span>
+            <h2 className="mt-1 text-xl font-black text-white">车辆资源 (已接入网站车源)</h2>
+            <p className="mt-1 text-xs text-slate-400">
+              数据来源于多维表格表 <code className="rounded bg-black/40 px-1.5 py-0.5 font-mono text-[#5ee6d8]">tblte61W3fKoXmSw</code>（视图 <code className="rounded bg-black/40 px-1.5 py-0.5 font-mono text-[#5ee6d8]">vewCyPzSbJ</code>），仅展示审核流程为“已接入网站”的真实车辆资源。
+            </p>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex rounded-xl border border-white/10 bg-white/[.04] p-1">
+              <button
+                type="button"
+                onClick={() => setGroupByMode("supplier")}
+                className={`rounded-lg px-3 py-1.5 text-[10px] font-black uppercase tracking-widest transition ${
+                  groupByMode === "supplier" ? "bg-[#22b8aa] text-[#07111f]" : "text-slate-400 hover:text-white"
+                }`}
+              >
+                1级车源分组视角
+              </button>
+              <button
+                type="button"
+                onClick={() => setGroupByMode("model")}
+                className={`rounded-lg px-3 py-1.5 text-[10px] font-black uppercase tracking-widest transition ${
+                  groupByMode === "model" ? "bg-[#22b8aa] text-[#07111f]" : "text-slate-400 hover:text-white"
+                }`}
+              >
+                按车型分组视角
+              </button>
+              <button
+                type="button"
+                onClick={() => setGroupByMode("flat")}
+                className={`rounded-lg px-3 py-1.5 text-[10px] font-black uppercase tracking-widest transition ${
+                  groupByMode === "flat" ? "bg-[#22b8aa] text-[#07111f]" : "text-slate-400 hover:text-white"
+                }`}
+              >
+                逐条拍平明细
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid gap-3 border-t border-white/10 pt-4 sm:grid-cols-[minmax(0,1fr)_180px] sm:items-end">
+          <label className="grid gap-2 text-xs font-black uppercase tracking-widest text-slate-500">
+            搜索车源资源
+            <input
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+              className="rounded-xl border border-white/10 bg-[#0c1322] px-4 py-3 text-sm font-medium normal-case tracking-normal text-white outline-none transition placeholder:text-slate-600 focus:border-[#22b8aa]"
+              placeholder="搜索品牌、车型、细分变体、供应商、颜色、批发地点或资源 ID..."
+            />
+          </label>
+          <label className="grid gap-2 text-xs font-black uppercase tracking-widest text-slate-500">
+            供应类型
+            <select
+              value={supplyFilter}
+              onChange={(event) => setSupplyFilter(event.target.value)}
+              className="rounded-xl border border-white/10 bg-[#0c1322] px-4 py-3 text-sm font-bold normal-case tracking-normal text-white outline-none transition focus:border-[#22b8aa]"
+            >
+              <option value="all">全部类型</option>
+              <option value="in-stock">现车资源</option>
+              <option value="preorder">可订车源</option>
+              <option value="no-stock">暂无库存</option>
+            </select>
+          </label>
+        </div>
       </section>
 
-      {sellableModels.length === 0 && <AdminPanel title="车辆资源" subtitle="按车型管理车源"><Empty text="暂无车辆资源" /></AdminPanel>}
-      {sellableModels.length > 0 && visibleModels.length === 0 && <AdminPanel title="搜索结果" subtitle="没有匹配的车型或车源"><Empty text="没有找到匹配车源" /></AdminPanel>}
-      {visibleModels.map((item) => {
-        const rawVehicles = item.rawVehicles;
-        const isExpanded = expandedModels.has(item.key);
+      {/* Mode 1: 1级车源/供应商分组展示 (保留1级车源分组) */}
+      {groupByMode === "supplier" && (
+        <div className="grid gap-4">
+          {supplierGroups.length === 0 ? (
+            <AdminPanel title="车辆资源" subtitle="1级车源分组视角"><Empty text="暂无已接入网站的 1 级车源分组" /></AdminPanel>
+          ) : (
+            supplierGroups.map((group) => {
+              const isExpanded = expandedModels.has(`supplier:${group.supplier}`);
+              const priceText = group.minPrice !== null
+                ? group.minPrice === group.maxPrice
+                  ? formatUsdStrict(group.minPrice)
+                  : `${formatUsdStrict(group.minPrice)} ~ ${formatUsdStrict(group.maxPrice!)}`
+                : "需询价";
 
-        return (
-          <section key={item.key} className="min-w-0 overflow-hidden rounded-xl border border-white/10 bg-white/[.045] p-4 shadow-2xl shadow-black/10 sm:p-5">
-            <header className="grid gap-3 border-b border-white/10 pb-3 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-center">
-              <div className="min-w-0">
-                <p className="text-[10px] font-black uppercase tracking-[.24em] text-[#22b8aa]">可售车型 / 车源分组</p>
-                <div className="mt-2 flex min-w-0 flex-wrap items-center gap-2">
-                  <h2 className="break-words text-2xl font-black text-white">{item.brand} {item.model} {formatModelYear(item.year)}</h2>
-                  <AdminSummaryChip label="级别" value={item.segment || "EV"} />
-                  <AdminSummaryChip label="供应" value={formatSupplySummary(item)} />
-                </div>
-              </div>
-              <div className="flex min-w-0 flex-wrap items-center gap-2 xl:justify-end">
-                <AdminSummaryChip label="FOB" value={item.fobPriceRange.replace(/^FOB\s*/i, "")} tone="accent" />
-                <AdminSummaryChip label="现车" value={`${item.stockQuantity} 台`} />
-                <AdminSummaryChip label="明细" value={`${item.offers.length} 条`} />
-                <button
-                  type="button"
-                  onClick={() => toggleModel(item.key)}
-                  className="inline-flex h-9 items-center gap-2 rounded-lg border border-white/10 bg-white/[.035] px-3 text-[10px] font-black uppercase tracking-widest text-slate-300 transition hover:border-[#22b8aa]/40 hover:bg-[#22b8aa]/10"
-                  aria-expanded={isExpanded}
-                >
-                  {isExpanded ? "收起" : "展开"}
-                  <span className="text-xs text-[#5ee6d8]" aria-hidden="true">{isExpanded ? "▲" : "▼"}</span>
-                </button>
-              </div>
-            </header>
+              return (
+                <section key={group.supplier} className="min-w-0 overflow-hidden rounded-2xl border border-white/10 bg-white/[.04] p-4 shadow-2xl shadow-black/10 sm:p-5">
+                  <header className="flex flex-col gap-3 border-b border-white/10 pb-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="rounded-md border border-[#22b8aa]/40 bg-[#22b8aa]/10 px-2 py-0.5 text-[10px] font-black text-[#5ee6d8]">
+                          1级车源 / 供应商
+                        </span>
+                        <span className="rounded-md border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[10px] font-black text-amber-300">
+                          已接入网站
+                        </span>
+                      </div>
+                      <h3 className="mt-2 text-2xl font-black text-white">{group.supplier}</h3>
+                      <p className="mt-1 text-xs text-slate-400">
+                        涵盖品牌: <span className="font-medium text-white">{Array.from(group.brands).join(" / ") || "全品牌"}</span>
+                      </p>
+                    </div>
 
-            {isExpanded && (
-            <div className="mt-4 grid gap-5">
-              <div>
-                <div className="mb-3 flex items-center justify-between gap-3">
-                  <h3 className="text-sm font-black text-white">车源明细</h3>
-                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">客户可见合并结果</span>
-                </div>
-                <AdminTable
-                  headers={["年款", "版本/配置", "外部颜色", "数量", "供应", "周期/地点", "FOB"]}
-                  rows={item.offers.map((offer) => [
-                    offer.year || "-",
-                    compactJoin([offer.trim, offer.configuration]),
-                    formatColorPair(offer.exteriorColor, offer.interiorColor),
-                    `${offer.quantity} 台`,
-                    <AdminStatusBadge key="supply" status={offer.supplyType} />,
-                    compactJoin([offer.leadTime || (offer.supplyType === "In Stock" ? "现车" : ""), offer.location]),
-                    offer.price ? `FOB ${formatUsdStrict(offer.price)}` : offer.priceLabel,
-                  ])}
-                  emptyText="暂无车源明细"
-                />
-              </div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <AdminSummaryChip label="车源条数" value={`${group.vehicles.length} 条`} />
+                      <AdminSummaryChip label="总库存台数" value={`${group.totalStock} 台`} />
+                      <AdminSummaryChip label="美金价格区间" value={priceText} tone="accent" />
+                      <button
+                        type="button"
+                        onClick={() => toggleModel(`supplier:${group.supplier}`)}
+                        className="inline-flex h-9 items-center gap-2 rounded-lg border border-white/15 bg-white/[.04] px-4 text-xs font-black text-slate-200 transition hover:border-[#22b8aa] hover:bg-[#22b8aa]/10"
+                      >
+                        {isExpanded ? "收起车源列表" : "展开车源逐条明细"}
+                        <span className="text-xs text-[#5ee6d8]">{isExpanded ? "▲" : "▼"}</span>
+                      </button>
+                    </div>
+                  </header>
 
-              <div>
-                <div className="mb-3 flex items-center justify-between gap-3">
-                  <h3 className="text-sm font-black text-white">原始批次</h3>
-                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">内部供应商和编辑入口</span>
-                </div>
-                <AdminTable
-                  headers={["资源 ID", "车型版本", "外部颜色", "内部颜色", "供应商/录入人", "地点", "库存/供应", "FOB/成本", "操作"]}
-                  rows={rawVehicles.map((vehicle) => [
-                    <span key="id" className="font-mono text-xs text-[#22b8aa]">{vehicle.id}</span>,
-                    vehicleName(vehicle),
-                    formatColorPair(vehicle.exteriorColor || vehicle.color, vehicle.interiorColor),
-                    compactJoin([vehicle.supplierExteriorColor, vehicle.supplierInteriorColor, vehicle.colorCode]),
-                    compactJoin([vehicle.supplier, vehicle.recorder]),
-                    vehicle.location || "-",
-                    compactJoin([`${vehicle.stockQuantity} 台`, getSupplyType(vehicle), vehicle.status === "Preorder" ? vehicle.leadTime || "周期待确认" : vehicle.leadTime]),
-                    compactJoin([vehicle.partnerPrice ? `FOB ${formatUsdStrict(vehicle.partnerPrice)}` : formatUsd(vehicle.price), vehicle.cost ? `成本 ${formatUsdStrict(vehicle.cost)}` : ""]),
+                  {isExpanded && (
+                    <div className="mt-4 max-w-full overflow-x-auto rounded-xl border border-white/10">
+                      <table className="w-full min-w-[1000px] border-separate border-spacing-0 text-left text-sm">
+                        <thead>
+                          <tr>
+                            {["资源 ID", "品牌 & 车型", "细分变体 / 配置", "年份", "外观 / 内饰颜色", "库存台数", "起订 / 满订", "FOB 美金价", "左右舵", "批发地点", "流程状态", "操作"].map((header) => (
+                              <th key={header} className="border-b border-white/10 px-3 py-3 text-[10px] font-black uppercase tracking-widest text-slate-500">
+                                {header}
+                              </th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {group.vehicles.map((vehicle) => (
+                            <tr key={vehicle.id} className="transition hover:bg-white/[.035]">
+                              <td className="border-b border-white/[.06] px-3 py-3 font-mono text-xs text-[#22b8aa]">{safeText(vehicle.id)}</td>
+                              <td className="border-b border-white/[.06] px-3 py-3 font-bold text-white">
+                                {safeText(vehicle.brand)} {safeText(vehicle.model)}
+                              </td>
+                              <td className="border-b border-white/[.06] px-3 py-3 text-slate-300">{safeText(vehicle.trim || vehicle.configuration || "-")}</td>
+                              <td className="border-b border-white/[.06] px-3 py-3 text-slate-300">{safeText(vehicle.year || "-")}</td>
+                              <td className="border-b border-white/[.06] px-3 py-3 text-xs text-slate-300">
+                                {formatColorPair(vehicle.exteriorColor || vehicle.color, vehicle.interiorColor)}
+                              </td>
+                              <td className="border-b border-white/[.06] px-3 py-3 font-bold text-white">{vehicle.stockQuantity || 1} 台</td>
+                              <td className="border-b border-white/[.06] px-3 py-3 text-xs text-slate-400">
+                                {vehicle.minOrderQuantity || 1} 台起 / {vehicle.fullOrderQuantity || 1} 台满
+                              </td>
+                              <td className="border-b border-white/[.06] px-3 py-3 font-bold text-amber-400">
+                                {vehicle.partnerPrice || vehicle.price ? formatUsdStrict(vehicle.partnerPrice || vehicle.price!) : vehicle.priceLabel || "询价"}
+                              </td>
+                              <td className="border-b border-white/[.06] px-3 py-3 text-xs text-slate-300">{safeText(vehicle.steering || vehicle.configuration || "左舵")}</td>
+                              <td className="border-b border-white/[.06] px-3 py-3 text-xs text-slate-400">{safeText(vehicle.location || "中国港口")}</td>
+                              <td className="border-b border-white/[.06] px-3 py-3">
+                                <span className="inline-block rounded bg-[#22b8aa]/15 px-2 py-0.5 text-[10px] font-bold text-[#5ee6d8]">
+                                  已接入网站
+                                </span>
+                              </td>
+                              <td className="border-b border-white/[.06] px-3 py-3">
+                                <button
+                                  type="button"
+                                  onClick={() => onEdit(vehicle)}
+                                  className="rounded-lg border border-[#22b8aa]/40 px-3 py-1.5 text-[10px] font-black uppercase text-[#5ee6d8] transition hover:bg-[#22b8aa] hover:text-[#07111f]"
+                                >
+                                  编辑/更新
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </section>
+              );
+            })
+          )}
+        </div>
+      )}
+
+      {/* Mode 2: 全量逐条拍平展示 */}
+      {groupByMode === "flat" && (
+        <section className="rounded-2xl border border-white/10 bg-white/[.04] p-4 shadow-2xl shadow-black/10 sm:p-5">
+          <div className="mb-4 flex items-center justify-between">
+            <h3 className="text-lg font-black text-white">已接入网站车辆资源全量逐条清单</h3>
+            <span className="text-xs font-bold text-slate-400">共计 {connectedVehicles.length} 条接入记录</span>
+          </div>
+
+          <div className="max-w-full overflow-x-auto rounded-xl border border-white/10">
+            <table className="w-full min-w-[1100px] border-separate border-spacing-0 text-left text-sm">
+              <thead>
+                <tr>
+                  {["资源 ID", "1级车源 / 供应商", "品牌 & 车型", "细分变体 / 配置", "年份", "外观 / 内饰颜色", "库存台数", "起订量 (MoQ)", "FOB 美金价", "左右舵", "批发地点", "审核流程", "操作"].map((header) => (
+                    <th key={header} className="border-b border-white/10 px-3 py-3 text-[10px] font-black uppercase tracking-widest text-slate-500">
+                      {header}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {connectedVehicles.map((vehicle) => (
+                  <tr key={vehicle.id} className="transition hover:bg-white/[.035]">
+                    <td className="border-b border-white/[.06] px-3 py-3 font-mono text-xs text-[#22b8aa]">{safeText(vehicle.id)}</td>
+                    <td className="border-b border-white/[.06] px-3 py-3 font-bold text-slate-200">{safeText(vehicle.supplier)}</td>
+                    <td className="border-b border-white/[.06] px-3 py-3 font-bold text-white">
+                      {safeText(vehicle.brand)} {safeText(vehicle.model)}
+                    </td>
+                    <td className="border-b border-white/[.06] px-3 py-3 text-slate-300">{safeText(vehicle.trim || vehicle.configuration || "-")}</td>
+                    <td className="border-b border-white/[.06] px-3 py-3 text-slate-300">{safeText(vehicle.year || "-")}</td>
+                    <td className="border-b border-white/[.06] px-3 py-3 text-xs text-slate-300">
+                      {formatColorPair(vehicle.exteriorColor || vehicle.color, vehicle.interiorColor)}
+                    </td>
+                    <td className="border-b border-white/[.06] px-3 py-3 font-bold text-white">{vehicle.stockQuantity || 1} 台</td>
+                    <td className="border-b border-white/[.06] px-3 py-3 text-xs text-slate-400">{vehicle.minOrderQuantity || 1} 台</td>
+                    <td className="border-b border-white/[.06] px-3 py-3 font-bold text-amber-400">
+                      {vehicle.partnerPrice || vehicle.price ? formatUsdStrict(vehicle.partnerPrice || vehicle.price!) : vehicle.priceLabel || "询价"}
+                    </td>
+                    <td className="border-b border-white/[.06] px-3 py-3 text-xs text-slate-300">{safeText(vehicle.steering || vehicle.configuration || "左舵")}</td>
+                    <td className="border-b border-white/[.06] px-3 py-3 text-xs text-slate-400">{safeText(vehicle.location || "中国港口")}</td>
+                    <td className="border-b border-white/[.06] px-3 py-3">
+                      <span className="inline-block rounded bg-[#22b8aa]/15 px-2 py-0.5 text-[10px] font-bold text-[#5ee6d8]">
+                        已接入网站
+                      </span>
+                    </td>
+                    <td className="border-b border-white/[.06] px-3 py-3">
+                      <button
+                        type="button"
+                        onClick={() => onEdit(vehicle)}
+                        className="rounded-lg border border-[#22b8aa]/40 px-3 py-1.5 text-[10px] font-black uppercase text-[#5ee6d8] transition hover:bg-[#22b8aa] hover:text-[#07111f]"
+                      >
+                        编辑
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+                {connectedVehicles.length === 0 && (
+                  <tr>
+                    <td colSpan={13} className="px-3 py-8 text-center text-sm text-slate-600">
+                      暂无已接入网站的车辆资源
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )}
+
+      {/* Mode 3: 按车型/品牌分组展示 */}
+      {groupByMode === "model" && (
+        <div className="grid gap-4">
+          {sellableModels.length === 0 && <AdminPanel title="车辆资源" subtitle="按车型管理车源"><Empty text="暂无车辆资源" /></AdminPanel>}
+          {sellableModels.length > 0 && visibleModels.length === 0 && <AdminPanel title="搜索结果" subtitle="没有匹配的车型或车源"><Empty text="没有找到匹配车源" /></AdminPanel>}
+          {visibleModels.map((item) => {
+            const rawVehicles = item.rawVehicles;
+            const isExpanded = expandedModels.has(item.key);
+
+            return (
+              <section key={item.key} className="min-w-0 overflow-hidden rounded-xl border border-white/10 bg-white/[.045] p-4 shadow-2xl shadow-black/10 sm:p-5">
+                <header className="grid gap-3 border-b border-white/10 pb-3 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-center">
+                  <div className="min-w-0">
+                    <p className="text-[10px] font-black uppercase tracking-[.24em] text-[#22b8aa]">可售车型 / 车源分组</p>
+                    <div className="mt-2 flex min-w-0 flex-wrap items-center gap-2">
+                      <h2 className="break-words text-2xl font-black text-white">{item.brand} {item.model} {formatModelYear(item.year)}</h2>
+                      <AdminSummaryChip label="级别" value={item.segment || "EV"} />
+                      <AdminSummaryChip label="供应" value={formatSupplySummary(item)} />
+                    </div>
+                  </div>
+                  <div className="flex min-w-0 flex-wrap items-center gap-2 xl:justify-end">
+                    <AdminSummaryChip label="FOB" value={item.fobPriceRange.replace(/^FOB\s*/i, "")} tone="accent" />
+                    <AdminSummaryChip label="现车" value={`${item.stockQuantity} 台`} />
+                    <AdminSummaryChip label="明细" value={`${item.offers.length} 条`} />
                     <button
-                      key="edit"
                       type="button"
-                      onClick={() => onEdit(vehicle)}
-                      className="min-w-[64px] rounded-lg border border-[#22b8aa]/40 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-[#5ee6d8] transition hover:border-[#22b8aa] hover:bg-[#22b8aa]/10"
+                      onClick={() => toggleModel(item.key)}
+                      className="inline-flex h-9 items-center gap-2 rounded-lg border border-white/10 bg-white/[.035] px-3 text-[10px] font-black uppercase tracking-widest text-slate-300 transition hover:border-[#22b8aa]/40 hover:bg-[#22b8aa]/10"
+                      aria-expanded={isExpanded}
                     >
-                      编辑
-                    </button>,
-                  ])}
-                  emptyText="暂无原始批次"
-                />
-              </div>
-            </div>
-            )}
-          </section>
-        );
-      })}
+                      {isExpanded ? "收起" : "展开"}
+                      <span className="text-xs text-[#5ee6d8]" aria-hidden="true">{isExpanded ? "▲" : "▼"}</span>
+                    </button>
+                  </div>
+                </header>
+
+                {isExpanded && (
+                  <div className="mt-4 grid gap-5">
+                    <div>
+                      <div className="mb-3 flex items-center justify-between gap-3">
+                        <h3 className="text-sm font-black text-white">车源明细</h3>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">客户可见合并结果</span>
+                      </div>
+                      <AdminTable
+                        headers={["年款", "版本/配置", "外部颜色", "数量", "供应", "周期/地点", "FOB"]}
+                        rows={item.offers.map((offer) => [
+                          offer.year || "-",
+                          compactJoin([offer.trim, offer.configuration]),
+                          formatColorPair(offer.exteriorColor, offer.interiorColor),
+                          `${offer.quantity} 台`,
+                          <AdminStatusBadge key="supply" status={offer.supplyType} />,
+                          compactJoin([offer.leadTime || (offer.supplyType === "In Stock" ? "现车" : ""), offer.location]),
+                          offer.price ? `FOB ${formatUsdStrict(offer.price)}` : offer.priceLabel,
+                        ])}
+                        emptyText="暂无车源明细"
+                      />
+                    </div>
+
+                    <div>
+                      <div className="mb-3 flex items-center justify-between gap-3">
+                        <h3 className="text-sm font-black text-[#22b8aa]">原始批次</h3>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">内部供应商和编辑入口</span>
+                      </div>
+                      <AdminTable
+                        headers={["资源 ID", "车型版本", "外部颜色", "内部颜色", "供应商/录入人", "地点", "库存/供应", "FOB/成本", "操作"]}
+                        rows={rawVehicles.map((vehicle) => [
+                          <span key="id" className="font-mono text-xs text-[#22b8aa]">{vehicle.id}</span>,
+                          vehicleName(vehicle),
+                          formatColorPair(vehicle.exteriorColor || vehicle.color, vehicle.interiorColor),
+                          compactJoin([vehicle.supplierExteriorColor, vehicle.supplierInteriorColor, vehicle.colorCode]),
+                          compactJoin([vehicle.supplier, vehicle.recorder]),
+                          vehicle.location || "-",
+                          compactJoin([`${vehicle.stockQuantity} 台`, getSupplyType(vehicle), vehicle.status === "Preorder" ? vehicle.leadTime || "周期待确认" : vehicle.leadTime]),
+                          compactJoin([vehicle.partnerPrice ? `FOB ${formatUsdStrict(vehicle.partnerPrice)}` : formatUsd(vehicle.price), vehicle.cost ? `成本 ${formatUsdStrict(vehicle.cost)}` : ""]),
+                          <button
+                            key="edit"
+                            type="button"
+                            onClick={() => onEdit(vehicle)}
+                            className="min-w-[64px] rounded-lg border border-[#22b8aa]/40 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-[#5ee6d8] transition hover:border-[#22b8aa] hover:bg-[#22b8aa]/10"
+                          >
+                            编辑
+                          </button>,
+                        ])}
+                        emptyText="暂无原始批次"
+                      />
+                    </div>
+                  </div>
+                )}
+              </section>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

@@ -938,18 +938,35 @@ function mapVehicleModel(record: FeishuRecord): PortalVehicleModel {
 
 function mapVehicleSource(record: FeishuRecord, canSeePrice: boolean): Record<string, unknown> {
   const fields = record.fields;
-  const extColor = asText(fields.exterior_color);
-  const intColor = asText(fields.interior_color);
+  const extColor = asText(fields["外饰颜色"] ?? fields.exterior_color);
+  const intColor = asText(fields["内饰颜色"] ?? fields.interior_color);
   const colorStr = [extColor ? `Ext: ${extColor}` : "", intColor ? `Int: ${intColor}` : ""].filter(Boolean).join(" / ");
-  const priceVal = asOptionalNumber(fields.cost_fob_usd) || asOptionalNumber(fields.display_price_low) || null;
+  
+  const priceVal = 
+    asOptionalNumber(fields["FOB美金价"]) || 
+    asOptionalNumber(fields["EXW美金价"]) || 
+    asOptionalNumber(fields["FCA美金价"]) || 
+    asOptionalNumber(fields["网站显示美金最低价"]) || 
+    asOptionalNumber(fields["网站显示最低价"]) || 
+    asOptionalNumber(fields.cost_fob_usd) || 
+    asOptionalNumber(fields.display_price_low) || 
+    null;
+
+  const reviewProcess = asText(fields["流程"] ?? fields["审核流程"] ?? fields.source_stage);
+  const isApproved = reviewProcess === "已接入网站" || asBool(fields["审核状态"]);
 
   return {
     id: asText(fields.record_id) || record.record_id,
     modelId: asText(fields.model_id),
-    brand: asText(fields.brand),
-    model: asText(fields.model),
-    trim: asText(fields.variant),
-    year: asText(fields.manufacture_year),
+    variantId: asText(fields.variant_id),
+    supplier: asText(fields["供应商"] ?? fields.supplier) || "合作车商/未归类",
+    reviewer: asText(fields["审核人"] ?? fields.reviewer),
+    developer: asText(fields["开发者"] ?? fields.developer),
+    brand: asText(fields["品牌"] ?? fields.brand),
+    model: asText(fields["型号"] ?? fields.model),
+    trim: asText(fields["细分型号"] ?? fields.variant),
+    year: asText(fields["生产年份"] ?? fields.manufacture_year ?? fields.year),
+    month: asText(fields["生产月份"] ?? fields.month),
     color: colorStr || "Standard",
     exteriorColor: extColor,
     interiorColor: intColor,
@@ -958,22 +975,34 @@ function mapVehicleSource(record: FeishuRecord, canSeePrice: boolean): Record<st
     colorCode: "",
     colorNotes: "",
     colorConfirmed: true,
-    configuration: asText(fields.version_type) || asText(fields.steering_setup) || "",
-    supplier: asText(fields.supplier),
-    recorder: "",
-    location: asText(fields.location) || "China",
-    status: asText(fields.status_vehicle) || "现车",
+    configuration: asText(fields["左右舵"] ?? fields.version_type ?? fields.steering_setup) || "",
+    steering: asText(fields["左右舵"] ?? fields.steering),
+    marketVersion: asText(fields["国际国内版本（多选）"] ?? fields.market_version),
+    inventoryStatus: asText(fields["库存状态"] ?? fields.status_vehicle) || "现车",
+    location: asText(fields["批发地点"] ?? fields.location) || "China",
+    status: asText(fields["库存状态"] ?? fields.status_vehicle) || "现车",
     exportStatus: "Available",
-    stockQuantity: asNumber(fields.stock_quantity) || 1,
-    leadTime: asText(fields.lead_time) || (asText(fields.status_vehicle) === "现车" ? "Ready Stock" : "7-14 Days"),
+    stockQuantity: asNumber(fields["库存"] ?? fields.stock_quantity) || 1,
+    minOrderQuantity: asNumber(fields["起订数量"] ?? fields.min_order_quantity) || 1,
+    fullOrderQuantity: asNumber(fields["满订数量"] ?? fields.full_order_quantity) || 1,
+    leadTime: asText(fields.lead_time) || "7-14 Days",
+    waitDays: asOptionalNumber(fields["下单后需要等待天数"]),
     priceValidUntil: "",
     imageUrl: "",
-    publicNotes: asText(fields.notes),
+    publicNotes: asText(fields["备注"] ?? fields.notes),
+    sourcePath: asText(fields["素材源文件路径"]),
+    reviewProcess: reviewProcess || (isApproved ? "已接入网站" : "审核中"),
+    isApproved,
     canSeePrice,
     price: canSeePrice ? priceVal : null,
     partnerPrice: priceVal,
     customerPrice: priceVal,
-    cost: asOptionalNumber(fields.cost_exw_usd) || asOptionalNumber(fields.supplier_price_cny),
+    cost: asOptionalNumber(fields["人民币成本价"] ?? fields.supplier_price_cny),
+    exwUsd: asOptionalNumber(fields["EXW美金价"]),
+    fcaUsd: asOptionalNumber(fields["FCA美金价"]),
+    fobUsd: asOptionalNumber(fields["FOB美金价"]),
+    wholesaleLocation: asText(fields["批发地点"]),
+    aiConfidence: asOptionalNumber(fields["AI置信度"]),
     isListed: true,
     editableFields: [],
     priceLabel: priceVal !== null ? `$${priceVal.toLocaleString()}` : "Inquire for price",
@@ -1337,14 +1366,21 @@ async function handleBootstrap(request: Request, env: Env) {
   }
 
   const vehicleModelTableId = optionalEnv(env, "FEISHU_TABLE_VEHICLE_MODELS") || "tblxVNjP9dnJ7b3o";
-  const vehicleSourceTableId = optionalEnv(env, "FEISHU_TABLE_VEHICLES") || optionalEnv(env, "FEISHU_TABLE_VEHICLE_SOURCES") || "tbl6wBgVcvrXN6mz";
+  const vehicleSourceTableId = optionalEnv(env, "FEISHU_TABLE_SOURCE_IMPORTS") || optionalEnv(env, "FEISHU_TABLE_VEHICLES") || "tblte61W3fKoXmSw";
+  const vehicleSourceViewId = optionalEnv(env, "FEISHU_VIEW_SOURCE_IMPORTS") || "vewCyPzSbJ";
   const internalUserTableId = optionalEnv(env, "FEISHU_TABLE_INTERNAL_USERS");
   const customerTableId = optionalEnv(env, "FEISHU_TABLE_CUSTOMERS");
 
   const payload = await singleFlight(cacheKey, async () => {
     const vehicleModelRecords = vehicleModelTableId ? await searchRecords(env, vehicleModelTableId, { pageSize: 100 }) : [];
     await delay(20);
-    const vehicleSourceRecords = vehicleSourceTableId ? await searchRecords(env, vehicleSourceTableId, { pageSize: 100 }) : [];
+    const rawVehicleSourceRecords = vehicleSourceTableId ? await listRecords(env, vehicleSourceTableId, { pageSize: 500, maxPages: 5, viewId: vehicleSourceViewId }) : [];
+    const vehicleSourceRecords = rawVehicleSourceRecords.filter((record) => {
+      const fields = record.fields;
+      const processState = asText(fields["流程"] ?? fields["审核流程"] ?? fields.source_stage);
+      const isApproved = asBool(fields["审核状态"]);
+      return processState === "已接入网站" || isApproved;
+    });
     await delay(20);
     const inquiryRecords = await searchRecords(env, requireEnv(env, "FEISHU_TABLE_INQUIRIES"), {
       filter: isInternal ? undefined : equalsFilter("customer_id", session.customerId),
