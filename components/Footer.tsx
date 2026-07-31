@@ -98,7 +98,7 @@ export function Footer() {
         <div className="relative z-10 container mx-auto px-4 sm:px-6 md:px-12 pt-6 sm:pt-16 pb-8 sm:pb-16">
           <div className="sm:hidden mb-3">
             <div className="flex items-center gap-2.5 mb-4">
-              <img src="/favicon.svg" className="h-8 w-auto" alt="autoYJ" />
+              <img src="/favicon.svg" className="h-8 w-auto" alt="Youguard" />
             </div>
             <p className="text-gray-600 text-xs font-light leading-relaxed">
               {t("footer.tagline")}
@@ -139,7 +139,7 @@ export function Footer() {
                   <img
                     src="/favicon.svg"
                     className="h-8 w-auto"
-                    alt="autoYJ"
+                    alt="Youguard"
                   />
                 </div>
                 <p className="text-gray-600 text-xs font-light leading-relaxed">
@@ -291,7 +291,7 @@ export function Footer() {
             style={{ borderTop: "1px solid rgba(197,160,89,.06)" }}
           >
             <p className="text-[9px] font-black tracking-[.4em] uppercase text-gray-700">
-              © {new Date().getFullYear()} autoYJ Eco Supply Chain.{" "}
+              © {new Date().getFullYear()} Youguard Eco Supply Chain.{" "}
               {t("footer.copyright")}
             </p>
             <div className="flex gap-6">

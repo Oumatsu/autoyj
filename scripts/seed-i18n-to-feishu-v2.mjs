@@ -175,7 +175,7 @@ async function resolveTableIdByName(token, baseToken, tableName) {
 
 // ─── 主流程 ───────────────────────────────────────────────────
 async function main() {
-  console.log("🌱 autoYJ i18n Seed V2 — 本地三语合并 → 飞书单表\n");
+  console.log("🌱 Youguard i18n Seed V2 — 本地三语合并 → 飞书单表\n");
 
   if (isDryRun) console.log("⚠️  DRY RUN 模式：不会实际写入飞书。\n");
 

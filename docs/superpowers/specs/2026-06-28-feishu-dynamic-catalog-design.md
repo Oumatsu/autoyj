@@ -4,7 +4,7 @@ This document defines the system design to completely migrate the website's stat
 
 ## 1. Background & Goals
 
-The autoYJ codebase contains nearly 80 static directories repeating page layout wrappers and static HTML string constants:
+The Youguard codebase contains nearly 80 static directories repeating page layout wrappers and static HTML string constants:
 * **Vehicles**: ~40 folders defining static specifications and batch pricing configurations.
 * **Insights**: ~30 folders defining static policy reports and market analysis blog posts.
 * **Academy**: ~15 folders defining dealer training lessons and resource downloads.
@@ -103,18 +103,18 @@ We will implement the following endpoints in `worker/portal.ts`:
 We will create dynamic routing controllers under `app/`:
 
 ### 6.1 Products Dynamic Controller
-* Path: [app/products/[category]/[slug]/page.tsx](file:///Users/a12/projects/autoyj/app/products/%5Bcategory%5D/%5Bslug%5D/page.tsx)
+* Path: [app/products/[category]/[slug]/page.tsx](file:///Users/a12/projects/youguard/app/products/%5Bcategory%5D/%5Bslug%5D/page.tsx)
 * Renders `<VehicleDetail data={data} />` using dynamically fetched vehicle specifications.
 
 ### 6.2 Insights Dynamic Controller
-* Path: [app/insights/[slug]/page.tsx](file:///Users/a12/projects/autoyj/app/insights/%5Bslug%5D/page.tsx)
+* Path: [app/insights/[slug]/page.tsx](file:///Users/a12/projects/youguard/app/insights/%5Bslug%5D/page.tsx)
 * Renders using exactly the same header, cover-image aspect ratios, and sidebar widgets as before:
 ```tsx
 <article className="article-body max-w-3xl" dangerouslySetInnerHTML={{ __html: article.content }} />
 ```
 
 ### 6.3 Academy Dynamic Controller
-* Path: [app/academy/[category]/[slug]/page.tsx](file:///Users/a12/projects/autoyj/app/academy/%5Bcategory%5D/%5Bslug%5D/page.tsx)
+* Path: [app/academy/[category]/[slug]/page.tsx](file:///Users/a12/projects/youguard/app/academy/%5Bcategory%5D/%5Bslug%5D/page.tsx)
 * Renders the lesson HTML dynamically and generates the category sidebar navigation from the fetched API model.
 
 ### 6.4 Cleanups

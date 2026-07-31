@@ -90,9 +90,9 @@ export function Navbar() {
 
   useEffect(() => {
     refreshSession();
-    window.addEventListener("autoyj-session-changed", refreshSession);
+    window.addEventListener("youguard-session-changed", refreshSession);
     return () => {
-      window.removeEventListener("autoyj-session-changed", refreshSession);
+      window.removeEventListener("youguard-session-changed", refreshSession);
     };
   }, [pathname, refreshSession]);
 
@@ -103,7 +103,7 @@ export function Navbar() {
         className="fixed top-0 left-0 right-0 z-50 glass px-6 md:px-10 py-4 flex items-center justify-between transition-all duration-300"
       >
         <LocaleLink href="/" className="flex items-center gap-2.5">
-          <img src="/favicon.svg" className="h-8 w-auto" alt="autoYJ" />
+          <img src="/favicon.svg" className="h-8 w-auto" alt="Youguard" />
         </LocaleLink>
 
         <div className="hidden lg:flex items-center gap-8 xl:gap-10">

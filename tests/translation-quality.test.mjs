@@ -21,7 +21,7 @@ test("Chinese uses the approved Youguard brand name and faithful page copy", () 
   assert.equal(zh.academy.hero.badge, "B2B 经销商赋能");
   assert.equal(zh.academyDetail.authorLabel, "誉甲学院");
   assert.equal(zh.academyDetail.tags.youguard, "誉甲");
-  assert.doesNotMatch(serializedValues(zh), /Youguard/i);
+  assert.doesNotMatch(serializedValues(zh), /autoyj/i);
 
   assert.equal(
     zh.solutions.pdi.description,
@@ -41,8 +41,8 @@ test("Chinese uses the approved Youguard brand name and faithful page copy", () 
 test("Amharic preserves or transliterates Youguard and contains no Chinese leakage", () => {
   assert.equal(am.about.verification.heading, "Youguard");
   assert.equal(am.academyDetail.tags.youguard, "Youguard");
-  assert.equal(am.contact.email.title, "sales@autoyj.com");
-  assert.match(am.terms.sections.at(-1).content, /legal@autoyj\.com/);
+  assert.equal(am.contact.email.title, "sales@youguard.com");
+  assert.match(am.terms.sections.at(-1).content, /legal@youguard\.com/);
   assert.equal(am.specs["CLTC Range"], "የCLTC የመንዳት ርቀት");
   assert.equal(am.specs["NEDC Range"], "የNEDC የመንዳት ርቀት");
   assert.doesNotMatch(JSON.stringify(am), /[\u3400-\u9fff]/);

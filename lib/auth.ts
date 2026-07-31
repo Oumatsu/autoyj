@@ -25,7 +25,7 @@ export type FeishuAuthUser = {
  * 3. 挂载 customSession 实时解析 4 种角色 (admin / sales / partner / customer)
  */
 export function createFeishuAuth(env: Record<string, string | undefined> = {}) {
-  const secret = env.PORTAL_SESSION_SECRET || "autoyj-portal-secret-key-2026";
+  const secret = env.PORTAL_SESSION_SECRET || "youguard-portal-secret-key-2026";
   const baseURL = env.PORTAL_BASE_URL || "http://localhost:3000";
 
   return betterAuth({
@@ -51,7 +51,7 @@ export function createFeishuAuth(env: Record<string, string | undefined> = {}) {
             ...user,
             userId: local?.userId || user.id,
             customerId: local?.customerId || user.id,
-            company: local?.company || "autoYJ",
+            company: local?.company || "Youguard",
             accountType: local?.accountType || "internal",
             role: (local?.role as PortalRole) || "customer",
             priceTier: (local?.priceTier as PriceTier) || "vip",

@@ -506,7 +506,7 @@ export default function PortalPage() {
     setIsLocalDev(host === "localhost" || host === "127.0.0.1" || host === "::1" || host === "[::1]");
     setShowPreviewTestLogin(
       host.includes("workers.dev") ||
-      host.includes("autoyj-preview") ||
+      host.includes("youguard-preview") ||
       host.includes("preview")
     );
 
@@ -572,7 +572,7 @@ export default function PortalPage() {
       });
       await checkSessionAndLoad();
       if (typeof window !== "undefined") {
-        window.dispatchEvent(new Event("autoyj-session-changed"));
+        window.dispatchEvent(new Event("youguard-session-changed"));
       }
       const params = new URLSearchParams(window.location.search);
       const redirect = params.get("redirect");
@@ -596,7 +596,7 @@ export default function PortalPage() {
       });
       await checkSessionAndLoad();
       if (typeof window !== "undefined") {
-        window.dispatchEvent(new Event("autoyj-session-changed"));
+        window.dispatchEvent(new Event("youguard-session-changed"));
       }
     } catch (loginError) {
       setError(loginError instanceof Error ? loginError.message : "Development sign in failed");
@@ -618,7 +618,7 @@ export default function PortalPage() {
     setSelectedSellableModel(null);
     setSelectedVehicle(null);
     if (typeof window !== "undefined") {
-      window.dispatchEvent(new Event("autoyj-session-changed"));
+      window.dispatchEvent(new Event("youguard-session-changed"));
     }
   }
 
@@ -706,7 +706,7 @@ export default function PortalPage() {
               Private Quotes.
             </h1>
             <p className="max-w-xl text-sm font-light leading-7 text-gray-400">
-              Sign in with the email and access code assigned by autoYJ to view your permitted inventory, request quotes, negotiate, and track draft orders.
+              Sign in with the email and access code assigned by Youguard to view your permitted inventory, request quotes, negotiate, and track draft orders.
             </p>
           </div>
 
@@ -756,7 +756,7 @@ export default function PortalPage() {
                 value={accessCode}
                 onChange={(event) => setAccessCode(event.target.value)}
                 className="rounded-xl border border-white/10 bg-white/[.04] px-4 py-3 text-sm font-medium normal-case tracking-normal text-white outline-none focus:border-gold"
-                placeholder="Provided by autoYJ"
+                placeholder="Provided by Youguard"
                 type="password"
               />
             </label>
@@ -786,7 +786,7 @@ export default function PortalPage() {
       <section className="mx-auto grid max-w-7xl gap-8">
         <header className="flex flex-col gap-5 border-b border-white/10 pb-8 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <div className="label label-gold mb-4">autoYJ Dashboard</div>
+            <div className="label label-gold mb-4">Youguard Dashboard</div>
             <h1 className="text-4xl font-black uppercase italic tracking-tight text-white sm:text-5xl">
               {data.user.company}
             </h1>
@@ -822,7 +822,7 @@ export default function PortalPage() {
                   {item.imageUrl ? (
                     <img src={item.imageUrl} alt={`${item.brand} ${item.model}`} className="h-full w-full object-cover" />
                   ) : (
-                    <div className="grid h-full place-items-center text-xs font-black uppercase tracking-widest text-gray-700">autoYJ EV</div>
+                    <div className="grid h-full place-items-center text-xs font-black uppercase tracking-widest text-gray-700">Youguard EV</div>
                   )}
                 </div>
                 <div className="grid gap-4 p-5">
@@ -867,7 +867,7 @@ export default function PortalPage() {
                     </div>
 
                     <div className="mt-4 grid gap-3">
-                      {quotes.length === 0 && <p className="rounded-lg border border-white/10 px-3 py-3 text-xs text-gray-500">Waiting for autoYJ quote.</p>}
+                      {quotes.length === 0 && <p className="rounded-lg border border-white/10 px-3 py-3 text-xs text-gray-500">Waiting for Youguard quote.</p>}
                       {quotes.map((quote) => (
                         <div key={quote.quoteNo} className="rounded-lg border border-gold/20 bg-black/20 p-3">
                           <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">

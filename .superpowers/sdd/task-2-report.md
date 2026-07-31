@@ -17,11 +17,11 @@
    - Added bilingual support for specification keys (e.g., mapping `Battery Capacity` -> `电池容量`, `Range (CLTC)` -> `CLTC续航`) to handle imported English and Chinese dataset keys seamlessly.
    - Integrated `safeJsonParse` and `normalizeAcademyCategory` to safeguard JSON parsing and standardize category-based routing.
 1. **Public API Endpoint Routing**:
-   - Mapped all requested public endpoints prefixing with `/api/portal/public/` inside the Worker handler `handlePortalRequest` in [worker/portal.ts](file:///Users/a12/projects/autoyj/worker/portal.ts).
+   - Mapped all requested public endpoints prefixing with `/api/portal/public/` inside the Worker handler `handlePortalRequest` in [worker/portal.ts](file:///Users/a12/projects/youguard/worker/portal.ts).
    - Dynamic parameters (e.g. `:slug`, `:category`) are safely parsed using regular expressions on paths.
 
 2. **In-Memory Cache & Webhook Sync**:
-   - Implemented `cacheMap` with `getCached` and `setCached` helpers in [worker/portal.ts](file:///Users/a12/projects/autoyj/worker/portal.ts) featuring a 10-minute TTL to respect Feishu's rate limit.
+   - Implemented `cacheMap` with `getCached` and `setCached` helpers in [worker/portal.ts](file:///Users/a12/projects/youguard/worker/portal.ts) featuring a 10-minute TTL to respect Feishu's rate limit.
    - Added a POST `/api/portal/webhook/sync` endpoint that flushes the cache entirely when invoked.
 
 3. **Field Mapping & Standardisation**:

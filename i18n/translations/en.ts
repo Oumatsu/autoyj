@@ -3420,7 +3420,7 @@ export default {
       heading: "10+ Years of",
       headingAccent: "Integrated",
       headingSuffix: "Experience.",
-      description: "Headquartered in Shanghai, China — the global hub of advanced EV manufacturing and logistics — autoYJ bridges the gap between tier-one automotive factories and the African market's need for a reliable, end-to-end green mobility partner.",
+      description: "Headquartered in Shanghai, China — the global hub of advanced EV manufacturing and logistics — Youguard bridges the gap between tier-one automotive factories and the African market's need for a reliable, end-to-end green mobility partner.",
       quote: "True partnership isn't about single transactions. It's about inventory turnover and sustainable dealer growth.",
       quoteLabel: "Founder's Vision",
       stats: [
@@ -3797,7 +3797,7 @@ export default {
     headingAccent2: "Desk",
     description: "Real-time policy updates, tariff analysis, and export logistics tracking for the African EV industry.",
     loading: "Loading intelligence insights...",
-    authorLabel: "autoYJ Intelligence",
+    authorLabel: "Youguard Intelligence",
     categories: {
       marketAnalysis: "Market Analysis",
       policyTariffs: "Policy & Tariffs",
@@ -4014,7 +4014,7 @@ export default {
       home: "Home",
       insights: "Insights",
     },
-    authorLabel: "autoYJ Intelligence",
+    authorLabel: "Youguard Intelligence",
     sidebar: {
       freeDownload: "Free Download",
       checklistTitle: "50-Point Factory PDI Checklist",
@@ -4202,7 +4202,7 @@ export default {
     },
     email: {
       label: "Official Window",
-      title: "sales@autoyj.com",
+      title: "sales@youguard.com",
       subtitle: "For formal RFQs and LC inquiries",
     },
     headquarters: {
@@ -4363,7 +4363,7 @@ export default {
       },
       {
         heading: "8. Contact Us",
-        content: "For any questions about this Privacy Policy or to exercise your data rights, please contact us at privacy@autoyj.com or via our WhatsApp business number.",
+        content: "For any questions about this Privacy Policy or to exercise your data rights, please contact us at privacy@youguard.com or via our WhatsApp business number.",
       },
     ],
   },
@@ -4375,11 +4375,11 @@ export default {
     sections: [
       {
         heading: "1. Acceptance of Terms",
-        content: "By accessing and using the autoYJ website and services, you agree to be bound by these Terms of Service. If you do not agree with any part of these terms, you may not use our website or services.",
+        content: "By accessing and using the Youguard website and services, you agree to be bound by these Terms of Service. If you do not agree with any part of these terms, you may not use our website or services.",
       },
       {
         heading: "2. Description of Services",
-        content: "autoYJ provides electric vehicle procurement, export logistics, and dealer support services connecting Chinese OEMs with African markets. Our services include but are not limited to: vehicle sourcing, pre-delivery inspection (PDI), export documentation, ocean freight logistics, Starter Parts Kit provision, and dealer consulting.",
+        content: "Youguard provides electric vehicle procurement, export logistics, and dealer support services connecting Chinese OEMs with African markets. Our services include but are not limited to: vehicle sourcing, pre-delivery inspection (PDI), export documentation, ocean freight logistics, Starter Parts Kit provision, and dealer consulting.",
       },
       {
         heading: "3. Trade Terms & Payment",
@@ -4393,23 +4393,23 @@ export default {
       },
       {
         heading: "4. Order Process & Lead Times",
-        content: "Vehicle lead times vary by model and factory production schedules. Typical lead time is 2–8 weeks from order confirmation to port loading. Ocean transit times vary by destination (28–45 days for most African ports). autoYJ provides estimated timelines in good faith but cannot guarantee exact delivery dates due to factors beyond our control such",
+        content: "Vehicle lead times vary by model and factory production schedules. Typical lead time is 2–8 weeks from order confirmation to port loading. Ocean transit times vary by destination (28–45 days for most African ports). Youguard provides estimated timelines in good faith but cannot guarantee exact delivery dates due to factors beyond our control such",
       },
       {
         heading: "5. Quality Assurance & PDI",
-        content: "All vehicles undergo our 50-point pre-delivery inspection (PDI) prior to port loading. Digital PDI reports and HD loading videos are provided to the buyer. Any defects identified during PDI will be communicated to the buyer before shipment. autoYJ acts; vehicle warranties are provided by the respective OEMs under their standard terms.",
+        content: "All vehicles undergo our 50-point pre-delivery inspection (PDI) prior to port loading. Digital PDI reports and HD loading videos are provided to the buyer. Any defects identified during PDI will be communicated to the buyer before shipment. Youguard acts; vehicle warranties are provided by the respective OEMs under their standard terms.",
       },
       {
         heading: "6. Intellectual Property",
-        content: "All content on this website, including text, graphics, logos, images, and software, is the property of autoYJ or its content suppliers and is protected by international copyright laws. The autoYJ name, logo, and brand assets are trademarks and may not be used without prior written permission.",
+        content: "All content on this website, including text, graphics, logos, images, and software, is the property of Youguard or its content suppliers and is protected by international copyright laws. The Youguard name, logo, and brand assets are trademarks and may not be used without prior written permission.",
       },
       {
         heading: "7. Limitation of Liability",
-        content: "autoYJ shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising from the use of our services. Our total liability for any claim arising from our services shall not exceed the total fees paid by you for the specific transaction giving rise to the claim.",
+        content: "Youguard shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising from the use of our services. Our total liability for any claim arising from our services shall not exceed the total fees paid by you for the specific transaction giving rise to the claim.",
       },
       {
         heading: "8. Force Majeure",
-        content: "autoYJ shall not be liable for any failure or delay in performance due to circumstances beyond our reasonable control, including but not limited to: acts of God, war, terrorism, natural disasters, epidemics, government actions, port closures, shipping line disruptions, or factory shutdowns.",
+        content: "Youguard shall not be liable for any failure or delay in performance due to circumstances beyond our reasonable control, including but not limited to: acts of God, war, terrorism, natural disasters, epidemics, government actions, port closures, shipping line disruptions, or factory shutdowns.",
       },
       {
         heading: "9. Governing Law",
@@ -4421,7 +4421,7 @@ export default {
       },
       {
         heading: "11. Contact Information",
-        content: "For any questions regarding these Terms of Service, please contact us at legal@autoyj.com or via our contact page.",
+        content: "For any questions regarding these Terms of Service, please contact us at legal@youguard.com or via our contact page.",
       },
     ],
   },

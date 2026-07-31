@@ -9,7 +9,7 @@ export default function QrPage() {
   const handleSave = () => {
     const a = document.createElement("a");
     a.href = "/pic/0.webp"; // 修正反斜杠路径为标准相对路径
-    a.download = "autoYJ-WhatsApp-QR.jpg";
+    a.download = "Youguard-WhatsApp-QR.jpg";
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);

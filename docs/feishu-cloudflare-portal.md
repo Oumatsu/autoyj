@@ -1,4 +1,4 @@
-# autoYJ Feishu + Cloudflare Portal
+# Youguard Feishu + Cloudflare Portal
 
 This branch wires the project into the target split:
 
@@ -123,7 +123,7 @@ FEISHU_TABLE_ARTICLES=
 FEISHU_TABLE_ACADEMY_LESSONS=
 FEISHU_TABLE_ACADEMY_VAULT=
 PORTAL_SESSION_SECRET=
-PORTAL_COOKIE_NAME=autoyj_portal
+PORTAL_COOKIE_NAME=youguard_portal
 ```
 
 `FEISHU_APP_SECRET` and `PORTAL_SESSION_SECRET` should be stored as secrets in Cloudflare.

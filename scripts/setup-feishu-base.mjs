@@ -4,7 +4,7 @@ import { join, resolve } from "node:path";
 
 const baseName = process.argv.includes("--name")
   ? process.argv[process.argv.indexOf("--name") + 1]
-  : "autoYJ EV Export Portal";
+  : "Youguard EV Export Portal";
 const existingBaseToken = process.argv.includes("--base-token")
   ? process.argv[process.argv.indexOf("--base-token") + 1]
   : "";
@@ -165,7 +165,7 @@ const schemas = {
     { name: "Log No", type: "text" },
     { name: "Inquiry No", type: "text" },
     { name: "Quote No", type: "text" },
-    { name: "Actor", type: "select", multiple: false, options: [{ name: "Customer" }, { name: "autoYJ" }, { name: "System" }] },
+    { name: "Actor", type: "select", multiple: false, options: [{ name: "Customer" }, { name: "Youguard" }, { name: "System" }] },
     { name: "Action", type: "select", multiple: false, options: [{ name: "Inquiry Created" }, { name: "Quote Sent" }, { name: "Counteroffer" }, { name: "Quote Accepted" }, { name: "Order Created" }] },
     { name: "Offered Price", type: "number" },
     { name: "Quantity", type: "number" },
@@ -380,7 +380,7 @@ const envText = [
   `FEISHU_TABLE_NEGOTIATIONS=${tables.Negotiations || ""}`,
   `FEISHU_TABLE_ORDERS=${tables.Orders || ""}`,
   `PORTAL_SESSION_SECRET=${crypto.randomUUID()}-${crypto.randomUUID()}`,
-  "PORTAL_COOKIE_NAME=autoyj_portal",
+  "PORTAL_COOKIE_NAME=youguard_portal",
   "",
 ].join("\n");
 writeFileSync(envPath, envText, "utf8");

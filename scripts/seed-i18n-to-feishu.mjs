@@ -173,7 +173,7 @@ const LOCALES = [
 ];
 
 async function main() {
-  console.log("🌱 autoYJ i18n Seed — 本地 TS → 飞书\n");
+  console.log("🌱 Youguard i18n Seed — 本地 TS → 飞书\n");
 
   if (isDryRun) console.log("⚠️  DRY RUN 模式：不会向飞书写入任何数据。\n");
 

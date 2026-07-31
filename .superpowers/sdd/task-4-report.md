@@ -4,8 +4,8 @@
 We have successfully migrated the static insights article pages into a single dynamic routing page `app/insights/[slug]/page.tsx` that fetches content on the fly from the Cloudflare Worker `/api/portal/public/insights/:slug` endpoint (which in turn queries Feishu Bitable backend). Additionally, we updated `app/insights/page.tsx` to fetch the article metadata dynamically and deleted all 30 static subdirectories.
 
 ## 2. File Modifed & Created
-- **Created**: [app/insights/[slug]/page.tsx](file:///Users/a12/projects/autoyj/app/insights/%5Bslug%5D/page.tsx)
-- **Modified**: [app/insights/page.tsx](file:///Users/a12/projects/autoyj/app/insights/page.tsx)
+- **Created**: [app/insights/[slug]/page.tsx](file:///Users/a12/projects/youguard/app/insights/%5Bslug%5D/page.tsx)
+- **Modified**: [app/insights/page.tsx](file:///Users/a12/projects/youguard/app/insights/page.tsx)
 - **Deleted**: 30 static subdirectories under `app/insights/` (e.g. `app/insights/china-zero-km-export-ban-2026/`, etc.)
 - **Preserved**: `app/insights/page.tsx` and `app/insights/articles.json`
 
@@ -25,4 +25,4 @@ We have successfully migrated the static insights article pages into a single dy
 
 ## 4. Verification Details
 - **Build Status**: Built successfully via `vinext build` with no warnings or type errors.
-- **Visual Validation**: Opened `http://localhost:3000/insights/china-zero-km-export-ban-2026` inside Chrome DevTools, verified it loads correctly from the API, and captured a screenshot at `/Users/a12/projects/autoyj/screenshot.png`.
+- **Visual Validation**: Opened `http://localhost:3000/insights/china-zero-km-export-ban-2026` inside Chrome DevTools, verified it loads correctly from the API, and captured a screenshot at `/Users/a12/projects/youguard/screenshot.png`.

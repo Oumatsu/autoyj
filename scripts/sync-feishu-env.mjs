@@ -156,7 +156,7 @@ const next = {
   FEISHU_APP_ID: cliConfig.appId,
   FEISHU_APP_SECRET: pickSecret(cliConfig.appSecret, source.FEISHU_APP_SECRET),
   PORTAL_SESSION_SECRET: source.PORTAL_SESSION_SECRET || randomSecret(),
-  PORTAL_COOKIE_NAME: source.PORTAL_COOKIE_NAME || "autoyj_portal",
+  PORTAL_COOKIE_NAME: source.PORTAL_COOKIE_NAME || "youguard_portal",
 };
 
 for (const key of portalKeys) {

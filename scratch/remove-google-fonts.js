@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 
-const siteDir = '/Users/a12/projects/autoyj/site';
+const siteDir = '/Users/a12/projects/youguard/site';
 
 function walk(dir) {
   let results = [];

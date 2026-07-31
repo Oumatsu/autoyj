@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server";
 import { defaultLocale, locales, Locale } from "./i18n/config";
 
 function detectLocaleFromRequest(request: NextRequest): Locale {
-  const cookieLocale = request.cookies.get("autoyj_locale")?.value;
+  const cookieLocale = request.cookies.get("youguard_locale")?.value;
   if (cookieLocale && locales.includes(cookieLocale as Locale)) {
     return cookieLocale as Locale;
   }
@@ -39,7 +39,7 @@ export function proxy(request: NextRequest) {
   if (firstSegment && locales.includes(firstSegment)) {
     const response = NextResponse.next();
     response.headers.set("x-locale", firstSegment);
-    response.cookies.set("autoyj_locale", firstSegment, {
+    response.cookies.set("youguard_locale", firstSegment, {
       path: "/",
       maxAge: 60 * 60 * 24 * 365,
     });

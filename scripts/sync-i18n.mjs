@@ -214,7 +214,7 @@ async function resolveTableIdByName(token, baseToken, tableName) {
 
 // ─── 主流程 ───────────────────────────────────────────────────
 async function main() {
-  console.log("🌐 autoYJ i18n Sync V2 — 飞书单表 → 本地三语 TS\n");
+  console.log("🌐 Youguard i18n Sync V2 — 飞书单表 → 本地三语 TS\n");
 
   console.log("🔑 获取飞书 Access Token...");
   const token = await getToken();

@@ -6,8 +6,8 @@ const TABLE_ID = "tblATd4EWHge1l1k";
 const PRODUCT_URLS = process.env.CATALOG_PRODUCTS_URL
   ? [process.env.CATALOG_PRODUCTS_URL]
   : [
-      "https://autoyj-preview.wx1556282800.workers.dev/api/portal/public/products",
-      "https://autoyj-preview.haipee.workers.dev/api/portal/public/products",
+      "https://youguard-preview.wx1556282800.workers.dev/api/portal/public/products",
+      "https://youguard-preview.haipee.workers.dev/api/portal/public/products",
     ];
 const WRITE = process.argv.includes("--write");
 

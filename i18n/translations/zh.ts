@@ -3420,7 +3420,7 @@ export default {
       heading: "10+ 年",
       headingAccent: "综合",
       headingSuffix: "经验。",
-      description: "总部位于全球先进电动汽车制造与物流中心——中国上海，autoYJ 致力于弥合一级汽车工厂与非洲市场对可靠端到端绿色出行合作伙伴的需求之间的鸿沟。",
+      description: "总部位于全球先进电动汽车制造与物流中心——中国上海，Youguard 致力于弥合一级汽车工厂与非洲市场对可靠端到端绿色出行合作伙伴的需求之间的鸿沟。",
       quote: "真正的伙伴关系不在于单笔交易，而在于库存周转和经销商的可持续增长。",
       quoteLabel: "创始人的愿景",
       stats: [
@@ -3797,7 +3797,7 @@ export default {
     headingAccent2: "",
     description: "我们扎根中非新能源贸易一线，为您提供第一手关税政策变动解析、热销车型投资回报率（ROI）评测以及出海避坑指南，助您在红利期抢占市场先机。",
     loading: "正在加载情报洞察...",
-    authorLabel: "autoYJ Intelligence",
+    authorLabel: "Youguard Intelligence",
     categories: {
       marketAnalysis: "市场分析",
       policyTariffs: "政策与关税",
@@ -4014,7 +4014,7 @@ export default {
       home: "首页",
       insights: "洞察",
     },
-    authorLabel: "autoYJ Intelligence",
+    authorLabel: "Youguard Intelligence",
     sidebar: {
       freeDownload: "免费下载",
       checklistTitle: "50 项工厂 PDI 检查清单",
@@ -4202,7 +4202,7 @@ export default {
     },
     email: {
       label: "官方窗口",
-      title: "sales@autoyj.com",
+      title: "sales@youguard.com",
       subtitle: "用于正式询价和信用证咨询",
     },
     headquarters: {
@@ -4363,7 +4363,7 @@ export default {
       },
       {
         heading: "8. 联系我们",
-        content: "关于本隐私政策的任何问题或行使您的数据权利，请通过 privacy@autoyj.com 或我们的 WhatsApp 商务号码与我们联系。",
+        content: "关于本隐私政策的任何问题或行使您的数据权利，请通过 privacy@youguard.com 或我们的 WhatsApp 商务号码与我们联系。",
       },
     ],
   },
@@ -4375,11 +4375,11 @@ export default {
     sections: [
       {
         heading: "1. 接受条款",
-        content: "访问和使用 autoYJ 网站及服务，即表示您同意受本服务条款的约束。如果您不同意本条款的任何部分，则不得使用我们的网站或服务。",
+        content: "访问和使用 Youguard 网站及服务，即表示您同意受本服务条款的约束。如果您不同意本条款的任何部分，则不得使用我们的网站或服务。",
       },
       {
         heading: "2. 服务说明",
-        content: "autoYJ 提供电动汽车采购、出口物流和经销商支持服务，连接中国 OEM 厂商与非洲市场。我们的服务包括但不限于：车辆采购、交付前检验（PDI）、出口单证、海运物流、Starter Parts Kit 供应和经销商咨询。",
+        content: "Youguard 提供电动汽车采购、出口物流和经销商支持服务，连接中国 OEM 厂商与非洲市场。我们的服务包括但不限于：车辆采购、交付前检验（PDI）、出口单证、海运物流、Starter Parts Kit 供应和经销商咨询。",
       },
       {
         heading: "3. 贸易条款与支付",
@@ -4393,23 +4393,23 @@ export default {
       },
       {
         heading: "4. 订单流程与交货期",
-        content: "车辆交货期因车型和工厂生产计划而异。典型交货期为订单确认后 2-8 周至港口装载。海运时效因目的地而异（大多数非洲港口为 28-45 天）。autoYJ 本着诚信原则提供预计时间表，但由于工厂延迟、港口拥堵和海关处理等超出我们控制的因素，无法保证确切的交货日期。",
+        content: "车辆交货期因车型和工厂生产计划而异。典型交货期为订单确认后 2-8 周至港口装载。海运时效因目的地而异（大多数非洲港口为 28-45 天）。Youguard 本着诚信原则提供预计时间表，但由于工厂延迟、港口拥堵和海关处理等超出我们控制的因素，无法保证确切的交货日期。",
       },
       {
         heading: "5. 质量保证与 PDI",
-        content: "所有车辆在港口装载前均须通过我们的 50 项交付前检验（PDI）。数字 PDI 报告和高清装载视频将提供给买方。PDI 中发现的任何缺陷将在装船前通知买方。autoYJ 作为采购和物流代理商；车辆质保由各 OEM 厂商按其标准条款提供。",
+        content: "所有车辆在港口装载前均须通过我们的 50 项交付前检验（PDI）。数字 PDI 报告和高清装载视频将提供给买方。PDI 中发现的任何缺陷将在装船前通知买方。Youguard 作为采购和物流代理商；车辆质保由各 OEM 厂商按其标准条款提供。",
       },
       {
         heading: "6. 知识产权",
-        content: "本网站的所有内容，包括文字、图形、标识、图像和软件，均为 autoYJ 或其内容供应商的财产，受国际版权法保护。autoYJ 名称、标识和品牌资产均为商标，未经事先书面许可不得使用。",
+        content: "本网站的所有内容，包括文字、图形、标识、图像和软件，均为 Youguard 或其内容供应商的财产，受国际版权法保护。Youguard 名称、标识和品牌资产均为商标，未经事先书面许可不得使用。",
       },
       {
         heading: "7. 责任限制",
-        content: "autoYJ 不对因使用我们的服务而产生的任何间接、附带、特殊、后果性或惩罚性损害赔偿承担责任。我们因服务产生的任何索赔的总责任不超过您为产生该索赔的具体交易支付的总费用。",
+        content: "Youguard 不对因使用我们的服务而产生的任何间接、附带、特殊、后果性或惩罚性损害赔偿承担责任。我们因服务产生的任何索赔的总责任不超过您为产生该索赔的具体交易支付的总费用。",
       },
       {
         heading: "8. 不可抗力",
-        content: "对于因超出我们合理控制范围的情况导致的任何履约失败或延迟，autoYJ 不承担责任，包括但不限于：天灾、战争、恐怖主义、自然灾害、疫情、政府行为、港口关闭、航运线路中断或工厂停产。",
+        content: "对于因超出我们合理控制范围的情况导致的任何履约失败或延迟，Youguard 不承担责任，包括但不限于：天灾、战争、恐怖主义、自然灾害、疫情、政府行为、港口关闭、航运线路中断或工厂停产。",
       },
       {
         heading: "9. 管辖法律",
@@ -4421,7 +4421,7 @@ export default {
       },
       {
         heading: "11. 联系信息",
-        content: "关于本服务条款的任何问题，请通过 legal@autoyj.com 或我们的联系页面与我们联系。",
+        content: "关于本服务条款的任何问题，请通过 legal@youguard.com 或我们的联系页面与我们联系。",
       },
     ],
   },

@@ -107,7 +107,7 @@
 * Produces: Clean public endpoints `/api/portal/public/products/:slug`, `/api/portal/public/insights`, `/api/portal/public/insights/:slug`, `/api/portal/public/academy`, `/api/portal/public/academy/:category/:slug` with KV/memory cache check.
 
 - [ ] **Step 1: Write API routes in portal.ts**
-  Open [worker/portal.ts](file:///Users/a12/projects/autoyj/worker/portal.ts) and add public routes and in-memory caching mapping Feishu records back into JSON layout payloads:
+  Open [worker/portal.ts](file:///Users/a12/projects/youguard/worker/portal.ts) and add public routes and in-memory caching mapping Feishu records back into JSON layout payloads:
   ```typescript
   // Simple in-memory cache definition in worker context
   const cacheMap = new Map<string, { value: any; expires: number }>();

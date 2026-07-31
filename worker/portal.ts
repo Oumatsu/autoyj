@@ -142,7 +142,7 @@ type PortalVehicleModelSpec = {
 
 const FEISHU_API = "https://open.feishu.cn";
 const SESSION_TTL_SECONDS = 60 * 60 * 12;
-const DEFAULT_COOKIE_NAME = "autoyj_portal";
+const DEFAULT_COOKIE_NAME = "youguard_portal";
 const TENANT_TOKEN_SAFETY_WINDOW_MS = 60 * 1000;
 
 // Simple in-memory cache definition in worker context
@@ -846,7 +846,7 @@ function sessionFromInternalUser(user: PortalInternalUser): Omit<PortalSession, 
     accountType: "internal",
     role: user.role,
     priceTier: "internal",
-    company: "autoYJ",
+    company: "Youguard",
   };
 }
 
@@ -998,7 +998,7 @@ function synthesizeSpecsFromModel(record: FeishuRecord): PortalVehicleModelSpec[
       unit: "",
       visibleLevel,
       sortOrder,
-      sourceName: "autoYJ",
+      sourceName: "Youguard",
       sourceUrl: "",
       confidence: "High",
     });
@@ -1255,7 +1255,7 @@ const devUsers: Record<string, Omit<PortalSession, "exp">> = {
     accountType: "internal",
     role: "admin",
     priceTier: "internal",
-    company: "autoYJ Admin",
+    company: "Youguard Admin",
   },
   sales: {
     userId: "DEV-SALES",
@@ -1265,7 +1265,7 @@ const devUsers: Record<string, Omit<PortalSession, "exp">> = {
     accountType: "internal",
     role: "sales",
     priceTier: "internal",
-    company: "autoYJ Sales",
+    company: "Youguard Sales",
   },
   partner: {
     userId: "CUS-001",
@@ -1439,7 +1439,7 @@ async function handleCounterOffer(request: Request, env: Env, quoteNo: string) {
     log_no: nextId("LOG"),
     inquiry_no: quote.inquiryNo,
     quote_no: quote.quoteNo,
-    actor: isInternalSession(session) ? "autoYJ" : "Customer",
+    actor: isInternalSession(session) ? "Youguard" : "Customer",
     action: "Counteroffer",
     offered_price: offeredPrice,
     quantity: quote.quantity,
@@ -1483,11 +1483,11 @@ async function handleAcceptQuote(request: Request, env: Env, quoteNo: string) {
     log_no: nextId("LOG"),
     inquiry_no: quote.inquiryNo,
     quote_no: quote.quoteNo,
-    actor: isInternalSession(session) ? "autoYJ" : "Customer",
+    actor: isInternalSession(session) ? "Youguard" : "Customer",
     action: "Quote Accepted",
     offered_price: quote.unitPrice,
     quantity: quote.quantity,
-    message: isInternalSession(session) ? "autoYJ accepted quote in portal." : "Customer accepted quote in portal.",
+    message: isInternalSession(session) ? "Youguard accepted quote in portal." : "Customer accepted quote in portal.",
     created_at: now,
   });
   await updateRecord(env, requireEnv(env, "FEISHU_TABLE_QUOTES"), quoteRecord.record_id, {
