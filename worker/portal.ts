@@ -1407,9 +1407,12 @@ async function handleBootstrap(request: Request, env: Env) {
 
   const vehicleModelTableId = optionalEnv(env, "FEISHU_TABLE_VEHICLE_MODELS") || "tblxVNjP9dnJ7b3o";
   const vehicleSourceTableId = optionalEnv(env, "FEISHU_TABLE_SOURCE_IMPORTS") || optionalEnv(env, "FEISHU_TABLE_VEHICLES") || "tblte61W3fKoXmSw";
-  const vehicleSourceViewId = optionalEnv(env, "FEISHU_VIEW_SOURCE_IMPORTS") || "vewCyPzSbJ";
   const internalUserTableId = optionalEnv(env, "FEISHU_TABLE_INTERNAL_USERS");
   const customerTableId = optionalEnv(env, "FEISHU_TABLE_CUSTOMERS");
+  const inquiriesTableId = optionalEnv(env, "FEISHU_TABLE_INQUIRIES");
+  const ordersTableId = optionalEnv(env, "FEISHU_TABLE_ORDERS");
+  const quotesTableId = optionalEnv(env, "FEISHU_TABLE_QUOTES");
+  const negotiationsTableId = optionalEnv(env, "FEISHU_TABLE_NEGOTIATIONS");
 
   const payload = await singleFlight(cacheKey, async () => {
     const [
@@ -1424,18 +1427,22 @@ async function handleBootstrap(request: Request, env: Env) {
     ] = await Promise.all([
       vehicleModelTableId ? searchRecords(env, vehicleModelTableId, { pageSize: 100 }).catch(() => []) : Promise.resolve([]),
       vehicleSourceTableId ? searchRecords(env, vehicleSourceTableId, { pageSize: 500, maxPages: 10 }).catch(() => []) : Promise.resolve([]),
-      searchRecords(env, requireEnv(env, "FEISHU_TABLE_INQUIRIES"), {
-        filter: isInternal ? undefined : equalsFilter("customer_id", session.customerId),
-        pageSize: 100,
-      }).catch(() => []),
-      searchRecords(env, requireEnv(env, "FEISHU_TABLE_ORDERS"), {
-        filter: isInternal ? undefined : equalsFilter("customer_id", session.customerId),
-        pageSize: 100,
-      }).catch(() => []),
+      inquiriesTableId
+        ? searchRecords(env, inquiriesTableId, {
+            filter: isInternal ? undefined : equalsFilter("customer_id", session.customerId),
+            pageSize: 100,
+          }).catch(() => [])
+        : Promise.resolve([]),
+      ordersTableId
+        ? searchRecords(env, ordersTableId, {
+            filter: isInternal ? undefined : equalsFilter("customer_id", session.customerId),
+            pageSize: 100,
+          }).catch(() => [])
+        : Promise.resolve([]),
       isInternal && internalUserTableId ? searchRecords(env, internalUserTableId, { pageSize: 100 }).catch(() => []) : Promise.resolve([]),
       isInternal && customerTableId ? searchRecords(env, customerTableId, { pageSize: 100 }).catch(() => []) : Promise.resolve([]),
-      searchRecords(env, requireEnv(env, "FEISHU_TABLE_QUOTES"), { pageSize: 100 }).catch(() => []),
-      searchRecords(env, requireEnv(env, "FEISHU_TABLE_NEGOTIATIONS"), { pageSize: 100 }).catch(() => []),
+      quotesTableId ? searchRecords(env, quotesTableId, { pageSize: 100 }).catch(() => []) : Promise.resolve([]),
+      negotiationsTableId ? searchRecords(env, negotiationsTableId, { pageSize: 100 }).catch(() => []) : Promise.resolve([]),
     ]);
 
 
@@ -2096,11 +2103,18 @@ async function handlePublicAcademyLesson(category: string, slug: string, env: En
 
 async function handlePublicTranslations(env: Env) {
   const cacheKey = "public_translations_v1";
+  const publicHeaders = {
+    "cache-control": "public, max-age=3600, s-maxage=86400, stale-while-revalidate=86400",
+  };
   const cached = getCached(cacheKey);
-  if (cached) return json(cached);
+  if (cached) return json(cached, { headers: publicHeaders });
 
   const i18nTableId = optionalEnv(env, "FEISHU_TABLE_I18N");
-  if (!i18nTableId) return json({ ok: true, translations: {} });
+  if (!i18nTableId) {
+    const emptyPayload = { ok: true, translations: {} };
+    setCached(cacheKey, emptyPayload, 3600 * 1000);
+    return json(emptyPayload, { headers: publicHeaders });
+  }
 
   const records = await searchRecords(env, i18nTableId, { pageSize: 500 }).catch(() => []);
   const translations: Record<string, { en?: string; zh?: string; am?: string }> = {};
@@ -2115,8 +2129,8 @@ async function handlePublicTranslations(env: Env) {
     }
   }
   const payload = { ok: true, translations };
-  setCached(cacheKey, payload);
-  return json(payload);
+  setCached(cacheKey, payload, 3600 * 1000);
+  return json(payload, { headers: publicHeaders });
 }
 
 export async function handlePortalRequest(request: Request, env: Env) {
@@ -2144,9 +2158,6 @@ export async function handlePortalRequest(request: Request, env: Env) {
       }
       if (path === "/api/portal/public/academy" && request.method === "GET") {
         return await handlePublicAcademy(env);
-      }
-      if (path === "/api/portal/public/translations" && request.method === "GET") {
-        return await handlePublicTranslations(env);
       }
       const academyLessonMatch = path.match(/^\/api\/portal\/public\/academy\/([^/]+)\/([^/]+)$/);
       if (academyLessonMatch && request.method === "GET") {

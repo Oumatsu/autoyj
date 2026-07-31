@@ -478,28 +478,38 @@ export default function PortalPage() {
   const [counterPrice, setCounterPrice] = useState("");
   const [counterMessage, setCounterMessage] = useState("");
 
-  async function checkSessionAndLoad() {
-    setError("");
-    try {
-      // 1. 先极速校验 Session（纯本地 Cookie 校验，<5ms 返回），无需长等待
-      const sessionRes = await api<{ user: PortalUser | null }>("/api/portal/session");
-      if (!sessionRes.user) {
-        setData(null);
-        setLoading(false);
-        return;
-      }
-      // 2. 已登录：拉取全量后台数据
-      const bootstrap = await api<BootstrapData>("/api/portal/bootstrap");
-      setData(bootstrap);
-    } catch (loadError) {
-      setData(null);
-      if (loadError instanceof Error && loadError.message !== "Not signed in") {
-        setError(loadError.message);
-      }
-    } finally {
-      setLoading(false);
+  const loadPromiseRef = useRef<Promise<void> | null>(null);
+
+  const checkSessionAndLoad = useCallback(async (force = false) => {
+    if (!force && loadPromiseRef.current) {
+      return loadPromiseRef.current;
     }
-  }
+    const promise = (async () => {
+      setError("");
+      try {
+        // 1. 先极速校验 Session（纯本地 Cookie 校验，<5ms 返回），无需长等待
+        const sessionRes = await api<{ user: PortalUser | null }>("/api/portal/session");
+        if (!sessionRes.user) {
+          setData(null);
+          setLoading(false);
+          return;
+        }
+        // 2. 已登录：拉取全量后台数据
+        const bootstrap = await api<BootstrapData>("/api/portal/bootstrap");
+        setData(bootstrap);
+      } catch (loadError) {
+        setData(null);
+        if (loadError instanceof Error && loadError.message !== "Not signed in") {
+          setError(loadError.message);
+        }
+      } finally {
+        setLoading(false);
+        loadPromiseRef.current = null;
+      }
+    })();
+    loadPromiseRef.current = promise;
+    return promise;
+  }, []);
 
   useEffect(() => {
     const host = window.location.hostname.toLowerCase();
@@ -570,7 +580,7 @@ export default function PortalPage() {
         method: "POST",
         body: JSON.stringify({ email, accessCode }),
       });
-      await checkSessionAndLoad();
+      await checkSessionAndLoad(true);
       if (typeof window !== "undefined") {
         window.dispatchEvent(new Event("youguard-session-changed"));
       }
@@ -594,7 +604,7 @@ export default function PortalPage() {
         method: "POST",
         body: JSON.stringify({ role }),
       });
-      await checkSessionAndLoad();
+      await checkSessionAndLoad(true);
       if (typeof window !== "undefined") {
         window.dispatchEvent(new Event("youguard-session-changed"));
       }
