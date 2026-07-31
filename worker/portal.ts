@@ -1400,14 +1400,12 @@ async function handleBootstrap(request: Request, env: Env) {
 
 
     const vehicleSourceRecords = rawVehicleSourceRecords.filter((record) => {
+      const stage = parseSourceStage(record.fields);
       const fields = record.fields;
-      const processState = asText(fields["流程"] ?? fields["审核流程"] ?? fields.source_stage);
-      const isApproved = asBool(fields["审核状态"]);
-      // 视图 vewCyPzSbJ 本身是飞书后台筛选好的接入视图。如果字段中没有显式的流程/审核状态列，说明已经由视图筛选，全量保留。
-      if (!processState && !("审核状态" in fields) && !("流程" in fields) && !("审核流程" in fields)) {
+      if (!("审核状态" in fields) && !("流程" in fields) && !("审核流程" in fields) && !("文本审核流程" in fields)) {
         return true;
       }
-      return processState === "已接入网站" || isApproved;
+      return stage === "connected";
     });
 
     const vehicles = vehicleSourceRecords.map((record) => mapVehicleSource(record, canSeePortalPrice(session)));
