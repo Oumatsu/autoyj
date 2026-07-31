@@ -1177,71 +1177,23 @@ function mapOrder(record: FeishuRecord) {
 }
 
 function parseSourceStage(fields: Record<string, unknown>): "connected" | "unreviewed" {
-  // 1. 动态检索所有包含 fx, 公式, option, 流程, 审核 等 key
-  let rawText = "";
-  for (const [key, val] of Object.entries(fields)) {
-    const k = key.toLowerCase();
-    if (
-      k.includes("fx") ||
-      k.includes("公式") ||
-      k.includes("option") ||
-      k.includes("流程") ||
-      k.includes("审核") ||
-      k.includes("stage")
-    ) {
-      if (key === "审核人" || key === "审核时间" || key === "审核意见") continue;
-      const text = asText(val).trim();
-      if (text) {
-        rawText = text;
-        break;
-      }
-    }
-  }
+  const val = fields["审核api用字段"] ?? fields.audit_api_field ?? fields["审核流程"] ?? fields["流程"];
+  const str = JSON.stringify(val ?? "");
 
-  if (!rawText) {
-    rawText = asText(
-      fields["审核流程"] ??
-      fields["流程"] ??
-      fields["流程状态"] ??
-      fields["文本审核流程"] ??
-      fields.source_stage ??
-      fields.stage
-    ).trim();
-  }
-
-  const lowerRaw = rawText.toLowerCase();
-
-  // 2. 匹配“未审核” / “待处理”
-  if (
-    rawText === "未审核" ||
-    rawText.includes("未审核") ||
-    rawText.includes("未处理") ||
-    rawText.includes("待审核") ||
-    rawText.includes("审查中") ||
-    lowerRaw.includes("unreviewed") ||
-    lowerRaw.includes("pending") ||
-    lowerRaw.includes("reject")
-  ) {
+  if (str.includes("optCyihq9I")) {
     return "unreviewed";
   }
 
-  // 3. 匹配“已接入网站” / Option ID (如 optQeQTAuY) / “已通过”
-  if (
-    rawText === "已接入网站" ||
-    rawText.includes("已接入网站") ||
-    rawText.includes("已通过") ||
-    rawText.includes("已接入") ||
-    lowerRaw.includes("connected") ||
-    lowerRaw.includes("approved") ||
-    lowerRaw.startsWith("opt") || // 适配飞书公式直接引用的 Option ID 格式（如 optQeQTAuY）
-    lowerRaw.includes("opt")
-  ) {
+  if (str.includes("optQeQTAuY")) {
     return "connected";
   }
 
-  const isApproved = asBool(fields["审核状态"]);
-  if ("审核状态" in fields && !isApproved && !rawText) {
+  const text = asText(val).trim();
+  if (text.includes("未审核") || text.includes("待审核")) {
     return "unreviewed";
+  }
+  if (text.includes("已接入网站") || text.includes("已接入") || text.includes("已通过")) {
+    return "connected";
   }
 
   return "connected";
@@ -1472,10 +1424,6 @@ async function handleBootstrap(request: Request, env: Env) {
 
     const vehicleSourceRecords = rawVehicleSourceRecords.filter((record) => {
       const stage = parseSourceStage(record.fields);
-      const fields = record.fields;
-      if (!("审核状态" in fields) && !("流程" in fields) && !("审核流程" in fields) && !("文本审核流程" in fields)) {
-        return true;
-      }
       return stage === "connected";
     });
 
