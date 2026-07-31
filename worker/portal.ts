@@ -952,8 +952,8 @@ function mapVehicleSource(record: FeishuRecord, canSeePrice: boolean): Record<st
     asOptionalNumber(fields.display_price_low) || 
     null;
 
-  const reviewProcess = asText(fields["流程"] ?? fields["审核流程"] ?? fields.source_stage);
-  const isApproved = reviewProcess === "已接入网站" || asBool(fields["审核状态"]);
+  const stage = parseSourceStage(fields);
+  const isApproved = stage === "connected";
 
   return {
     id: asText(fields.record_id) || record.record_id,
@@ -990,8 +990,8 @@ function mapVehicleSource(record: FeishuRecord, canSeePrice: boolean): Record<st
     priceValidUntil: "",
     imageUrl: "",
     publicNotes: asText(fields["备注"] ?? fields.notes),
-    sourcePath: asText(fields["素材源文件路径"]),
-    reviewProcess: reviewProcess || (isApproved ? "已接入网站" : "审核中"),
+    sourceStage: stage,
+    reviewProcess: stage === "connected" ? "已接入网站" : "未审核",
     isApproved,
     canSeePrice,
     price: canSeePrice ? priceVal : null,
@@ -1176,12 +1176,51 @@ function mapOrder(record: FeishuRecord) {
   };
 }
 
+function parseSourceStage(fields: Record<string, unknown>): "connected" | "unreviewed" {
+  const rawText = asText(
+    fields["审核流程"] ??
+    fields["流程"] ??
+    fields["流程状态"] ??
+    fields["文本审核流程"] ??
+    fields.source_stage ??
+    fields.stage
+  ).trim();
+
+  if (
+    rawText === "未审核" ||
+    rawText.includes("未审核") ||
+    rawText.includes("未处理") ||
+    rawText.includes("待审核") ||
+    rawText.includes("审查中") ||
+    rawText.toLowerCase() === "unreviewed"
+  ) {
+    return "unreviewed";
+  }
+
+  if (
+    rawText === "已接入网站" ||
+    rawText.includes("已接入网站") ||
+    rawText.includes("已通过") ||
+    rawText.includes("已接入") ||
+    rawText.toLowerCase() === "connected"
+  ) {
+    return "connected";
+  }
+
+  const isApproved = asBool(fields["审核状态"]);
+  if ("审核状态" in fields && !isApproved && !rawText) {
+    return "unreviewed";
+  }
+
+  return "connected";
+}
+
 function mapSourceImport(record: FeishuRecord): Record<string, unknown> {
   const fields = record.fields;
-  const reviewStatus = asBool(fields["审核状态"]);
+  const stage = parseSourceStage(fields);
   return {
     id: record.record_id,
-    sourceStage: reviewStatus ? "connected" : "unreviewed",
+    sourceStage: stage,
     supplier: asText(fields["供应商"]),
     reviewer: asText(fields["审核人"]),
     developer: asText(fields["开发者"]),
