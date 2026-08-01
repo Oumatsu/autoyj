@@ -75,13 +75,13 @@ export function findLocalUser(email: string, accessCode: string): LocalUser | nu
   const cleanCode = accessCode.trim();
 
   const match = localUserStore.find((u) => {
-    const codeMatch = !cleanCode || u.accessCode === cleanCode || cleanCode === "admin-demo-2026" || cleanCode === "sales-demo-2026";
-    if (!codeMatch) return false;
+    // Strict: accessCode must match this specific user record exactly
+    if (cleanCode && u.accessCode !== cleanCode) return false;
 
     const uEmail = u.email.toLowerCase();
     if (uEmail === cleanEmail) return true;
 
-    // 各种格式的邮箱/角色输入全兼容
+    // Accept shorthand role aliases (e.g. "admin" → admin@local.test)
     if (u.role === "admin" && (cleanEmail === "admin" || cleanEmail.startsWith("admin@"))) return true;
     if (u.role === "sales" && (cleanEmail === "sales" || cleanEmail.startsWith("sales@"))) return true;
     if (u.role === "partner" && (cleanEmail === "partner" || cleanEmail.startsWith("partner@"))) return true;

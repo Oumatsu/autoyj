@@ -329,7 +329,7 @@ const adminRoleLabels: Record<PortalRole, string> = {
 
 const adminNavItems: { key: AdminModule; label: string; roles: PortalRole[]; icon: AdminIconName; badge?: string }[] = [
   { key: "dashboard", label: "首页看板", roles: ["admin", "sales", "sourcing", "finance", "partner", "customer"], icon: "dashboard", badge: "开发中" },
-  { key: "vehicle_models", label: "车型库", roles: ["admin", "sales", "sourcing", "partner", "customer"], icon: "vehicle_models", badge: "开发中" },
+  { key: "vehicle_models", label: "车型库", roles: ["admin", "sales", "sourcing", "partner", "customer"], icon: "vehicle_models", badge: "预览" },
   { key: "vehicles", label: "车辆资源", roles: ["admin", "sales", "sourcing", "partner"], icon: "vehicles", badge: "预览" },
   { key: "source_imports", label: "车源录入与审查", roles: ["admin", "sales", "sourcing"], icon: "vehicles", badge: "开发中" },
   { key: "quotes", label: "询价管理", roles: ["admin", "sales", "partner", "customer"], icon: "quotes", badge: "开发中" },
@@ -449,11 +449,15 @@ async function api<T>(path: string, init?: RequestInit): Promise<T> {
   return data as T;
 }
 
+// 模块全局缓存（跨路由切换/组件卸载挂载共享，实现页面切换 0 次重复请求与并发去重）
+let globalBootstrapData: BootstrapData | null = null;
+let globalBootstrapPromise: Promise<BootstrapData | null> | null = null;
+
 export default function PortalPage() {
   const [email, setEmail] = useState("");
   const [accessCode, setAccessCode] = useState("");
-  const [data, setData] = useState<BootstrapData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState<BootstrapData | null>(() => globalBootstrapData);
+  const [loading, setLoading] = useState(!globalBootstrapData);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [isLocalDev, setIsLocalDev] = useState(false);
@@ -463,10 +467,14 @@ export default function PortalPage() {
       const params = new URLSearchParams(window.location.search);
       const queryTab = (params.get("tab") || params.get("module") || "").toLowerCase().replaceAll("-", "_");
       if (queryTab === "vehicle_models" || queryTab === "profiles") return "vehicle_models";
-      const validModules: AdminModule[] = ["dashboard", "vehicle_models", "vehicles", "source_imports", "quotes", "orders", "payments", "logistics", "customers", "staff", "files"];
-      if (queryTab && validModules.includes(queryTab as AdminModule)) {
-        return queryTab as AdminModule;
-      }
+      if (queryTab === "source_imports" || queryTab === "vehicles") return "source_imports";
+      if (queryTab === "quotes" || queryTab === "inquiries") return "quotes";
+      if (queryTab === "orders") return "orders";
+      if (queryTab === "payments") return "payments";
+      if (queryTab === "logistics") return "logistics";
+      if (queryTab === "customers") return "customers";
+      if (queryTab === "staff") return "staff";
+      if (queryTab === "files") return "files";
     }
     return "dashboard";
   });
@@ -477,47 +485,50 @@ export default function PortalPage() {
   const [counterPrice, setCounterPrice] = useState("");
   const [counterMessage, setCounterMessage] = useState("");
 
-  const loadPromiseRef = useRef<Promise<void> | null>(null);
-  // 防止 React StrictMode 双重 effect 和路由切换后重新挂载时重复发 bootstrap
-  const hasInitiallyLoadedRef = useRef(false);
-
   const checkSessionAndLoad = useCallback(async (force = false) => {
-    // 如果有正在进行中的请求，直接复用
-    if (!force && loadPromiseRef.current) {
-      return loadPromiseRef.current;
-    }
-    // 非强制调用：若已完成过初次加载，跳过（防 StrictMode 双 effect & remount 重复请求）
-    if (!force && hasInitiallyLoadedRef.current) {
+    // 1. 若非强制更新且已有全局数据缓存，瞬间响应，0 次 API 请求
+    if (!force && globalBootstrapData) {
+      setData(globalBootstrapData);
+      setLoading(false);
       return;
     }
+    // 2. 若非强制更新且已有进行中的 API 请求，复用 Promise 避免重复并发发请求
+    if (!force && globalBootstrapPromise) {
+      try {
+        const res = await globalBootstrapPromise;
+        if (res) setData(res);
+      } finally {
+        setLoading(false);
+      }
+      return;
+    }
+
+    // 3. 执行真正的网络拉取并写缓存
     const promise = (async () => {
       setError("");
       try {
-        // 1. 先极速校验 Session（纯本地 Cookie 校验，<5ms 返回）
         const sessionRes = await api<{ user: PortalUser | null }>("/api/portal/session");
         if (!sessionRes.user) {
+          globalBootstrapData = null;
           setData(null);
           setLoading(false);
-          hasInitiallyLoadedRef.current = true;
-          return;
+          return null;
         }
-        // 2. 已登录：拉取全量后台数据
         const bootstrap = await api<BootstrapData>("/api/portal/bootstrap");
+        globalBootstrapData = bootstrap;
         setData(bootstrap);
-        hasInitiallyLoadedRef.current = true;
+        return bootstrap;
       } catch (loadError) {
         setData(null);
-        hasInitiallyLoadedRef.current = true;
         if (loadError instanceof Error && loadError.message !== "Not signed in") {
           setError(loadError.message);
         }
+        return null;
       } finally {
         setLoading(false);
-        loadPromiseRef.current = null;
       }
     })();
-    loadPromiseRef.current = promise;
-    return promise;
+    await promise;
   }, []);
 
   useEffect(() => {
@@ -554,6 +565,38 @@ export default function PortalPage() {
       window.removeEventListener("popstate", syncFromUrl);
     };
   }, []);
+
+  const [loadedCatalog, setLoadedCatalog] = useState(false);
+
+  const loadCatalogIfNeeded = useCallback(async () => {
+    if (loadedCatalog) return;
+    try {
+      const res = await api<{ vehicleModels: VehicleModel[]; vehicleModelSpecs: VehicleSpec[]; vehicles: Vehicle[] }>("/api/portal/catalog");
+      if (res) {
+        setData((prev) =>
+          prev
+            ? {
+                ...prev,
+                vehicleModels: res.vehicleModels || [],
+                vehicleModelSpecs: res.vehicleModelSpecs || [],
+                vehicles: res.vehicles || [],
+              }
+            : prev
+        );
+        setLoadedCatalog(true);
+      }
+    } catch (e) {
+      console.warn("Failed to load catalog on demand:", e);
+    }
+  }, [loadedCatalog]);
+
+  useEffect(() => {
+    if (!data) return;
+    const catalogModules: AdminModule[] = ["dashboard", "vehicle_models", "vehicles", "source_imports"];
+    if (catalogModules.includes(activeAdminModule)) {
+      void loadCatalogIfNeeded();
+    }
+  }, [data, activeAdminModule, loadCatalogIfNeeded]);
 
   const handleModuleChange = (module: AdminModule) => {
     setActiveAdminModule(module);
@@ -632,7 +675,8 @@ export default function PortalPage() {
 
   async function logout() {
     await api("/api/portal/session", { method: "DELETE" });
-    hasInitiallyLoadedRef.current = false;
+    globalBootstrapData = null;
+    globalBootstrapPromise = null;
     setData(null);
     setActiveAdminModule("dashboard");
     setSelectedSellableModel(null);
@@ -1577,6 +1621,25 @@ function AdminProfiles({ data }: { data: BootstrapData }) {
     <div className="grid gap-5">
       {route.view === "list" ? (
         <AdminPanel title="车型库" subtitle="全量展示飞书 Base 关联数据：包含三电系统、电机驱动、尺寸轴距、智驾等级与合规出口字段">
+          <div className="mb-5 flex flex-col gap-3 rounded-2xl border border-[#22b8aa]/30 bg-[#22b8aa]/10 p-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-3">
+              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#22b8aa]/20 text-lg">
+                🖼️
+              </div>
+              <div>
+                <strong className="block text-sm font-bold text-white">飞书带图册实时车型公开视图</strong>
+                <p className="mt-0.5 text-xs text-slate-300">包含外观图册、配置参数与现车价格一览，支持免登录公开分享与查阅。</p>
+              </div>
+            </div>
+            <a
+              href="https://ecn4k98ibq2i.feishu.cn/share/base/view/shrcndRVOEpCUH8QjhvM151zcDg"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-[#22b8aa] px-4 py-2.5 text-xs font-black text-[#0c1322] transition hover:bg-[#5ee6d8]"
+            >
+              <span>打开飞书图册一览 ↗</span>
+            </a>
+          </div>
           <div className="mb-4 grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
             <label className="grid gap-2 text-xs font-black uppercase tracking-widest text-slate-500">
               搜索车型
@@ -2193,11 +2256,11 @@ function AdminVehicles({ data, onEdit }: { data: BootstrapData; onEdit: (vehicle
 
                     <div>
                       <div className="mb-3 flex items-center justify-between gap-3">
-                        <h3 className="text-sm font-black text-[#22b8aa]">原始批次</h3>
-                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">内部供应商和编辑入口</span>
+                        <h3 className="text-sm font-black text-[#22b8aa]">车源批次明细</h3>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">供应商与备案信息</span>
                       </div>
                       <AdminTable
-                        headers={["资源 ID", "车型版本", "外部颜色", "内部颜色", "供应商/录入人", "地点", "库存/供应", "FOB/成本", "操作"]}
+                        headers={["资源 ID", "车型版本", "外部颜色", "内部颜色", "供应商/录入人", "地点", "库存/供应", "FOB/成本"]}
                         rows={rawVehicles.map((vehicle) => [
                           <span key="id" className="font-mono text-xs text-[#22b8aa]">{vehicle.id}</span>,
                           vehicleName(vehicle),
@@ -2207,16 +2270,8 @@ function AdminVehicles({ data, onEdit }: { data: BootstrapData; onEdit: (vehicle
                           vehicle.location || "-",
                           compactJoin([vehicle.stockQuantity > 0 ? `${vehicle.stockQuantity} 台` : "", getSupplyType(vehicle), vehicle.status === "Preorder" ? vehicle.leadTime || "周期待确认" : vehicle.leadTime]),
                           compactJoin([vehicle.partnerPrice ? `FOB ${formatUsdStrict(vehicle.partnerPrice)}` : formatUsd(vehicle.price), vehicle.cost ? `成本 ${formatUsdStrict(vehicle.cost)}` : ""]),
-                          <button
-                            key="edit"
-                            type="button"
-                            onClick={() => onEdit(vehicle)}
-                            className="min-w-[64px] rounded-lg border border-[#22b8aa]/40 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-[#5ee6d8] transition hover:border-[#22b8aa] hover:bg-[#22b8aa]/10"
-                          >
-                            编辑
-                          </button>,
                         ])}
-                        emptyText="暂无原始批次"
+                        emptyText="暂无车源批次"
                       />
                     </div>
                   </div>
@@ -2869,7 +2924,10 @@ function buildModelProfileGroups(data: BootstrapData): ModelProfileGroup[] {
     specs.sort((a, b) => categoryRank(a.category) - categoryRank(b.category) || (a.sortOrder || 9999) - (b.sortOrder || 9999) || a.name.localeCompare(b.name));
   }
 
-  const activeModels = (data.vehicleModels || []).filter((model) => !/archived/i.test(model.status));
+  const activeModels = (data.vehicleModels || []).filter((model) => {
+    const st = (model.status || "active").toLowerCase().trim();
+    return st === "active" || st === "published" || st === "online" || st === "在售" || st === "启用" || !/archived|draft|disabled|下架|停售/i.test(st);
+  });
   const models = activeModels.length ? activeModels : data.vehicleModels || [];
   const grouped = new Map<string, ModelProfileGroup>();
   for (const model of models) {

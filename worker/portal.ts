@@ -1308,67 +1308,13 @@ function nextId(prefix: string) {
   return `${prefix}-${timestamp}-${random}`;
 }
 
-const devCredentials: Record<string, { email: string; accessCode: string }> = {
-  admin: { email: "admin@local.test", accessCode: "admin-demo-2026" },
-  sales: { email: "sales@local.test", accessCode: "sales-demo-2026" },
-  partner: { email: "partner@example.com", accessCode: "partner-demo-2026" },
-  customer: { email: "customer@example.com", accessCode: "customer-demo-2026" },
-};
-
-const devUsers: Record<string, Omit<PortalSession, "exp">> = {
-  admin: {
-    userId: "DEV-ADMIN",
-    customerId: "DEV-ADMIN",
-    name: "Local Admin",
-    email: "admin@local.test",
-    accountType: "internal",
-    role: "admin",
-    priceTier: "internal",
-    company: "Youguard Admin",
-  },
-  sales: {
-    userId: "DEV-SALES",
-    customerId: "DEV-SALES",
-    name: "Local Sales",
-    email: "sales@local.test",
-    accountType: "internal",
-    role: "sales",
-    priceTier: "internal",
-    company: "Youguard Sales",
-  },
-  partner: {
-    userId: "CUS-001",
-    customerId: "CUS-001",
-    name: "Local Partner",
-    email: "partner@example.com",
-    accountType: "external",
-    role: "partner",
-    priceTier: "partner",
-    company: "Addis Fleet Trading",
-  },
-  customer: {
-    userId: "CUS-002",
-    customerId: "CUS-002",
-    name: "Local Customer",
-    email: "customer@example.com",
-    accountType: "external",
-    role: "customer",
-    priceTier: "hidden",
-    company: "Green Ride Addis",
-  },
-};
-
 async function handleLogin(request: Request, env: Env) {
   const body = (await request.json().catch(() => null)) as { email?: string; accessCode?: string } | null;
   const email = String(body?.email || "").trim().toLowerCase();
   const accessCode = String(body?.accessCode || "").trim();
   if (!email || !accessCode) return problem("Email and access code are required");
 
-  let account = await findLoginAccount(env, email, accessCode).catch(() => null);
-  if (!account) {
-    const match = Object.entries(devCredentials).find(([, c]) => c.email === email && c.accessCode === accessCode);
-    if (match) account = devUsers[match[0]];
-  }
+  const account = await findLoginAccount(env, email, accessCode).catch(() => null);
   if (!account) return problem("Invalid portal credentials", 401);
 
   const session: PortalSession = {
@@ -1384,11 +1330,33 @@ async function handleDevLogin(request: Request, env: Env) {
 
   const body = (await request.json().catch(() => null)) as { role?: string } | null;
   const role = String(body?.role || "").toLowerCase();
-  const devUser = devUsers[role];
-  if (!devUser) return problem("Unknown development role", 400);
+
+  // Dev login maps role → email, then finds the user via the same localUserStore path
+  const roleToEmail: Record<string, string> = {
+    admin: "admin@local.test",
+    sales: "sales@local.test",
+    partner: "partner@example.com",
+    customer: "customer@example.com",
+  };
+  const email = roleToEmail[role];
+  if (!email) return problem("Unknown development role", 400);
+
+  const devUser = findLocalUser(email, "");
+  if (!devUser) return problem("Dev user not found", 400);
+
+  const account: Omit<PortalSession, "exp"> = {
+    userId: devUser.userId,
+    customerId: devUser.customerId,
+    name: devUser.name,
+    email: devUser.email,
+    accountType: devUser.accountType,
+    role: devUser.role,
+    priceTier: devUser.priceTier,
+    company: devUser.company,
+  };
 
   const session: PortalSession = {
-    ...devUser,
+    ...account,
     exp: Math.floor(Date.now() / 1000) + SESSION_TTL_SECONDS,
   };
   const token = await signSession(env, session);
@@ -1397,54 +1365,47 @@ async function handleDevLogin(request: Request, env: Env) {
 
 async function handleBootstrap(request: Request, env: Env) {
   const session = await requireSession(request, env);
-  const isInternal = isInternalSession(session);
 
-  const cacheKey = `bootstrap_v6_full_pages_opt:${session.role}:${session.customerId || "internal"}`;
+  return json({
+    user: publicUser(session),
+    permissions: {
+      canSeePrice: canSeePortalPrice(session),
+      canRequestQuote: true,
+      canCounterOffer: true,
+    },
+    vehicleModels: [],
+    vehicleModelSpecs: [],
+    vehicles: [],
+    inquiries: [],
+    quotes: [],
+    negotiations: [],
+    orders: [],
+    internalUsers: [],
+    customers: [],
+  });
+}
+
+async function handleGetCatalog(request: Request, env: Env) {
+  const session = await requireSession(request, env);
+  const cacheKey = `catalog_v2:${session.role}:${session.customerId || "internal"}`;
   const cachedData = getCached(cacheKey);
   if (cachedData) {
     return json(cachedData);
   }
 
   const vehicleModelTableId = optionalEnv(env, "FEISHU_TABLE_VEHICLE_MODELS") || "tblxVNjP9dnJ7b3o";
-  const vehicleSourceTableId = optionalEnv(env, "FEISHU_TABLE_SOURCE_IMPORTS") || optionalEnv(env, "FEISHU_TABLE_VEHICLES") || "tblte61W3fKoXmSw";
-  const internalUserTableId = optionalEnv(env, "FEISHU_TABLE_INTERNAL_USERS");
-  const customerTableId = optionalEnv(env, "FEISHU_TABLE_CUSTOMERS");
-  const inquiriesTableId = optionalEnv(env, "FEISHU_TABLE_INQUIRIES");
-  const ordersTableId = optionalEnv(env, "FEISHU_TABLE_ORDERS");
-  const quotesTableId = optionalEnv(env, "FEISHU_TABLE_QUOTES");
-  const negotiationsTableId = optionalEnv(env, "FEISHU_TABLE_NEGOTIATIONS");
+  const vehicleSourceTableId =
+    optionalEnv(env, "FEISHU_TABLE_SOURCE_IMPORTS") || optionalEnv(env, "FEISHU_TABLE_VEHICLES") || "tblte61W3fKoXmSw";
 
   const payload = await singleFlight(cacheKey, async () => {
-    const [
-      vehicleModelRecords,
-      rawVehicleSourceRecords,
-      inquiryRecords,
-      orderRecords,
-      internalUserRecords,
-      customerRecords,
-      allQuotes,
-      allNegotiations,
-    ] = await Promise.all([
-      vehicleModelTableId ? searchRecords(env, vehicleModelTableId, { pageSize: 100 }).catch(() => []) : Promise.resolve([]),
-      vehicleSourceTableId ? searchRecords(env, vehicleSourceTableId, { pageSize: 500, maxPages: 10 }).catch(() => []) : Promise.resolve([]),
-      inquiriesTableId
-        ? searchRecords(env, inquiriesTableId, {
-            filter: isInternal ? undefined : equalsFilter("customer_id", session.customerId),
-            pageSize: 100,
-          }).catch(() => [])
+    const [vehicleModelRecords, rawVehicleSourceRecords] = await Promise.all([
+      vehicleModelTableId
+        ? searchRecords(env, vehicleModelTableId, { pageSize: 500, maxPages: 5 }).catch(() => [])
         : Promise.resolve([]),
-      ordersTableId
-        ? searchRecords(env, ordersTableId, {
-            filter: isInternal ? undefined : equalsFilter("customer_id", session.customerId),
-            pageSize: 100,
-          }).catch(() => [])
+      vehicleSourceTableId
+        ? searchRecords(env, vehicleSourceTableId, { pageSize: 500, maxPages: 5 }).catch(() => [])
         : Promise.resolve([]),
-      isInternal && internalUserTableId ? searchRecords(env, internalUserTableId, { pageSize: 100 }).catch(() => []) : Promise.resolve([]),
-      isInternal && customerTableId ? searchRecords(env, customerTableId, { pageSize: 100 }).catch(() => []) : Promise.resolve([]),
-      quotesTableId ? searchRecords(env, quotesTableId, { pageSize: 100 }).catch(() => []) : Promise.resolve([]),
-      negotiationsTableId ? searchRecords(env, negotiationsTableId, { pageSize: 100 }).catch(() => []) : Promise.resolve([]),
     ]);
-
 
     const vehicleSourceRecords = rawVehicleSourceRecords.filter((record) => {
       const stage = parseSourceStage(record.fields);
@@ -1453,33 +1414,17 @@ async function handleBootstrap(request: Request, env: Env) {
 
     const vehicles = vehicleSourceRecords.map((record) => mapVehicleSource(record, canSeePortalPrice(session)));
     const vehicleModelSpecs = vehicleModelRecords.flatMap(synthesizeSpecsFromModel);
-    const vehicleModels = enrichVehicleModelsWithSpecs(vehicleModelRecords.map(mapVehicleModel), vehicleModelSpecs);
-    const inquiries = inquiryRecords.map(mapInquiry);
-    const inquiryNos = new Set(inquiries.map((inquiry) => inquiry.inquiryNo));
-
-    const quotes = allQuotes.map(mapQuote).filter((quote) => isInternal || inquiryNos.has(quote.inquiryNo));
-    const negotiations = allNegotiations.map(mapNegotiation).filter((log) => isInternal || inquiryNos.has(log.inquiryNo));
-
-    const orders = orderRecords.map(mapOrder);
-    const internalUsers = internalUserRecords.map(mapInternalUser);
-    const customers = customerRecords.map(mapCustomer);
+    const mappedModels = vehicleModelRecords.map(mapVehicleModel);
+    const activeModels = mappedModels.filter((m) => {
+      const st = (m.status || "active").toLowerCase().trim();
+      return st === "active" || st === "published" || st === "online" || st === "在售" || st === "启用" || !/archived|draft|disabled|下架|停售/i.test(st);
+    });
+    const vehicleModels = enrichVehicleModelsWithSpecs(activeModels.length ? activeModels : mappedModels, vehicleModelSpecs);
 
     const resPayload = {
-      user: publicUser(session),
-      permissions: {
-        canSeePrice: canSeePortalPrice(session),
-        canRequestQuote: true,
-        canCounterOffer: true,
-      },
       vehicleModels,
       vehicleModelSpecs,
       vehicles,
-      inquiries,
-      quotes,
-      negotiations,
-      orders,
-      internalUsers,
-      customers,
     };
     setCached(cacheKey, resPayload);
     return resPayload;
@@ -1487,6 +1432,70 @@ async function handleBootstrap(request: Request, env: Env) {
 
   return json(payload);
 }
+
+async function handleGetVehicles(request: Request, env: Env) {
+  const session = await requireSession(request, env);
+  const cacheKey = `vehicles_v2:${session.role}:${session.customerId || "internal"}`;
+  const cachedData = getCached(cacheKey);
+  if (cachedData) {
+    return json(cachedData);
+  }
+
+  const vehicleSourceTableId =
+    optionalEnv(env, "FEISHU_TABLE_SOURCE_IMPORTS") || optionalEnv(env, "FEISHU_TABLE_VEHICLES") || "tblte61W3fKoXmSw";
+
+  const payload = await singleFlight(cacheKey, async () => {
+    const rawVehicleSourceRecords = vehicleSourceTableId
+      ? await searchRecords(env, vehicleSourceTableId, { pageSize: 500, maxPages: 5 }).catch(() => [])
+      : [];
+
+    const vehicleSourceRecords = rawVehicleSourceRecords.filter((record) => {
+      const stage = parseSourceStage(record.fields);
+      return stage === "connected";
+    });
+
+    const vehicles = vehicleSourceRecords.map((record) => mapVehicleSource(record, canSeePortalPrice(session)));
+    const resPayload = { vehicles };
+    setCached(cacheKey, resPayload);
+    return resPayload;
+  });
+
+  return json(payload);
+}
+
+async function handleGetVehicleModels(request: Request, env: Env) {
+  const session = await requireSession(request, env);
+  const cacheKey = `vehicle_models_v2:${session.role}`;
+  const cachedData = getCached(cacheKey);
+  if (cachedData) {
+    return json(cachedData);
+  }
+
+  const vehicleModelTableId = optionalEnv(env, "FEISHU_TABLE_VEHICLE_MODELS") || "tblxVNjP9dnJ7b3o";
+
+  const payload = await singleFlight(cacheKey, async () => {
+    const vehicleModelRecords = vehicleModelTableId
+      ? await searchRecords(env, vehicleModelTableId, { pageSize: 500, maxPages: 5 }).catch(() => [])
+      : [];
+
+    const vehicleModelSpecs = vehicleModelRecords.flatMap(synthesizeSpecsFromModel);
+    const mappedModels = vehicleModelRecords.map(mapVehicleModel);
+    const activeModels = mappedModels.filter((m) => {
+      const st = (m.status || "active").toLowerCase().trim();
+      return st === "active" || st === "published" || st === "online" || st === "在售" || st === "启用" || !/archived|draft|disabled|下架|停售/i.test(st);
+    });
+    const vehicleModels = enrichVehicleModelsWithSpecs(activeModels.length ? activeModels : mappedModels, vehicleModelSpecs);
+
+    const resPayload = { vehicleModels, vehicleModelSpecs };
+    setCached(cacheKey, resPayload);
+    return resPayload;
+  });
+
+  return json(payload);
+}
+
+
+
 
 async function handleCreateInquiry(request: Request, env: Env) {
   await requireSession(request, env);
@@ -2101,47 +2110,12 @@ async function handlePublicAcademyLesson(category: string, slug: string, env: En
   return json(data);
 }
 
-async function handlePublicTranslations(env: Env) {
-  const cacheKey = "public_translations_v1";
-  const publicHeaders = {
-    "cache-control": "public, max-age=3600, s-maxage=86400, stale-while-revalidate=86400",
-  };
-  const cached = getCached(cacheKey);
-  if (cached) return json(cached, { headers: publicHeaders });
-
-  const i18nTableId = optionalEnv(env, "FEISHU_TABLE_I18N");
-  if (!i18nTableId) {
-    const emptyPayload = { ok: true, translations: {} };
-    setCached(cacheKey, emptyPayload, 3600 * 1000);
-    return json(emptyPayload, { headers: publicHeaders });
-  }
-
-  const records = await searchRecords(env, i18nTableId, { pageSize: 500 }).catch(() => []);
-  const translations: Record<string, { en?: string; zh?: string; am?: string }> = {};
-  for (const record of records) {
-    const key = asText(record.fields.key || record.fields.Key);
-    if (key) {
-      translations[key] = {
-        en: asText(record.fields.en || record.fields.EN),
-        zh: asText(record.fields.zh || record.fields.ZH),
-        am: asText(record.fields.am || record.fields.AM),
-      };
-    }
-  }
-  const payload = { ok: true, translations };
-  setCached(cacheKey, payload, 3600 * 1000);
-  return json(payload, { headers: publicHeaders });
-}
-
 export async function handlePortalRequest(request: Request, env: Env) {
   const url = new URL(request.url);
   const path = url.pathname;
 
   try {
     if (path.startsWith("/api/portal/public/")) {
-      if (path === "/api/portal/public/translations" && request.method === "GET") {
-        return await handlePublicTranslations(env);
-      }
       if (path === "/api/portal/public/insights" && request.method === "GET") {
         return await handlePublicInsights(env);
       }
@@ -2197,6 +2171,15 @@ export async function handlePortalRequest(request: Request, env: Env) {
     }
     if (path === "/api/portal/bootstrap" && request.method === "GET") {
       return await handleBootstrap(request, env);
+    }
+    if (path === "/api/portal/catalog" && request.method === "GET") {
+      return await handleGetCatalog(request, env);
+    }
+    if (path === "/api/portal/vehicles" && request.method === "GET") {
+      return await handleGetVehicles(request, env);
+    }
+    if (path === "/api/portal/vehicle-models" && request.method === "GET") {
+      return await handleGetVehicleModels(request, env);
     }
     if (path === "/api/portal/source-imports" && request.method === "GET") {
       return await handleSourceImports(request, env);

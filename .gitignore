@@ -31,3 +31,7 @@ feishu_auth_qr.png
 # tsbuildinfo（构建缓存）
 tsconfig.tsbuildinfo
 
+# 测试结果产物
+test-results/
+
+

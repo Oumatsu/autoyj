@@ -35,7 +35,15 @@ export function createFeishuAuth(env: Record<string, string | undefined> = {}) {
       enabled: true,
       disableSignUp: true, // 🚫 彻底关闭公开注册入口
       async password({ hash, password }) {
-        return hash === password;
+        // Access codes are pre-shared fixed strings, not personal passwords.
+        // We store and compare them as-is (no bcrypt hash needed).
+        // Use constant-time comparison to prevent timing attacks.
+        if (hash.length !== password.length) return false;
+        let mismatch = 0;
+        for (let i = 0; i < hash.length; i++) {
+          mismatch |= hash.charCodeAt(i) ^ password.charCodeAt(i);
+        }
+        return mismatch === 0;
       },
     },
     session: {
