@@ -567,9 +567,11 @@ export default function PortalPage() {
   }, []);
 
   const [loadedCatalog, setLoadedCatalog] = useState(false);
+  const [moduleLoading, setModuleLoading] = useState(false);
 
   const loadCatalogIfNeeded = useCallback(async () => {
     if (loadedCatalog) return;
+    setModuleLoading(true);
     try {
       const res = await api<{ vehicleModels: VehicleModel[]; vehicleModelSpecs: VehicleSpec[]; vehicles: Vehicle[] }>("/api/portal/catalog");
       if (res) {
@@ -587,6 +589,8 @@ export default function PortalPage() {
       }
     } catch (e) {
       console.warn("Failed to load catalog on demand:", e);
+    } finally {
+      setModuleLoading(false);
     }
   }, [loadedCatalog]);
 
@@ -839,6 +843,7 @@ export default function PortalPage() {
       activeModule={activeAdminModule}
       data={data}
       error={error}
+      isModuleLoading={moduleLoading}
       onLogout={logout}
       onModuleChange={handleModuleChange}
       onReload={checkSessionAndLoad}
@@ -1117,6 +1122,7 @@ function AdminPortal({
   onLogout,
   onReload,
   error,
+  isModuleLoading,
 }: {
   data: BootstrapData;
   activeModule: AdminModule;
@@ -1124,6 +1130,7 @@ function AdminPortal({
   onLogout: () => Promise<void>;
   onReload: () => Promise<void>;
   error: string;
+  isModuleLoading?: boolean;
 }) {
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
   const visibleNav = adminNavItems.filter((item) => item.roles.includes(data.user.role));
@@ -1215,7 +1222,7 @@ function AdminPortal({
 
           {error && <p className="mb-5 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm font-bold text-red-300">{error}</p>}
 
-          <AdminModuleContent activeModule={normalizedActiveModule} data={data} onEditVehicle={setEditingVehicle} />
+          <AdminModuleContent activeModule={normalizedActiveModule} data={data} isModuleLoading={isModuleLoading} onEditVehicle={setEditingVehicle} />
         </section>
       </div>
       {editingVehicle && (
@@ -1232,7 +1239,23 @@ function AdminPortal({
   );
 }
 
-function AdminModuleContent({ activeModule, data, onEditVehicle }: { activeModule: AdminModule; data: BootstrapData; onEditVehicle: (vehicle: Vehicle) => void }) {
+function ModuleLoadingSkeleton() {
+  return (
+    <div className="flex flex-col items-center justify-center rounded-2xl border border-[#22b8aa]/20 bg-white/[.03] p-16 text-center shadow-2xl backdrop-blur-md">
+      <div className="relative mb-5 flex h-16 w-16 items-center justify-center">
+        <div className="absolute inset-0 animate-spin rounded-full border-4 border-[#22b8aa]/20 border-t-[#22b8aa]" />
+        <div className="h-7 w-7 animate-pulse rounded-full bg-[#22b8aa]/20" />
+      </div>
+      <h3 className="text-lg font-black tracking-tight text-white sm:text-xl">飞书 Base 数据加载中...</h3>
+      <p className="mt-2 text-xs font-medium text-slate-400 sm:text-sm">正在实时与飞书后台连接通信，极速载入最新数据，请稍候</p>
+    </div>
+  );
+}
+
+function AdminModuleContent({ activeModule, data, isModuleLoading, onEditVehicle }: { activeModule: AdminModule; data: BootstrapData; isModuleLoading?: boolean; onEditVehicle: (vehicle: Vehicle) => void }) {
+  if (isModuleLoading) {
+    return <ModuleLoadingSkeleton />;
+  }
   switch (activeModule) {
     case "source_imports":
       return <AdminSourceImportsDemo />;
