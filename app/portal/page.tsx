@@ -2254,49 +2254,34 @@ function AdminVehicles({ data, onEdit }: { data: BootstrapData; onEdit: (vehicle
                   </div>
                 </header>
 
-                {/* 2级配置版本展开明细 */}
+                {/* 2级配置版本与车源批次明细 */}
                 {isExpanded && (
-                  <div className="grid gap-5 p-4 sm:p-5">
-                    <div>
-                      <div className="mb-3 flex items-center justify-between gap-3">
-                        <h3 className="text-sm font-black text-white">车源明细</h3>
-                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">客户可见合并结果</span>
-                      </div>
-                      <AdminTable
-                        headers={["年款", "版本/配置", "外部颜色", "数量", "供应", "周期/地点", "FOB"]}
-                        rows={item.offers.map((offer) => [
-                          offer.year || "-",
-                          compactJoin([offer.trim, offer.configuration]),
-                          formatColorPair(offer.exteriorColor, offer.interiorColor),
-                          offer.quantity > 0 ? `${offer.quantity} 台` : "-",
-                          <AdminStatusBadge key="supply" status={offer.supplyType} />,
-                          compactJoin([offer.leadTime || (offer.supplyType === "In Stock" ? "现车" : ""), offer.location]),
-                          offer.price ? `FOB ${formatUsdStrict(offer.price)}` : offer.priceLabel,
-                        ])}
-                        emptyText="暂无车源明细"
-                      />
+                  <div className="p-4 sm:p-5">
+                    <div className="mb-3 flex items-center justify-between gap-3">
+                      <h3 className="text-sm font-black text-white">车源批次明细</h3>
+                      <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">供应商与备案记录 ({rawVehicles.length} 条)</span>
                     </div>
-
-                    <div>
-                      <div className="mb-3 flex items-center justify-between gap-3">
-                        <h3 className="text-sm font-black text-[#22b8aa]">车源批次明细</h3>
-                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">供应商与备案信息</span>
-                      </div>
-                      <AdminTable
-                        headers={["资源 ID", "车型版本", "外部颜色", "内部颜色", "供应商/录入人", "地点", "库存/供应", "FOB/成本"]}
-                        rows={rawVehicles.map((vehicle) => [
-                          <span key="id" className="font-mono text-xs text-[#22b8aa]">{vehicle.id}</span>,
-                          vehicleName(vehicle),
-                          formatColorPair(vehicle.exteriorColor || vehicle.color, vehicle.interiorColor),
-                          compactJoin([vehicle.supplierExteriorColor, vehicle.supplierInteriorColor, vehicle.colorCode]),
-                          compactJoin([vehicle.supplier, vehicle.recorder]),
-                          vehicle.location || "-",
-                          compactJoin([vehicle.stockQuantity > 0 ? `${vehicle.stockQuantity} 台` : "", getSupplyType(vehicle), vehicle.status === "Preorder" ? vehicle.leadTime || "周期待确认" : vehicle.leadTime]),
-                          compactJoin([vehicle.partnerPrice ? `FOB ${formatUsdStrict(vehicle.partnerPrice)}` : formatUsd(vehicle.price), vehicle.cost ? `成本 ${formatUsdStrict(vehicle.cost)}` : ""]),
-                        ])}
-                        emptyText="暂无车源批次"
-                      />
-                    </div>
+                    <AdminTable
+                      headers={["资源 ID", "配置版本", "外观 / 内饰颜色", "地点 / 提车周期", "库存与状态", "供应商 / 录入人", "FOB 报价", "成本底价"]}
+                      rows={rawVehicles.map((vehicle) => [
+                        <span key="id" className="font-mono text-xs font-bold text-[#22b8aa]">{vehicle.id}</span>,
+                        compactJoin([vehicle.year ? `${vehicle.year}款` : "", vehicle.trim, vehicle.configuration]) || "-",
+                        formatColorPair(vehicle.exteriorColor || vehicle.color, vehicle.interiorColor),
+                        compactJoin([vehicle.location, vehicle.leadTime || (getSupplyType(vehicle) === "In Stock" ? "现车" : "")]),
+                        <div key="supply" className="flex items-center gap-2">
+                          <span className="font-bold text-white">{vehicle.stockQuantity > 0 ? `${vehicle.stockQuantity} 台` : "-"}</span>
+                          <AdminStatusBadge status={getSupplyType(vehicle)} />
+                        </div>,
+                        compactJoin([vehicle.supplier, vehicle.recorder]) || "-",
+                        <span key="fob" className="font-mono font-bold text-amber-400">
+                          {vehicle.partnerPrice ? `FOB ${formatUsdStrict(vehicle.partnerPrice)}` : vehicle.price ? formatUsd(vehicle.price) : "待询价"}
+                        </span>,
+                        <span key="cost" className="font-mono text-slate-400">
+                          {vehicle.cost ? formatUsdStrict(vehicle.cost) : "-"}
+                        </span>,
+                      ])}
+                      emptyText="暂无车源批次数据"
+                    />
                   </div>
                 )}
               </section>
