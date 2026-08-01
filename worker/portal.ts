@@ -525,7 +525,8 @@ function isInternalSession(session: PortalSession) {
 }
 
 function canSeePortalPrice(session: PortalSession) {
-  return isInternalSession(session) || session.priceTier === "partner" || session.priceTier === "vip" || session.priceTier === "internal";
+  // 所有成功登录 Port-User (admin, sales, partner, customer) 均可看到车源美金报价
+  return Boolean(session && session.user && session.user.id);
 }
 
 function isLocalRequest(request: Request) {
@@ -1471,7 +1472,7 @@ async function handleBootstrap(request: Request, env: Env) {
 
 async function handleGetCatalog(request: Request, env: Env) {
   const session = await requireSession(request, env);
-  const cacheKey = `catalog_v2:${session.role}:${session.customerId || "internal"}`;
+  const cacheKey = `catalog_v3:${session.role}:${session.customerId || "internal"}`;
   const cachedData = getCached(cacheKey);
   if (cachedData) {
     return json(cachedData);
@@ -1519,7 +1520,7 @@ async function handleGetCatalog(request: Request, env: Env) {
 
 async function handleGetVehicles(request: Request, env: Env) {
   const session = await requireSession(request, env);
-  const cacheKey = `vehicles_v2:${session.role}:${session.customerId || "internal"}`;
+  const cacheKey = `vehicles_v3:${session.role}:${session.customerId || "internal"}`;
   const cachedData = getCached(cacheKey);
   if (cachedData) {
     return json(cachedData);
