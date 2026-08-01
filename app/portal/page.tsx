@@ -2254,13 +2254,9 @@ function AdminVehicles({ data, onEdit }: { data: BootstrapData; onEdit: (vehicle
                   </div>
                 </header>
 
-                {/* 2级配置版本与车源批次明细 */}
+                {/* 2级配置版本与车源明细表格 */}
                 {isExpanded && (
                   <div className="p-4 sm:p-5">
-                    <div className="mb-3 flex items-center justify-between gap-3">
-                      <h3 className="text-sm font-black text-white">车源批次明细</h3>
-                      <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">供应商与备案记录 ({rawVehicles.length} 条)</span>
-                    </div>
                     <AdminTable
                       headers={["资源 ID", "配置版本", "外观 / 内饰颜色", "地点 / 提车周期", "库存与状态", "供应商 / 录入人", "FOB 报价", "成本底价"]}
                       rows={rawVehicles.map((vehicle) => [
@@ -2280,7 +2276,7 @@ function AdminVehicles({ data, onEdit }: { data: BootstrapData; onEdit: (vehicle
                           {vehicle.cost ? formatUsdStrict(vehicle.cost) : "-"}
                         </span>,
                       ])}
-                      emptyText="暂无车源批次数据"
+                      emptyText="暂无车源数据"
                     />
                   </div>
                 )}
