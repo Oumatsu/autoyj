@@ -1018,38 +1018,14 @@ function mapVehicleSource(record: FeishuRecord, canSeePrice: boolean): Record<st
   const intColor = asText(fields["内饰颜色"] ?? fields.interior_color);
   const colorStr = [extColor ? `Ext: ${extColor}` : "", intColor ? `Int: ${intColor}` : ""].filter(Boolean).join(" / ");
   
-  const fobUsd = 
-    asOptionalNumber(fields["FOB美金价"]) || 
-    asOptionalNumber(fields["FOB美金报价"]) || 
-    asOptionalNumber(fields["FOB美金"]) || 
-    asOptionalNumber(fields["FOB价格"]) || 
-    asOptionalNumber(fields["FOB价"]) || 
-    asOptionalNumber(fields.fob_usd) || 
-    asOptionalNumber(fields.fob_price) || 
-    asOptionalNumber(fields.cost_fob_usd);
-
-  const fcaUsd = 
-    asOptionalNumber(fields["FCA美金价"]) || 
-    asOptionalNumber(fields["FCA美金报价"]) || 
-    asOptionalNumber(fields["FCA美金"]) || 
-    asOptionalNumber(fields["FCA价格"]) || 
-    asOptionalNumber(fields["FCA价"]) || 
-    asOptionalNumber(fields.fca_usd) || 
-    asOptionalNumber(fields.fca_price);
-
-  const exwUsd = 
-    asOptionalNumber(fields["EXW美金价"]) || 
-    asOptionalNumber(fields["EXW美金报价"]) || 
-    asOptionalNumber(fields["EXW美金"]) || 
-    asOptionalNumber(fields["EXW价格"]) || 
-    asOptionalNumber(fields["EXW价"]) || 
-    asOptionalNumber(fields.exw_usd) || 
-    asOptionalNumber(fields.exw_price);
+  const fobUsd = asOptionalNumber(fields["FOB美金价"]) || asOptionalNumber(fields.fob_usd);
+  const exwUsd = asOptionalNumber(fields["EXW美金价"]) || asOptionalNumber(fields.exw_usd);
+  const fcaUsd = asOptionalNumber(fields["FCA美金价"]) || asOptionalNumber(fields.fca_usd);
 
   const priceTermsList: { term: string; amount: number }[] = [];
   if (fobUsd) priceTermsList.push({ term: "FOB", amount: fobUsd });
-  if (fcaUsd) priceTermsList.push({ term: "FCA", amount: fcaUsd });
   if (exwUsd) priceTermsList.push({ term: "EXW", amount: exwUsd });
+  if (fcaUsd) priceTermsList.push({ term: "FCA", amount: fcaUsd });
 
   if (priceTermsList.length === 0) {
     const generalVal = 
