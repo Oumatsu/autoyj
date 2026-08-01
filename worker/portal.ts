@@ -242,7 +242,25 @@ function asNumber(value: unknown) {
 
 function asOptionalNumber(value: unknown) {
   if (value === null || value === undefined || value === "") return null;
-  const number = Number(Array.isArray(value) ? value[0] : value);
+  let target = value;
+  if (typeof target === "object" && target !== null) {
+    if (Array.isArray(target)) {
+      target = target[0];
+    }
+    if (typeof target === "object" && target !== null && "text" in target) {
+      target = (target as { text: unknown }).text;
+    }
+  }
+  if (typeof target === "number") {
+    return Number.isFinite(target) ? target : null;
+  }
+  if (typeof target === "string") {
+    const cleaned = target.replace(/,/g, "").replace(/[^0-9.]/g, "");
+    if (!cleaned) return null;
+    const num = parseFloat(cleaned);
+    return Number.isFinite(num) ? num : null;
+  }
+  const number = Number(target);
   return Number.isFinite(number) ? number : null;
 }
 
@@ -1000,26 +1018,55 @@ function mapVehicleSource(record: FeishuRecord, canSeePrice: boolean): Record<st
   const intColor = asText(fields["内饰颜色"] ?? fields.interior_color);
   const colorStr = [extColor ? `Ext: ${extColor}` : "", intColor ? `Int: ${intColor}` : ""].filter(Boolean).join(" / ");
   
-  const fobUsd = asOptionalNumber(fields["FOB美金价"]);
-  const exwUsd = asOptionalNumber(fields["EXW美金价"]);
-  const fcaUsd = asOptionalNumber(fields["FCA美金价"]);
+  const fobUsd = 
+    asOptionalNumber(fields["FOB美金价"]) || 
+    asOptionalNumber(fields["FOB美金报价"]) || 
+    asOptionalNumber(fields["FOB美金"]) || 
+    asOptionalNumber(fields["FOB价格"]) || 
+    asOptionalNumber(fields["FOB价"]) || 
+    asOptionalNumber(fields.fob_usd) || 
+    asOptionalNumber(fields.fob_price) || 
+    asOptionalNumber(fields.cost_fob_usd);
+
+  const fcaUsd = 
+    asOptionalNumber(fields["FCA美金价"]) || 
+    asOptionalNumber(fields["FCA美金报价"]) || 
+    asOptionalNumber(fields["FCA美金"]) || 
+    asOptionalNumber(fields["FCA价格"]) || 
+    asOptionalNumber(fields["FCA价"]) || 
+    asOptionalNumber(fields.fca_usd) || 
+    asOptionalNumber(fields.fca_price);
+
+  const exwUsd = 
+    asOptionalNumber(fields["EXW美金价"]) || 
+    asOptionalNumber(fields["EXW美金报价"]) || 
+    asOptionalNumber(fields["EXW美金"]) || 
+    asOptionalNumber(fields["EXW价格"]) || 
+    asOptionalNumber(fields["EXW价"]) || 
+    asOptionalNumber(fields.exw_usd) || 
+    asOptionalNumber(fields.exw_price);
 
   const priceTermsList: { term: string; amount: number }[] = [];
   if (fobUsd) priceTermsList.push({ term: "FOB", amount: fobUsd });
   if (fcaUsd) priceTermsList.push({ term: "FCA", amount: fcaUsd });
   if (exwUsd) priceTermsList.push({ term: "EXW", amount: exwUsd });
 
-  const priceTerm = fobUsd ? "FOB" : fcaUsd ? "FCA" : exwUsd ? "EXW" : "FOB";
+  if (priceTermsList.length === 0) {
+    const generalVal = 
+      asOptionalNumber(fields["网站显示美金最低价"]) || 
+      asOptionalNumber(fields["外贸美金报价"]) || 
+      asOptionalNumber(fields["外贸报价"]) || 
+      asOptionalNumber(fields["美金报价"]) || 
+      asOptionalNumber(fields["网站显示最低价"]) || 
+      asOptionalNumber(fields.display_price_low) || 
+      null;
+    if (generalVal) {
+      priceTermsList.push({ term: "FOB", amount: generalVal });
+    }
+  }
 
-  const priceVal = 
-    fobUsd || 
-    fcaUsd || 
-    exwUsd || 
-    asOptionalNumber(fields["网站显示美金最低价"]) || 
-    asOptionalNumber(fields["网站显示最低价"]) || 
-    asOptionalNumber(fields.cost_fob_usd) || 
-    asOptionalNumber(fields.display_price_low) || 
-    null;
+  const priceTerm = priceTermsList[0]?.term || "FOB";
+  const priceVal = priceTermsList[0]?.amount || null;
 
   const stage = parseSourceStage(fields);
   const isApproved = stage === "connected";
