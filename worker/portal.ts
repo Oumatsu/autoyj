@@ -949,16 +949,66 @@ function mapVehicleModel(record: FeishuRecord): PortalVehicleModel {
   };
 }
 
+function computeAiConfidenceScore(fields: Record<string, unknown>): number {
+  let score = 1.0;
+  // 1. 外贸美金报价 (EXW/FCA/FOB 三者至少需有其一) -0.25
+  const hasPrice = Boolean(
+    asOptionalNumber(fields["FOB美金价"]) ||
+    asOptionalNumber(fields["EXW美金价"]) ||
+    asOptionalNumber(fields["FCA美金价"]) ||
+    asOptionalNumber(fields["网站显示美金最低价"]) ||
+    asOptionalNumber(fields["网站显示最低价"]) ||
+    asOptionalNumber(fields.cost_fob_usd) ||
+    asOptionalNumber(fields.display_price_low)
+  );
+  if (!hasPrice) score -= 0.25;
+
+  // 2. 细分型号 不能为空/未识别 -0.25
+  const trim = asText(fields["细分型号"] ?? fields.variant);
+  if (!trim || trim.includes("未识别")) score -= 0.25;
+
+  // 3. 供应商 不能为空/未识别 -0.15
+  const supplier = asText(fields["供应商"] ?? fields.supplier);
+  if (!supplier || supplier.includes("未识别")) score -= 0.15;
+
+  // 4. 品牌 不能为空/未识别 -0.15
+  const brand = asText(fields["品牌"] ?? fields.brand);
+  if (!brand || brand.includes("未识别")) score -= 0.15;
+
+  // 5. 型号 不能为空/未识别 -0.15
+  const model = asText(fields["型号"] ?? fields.model);
+  if (!model || model.includes("未识别")) score -= 0.15;
+
+  // 6. 车源地点 不能为空/未识别 -0.06
+  const location = asText(fields["批发地点"] ?? fields["车源地点"] ?? fields.location);
+  if (!location || location.includes("未识别")) score -= 0.06;
+
+  // 7. 左右舵 不能为空 -0.06
+  const steering = asText(fields["左右舵"] ?? fields.steering);
+  if (!steering || steering.includes("未识别")) score -= 0.06;
+
+  // 8. 国际国内版本 不能为空 -0.06
+  const marketVersion = asText(fields["国际国内版本（多选）"] ?? fields.market_version);
+  if (!marketVersion || marketVersion.includes("未识别")) score -= 0.06;
+
+  return Math.max(0, Math.round(score * 100) / 100);
+}
+
 function mapVehicleSource(record: FeishuRecord, canSeePrice: boolean): Record<string, unknown> {
   const fields = record.fields;
   const extColor = asText(fields["外饰颜色"] ?? fields.exterior_color);
   const intColor = asText(fields["内饰颜色"] ?? fields.interior_color);
   const colorStr = [extColor ? `Ext: ${extColor}` : "", intColor ? `Int: ${intColor}` : ""].filter(Boolean).join(" / ");
   
+  const fobUsd = asOptionalNumber(fields["FOB美金价"]);
+  const exwUsd = asOptionalNumber(fields["EXW美金价"]);
+  const fcaUsd = asOptionalNumber(fields["FCA美金价"]);
+  const priceTerm = fobUsd ? "FOB" : exwUsd ? "EXW" : fcaUsd ? "FCA" : "FOB";
+
   const priceVal = 
-    asOptionalNumber(fields["FOB美金价"]) || 
-    asOptionalNumber(fields["EXW美金价"]) || 
-    asOptionalNumber(fields["FCA美金价"]) || 
+    fobUsd || 
+    exwUsd || 
+    fcaUsd || 
     asOptionalNumber(fields["网站显示美金最低价"]) || 
     asOptionalNumber(fields["网站显示最低价"]) || 
     asOptionalNumber(fields.cost_fob_usd) || 
@@ -967,6 +1017,9 @@ function mapVehicleSource(record: FeishuRecord, canSeePrice: boolean): Record<st
 
   const stage = parseSourceStage(fields);
   const isApproved = stage === "connected";
+  const steeringVal = asText(fields["左右舵"] ?? fields.steering) || "左舵 LHD";
+  const marketVersionVal = asText(fields["国际国内版本（多选）"] ?? fields.market_version) || "国内版";
+  const computedConfidence = computeAiConfidenceScore(fields);
 
   return {
     id: asText(fields.record_id) || record.record_id,
@@ -980,7 +1033,7 @@ function mapVehicleSource(record: FeishuRecord, canSeePrice: boolean): Record<st
     trim: asText(fields["细分型号"] ?? fields.variant),
     year: asText(fields["生产年份"] ?? fields.manufacture_year ?? fields.year),
     month: asText(fields["生产月份"] ?? fields.month),
-    color: colorStr || "Standard",
+    color: colorStr || "随车/未指定",
     exteriorColor: extColor,
     interiorColor: intColor,
     supplierExteriorColor: "",
@@ -988,11 +1041,11 @@ function mapVehicleSource(record: FeishuRecord, canSeePrice: boolean): Record<st
     colorCode: "",
     colorNotes: "",
     colorConfirmed: true,
-    configuration: asText(fields["左右舵"] ?? fields.version_type ?? fields.steering_setup) || "",
-    steering: asText(fields["左右舵"] ?? fields.steering),
-    marketVersion: asText(fields["国际国内版本（多选）"] ?? fields.market_version),
+    configuration: asText(fields.version_type ?? fields.steering_setup) || "",
+    steering: steeringVal,
+    marketVersion: marketVersionVal,
     inventoryStatus: asText(fields["库存状态"] ?? fields.status_vehicle) || "现车",
-    location: asText(fields["批发地点"] ?? fields.location) || "China",
+    location: asText(fields["批发地点"] ?? fields["车源地点"] ?? fields.location) || "中国",
     status: asText(fields["库存状态"] ?? fields.status_vehicle) || "现车",
     exportStatus: "Available",
     stockQuantity: asNumber(fields["库存"] ?? fields.stock_quantity) || 0,
@@ -1011,14 +1064,15 @@ function mapVehicleSource(record: FeishuRecord, canSeePrice: boolean): Record<st
     partnerPrice: priceVal,
     customerPrice: priceVal,
     cost: asOptionalNumber(fields["人民币成本价"] ?? fields.supplier_price_cny),
-    exwUsd: asOptionalNumber(fields["EXW美金价"]),
-    fcaUsd: asOptionalNumber(fields["FCA美金价"]),
-    fobUsd: asOptionalNumber(fields["FOB美金价"]),
+    exwUsd,
+    fcaUsd,
+    fobUsd,
+    priceTerm,
     wholesaleLocation: asText(fields["批发地点"]),
-    aiConfidence: asOptionalNumber(fields["AI置信度"]),
+    aiConfidence: asOptionalNumber(fields["AI置信度"]) ?? computedConfidence,
     isListed: true,
     editableFields: [],
-    priceLabel: priceVal !== null ? `$${priceVal.toLocaleString()}` : "Inquire for price",
+    priceLabel: priceVal !== null ? `${priceTerm} $${priceVal.toLocaleString()}` : "待询价",
   };
 }
 
