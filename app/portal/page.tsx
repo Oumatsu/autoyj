@@ -2265,48 +2265,31 @@ function AdminVehicles({ data, onEdit }: { data: BootstrapData; onEdit: (vehicle
                 {isExpanded && (
                   <div className="p-4 sm:p-5">
                     <AdminTable
-                      headers={["资源 ID", "AI 置信度", "⭐ 美金报价 (必填)", "⭐ 细分型号 (必填)", "⭐ 供应商 (必填)", "⭐ 地点/版本 (必填)", "外饰/内饰 (可选)", "库存状态 (可选)"]}
-                      rows={rawVehicles.map((vehicle) => {
-                        const conf = vehicle.aiConfidence ?? 1.0;
-                        return [
-                          <span key="id" className="font-mono text-xs font-bold text-[#22b8aa]">{vehicle.id}</span>,
-                          <span
-                            key="conf"
-                            className={`rounded-md border px-2 py-0.5 font-mono text-[11px] font-black ${
-                              conf >= 1.0
-                                ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
-                                : conf >= 0.75
-                                ? "border-blue-500/30 bg-blue-500/10 text-blue-400"
-                                : "border-amber-500/30 bg-amber-500/10 text-amber-400"
-                            }`}
-                          >
-                            {conf.toFixed(2)} {conf >= 1.0 ? "满分" : conf >= 0.75 ? "高效" : "缺项"}
-                          </span>,
-                          <div key="price" className="flex flex-col gap-0.5">
-                            <span className="w-fit rounded-lg border border-amber-500/40 bg-amber-500/10 px-2.5 py-1 font-mono text-xs font-black text-amber-400 shadow-sm">
-                              {vehicle.price ? `${vehicle.priceTerm || "FOB"} ${formatUsdStrict(vehicle.price)}` : "⚠️ 缺失报价"}
-                            </span>
-                            {vehicle.cost ? <span className="font-mono text-[10px] text-slate-500">成本 {formatUsdStrict(vehicle.cost)}</span> : null}
-                          </div>,
-                          <strong key="trim" className="text-xs font-bold text-white">
-                            {compactJoin([vehicle.year ? `${vehicle.year}款` : "", vehicle.trim || "⚠️ 缺失细分型号", vehicle.configuration])}
-                          </strong>,
-                          <span key="supplier" className="text-xs font-medium text-slate-200">{vehicle.supplier || "⚠️ 未归类供应商"}</span>,
-                          <div key="loc" className="flex flex-col gap-0.5">
-                            <span className="text-xs font-medium text-slate-200">{vehicle.location || "⚠️ 未指定地点"}</span>
-                            <span className="text-[10px] font-bold text-[#5ee6d8]">
-                              {compactJoin([vehicle.steering || "左舵 LHD", vehicle.marketVersion || "国内版"])}
-                            </span>
-                          </div>,
-                          <span key="color" className="text-xs text-slate-400">
-                            {formatColorPair(vehicle.exteriorColor || vehicle.color, vehicle.interiorColor)}
-                          </span>,
-                          <div key="stock" className="flex items-center gap-1.5">
-                            <span className="text-xs text-slate-300">{vehicle.stockQuantity > 0 ? `${vehicle.stockQuantity} 台` : "有货/未公开"}</span>
-                            <AdminStatusBadge status={getSupplyType(vehicle)} />
-                          </div>,
-                        ];
-                      })}
+                      headers={["资源 ID", "美金报价", "配置版本", "车源地点", "左右舵 / 版本", "供应商", "外观 / 内饰颜色", "库存状态"]}
+                      rows={rawVehicles.map((vehicle) => [
+                        <span key="id" className="font-mono text-xs font-bold text-[#22b8aa]">{vehicle.id}</span>,
+                        <div key="price" className="flex flex-col gap-0.5">
+                          <span className="w-fit rounded-lg border border-amber-500/40 bg-amber-500/10 px-2.5 py-1 font-mono text-xs font-black text-amber-400 shadow-sm">
+                            {vehicle.price ? `${vehicle.priceTerm || "FOB"} ${formatUsdStrict(vehicle.price)}` : "待报价"}
+                          </span>
+                          {vehicle.cost ? <span className="font-mono text-[10px] text-slate-500">成本 {formatUsdStrict(vehicle.cost)}</span> : null}
+                        </div>,
+                        <strong key="trim" className="text-xs font-bold text-white">
+                          {compactJoin([vehicle.year ? `${vehicle.year}款` : "", vehicle.trim || "未指定配置", vehicle.configuration])}
+                        </strong>,
+                        <span key="loc" className="text-xs font-medium text-slate-200">{vehicle.location || "未指定地点"}</span>,
+                        <span key="spec" className="text-[11px] font-bold text-[#5ee6d8]">
+                          {compactJoin([vehicle.steering || "左舵 LHD", vehicle.marketVersion || "国内版"])}
+                        </span>,
+                        <span key="supplier" className="text-xs font-medium text-slate-200">{vehicle.supplier || "合作车商"}</span>,
+                        <span key="color" className="text-xs text-slate-400">
+                          {formatColorPair(vehicle.exteriorColor || vehicle.color, vehicle.interiorColor)}
+                        </span>,
+                        <div key="stock" className="flex items-center gap-1.5">
+                          <span className="text-xs text-slate-300">{vehicle.stockQuantity > 0 ? `${vehicle.stockQuantity} 台` : "现车/按需"}</span>
+                          <AdminStatusBadge status={getSupplyType(vehicle)} />
+                        </div>,
+                      ])}
                       emptyText="暂无车源数据"
                     />
                   </div>
