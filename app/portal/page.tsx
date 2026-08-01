@@ -146,6 +146,8 @@ type Vehicle = {
   priceLabel: string;
 };
 
+type PriceTerm = { term: string; amount: number };
+
 type SellableModel = {
   key: string;
   brand: string;
@@ -156,6 +158,8 @@ type SellableModel = {
   stockQuantity: number;
   preorderAvailable: boolean;
   fobPriceRange: string;
+  /** 汇总该车型所有 offer 中出现过的 FOB/EXW/FCA 价格区间 */
+  priceTermsSummary: PriceTerm[];
   offers: VehicleOffer[];
 };
 
@@ -213,6 +217,8 @@ type VehicleOffer = {
   location: string;
   price: number | null;
   priceLabel: string;
+  /** 该批次实际填写的 1~3 个价格项，来自 FOB/EXW/FCA 美金价 */
+  priceTermsList: PriceTerm[];
 };
 
 type Inquiry = {
@@ -910,7 +916,13 @@ export default function PortalPage() {
                   <div className="flex flex-wrap items-center gap-2 text-xs">
                     <PortalInventoryPill label="Stock" value={`${item.stockQuantity} units`} />
                     <PortalInventoryPill label="Supply" value={formatSupplySummary(item)} />
-                    <PortalInventoryPill label="FOB" value={item.fobPriceRange.replace(/^FOB\s*/i, "")} highlight />
+                    {item.priceTermsSummary.length > 0 ? (
+                      item.priceTermsSummary.map((pt) => (
+                        <PortalInventoryPill key={pt.term} label={pt.term} value={formatUsdStrict(pt.amount)} highlight />
+                      ))
+                    ) : (
+                      <PortalInventoryPill label="FOB" value={item.fobPriceRange.replace(/^FOB\s*/i, "")} highlight />
+                    )}
                     <PortalInventoryPill label="Sources" value={String(item.offers.length)} />
                   </div>
                   <button
@@ -1024,7 +1036,7 @@ export default function PortalPage() {
               <table className="w-full min-w-[760px] border-separate border-spacing-0 text-left text-sm">
                 <thead>
                   <tr>
-                    {["Year", "Trim / Config", "Color", "Qty", "Supply", "Lead Time", "Location", "FOB", "Action"].map((header) => (
+                    {["Year", "Trim / Config", "Color", "Qty", "Supply", "Lead Time", "Location", "报价", "Action"].map((header) => (
                       <th key={header} className="border-b border-white/10 px-3 py-3 text-[10px] font-black uppercase tracking-widest text-gray-500">
                         {header}
                       </th>
@@ -1044,7 +1056,28 @@ export default function PortalPage() {
                       <td className="border-b border-white/[.06] px-3 py-3 text-gray-300">{offer.supplyType}</td>
                       <td className="border-b border-white/[.06] px-3 py-3 text-gray-300">{offer.leadTime || (offer.supplyType === "In Stock" ? "Ready stock" : "-")}</td>
                       <td className="border-b border-white/[.06] px-3 py-3 text-gray-300">{offer.location || "-"}</td>
-                      <td className="border-b border-white/[.06] px-3 py-3 font-black text-accent">{offer.price ? `FOB ${formatUsdStrict(offer.price)}` : offer.priceLabel}</td>
+                      <td className="border-b border-white/[.06] px-3 py-3">
+                        {offer.priceTermsList.length > 0 ? (
+                          <div className="flex flex-col gap-1">
+                            {offer.priceTermsList.map((pt) => (
+                              <span
+                                key={pt.term}
+                                className={`w-fit font-mono text-xs font-black ${
+                                  pt.term === "FOB"
+                                    ? "text-amber-400"
+                                    : pt.term === "FCA"
+                                    ? "text-cyan-300"
+                                    : "text-emerald-300"
+                                }`}
+                              >
+                                {pt.term} {formatUsdStrict(pt.amount)}
+                              </span>
+                            ))}
+                          </div>
+                        ) : (
+                          <span className="font-mono text-xs font-black text-accent">{offer.priceLabel}</span>
+                        )}
+                      </td>
                       <td className="border-b border-white/[.06] px-3 py-3">
                         <button
                           type="button"
@@ -2249,9 +2282,28 @@ function AdminVehicles({ data, onEdit }: { data: BootstrapData; onEdit: (vehicle
                     </div>
                     <div className="text-right">
                       <span className="block text-[10px] uppercase tracking-wider text-slate-500">价格</span>
-                      <span className="font-mono font-black text-amber-400">
-                        {item.fobPriceRange ? item.fobPriceRange.replace(/^FOB\s*/i, "") : "待录入价格"}
-                      </span>
+                      {item.priceTermsSummary.length > 0 ? (
+                        <div className="flex flex-col items-end gap-0.5">
+                          {item.priceTermsSummary.map((pt) => (
+                            <span
+                              key={pt.term}
+                              className={`font-mono text-xs font-black ${
+                                pt.term === "FOB"
+                                  ? "text-amber-400"
+                                  : pt.term === "FCA"
+                                  ? "text-cyan-300"
+                                  : "text-emerald-300"
+                              }`}
+                            >
+                              {pt.term} {formatUsdStrict(pt.amount)}
+                            </span>
+                          ))}
+                        </div>
+                      ) : (
+                        <span className="font-mono font-black text-amber-400">
+                          {item.fobPriceRange ? item.fobPriceRange.replace(/^FOB\s*/i, "") : "待录入价格"}
+                        </span>
+                      )}
                     </div>
                     <button
                       type="button"
@@ -3300,6 +3352,7 @@ function buildSellableModels(data: BootstrapData): SellableModel[] {
         location: vehicle.location,
         price: getFobPrice(vehicle),
         priceLabel: vehicle.priceLabel,
+        priceTermsList: vehicle.priceTermsList ?? [],
       });
     }
   }
@@ -3310,9 +3363,33 @@ function buildSellableModels(data: BootstrapData): SellableModel[] {
         const stockRank = Number(b.supplyType === "In Stock") - Number(a.supplyType === "In Stock");
         return stockRank || (a.price || Number.MAX_SAFE_INTEGER) - (b.price || Number.MAX_SAFE_INTEGER);
       });
+
+      // 汇总该车型所有 offer 的 FOB/EXW/FCA 价格区间（取各 term 的最低~最高）
+      const termMap = new Map<string, { min: number; max: number }>();
+      for (const offer of offers) {
+        for (const pt of offer.priceTermsList) {
+          const existing = termMap.get(pt.term);
+          if (!existing) {
+            termMap.set(pt.term, { min: pt.amount, max: pt.amount });
+          } else {
+            existing.min = Math.min(existing.min, pt.amount);
+            existing.max = Math.max(existing.max, pt.amount);
+          }
+        }
+      }
+      const termOrder = ["FOB", "EXW", "FCA"];
+      const priceTermsSummary: PriceTerm[] = termOrder
+        .filter((t) => termMap.has(t))
+        .map((t) => {
+          const range = termMap.get(t)!;
+          // 取区间最低值代表该 term 的报价（用于卡片展示）
+          return { term: t, amount: range.min };
+        });
+
       return {
         ...item,
         offers,
+        priceTermsSummary,
         fobPriceRange: formatFobRange(offers.map((offer) => offer.price).filter((price): price is number => Boolean(price))),
       };
     })
