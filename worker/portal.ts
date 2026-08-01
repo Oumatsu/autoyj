@@ -1003,12 +1003,18 @@ function mapVehicleSource(record: FeishuRecord, canSeePrice: boolean): Record<st
   const fobUsd = asOptionalNumber(fields["FOB美金价"]);
   const exwUsd = asOptionalNumber(fields["EXW美金价"]);
   const fcaUsd = asOptionalNumber(fields["FCA美金价"]);
-  const priceTerm = fobUsd ? "FOB" : exwUsd ? "EXW" : fcaUsd ? "FCA" : "FOB";
+
+  const priceTermsList: { term: string; amount: number }[] = [];
+  if (fobUsd) priceTermsList.push({ term: "FOB", amount: fobUsd });
+  if (fcaUsd) priceTermsList.push({ term: "FCA", amount: fcaUsd });
+  if (exwUsd) priceTermsList.push({ term: "EXW", amount: exwUsd });
+
+  const priceTerm = fobUsd ? "FOB" : fcaUsd ? "FCA" : exwUsd ? "EXW" : "FOB";
 
   const priceVal = 
     fobUsd || 
-    exwUsd || 
     fcaUsd || 
+    exwUsd || 
     asOptionalNumber(fields["网站显示美金最低价"]) || 
     asOptionalNumber(fields["网站显示最低价"]) || 
     asOptionalNumber(fields.cost_fob_usd) || 
@@ -1068,6 +1074,7 @@ function mapVehicleSource(record: FeishuRecord, canSeePrice: boolean): Record<st
     fcaUsd,
     fobUsd,
     priceTerm,
+    priceTermsList: canSeePrice ? priceTermsList : [],
     wholesaleLocation: asText(fields["批发地点"]),
     aiConfidence: asOptionalNumber(fields["AI置信度"]) ?? computedConfidence,
     isListed: true,

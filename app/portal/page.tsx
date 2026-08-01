@@ -139,6 +139,7 @@ type Vehicle = {
   fcaUsd?: number | null;
   fobUsd?: number | null;
   priceTerm?: string;
+  priceTermsList?: { term: string; amount: number }[];
   aiConfidence?: number | null;
   isListed: boolean;
   editableFields: string[];
@@ -2268,10 +2269,29 @@ function AdminVehicles({ data, onEdit }: { data: BootstrapData; onEdit: (vehicle
                       headers={["资源 ID", "美金报价", "配置版本", "车源地点", "左右舵 / 版本", "供应商", "外观 / 内饰颜色", "库存状态"]}
                       rows={rawVehicles.map((vehicle) => [
                         <span key="id" className="font-mono text-xs font-bold text-[#22b8aa]">{vehicle.id}</span>,
-                        <div key="price" className="flex flex-col gap-0.5">
-                          <span className="w-fit rounded-lg border border-amber-500/40 bg-amber-500/10 px-2.5 py-1 font-mono text-xs font-black text-amber-400 shadow-sm">
-                            {vehicle.price ? `${vehicle.priceTerm || "FOB"} ${formatUsdStrict(vehicle.price)}` : "待报价"}
-                          </span>
+                        <div key="price" className="flex flex-col gap-1">
+                          {vehicle.priceTermsList && vehicle.priceTermsList.length > 0 ? (
+                            vehicle.priceTermsList.map((p) => (
+                              <span
+                                key={p.term}
+                                className={`w-fit rounded-lg border px-2.5 py-0.5 font-mono text-xs font-black shadow-sm ${
+                                  p.term === "FOB"
+                                    ? "border-amber-500/40 bg-amber-500/10 text-amber-400"
+                                    : p.term === "FCA"
+                                    ? "border-cyan-500/40 bg-cyan-500/10 text-cyan-300"
+                                    : "border-emerald-500/40 bg-emerald-500/10 text-emerald-300"
+                                }`}
+                              >
+                                {p.term} {formatUsdStrict(p.amount)}
+                              </span>
+                            ))
+                          ) : vehicle.price ? (
+                            <span className="w-fit rounded-lg border border-amber-500/40 bg-amber-500/10 px-2.5 py-0.5 font-mono text-xs font-black text-amber-400 shadow-sm">
+                              {vehicle.priceTerm || "FOB"} {formatUsdStrict(vehicle.price)}
+                            </span>
+                          ) : (
+                            <span className="text-xs text-slate-500">待报价</span>
+                          )}
                           {vehicle.cost ? <span className="font-mono text-[10px] text-slate-500">成本 {formatUsdStrict(vehicle.cost)}</span> : null}
                         </div>,
                         <strong key="trim" className="text-xs font-bold text-white">
