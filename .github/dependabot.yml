@@ -1,0 +1,73 @@
+version: 2
+updates:
+  # npm / bun 依赖安全更新
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Shanghai"
+    # 自动合并安全补丁（patch）和小版本（minor）
+    open-pull-requests-limit: 10
+    groups:
+      # Cloudflare 相关依赖打包为一个 PR
+      cloudflare:
+        patterns:
+          - "@cloudflare/*"
+          - "wrangler"
+          - "miniflare"
+      # React 生态打包
+      react:
+        patterns:
+          - "react"
+          - "react-dom"
+          - "react-server-dom-*"
+          - "@types/react*"
+      # Vite / 构建工具打包
+      build-tools:
+        patterns:
+          - "vite"
+          - "esbuild"
+          - "vinext"
+          - "postcss"
+          - "@vitejs/*"
+      # 测试工具打包
+      testing:
+        patterns:
+          - "vitest"
+          - "@testing-library/*"
+          - "playwright"
+          - "@playwright/*"
+      # Tolgee i18n 打包
+      tolgee:
+        patterns:
+          - "@tolgee/*"
+    # 忽略 major 版本升级（breaking changes 需人工审核）
+    ignore:
+      - dependency-name: "next"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "react"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "react-dom"
+        update-types: ["version-update:semver-major"]
+    labels:
+      - "dependencies"
+      - "security"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+
+  # GitHub Actions 工作流依赖
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Shanghai"
+    labels:
+      - "dependencies"
+      - "github-actions"
+    commit-message:
+      prefix: "ci"
