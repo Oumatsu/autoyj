@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  tolgee:
+    image: tolgee/tolgee:latest
+    container_name: tolgee_server
+    ports:
+      - "8085:8080"
+    environment:
+      TOLGEE_POSTGRES_HOST: db
+      TOLGEE_POSTGRES_PORT: 5432
+      TOLGEE_POSTGRES_DATABASE: tolgee
+      TOLGEE_POSTGRES_USER: tolgee
+      TOLGEE_POSTGRES_PASSWORD: tolgeepassword
+      TOLGEE_AUTHENTICATION_ENABLED: "true"
+      TOLGEE_JWT_SECRET: "autoyj-tolgee-jwt-secret-key-change-me"
+    depends_on:
+      - db
+    restart: unless-stopped
+
+  db:
+    image: postgres:15-alpine
+    container_name: tolgee_db
+    environment:
+      POSTGRES_DB: tolgee
+      POSTGRES_USER: tolgee
+      POSTGRES_PASSWORD: tolgeepassword
+    volumes:
+      - tolgee_db_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  tolgee_db_data:

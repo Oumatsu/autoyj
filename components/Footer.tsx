@@ -5,6 +5,7 @@ import Link from "next/link";
 import { QrDropdown } from "./QrDropdown";
 import { useTranslation } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
+import { Button } from "@/components/ui/button";
 
 export function Footer() {
   const [mobileFooterOpen, setMobileFooterOpen] = useState(false);

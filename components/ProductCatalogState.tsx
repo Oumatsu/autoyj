@@ -1,3 +1,6 @@
+import { Skeleton } from "@/components/ui/skeleton";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+
 export function ProductCatalogSkeleton() {
   return (
     <div
@@ -8,30 +11,30 @@ export function ProductCatalogSkeleton() {
       {Array.from({ length: 6 }, (_, index) => (
         <div
           key={index}
-          className="v-card-compact overflow-hidden pointer-events-none"
+          className="v-card-compact overflow-hidden pointer-events-none rounded-2xl border border-white/10 p-5 bg-[#0c1322]/50"
           aria-hidden="true"
         >
-          <div className="v-card-compact-img-wrap animate-pulse bg-white/[0.06]" />
-          <div className="v-card-compact-content animate-pulse">
-            <div className="flex justify-between gap-8 mb-8">
-              <div className="flex-1 space-y-3">
-                <div className="h-2 w-16 rounded-full bg-white/10" />
-                <div className="h-6 w-3/4 rounded bg-white/10" />
+          <Skeleton className="h-48 w-full rounded-xl mb-4" />
+          <div className="space-y-4">
+            <div className="flex justify-between gap-4">
+              <div className="flex-1 space-y-2">
+                <Skeleton className="h-3 w-16" />
+                <Skeleton className="h-6 w-3/4" />
               </div>
-              <div className="w-28 space-y-3">
-                <div className="ml-auto h-2 w-16 rounded-full bg-white/10" />
-                <div className="ml-auto h-5 w-24 rounded bg-white/10" />
+              <div className="w-24 space-y-2">
+                <Skeleton className="ml-auto h-3 w-12" />
+                <Skeleton className="ml-auto h-5 w-20" />
               </div>
             </div>
-            <div className="space-y-4">
+            <div className="space-y-3 pt-2">
               {Array.from({ length: 3 }, (_, row) => (
-                <div key={row} className="flex justify-between border-b border-white/[0.03] pb-3">
-                  <div className="h-2 w-20 rounded-full bg-white/[0.08]" />
-                  <div className="h-3 w-28 rounded-full bg-white/10" />
+                <div key={row} className="flex justify-between border-b border-white/5 pb-2">
+                  <Skeleton className="h-3 w-20" />
+                  <Skeleton className="h-3 w-28" />
                 </div>
               ))}
             </div>
-            <div className="mt-7 h-2 w-28 rounded-full bg-white/[0.08]" />
+            <Skeleton className="mt-4 h-3 w-32" />
           </div>
         </div>
       ))}
@@ -41,13 +44,10 @@ export function ProductCatalogSkeleton() {
 
 export function ProductCatalogUnavailable() {
   return (
-    <div
-      className="flex min-h-[360px] items-center justify-center rounded-2xl border border-white/[0.06] bg-black/20 px-6 text-center"
-      role="alert"
-    >
-      <p className="text-sm font-light text-gray-500">
+    <Alert variant="default" className="min-h-[200px] flex items-center justify-center text-center my-6">
+      <AlertDescription className="text-slate-400">
         Vehicle data is temporarily unavailable. Please refresh and try again.
-      </p>
-    </div>
+      </AlertDescription>
+    </Alert>
   );
 }

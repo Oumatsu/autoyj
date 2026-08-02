@@ -393,7 +393,7 @@ export function HeroSlider() {
                 </h1>
 
                 <p
-                  className="hidden min-[376px]:block text-xs lg:text-lg md:text-xl text-gray-500 mb-6 lg:mb-12 max-w-xl leading-relaxed italic border-l-2 pl-4 lg:pl-8"
+                  className="hidden sm:block text-xs md:text-lg lg:text-xl text-gray-500 mb-6 lg:mb-12 max-w-xl leading-relaxed italic border-l-2 pl-4 lg:pl-8"
                   style={{ borderColor: "rgba(197,160,89,.3)" }}
                 >
                   <span>{slide.sub}</span>

@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import am from "../../i18n/translations/am";
 import en from "../../i18n/translations/en";
 import zh from "../../i18n/translations/zh";
+import { specsData } from "../../i18n/data/specsData";
 
 function getDeepKeyPaths(obj: Record<string, any>, prefix = ""): Map<string, any> {
   let keys = new Map<string, any>();
@@ -30,9 +31,23 @@ describe("Unit: i18n Translation Completeness & Key Symmetry", () => {
   const enMap = getDeepKeyPaths(en);
   const amMap = getDeepKeyPaths(am);
 
-  test("ZH, EN, AM dictionaries have 100% identical translation key count", () => {
+  const zhSpecsMap = getDeepKeyPaths(specsData.zh);
+  const enSpecsMap = getDeepKeyPaths(specsData.en);
+  const amSpecsMap = getDeepKeyPaths(specsData.am);
+
+  test("Tolgee Core UI translation key count is streamlined and separated from productsDetail specs data", () => {
+    expect(zhMap.size).toBeLessThan(1500);
+    expect(zhSpecsMap.size).toBeGreaterThan(1000);
+  });
+
+  test("ZH, EN, AM dictionaries have 100% identical translation key count for UI keys", () => {
     expect(zhMap.size).toBe(enMap.size);
     expect(zhMap.size).toBe(amMap.size);
+  });
+
+  test("ZH, EN, AM specsData dictionaries have 100% identical translation key count for vehicle specs", () => {
+    expect(zhSpecsMap.size).toBe(enSpecsMap.size);
+    expect(zhSpecsMap.size).toBe(amSpecsMap.size);
   });
 
   test("English dictionary contains no missing keys compared to Chinese", () => {

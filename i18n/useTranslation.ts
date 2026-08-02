@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { useCallback, useMemo } from "react";
 import { Locale } from "./config";
 import { translations as staticTranslations } from "./translations";
+import { specsData } from "./data/specsData";
 import { getLocaleFromPath } from "./utils";
 import { resolveTranslationValue } from "./translationFallback";
 
@@ -21,6 +22,8 @@ export function useTranslation() {
         key,
         [
           staticTranslations[locale] as Record<string, unknown>,
+          (specsData[locale] || {}) as Record<string, unknown>,
+          (specsData.en || {}) as Record<string, unknown>,
           staticTranslations.en as Record<string, unknown>,
         ],
         fallback

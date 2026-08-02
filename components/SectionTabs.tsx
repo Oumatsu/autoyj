@@ -1,8 +1,9 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useTranslation } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
+import { Button } from "@/components/ui/button";
 
 const tabSectionIds = ["products", "solutions", "tco", "insights", "about"];
 

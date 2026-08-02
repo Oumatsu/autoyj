@@ -19,17 +19,23 @@
     "setup:feishu": "node scripts/setup-feishu-base.mjs",
     "sync:feishu-data": "node scripts/import-frontend-to-feishu.mjs",
     "sync:feishu-env": "node scripts/sync-feishu-env.mjs",
-    "setup:specs-dict": "node scripts/setup-specs-dict.mjs"
+    "setup:specs-dict": "node scripts/setup-specs-dict.mjs",
+    "tolgee:push": "bun run scripts/tolgee-sync.ts push",
+    "tolgee:pull": "bun run scripts/tolgee-sync.ts pull"
   },
   "dependencies": {
+    "@tolgee/react": "^7.1.3",
     "better-auth": "^1.6.25",
+    "clsx": "^2.1.1",
     "imagetracerjs": "^1.2.6",
+    "lucide-react": "^1.28.0",
     "next": "^16.0.0",
     "potrace": "^2.1.8",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "resend": "^6.12.4",
-    "sharp": "^0.34.5"
+    "sharp": "^0.34.5",
+    "tailwind-merge": "^3.6.0"
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "^1.36.3",

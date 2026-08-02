@@ -8,12 +8,14 @@ import { Navbar } from "./Navbar";
 import { getLocaleFromPath } from "@/i18n/utils";
 import { localeLabels } from "@/i18n/config";
 
+import { TolgeeWrapper } from "./TolgeeWrapper";
+
 export function SiteChrome({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const isPortal = pathname?.startsWith("/portal");
+  const locale = getLocaleFromPath(pathname);
 
   useEffect(() => {
-    const locale = getLocaleFromPath(pathname);
     document.documentElement.lang = locale;
     document.documentElement.dir = localeLabels[locale].dir;
     
@@ -28,13 +30,13 @@ export function SiteChrome({ children }: { children: ReactNode }) {
       document.documentElement.classList.add("font-sans");
       document.documentElement.classList.remove("font-inter", "font-ethiopic");
     }
-  }, [pathname]);
+  }, [pathname, locale]);
 
   return (
-    <>
+    <TolgeeWrapper locale={locale}>
       {!isPortal && <Navbar />}
       {children}
       {!isPortal && <Footer />}
-    </>
+    </TolgeeWrapper>
   );
 }

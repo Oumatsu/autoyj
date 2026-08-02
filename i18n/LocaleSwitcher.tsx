@@ -4,6 +4,8 @@ import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Locale, localeLabels, locales } from "./config";
 import { getLocaleFromPath } from "./utils";
+import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 
 export function LocaleSwitcher() {
   const pathname = usePathname();
@@ -32,14 +34,15 @@ export function LocaleSwitcher() {
   };
 
   return (
-    <div className="relative">
-      <button
-        type="button"
+    <DropdownMenu open={open} onOpenChange={setOpen}>
+      <Button
+        variant="outline"
+        size="sm"
         onClick={() => setOpen((v) => !v)}
-        className="flex items-center gap-1.5 px-3 py-2 rounded-full text-[11px] font-black tracking-widest uppercase transition border border-white/20 text-gray-300 hover:text-white hover:border-white/40"
+        className="rounded-full gap-1.5 px-3 py-1.5 font-mono uppercase tracking-widest text-[11px]"
         aria-label={localeLabels[currentLocale].name}
       >
-        <span className="text-base leading-none">{current.flag}</span>
+        <span className="text-sm leading-none">{current.flag}</span>
         <span>{current.code}</span>
         <svg
           className={`w-3 h-3 ml-0.5 transition-transform ${open ? "rotate-180" : ""}`}
@@ -50,40 +53,28 @@ export function LocaleSwitcher() {
         >
           <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
         </svg>
-      </button>
+      </Button>
 
-      {open && (
-        <>
-          <div
-            className="fixed inset-0 z-40"
-            onClick={() => setOpen(false)}
-            aria-hidden="true"
-          />
-          <div className="absolute right-0 top-full mt-2 z-50 min-w-[120px] rounded-[14px] border border-white/10 bg-[#0b0b0f]/95 backdrop-blur-xl shadow-2xl overflow-hidden">
-            {locales.map((locale) => {
-              const label = localeLabels[locale];
-              return (
-                <button
-                  key={locale}
-                  type="button"
-                  onClick={() => switchLocale(locale)}
-                  className={`w-full flex items-center gap-2 px-4 py-3 text-left text-xs font-bold tracking-widest uppercase transition ${
-                    locale === currentLocale
-                      ? "text-white bg-white/10"
-                      : "text-gray-400 hover:text-white hover:bg-white/5"
-                  }`}
-                >
-                  <span className="text-base leading-none">{label.flag}</span>
-                  <span>{label.code}</span>
-                  <span className="ml-auto text-[10px] font-medium normal-case tracking-normal opacity-70">
-                    {label.name}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </>
-      )}
-    </div>
+      <DropdownMenuContent open={open} align="end" className="min-w-[140px] p-1 rounded-2xl">
+        {locales.map((locale) => {
+          const label = localeLabels[locale];
+          const isActive = locale === currentLocale;
+          return (
+            <DropdownMenuItem
+              key={locale}
+              active={isActive}
+              onClick={() => switchLocale(locale)}
+              className="py-2 px-3 text-xs"
+            >
+              <span className="text-sm leading-none">{label.flag}</span>
+              <span>{label.code}</span>
+              <span className="ml-auto text-[10px] opacity-70">
+                {label.name}
+              </span>
+            </DropdownMenuItem>
+          );
+        })}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

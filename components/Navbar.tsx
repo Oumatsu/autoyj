@@ -7,6 +7,8 @@ import { QrDropdown } from "./QrDropdown";
 import { useTranslation } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
 import { LocaleSwitcher } from "@/i18n/LocaleSwitcher";
+import { Sheet, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
 
 export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -190,7 +192,7 @@ export function Navbar() {
                 : "border-white/20 text-gray-300 hover:text-white hover:border-white/40"
             }`}
           >
-            {user ? `${user.role.toUpperCase()}` : "SIGN IN"}
+            {user ? `${user.role.toUpperCase()}` : t("nav.signIn")}
           </a>
           <QrDropdown>
             <LocaleLink
@@ -218,29 +220,34 @@ export function Navbar() {
         </button>
       </nav>
 
-      {mobileOpen && (
-        <div
-          className="fixed inset-0 z-40 flex flex-col items-center justify-center gap-6 sm:gap-8 text-xl sm:text-2xl font-black uppercase italic tracking-tight overflow-y-auto pt-16 pb-8 px-6"
-          style={{ background: "rgba(5,5,5,.97)" }}
-        >
-          <button
+      <Sheet open={mobileOpen} onOpenChange={setMobileOpen} side="right">
+        <div className="flex items-center justify-between border-b border-white/10 pb-4">
+          <SheetHeader>
+            <SheetTitle>AUTO YJ</SheetTitle>
+          </SheetHeader>
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={closeMobile}
-            className="absolute top-5 right-5 sm:right-6 w-10 h-10 flex items-center justify-center text-2xl sm:text-3xl text-gray-400 hover:text-white transition rounded-full"
+            className="text-slate-400 hover:text-white"
           >
             ✕
-          </button>
-          <div className="w-full max-w-sm flex flex-col items-center">
+          </Button>
+        </div>
+
+        <div className="flex flex-col gap-6 py-6 text-lg font-black uppercase tracking-tight">
+          <div className="w-full flex flex-col">
             <button
               type="button"
               onClick={() => setMobileVehiclesOpen((prev) => !prev)}
               aria-expanded={mobileVehiclesOpen}
-              className={`flex w-full items-center justify-center gap-3 text-xl sm:text-2xl font-black uppercase italic tracking-tight transition-all duration-300 ${mobileVehiclesOpen
-                ? "text-accent"
-                : "text-white hover:text-theme"}`}
+              className={`flex w-full items-center justify-between text-lg font-black uppercase tracking-tight transition-all ${
+                mobileVehiclesOpen ? "text-[#5ee6d8]" : "text-white hover:text-[#5ee6d8]"
+              }`}
             >
               <span>{t("nav.vehicles")}</span>
               <svg
-                className={`h-3 w-3 transition-transform duration-300 ${mobileVehiclesOpen ? "rotate-180" : ""}`}
+                className={`h-4 w-4 transition-transform duration-200 ${mobileVehiclesOpen ? "rotate-180" : ""}`}
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="2.5"
@@ -249,104 +256,74 @@ export function Navbar() {
                 <path d="M1 1l4 4 4-4" />
               </svg>
             </button>
-            <div
-              className={`grid w-full transition-all duration-400 ease-out ${mobileVehiclesOpen ? "grid-rows-[1fr] opacity-100 mt-3" : "grid-rows-[0fr] opacity-0 mt-0"}`}
-            >
-              <div className="overflow-hidden flex justify-center">
-                <div
-                  className={`inline-flex min-w-0 flex-col rounded-[12px] border border-white/10 bg-white/[0.06] p-0.5 text-[11px] sm:text-[12px] font-bold not-italic tracking-[.06em] uppercase transition-all duration-300 ${mobileVehiclesOpen ? "translate-y-0 scale-100" : "-translate-y-2 scale-[0.98]"}`}
+
+            {mobileVehiclesOpen && (
+              <div className="mt-3 flex flex-col gap-2 rounded-xl border border-white/10 bg-white/[0.04] p-3 text-xs font-bold uppercase tracking-wider">
+                <LocaleLink
+                  href="/products/revenue-king"
+                  onClick={closeMobile}
+                  className={`flex items-center justify-between rounded-lg px-3 py-2 transition ${
+                    pathname?.includes("/revenue-king") ? "bg-[#22b8aa]/20 text-[#5ee6d8]" : "text-slate-300 hover:text-white"
+                  }`}
                 >
-                  <LocaleLink
-                    href="/products/revenue-king"
-                    onClick={closeMobile}
-                    className={`flex items-center justify-between gap-4 rounded-[9px] pl-1.5 pr-2 py-1.5 transition-all duration-200 ${pathname?.includes("/revenue-king")
-                      ? "bg-accent/12 text-accent"
-                      : "text-gray-300 hover:bg-white/6 hover:text-white"}`}
-                  >
-                    <span>{t("nav.revenueKing")}</span>
-                    <span
-                      className={`h-1.5 w-1.5 shrink-0 rounded-full ${pathname?.includes("/revenue-king") ? "bg-accent" : "bg-white/20"}`}
-                    />
-                  </LocaleLink>
-                  <LocaleLink
-                    href="/products/elite-flagship"
-                    onClick={closeMobile}
-                    className={`mt-0.5 flex items-center justify-between gap-4 rounded-[9px] pl-1.5 pr-2 py-1.5 transition-all duration-200 ${pathname?.includes("/elite-flagship")
-                      ? "bg-accent/12 text-accent"
-                      : "text-gray-300 hover:bg-white/6 hover:text-white"}`}
-                  >
-                    <span>{t("nav.eliteFlagship")}</span>
-                    <span
-                      className={`h-1.5 w-1.5 shrink-0 rounded-full ${pathname?.includes("/elite-flagship") ? "bg-accent" : "bg-white/20"}`}
-                    />
-                  </LocaleLink>
-                  <LocaleLink
-                    href="/products/utility-pro"
-                    onClick={closeMobile}
-                    className={`mt-0.5 flex items-center justify-between gap-4 rounded-[9px] pl-1.5 pr-2 py-1.5 transition-all duration-200 ${pathname?.includes("/utility-pro")
-                      ? "bg-accent/12 text-accent"
-                      : "text-gray-300 hover:bg-white/6 hover:text-white"}`}
-                  >
-                    <span>{t("nav.utilityPro")}</span>
-                    <span
-                      className={`h-1.5 w-1.5 shrink-0 rounded-full ${pathname?.includes("/utility-pro") ? "bg-accent" : "bg-white/20"}`}
-                    />
-                  </LocaleLink>
-                </div>
+                  <span>{t("nav.revenueKing")}</span>
+                  <span className={`h-1.5 w-1.5 rounded-full ${pathname?.includes("/revenue-king") ? "bg-[#5ee6d8]" : "bg-white/20"}`} />
+                </LocaleLink>
+                <LocaleLink
+                  href="/products/elite-flagship"
+                  onClick={closeMobile}
+                  className={`flex items-center justify-between rounded-lg px-3 py-2 transition ${
+                    pathname?.includes("/elite-flagship") ? "bg-[#22b8aa]/20 text-[#5ee6d8]" : "text-slate-300 hover:text-white"
+                  }`}
+                >
+                  <span>{t("nav.eliteFlagship")}</span>
+                  <span className={`h-1.5 w-1.5 rounded-full ${pathname?.includes("/elite-flagship") ? "bg-[#5ee6d8]" : "bg-white/20"}`} />
+                </LocaleLink>
+                <LocaleLink
+                  href="/products/utility-pro"
+                  onClick={closeMobile}
+                  className={`flex items-center justify-between rounded-lg px-3 py-2 transition ${
+                    pathname?.includes("/utility-pro") ? "bg-[#22b8aa]/20 text-[#5ee6d8]" : "text-slate-300 hover:text-white"
+                  }`}
+                >
+                  <span>{t("nav.utilityPro")}</span>
+                  <span className={`h-1.5 w-1.5 rounded-full ${pathname?.includes("/utility-pro") ? "bg-[#5ee6d8]" : "bg-white/20"}`} />
+                </LocaleLink>
               </div>
-            </div>
+            )}
           </div>
-          <LocaleLink
-            href="/solutions"
-            onClick={closeMobile}
-            className="text-white hover:text-theme transition"
-          >
+
+          <LocaleLink href="/solutions" onClick={closeMobile} className="text-white hover:text-[#5ee6d8] transition">
             {t("nav.solutions")}
           </LocaleLink>
-          <LocaleLink
-            href="/insights"
-            onClick={closeMobile}
-            className="text-white hover:text-theme transition"
-          >
+          <LocaleLink href="/insights" onClick={closeMobile} className="text-white hover:text-[#5ee6d8] transition">
             {t("nav.insights")}
           </LocaleLink>
-          <LocaleLink
-            href="/academy"
-            onClick={closeMobile}
-            className="text-white hover:text-theme transition"
-          >
+          <LocaleLink href="/academy" onClick={closeMobile} className="text-white hover:text-[#5ee6d8] transition">
             {t("nav.academy")}
           </LocaleLink>
-          <LocaleLink
-            href="/about"
-            onClick={closeMobile}
-            className="text-white hover:text-theme transition"
-          >
+          <LocaleLink href="/about" onClick={closeMobile} className="text-white hover:text-[#5ee6d8] transition">
             {t("nav.about")}
           </LocaleLink>
-          <a
-            href="/dashboard"
-            onClick={closeMobile}
-            className="text-accent hover:text-white transition"
-          >
-            {user ? user.role.toUpperCase() : "SIGN IN"}
+
+          <a href="/dashboard" onClick={closeMobile} className="text-[#5ee6d8] hover:text-white transition">
+            {user ? user.role.toUpperCase() : t("nav.signIn")}
           </a>
-          <LocaleLink
-            href="/about#verification"
-            onClick={closeMobile}
-            className="text-white hover:text-theme transition"
-          >
+
+          <LocaleLink href="/about#verification" onClick={closeMobile} className="text-slate-400 hover:text-white transition text-xs">
             {t("footer.companyVerification")}
           </LocaleLink>
-          <LocaleLink
-            href="/#contact"
-            onClick={closeMobile}
-            className="mt-4 btn-primary px-10 sm:px-12 py-3 sm:py-4 rounded text-xs sm:text-sm tracking-widest w-48 sm:w-auto text-center"
-          >
-            {t("nav.contactUs")}
+        </div>
+
+        <div className="mt-auto border-t border-white/10 pt-4 flex flex-col gap-3">
+          <LocaleSwitcher />
+          <LocaleLink href="/#contact" onClick={closeMobile}>
+            <Button className="w-full" variant="default">
+              {t("nav.contactUs")}
+            </Button>
           </LocaleLink>
         </div>
-      )}
+      </Sheet>
     </>
   );
 }

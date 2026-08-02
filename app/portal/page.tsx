@@ -2,6 +2,22 @@
 
 import React, { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
+import { Select } from "@/components/ui/select";
+import { Dialog, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
+import { Progress } from "@/components/ui/progress";
+import { useTranslation } from "@/i18n/useTranslation";
 
 type PortalRole = "admin" | "sales" | "sourcing" | "finance" | "partner" | "customer";
 type PriceTier = "hidden" | "partner" | "vip" | "internal";
@@ -184,10 +200,6 @@ type ModelComparisonRow = {
   values: Record<string, string>;
 };
 
-type ModelProfileRoute =
-  | { view: "list" }
-  | { view: "detail"; groupKey: string }
-  | { view: "comparison"; groupKey: string; variantId: string };
 
 type VariantDifferenceStep = {
   variant: VehicleModel;
@@ -1190,59 +1202,70 @@ function AdminPortal({
   return (
     <main className="min-h-screen overflow-x-hidden bg-[#0c1322] text-slate-100">
       <div className="grid min-h-screen min-w-0 lg:grid-cols-[300px_minmax(0,1fr)]">
-        <aside className="border-b border-white/10 bg-[#101827] px-4 py-5 lg:sticky lg:top-0 lg:h-screen lg:border-b-0 lg:border-r lg:px-5">
-          <div className="flex items-center gap-4 border-b border-white/10 pb-6">
-            <div className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-[#22b8aa] text-2xl font-black text-[#0c1322]">
-              EV
+        <aside className="border-b border-white/10 bg-[#101827] px-4 py-5 lg:sticky lg:top-0 lg:h-screen lg:border-b-0 lg:border-r lg:px-5 flex flex-col justify-between">
+          <div>
+            <div className="flex items-center gap-4 border-b border-white/10 pb-6">
+              <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-[#22b8aa] text-xl font-black text-[#0c1322]">
+                EV
+              </div>
+              <div className="min-w-0">
+                <strong className="block truncate text-lg font-black tracking-tight text-white">出口管理系统</strong>
+                <span className="mt-0.5 block text-xs font-medium text-slate-400">China / Ethiopia</span>
+              </div>
             </div>
-            <div className="min-w-0">
-              <strong className="block truncate text-xl font-black tracking-tight text-white">出口管理系统</strong>
-              <span className="mt-1 block text-sm font-medium text-slate-400">China / Ethiopia</span>
-            </div>
+
+            <nav className="mt-5 grid gap-1.5">
+              {visibleNav.map((item) => {
+                const isActive = item.key === normalizedActiveModule;
+                return (
+                  <a
+                    key={item.key}
+                    href={`/dashboard?tab=${item.key}`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      onModuleChange(item.key);
+                    }}
+                    className={`flex min-h-11 items-center justify-between gap-2 rounded-xl px-3.5 py-2.5 text-left text-sm font-bold transition cursor-pointer ${
+                      isActive
+                        ? "bg-[#22b8aa]/15 text-[#5ee6d8] shadow-[inset_3px_0_0_#22b8aa]"
+                        : "text-slate-400 hover:bg-white/[.06] hover:text-white"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <AdminNavIcon name={item.icon} />
+                      <span className="truncate">{item.label}</span>
+                    </div>
+                    {item.badge && (
+                      <Badge variant={item.badge === "预览" ? "accent" : "amber"}>
+                        {item.badge}
+                      </Badge>
+                    )}
+                  </a>
+                );
+              })}
+            </nav>
           </div>
 
-          <nav className="mt-5 grid gap-2">
-            {visibleNav.map((item) => {
-              const isActive = item.key === normalizedActiveModule;
-              return (
-                <a
-                  key={item.key}
-                  href={`/dashboard?tab=${item.key}`}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    onModuleChange(item.key);
-                  }}
-                  className={`flex min-h-12 items-center justify-between gap-2 rounded-xl px-4 py-3 text-left text-base font-bold transition ${
-                    isActive
-                      ? "bg-white/10 text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,.08)]"
-                      : "text-slate-400 hover:bg-white/[.06] hover:text-white"
-                  }`}
-                >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <AdminNavIcon name={item.icon} />
-                    <span className="truncate">{item.label}</span>
-                  </div>
-                  {item.badge && (
-                    <span className={`shrink-0 rounded-md px-2 py-0.5 text-[11px] font-semibold ${item.badge === "预览" ? "border border-[#22b8aa]/30 bg-[#22b8aa]/10 text-[#5ee6d8]" : "border border-amber-500/30 bg-amber-500/10 text-amber-400"}`}>
-                      {item.badge}
-                    </span>
-                  )}
-                </a>
-              );
-            })}
-          </nav>
-
-          <div className="mt-6 rounded-xl border border-white/10 bg-white/[.04] p-4">
-            <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Current account</p>
-            <strong className="mt-2 block truncate text-sm text-white">{data.user.name || data.user.email}</strong>
-            <p className="mt-1 text-xs text-slate-400">{adminRoleLabels[data.user.role]} / {data.user.accountType} / {data.user.email}</p>
-            <button
-              type="button"
+          <div className="mt-6 rounded-2xl border border-white/10 bg-white/[.04] p-4">
+            <div className="flex items-center gap-3">
+              <Avatar className="h-10 w-10">
+                <AvatarFallback>
+                  {(data.user.name || data.user.email || "U").slice(0, 2).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <div className="min-w-0 flex-1">
+                <strong className="block truncate text-xs font-black text-white">{data.user.name || data.user.email}</strong>
+                <p className="truncate text-[10px] text-slate-400">{adminRoleLabels[data.user.role]} · {data.user.accountType}</p>
+              </div>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
               onClick={() => void onLogout()}
-              className="mt-4 w-full rounded-lg border border-white/10 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-slate-300 transition hover:border-white/30 hover:text-white"
+              className="mt-3 w-full"
             >
               退出登录
-            </button>
+            </Button>
           </div>
         </aside>
 
@@ -1261,7 +1284,11 @@ function AdminPortal({
             </div>
           </header>
 
-          {error && <p className="mb-5 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm font-bold text-red-300">{error}</p>}
+          {error && (
+            <Alert variant="destructive" className="mb-5">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
 
           <AdminModuleContent activeModule={normalizedActiveModule} data={data} isModuleLoading={isModuleLoading} onEditVehicle={setEditingVehicle} />
         </section>
@@ -1324,36 +1351,37 @@ function AdminModuleContent({ activeModule, data, isModuleLoading, onEditVehicle
 }
 
 function AdminSourceImportsDemo() {
+  const { t } = useTranslation();
   return (
     <div className="grid min-w-0 gap-6">
       <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-5 text-amber-300">
         <div className="flex items-center gap-3">
-          <span className="rounded-md bg-amber-400 px-2 py-0.5 text-xs font-black uppercase text-black">开发中 / Demo</span>
-          <h2 className="text-lg font-black tracking-tight text-white">车源录入与审查静态设计（开发中）</h2>
+          <span className="rounded-md bg-amber-400 px-2 py-0.5 text-xs font-black uppercase text-black">{t("portal.stepInDev")} / Demo</span>
+          <h2 className="text-lg font-black tracking-tight text-white">{t("portal.demoTitle")}</h2>
         </div>
         <p className="mt-2 text-xs text-amber-200/80">
-          包含批量素材上传、AI/OCR 中间产物解析、重合度风险判定警报、车源候选列表及审查抽屉预演界面。
+          {t("portal.demoDesc")}
         </p>
       </div>
 
       <section className="grid gap-4 md:grid-cols-4">
         <div className="rounded-xl border border-white/10 bg-white/[.04] p-4">
-          <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">待审查素材</span>
+          <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">{t("portal.pendingAssets")}</span>
           <strong className="mt-2 block text-2xl font-black text-white">12 份</strong>
           <span className="mt-1 block text-xs text-slate-400">PDF / 图片 / 微信聊天记录</span>
         </div>
         <div className="rounded-xl border border-white/10 bg-white/[.04] p-4">
-          <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">AI 解析完成度</span>
+          <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">{t("portal.aiParsingProgress")}</span>
           <strong className="mt-2 block text-2xl font-black text-[#22b8aa]">98.5%</strong>
           <span className="mt-1 block text-xs text-slate-400">结合 Nemotron / GPT 视觉模型</span>
         </div>
         <div className="rounded-xl border border-white/10 bg-white/[.04] p-4">
-          <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">疑似重复车源警报</span>
+          <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">{t("portal.duplicateAlert")}</span>
           <strong className="mt-2 block text-2xl font-black text-amber-400">2 组</strong>
           <span className="mt-1 block text-xs text-amber-300/80">同 VIN / 车架号交叉校验</span>
         </div>
         <div className="rounded-xl border border-white/10 bg-white/[.04] p-4">
-          <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">已入库待发布</span>
+          <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">{t("portal.readyToPublish")}</span>
           <strong className="mt-2 block text-2xl font-black text-white">35 台</strong>
           <span className="mt-1 block text-xs text-slate-400">符合出口 PDI 准备标准</span>
         </div>
@@ -1361,30 +1389,30 @@ function AdminSourceImportsDemo() {
 
       <div className="grid gap-5 xl:grid-cols-2">
         <div className="rounded-2xl border border-white/10 bg-white/[.03] p-5">
-          <h3 className="text-base font-black text-white">批量素材导入与智能识别 (Demo)</h3>
+          <h3 className="text-base font-black text-white">{t("portal.batchImportTitle")}</h3>
           <p className="mt-1 text-xs text-slate-400">支持拖拽 Excel、车辆识别登记表、供应商朋友圈图片或微信截图</p>
           <div className="mt-4 grid h-36 place-items-center rounded-xl border border-dashed border-white/20 bg-black/20 text-center">
             <div>
-              <p className="text-xs font-bold text-slate-300">点击或将车源资料文件拖拽至此处</p>
+              <p className="text-xs font-bold text-slate-300">{t("portal.dropFilesHere")}</p>
               <p className="mt-1 text-[10px] text-slate-500">自动提取 VIN、外观/内饰颜色、指导价、车商报价与定金要求</p>
             </div>
           </div>
         </div>
 
         <div className="rounded-2xl border border-white/10 bg-white/[.03] p-5">
-          <h3 className="text-base font-black text-white">审查工作流提示 (Workflow Preview)</h3>
+          <h3 className="text-base font-black text-white">{t("portal.workflowPreviewTitle")}</h3>
           <div className="mt-4 grid gap-3 text-xs text-slate-300">
             <div className="flex items-center justify-between rounded-lg border border-white/10 bg-black/20 p-3">
               <span>1. 原始凭证采集 (Excel / 图片 OCR)</span>
-              <span className="text-[#22b8aa] font-bold">通过</span>
+              <span className="text-[#22b8aa] font-bold">{t("portal.stepPassed")}</span>
             </div>
             <div className="flex items-center justify-between rounded-lg border border-white/10 bg-black/20 p-3">
               <span>2. 结构化字段映射 (字段校验无空格)</span>
-              <span className="text-[#22b8aa] font-bold">通过</span>
+              <span className="text-[#22b8aa] font-bold">{t("portal.stepPassed")}</span>
             </div>
             <div className="flex items-center justify-between rounded-lg border border-white/10 bg-black/20 p-3">
               <span>3. 多维表格 `vehicle_sources` 增量同步</span>
-              <span className="text-amber-400 font-bold">开发中</span>
+              <span className="text-amber-400 font-bold">{t("portal.stepInDev")}</span>
             </div>
           </div>
         </div>
@@ -1394,6 +1422,7 @@ function AdminSourceImportsDemo() {
 }
 
 function AdminDashboard({ data }: { data: BootstrapData }) {
+  const { t } = useTranslation();
   // 按车型去重取最大库存（同车型不同颜色共享库存池，不能累加）
   const stockByModel = new Map<string, number>();
   for (const v of data.vehicles) {
@@ -1411,16 +1440,16 @@ function AdminDashboard({ data }: { data: BootstrapData }) {
   return (
     <div className="grid min-w-0 gap-5">
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <AdminStat label="车型库" value={String(modelCount)} note={`${data.vehicles.length} 条车源 / ${totalStock} 台库存`} />
-        <AdminStat label="询价单" value={String(data.inquiries.length)} note={`${latestInquiries.length} 条近期动态`} />
-        <AdminStat label="报价版本" value={String(data.quotes.length)} note={formatUsdStrict(quoteValue)} />
-        <AdminStat label="订单" value={String(data.orders.length)} note={formatUsdStrict(data.orders.reduce((sum, order) => sum + order.total, 0))} />
+        <AdminStat label={t("portal.modelRepo")} value={String(modelCount)} note={`${data.vehicles.length} 条车源 / ${totalStock} 台库存`} />
+        <AdminStat label={t("portal.inquiries")} value={String(data.inquiries.length)} note={`${latestInquiries.length} 条近期动态`} />
+        <AdminStat label={t("portal.quoteVersions")} value={String(data.quotes.length)} note={formatUsdStrict(quoteValue)} />
+        <AdminStat label={t("portal.orders")} value={String(data.orders.length)} note={formatUsdStrict(data.orders.reduce((sum, order) => sum + order.total, 0))} />
       </section>
 
       <section className="grid min-w-0 gap-5 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,.9fr)]">
-        <AdminPanel title="近期询价" subtitle="来自飞书 Inquiries / Quotes 表">
+        <AdminPanel title={t("portal.recentInquiries")} subtitle="来自飞书 Inquiries / Quotes 表">
           <AdminTable
-            headers={["询价号", "车辆", "数量", "状态", "最新报价"]}
+            headers={[t("portal.inquiryNo"), t("portal.vehicle"), t("portal.quantity"), t("portal.status"), t("portal.latestQuote")]}
             rows={latestInquiries.map((inquiry) => {
               const quote = latestQuoteForInquiry(inquiry.inquiryNo, data.quotes);
               return [
@@ -1431,20 +1460,20 @@ function AdminDashboard({ data }: { data: BootstrapData }) {
                 quote ? `${quote.quoteNo} / ${formatUsdStrict(quote.unitPrice)}` : "待报价",
               ];
             })}
-            emptyText="暂无询价"
+            emptyText={t("portal.noInquiries")}
           />
         </AdminPanel>
 
-        <AdminPanel title="库存提醒" subtitle="低库存和待确认车辆">
+        <AdminPanel title={t("portal.stockAlert")} subtitle="低库存和待确认车辆">
           <AdminTable
-            headers={["车辆", "库存", "位置", "供应类型"]}
+            headers={[t("portal.vehicle"), t("portal.stockQuantity"), t("portal.location"), t("portal.supplyType")]}
             rows={lowStock.map((vehicle) => [
               vehicleName(vehicle),
               `${vehicle.stockQuantity} 台`,
               vehicle.location || "-",
               <AdminStatusBadge key="status" status={getSupplyType(vehicle)} />,
             ])}
-            emptyText="暂无低库存车辆"
+            emptyText={t("portal.noLowStock")}
           />
         </AdminPanel>
       </section>
@@ -1453,6 +1482,7 @@ function AdminDashboard({ data }: { data: BootstrapData }) {
 }
 
 function ModelFullSpecsCard({ group }: { group: ModelProfileGroup }) {
+  const { t } = useTranslation();
   const v = group.variants[0] || ({} as VehicleModel);
 
   const batteryVal = safeText(v.battery) || getModelSpecValue(group.specsByModel, v.id, ["电池容量"]) || "-";
@@ -1479,8 +1509,6 @@ function ModelFullSpecsCard({ group }: { group: ModelProfileGroup }) {
 
   const adasVal = safeText(v.adas) || getModelSpecValue(group.specsByModel, v.id, ["ADAS"]) || "-";
   const warrantyVal = safeText(v.warranty) || "-";
-  const msrpVal = safeText(group.guidePriceSummary || v.msrpChina) || "-";
-  const exportNotesVal = safeText(v.exportNotes) || "符合海关出口通用检验标准";
 
   return (
     <div className="grid gap-4 rounded-xl border border-white/10 bg-[#0c1322] p-4 text-xs">
@@ -1490,138 +1518,138 @@ function ModelFullSpecsCard({ group }: { group: ModelProfileGroup }) {
             <span className="rounded bg-[#22b8aa]/20 px-2 py-0.5 font-mono text-[10px] font-black uppercase text-[#5ee6d8]">
               {safeText(group.brand)} · {safeText(group.model)}
             </span>
-            <span className="text-[10px] text-slate-400">({group.variants.length} 个版本在库)</span>
+            <span className="text-[10px] text-slate-400">({group.variants.length} {t("portal.variantsInStock")})</span>
           </div>
-          <h4 className="mt-1 text-sm font-black text-white">{safeText(group.marketPosition) || `${safeText(group.brand)} ${safeText(group.model)} 全量技术参数图谱`}</h4>
+          <h4 className="mt-1 text-sm font-black text-white">{safeText(group.marketPosition) || `${safeText(group.brand)} ${safeText(group.model)} ${t("portal.fullTechSpecs")}`}</h4>
         </div>
         <div className="flex flex-wrap items-center gap-2 text-[10px]">
-          <AdminSummaryChip label="数据来源" value={safeText(v.sourceName) || "飞书 Base 认证数据"} />
+          <AdminSummaryChip label={t("portal.dataSource")} value={safeText(v.sourceName) || "飞书 Base 认证数据"} />
           {v.sourceUrl ? (
             <a href={v.sourceUrl} target="_blank" rel="noreferrer" className="rounded-lg border border-[#22b8aa]/30 bg-[#22b8aa]/10 px-2.5 py-1 font-bold text-[#5ee6d8] hover:bg-[#22b8aa] hover:text-black">
-              查看飞书原始源
+              {t("portal.feishuSource")}
             </a>
           ) : null}
           {v.brochureUrl ? (
             <a href={v.brochureUrl} target="_blank" rel="noreferrer" className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-2.5 py-1 font-bold text-amber-300 hover:bg-amber-500 hover:text-black">
-              官方PDF宣传册
+              {t("portal.pdfBrochure")}
             </a>
           ) : null}
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 sm:grid-cols-2">
         <div className="rounded-lg border border-[#22b8aa]/20 bg-[#22b8aa]/[0.03] p-3">
           <div className="mb-2 flex items-center justify-between border-b border-[#22b8aa]/20 pb-1.5">
-            <strong className="font-black text-[#5ee6d8]">⚡ 三电与电池系统</strong>
+            <strong className="font-black text-[#5ee6d8]">⚡ {t("portal.batteryAndCharging")}</strong>
             <span className="text-[9px] text-[#22b8aa]">BATTERY & CHARGING</span>
           </div>
-          <dl className="grid gap-1.5 text-slate-300">
-            <div className="flex justify-between">
-              <dt className="text-slate-500">电池容量:</dt>
-              <dd className="font-medium text-white">{batteryVal}</dd>
+          <dl className="grid gap-2 text-slate-300">
+            <div>
+              <dt className="text-[10px] text-slate-500">{t("portal.batteryCapacity")}</dt>
+              <dd className="mt-0.5 font-medium text-white">{batteryVal}</dd>
             </div>
-            <div className="flex justify-between">
-              <dt className="text-slate-500">电池类型:</dt>
-              <dd className="font-medium text-white">{batteryTypeVal}</dd>
+            <div>
+              <dt className="text-[10px] text-slate-500">{t("portal.batteryType")}</dt>
+              <dd className="mt-0.5 font-medium text-white">{batteryTypeVal}</dd>
             </div>
-            <div className="flex justify-between">
-              <dt className="text-slate-500">电芯/电池供应商:</dt>
-              <dd className="font-medium text-white">{batteryMakerVal}</dd>
+            <div>
+              <dt className="text-[10px] text-slate-500">{t("portal.batteryMaker")}</dt>
+              <dd className="mt-0.5 font-medium text-white">{batteryMakerVal}</dd>
             </div>
-            <div className="flex justify-between">
-              <dt className="text-slate-500">CLTC / NEDC 续航:</dt>
-              <dd className="font-bold text-[#5ee6d8]">{rangeVal}</dd>
+            <div>
+              <dt className="text-[10px] text-slate-500">{t("portal.cltcRange")}</dt>
+              <dd className="mt-0.5 font-bold text-[#5ee6d8]">{rangeVal}</dd>
             </div>
-            <div className="flex justify-between">
-              <dt className="text-slate-500">百公里电耗:</dt>
-              <dd className="font-medium text-white">{energyConsumptionVal}</dd>
+            <div>
+              <dt className="text-[10px] text-slate-500">{t("portal.energyConsumption")}</dt>
+              <dd className="mt-0.5 font-medium text-white">{energyConsumptionVal}</dd>
             </div>
-            <div className="flex justify-between">
-              <dt className="text-slate-500">快充说明/时间:</dt>
-              <dd className="font-medium text-white">{chargingVal}</dd>
+            <div>
+              <dt className="text-[10px] text-slate-500">{t("portal.chargingSpecs")}</dt>
+              <dd className="mt-0.5 font-medium text-white">{chargingVal}</dd>
             </div>
           </dl>
         </div>
 
         <div className="rounded-lg border border-indigo-500/20 bg-indigo-500/[0.03] p-3">
           <div className="mb-2 flex items-center justify-between border-b border-indigo-500/20 pb-1.5">
-            <strong className="font-black text-indigo-300">🏁 电机驱动与性能</strong>
+            <strong className="font-black text-indigo-300">🏁 {t("portal.motorAndPerformance")}</strong>
             <span className="text-[9px] text-indigo-400">MOTOR & PERFORMANCE</span>
           </div>
-          <dl className="grid gap-1.5 text-slate-300">
-            <div className="flex justify-between">
-              <dt className="text-slate-500">电机最大功率:</dt>
-              <dd className="font-medium text-white">{motorPowerVal}</dd>
+          <dl className="grid gap-2 text-slate-300">
+            <div>
+              <dt className="text-[10px] text-slate-500">{t("portal.motorPower")}</dt>
+              <dd className="mt-0.5 font-medium text-white">{motorPowerVal}</dd>
             </div>
-            <div className="flex justify-between">
-              <dt className="text-slate-500">电机最大扭矩:</dt>
-              <dd className="font-medium text-white">{motorTorqueVal}</dd>
+            <div>
+              <dt className="text-[10px] text-slate-500">{t("portal.motorTorque")}</dt>
+              <dd className="mt-0.5 font-medium text-white">{motorTorqueVal}</dd>
             </div>
-            <div className="flex justify-between">
-              <dt className="text-slate-500">驱动形式:</dt>
-              <dd className="font-medium text-white">{driveTypeVal}</dd>
+            <div>
+              <dt className="text-[10px] text-slate-500">{t("portal.driveType")}</dt>
+              <dd className="mt-0.5 font-medium text-white">{driveTypeVal}</dd>
             </div>
-            <div className="flex justify-between">
-              <dt className="text-slate-500">0-100km/h 加速:</dt>
-              <dd className="font-bold text-indigo-300">{accelerationVal}</dd>
+            <div>
+              <dt className="text-[10px] text-slate-500">{t("portal.acceleration")}</dt>
+              <dd className="mt-0.5 font-bold text-indigo-300">{accelerationVal}</dd>
             </div>
-            <div className="flex justify-between">
-              <dt className="text-slate-500">最高极速:</dt>
-              <dd className="font-medium text-white">{topSpeedVal}</dd>
+            <div>
+              <dt className="text-[10px] text-slate-500">{t("portal.topSpeed")}</dt>
+              <dd className="mt-0.5 font-medium text-white">{topSpeedVal}</dd>
             </div>
           </dl>
         </div>
 
         <div className="rounded-lg border border-amber-500/20 bg-amber-500/[0.03] p-3">
           <div className="mb-2 flex items-center justify-between border-b border-amber-500/20 pb-1.5">
-            <strong className="font-black text-amber-300">🚗 车身尺寸与底盘</strong>
+            <strong className="font-black text-amber-300">🚗 {t("portal.bodyAndChassis")}</strong>
             <span className="text-[9px] text-amber-400">BODY & CHASSIS</span>
           </div>
-          <dl className="grid gap-1.5 text-slate-300">
-            <div className="flex justify-between">
-              <dt className="text-slate-500">长 × 宽 × 高 (mm):</dt>
-              <dd className="font-medium text-white">{dimensionsVal}</dd>
+          <dl className="grid gap-2 text-slate-300">
+            <div>
+              <dt className="text-[10px] text-slate-500">{t("portal.dimensions")}</dt>
+              <dd className="mt-0.5 font-medium text-white">{dimensionsVal}</dd>
             </div>
-            <div className="flex justify-between">
-              <dt className="text-slate-500">轴距 (mm):</dt>
-              <dd className="font-medium text-white">{wheelbaseVal}</dd>
+            <div>
+              <dt className="text-[10px] text-slate-500">{t("portal.wheelbase")}</dt>
+              <dd className="mt-0.5 font-medium text-white">{wheelbaseVal}</dd>
             </div>
-            <div className="flex justify-between">
-              <dt className="text-slate-500">座位 / 车门数:</dt>
-              <dd className="font-medium text-white">{seatsVal ? `${seatsVal}座` : "-"} / {doorsVal ? `${doorsVal}门` : "-"}</dd>
+            <div>
+              <dt className="text-[10px] text-slate-500">{t("portal.seatsDoors")}</dt>
+              <dd className="mt-0.5 font-medium text-white">{seatsVal ? `${seatsVal}座` : "-"} / {doorsVal ? `${doorsVal}门` : "-"}</dd>
             </div>
-            <div className="flex justify-between">
-              <dt className="text-slate-500">前/后悬架:</dt>
-              <dd className="font-medium text-white">{frontSuspensionVal || "-"} / {rearSuspensionVal || "-"}</dd>
+            <div>
+              <dt className="text-[10px] text-slate-500">{t("portal.suspension")}</dt>
+              <dd className="mt-0.5 font-medium text-white">{frontSuspensionVal || "-"} / {rearSuspensionVal || "-"}</dd>
             </div>
-            <div className="flex justify-between">
-              <dt className="text-slate-500">整备质量 / 后备厢:</dt>
-              <dd className="font-medium text-white">{curbWeightVal || "-"} / {trunkCapacityVal || "-"}</dd>
+            <div>
+              <dt className="text-[10px] text-slate-500">{t("portal.weightTrunk")}</dt>
+              <dd className="mt-0.5 font-medium text-white">{curbWeightVal || "-"} / {trunkCapacityVal || "-"}</dd>
             </div>
           </dl>
         </div>
 
         <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/[0.03] p-3">
           <div className="mb-2 flex items-center justify-between border-b border-emerald-500/20 pb-1.5">
-            <strong className="font-black text-emerald-300">🛡️ 智驾、质保与出口</strong>
+            <strong className="font-black text-emerald-300">🛡️ {t("portal.adasAndWarranty")}</strong>
             <span className="text-[9px] text-emerald-400">ADAS & COMPLIANCE</span>
           </div>
-          <dl className="grid gap-1.5 text-slate-300">
-            <div className="flex justify-between">
-              <dt className="text-slate-500">智驾/辅助驾驶:</dt>
-              <dd className="font-bold text-emerald-300">{adasVal}</dd>
+          <dl className="grid gap-2 text-slate-300">
+            <div>
+              <dt className="text-[10px] text-slate-500">{t("portal.adas")}</dt>
+              <dd className="mt-0.5 font-bold text-emerald-300">{adasVal}</dd>
             </div>
-            <div className="flex justify-between">
-              <dt className="text-slate-500">质保政策:</dt>
-              <dd className="font-medium text-white">{warrantyVal}</dd>
+            <div>
+              <dt className="text-[10px] text-slate-500">{t("portal.warranty")}</dt>
+              <dd className="mt-0.5 font-medium text-white">{warrantyVal}</dd>
             </div>
-            <div className="flex justify-between">
-              <dt className="text-slate-500">国内官方指导价:</dt>
-              <dd className="font-bold text-amber-300">{group.guidePriceSummary || v.msrpChina || "-"}</dd>
+            <div>
+              <dt className="text-[10px] text-slate-500">国内官方指导价</dt>
+              <dd className="mt-0.5 font-bold text-amber-300">{group.guidePriceSummary || v.msrpChina || "-"}</dd>
             </div>
-            <div className="flex justify-between">
-              <dt className="text-slate-500">出口合规/备注:</dt>
-              <dd className="font-medium text-white">{v.exportNotes || "符合海关出口通用检验标准"}</dd>
+            <div>
+              <dt className="text-[10px] text-slate-500">出口合规/备注</dt>
+              <dd className="mt-0.5 font-medium text-white">{v.exportNotes || "符合海关出口通用检验标准"}</dd>
             </div>
           </dl>
         </div>
@@ -1649,408 +1677,173 @@ function ModelFullSpecsCard({ group }: { group: ModelProfileGroup }) {
 }
 
 function AdminProfiles({ data }: { data: BootstrapData }) {
+  const { t } = useTranslation();
   const groups = useMemo(() => buildModelProfileGroups(data), [data]);
-  const [route, setRoute] = useState<ModelProfileRoute>({ view: "list" });
   const [searchQuery, setSearchQuery] = useState("");
-  const [mode, setMode] = useState<"core" | "full">("core");
-  const [tableColumnMode, setTableColumnMode] = useState<"compact" | "full">("full");
-  const [expandedKey, setExpandedKey] = useState<string | null>(null);
+  const [selectedKey, setSelectedKey] = useState<string | null>(() => null);
 
   const normalizedSearch = searchQuery.trim().toLowerCase();
   const visibleGroups = groups.filter((group) => modelProfileGroupMatchesSearch(group, normalizedSearch));
-  const selectedGroup = route.view === "list" ? null : groups.find((group) => group.key === route.groupKey) || null;
-  const highlightedVariantId = route.view === "comparison" ? route.variantId : "";
-  const comparisonRows = selectedGroup ? buildModelComparisonRows(selectedGroup, mode) : [];
 
-  function openDetail(group: ModelProfileGroup) {
-    setRoute({ view: "detail", groupKey: group.key });
-  }
-
-  function openComparison(group: ModelProfileGroup, variant: VehicleModel, nextMode: "core" | "full" = "full") {
-    setMode(nextMode);
-    setRoute({ view: "comparison", groupKey: group.key, variantId: variant.id });
-  }
-
-  if (route.view !== "list" && !selectedGroup) {
-    return (
-      <AdminPanel title="车型库" subtitle="车型数据已刷新">
-        <button type="button" onClick={() => setRoute({ view: "list" })} className="rounded-xl border border-white/15 px-4 py-3 text-xs font-black text-slate-300 transition hover:border-white/30">
-          返回车型列表
-        </button>
-      </AdminPanel>
-    );
-  }
+  // Auto-select first visible group when search changes
+  const effectiveSelectedKey = selectedKey && visibleGroups.some((g) => g.key === selectedKey) ? selectedKey : (visibleGroups[0]?.key ?? null);
+  const selectedGroup = groups.find((g) => g.key === effectiveSelectedKey) ?? null;
 
   return (
     <div className="grid gap-5">
-      {route.view === "list" ? (
-        <AdminPanel title="车型库" subtitle="全量展示飞书 Base 关联数据：包含三电系统、电机驱动、尺寸轴距、智驾等级与合规出口字段">
-          <div className="mb-5 flex flex-col gap-3 rounded-2xl border border-[#22b8aa]/30 bg-[#22b8aa]/10 p-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-3">
-              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#22b8aa]/20 text-lg">
-                🖼️
-              </div>
-              <div>
-                <strong className="block text-sm font-bold text-white">飞书带图册实时车型公开视图</strong>
-                <p className="mt-0.5 text-xs text-slate-300">包含外观图册、配置参数与现车价格一览，支持免登录公开分享与查阅。</p>
-              </div>
-            </div>
-            <a
-              href="https://ecn4k98ibq2i.feishu.cn/share/base/view/shrcndRVOEpCUH8QjhvM151zcDg"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-[#22b8aa] px-4 py-2.5 text-xs font-black text-[#0c1322] transition hover:bg-[#5ee6d8]"
-            >
-              <span>打开飞书图册一览 ↗</span>
-            </a>
-          </div>
-          <div className="mb-4 grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
-            <label className="grid gap-2 text-xs font-black uppercase tracking-widest text-slate-500">
-              搜索车型
-              <input
-                value={searchQuery}
-                onChange={(event) => setSearchQuery(event.target.value)}
-                className="rounded-xl border border-white/10 bg-[#0c1322] px-4 py-3 text-sm font-medium normal-case tracking-normal text-white outline-none transition placeholder:text-slate-600 focus:border-[#22b8aa]"
-                placeholder="品牌、车型、年款、版本、级别、电池类型、电机功率、智驾等级"
-              />
-            </label>
-            <div className="flex flex-wrap items-center gap-2">
-              <div className="flex rounded-xl border border-white/10 bg-white/[.04] p-1">
-                <button
-                  type="button"
-                  onClick={() => setTableColumnMode("compact")}
-                  className={`rounded-lg px-3 py-1.5 text-[10px] font-black uppercase tracking-widest transition ${
-                    tableColumnMode === "compact" ? "bg-[#22b8aa] text-[#07111f]" : "text-slate-400 hover:text-white"
-                  }`}
-                >
-                  精简视图
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setTableColumnMode("full")}
-                  className={`rounded-lg px-3 py-1.5 text-[10px] font-black uppercase tracking-widest transition ${
-                    tableColumnMode === "full" ? "bg-[#22b8aa] text-[#07111f]" : "text-slate-400 hover:text-white"
-                  }`}
-                >
-                  全量列视图
-                </button>
-              </div>
-              <AdminSummaryChip label="车型" value={`${visibleGroups.length} / ${groups.length}`} tone="accent" />
-              <AdminSummaryChip label="版本" value={`${visibleGroups.reduce((sum, group) => sum + group.variants.length, 0)} 个`} />
+      <AdminPanel title={t("portal.titleModels")} subtitle="全量展示飞书 Base 关联数据：包含三电系统、电机驱动、尺寸轴距、智驾等级与合规出口字段">
+        {/* Feishu banner */}
+        <div className="mb-5 flex flex-col gap-3 rounded-2xl border border-[#22b8aa]/30 bg-[#22b8aa]/10 p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-3">
+            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#22b8aa]/20 text-lg">🖼️</div>
+            <div>
+              <strong className="block text-sm font-bold text-white">飞书带图册实时车型公开视图</strong>
+              <p className="mt-0.5 text-xs text-slate-300">包含外观图册、配置参数与现车价格一览，支持免登录公开分享与查阅。</p>
             </div>
           </div>
+          <a
+            href="https://ecn4k98ibq2i.feishu.cn/share/base/view/shrcndRVOEpCUH8QjhvM151zcDg"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-[#22b8aa] px-4 py-2.5 text-xs font-black text-[#0c1322] transition hover:bg-[#5ee6d8]"
+          >
+            <span>打开飞书图册一览 ↗</span>
+          </a>
+        </div>
 
-          <div className="max-w-full overflow-x-auto rounded-xl border border-white/10">
-            <table className="w-full min-w-[1100px] border-separate border-spacing-0 text-left text-sm">
-              <thead>
-                <tr>
-                  {(tableColumnMode === "full"
-                    ? ["品牌", "车型 & 定位", "年款", "版本", "级别", "能源", "电池 / 供应商", "续航 (CLTC)", "电机 / 驱动", "尺寸 / 轴距", "智驾 / 安全", "指导价", "操作"]
-                    : ["品牌", "车型", "年款", "版本", "级别", "能源", "续航", "指导价", "操作"]
-                  ).map((header) => (
-                    <th key={header} className="border-b border-white/10 px-3 py-3 text-[10px] font-black uppercase tracking-widest text-slate-500">
-                      {header}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {visibleGroups.map((group) => {
-                  const firstVar = group.variants[0];
-                  const isExpanded = expandedKey === group.key;
-                  const batVal = safeText(firstVar?.battery) || getModelSpecValue(group.specsByModel, firstVar?.id || "", ["电池容量"]);
-                  const batTypeVal = safeText(firstVar?.batteryType) || getModelSpecValue(group.specsByModel, firstVar?.id || "", ["电池类型"]);
-                  const batMakerVal = safeText(firstVar?.batteryMaker) || getModelSpecValue(group.specsByModel, firstVar?.id || "", ["电池供应商", "电芯供应商"]);
-                  const motorPowVal = safeText(firstVar?.motorPower) || getModelSpecValue(group.specsByModel, firstVar?.id || "", ["电机总功率"]);
-                  const driveVal = safeText(firstVar?.driveType) || getModelSpecValue(group.specsByModel, firstVar?.id || "", ["驱动方式"]);
-                  const dimVal = safeText(firstVar?.dimensions) || getModelSpecValue(group.specsByModel, firstVar?.id || "", ["长*宽*高(mm)"]);
-                  const wbVal = safeText(firstVar?.wheelbase) || getModelSpecValue(group.specsByModel, firstVar?.id || "", ["轴距(mm)"]);
+        {/* Search bar + summary */}
+        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end">
+          <label className="grid flex-1 gap-2 text-xs font-black uppercase tracking-widest text-slate-500">
+            搜索车型
+            <Input
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+              placeholder="品牌、车型、年款、版本、级别、电池类型、电机功率、智驾等级"
+            />
+          </label>
+          <div className="flex items-center gap-2 pb-0.5">
+            <AdminSummaryChip label="车型" value={`${visibleGroups.length} / ${groups.length}`} tone="accent" />
+            <AdminSummaryChip label="版本" value={`${visibleGroups.reduce((sum, group) => sum + group.variants.length, 0)} 个`} />
+          </div>
+        </div>
 
-                  const batteryText = safeText(batVal || batTypeVal ? `${batVal} ${batTypeVal}`.trim() : "-");
-                  const batteryMakerText = batMakerVal ? `(${safeText(batMakerVal)})` : "";
-                  const motorText = safeText(motorPowVal || driveVal ? `${motorPowVal} ${driveVal}`.trim() : "-");
-                  const dimText = safeText(dimVal || wbVal ? `${dimVal || "-"} / 轴距${wbVal || "-"}` : "-");
-                  const adasText = safeText(firstVar?.adas) || getModelSpecValue(group.specsByModel, firstVar?.id || "", ["ADAS"]) || "-";
-
-                  return (
-                    <Fragment key={group.key}>
-                      <tr className={`transition hover:bg-white/[.035] ${isExpanded ? "bg-white/[.02]" : ""}`}>
-                        <td className="border-b border-white/[.06] px-3 py-3 align-middle text-[10px] font-black uppercase tracking-widest text-[#22b8aa]">{group.brand}</td>
-                        <td className="border-b border-white/[.06] px-3 py-3 align-middle">
-                          <button type="button" onClick={() => openDetail(group)} className="text-left">
-                            <strong className="block text-base text-white transition hover:text-[#5ee6d8]">{group.model}</strong>
-                            <span className="mt-1 block max-w-xs truncate text-xs text-slate-500">{group.marketPosition || "市场定位待补充"}</span>
-                          </button>
-                        </td>
-                        <td className="whitespace-nowrap border-b border-white/[.06] px-3 py-3 align-middle text-slate-300">{group.years.join(" / ") || "-"}</td>
-                        <td className="whitespace-nowrap border-b border-white/[.06] px-3 py-3 align-middle text-slate-300">{group.variants.length} 个</td>
-                        <td className="border-b border-white/[.06] px-3 py-3 align-middle text-slate-300">{group.segment || "-"}</td>
-                        <td className="whitespace-nowrap border-b border-white/[.06] px-3 py-3 align-middle text-slate-300">{group.energyType || "-"}</td>
-                        {tableColumnMode === "full" ? (
-                          <td className="border-b border-white/[.06] px-3 py-3 align-middle text-xs text-slate-300">
-                            <span className="block font-medium text-white">{batteryText}</span>
-                            {batteryMakerText && <span className="block text-[10px] text-slate-500">{batteryMakerText}</span>}
-                          </td>
-                        ) : null}
-                        <td className="whitespace-nowrap border-b border-white/[.06] px-3 py-3 align-middle text-slate-300">{group.rangeSummary || "-"}</td>
-                        {tableColumnMode === "full" ? (
-                          <td className="border-b border-white/[.06] px-3 py-3 align-middle text-xs text-slate-300">{motorText}</td>
-                        ) : null}
-                        {tableColumnMode === "full" ? (
-                          <td className="border-b border-white/[.06] px-3 py-3 align-middle text-xs text-slate-400">{dimText}</td>
-                        ) : null}
-                        {tableColumnMode === "full" ? (
-                          <td className="border-b border-white/[.06] px-3 py-3 align-middle text-xs text-slate-400">{adasText}</td>
-                        ) : null}
-                        <td className="whitespace-nowrap border-b border-white/[.06] px-3 py-3 align-middle text-slate-300">{group.guidePriceSummary || "-"}</td>
-                        <td className="whitespace-nowrap border-b border-white/[.06] px-3 py-3 align-middle">
-                          <div className="flex gap-2">
-                            <button
-                              type="button"
-                              onClick={() => setExpandedKey(isExpanded ? null : group.key)}
-                              className={`rounded-lg border px-2.5 py-1.5 text-[10px] font-black uppercase tracking-widest transition ${
-                                isExpanded
-                                  ? "border-amber-500/50 bg-amber-500/10 text-amber-300"
-                                  : "border-white/15 text-slate-300 hover:border-white/30"
-                              }`}
-                            >
-                              {isExpanded ? "收起参数" : "展开全量字段"}
-                            </button>
-                            <button type="button" onClick={() => openDetail(group)} className="rounded-lg border border-[#22b8aa]/30 bg-[#22b8aa]/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-[#5ee6d8] transition hover:bg-[#22b8aa] hover:text-[#07111f]">
-                              详情对比
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                      {isExpanded ? (
-                        <tr>
-                          <td colSpan={tableColumnMode === "full" ? 13 : 9} className="border-b border-white/10 bg-[#070e1b] px-4 py-4">
-                            <ModelFullSpecsCard group={group} />
-                          </td>
-                        </tr>
+        {/* Master-detail layout with explicit height */}
+        <div className="flex h-[calc(100vh-280px)] min-h-[550px] max-h-[850px] gap-0 overflow-hidden rounded-xl border border-white/10">
+          {/* LEFT: model list */}
+          <div
+            className={`flex w-full shrink-0 flex-col overflow-y-auto border-r border-white/10 bg-[#070e1b] lg:w-80 xl:w-96 ${
+              selectedGroup ? "hidden lg:flex" : "flex"
+            }`}
+          >
+            {visibleGroups.length === 0 ? (
+              <div className="flex flex-1 items-center justify-center px-4 py-12 text-center text-sm text-slate-600">
+                暂无匹配车型
+              </div>
+            ) : null}
+            {visibleGroups.map((group) => {
+              const isSelected = group.key === effectiveSelectedKey;
+              return (
+                <button
+                  key={group.key}
+                  type="button"
+                  onClick={() => setSelectedKey(group.key)}
+                  className={`flex w-full items-start gap-3 border-b border-white/[.06] px-4 py-3.5 text-left transition cursor-pointer last:border-0 ${
+                    isSelected
+                      ? "bg-[#22b8aa]/10 shadow-[inset_3px_0_0_#22b8aa]"
+                      : "hover:bg-white/[.03]"
+                  }`}
+                >
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className={`text-[10px] font-black uppercase tracking-widest ${isSelected ? "text-[#22b8aa]" : "text-slate-500"}`}>
+                        {group.brand}
+                      </span>
+                      <span className="shrink-0 rounded-full bg-white/[.06] px-1.5 py-0.5 text-[9px] font-black text-slate-400">
+                        {group.variants.length}版
+                      </span>
+                    </div>
+                    <strong className={`mt-0.5 block truncate text-sm ${isSelected ? "text-white" : "text-slate-200"}`}>
+                      {group.model}
+                    </strong>
+                    <div className="mt-1 flex flex-wrap items-center gap-1.5">
+                      {group.segment ? (
+                        <span className="rounded bg-white/[.05] px-1.5 py-0.5 text-[10px] text-slate-400">{group.segment}</span>
                       ) : null}
-                    </Fragment>
-                  );
-                })}
-                {visibleGroups.length === 0 ? (
-                  <tr>
-                    <td colSpan={tableColumnMode === "full" ? 13 : 9} className="px-3 py-8 text-center text-sm text-slate-600">
-                      暂无匹配车型
-                    </td>
-                  </tr>
-                ) : null}
-              </tbody>
-            </table>
-          </div>
-        </AdminPanel>
-      ) : null}
-
-      {route.view === "detail" && selectedGroup ? (
-        <AdminPanel title={`${selectedGroup.brand} ${selectedGroup.model} ${selectedGroup.years[0] || ""}`} subtitle="先看版本列表和配置差异速览，再进入完整参数对比">
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-            <button type="button" onClick={() => setRoute({ view: "list" })} className="rounded-xl border border-white/15 px-4 py-3 text-xs font-black text-slate-300 transition hover:border-white/30">
-              返回车型列表
-            </button>
-            <div className="flex flex-wrap gap-2">
-              <AdminSummaryChip label="级别" value={selectedGroup.segment || "-"} tone="accent" />
-              <AdminSummaryChip label="能源" value={selectedGroup.energyType || "-"} />
-              <AdminSummaryChip label="版本" value={`${selectedGroup.variants.length} 个`} />
-              <AdminSummaryChip label="指导价" value={selectedGroup.guidePriceSummary || "-"} />
-            </div>
+                      {group.energyType ? (
+                        <span className="rounded bg-white/[.05] px-1.5 py-0.5 text-[10px] text-slate-400">{group.energyType}</span>
+                      ) : null}
+                      {group.rangeSummary ? (
+                        <span className="rounded bg-white/[.05] px-1.5 py-0.5 text-[10px] text-slate-400">{group.rangeSummary}</span>
+                      ) : null}
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
           </div>
 
-          <div className="mb-5 max-w-full overflow-x-auto rounded-xl border border-white/10">
-            <table className="w-full min-w-[760px] border-separate border-spacing-0 text-left text-sm">
-              <thead>
-                <tr>
-                  {["版本", "续航", "电机", "指导价", "操作"].map((header) => (
-                    <th key={header} className="border-b border-white/10 px-3 py-3 text-[10px] font-black uppercase tracking-widest text-slate-500">
-                      {header}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {selectedGroup.variants.map((variant) => (
-                  <tr key={variant.id} className="transition hover:bg-white/[.035]">
-                    <td className="border-b border-white/[.06] px-3 py-3 align-middle">
-                      <strong className="block text-sm text-white">{variant.trim || variant.id}</strong>
-                      <span className="mt-1 block font-mono text-[10px] text-slate-500">{variant.id}</span>
-                    </td>
-                    <td className="whitespace-nowrap border-b border-white/[.06] px-3 py-3 align-middle text-slate-300">{getModelSpecValue(selectedGroup.specsByModel, variant.id, ["CLTC续航"]) || "-"}</td>
-                    <td className="whitespace-nowrap border-b border-white/[.06] px-3 py-3 align-middle text-slate-300">{getModelSpecValue(selectedGroup.specsByModel, variant.id, ["电机总功率", "电机总马力"]) || "-"}</td>
-                    <td className="whitespace-nowrap border-b border-white/[.06] px-3 py-3 align-middle text-slate-300">{getModelSpecValue(selectedGroup.specsByModel, variant.id, ["中国官方指导价"]) || "-"}</td>
-                    <td className="whitespace-nowrap border-b border-white/[.06] px-3 py-3 align-middle">
-                      <button type="button" onClick={() => openComparison(selectedGroup, variant, "full")} className="rounded-lg border border-white/15 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-slate-300 transition hover:border-[#22b8aa]/50 hover:text-[#5ee6d8]">
-                        查看参数
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          <section className="mb-5 rounded-xl border border-white/10 bg-[#0c1322] p-4">
-            <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
-              <div>
-                <h3 className="text-base font-black text-white">配置升级阶梯</h3>
-                <p className="mt-1 text-xs text-slate-500">按价格从低到高展示，每一级高亮相比上一版本新增或升级的配置。</p>
-              </div>
-              <button type="button" onClick={() => openComparison(selectedGroup, selectedGroup.variants[0], "core")} className="rounded-lg border border-[#22b8aa]/30 bg-[#22b8aa]/10 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-[#5ee6d8] transition hover:bg-[#22b8aa] hover:text-[#07111f]">
-                主要参数对比
-              </button>
-            </div>
-
-            <div className="max-w-full overflow-x-auto pb-1">
-              <div className="flex min-w-[760px] items-end gap-3">
-                {buildVariantDifferenceSteps(selectedGroup).map((step, index, steps) => (
-                  <article
-                    key={step.variant.id}
-                    className="flex min-w-[230px] flex-1 flex-col overflow-hidden rounded-xl border bg-white/[.035] shadow-2xl shadow-black/10"
-                    style={{ minHeight: `${250 + step.sections.reduce((sum, section) => sum + section.items.length, 0) * 13 + step.sections.length * 28}px`, borderColor: upgradeStepColor(index) }}
-                  >
-                    <div className="px-4 py-3" style={{ background: upgradeStepColor(index) }}>
-                      <div className="flex items-start justify-between gap-3">
-                        <div>
-                          <span className="text-[10px] font-black uppercase tracking-widest text-[#07111f]">{step.label}</span>
-                          <h4 className="mt-1 text-base font-black leading-snug text-[#07111f]">{step.variant.trim || step.variant.id}</h4>
-                        </div>
-                        <span className="rounded-full bg-[#07111f]/15 px-2.5 py-1 text-[10px] font-black text-[#07111f]">{index + 1}/{steps.length}</span>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-1.5 border-b border-white/[.07] p-2.5">
-                      <div className="rounded-md border border-white/10 bg-black/10 px-2 py-1.5">
-                        <span className="block text-[9px] font-black uppercase tracking-widest text-slate-500">指导价</span>
-                        <strong className="mt-0.5 block truncate text-xs text-white">{step.price || "-"}</strong>
-                      </div>
-                      <div className="rounded-md border border-white/10 bg-black/10 px-2 py-1.5">
-                        <span className="block text-[9px] font-black uppercase tracking-widest text-slate-500">续航</span>
-                        <strong className="mt-0.5 block truncate text-xs text-white">{step.range || "-"}</strong>
-                      </div>
-                    </div>
-
-                    <div className="flex flex-1 flex-col gap-1.5 p-2.5">
-                      <p className="px-1 text-[9px] font-black uppercase tracking-widest text-slate-500">
-                        {index === 0 ? "入门核心配置" : "底部继承 / 上方为本级新增或升级"}
-                      </p>
-                      <div className="flex flex-1 flex-col-reverse justify-start gap-1.5">
-                        {step.sections.map((section, sectionIndex) => (
-                          <div
-                            key={`${step.variant.id}-${section.label}-${sectionIndex}`}
-                            className="rounded-lg border px-2.5 py-2 text-xs leading-4"
-                            style={{ borderColor: section.tone, background: `${section.tone}${section.isCurrent ? "2e" : "1c"}` }}
-                          >
-                            <div className="mb-1.5 flex items-center justify-between gap-2">
-                              <span className="font-black text-white">{section.label}</span>
-                              <span className="rounded-full bg-black/15 px-1.5 py-0.5 text-[9px] font-black text-slate-200">{section.items.length}</span>
-                            </div>
-                            <ul className="grid gap-0.5">
-                              {section.items.map((item) => (
-                                <li key={`${section.label}-${item.name}`} className="truncate text-[11px] text-slate-100">
-                                  <span className="font-bold">{item.name}</span>
-                                  <span className="text-slate-300">: </span>
-                                  <span>{item.previousValue ? `${item.previousValue} -> ${item.value}` : item.value}</span>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="border-t border-white/[.07] p-3">
-                      <button type="button" onClick={() => openComparison(selectedGroup, step.variant, "full")} className="w-full rounded-lg border border-white/15 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-slate-300 transition hover:border-[#22b8aa]/50 hover:text-[#5ee6d8]">
-                        高亮查看完整参数
-                      </button>
-                    </div>
-                  </article>
-                ))}
-              </div>
-            </div>
-          </section>
-
-          <section className="rounded-xl border border-white/10 bg-white/[.025] p-4">
-            <h3 className="text-base font-black text-white">全系标配</h3>
-            <p className="mt-1 text-xs text-slate-500">所有版本一致的关键配置单独收纳，避免在对比表里反复占空间。</p>
-            <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
-              {buildSharedSpecItems(selectedGroup).map((item) => (
-                <div key={item} className="rounded-lg border border-white/[.07] bg-[#0c1322] px-3 py-2 text-sm text-slate-300">
-                  {item}
+          {/* RIGHT: detail panel */}
+          <div className={`flex-1 overflow-y-auto bg-[#0a1120] ${selectedGroup ? "flex flex-col" : "hidden lg:flex"}`}>
+            {!selectedGroup ? (
+              <div className="flex flex-1 items-center justify-center px-8 py-16 text-center">
+                <div>
+                  <div className="mb-3 text-4xl">🚗</div>
+                  <p className="text-sm text-slate-500">从左侧选择一款车型查看详情</p>
                 </div>
-              ))}
-            </div>
-          </section>
-        </AdminPanel>
-      ) : null}
+              </div>
+            ) : (
+              <div className="flex flex-col gap-0">
+                {/* Detail header */}
+                <div className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-white/10 bg-[#0a1120]/95 px-5 py-4 backdrop-blur">
+                  <div className="flex items-center gap-3">
+                    {/* Back button on mobile */}
+                    <button
+                      type="button"
+                      onClick={() => setSelectedKey(null)}
+                      className="grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-white/15 text-slate-300 transition hover:border-white/30 lg:hidden cursor-pointer"
+                      aria-label="返回列表"
+                    >
+                      ←
+                    </button>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-[#22b8aa]">{selectedGroup.brand}</span>
+                        {selectedGroup.segment ? (
+                          <Badge variant="accent">{selectedGroup.segment}</Badge>
+                        ) : null}
+                      </div>
+                      <h2 className="text-lg font-black text-white">{selectedGroup.model}</h2>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <AdminSummaryChip label="版本" value={`${selectedGroup.variants.length} 个`} tone="accent" />
+                    {selectedGroup.energyType ? <AdminSummaryChip label="能源" value={selectedGroup.energyType} /> : null}
+                    {selectedGroup.guidePriceSummary ? <AdminSummaryChip label="指导价" value={selectedGroup.guidePriceSummary} /> : null}
+                  </div>
+                </div>
 
-      {route.view === "comparison" && selectedGroup ? (
-        <AdminPanel title={`${selectedGroup.brand} ${selectedGroup.model} 完整参数对比`} subtitle={`已高亮 ${selectedGroup.variants.find((variant) => variant.id === highlightedVariantId)?.trim || highlightedVariantId}`}>
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-            <div className="flex flex-wrap gap-2">
-              <button type="button" onClick={() => setRoute({ view: "detail", groupKey: selectedGroup.key })} className="rounded-lg border border-white/15 px-3 py-2 text-xs font-black text-slate-300 transition hover:border-white/30">
-                返回车型详情
-              </button>
-              <AdminSummaryChip label="级别" value={selectedGroup.segment || "-"} tone="accent" />
-              <AdminSummaryChip label="能源" value={selectedGroup.energyType || "-"} />
-              <AdminSummaryChip label="版本" value={`${selectedGroup.variants.length} 个`} />
-            </div>
-            <div className="inline-grid grid-cols-2 rounded-xl border border-white/10 bg-[#0c1322] p-1">
-              <button type="button" onClick={() => setMode("core")} className={`rounded-lg px-3 py-2 text-xs font-black transition ${mode === "core" ? "bg-[#22b8aa] text-[#07111f]" : "text-slate-400 hover:text-white"}`}>
-                主要参数
-              </button>
-              <button type="button" onClick={() => setMode("full")} className={`rounded-lg px-3 py-2 text-xs font-black transition ${mode === "full" ? "bg-[#22b8aa] text-[#07111f]" : "text-slate-400 hover:text-white"}`}>
-                明细参数
-              </button>
-            </div>
-          </div>
-
-          <div className="max-w-full overflow-x-auto rounded-xl border border-white/10">
-            <table className="w-full min-w-[980px] border-separate border-spacing-0 text-left text-sm">
-              <thead>
-                <tr>
-                  <th className="sticky left-0 z-20 w-44 border-b border-white/10 bg-[#111827] px-4 py-4 text-[10px] font-black uppercase tracking-widest text-slate-500">参数</th>
-                  {selectedGroup.variants.map((variant) => (
-                    <th key={variant.id} className={`min-w-52 border-b border-white/10 px-4 py-4 align-top ${variant.id === highlightedVariantId ? "bg-[#22b8aa]/15 shadow-[inset_0_2px_0_#22b8aa]" : "bg-[#111827]"}`}>
-                      <span className="block text-[10px] font-black uppercase tracking-widest text-[#22b8aa]">{variant.year}款</span>
-                      <strong className="mt-1 block text-sm leading-snug text-white">{variant.trim || variant.id}</strong>
-                      <span className="mt-2 block font-mono text-[10px] text-slate-500">{variant.id}</span>
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {comparisonRows.map((row) => (
-                  <tr key={`${row.category}-${row.label}`} className="transition hover:bg-white/[.035]">
-                    <th className="sticky left-0 z-10 border-b border-white/[.06] bg-[#111827] px-4 py-3 align-top">
-                      <span className="block text-[10px] font-black uppercase tracking-widest text-slate-600">{row.category}</span>
-                      <span className="mt-1 block text-sm font-black text-slate-200">{row.label}</span>
-                    </th>
-                    {selectedGroup.variants.map((variant) => (
-                      <td key={`${variant.id}-${row.label}`} className={`border-b border-white/[.06] px-4 py-3 align-top text-slate-300 ${variant.id === highlightedVariantId ? "bg-[#22b8aa]/10 text-white" : ""}`}>
-                        {row.values[variant.id] || <span className="text-slate-600">待补充</span>}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-                {comparisonRows.length === 0 ? (
-                  <tr>
-                    <td colSpan={selectedGroup.variants.length + 1} className="px-4 py-10 text-center text-sm text-slate-600">
-                      暂无参数
-                    </td>
-                  </tr>
+                {/* Market position */}
+                {selectedGroup.marketPosition ? (
+                  <div className="border-b border-white/[.06] bg-white/[.02] px-5 py-3">
+                    <p className="text-xs text-slate-400">{selectedGroup.marketPosition}</p>
+                  </div>
                 ) : null}
-              </tbody>
-            </table>
+
+                {/* Full spec card */}
+                <div className="p-4 sm:p-5">
+                  <ModelFullSpecsCard group={selectedGroup} />
+                </div>
+              </div>
+            )}
           </div>
-        </AdminPanel>
-      ) : null}
+        </div>
+      </AdminPanel>
     </div>
   );
 }
 
 function AdminVehicles({ data, onEdit }: { data: BootstrapData; onEdit: (vehicle: Vehicle) => void }) {
+  const { t } = useTranslation();
   const sellableModels = buildSellableModels(data);
   const [expandedModels, setExpandedModels] = useState<Set<string>>(() => new Set());
   const [searchQuery, setSearchQuery] = useState("");
@@ -2138,7 +1931,7 @@ function AdminVehicles({ data, onEdit }: { data: BootstrapData; onEdit: (vehicle
       {/* 顶部 Header 说明区 (只读模式，去除不合理的录入与新建按钮) */}
       <section className="rounded-2xl border border-white/10 bg-[#070e1b] p-5 shadow-2xl shadow-black/20">
         <div>
-          <h1 className="text-2xl font-black text-white sm:text-3xl">车辆资源</h1>
+          <h1 className="text-2xl font-black text-white sm:text-3xl">{t("portal.titleVehicles")}</h1>
           <p className="mt-1.5 text-xs font-medium text-slate-400">
             按车型集合查看配置版本、现车数量、预订周期和价格有效期。
           </p>
@@ -2151,11 +1944,11 @@ function AdminVehicles({ data, onEdit }: { data: BootstrapData; onEdit: (vehicle
             <span className="pointer-events-none absolute inset-y-0 left-3.5 flex items-center text-slate-500">
               🔍
             </span>
-            <input
+            <Input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-xl border border-white/10 bg-[#0c1424] pl-9 pr-3 py-2.5 text-xs font-medium text-white outline-none transition placeholder:text-slate-500 focus:border-[#22b8aa]"
-              placeholder="全文搜索：车型/配置/颜色/VIN/供应商/备注/地点..."
+              className="pl-9"
+              placeholder={t("portal.searchPlaceholder")}
             />
           </div>
 
@@ -2165,7 +1958,7 @@ function AdminVehicles({ data, onEdit }: { data: BootstrapData; onEdit: (vehicle
             onChange={(e) => setBrandFilter(e.target.value)}
             className="rounded-xl border border-white/10 bg-[#0c1424] px-3 py-2.5 text-xs font-medium text-white outline-none transition focus:border-[#22b8aa]"
           >
-            <option value="all">全部品牌</option>
+            <option value="all">{t("portal.allBrands")}</option>
             {brandOptions.map((brand) => (
               <option key={brand} value={brand}>{brand}</option>
             ))}
@@ -2177,7 +1970,7 @@ function AdminVehicles({ data, onEdit }: { data: BootstrapData; onEdit: (vehicle
             onChange={(e) => setColorFilter(e.target.value)}
             className="rounded-xl border border-white/10 bg-[#0c1424] px-3 py-2.5 text-xs font-medium text-white outline-none transition focus:border-[#22b8aa]"
           >
-            <option value="all">全部颜色</option>
+            <option value="all">{t("portal.allColors")}</option>
             {colorOptions.map((color) => (
               <option key={color} value={color}>{color}</option>
             ))}
@@ -2189,7 +1982,7 @@ function AdminVehicles({ data, onEdit }: { data: BootstrapData; onEdit: (vehicle
             onChange={(e) => setSupplierFilter(e.target.value)}
             className="rounded-xl border border-white/10 bg-[#0c1424] px-3 py-2.5 text-xs font-medium text-white outline-none transition focus:border-[#22b8aa]"
           >
-            <option value="all">全部供应商</option>
+            <option value="all">{t("portal.allSuppliers")}</option>
             {supplierOptions.map((supplier) => (
               <option key={supplier} value={supplier}>{supplier}</option>
             ))}
@@ -2201,10 +1994,10 @@ function AdminVehicles({ data, onEdit }: { data: BootstrapData; onEdit: (vehicle
             onChange={(e) => setSupplyFilter(e.target.value)}
             className="rounded-xl border border-white/10 bg-[#0c1424] px-3 py-2.5 text-xs font-medium text-white outline-none transition focus:border-[#22b8aa]"
           >
-            <option value="all">全部状态</option>
-            <option value="in-stock">现车资源</option>
-            <option value="preorder">可订车源</option>
-            <option value="no-stock">暂时缺货</option>
+            <option value="all">{t("portal.allStatuses")}</option>
+            <option value="in-stock">{t("portal.inStock")}</option>
+            <option value="preorder">{t("portal.preorder")}</option>
+            <option value="no-stock">{t("portal.noStock")}</option>
           </select>
 
           {/* 重置按钮 */}
@@ -2219,7 +2012,7 @@ function AdminVehicles({ data, onEdit }: { data: BootstrapData; onEdit: (vehicle
             }}
             className="inline-flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/[.04] px-3.5 py-2.5 text-xs font-bold text-slate-300 transition hover:border-[#22b8aa] hover:bg-[#22b8aa]/10 hover:text-white"
           >
-            ↻ 重置
+            ↻ {t("portal.reset")}
           </button>
         </div>
       </section>
@@ -2745,46 +2538,46 @@ function VehicleEditModal({ vehicle, onClose, onSaved }: { vehicle: Vehicle; onC
         </div>
 
         <FormField label="备注">
-          <textarea value={form.publicNotes} onChange={(event) => updateField("publicNotes", event.target.value)} />
+          <Textarea value={form.publicNotes} onChange={(event) => updateField("publicNotes", event.target.value)} />
         </FormField>
 
         {canEditOptionalField("Color Notes") && (
           <FormField label="颜色内部备注">
-            <textarea value={form.colorNotes} onChange={(event) => updateField("colorNotes", event.target.value)} placeholder="以实拍图为准、供应商原始描述等" />
+            <Textarea value={form.colorNotes} onChange={(event) => updateField("colorNotes", event.target.value)} placeholder="以实拍图为准、供应商原始描述等" />
           </FormField>
         )}
 
         {canEditOptionalField("Color Confirmed") && (
-          <label className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[.04] px-4 py-3 text-xs font-bold text-slate-300">
-            <input
+          <div className="flex items-center justify-between rounded-xl border border-white/10 bg-white/[.04] px-4 py-3 text-xs font-bold text-slate-300">
+            <span>颜色已确认</span>
+            <Switch
               checked={form.colorConfirmed}
-              onChange={(event) => updateField("colorConfirmed", event.target.checked)}
-              type="checkbox"
-              className="h-4 w-4 accent-[#22b8aa]"
+              onCheckedChange={(val) => updateField("colorConfirmed", val)}
             />
-            颜色已确认
-          </label>
+          </div>
         )}
 
-        <label className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[.04] px-4 py-3 text-xs font-bold text-slate-300">
-          <input
+        <div className="flex items-center justify-between rounded-xl border border-white/10 bg-white/[.04] px-4 py-3 text-xs font-bold text-slate-300">
+          <span>对外上架显示</span>
+          <Switch
             checked={form.isListed}
-            onChange={(event) => updateField("isListed", event.target.checked)}
-            type="checkbox"
-            className="h-4 w-4 accent-[#22b8aa]"
+            onCheckedChange={(val) => updateField("isListed", val)}
           />
-          对外上架显示
-        </label>
+        </div>
 
-        {error && <p className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-xs font-bold text-red-300">{error}</p>}
+        {error && (
+          <Alert variant="destructive">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
 
-        <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
-          <button type="button" onClick={onClose} className="rounded-xl border border-white/15 px-5 py-3 text-[10px] font-black uppercase tracking-widest text-slate-300 transition hover:border-white/30">
+        <div className="flex flex-col gap-3 sm:flex-row sm:justify-end pt-2">
+          <Button type="button" variant="outline" onClick={onClose}>
             取消
-          </button>
-          <button disabled={saving} className="btn-primary rounded-xl px-5 py-3 text-[10px] font-black uppercase tracking-widest disabled:opacity-60">
+          </Button>
+          <Button disabled={saving} variant="default">
             {saving ? "保存中..." : "保存到飞书"}
-          </button>
+          </Button>
         </div>
       </form>
     </Modal>
@@ -2793,23 +2586,23 @@ function VehicleEditModal({ vehicle, onClose, onSaved }: { vehicle: Vehicle; onC
 
 function AdminPanel({ title, subtitle, children }: { title: string; subtitle: string; children: ReactNode }) {
   return (
-    <section className="min-w-0 overflow-hidden rounded-xl border border-white/10 bg-white/[.045] p-4 shadow-2xl shadow-black/10 sm:p-5">
-      <div className="mb-4">
-        <h2 className="text-lg font-black text-white">{title}</h2>
-        <p className="mt-1 text-xs leading-5 text-slate-500">{subtitle}</p>
-      </div>
-      {children}
-    </section>
+    <Card className="min-w-0 overflow-hidden shadow-2xl shadow-black/10">
+      <CardHeader className="pb-3">
+        <CardTitle className="text-lg font-black text-white">{title}</CardTitle>
+        {subtitle ? <CardDescription className="text-xs text-slate-400">{subtitle}</CardDescription> : null}
+      </CardHeader>
+      <CardContent>{children}</CardContent>
+    </Card>
   );
 }
 
 function AdminStat({ label, value, note }: { label: string; value: string; note: string }) {
   return (
-    <div className="rounded-xl border border-white/10 bg-white/[.045] p-4">
+    <Card className="p-4">
       <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">{label}</p>
       <strong className="mt-2 block text-2xl font-black text-white">{value}</strong>
       <span className="mt-2 block text-xs text-slate-500">{note}</span>
-    </div>
+    </Card>
   );
 }
 
@@ -2834,38 +2627,34 @@ function AdminSummaryChip({ label, value, tone = "default" }: { label: string; v
 
 function AdminTable({ headers, rows, emptyText }: { headers: string[]; rows: ReactNode[][]; emptyText: string }) {
   return (
-    <div className="max-w-full overflow-x-auto">
-      <table className="w-full min-w-full table-fixed border-separate border-spacing-0 text-left text-sm">
-        <thead>
-          <tr>
-            {headers.map((header) => (
-              <th key={header} className="border-b border-white/10 px-3 py-3 text-[10px] font-black uppercase tracking-widest text-slate-500">
-                {header}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {rows.length === 0 ? (
-            <tr>
-              <td colSpan={headers.length} className="px-3 py-8 text-center text-sm text-slate-600">
-                {emptyText}
-              </td>
-            </tr>
-          ) : (
-            rows.map((row, rowIndex) => (
-              <tr key={rowIndex} className="transition hover:bg-white/[.035]">
-                {row.map((cell, cellIndex) => (
-                  <td key={cellIndex} className="break-words border-b border-white/[.06] px-3 py-3 align-middle text-slate-300">
-                    {cell}
-                  </td>
-                ))}
-              </tr>
-            ))
-          )}
-        </tbody>
-      </table>
-    </div>
+    <Table>
+      <TableHeader>
+        <TableRow>
+          {headers.map((header) => (
+            <TableHead key={header}>{header}</TableHead>
+          ))}
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {rows.length === 0 ? (
+          <TableRow>
+            <TableCell colSpan={headers.length} className="py-8 text-center text-slate-500">
+              {emptyText}
+            </TableCell>
+          </TableRow>
+        ) : (
+          rows.map((row, rowIndex) => (
+            <TableRow key={rowIndex}>
+              {row.map((cell, cellIndex) => (
+                <TableCell key={cellIndex} className="break-words">
+                  {cell}
+                </TableCell>
+              ))}
+            </TableRow>
+          ))
+        )}
+      </TableBody>
+    </Table>
   );
 }
 
@@ -3638,27 +3427,27 @@ function Empty({ text }: { text: string }) {
 
 function Modal({ title, children, onClose }: { title: string; children: ReactNode; onClose: () => void }) {
   return (
-    <div className="fixed inset-0 z-[80] grid place-items-center bg-black/75 px-4 py-8">
-      <div className="glass max-h-[calc(100vh-4rem)] w-full max-w-2xl overflow-auto rounded-[2rem] p-6">
-        <div className="mb-5 flex items-start justify-between gap-4">
-          <h2 className="text-xl font-black uppercase italic text-white">{title}</h2>
-          <button onClick={onClose} className="grid h-9 w-9 place-items-center rounded-full border border-white/10 text-gray-400 hover:text-white">
-            x
-          </button>
+    <Dialog open={true} onOpenChange={(open) => { if (!open) onClose(); }}>
+      <DialogHeader>
+        <div className="flex items-center justify-between">
+          <DialogTitle>{title}</DialogTitle>
+          <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close modal">
+            ✕
+          </Button>
         </div>
+      </DialogHeader>
+      <div className="max-h-[calc(80vh-6rem)] overflow-y-auto pr-1">
         {children}
       </div>
-    </div>
+    </Dialog>
   );
 }
 
 function FormField({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <label className="grid gap-2 text-[10px] font-black uppercase tracking-widest text-gray-500">
-      {label}
-      <div className="[&_input]:min-h-11 [&_input]:w-full [&_input]:rounded-xl [&_input]:border [&_input]:border-white/10 [&_input]:bg-white/[.04] [&_input]:px-4 [&_input]:text-sm [&_input]:font-medium [&_input]:normal-case [&_input]:tracking-normal [&_input]:text-white [&_input]:outline-none [&_select]:min-h-11 [&_select]:w-full [&_select]:rounded-xl [&_select]:border [&_select]:border-white/10 [&_select]:bg-black [&_select]:px-4 [&_select]:text-sm [&_select]:font-medium [&_select]:normal-case [&_select]:tracking-normal [&_select]:text-white [&_textarea]:min-h-28 [&_textarea]:w-full [&_textarea]:rounded-xl [&_textarea]:border [&_textarea]:border-white/10 [&_textarea]:bg-white/[.04] [&_textarea]:p-4 [&_textarea]:text-sm [&_textarea]:font-medium [&_textarea]:normal-case [&_textarea]:tracking-normal [&_textarea]:text-white [&_textarea]:outline-none">
-        {children}
-      </div>
-    </label>
+    <div className="grid gap-2">
+      <Label>{label}</Label>
+      {children}
+    </div>
   );
 }
