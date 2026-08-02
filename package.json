@@ -45,7 +45,7 @@
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^6.0.5",
-    "@vitejs/plugin-rsc": "^0.5.0",
+    "@vitejs/plugin-rsc": "^0.5.32",
     "happy-dom": "^20.11.1",
     "msw": "^2.15.0",
     "react-server-dom-webpack": "^19.2.8",
