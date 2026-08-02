@@ -32,3 +32,10 @@ FACEBOOK_CLIENT_ID=
 FACEBOOK_CLIENT_SECRET=
 WECHAT_APP_ID=
 WECHAT_APP_SECRET=
+
+# Tolgee i18n (在线翻译编辑 / DevTools).
+# 前往 https://app.tolgee.io → Project → API Keys 创建 Personal Access Token.
+# 仅开发环境需要。生产环境使用静态翻译文件，无需此 key。
+TOLGEE_API_KEY=
+TOLGEE_API_URL=https://app.tolgee.io
+TOLGEE_PROJECT_ID=33857

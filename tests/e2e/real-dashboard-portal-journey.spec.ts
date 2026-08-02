@@ -34,7 +34,7 @@ test.describe("Tier 4: E2E Real Portal Login & Logout Interactive Journey", () =
     await page.waitForTimeout(1000);
 
     // Verify workspace or logout button is accessible
-    const logoutBtn = page.locator("button", { hasText: /Log Out|Sign Out|Logout/i }).first();
+    const logoutBtn = page.locator("button", { hasText: /退出登录|Log Out|Sign Out|Logout/i }).first();
     const hasLogoutBtn = await logoutBtn.isVisible().catch(() => false);
 
     if (hasLogoutBtn) {
@@ -45,6 +45,61 @@ test.describe("Tier 4: E2E Real Portal Login & Logout Interactive Journey", () =
       // 6. Verify returning to Sign In form
       await expect(page.locator("#login-email")).toBeVisible();
     }
+  });
+
+  test("Sequential login -> logout -> re-login across roles preserves catalog and data without empty state", async ({ page }) => {
+    await page.goto("/portal");
+
+    // helper to login
+    const performLogin = async (email: string, code: string) => {
+      const emailInput = page.locator("#login-email");
+      const codeInput = page.locator("#login-access-code");
+      const submitBtn = page.locator("form button[type='submit'], form button", { hasText: /Sign In/i });
+
+      await expect(emailInput).toBeVisible();
+      await emailInput.fill(email);
+      await codeInput.fill(code);
+      await submitBtn.click();
+
+      // Wait for session & catalog load
+      await page.waitForTimeout(1200);
+    };
+
+    // helper to logout
+    const performLogout = async () => {
+      const logoutBtn = page.locator("button", { hasText: /退出登录|Log Out|Sign Out|Logout/i }).first();
+      await expect(logoutBtn).toBeVisible({ timeout: 5000 });
+      await logoutBtn.click();
+      await page.waitForTimeout(600);
+    };
+
+    // 1st Login: Partner
+    await performLogin("partner@example.com", "partner-demo-2026");
+    const partnerText = await page.locator("body").innerText();
+    expect(partnerText).not.toMatch(/Sign In/i);
+    expect(partnerText.length).toBeGreaterThan(50);
+
+    // 1st Logout
+    await performLogout();
+    await expect(page.locator("#login-email")).toBeVisible();
+
+    // 2nd Login: Admin (re-login after logout)
+    await performLogin("admin@local.test", "admin-demo-2026");
+    const adminText = await page.locator("body").innerText();
+    expect(adminText).not.toMatch(/Sign In/i);
+    expect(adminText.length).toBeGreaterThan(50);
+    // Ensure catalog metrics/data are actually loaded and rendered (not empty)
+    expect(adminText).toMatch(/库存台数|待处理询价|车型库/i);
+
+    // 2nd Logout
+    await performLogout();
+    await expect(page.locator("#login-email")).toBeVisible();
+
+    // 3rd Login: Customer (re-login again)
+    await performLogin("customer@example.com", "customer-demo-2026");
+    const customerText = await page.locator("body").innerText();
+    expect(customerText).not.toMatch(/Sign In/i);
+    expect(customerText.length).toBeGreaterThan(50);
   });
 
   test("Direct navigation to dashboard sub-routes renders layout container", async ({ page }) => {

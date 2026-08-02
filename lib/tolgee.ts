@@ -8,7 +8,11 @@ export const availableLanguages = ["zh", "en", "am"] as const;
 
 export function createTolgee(initialLocale: string = defaultLanguage) {
   const language = availableLanguages.includes(initialLocale as any) ? initialLocale : defaultLanguage;
-  
+
+  const projectIdRaw = import.meta.env.NEXT_PUBLIC_TOLGEE_PROJECT_ID;
+  const parsedProjectId = projectIdRaw ? Number(projectIdRaw) : 33857;
+  const projectId = Number.isNaN(parsedProjectId) ? 33857 : parsedProjectId;
+
   return Tolgee()
     .use(DevTools())
     .use(FormatSimple())
@@ -16,8 +20,9 @@ export function createTolgee(initialLocale: string = defaultLanguage) {
       language,
       defaultLanguage: "zh",
       fallbackLanguage: "zh",
-      apiUrl: process.env.NEXT_PUBLIC_TOLGEE_API_URL || "http://localhost:8085",
-      apiKey: process.env.NEXT_PUBLIC_TOLGEE_API_KEY,
+      apiUrl: import.meta.env.NEXT_PUBLIC_TOLGEE_API_URL || "https://app.tolgee.io",
+      apiKey: import.meta.env.NEXT_PUBLIC_TOLGEE_API_KEY,
+      projectId,
       staticData: {
         zh,
         en,

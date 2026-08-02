@@ -512,6 +512,12 @@ export default function PortalPage() {
   const [counterMessage, setCounterMessage] = useState("");
 
   const checkSessionAndLoad = useCallback(async (force = false) => {
+    if (force) {
+      globalBootstrapData = null;
+      globalBootstrapPromise = null;
+      setLoadedCatalog(false);
+    }
+
     // 1. 若非强制更新且已有全局数据缓存，瞬间响应，0 次 API 请求
     if (!force && globalBootstrapData) {
       setData(globalBootstrapData);
@@ -536,6 +542,7 @@ export default function PortalPage() {
         const sessionRes = await api<{ user: PortalUser | null }>("/api/portal/session");
         if (!sessionRes.user) {
           globalBootstrapData = null;
+          globalBootstrapPromise = null;
           setData(null);
           setLoading(false);
           return null;
@@ -545,6 +552,8 @@ export default function PortalPage() {
         setData(bootstrap);
         return bootstrap;
       } catch (loadError) {
+        globalBootstrapData = null;
+        globalBootstrapPromise = null;
         setData(null);
         if (loadError instanceof Error && loadError.message !== "Not signed in") {
           setError(loadError.message);
@@ -554,6 +563,7 @@ export default function PortalPage() {
         setLoading(false);
       }
     })();
+    globalBootstrapPromise = promise;
     await promise;
   }, []);
 
@@ -662,6 +672,9 @@ export default function PortalPage() {
         method: "POST",
         body: JSON.stringify({ email, accessCode }),
       });
+      globalBootstrapData = null;
+      globalBootstrapPromise = null;
+      setLoadedCatalog(false);
       await checkSessionAndLoad(true);
       if (typeof window !== "undefined") {
         window.dispatchEvent(new Event("youguard-session-changed"));
@@ -686,6 +699,9 @@ export default function PortalPage() {
         method: "POST",
         body: JSON.stringify({ role }),
       });
+      globalBootstrapData = null;
+      globalBootstrapPromise = null;
+      setLoadedCatalog(false);
       await checkSessionAndLoad(true);
       if (typeof window !== "undefined") {
         window.dispatchEvent(new Event("youguard-session-changed"));
@@ -707,6 +723,7 @@ export default function PortalPage() {
     await api("/api/portal/session", { method: "DELETE" });
     globalBootstrapData = null;
     globalBootstrapPromise = null;
+    setLoadedCatalog(false);
     setData(null);
     setActiveAdminModule("dashboard");
     setSelectedSellableModel(null);

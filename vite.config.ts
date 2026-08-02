@@ -1,51 +1,81 @@
-import { defineConfig } from "vite";
+import { defineConfig, type Plugin } from "vite";
 import vinext from "vinext";
 import { cloudflare } from "@cloudflare/vite-plugin";
 import fs from "node:fs";
 import path from "node:path";
 
-// 🌟 单点输入原则 (Single Source of Truth)：
-// 从唯一源文件 .dev.vars 读取所有开发配置，自动映射补全 NEXT_PUBLIC_ 前缀，无需维护多份文件。
-function loadDevVars() {
-  const devVarsPath = path.resolve(__dirname, ".dev.vars");
+// ─────────────────────────────────────────────────────────────────────────────
+// 单点输入原则 (Single Source of Truth)
+// ─────────────────────────────────────────────────────────────────────────────
+// 唯一数据源：.dev.vars（Cloudflare Workers 标准格式）
+// 自动派生规则：
+//   TOLGEE_*  → 同时注入为 NEXT_PUBLIC_TOLGEE_*（浏览器端可访问）
+//
+// 无需维护 .env.local 或任何第二份配置文件。
+// ─────────────────────────────────────────────────────────────────────────────
+
+type Vars = Record<string, string>;
+
+function parseDevVars(): Vars {
+  const devVarsPath = path.join(import.meta.dirname, ".dev.vars");
   if (!fs.existsSync(devVarsPath)) return {};
-  
-  const content = fs.readFileSync(devVarsPath, "utf-8");
-  const vars: Record<string, string> = {};
-  
-  for (const line of content.split("\n")) {
-    const trimmed = line.trim();
-    if (trimmed && !trimmed.startsWith("#")) {
+
+  return fs
+    .readFileSync(devVarsPath, "utf-8")
+    .split("\n")
+    .reduce<Vars>((acc, line) => {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith("#")) return acc;
       const idx = trimmed.indexOf("=");
       if (idx > -1) {
-        const k = trimmed.slice(0, idx).trim();
-        const v = trimmed.slice(idx + 1).trim();
-        vars[k] = v;
+        acc[trimmed.slice(0, idx).trim()] = trimmed.slice(idx + 1).trim();
       }
-    }
-  }
-  return vars;
+      return acc;
+    }, {});
 }
 
-const devVars = loadDevVars();
+/** 将 .dev.vars 注入到 process.env，供 SSR / Workers 运行时使用 */
+function devVarsPlugin(): Plugin {
+  return {
+    name: "dev-vars-injector",
+    config() {
+      const vars = parseDevVars();
 
-// 自动补全 process.env 与 NEXT_PUBLIC_ 变量
-for (const [k, v] of Object.entries(devVars)) {
-  process.env[k] = v;
-  if (k.startsWith("TOLGEE_")) {
-    process.env[`NEXT_PUBLIC_${k}`] = v;
+      // 注入 SSR 侧（process.env）
+      for (const [k, v] of Object.entries(vars)) {
+        process.env[k] ??= v;
+        // 派生浏览器可见变量
+        if (k.startsWith("TOLGEE_")) {
+          process.env[`NEXT_PUBLIC_${k}`] ??= v;
+        }
+      }
+    },
+  };
+}
+
+/** 将 NEXT_PUBLIC_* 变量替换为静态字符串，让浏览器 bundle 可以访问 */
+function buildDefines(): Record<string, string> {
+  const vars = parseDevVars();
+  const defines: Record<string, string> = {};
+
+  for (const [k, v] of Object.entries(vars)) {
+    // 直接写了 NEXT_PUBLIC_ 前缀的变量
+    if (k.startsWith("NEXT_PUBLIC_")) {
+      defines[`import.meta.env.${k}`] = JSON.stringify(v);
+    }
+    // TOLGEE_ 自动派生
+    if (k.startsWith("TOLGEE_")) {
+      defines[`import.meta.env.NEXT_PUBLIC_${k}`] = JSON.stringify(v);
+    }
   }
+
+  return defines;
 }
 
 export default defineConfig({
-  define: {
-    "process.env.NEXT_PUBLIC_TOLGEE_API_KEY": JSON.stringify(devVars.TOLGEE_API_KEY || ""),
-    "process.env.NEXT_PUBLIC_TOLGEE_API_URL": JSON.stringify(devVars.TOLGEE_API_URL || "https://app.tolgee.io"),
-  },
-  server: {
-    strictPort: false,
-  },
+  define: buildDefines(),
   plugins: [
+    devVarsPlugin(),
     vinext(),
     cloudflare({
       viteEnvironment: {
@@ -55,4 +85,3 @@ export default defineConfig({
     }),
   ],
 });
-

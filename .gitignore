@@ -3,12 +3,12 @@ node_modules
 .vinext
 .wrangler
 dist
+package-lock.json
 .env
 .env.local
 *.log
 history
 .lark-tmp
-.dev.vars.feishu.example
 .dev.vars.local
 .dev.vars
 build-log.txt
@@ -30,6 +30,9 @@ feishu_auth_qr.png
 
 # tsbuildinfo（构建缓存）
 tsconfig.tsbuildinfo
+
+# Next.js 遗留
+next-env.d.ts
 
 # 测试结果产物
 test-results/
