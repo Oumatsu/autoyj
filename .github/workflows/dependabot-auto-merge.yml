@@ -20,20 +20,22 @@ jobs:
         with:
           github-token: "${{ secrets.GITHUB_TOKEN }}"
 
-      # patch 版本：直接自动合并（安全补丁，风险最低）
-      - name: Auto-merge patch updates
+      # patch 版本：直接立即合并（安全补丁，风险最低）
+      # 注：GitHub Free 私有仓库不支持 --auto（需要分支保护规则）
+      # 改为直接 squash merge，无需等待 status checks
+      - name: Merge patch updates
         if: steps.meta.outputs.update-type == 'version-update:semver-patch'
-        run: gh pr merge --auto --squash "$PR_URL"
+        run: gh pr merge --squash --merge "$PR_URL"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # minor 版本：仅 devDependencies 自动合并
-      - name: Auto-merge minor devDependency updates
+      # minor 版本：仅 devDependencies 直接合并
+      - name: Merge minor devDependency updates
         if: |
           steps.meta.outputs.update-type == 'version-update:semver-minor' &&
           steps.meta.outputs.dependency-type == 'direct:development'
-        run: gh pr merge --auto --squash "$PR_URL"
+        run: gh pr merge --squash --merge "$PR_URL"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
