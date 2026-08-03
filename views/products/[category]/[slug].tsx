@@ -3,6 +3,7 @@
 import { use, useEffect, useState } from "react";
 import { useTranslation } from "@/i18n/useTranslation";
 import VehicleDetail from "../../../app/products/_VehicleDetail";
+import Loading from "@/components/Loading";
 
 export default function DynamicVehiclePage({ params }: any) {
   const { t } = useTranslation();
@@ -23,7 +24,7 @@ export default function DynamicVehiclePage({ params }: any) {
   }, [slug]);
 
   if (error) return <div className="text-center py-20 text-gray-500">{t("productsDetail.modelNotFound")}</div>;
-  if (!data) return <div className="text-center py-20 text-gray-500">{t("productsDetail.loading")}</div>;
+  if (!data) return <Loading text={t("productsDetail.loading")} className="min-h-[50vh]" />;
 
   return <VehicleDetail data={data} />;
 }

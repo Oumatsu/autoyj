@@ -1,5 +1,6 @@
 "use client";
 
+import Loading from "@/components/Loading";
 import { use, useEffect, useState } from "react";
 import { useTranslation } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
@@ -113,11 +114,7 @@ export default function DynamicInsightPage({ params }: any) {
   }
 
   if (!article) {
-    return (
-      <main className="pt-32 pb-24 relative z-10 bg-a min-h-screen flex items-center justify-center">
-        <div className="text-center py-20 text-gray-500">{t("insightsDetail.loading")}</div>
-      </main>
-    );
+    return <Loading text={t("insightsDetail.loading")} fullscreen />;
   }
 
   const localizedArticle = translateInsightArticle(article, t);

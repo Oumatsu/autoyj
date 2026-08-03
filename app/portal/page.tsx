@@ -1,6 +1,7 @@
 "use client";
 
 import React, { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Loading from "../../components/Loading";
 import type { ReactNode } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -798,11 +799,7 @@ export default function PortalPage() {
   }
 
   if (loading) {
-    return (
-      <main className="min-h-screen bg-bg px-4 pt-32 text-center text-gray-400">
-        Loading portal...
-      </main>
-    );
+    return <Loading text="Loading portal..." fullscreen />;
   }
 
   if (!data) {
@@ -1326,14 +1323,12 @@ function AdminPortal({
 
 function ModuleLoadingSkeleton() {
   return (
-    <div className="flex flex-col items-center justify-center rounded-2xl border border-[#22b8aa]/20 bg-white/[.03] p-16 text-center shadow-2xl backdrop-blur-md">
-      <div className="relative mb-5 flex h-16 w-16 items-center justify-center">
-        <div className="absolute inset-0 animate-spin rounded-full border-4 border-[#22b8aa]/20 border-t-[#22b8aa]" />
-        <div className="h-7 w-7 animate-pulse rounded-full bg-[#22b8aa]/20" />
-      </div>
-      <h3 className="text-lg font-black tracking-tight text-white sm:text-xl">飞书 Base 数据加载中...</h3>
-      <p className="mt-2 text-xs font-medium text-slate-400 sm:text-sm">正在实时与飞书后台连接通信，极速载入最新数据，请稍候</p>
-    </div>
+    <Loading
+      text="飞书 Base 数据加载中..."
+      subtext="正在实时与飞书后台连接通信，极速载入最新数据，请稍候"
+      size="lg"
+      className="rounded-2xl border border-teal-500/20 bg-white/[.03] p-12 shadow-2xl backdrop-blur-md"
+    />
   );
 }
 

@@ -1,5 +1,6 @@
 "use client";
 
+import Loading from "../components/Loading";
 import { useState, useEffect } from "react";
 import { useTranslation } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
@@ -137,7 +138,7 @@ export default function InsightsPage() {
       <main className="py-8 sm:py-12 min-h-screen" style={{ background: "var(--color-mid)" }}>
         <div className="container mx-auto px-4 sm:px-6 md:px-12">
           {loading ? (
-            <div className="text-center py-20 text-gray-500 italic font-light">{t("insights.loading")}</div>
+            <Loading text={t("insights.loading")} />
           ) : (
             <>
               {heroArticle && (
