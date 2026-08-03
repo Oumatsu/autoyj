@@ -19,7 +19,6 @@
     "setup:feishu": "node scripts/setup-feishu-base.mjs",
     "sync:feishu-data": "node scripts/import-frontend-to-feishu.mjs",
     "sync:feishu-env": "node scripts/sync-feishu-env.mjs",
-    "setup:specs-dict": "node scripts/setup-specs-dict.mjs",
     "tolgee:push": "bun run scripts/tolgee-sync.ts push",
     "tolgee:pull": "bun run scripts/tolgee-sync.ts pull"
   },
