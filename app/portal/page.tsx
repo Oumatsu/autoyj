@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
@@ -22,8 +22,8 @@ import { useTranslation } from "@/i18n/useTranslation";
 type PortalRole = "admin" | "sales" | "sourcing" | "finance" | "partner" | "customer";
 type PriceTier = "hidden" | "partner" | "vip" | "internal";
 type AccountType = "internal" | "external";
-type AdminModule = "dashboard" | "vehicle_models" | "vehicles" | "source_imports" | "quotes" | "orders" | "payments" | "logistics" | "customers" | "staff" | "files";
-type AdminIconName = "dashboard" | "vehicle_models" | "vehicles" | "quotes" | "orders" | "payments" | "logistics" | "customers" | "staff" | "files";
+type AdminModule = "dashboard" | "vehicle_models" | "vehicles" | "source_imports" | "quotes" | "orders" | "payments" | "logistics" | "customers" | "staff";
+type AdminIconName = "dashboard" | "vehicle_models" | "vehicles" | "quotes" | "orders" | "payments" | "logistics" | "customers" | "staff";
 
 type PortalUser = {
   userId: string;
@@ -93,7 +93,6 @@ type VehicleModel = {
   frontSuspension: string;
   rearSuspension: string;
   adas: string;
-  warranty: string;
   marketPosition: string;
   exportNotes: string;
   imageUrl: string;
@@ -142,6 +141,10 @@ type Vehicle = {
   status: string;
   exportStatus: string;
   stockQuantity: number;
+  modelStockQuantity?: number | null;
+  trimStockQuantity?: number | null;
+  colorStockQuantity?: number | null;
+  waitDays?: number | null;
   leadTime: string;
   priceValidUntil: string;
   imageUrl: string;
@@ -172,9 +175,10 @@ type SellableModel = {
   segment: string;
   imageUrl: string;
   stockQuantity: number;
+  hasStockQuantity: boolean;
   preorderAvailable: boolean;
   fobPriceRange: string;
-  /** 汇总该车型所有 offer 中出现过的 FOB/EXW/FCA 价格区间 */
+  /** 姹囨€昏杞﹀瀷鎵€鏈?offer 涓嚭鐜拌繃鐨?FOB/EXW/FCA 浠锋牸鍖洪棿 */
   priceTermsSummary: PriceTerm[];
   offers: VehicleOffer[];
 };
@@ -229,7 +233,7 @@ type VehicleOffer = {
   location: string;
   price: number | null;
   priceLabel: string;
-  /** 该批次实际填写的 1~3 个价格项，来自 FOB/EXW/FCA 美金价 */
+  /** 璇ユ壒娆″疄闄呭～鍐欑殑 1~3 涓环鏍奸」锛屾潵鑷?FOB/EXW/FCA 缇庨噾浠?*/
   priceTermsList: PriceTerm[];
 };
 
@@ -364,7 +368,6 @@ const adminNavItems: { key: AdminModule; label: string; roles: PortalRole[]; ico
   { key: "logistics", label: "出口流程", roles: ["admin", "sales", "partner", "customer"], icon: "logistics", badge: "开发中" },
   { key: "customers", label: "客户资料", roles: ["admin"], icon: "customers", badge: "开发中" },
   { key: "staff", label: "员工账号", roles: ["admin"], icon: "staff", badge: "开发中" },
-  { key: "files", label: "文件中心", roles: ["admin", "sales", "partner", "customer"], icon: "files", badge: "开发中" },
 ];
 
 const modelCoreSpecNames = [
@@ -404,7 +407,7 @@ const modelCategoryOrder = [
   "外部配置",
   "内部配置",
   "座椅配置",
-  "多媒体/智能座舱",
+  "澶氬獟浣?鏅鸿兘搴ц埍",
   "灯光",
   "玻璃/后视镜",
   "空调/舒适",
@@ -475,7 +478,7 @@ async function api<T>(path: string, init?: RequestInit): Promise<T> {
   return data as T;
 }
 
-// 模块全局缓存（跨路由切换/组件卸载挂载共享，实现页面切换 0 次重复请求与并发去重）
+// 妯″潡鍏ㄥ眬缂撳瓨锛堣法璺敱鍒囨崲/缁勪欢鍗歌浇鎸傝浇鍏变韩锛屽疄鐜伴〉闈㈠垏鎹?0 娆￠噸澶嶈姹備笌骞跺彂鍘婚噸锛?
 let globalBootstrapData: BootstrapData | null = null;
 let globalBootstrapPromise: Promise<BootstrapData | null> | null = null;
 
@@ -500,7 +503,6 @@ export default function PortalPage() {
       if (queryTab === "logistics") return "logistics";
       if (queryTab === "customers") return "customers";
       if (queryTab === "staff") return "staff";
-      if (queryTab === "files") return "files";
     }
     return "dashboard";
   });
@@ -518,13 +520,13 @@ export default function PortalPage() {
       setLoadedCatalog(false);
     }
 
-    // 1. 若非强制更新且已有全局数据缓存，瞬间响应，0 次 API 请求
+    // 1. 鑻ラ潪寮哄埗鏇存柊涓斿凡鏈夊叏灞€鏁版嵁缂撳瓨锛岀灛闂村搷搴旓紝0 娆?API 璇锋眰
     if (!force && globalBootstrapData) {
       setData(globalBootstrapData);
       setLoading(false);
       return;
     }
-    // 2. 若非强制更新且已有进行中的 API 请求，复用 Promise 避免重复并发发请求
+    // 2. 鑻ラ潪寮哄埗鏇存柊涓斿凡鏈夎繘琛屼腑鐨?API 璇锋眰锛屽鐢?Promise 閬垮厤閲嶅骞跺彂鍙戣姹?
     if (!force && globalBootstrapPromise) {
       try {
         const res = await globalBootstrapPromise;
@@ -576,7 +578,7 @@ export default function PortalPage() {
       host.includes("preview")
     );
 
-    const validModules: AdminModule[] = ["dashboard", "vehicle_models", "vehicles", "source_imports", "quotes", "orders", "payments", "logistics", "customers", "staff", "files"];
+    const validModules: AdminModule[] = ["dashboard", "vehicle_models", "vehicles", "source_imports", "quotes", "orders", "payments", "logistics", "customers", "staff"];
     const syncFromUrl = () => {
       const pathname = window.location.pathname.toLowerCase();
       const segments = pathname.split("/").filter(Boolean);
@@ -894,7 +896,7 @@ export default function PortalPage() {
   );
 
   return (
-    <main className="min-h-screen bg-bg px-4 pb-24 pt-28 sm:px-6">
+    <main className="min-h-screen bg-bg px-4 pb-24 pt-[var(--navbar-h,56px)] sm:px-6">
       <section className="mx-auto grid max-w-7xl gap-8">
         <header className="flex flex-col gap-5 border-b border-white/10 pb-8 lg:flex-row lg:items-end lg:justify-between">
           <div>
@@ -1203,6 +1205,7 @@ function AdminPortal({
   isModuleLoading?: boolean;
 }) {
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const visibleNav = adminNavItems.filter((item) => item.roles.includes(data.user.role));
   const normalizedActiveModule = visibleNav.some((item) => item.key === activeModule) ? activeModule : "dashboard";
   const activeItem = visibleNav.find((item) => item.key === normalizedActiveModule) || visibleNav[0];
@@ -1217,18 +1220,31 @@ function AdminPortal({
   const orderTotal = data.orders.reduce((sum, order) => sum + order.total, 0);
 
   return (
-    <main className="min-h-screen overflow-x-hidden bg-[#0c1322] text-slate-100">
-      <div className="grid min-h-screen min-w-0 lg:grid-cols-[300px_minmax(0,1fr)]">
-        <aside className="border-b border-white/10 bg-[#101827] px-4 py-5 lg:sticky lg:top-0 lg:h-screen lg:border-b-0 lg:border-r lg:px-5 flex flex-col justify-between">
+    <main className="min-h-screen overflow-x-hidden bg-[#0c1322] text-slate-100 pt-[var(--navbar-h,56px)]">
+      <div className={`grid min-h-screen min-w-0 transition-[grid-template-columns] duration-200 ${sidebarCollapsed ? "lg:grid-cols-[88px_minmax(0,1fr)]" : "lg:grid-cols-[300px_minmax(0,1fr)]"}`}>
+        <aside className={`border-b border-white/10 bg-[#101827] px-4 py-5 transition-[padding] duration-200 lg:sticky lg:h-[calc(100vh-var(--navbar-h,56px))] lg:border-b-0 lg:border-r ${sidebarCollapsed ? "lg:px-3" : "lg:px-5"} flex flex-col justify-between`} style={{ top: "var(--navbar-h, 56px)" }}>
           <div>
-            <div className="flex items-center gap-4 border-b border-white/10 pb-6">
-              <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-[#22b8aa] text-xl font-black text-[#0c1322]">
+            <div className={`flex items-center gap-3 border-b border-white/10 pb-6 ${sidebarCollapsed ? "lg:flex-col lg:justify-center lg:gap-2 lg:pb-4" : ""}`}>
+              <div className={`grid shrink-0 place-items-center rounded-2xl bg-[#22b8aa] font-black text-[#0c1322] transition-all duration-200 ${sidebarCollapsed ? "lg:h-12 lg:w-12 lg:text-base" : "h-14 w-14 text-xl"}`}>
                 EV
               </div>
-              <div className="min-w-0">
+              <div className={`min-w-0 flex-1 ${sidebarCollapsed ? "lg:hidden" : ""}`}>
                 <strong className="block truncate text-lg font-black tracking-tight text-white">出口管理系统</strong>
                 <span className="mt-0.5 block text-xs font-medium text-slate-400">China / Ethiopia</span>
               </div>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={() => setSidebarCollapsed((current) => !current)}
+                aria-label={sidebarCollapsed ? "\u5c55\u5f00\u5de6\u4fa7\u5bfc\u822a\u680f" : "\u6536\u8d77\u5de6\u4fa7\u5bfc\u822a\u680f"}
+                title={sidebarCollapsed ? "\u5c55\u5f00\u5de6\u4fa7\u5bfc\u822a\u680f" : "\u6536\u8d77\u5de6\u4fa7\u5bfc\u822a\u680f"}
+                className={`hidden shrink-0 border border-white/10 lg:inline-flex ${sidebarCollapsed ? "lg:h-8 lg:w-8 lg:rounded-lg" : ""}`}
+              >
+                <svg className={`h-4 w-4 transition-transform ${sidebarCollapsed ? "rotate-180" : ""}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="m15 18-6-6 6-6" />
+                </svg>
+              </Button>
             </div>
 
             <nav className="mt-5 grid gap-1.5">
@@ -1242,17 +1258,18 @@ function AdminPortal({
                       e.preventDefault();
                       onModuleChange(item.key);
                     }}
-                    className={`flex min-h-11 items-center justify-between gap-2 rounded-xl px-3.5 py-2.5 text-left text-sm font-bold transition cursor-pointer ${
+                    title={item.label}
+                    className={`flex min-h-11 items-center justify-between gap-2 rounded-xl px-3.5 py-2.5 text-left text-sm font-bold transition cursor-pointer ${sidebarCollapsed ? "lg:justify-center lg:px-0" : ""} ${
                       isActive
                         ? "bg-[#22b8aa]/15 text-[#5ee6d8] shadow-[inset_3px_0_0_#22b8aa]"
                         : "text-slate-400 hover:bg-white/[.06] hover:text-white"
                     }`}
                   >
-                    <div className="flex items-center gap-3 min-w-0">
+                    <div className={`flex items-center gap-3 min-w-0 ${sidebarCollapsed ? "lg:justify-center" : ""}`}>
                       <AdminNavIcon name={item.icon} />
-                      <span className="truncate">{item.label}</span>
+                      <span className={`truncate ${sidebarCollapsed ? "lg:hidden" : ""}`}>{item.label}</span>
                     </div>
-                    {item.badge && (
+                    {item.badge && !sidebarCollapsed && (
                       <Badge variant={item.badge === "预览" ? "accent" : "amber"}>
                         {item.badge}
                       </Badge>
@@ -1263,14 +1280,14 @@ function AdminPortal({
             </nav>
           </div>
 
-          <div className="mt-6 rounded-2xl border border-white/10 bg-white/[.04] p-4">
-            <div className="flex items-center gap-3">
+          <div className={`mt-6 rounded-2xl border border-white/10 bg-white/[.04] p-4 ${sidebarCollapsed ? "lg:p-2.5" : ""}`}>
+            <div className={`flex items-center gap-3 ${sidebarCollapsed ? "lg:justify-center" : ""}`}>
               <Avatar className="h-10 w-10">
                 <AvatarFallback>
                   {(data.user.name || data.user.email || "U").slice(0, 2).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
-              <div className="min-w-0 flex-1">
+              <div className={`min-w-0 flex-1 ${sidebarCollapsed ? "lg:hidden" : ""}`}>
                 <strong className="block truncate text-xs font-black text-white">{data.user.name || data.user.email}</strong>
                 <p className="truncate text-[10px] text-slate-400">{adminRoleLabels[data.user.role]} · {data.user.accountType}</p>
               </div>
@@ -1279,7 +1296,7 @@ function AdminPortal({
               variant="outline"
               size="sm"
               onClick={() => void onLogout()}
-              className="mt-3 w-full"
+              className={`mt-3 w-full ${sidebarCollapsed ? "lg:h-9 lg:px-0 lg:text-[0px] lg:after:content-['鈫?] lg:after:text-xs" : ""}`}
             >
               退出登录
             </Button>
@@ -1313,6 +1330,8 @@ function AdminPortal({
       {editingVehicle && (
         <VehicleEditModal
           vehicle={editingVehicle}
+          canSeeSupplier={data.user.role !== "partner"}
+          canSeeLocation={data.user.role !== "partner"}
           onClose={() => setEditingVehicle(null)}
           onSaved={async () => {
             setEditingVehicle(null);
@@ -1360,8 +1379,6 @@ function AdminModuleContent({ activeModule, data, isModuleLoading, onEditVehicle
       return <AdminCustomers data={data} />;
     case "staff":
       return <AdminStaff data={data} />;
-    case "files":
-      return <AdminFiles data={data} />;
     default:
       return <AdminDashboard data={data} />;
   }
@@ -1457,8 +1474,8 @@ function AdminDashboard({ data }: { data: BootstrapData }) {
   return (
     <div className="grid min-w-0 gap-5">
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <AdminStat label={t("portal.modelRepo")} value={String(modelCount)} note={`${data.vehicles.length} 条车源 / ${totalStock} 台库存`} />
-        <AdminStat label={t("portal.inquiries")} value={String(data.inquiries.length)} note={`${latestInquiries.length} 条近期动态`} />
+        <AdminStat label={t("portal.modelRepo")} value={String(modelCount)} note={`${data.vehicles.length} records / ${totalStock} units`} />
+        <AdminStat label={t("portal.inquiries")} value={String(data.inquiries.length)} note={`${latestInquiries.length} recent updates`} />
         <AdminStat label={t("portal.quoteVersions")} value={String(data.quotes.length)} note={formatUsdStrict(quoteValue)} />
         <AdminStat label={t("portal.orders")} value={String(data.orders.length)} note={formatUsdStrict(data.orders.reduce((sum, order) => sum + order.total, 0))} />
       </section>
@@ -1501,6 +1518,22 @@ function AdminDashboard({ data }: { data: BootstrapData }) {
 function ModelFullSpecsCard({ group }: { group: ModelProfileGroup }) {
   const { t } = useTranslation();
   const v = group.variants[0] || ({} as VehicleModel);
+  const [selectedVariantId, setSelectedVariantId] = useState<string | null>(null);
+  const versionDetails = group.variants.map((variant) => ({
+    variant,
+    items: [
+      { label: "\u6307\u5bfc\u4ef7", value: getModelSpecValue(group.specsByModel, variant.id, ["\u4e2d\u56fd\u5b98\u65b9\u6307\u5bfc\u4ef7"]) || variant.msrpChina || "-" },
+      { label: "CLTC\u7eed\u822a", value: getModelSpecValue(group.specsByModel, variant.id, ["CLTC\u7eed\u822a"]) || variant.range || "-" },
+      { label: "\u7535\u6c60", value: [getModelSpecValue(group.specsByModel, variant.id, ["\u7535\u6c60\u5bb9\u91cf"]) || variant.battery, getModelSpecValue(group.specsByModel, variant.id, ["\u7535\u6c60\u7c7b\u578b"]) || variant.batteryType].filter(Boolean).join(" / ") || "-" },
+      { label: "\u9a71\u52a8 / \u529f\u7387", value: [getModelSpecValue(group.specsByModel, variant.id, ["\u9a71\u52a8\u65b9\u5f0f"]) || variant.driveType, getModelSpecValue(group.specsByModel, variant.id, ["\u7535\u673a\u603b\u529f\u7387"]) || variant.motorPower].filter(Boolean).join(" / ") || "-" },
+      { label: "\u7535\u673a\u626d\u77e9", value: getModelSpecValue(group.specsByModel, variant.id, ["\u7535\u673a\u603b\u626d\u77e9"]) || variant.motorTorque || "-" },
+      { label: "\u76f4\u6d41\u5feb\u5145", value: getModelSpecValue(group.specsByModel, variant.id, ["\u76f4\u6d41\u5feb\u5145"]) || variant.charging || "-" },
+      { label: "\u65b0\u589e\u914d\u7f6e", value: getModelSpecValue(group.specsByModel, variant.id, ["\u65b0\u589e\u914d\u7f6e"]) || "-" },
+      { label: "\u5347\u7ea7\u914d\u7f6e", value: getModelSpecValue(group.specsByModel, variant.id, ["\u5347\u7ea7\u914d\u7f6e"]) || "-" },
+      { label: "\u6838\u9a8c\u72b6\u6001", value: getModelSpecValue(group.specsByModel, variant.id, ["\u7248\u672c\u6838\u9a8c\u72b6\u6001"]) || "-" },
+    ],
+  }));
+  const selectedVersion = versionDetails.find(({ variant }) => variant.id === selectedVariantId) ?? versionDetails[0];
 
   const batteryVal = safeText(v.battery) || getModelSpecValue(group.specsByModel, v.id, ["电池容量"]) || "-";
   const batteryTypeVal = safeText(v.batteryType) || getModelSpecValue(group.specsByModel, v.id, ["电池类型"]) || "-";
@@ -1515,7 +1548,7 @@ function ModelFullSpecsCard({ group }: { group: ModelProfileGroup }) {
   const accelerationVal = safeText(v.acceleration) || "-";
   const topSpeedVal = safeText(v.topSpeed) || "-";
 
-  const dimensionsVal = safeText(v.dimensions) || getModelSpecValue(group.specsByModel, v.id, ["长*宽*高(mm)"]) || "-";
+  const dimensionsVal = safeText(v.dimensions) || getModelSpecValue(group.specsByModel, v.id, ["闀?瀹?楂?mm)"]) || "-";
   const wheelbaseVal = safeText(v.wheelbase) || getModelSpecValue(group.specsByModel, v.id, ["轴距(mm)"]) || "-";
   const seatsVal = safeText(v.seats);
   const doorsVal = safeText(v.doors);
@@ -1525,169 +1558,99 @@ function ModelFullSpecsCard({ group }: { group: ModelProfileGroup }) {
   const trunkCapacityVal = safeText(v.trunkCapacity);
 
   const adasVal = safeText(v.adas) || getModelSpecValue(group.specsByModel, v.id, ["ADAS"]) || "-";
-  const warrantyVal = safeText(v.warranty) || "-";
+
+  const overviewSections = [
+    {
+      title: `\u26A1 ${t("portal.batteryAndCharging")}`,
+      tone: "border-[#22b8aa]/25 bg-[#22b8aa]/[0.035]",
+      titleTone: "text-[#5ee6d8]",
+      items: [[t("portal.cltcRange"), rangeVal], [t("portal.batteryCapacity"), batteryVal], [t("portal.batteryType"), batteryTypeVal], [t("portal.chargingSpecs"), chargingVal], [t("portal.energyConsumption"), energyConsumptionVal], [t("portal.batteryMaker"), batteryMakerVal]],
+    },
+    {
+      title: `\u{1F3C1} ${t("portal.motorAndPerformance")}`,
+      tone: "border-sky-400/20 bg-sky-400/[0.035]",
+      titleTone: "text-sky-300",
+      items: [[t("portal.driveType"), driveTypeVal], [t("portal.motorPower"), motorPowerVal], [t("portal.motorTorque"), motorTorqueVal], [t("portal.acceleration"), accelerationVal], [t("portal.topSpeed"), topSpeedVal]],
+    },
+    {
+      title: `\u{1F6E1}\uFE0F ${t("portal.bodyAndChassis")}`,
+      tone: "border-violet-400/20 bg-violet-400/[0.035]",
+      titleTone: "text-violet-300",
+      items: [[t("portal.dimensions"), dimensionsVal], [t("portal.wheelbase"), wheelbaseVal], [t("portal.seatsDoors"), `${seatsVal ? `${seatsVal}\u5ea7` : "-"} / ${doorsVal ? `${doorsVal}\u95e8` : "-"}`], [t("portal.suspension"), `${frontSuspensionVal || "-"} / ${rearSuspensionVal || "-"}`], [t("portal.weightTrunk"), `${curbWeightVal || "-"} / ${trunkCapacityVal || "-"}`]],
+    },
+    {
+      title: `\u{1F50E} ${t("portal.adas")}`,
+      tone: "border-amber-400/20 bg-amber-400/[0.035]",
+      titleTone: "text-amber-300",
+      items: [[t("portal.adas"), adasVal], ["\u56fd\u5185\u5b98\u65b9\u6307\u5bfc\u4ef7", group.guidePriceSummary || v.msrpChina || "-"], ["\u51fa\u53e3\u5408\u89c4/\u5907\u6ce8", v.exportNotes || "\u7b26\u5408\u6d77\u5173\u51fa\u53e3\u901a\u7528\u68c0\u9a8c\u6807\u51c6"]],
+    },
+  ];
 
   return (
-    <div className="grid gap-4 rounded-xl border border-white/10 bg-[#0c1322] p-4 text-xs">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-3">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="rounded bg-[#22b8aa]/20 px-2 py-0.5 font-mono text-[10px] font-black uppercase text-[#5ee6d8]">
-              {safeText(group.brand)} · {safeText(group.model)}
-            </span>
-            <span className="text-[10px] text-slate-400">({group.variants.length} {t("portal.variantsInStock")})</span>
+    <div className="space-y-7 text-xs">
+      <section className="border-b border-white/10 pb-5">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="rounded-md bg-[#22b8aa]/10 px-2 py-1 font-mono text-[10px] font-black uppercase tracking-wider text-[#5ee6d8]">{safeText(group.brand)} · {safeText(group.model)}</span>
+              <span className="text-[11px] text-slate-500">{group.variants.length} {t("portal.variantsInStock")}</span>
+            </div>
+            <h4 className="mt-3 text-base font-black text-white">{safeText(group.marketPosition) || `${safeText(group.brand)} ${safeText(group.model)} ${t("portal.fullTechSpecs")}`}</h4>
           </div>
-          <h4 className="mt-1 text-sm font-black text-white">{safeText(group.marketPosition) || `${safeText(group.brand)} ${safeText(group.model)} ${t("portal.fullTechSpecs")}`}</h4>
-        </div>
-        <div className="flex flex-wrap items-center gap-2 text-[10px]">
-          <AdminSummaryChip label={t("portal.dataSource")} value={safeText(v.sourceName) || "飞书 Base 认证数据"} />
-          {v.sourceUrl ? (
-            <a href={v.sourceUrl} target="_blank" rel="noreferrer" className="rounded-lg border border-[#22b8aa]/30 bg-[#22b8aa]/10 px-2.5 py-1 font-bold text-[#5ee6d8] hover:bg-[#22b8aa] hover:text-black">
-              {t("portal.feishuSource")}
-            </a>
-          ) : null}
-          {v.brochureUrl ? (
-            <a href={v.brochureUrl} target="_blank" rel="noreferrer" className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-2.5 py-1 font-bold text-amber-300 hover:bg-amber-500 hover:text-black">
-              {t("portal.pdfBrochure")}
-            </a>
-          ) : null}
-        </div>
-      </div>
-
-      <div className="grid gap-3 sm:grid-cols-2">
-        <div className="rounded-lg border border-[#22b8aa]/20 bg-[#22b8aa]/[0.03] p-3">
-          <div className="mb-2 flex items-center justify-between border-b border-[#22b8aa]/20 pb-1.5">
-            <strong className="font-black text-[#5ee6d8]">⚡ {t("portal.batteryAndCharging")}</strong>
-            <span className="text-[9px] text-[#22b8aa]">BATTERY & CHARGING</span>
+          <div className="flex flex-wrap items-center gap-2 text-[10px]">
+            <span className="rounded-md border border-white/10 bg-white/[.025] px-2.5 py-1.5 text-slate-400">{t("portal.dataSource")}：<span className="font-semibold text-slate-200">{safeText(v.sourceName) || "\u98de\u4e66 Base \u8ba4\u8bc1\u6570\u636e"}</span></span>
+            {v.sourceUrl ? <a href={v.sourceUrl} target="_blank" rel="noreferrer" className="rounded-md border border-[#22b8aa]/25 px-2.5 py-1.5 font-bold text-[#5ee6d8] transition hover:bg-[#22b8aa]/10">{t("portal.feishuSource")}</a> : null}
+            {v.brochureUrl ? <a href={v.brochureUrl} target="_blank" rel="noreferrer" className="rounded-md border border-amber-400/25 px-2.5 py-1.5 font-bold text-amber-300 transition hover:bg-amber-400/10">{t("portal.pdfBrochure")}</a> : null}
           </div>
-          <dl className="grid gap-2 text-slate-300">
-            <div>
-              <dt className="text-[10px] text-slate-500">{t("portal.batteryCapacity")}</dt>
-              <dd className="mt-0.5 font-medium text-white">{batteryVal}</dd>
-            </div>
-            <div>
-              <dt className="text-[10px] text-slate-500">{t("portal.batteryType")}</dt>
-              <dd className="mt-0.5 font-medium text-white">{batteryTypeVal}</dd>
-            </div>
-            <div>
-              <dt className="text-[10px] text-slate-500">{t("portal.batteryMaker")}</dt>
-              <dd className="mt-0.5 font-medium text-white">{batteryMakerVal}</dd>
-            </div>
-            <div>
-              <dt className="text-[10px] text-slate-500">{t("portal.cltcRange")}</dt>
-              <dd className="mt-0.5 font-bold text-[#5ee6d8]">{rangeVal}</dd>
-            </div>
-            <div>
-              <dt className="text-[10px] text-slate-500">{t("portal.energyConsumption")}</dt>
-              <dd className="mt-0.5 font-medium text-white">{energyConsumptionVal}</dd>
-            </div>
-            <div>
-              <dt className="text-[10px] text-slate-500">{t("portal.chargingSpecs")}</dt>
-              <dd className="mt-0.5 font-medium text-white">{chargingVal}</dd>
-            </div>
-          </dl>
         </div>
+      </section>
 
-        <div className="rounded-lg border border-indigo-500/20 bg-indigo-500/[0.03] p-3">
-          <div className="mb-2 flex items-center justify-between border-b border-indigo-500/20 pb-1.5">
-            <strong className="font-black text-indigo-300">🏁 {t("portal.motorAndPerformance")}</strong>
-            <span className="text-[9px] text-indigo-400">MOTOR & PERFORMANCE</span>
+      <section>
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <div><p className="text-[10px] font-black uppercase tracking-[.18em] text-slate-500">MODEL OVERVIEW</p><h5 className="mt-1 text-sm font-black text-white">{t("portal.fullTechSpecs")}</h5></div>
+          <span className="text-[10px] text-slate-500">{t("portal.dataSource")}：{safeText(v.sourceName) || "-"}</span>
+        </div>
+        <div className="grid gap-px overflow-hidden rounded-lg border border-white/10 bg-white/10 md:grid-cols-2">
+          {overviewSections.map((section) => (
+            <div key={section.title} className={`p-4 ${section.tone}`}>
+              <strong className={`block border-b border-white/10 pb-2 text-xs font-black ${section.titleTone}`}>{section.title}</strong>
+              <dl className="mt-3 grid gap-x-4 gap-y-3 sm:grid-cols-2">
+                {section.items.map(([label, value]) => <div key={label} className="min-w-0"><dt className="text-[10px] text-slate-500">{label}</dt><dd className="mt-1 break-words font-medium leading-5 text-slate-200">{value}</dd></div>)}
+              </dl>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {versionDetails.length > 0 ? (
+        <section className="border-t border-white/10 pt-6">
+          <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+            <div><p className="text-[10px] font-black uppercase tracking-[.18em] text-slate-500">CONFIGURATIONS</p><h5 className="mt-1 text-base font-black text-white">{`\u914d\u7f6e\u7248\u672c (${versionDetails.length})`}</h5></div>
+            <span className="text-[10px] text-slate-500">{t("portal.dataSource")}：<span className="font-medium text-slate-300">{safeText(v.sourceName) || "-"}</span></span>
           </div>
-          <dl className="grid gap-2 text-slate-300">
-            <div>
-              <dt className="text-[10px] text-slate-500">{t("portal.motorPower")}</dt>
-              <dd className="mt-0.5 font-medium text-white">{motorPowerVal}</dd>
-            </div>
-            <div>
-              <dt className="text-[10px] text-slate-500">{t("portal.motorTorque")}</dt>
-              <dd className="mt-0.5 font-medium text-white">{motorTorqueVal}</dd>
-            </div>
-            <div>
-              <dt className="text-[10px] text-slate-500">{t("portal.driveType")}</dt>
-              <dd className="mt-0.5 font-medium text-white">{driveTypeVal}</dd>
-            </div>
-            <div>
-              <dt className="text-[10px] text-slate-500">{t("portal.acceleration")}</dt>
-              <dd className="mt-0.5 font-bold text-indigo-300">{accelerationVal}</dd>
-            </div>
-            <div>
-              <dt className="text-[10px] text-slate-500">{t("portal.topSpeed")}</dt>
-              <dd className="mt-0.5 font-medium text-white">{topSpeedVal}</dd>
-            </div>
-          </dl>
-        </div>
-
-        <div className="rounded-lg border border-amber-500/20 bg-amber-500/[0.03] p-3">
-          <div className="mb-2 flex items-center justify-between border-b border-amber-500/20 pb-1.5">
-            <strong className="font-black text-amber-300">🚗 {t("portal.bodyAndChassis")}</strong>
-            <span className="text-[9px] text-amber-400">BODY & CHASSIS</span>
+          <div className="overflow-hidden rounded-lg border border-white/10 bg-[#070e1b]">
+            {versionDetails.map(({ variant, items }) => {
+              const isSelected = selectedVersion?.variant.id === variant.id;
+              return (
+                <button key={variant.id} type="button" onClick={() => setSelectedVariantId(variant.id)} className={`grid w-full grid-cols-2 gap-3 border-b border-white/[.07] px-4 py-4 text-left transition last:border-b-0 sm:grid-cols-3 2xl:grid-cols-[minmax(180px,1.2fr)_repeat(4,minmax(105px,.7fr))_auto] ${isSelected ? "bg-[#22b8aa]/[.09] shadow-[inset_3px_0_0_#22b8aa]" : "hover:bg-white/[.035]"}`}>
+                  <span className="col-span-full min-w-0 2xl:col-auto"><strong className="block break-words text-sm font-black text-white">{variant.trim || variant.id}</strong><span className="mt-1 block text-[10px] text-slate-500">{isSelected ? "\u6b63\u5728\u67e5\u770b\u8be6\u60c5" : "\u70b9\u51fb\u67e5\u770b\u8be6\u60c5"}</span></span>
+                  {items.slice(0, 4).map((item) => <span key={item.label} className="min-w-0"><span className="block text-[10px] text-slate-500">{item.label}</span><span className={`mt-1 block break-words text-[11px] leading-4 ${item.label === "\u6307\u5bfc\u4ef7" ? "font-black text-amber-300" : "font-medium text-slate-300"}`}>{item.value}</span></span>)}
+                  <span className={`self-center rounded-full border px-2 py-1 text-center text-[10px] font-black ${items[8]?.value === "Verified" ? "border-[#22b8aa]/35 bg-[#22b8aa]/10 text-[#5ee6d8]" : "border-amber-400/35 bg-amber-400/10 text-amber-300"}`}>{items[8]?.value || "-"}</span>
+                </button>
+              );
+            })}
           </div>
-          <dl className="grid gap-2 text-slate-300">
-            <div>
-              <dt className="text-[10px] text-slate-500">{t("portal.dimensions")}</dt>
-              <dd className="mt-0.5 font-medium text-white">{dimensionsVal}</dd>
-            </div>
-            <div>
-              <dt className="text-[10px] text-slate-500">{t("portal.wheelbase")}</dt>
-              <dd className="mt-0.5 font-medium text-white">{wheelbaseVal}</dd>
-            </div>
-            <div>
-              <dt className="text-[10px] text-slate-500">{t("portal.seatsDoors")}</dt>
-              <dd className="mt-0.5 font-medium text-white">{seatsVal ? `${seatsVal}座` : "-"} / {doorsVal ? `${doorsVal}门` : "-"}</dd>
-            </div>
-            <div>
-              <dt className="text-[10px] text-slate-500">{t("portal.suspension")}</dt>
-              <dd className="mt-0.5 font-medium text-white">{frontSuspensionVal || "-"} / {rearSuspensionVal || "-"}</dd>
-            </div>
-            <div>
-              <dt className="text-[10px] text-slate-500">{t("portal.weightTrunk")}</dt>
-              <dd className="mt-0.5 font-medium text-white">{curbWeightVal || "-"} / {trunkCapacityVal || "-"}</dd>
-            </div>
-          </dl>
-        </div>
 
-        <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/[0.03] p-3">
-          <div className="mb-2 flex items-center justify-between border-b border-emerald-500/20 pb-1.5">
-            <strong className="font-black text-emerald-300">🛡️ {t("portal.adasAndWarranty")}</strong>
-            <span className="text-[9px] text-emerald-400">ADAS & COMPLIANCE</span>
-          </div>
-          <dl className="grid gap-2 text-slate-300">
-            <div>
-              <dt className="text-[10px] text-slate-500">{t("portal.adas")}</dt>
-              <dd className="mt-0.5 font-bold text-emerald-300">{adasVal}</dd>
-            </div>
-            <div>
-              <dt className="text-[10px] text-slate-500">{t("portal.warranty")}</dt>
-              <dd className="mt-0.5 font-medium text-white">{warrantyVal}</dd>
-            </div>
-            <div>
-              <dt className="text-[10px] text-slate-500">国内官方指导价</dt>
-              <dd className="mt-0.5 font-bold text-amber-300">{group.guidePriceSummary || v.msrpChina || "-"}</dd>
-            </div>
-            <div>
-              <dt className="text-[10px] text-slate-500">出口合规/备注</dt>
-              <dd className="mt-0.5 font-medium text-white">{v.exportNotes || "符合海关出口通用检验标准"}</dd>
-            </div>
-          </dl>
-        </div>
-      </div>
-
-      {group.variants.length > 1 ? (
-        <div className="mt-2 rounded-lg border border-white/10 bg-white/[.02] p-3">
-          <strong className="block text-xs font-black text-slate-300 mb-2">包含的版本与变体 ({group.variants.length} 个):</strong>
-          <div className="grid gap-2 sm:grid-cols-2 md:grid-cols-3">
-            {group.variants.map((varItem) => (
-              <div key={varItem.id} className="rounded border border-white/10 bg-black/20 p-2 text-xs">
-                <span className="font-black text-white">{varItem.trim || varItem.id}</span>
-                <div className="mt-1 flex flex-wrap gap-2 text-[10px] text-slate-400">
-                  <span>续航: {varItem.range || "-"}</span>
-                  <span>功率: {varItem.motorPower || "-"}</span>
-                  <span>指导价: {varItem.msrpChina || "-"}</span>
-                </div>
+          {selectedVersion ? (
+            <div className="mt-4 border border-white/10 bg-white/[.025]">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 px-4 py-3"><div><p className="text-[10px] font-black uppercase tracking-[.18em] text-[#5ee6d8]">SELECTED CONFIGURATION</p><strong className="mt-1 block text-sm font-black text-white">{selectedVersion.variant.trim || selectedVersion.variant.id}</strong></div><span className="rounded-full border border-white/10 px-2 py-1 text-[10px] font-bold text-slate-300">{selectedVersion.items[8]?.value || "-"}</span></div>
+              <div className="grid gap-px bg-white/10 lg:grid-cols-2">
+                <dl className="grid gap-x-6 gap-y-4 bg-[#0a1120] p-4 sm:grid-cols-2">{selectedVersion.items.slice(0, 6).map((item) => <div key={item.label}><dt className="text-[10px] text-slate-500">{item.label}</dt><dd className="mt-1 break-words text-[12px] leading-5 text-slate-200">{item.value}</dd></div>)}</dl>
+                <dl className="grid gap-4 bg-[#0a1120] p-4">{selectedVersion.items.slice(6).map((item) => <div key={item.label}><dt className="text-[10px] text-slate-500">{item.label}</dt><dd className="mt-1 break-words text-[12px] leading-5 text-slate-200">{item.value}</dd></div>)}</dl>
               </div>
-            ))}
-          </div>
-        </div>
+            </div>
+          ) : null}
+        </section>
       ) : null}
     </div>
   );
@@ -1712,10 +1675,10 @@ function AdminProfiles({ data }: { data: BootstrapData }) {
         {/* Feishu banner */}
         <div className="mb-5 flex flex-col gap-3 rounded-2xl border border-[#22b8aa]/30 bg-[#22b8aa]/10 p-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
-            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#22b8aa]/20 text-lg">🖼️</div>
+            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#22b8aa]/20 text-lg">{"\u{1F5BC}\uFE0F"}</div>
             <div>
               <strong className="block text-sm font-bold text-white">飞书带图册实时车型公开视图</strong>
-              <p className="mt-0.5 text-xs text-slate-300">包含外观图册、配置参数与现车价格一览，支持免登录公开分享与查阅。</p>
+              <p className="mt-0.5 text-xs text-slate-300">{"包含外观图册、配置参数与现车价格一览，支持免登录公开分享与查阅。"}</p>
             </div>
           </div>
           <a
@@ -1724,7 +1687,7 @@ function AdminProfiles({ data }: { data: BootstrapData }) {
             rel="noopener noreferrer"
             className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-[#22b8aa] px-4 py-2.5 text-xs font-black text-[#0c1322] transition hover:bg-[#5ee6d8]"
           >
-            <span>打开飞书图册一览 ↗</span>
+            <span>{"打开飞书图册一览 \u2192"}</span>
           </a>
         </div>
 
@@ -1805,7 +1768,7 @@ function AdminProfiles({ data }: { data: BootstrapData }) {
               <div className="flex flex-1 items-center justify-center px-8 py-16 text-center">
                 <div>
                   <div className="mb-3 text-4xl">🚗</div>
-                  <p className="text-sm text-slate-500">从左侧选择一款车型查看详情</p>
+                  <p className="text-sm text-slate-500">{"从左侧选择一款车型查看详情"}</p>
                 </div>
               </div>
             ) : (
@@ -1869,6 +1832,13 @@ function AdminVehicles({ data, onEdit }: { data: BootstrapData; onEdit: (vehicle
   const [colorFilter, setColorFilter] = useState("all");
   const [supplierFilter, setSupplierFilter] = useState("all");
   const normalizedSearch = searchQuery.trim().toLowerCase();
+  const canSeeSupplier = data.user.role !== "partner";
+  const canSeeLocation = data.user.role !== "partner";
+  const effectiveSupplierFilter = canSeeSupplier ? supplierFilter : "all";
+
+  useEffect(() => {
+    if (!canSeeSupplier && supplierFilter !== "all") setSupplierFilter("all");
+  }, [canSeeSupplier, supplierFilter]);
 
   // 从真实数据中动态提取下拉筛选选项
   const brandOptions = useMemo(() => {
@@ -1893,26 +1863,27 @@ function AdminVehicles({ data, onEdit }: { data: BootstrapData; onEdit: (vehicle
   }, [data.vehicles]);
 
   const supplierOptions = useMemo(() => {
+    if (!canSeeSupplier) return [];
     const set = new Set<string>();
     data.vehicles.forEach((v) => {
       if (v.supplier?.trim()) set.add(v.supplier.trim());
     });
     return Array.from(set).sort();
-  }, [data.vehicles]);
+  }, [canSeeSupplier, data.vehicles]);
 
-  const isAllDefault = !normalizedSearch && supplyFilter === "all" && brandFilter === "all" && colorFilter === "all" && supplierFilter === "all";
+  const isAllDefault = !normalizedSearch && supplyFilter === "all" && brandFilter === "all" && colorFilter === "all" && effectiveSupplierFilter === "all";
 
   const visibleModels = sellableModels
     .map((item) => {
       const rawVehicles = vehiclesForSellableModel(data.vehicles, item).filter((vehicle) =>
-        vehicleMatchesAdminFilters(vehicle, item, normalizedSearch, supplyFilter, brandFilter, colorFilter, supplierFilter)
+        vehicleMatchesAdminFilters(vehicle, item, normalizedSearch, supplyFilter, brandFilter, colorFilter, effectiveSupplierFilter, canSeeSupplier, canSeeLocation)
       );
       const offers = item.offers.filter((offer) =>
-        offerMatchesAdminFilters(offer, item, normalizedSearch, supplyFilter, brandFilter, colorFilter, supplierFilter)
+        offerMatchesAdminFilters(offer, item, normalizedSearch, supplyFilter, brandFilter, colorFilter, effectiveSupplierFilter, canSeeSupplier, canSeeLocation)
       );
       const modelMatches = modelMatchesAdminFilters(item, normalizedSearch, brandFilter);
-      // 只有当颜色/供应商/供应状态筛选都未激活时，才允许 modelMatches 回退到显示全部
-      const hasDetailFilter = colorFilter !== "all" || supplierFilter !== "all" || supplyFilter !== "all";
+      // 鍙湁褰撻鑹?渚涘簲鍟?渚涘簲鐘舵€佺瓫閫夐兘鏈縺娲绘椂锛屾墠鍏佽 modelMatches 鍥為€€鍒版樉绀哄叏閮?
+      const hasDetailFilter = colorFilter !== "all" || effectiveSupplierFilter !== "all" || supplyFilter !== "all";
 
       const effectiveOffers = isAllDefault
         ? item.offers
@@ -1945,7 +1916,7 @@ function AdminVehicles({ data, onEdit }: { data: BootstrapData; onEdit: (vehicle
 
   return (
     <div className="grid gap-5">
-      {/* 顶部 Header 说明区 (只读模式，去除不合理的录入与新建按钮) */}
+      {/* 椤堕儴 Header 璇存槑鍖?(鍙妯″紡锛屽幓闄や笉鍚堢悊鐨勫綍鍏ヤ笌鏂板缓鎸夐挳) */}
       <section className="rounded-2xl border border-white/10 bg-[#070e1b] p-5 shadow-2xl shadow-black/20">
         <div>
           <h1 className="text-2xl font-black text-white sm:text-3xl">{t("portal.titleVehicles")}</h1>
@@ -1954,9 +1925,13 @@ function AdminVehicles({ data, onEdit }: { data: BootstrapData; onEdit: (vehicle
           </p>
         </div>
 
-        {/* 动态实用筛选与全文搜索工具栏 */}
-        <div className="mt-5 grid gap-3 border-t border-white/10 pt-4 sm:grid-cols-[minmax(0,2fr)_minmax(0,1.2fr)_minmax(0,1fr)_minmax(0,1.2fr)_minmax(0,1fr)_auto] sm:items-center">
-          {/* 全文搜索框 */}
+        {/* 鍔ㄦ€佸疄鐢ㄧ瓫閫変笌鍏ㄦ枃鎼滅储宸ュ叿鏍?*/}
+        <div className={`mt-5 grid gap-3 border-t border-white/10 pt-4 sm:items-center ${
+          canSeeSupplier
+            ? "sm:grid-cols-[minmax(0,2fr)_minmax(0,1.2fr)_minmax(0,1fr)_minmax(0,1.2fr)_minmax(0,1fr)_auto]"
+            : "sm:grid-cols-[minmax(0,2fr)_minmax(0,1.2fr)_minmax(0,1fr)_minmax(0,1fr)_auto]"
+        }`}>
+          {/* 鍏ㄦ枃鎼滅储妗?*/}
           <div className="relative">
             <span className="pointer-events-none absolute inset-y-0 left-3.5 flex items-center text-slate-500">
               🔍
@@ -1993,7 +1968,8 @@ function AdminVehicles({ data, onEdit }: { data: BootstrapData; onEdit: (vehicle
             ))}
           </select>
 
-          {/* 全部供应商下拉 */}
+          {/* 鍏ㄩ儴渚涘簲鍟嗕笅鎷?*/}
+          {canSeeSupplier && (
           <select
             value={supplierFilter}
             onChange={(e) => setSupplierFilter(e.target.value)}
@@ -2004,8 +1980,9 @@ function AdminVehicles({ data, onEdit }: { data: BootstrapData; onEdit: (vehicle
               <option key={supplier} value={supplier}>{supplier}</option>
             ))}
           </select>
+          )}
 
-          {/* 供应状态下拉 */}
+          {/* 渚涘簲鐘舵€佷笅鎷?*/}
           <select
             value={supplyFilter}
             onChange={(e) => setSupplyFilter(e.target.value)}
@@ -2014,7 +1991,6 @@ function AdminVehicles({ data, onEdit }: { data: BootstrapData; onEdit: (vehicle
             <option value="all">{t("portal.allStatuses")}</option>
             <option value="in-stock">{t("portal.inStock")}</option>
             <option value="preorder">{t("portal.preorder")}</option>
-            <option value="no-stock">{t("portal.noStock")}</option>
           </select>
 
           {/* 重置按钮 */}
@@ -2029,12 +2005,12 @@ function AdminVehicles({ data, onEdit }: { data: BootstrapData; onEdit: (vehicle
             }}
             className="inline-flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/[.04] px-3.5 py-2.5 text-xs font-bold text-slate-300 transition hover:border-[#22b8aa] hover:bg-[#22b8aa]/10 hover:text-white"
           >
-            ↻ {t("portal.reset")}
+            鈫?{t("portal.reset")}
           </button>
         </div>
       </section>
 
-      {/* 结果统计 Summary Bar (现车总台数根据要求隐藏) */}
+      {/* 缁撴灉缁熻 Summary Bar (鐜拌溅鎬诲彴鏁版牴鎹姹傞殣钘? */}
       <div className="flex flex-wrap items-center justify-between gap-3 px-1 text-xs font-bold text-slate-400">
         <div>
           找到 <span className="font-mono font-bold text-[#5ee6d8]">{visibleModels.length}</span> 个车型集合，
@@ -2061,7 +2037,7 @@ function AdminVehicles({ data, onEdit }: { data: BootstrapData; onEdit: (vehicle
                 key={item.key}
                 className="overflow-hidden rounded-2xl border border-white/10 bg-[#070e1b] shadow-xl transition"
               >
-                {/* 1级车型 Header (包含折叠展开控制) */}
+                {/* 1绾ц溅鍨?Header (鍖呭惈鎶樺彔灞曞紑鎺у埗) */}
                 <header
                   onClick={() => toggleModel(item.key)}
                   className="flex cursor-pointer flex-col gap-4 border-b border-white/5 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5 hover:bg-white/[.02]"
@@ -2075,19 +2051,18 @@ function AdminVehicles({ data, onEdit }: { data: BootstrapData; onEdit: (vehicle
                         {item.brand} {item.model}
                       </h2>
                       <p className="mt-0.5 text-xs font-medium text-slate-400">
-                        {offers.length > 0 ? `${offers.length} 个配置版本` : ""}
-                        {offers.length > 0 && rawVehicles.length > 0 ? " · " : ""}
-                        {rawVehicles.length > 0 ? `${rawVehicles.length} 条原始批次` : ""}
-                        {offers.length === 0 && rawVehicles.length === 0 ? "暂无车源数据" : ""}
+                        {offers.length > 0 ? `${offers.length} \u4e2a\u914d\u7f6e\u7248\u672c` : ""}
+                        {offers.length > 0 && item.hasStockQuantity ? " / " : ""}
+                        {item.hasStockQuantity ? `\u603b\u5e93\u5b58 ${item.stockQuantity} \u53f0` : "\u5e93\u5b58\u5f85\u786e\u8ba4"}
                       </p>
                     </div>
                   </div>
 
                   <div className="flex flex-wrap items-center gap-4 text-xs">
                     <div className="text-right">
-                      <span className="block text-[10px] uppercase tracking-wider text-slate-500">现车</span>
+                      <span className="block text-[10px] uppercase tracking-wider text-slate-500">{"\u603b\u5e93\u5b58"}</span>
                       <span className="font-mono font-black text-white text-sm">
-                        {item.stockQuantity > 0 ? `${item.stockQuantity} 台` : "-"}
+                        {item.hasStockQuantity ? `${item.stockQuantity} \u53f0` : "-"}
                       </span>
                     </div>
                     <div className="text-right">
@@ -2128,7 +2103,17 @@ function AdminVehicles({ data, onEdit }: { data: BootstrapData; onEdit: (vehicle
                 {isExpanded && (
                   <div className="p-4 sm:p-5">
                     <AdminTable
-                      headers={["资源 ID", "美金报价", "配置版本", "车源地点", "左右舵 / 版本", "供应商", "外观 / 内饰颜色", "库存状态"]}
+                      headers={[
+                        "\u8d44\u6e90 ID",
+                        "\u7f8e\u91d1\u62a5\u4ef7",
+                        "\u914d\u7f6e\u7248\u672c",
+                        ...(canSeeLocation ? ["\u8f66\u6e90\u5730\u70b9"] : []),
+                        "\u5de6\u53f3\u8235 / \u7248\u672c",
+                        ...(canSeeSupplier ? ["\u4f9b\u5e94\u5546"] : []),
+                        "\u5916\u89c2 / \u5185\u9970\u989c\u8272",
+                        "\u5e93\u5b58\u6570\u91cf",
+                        "\u4ea4\u4ed8\u72b6\u6001",
+                      ]}
                       rows={rawVehicles.map((vehicle) => [
                         <span key="id" className="font-mono text-xs font-bold text-[#22b8aa]">{vehicle.id}</span>,
                         <div key="price" className="flex flex-col gap-1">
@@ -2152,25 +2137,27 @@ function AdminVehicles({ data, onEdit }: { data: BootstrapData; onEdit: (vehicle
                               {vehicle.priceTerm || "FOB"} {formatUsdStrict(vehicle.price)}
                             </span>
                           ) : (
-                            <span className="text-xs text-slate-500">待报价</span>
+                            <span className="text-xs text-slate-500">寰呮姤浠</span>
                           )}
                           {vehicle.cost ? <span className="font-mono text-[10px] text-slate-500">成本 {formatUsdStrict(vehicle.cost)}</span> : null}
                         </div>,
                         <strong key="trim" className="text-xs font-bold text-white">
                           {compactJoin([vehicle.year ? `${vehicle.year}款` : "", vehicle.trim || "未指定配置", vehicle.configuration])}
                         </strong>,
-                        <span key="loc" className="text-xs font-medium text-slate-200">{vehicle.location || "未指定地点"}</span>,
+                        ...(canSeeLocation
+                          ? [<span key="loc" className="text-xs font-medium text-slate-200">{vehicle.location || "\u672a\u6307\u5b9a\u5730\u70b9"}</span>]
+                          : []),
                         <span key="spec" className="text-[11px] font-bold text-[#5ee6d8]">
                           {compactJoin([vehicle.steering || "左舵 LHD", vehicle.marketVersion || "国内版"])}
                         </span>,
-                        <span key="supplier" className="text-xs font-medium text-slate-200">{vehicle.supplier || "合作车商"}</span>,
+                        ...(canSeeSupplier
+                          ? [<span key="supplier" className="text-xs font-medium text-slate-200">{vehicle.supplier || "\u5408\u4f5c\u8f66\u5546"}</span>]
+                          : []),
                         <span key="color" className="text-xs text-slate-400">
                           {formatColorPair(vehicle.exteriorColor || vehicle.color, vehicle.interiorColor)}
                         </span>,
-                        <div key="stock" className="flex items-center gap-1.5">
-                          <span className="text-xs text-slate-300">{vehicle.stockQuantity > 0 ? `${vehicle.stockQuantity} 台` : "现车/按需"}</span>
-                          <AdminStatusBadge status={getSupplyType(vehicle)} />
-                        </div>,
+                        <span key="stock" className="text-xs text-slate-300">{formatInventoryQuantity(vehicle)}</span>,
+                        <span key="fulfillment" className="text-xs font-medium text-slate-200">{formatFulfillmentStatus(vehicle)}</span>,
                       ])}
                       emptyText="暂无车源数据"
                     />
@@ -2363,25 +2350,6 @@ function AdminStaff({ data }: { data: BootstrapData }) {
           <AdminStatusBadge key="status" status={row[6]} />,
         ])}
         emptyText="暂无员工账号"
-      />
-    </AdminPanel>
-  );
-}
-
-function AdminFiles({ data }: { data: BootstrapData }) {
-  const fileRows = [
-    ["报价与 PI", data.quotes.length, "Quotes"],
-    ["订单合同", data.orders.length, "Orders"],
-    ["收款凭证", 0, "Payments"],
-    ["出口单证", data.orders.length, "Logistics"],
-  ];
-
-  return (
-    <AdminPanel title="文件中心" subtitle="按业务对象归档的文件入口">
-      <AdminTable
-        headers={["分类", "关联数量", "来源表"]}
-        rows={fileRows.map((row) => [String(row[0]), `${row[1]} 条`, String(row[2])])}
-        emptyText="暂无文件"
       />
     </AdminPanel>
   );
@@ -2782,16 +2750,6 @@ function AdminNavIcon({ name }: { name: AdminIconName }) {
           <path d="M9 12l2 2 4-5" />
         </svg>
       );
-    case "files":
-      return (
-        <svg {...common}>
-          <path d="M7 8l5-3 5 3-5 3z" />
-          <path d="M4 13l5-3 5 3-5 3z" />
-          <path d="M10 13l5-3 5 3-5 3z" />
-          <path d="M9 16v4" />
-          <path d="M15 16v4" />
-        </svg>
-      );
   }
 }
 
@@ -2972,7 +2930,7 @@ function buildVariantDifferenceSteps(group: ModelProfileGroup): VariantDifferenc
     }
     if (sectionItems.length) {
       sections.push({
-        label: index === 0 ? "入门基础" : `第${index + 1}档新增/升级`,
+        label: index === 0 ? "鍏ラ棬鍩虹" : `绗?{index + 1}妗ｆ柊澧?鍗囩骇`,
         tone: upgradeStepColor(index),
         isCurrent: true,
         items: sectionItems,
@@ -3014,36 +2972,19 @@ function upgradeStepColor(index: number) {
 }
 
 function specCategoryTone(category: string) {
-  if (/电池|充电|电动机/.test(category)) return "#5ee6d8";
-  if (/辅助|安全|智能/.test(category)) return "#8fb7ff";
-  if (/座椅|内部|空调|舒适/.test(category)) return "#f5a3c7";
-  if (/外部|灯光|玻璃/.test(category)) return "#f4d35e";
-  if (/车身|底盘|车轮/.test(category)) return "#b6e36a";
+  const normalized = category.toLowerCase();
+  if (/(battery|charging|powertrain)/.test(normalized)) return "#5ee6d8";
+  if (/(safety|adas|assist)/.test(normalized)) return "#8fb7ff";
+  if (/(comfort|interior|seat)/.test(normalized)) return "#f5a3c7";
+  if (/(exterior|lighting|glass)/.test(normalized)) return "#f4d35e";
+  if (/(body|chassis|wheel)/.test(normalized)) return "#b6e36a";
   return "#94a3b8";
 }
 
 function upgradeSpecRank(spec: VehicleModelSpec) {
-  const names = [
-    "CLTC续航",
-    "电池容量",
-    "电池类型",
-    "电机总功率",
-    "电机总扭矩",
-    "驱动方式",
-    "充电说明",
-    "ADAS",
-    "辅助驾驶",
-    "主动安全配置",
-    "被动安全配置",
-    "座椅配置",
-    "多媒体/智能座舱",
-    "外部配置",
-    "内部配置",
-    "空调/舒适",
-  ];
-  const exact = names.indexOf(spec.name);
-  if (exact !== -1) return exact;
-  if (/辅助|安全|座椅|智能|舒适|天窗|雷达|影像|屏|灯|空调/.test(`${spec.category} ${spec.name}`)) return 50;
+  const normalized = `${spec.category} ${spec.name}`.toLowerCase();
+  if (/(range|battery|motor|drive|charge|power)/.test(normalized)) return 10;
+  if (/(safety|assist|adas)/.test(normalized)) return 50;
   return 100 + categoryRank(spec.category);
 }
 
@@ -3107,6 +3048,7 @@ function buildSellableModels(data: BootstrapData): SellableModel[] {
           segment: modelInfo?.bodyType || inferVehicleSegment(vehicle),
           imageUrl: modelInfo?.imageUrl || vehicle.imageUrl,
           stockQuantity: 0,
+          hasStockQuantity: false,
           preorderAvailable: false,
           fobPriceRange: "FOB on request",
           offers: [],
@@ -3117,9 +3059,10 @@ function buildSellableModels(data: BootstrapData): SellableModel[] {
 
     const entry = grouped.get(modelKey)!;
     const supplyType = getSupplyType(vehicle);
-    // 同车型不同颜色共享库存池，取最大值而非累加
-    if (supplyType === "In Stock") {
-      entry.item.stockQuantity = Math.max(entry.item.stockQuantity, vehicle.stockQuantity);
+    // Total model stock is authored in Base once per model; never add it across color rows.
+    if (vehicle.modelStockQuantity !== null && vehicle.modelStockQuantity !== undefined) {
+      entry.item.stockQuantity = Math.max(entry.item.stockQuantity, vehicle.modelStockQuantity);
+      entry.item.hasStockQuantity = true;
     }
     entry.item.preorderAvailable = entry.item.preorderAvailable || supplyType === "Preorder";
     if (!entry.item.imageUrl && vehicle.imageUrl) entry.item.imageUrl = vehicle.imageUrl;
@@ -3170,7 +3113,7 @@ function buildSellableModels(data: BootstrapData): SellableModel[] {
         return stockRank || (a.price || Number.MAX_SAFE_INTEGER) - (b.price || Number.MAX_SAFE_INTEGER);
       });
 
-      // 汇总该车型所有 offer 的 FOB/EXW/FCA 价格区间（取各 term 的最低~最高）
+      // 姹囨€昏杞﹀瀷鎵€鏈?offer 鐨?FOB/EXW/FCA 浠锋牸鍖洪棿锛堝彇鍚?term 鐨勬渶浣巭鏈€楂橈級
       const termMap = new Map<string, { min: number; max: number }>();
       for (const offer of offers) {
         for (const pt of offer.priceTermsList) {
@@ -3199,7 +3142,10 @@ function buildSellableModels(data: BootstrapData): SellableModel[] {
         fobPriceRange: formatFobRange(offers.map((offer) => offer.price).filter((price): price is number => Boolean(price))),
       };
     })
-    .sort((a, b) => b.stockQuantity - a.stockQuantity || a.brand.localeCompare(b.brand) || a.model.localeCompare(b.model) || b.year.localeCompare(a.year));
+    .sort((a, b) => {
+      const inStockRank = Number(b.offers.some((offer) => offer.supplyType === "In Stock")) - Number(a.offers.some((offer) => offer.supplyType === "In Stock"));
+      return inStockRank || Number(b.hasStockQuantity) - Number(a.hasStockQuantity) || b.stockQuantity - a.stockQuantity || a.brand.localeCompare(b.brand) || a.model.localeCompare(b.model) || b.year.localeCompare(a.year);
+    });
 }
 
 function getFobPrice(vehicle: Vehicle) {
@@ -3234,7 +3180,9 @@ function offerMatchesAdminFilters(
   supplyFilter: string,
   brandFilter: string,
   colorFilter: string,
-  supplierFilter: string
+  supplierFilter: string,
+  canSeeSupplier = true,
+  canSeeLocation = true
 ) {
   if (brandFilter !== "all") {
     const itemB = (item.brand || "").toLowerCase();
@@ -3249,8 +3197,8 @@ function offerMatchesAdminFilters(
     if (!ext.includes(target) && !intColor.includes(target)) return false;
   }
 
-  if (supplierFilter !== "all") {
-    // offer 的底层 vehicles 中至少一个供应商匹配
+  if (canSeeSupplier && supplierFilter !== "all") {
+    // offer 鐨勫簳灞?vehicles 涓嚦灏戜竴涓緵搴斿晢鍖归厤
     const hasMatchingSupplier = offer.vehicles.some((v) =>
       (v.supplier || "").toLowerCase() === supplierFilter.toLowerCase()
     );
@@ -3273,7 +3221,7 @@ function offerMatchesAdminFilters(
     offer.badge,
     offer.supplyType,
     offer.leadTime,
-    offer.location,
+    ...(canSeeLocation ? [offer.location] : []),
     offer.price ? formatUsdStrict(offer.price) : offer.priceLabel,
   ]);
   const keywords = query.split(/\s+/).filter(Boolean);
@@ -3287,7 +3235,9 @@ function vehicleMatchesAdminFilters(
   supplyFilter: string,
   brandFilter: string,
   colorFilter: string,
-  supplierFilter: string
+  supplierFilter: string,
+  canSeeSupplier = true,
+  canSeeLocation = true
 ) {
   if (brandFilter !== "all") {
     const b = (vehicle.brand || item.brand || "").toLowerCase();
@@ -3296,13 +3246,13 @@ function vehicleMatchesAdminFilters(
   }
 
   if (colorFilter !== "all") {
-    const ext = (vehicle.exteriorColor || vehicle.color || vehicle.supplierExteriorColor || "").toLowerCase();
-    const intColor = (vehicle.interiorColor || vehicle.supplierInteriorColor || "").toLowerCase();
+    const ext = (vehicle.exteriorColor || vehicle.color || (canSeeSupplier ? vehicle.supplierExteriorColor : "") || "").toLowerCase();
+    const intColor = (vehicle.interiorColor || (canSeeSupplier ? vehicle.supplierInteriorColor : "") || "").toLowerCase();
     const target = colorFilter.toLowerCase();
     if (!ext.includes(target) && !intColor.includes(target)) return false;
   }
 
-  if (supplierFilter !== "all") {
+  if (canSeeSupplier && supplierFilter !== "all") {
     const s = (vehicle.supplier || "").toLowerCase();
     if (s !== supplierFilter.toLowerCase()) return false;
   }
@@ -3323,15 +3273,14 @@ function vehicleMatchesAdminFilters(
     vehicle.color,
     vehicle.exteriorColor,
     vehicle.interiorColor,
-    vehicle.supplierExteriorColor,
-    vehicle.supplierInteriorColor,
+    ...(canSeeSupplier ? [vehicle.supplierExteriorColor, vehicle.supplierInteriorColor] : []),
     vehicle.colorCode,
     vehicle.configuration,
     vehicle.steering,
     vehicle.marketVersion,
-    vehicle.supplier,
+    ...(canSeeSupplier ? [vehicle.supplier] : []),
     vehicle.recorder,
-    vehicle.location,
+    ...(canSeeLocation ? [vehicle.location] : []),
     vehicle.status,
     vehicle.inventoryStatus,
     vehicle.leadTime,
@@ -3349,7 +3298,6 @@ function supplyTypeMatchesFilter(supplyType: string, supplyFilter: string) {
   const normalized = supplyType.toLowerCase();
   if (supplyFilter === "in-stock") return normalized === "in stock";
   if (supplyFilter === "preorder") return normalized === "preorder";
-  if (supplyFilter === "no-stock") return normalized === "no stock";
   return true;
 }
 
@@ -3367,10 +3315,20 @@ function inferVehicleSegment(vehicle: Vehicle) {
 }
 
 function getSupplyType(vehicle: Vehicle) {
-  const status = vehicle.status.toLowerCase();
-  if (status.includes("preorder") || status.includes("order")) return "Preorder";
-  if (vehicle.stockQuantity > 0) return "In Stock";
-  return "No Stock";
+  if (vehicle.waitDays === 0) return "In Stock";
+  if (vehicle.waitDays !== null && vehicle.waitDays !== undefined && vehicle.waitDays > 0) return "Preorder";
+  return "Unknown";
+}
+
+function formatInventoryQuantity(vehicle: Vehicle) {
+  const quantity = vehicle.colorStockQuantity ?? vehicle.trimStockQuantity;
+  return quantity !== null && quantity !== undefined ? `${quantity} \u53f0` : "-";
+}
+
+function formatFulfillmentStatus(vehicle: Vehicle) {
+  if (vehicle.waitDays === 0) return "\u73b0\u8f66";
+  if (vehicle.waitDays !== null && vehicle.waitDays !== undefined && vehicle.waitDays > 0) return `\u8ba2\u8f66 路 ${vehicle.waitDays} \u5929`;
+  return "\u4ea4\u4ed8\u5468\u671f\u5f85\u786e\u8ba4";
 }
 
 function formatFobRange(prices: number[]) {

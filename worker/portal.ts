@@ -1,4 +1,4 @@
-/// <reference types="@cloudflare/workers-types" />
+﻿/// <reference types="@cloudflare/workers-types" />
 
 import { buildProductFilterData } from "./productFilters";
 import { createFeishuAuth } from "../lib/auth";
@@ -115,7 +115,6 @@ type PortalVehicleModel = {
   frontSuspension: string;
   rearSuspension: string;
   adas: string;
-  warranty: string;
   marketPosition: string;
   exportNotes: string;
   imageUrl: string;
@@ -525,7 +524,7 @@ function isInternalSession(session: PortalSession) {
 }
 
 function canSeePortalPrice(session: PortalSession) {
-  // 所有成功登录的用户（内部/合作伙伴/客户）均可看到车源美金报价
+  // 鎵€鏈夋垚鍔熺櫥褰曠殑鐢ㄦ埛锛堝唴閮?鍚堜綔浼欎即/瀹㈡埛锛夊潎鍙湅鍒拌溅婧愮編閲戞姤浠?
   return Boolean(session && session.userId);
 }
 
@@ -922,8 +921,6 @@ function mapVehicleModel(record: FeishuRecord): PortalVehicleModel {
     asOptionalNumber(fields.top_speed_max_kmh),
     "km/h",
   );
-  const warrantyYears = asOptionalNumber(fields.battery_warranty_years);
-  const warrantyDistance = asOptionalNumber(fields.battery_warranty_distance_km);
   return {
     id: asText(fields.model_id),
     brand: asText(fields.brand),
@@ -953,9 +950,6 @@ function mapVehicleModel(record: FeishuRecord): PortalVehicleModel {
     frontSuspension: "",
     rearSuspension: "",
     adas: "",
-    warranty: warrantyYears !== null || warrantyDistance !== null
-      ? [warrantyYears !== null ? `${formatNumber(warrantyYears)} years` : "", warrantyDistance !== null ? `${formatNumber(warrantyDistance)} km` : ""].filter(Boolean).join(" / ")
-      : "",
     marketPosition: asText(fields.page_subtitle),
     exportNotes: asText(fields.review_notes),
     imageUrl: asText(fields.image_url),
@@ -965,6 +959,142 @@ function mapVehicleModel(record: FeishuRecord): PortalVehicleModel {
     lastSyncedAt: asText(fields.last_synced_at),
     fullSpecsJson: "",
     status: asText(fields.status) || "Active",
+  };
+}
+
+function linkedRecordIds(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .map((item) => {
+      if (item && typeof item === "object") {
+        const record = item as Record<string, unknown>;
+        return asText(record.id ?? record.record_id);
+      }
+      return asText(item);
+    })
+    .filter(Boolean);
+}
+
+function mapVehicleVariant(
+  record: FeishuRecord,
+  modelById: Map<string, PortalVehicleModel>,
+  modelIdByRecordId: Map<string, string>,
+): PortalVehicleModel | null {
+  const fields = record.fields;
+  const linkedModelId = linkedRecordIds(fields.vehicle_model_pruned)
+    .map((recordId) => modelIdByRecordId.get(recordId))
+    .find(Boolean);
+  const modelId = asText(fields.model_id) || linkedModelId || "";
+  const parent = modelById.get(modelId);
+  if (!parent) return null;
+
+  const trimId = asText(fields.trim_config_id) || asText(fields.record_id) || record.record_id;
+  const price = asOptionalNumber(fields.trim_price_display);
+  const range = asOptionalNumber(fields.range_display);
+  const batteryCapacity = asOptionalNumber(fields.battery_capacity_kwh);
+  const motorPower = asOptionalNumber(fields.motor_power_kw);
+  const motorTorque = asOptionalNumber(fields.motor_torque_n_m);
+
+  return {
+    ...parent,
+    id: trimId,
+    trim: asText(fields.variant) || trimId,
+    msrpChina: price !== null ? formatUsd(price) : parent.msrpChina,
+    battery: batteryCapacity !== null ? `${formatNumber(batteryCapacity, 3)} kWh` : parent.battery,
+    batteryType: asText(fields.battery_chemistry) || parent.batteryType,
+    range: range !== null ? `${formatNumber(range)} km CLTC` : parent.range,
+    motorPower: motorPower !== null ? `${formatNumber(motorPower)} kW` : parent.motorPower,
+    motorTorque: motorTorque !== null ? `${formatNumber(motorTorque)} N-m` : parent.motorTorque,
+    driveType: asText(fields.drivetrain_display) || parent.driveType,
+    charging: trimChargingDisplay(fields) || parent.charging,
+    sourceUrl: cleanUrl(fields.source_url) || parent.sourceUrl,
+    sourceName: "Feishu Base \u00B7 vehicle_variants",
+    lastSyncedAt: asText(fields.last_verified_at) || parent.lastSyncedAt,
+    fullSpecsJson: JSON.stringify(fields),
+  };
+}
+
+function synthesizeSpecsFromVariant(record: FeishuRecord, variant: PortalVehicleModel): PortalVehicleModelSpec[] {
+  const fields = record.fields;
+  const specs: PortalVehicleModelSpec[] = [];
+  const addSpec = (name: string, value: string, sortOrder: number, category: string) => {
+    if (!value) return;
+    specs.push({
+      modelId: variant.id,
+      category,
+      name,
+      value,
+      unit: "",
+      visibleLevel: "Full",
+      sortOrder,
+      sourceName: "Feishu Base \u00B7 vehicle_variants",
+      sourceUrl: cleanUrl(fields.source_url),
+      confidence: "High",
+    });
+  };
+
+  const price = asOptionalNumber(fields.trim_price_display);
+  const range = asOptionalNumber(fields.range_display);
+  const batteryCapacity = asOptionalNumber(fields.battery_capacity_kwh);
+  const motorPower = asOptionalNumber(fields.motor_power_kw);
+  const motorTorque = asOptionalNumber(fields.motor_torque_n_m);
+  const recommended = fields.recommended === undefined ? "" : (asBool(fields.recommended) ? "Yes" : "No");
+
+  addSpec("\u7248\u672c\u540d\u79f0", asText(fields.variant), 0, "\u7248\u672c");
+  addSpec("\u4e2d\u56fd\u5b98\u65b9\u6307\u5bfc\u4ef7", price !== null ? formatUsd(price) : "", 1, "\u7248\u672c");
+  addSpec("CLTC\u7eed\u822a", range !== null ? `${formatNumber(range)} km` : "", 10, "\u4e09\u7535");
+  addSpec("\u7535\u6c60\u5bb9\u91cf", batteryCapacity !== null ? `${formatNumber(batteryCapacity, 3)} kWh` : "", 11, "\u4e09\u7535");
+  addSpec("\u7535\u6c60\u7c7b\u578b", asText(fields.battery_chemistry), 12, "\u4e09\u7535");
+  addSpec("\u9a71\u52a8\u65b9\u5f0f", asText(fields.drivetrain_display), 20, "\u6027\u80fd");
+  addSpec("\u7535\u673a\u603b\u529f\u7387", motorPower !== null ? `${formatNumber(motorPower)} kW` : "", 21, "\u6027\u80fd");
+  addSpec("\u7535\u673a\u603b\u626d\u77e9", motorTorque !== null ? `${formatNumber(motorTorque)} N-m` : "", 22, "\u6027\u80fd");
+  addSpec("\u76f4\u6d41\u5feb\u5145", trimChargingDisplay(fields), 30, "\u5145\u7535");
+  addSpec("\u57fa\u7840\u914d\u7f6e", jsonList(fields.base_spec_summary_json).join("; "), 40, "\u7248\u672c\u914d\u7f6e");
+  addSpec("\u65b0\u589e\u914d\u7f6e", jsonList(fields.added_features_json).join("; "), 41, "\u7248\u672c\u914d\u7f6e");
+  addSpec("\u5347\u7ea7\u914d\u7f6e", jsonList(fields.upgraded_features_json).join("; "), 42, "\u7248\u672c\u914d\u7f6e");
+  addSpec("\u63a8\u8350\u7248\u672c", recommended, 50, "\u6570\u636e\u72b6\u6001");
+  addSpec("\u7248\u672c\u6838\u9a8c\u72b6\u6001", asText(fields.source_status), 51, "\u6570\u636e\u72b6\u6001");
+  addSpec("\u6700\u540e\u6838\u9a8c", asText(fields.last_verified_at), 52, "\u6570\u636e\u72b6\u6001");
+  addSpec("\u5907\u6ce8", asText(fields.notes), 53, "\u6570\u636e\u72b6\u6001");
+
+  return specs;
+}
+
+function buildVehicleModelDataset(modelRecords: FeishuRecord[], variantRecords: FeishuRecord[]) {
+  const mappedModels = modelRecords.map(mapVehicleModel);
+  const modelById = new Map(mappedModels.map((model) => [model.id, model]));
+  const modelIdByRecordId = new Map<string, string>();
+  for (const record of modelRecords) {
+    const modelId = asText(record.fields.model_id);
+    if (modelId) modelIdByRecordId.set(record.record_id, modelId);
+  }
+
+  const modelSpecs = modelRecords.flatMap(synthesizeSpecsFromModel);
+  const specsByParentModelId = new Map<string, PortalVehicleModelSpec[]>();
+  for (const spec of modelSpecs) {
+    if (!specsByParentModelId.has(spec.modelId)) specsByParentModelId.set(spec.modelId, []);
+    specsByParentModelId.get(spec.modelId)!.push(spec);
+  }
+
+  const variants: PortalVehicleModel[] = [];
+  const variantSpecs: PortalVehicleModelSpec[] = [];
+  const parentModelIdsWithVariants = new Set<string>();
+  for (const record of variantRecords) {
+    const variant = mapVehicleVariant(record, modelById, modelIdByRecordId);
+    if (!variant) continue;
+    const parentModelId = asText(record.fields.model_id) || linkedRecordIds(record.fields.vehicle_model_pruned)
+      .map((recordId) => modelIdByRecordId.get(recordId))
+      .find(Boolean) || "";
+    parentModelIdsWithVariants.add(parentModelId);
+    variants.push(variant);
+    variantSpecs.push(...(specsByParentModelId.get(parentModelId) || []).map((spec) => ({ ...spec, modelId: variant.id })));
+    variantSpecs.push(...synthesizeSpecsFromVariant(record, variant));
+  }
+
+  const modelsWithoutVariants = mappedModels.filter((model) => !parentModelIdsWithVariants.has(model.id));
+  return {
+    vehicleModels: variants.length ? [...variants, ...modelsWithoutVariants] : mappedModels,
+    vehicleModelSpecs: [...modelSpecs, ...variantSpecs],
   };
 }
 
@@ -982,27 +1112,27 @@ function computeAiConfidenceScore(fields: Record<string, unknown>): number {
   );
   if (!hasPrice) score -= 0.25;
 
-  // 2. 细分型号 不能为空/未识别 -0.25
+  // 2. 缁嗗垎鍨嬪彿 涓嶈兘涓虹┖/鏈瘑鍒?-0.25
   const trim = asText(fields["细分型号"] ?? fields.variant);
   if (!trim || trim.includes("未识别")) score -= 0.25;
 
-  // 3. 供应商 不能为空/未识别 -0.15
+  // 3. 渚涘簲鍟?涓嶈兘涓虹┖/鏈瘑鍒?-0.15
   const supplier = asText(fields["供应商"] ?? fields.supplier);
   if (!supplier || supplier.includes("未识别")) score -= 0.15;
 
-  // 4. 品牌 不能为空/未识别 -0.15
+  // 4. 鍝佺墝 涓嶈兘涓虹┖/鏈瘑鍒?-0.15
   const brand = asText(fields["品牌"] ?? fields.brand);
   if (!brand || brand.includes("未识别")) score -= 0.15;
 
-  // 5. 型号 不能为空/未识别 -0.15
+  // 5. 鍨嬪彿 涓嶈兘涓虹┖/鏈瘑鍒?-0.15
   const model = asText(fields["型号"] ?? fields.model);
   if (!model || model.includes("未识别")) score -= 0.15;
 
-  // 6. 车源地点 不能为空/未识别 -0.06
+  // 6. 杞︽簮鍦扮偣 涓嶈兘涓虹┖/鏈瘑鍒?-0.06
   const location = asText(fields["批发地点"] ?? fields["车源地点"] ?? fields.location);
   if (!location || location.includes("未识别")) score -= 0.06;
 
-  // 7. 左右舵 不能为空 -0.06
+  // 7. 宸﹀彸鑸?涓嶈兘涓虹┖ -0.06
   const steering = asText(fields["左右舵"] ?? fields.steering);
   if (!steering || steering.includes("未识别")) score -= 0.06;
 
@@ -1047,6 +1177,10 @@ function mapVehicleSource(record: FeishuRecord, canSeePrice: boolean): Record<st
 
   const stage = parseSourceStage(fields);
   const isApproved = stage === "connected";
+  const modelStockQuantity = asOptionalNumber(fields["\u5355\u8f66\u578b\u603b\u5e93\u5b58"] ?? fields.model_stock_quantity);
+  const trimStockQuantity = asOptionalNumber(fields["\u7ec6\u5206\u8f66\u578b\u5e93\u5b58"] ?? fields.trim_stock_quantity);
+  const colorStockQuantity = asOptionalNumber(fields["\u989c\u8272\u5e93\u5b58"] ?? fields.color_stock_quantity);
+  const waitDays = asOptionalNumber(fields["\u4e0b\u5355\u540e\u9700\u8981\u7b49\u5f85\u5929\u6570"] ?? fields.wait_days);
   const steeringVal = asText(fields["左右舵"] ?? fields.steering) || "左舵 LHD";
   const marketVersionVal = asText(fields["国际国内版本（多选）"] ?? fields.market_version) || "国内版";
   const computedConfidence = computeAiConfidenceScore(fields);
@@ -1074,15 +1208,18 @@ function mapVehicleSource(record: FeishuRecord, canSeePrice: boolean): Record<st
     configuration: asText(fields.version_type ?? fields.steering_setup) || "",
     steering: steeringVal,
     marketVersion: marketVersionVal,
-    inventoryStatus: asText(fields["库存状态"] ?? fields.status_vehicle) || "现车",
+    inventoryStatus: "",
     location: asText(fields["批发地点"] ?? fields["车源地点"] ?? fields.location) || "中国",
-    status: asText(fields["库存状态"] ?? fields.status_vehicle) || "现车",
+    status: waitDays === 0 ? "In Stock" : waitDays !== null ? "Preorder" : "",
     exportStatus: "Available",
-    stockQuantity: asNumber(fields["库存"] ?? fields.stock_quantity) || 0,
+    stockQuantity: colorStockQuantity ?? trimStockQuantity ?? 0,
+    modelStockQuantity,
+    trimStockQuantity,
+    colorStockQuantity,
     minOrderQuantity: asNumber(fields["起订数量"] ?? fields.min_order_quantity) || 0,
     fullOrderQuantity: asNumber(fields["满订数量"] ?? fields.full_order_quantity) || 0,
-    leadTime: asText(fields.lead_time) || "7-14 Days",
-    waitDays: asOptionalNumber(fields["下单后需要等待天数"]),
+    leadTime: waitDays === 0 ? "In stock" : waitDays !== null ? `${formatNumber(waitDays)} days after order` : "",
+    waitDays,
     priceValidUntil: "",
     imageUrl: "",
     publicNotes: asText(fields["备注"] ?? fields.notes),
@@ -1149,14 +1286,6 @@ function synthesizeSpecsFromModel(record: FeishuRecord): PortalVehicleModelSpec[
     if (max !== null) return `${formatNumber(max)} seats`;
     return "";
   })();
-  const warranty = (() => {
-    const years = asOptionalNumber(fields.battery_warranty_years);
-    const km = asOptionalNumber(fields.battery_warranty_distance_km);
-    if (years !== null && km !== null) return `${formatNumber(years)} years / ${formatNumber(km)} km`;
-    if (years !== null) return `${formatNumber(years)} years`;
-    if (km !== null) return `${formatNumber(km)} km`;
-    return "";
-  })();
   const acSlowCharge = (() => {
     const hours = asOptionalNumber(fields.ac_slow_charge_full_time_hours);
     if (hours !== null) return `${formatNumber(hours, 2)} h`;
@@ -1190,7 +1319,6 @@ function synthesizeSpecsFromModel(record: FeishuRecord): PortalVehicleModelSpec[
   addSpec("Sunroof", asText(fields.sunroof_availability), "Standard", 37, "Comfort");
   addSpec("V2L", v2l, "Standard", 38, "Utility");
   addSpec("Voltage Platform", asOptionalNumber(fields.voltage_platform_v) !== null ? `${formatNumber(asOptionalNumber(fields.voltage_platform_v)!)} V` : "", "Standard", 39, "Battery");
-  addSpec("Battery Warranty", warranty, "Standard", 40, "Warranty");
   addSpec("Steering", asText(fields.steering_setup), "Standard", 41, "Export");
 
   return specs;
@@ -1323,10 +1451,10 @@ function mapSourceImport(record: FeishuRecord): Record<string, unknown> {
     minOrderQuantity: asNumber(fields["起订数量"]),
     fullOrderQuantity: asNumber(fields["满订数量"]),
     leadTime: asText(fields.lead_time),
-    waitDays: asOptionalNumber(fields["下单后需要等待天数"]),
+    waitDays: asOptionalNumber(fields["\u4e0b\u5355\u540e\u9700\u8981\u7b49\u5f85\u5929\u6570"]),
     steering: asText(fields["左右舵"]),
     marketVersion: asText(fields["国际国内版本（多选）"]),
-    inventoryStatus: asText(fields["库存状态"]),
+    inventoryStatus: asText(fields["\u5e93\u5b58\u72b6\u6001"]),
     costCny: asOptionalNumber(fields["人民币成本价"]),
     exwUsd: asOptionalNumber(fields["EXW美金价"]),
     fcaUsd: asOptionalNumber(fields["FCA美金价"]),
@@ -1416,7 +1544,7 @@ async function handleDevLogin(request: Request, env: Env) {
   const body = (await request.json().catch(() => null)) as { role?: string } | null;
   const role = String(body?.role || "").toLowerCase();
 
-  // Dev login maps role → email, then finds the user via the same localUserStore path
+  // Dev login maps role 鈫?email, then finds the user via the same localUserStore path
   const roleToEmail: Record<string, string> = {
     admin: "admin@local.test",
     sales: "sales@local.test",
@@ -1472,20 +1600,24 @@ async function handleBootstrap(request: Request, env: Env) {
 
 async function handleGetCatalog(request: Request, env: Env) {
   const session = await requireSession(request, env);
-  const cacheKey = `catalog_v4:${session.role}:${session.customerId || "internal"}`;
+  const cacheKey = `catalog_v5:${session.role}:${session.customerId || "internal"}`;
   const cachedData = getCached(cacheKey);
   if (cachedData) {
     return json(cachedData);
   }
 
   const vehicleModelTableId = optionalEnv(env, "FEISHU_TABLE_VEHICLE_MODELS") || "tblxVNjP9dnJ7b3o";
+  const vehicleVariantTableId = optionalEnv(env, "FEISHU_TABLE_VEHICLE_TRIM_CONFIGURATIONS") || "tbl8YzkZkMxvHRoT";
   const vehicleSourceTableId =
     optionalEnv(env, "FEISHU_TABLE_SOURCE_IMPORTS") || optionalEnv(env, "FEISHU_TABLE_VEHICLES") || "tblte61W3fKoXmSw";
 
   const payload = await singleFlight(cacheKey, async () => {
-    const [vehicleModelRecords, rawVehicleSourceRecords] = await Promise.all([
+    const [vehicleModelRecords, vehicleVariantRecords, rawVehicleSourceRecords] = await Promise.all([
       vehicleModelTableId
         ? searchRecords(env, vehicleModelTableId, { pageSize: 500, maxPages: 5 }).catch(() => [])
+        : Promise.resolve([]),
+      vehicleVariantTableId
+        ? searchRecords(env, vehicleVariantTableId, { pageSize: 500, maxPages: 5 }).catch(() => [])
         : Promise.resolve([]),
       vehicleSourceTableId
         ? searchRecords(env, vehicleSourceTableId, { pageSize: 500, maxPages: 5 }).catch(() => [])
@@ -1498,8 +1630,9 @@ async function handleGetCatalog(request: Request, env: Env) {
     });
 
     const vehicles = vehicleSourceRecords.map((record) => mapVehicleSource(record, canSeePortalPrice(session)));
-    const vehicleModelSpecs = vehicleModelRecords.flatMap(synthesizeSpecsFromModel);
-    const mappedModels = vehicleModelRecords.map(mapVehicleModel);
+    const modelDataset = buildVehicleModelDataset(vehicleModelRecords, vehicleVariantRecords);
+    const vehicleModelSpecs = modelDataset.vehicleModelSpecs;
+    const mappedModels = modelDataset.vehicleModels;
     const activeModels = mappedModels.filter((m) => {
       const st = (m.status || "active").toLowerCase().trim();
       return st === "active" || st === "published" || st === "online" || st === "在售" || st === "启用" || !/archived|draft|disabled|下架|停售/i.test(st);
@@ -1550,21 +1683,28 @@ async function handleGetVehicles(request: Request, env: Env) {
 
 async function handleGetVehicleModels(request: Request, env: Env) {
   const session = await requireSession(request, env);
-  const cacheKey = `vehicle_models_v2:${session.role}`;
+  const cacheKey = `vehicle_models_v3:${session.role}`;
   const cachedData = getCached(cacheKey);
   if (cachedData) {
     return json(cachedData);
   }
 
   const vehicleModelTableId = optionalEnv(env, "FEISHU_TABLE_VEHICLE_MODELS") || "tblxVNjP9dnJ7b3o";
+  const vehicleVariantTableId = optionalEnv(env, "FEISHU_TABLE_VEHICLE_TRIM_CONFIGURATIONS") || "tbl8YzkZkMxvHRoT";
 
   const payload = await singleFlight(cacheKey, async () => {
-    const vehicleModelRecords = vehicleModelTableId
-      ? await searchRecords(env, vehicleModelTableId, { pageSize: 500, maxPages: 5 }).catch(() => [])
-      : [];
+    const [vehicleModelRecords, vehicleVariantRecords] = await Promise.all([
+      vehicleModelTableId
+        ? searchRecords(env, vehicleModelTableId, { pageSize: 500, maxPages: 5 }).catch(() => [])
+        : Promise.resolve([]),
+      vehicleVariantTableId
+        ? searchRecords(env, vehicleVariantTableId, { pageSize: 500, maxPages: 5 }).catch(() => [])
+        : Promise.resolve([]),
+    ]);
 
-    const vehicleModelSpecs = vehicleModelRecords.flatMap(synthesizeSpecsFromModel);
-    const mappedModels = vehicleModelRecords.map(mapVehicleModel);
+    const modelDataset = buildVehicleModelDataset(vehicleModelRecords, vehicleVariantRecords);
+    const vehicleModelSpecs = modelDataset.vehicleModelSpecs;
+    const mappedModels = modelDataset.vehicleModels;
     const activeModels = mappedModels.filter((m) => {
       const st = (m.status || "active").toLowerCase().trim();
       return st === "active" || st === "published" || st === "online" || st === "在售" || st === "启用" || !/archived|draft|disabled|下架|停售/i.test(st);
@@ -1860,17 +2000,17 @@ async function handlePublicProduct(slug: string, env: Env) {
   return json(data);
 }
 
-// 闂傚倸鍊风粈浣革耿闁秮鈧箓宕奸妷瀣喘楠炲酣鎸婃竟鈹垮劦閺屾盯骞囬棃娑欑亪闁荤喐鐟辨俊鍥焵椤掆偓缁犲秹宕曟潏鈹惧亾濮樼厧娅嶉柟顖氱焸婵″爼宕担鐟扮槣闂佽鍑界紞鍡涘礈濞嗘劗顩烽柟鐑橆殕閻?Base 闂傚倷娴囧畷鐢稿窗閹扮増鍋￠弶鍫氭櫅缁躲倕螖閿濆懎鏆為柛?table_id闂傚倸鍊烽悞锔锯偓绗涘懐鐭欓柟杈鹃檮閸ゆ劖銇勯弽顐沪闁稿鍔嶉妵鍕箛閸撲胶鏆犵紓浣插亾闁告劦鍠楅悡鏇熺箾閹存繂鑸规鐐达耿閺岀喖鎮剧仦鍙儳绱掓潏銊﹀磳鐎规洘甯掗埥澶娾枎韫囨洦鏆￠梻?
+// 闂傚倸鍊搁崐椋庣矆娴ｉ潻鑰块梺顒€绉埀顒婄畵瀹曞ジ濡风€ｎ亝鍠樻鐐查叄閹稿﹥绔熼埞鍨姦闁哄本鐩獮鍥濞戞瑧浜梺鑽ゅ枑閻熻鲸淇婇崶顒€鐒垫い鎺嗗亾缂佺姴绉瑰畷鏇熸綇閳规儳浜炬慨妯煎帶濞呭秹鏌熼姘辩劯濠碘€崇埣瀹曨亝鎷呴悷鎵В闂備浇顕ч崙鐣岀礊閸℃稑绀堟繛鍡樺姉椤╃兘鏌熼悜姗嗘畷闁?Base 闂傚倸鍊峰ù鍥х暦閻㈢绐楅柟鎵閸嬶繝寮堕崼姘珔缂佽翰鍊曡灃闁挎繂鎳庨弳鐐烘煕?table_id闂傚倸鍊搁崐鐑芥倿閿旈敮鍋撶粭娑樻噽閻瑩鏌熸潏楣冩闁搞倖鍔栭妵鍕冀椤愵澀娌梺绋款儍閸斿秹濡甸崟顖氱疀闁告挷鑳堕弳鐘电磽娴ｆ彃浜鹃梺鍛婂姦閸犳鎮￠弴鐔虹闁瑰瓨绻傞懜瑙勵殽閻愯揪鑰块柡宀€鍠栭幃鍓т沪閸欘偁鍎崇槐鎺撴綇閵婏箑纾抽悗瑙勬礃鐢帡鍩ユ径濞炬瀻闊洦娲﹂弳锟犳⒒?
 const tableIdCache = new Map<string, { tableId: string; expiresAt: number }>();
 async function resolveTableIdByName(env: Env, tableName: string): Promise<string> {
   const appToken = optionalEnv(env, "FEISHU_BASE_APP_TOKEN");
   if (!appToken) throw new Error("FEISHU_BASE_APP_TOKEN is required to resolve table names");
 
-  // 婵犵數濮烽。钘壩ｉ崨鏉戠；闁逞屽墴閺屾稓鈧綆鍋呭畷宀勬煛瀹€瀣？濞寸媴濡囬幏鐘诲箵閹烘嚩鎴犵磽閸屾瑧鍔嶉柛鐐电帛娣囧﹪宕堕鈧悞鍨亜閹哄秷鍏岄柍顖涙礋閺屻劑寮撮妸銉ょ敖濠?0 闂傚倸鍊风粈渚€骞夐敍鍕殰闁圭儤鍤﹀☉妯锋斀閻庯綆浜為鍥⒑鐟欏嫬绀冩い鏇嗗應鍋撳顒夋Ц妞ゎ叀娉曢幑鍕瑹椤栨艾澹夋繝鐢靛仜閹冲海鎹㈠鈧?
+  // 濠电姷鏁告慨鐑姐€傞挊澹╋綁宕ㄩ弶鎴狅紱闂侀€炲苯澧撮柡灞剧〒閳ь剨缍嗛崑鍛暦瀹€鍕厸鐎光偓鐎ｎ剛锛熸繛瀵稿婵″洭骞忛悩璇茬闁圭儤鍤╅幋鐘电＝闁稿本鐟ч崝宥夋煕閻愮數甯涘ǎ鍥э躬瀹曞爼顢楅埀顒勬倿閸偁浜滈柟鍝勭Х閸忓矂鏌嶉娑欑闁哄被鍔戝鎾Ω閵夈倗鏁栨繝?0 闂傚倸鍊搁崐椋庣矆娓氣偓楠炲鏁嶉崟顒佹闂佸湱鍎ら崵锕€鈽夊Ο閿嬫杸闁诲函缍嗘禍鐐侯敊閸ヮ剚鈷戦悷娆忓缁€鍐┿亜閺囧棗鎳夐崑鎾愁潩椤掑笑濡炪値鍙€濞夋洟骞戦崟顒傜懝妞ゆ牗鑹炬竟澶嬬節閻㈤潧浠滈柟鍐叉捣閹广垹顫滈埀顒€顕?
   const cached = tableIdCache.get(tableName);
   if (cached && cached.expiresAt > Date.now()) return cached.tableId;
 
-  // 闂傚倸鍊风粈渚€骞夐敍鍕殰婵°倕鎳岄埀顒€鍟村畷銊╁级閹存繃鍎?Base 濠电姷鏁搁崑鐐哄垂閸洖绠伴柟闂寸贰閺佸嫰鏌涢埄鍏╂垵鈻嶉悩纰樺亾楠炲灝鍔氭い锔诲灣閳ь剚鑹鹃ˇ顖炩€︾捄銊﹀磯闁惧繗顫夊Σ鈧梻?
+  // 闂傚倸鍊搁崐椋庣矆娓氣偓楠炲鏁嶉崟顒佹濠德板€曢幊宀勫焵椤掆偓閸熸潙鐣烽妸鈺佺骇闁瑰瓨绻冮崕?Base 婵犵數濮烽弫鎼佸磻閻愬搫鍨傞柛顐ｆ礀缁犱即鏌熼梻瀵歌窗闁轰礁瀚伴弻娑㈠焺閸忊晜鍨甸埢宥夋偐绾版ê浜炬鐐茬仢閸旀碍銇勯敂璇茬仯闁逞屽墯閼归箖藝椤栫偐鈧妇鎹勯妸锕€纾梺鎯х箺椤危閳ь剟姊?
   const data = await feishuRequest<{ items: { table_id: string; name: string }[]; has_more: boolean }>(
     env,
     "GET",
@@ -1992,7 +2132,7 @@ async function handlePublicProducts(env: Env) {
       cardLabel = "Production Power";
     } else if (slug === "farizon-super-van") {
       cardTag = "Digital Logistics";
-      cardDesc = "The future of city cargo. Steer-by-wire with flat-floor cargo optimization for 11m婵? volume.";
+      cardDesc = "The future of city cargo. Steer-by-wire with flat-floor cargo optimization for 11m濠? volume.";
       cardLabel = "Digital Cargo";
     } else if (category === "elite-flagship" || category === "utility-pro") {
       cardTag = subtitle || (range ? `${range} Range` : "");
