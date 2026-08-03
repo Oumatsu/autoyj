@@ -114,7 +114,7 @@ export default function DynamicInsightPage({ params }: any) {
   }
 
   if (!article) {
-    return <Loading text={t("insightsDetail.loading")} fullscreen />;
+    return <Loading text={t("insightsDetail.loading")} />;
   }
 
   const localizedArticle = translateInsightArticle(article, t);

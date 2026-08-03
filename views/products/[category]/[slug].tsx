@@ -24,7 +24,7 @@ export default function DynamicVehiclePage({ params }: any) {
   }, [slug]);
 
   if (error) return <div className="text-center py-20 text-gray-500">{t("productsDetail.modelNotFound")}</div>;
-  if (!data) return <Loading text={t("productsDetail.loading")} className="min-h-[50vh]" />;
+  if (!data) return <Loading text={t("productsDetail.loading")} />;
 
   return <VehicleDetail data={data} />;
 }

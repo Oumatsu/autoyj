@@ -799,7 +799,7 @@ export default function PortalPage() {
   }
 
   if (loading) {
-    return <Loading text="Loading portal..." fullscreen />;
+    return <Loading text="Loading portal..." />;
   }
 
   if (!data) {

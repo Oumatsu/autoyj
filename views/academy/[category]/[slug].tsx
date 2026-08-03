@@ -100,7 +100,7 @@ export default function DynamicLessonPage({ params }: any) {
   }
 
   if (loading || !lesson) {
-    return <Loading text={t("academyDetail.loadingLesson")} className="min-h-[60vh]" />;
+    return <Loading text={t("academyDetail.loadingLesson")} />;
   }
 
   const meta = getCategoryMeta(category, t);

@@ -4,16 +4,17 @@ import React from "react";
 import Loading, { LoadingSkeleton, LoadingOverlay } from "../../components/Loading";
 
 describe("Component: Unified Loading Standard Component", () => {
-  test("Renders default Spinner Loading with custom text", () => {
+  test("Renders default Spinner Loading with custom text and fullscreen overlay", () => {
     const html = renderToString(<Loading text="Loading vehicle models..." />);
     expect(html).toContain("Loading vehicle models...");
     expect(html).toContain("role=\"status\"");
+    expect(html).toContain("fixed inset-0");
   });
 
-  test("Renders Fullscreen Loading Overlay when fullscreen=true", () => {
-    const html = renderToString(<Loading text="Authenticating Portal..." fullscreen />);
-    expect(html).toContain("Authenticating Portal...");
-    expect(html).toContain("fixed inset-0");
+  test("Renders inline container loading when fullscreen=false", () => {
+    const html = renderToString(<Loading text="Loading inline section..." fullscreen={false} />);
+    expect(html).toContain("Loading inline section...");
+    expect(html).toContain("w-full py-12");
   });
 
   test("Renders LoadingSkeleton variant for catalog loading", () => {

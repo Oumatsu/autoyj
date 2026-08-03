@@ -13,20 +13,20 @@ export default function Loading({
   text = "Loading...",
   subtext,
   size = "md",
-  fullscreen = false,
+  fullscreen = true,
   className = "",
   children,
 }: LoadingProps) {
   const spinnerSizeClasses = {
-    sm: "w-5 h-5 border-2",
-    md: "w-8 h-8 border-2",
+    sm: "w-6 h-6 border-2",
+    md: "w-9 h-9 border-2",
     lg: "w-12 h-12 border-3",
   };
 
   const textSizeClasses = {
     sm: "text-xs",
-    md: "text-sm",
-    lg: "text-base font-medium",
+    md: "text-sm font-medium",
+    lg: "text-base font-semibold",
   };
 
   const spinnerNode = (
@@ -37,17 +37,17 @@ export default function Loading({
           className={`${spinnerSizeClasses[size]} rounded-full border-t-amber-500 border-r-amber-500/30 border-b-amber-500/10 border-l-amber-500/60 animate-spin`}
         />
         {/* Inner pulse core */}
-        <div className="absolute w-2 h-2 bg-amber-400/80 rounded-full animate-ping" />
+        <div className="absolute w-2.5 h-2.5 bg-amber-400/80 rounded-full animate-ping" />
       </div>
 
       {text && (
-        <p className={`${textSizeClasses[size]} text-slate-300 tracking-wide font-sans`}>
+        <p className={`${textSizeClasses[size]} text-slate-200 tracking-wide font-sans`}>
           {text}
         </p>
       )}
 
       {subtext && (
-        <p className="text-xs text-slate-500 max-w-xs">{subtext}</p>
+        <p className="text-xs text-slate-400 max-w-xs">{subtext}</p>
       )}
 
       {children}
@@ -81,7 +81,7 @@ export function LoadingOverlay({ message = "Loading..." }: { message?: string })
   return <Loading text={message} fullscreen />;
 }
 
-export function LoadingSkeleton({ count = 3, className = "" }: { count?: number; className?: string }) {
+export function LoadingSkeleton({ count = 4, className = "" }: { count?: number; className?: string }) {
   return (
     <div role="status" aria-label="Loading content" className={`w-full space-y-4 ${className}`}>
       {Array.from({ length: count }).map((_, i) => (
