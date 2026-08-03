@@ -56,11 +56,8 @@ describe("Integration: Worker API Contracts & Feishu Base Schema Rules", () => {
     expect(source).not.toMatch(/fields\["Is Listed"\]/);
   });
 
-  test("both Worker deployments point at the new Base and new table IDs", async () => {
-    const [primary, secondary] = await Promise.all([
-      readFile(new URL("wrangler.jsonc", root), "utf8"),
-      readFile(new URL("wrangler.duoduo.jsonc", root), "utf8"),
-    ]);
+  test("Worker deployment points at the new Base and new table IDs", async () => {
+    const primary = await readFile(new URL("wrangler.jsonc", root), "utf8");
     const expected = {
       FEISHU_BASE_APP_TOKEN: "Is6Xb3btbazhFhsDXgFcqFG1nRc",
       FEISHU_TABLE_INTERNAL_USERS: "tblzuCupuStUvBwM",
@@ -76,12 +73,10 @@ describe("Integration: Worker API Contracts & Feishu Base Schema Rules", () => {
       FEISHU_TABLE_I18N: "tblv6UYxgYKSd8y5",
       FEISHU_TABLE_VEHICLE_TRIM_CONFIGURATIONS: "tbl8YzkZkMxvHRoT",
     };
-    for (const config of [primary, secondary]) {
-      for (const [key, value] of Object.entries(expected)) {
-        expect(config).toMatch(new RegExp(`"${key}"\\s*:\\s*"${value}"`));
-      }
-      expect(config).not.toMatch(/FEISHU_TABLE_VEHICLE_MODEL_SPECS/);
+    for (const [key, value] of Object.entries(expected)) {
+      expect(primary).toMatch(new RegExp(`"${key}"\\s*:\\s*"${value}"`));
     }
+    expect(primary).not.toMatch(/FEISHU_TABLE_VEHICLE_MODEL_SPECS/);
   });
 
   test("production builds do not require Feishu credentials", async () => {

@@ -82,7 +82,9 @@ test.describe("Tier 4: E2E Comprehensive Full-Journey User & Portal Workflows", 
       await emailInput.fill(email);
       await codeInput.fill(code);
       await submitBtn.click();
-      await page.waitForTimeout(1200);
+      
+      const logoutBtn = page.locator("button", { hasText: /退出登录|Log Out|Sign Out|Logout/i }).first();
+      await expect(logoutBtn).toBeVisible({ timeout: 10000 });
     };
 
     const logout = async () => {
