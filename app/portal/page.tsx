@@ -1327,6 +1327,7 @@ function ModuleLoadingSkeleton() {
       text="飞书 Base 数据加载中..."
       subtext="正在实时与飞书后台连接通信，极速载入最新数据，请稍候"
       size="lg"
+      fullscreen={false}
       className="rounded-2xl border border-teal-500/20 bg-white/[.03] p-12 shadow-2xl backdrop-blur-md"
     />
   );
