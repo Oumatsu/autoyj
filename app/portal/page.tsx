@@ -1628,28 +1628,31 @@ function ModelFullSpecsCard({ group }: { group: ModelProfileGroup }) {
             <div><p className="text-[10px] font-black uppercase tracking-[.18em] text-slate-500">CONFIGURATIONS</p><h5 className="mt-1 text-base font-black text-white">{`\u914d\u7f6e\u7248\u672c (${versionDetails.length})`}</h5></div>
             <span className="text-[10px] text-slate-500">{t("portal.dataSource")}：<span className="font-medium text-slate-300">{safeText(v.sourceName) || "-"}</span></span>
           </div>
-          <div className="overflow-hidden rounded-lg border border-white/10 bg-[#070e1b]">
-            {versionDetails.map(({ variant, items }) => {
-              const isSelected = selectedVersion?.variant.id === variant.id;
-              return (
-                <button key={variant.id} type="button" onClick={() => setSelectedVariantId(variant.id)} className={`grid w-full grid-cols-2 gap-3 border-b border-white/[.07] px-4 py-4 text-left transition last:border-b-0 sm:grid-cols-3 2xl:grid-cols-[minmax(180px,1.2fr)_repeat(4,minmax(105px,.7fr))_auto] ${isSelected ? "bg-[#22b8aa]/[.09] shadow-[inset_3px_0_0_#22b8aa]" : "hover:bg-white/[.035]"}`}>
-                  <span className="col-span-full min-w-0 2xl:col-auto"><strong className="block break-words text-sm font-black text-white">{variant.trim || variant.id}</strong><span className="mt-1 block text-[10px] text-slate-500">{isSelected ? "\u6b63\u5728\u67e5\u770b\u8be6\u60c5" : "\u70b9\u51fb\u67e5\u770b\u8be6\u60c5"}</span></span>
-                  {items.slice(0, 4).map((item) => <span key={item.label} className="min-w-0"><span className="block text-[10px] text-slate-500">{item.label}</span><span className={`mt-1 block break-words text-[11px] leading-4 ${item.label === "\u6307\u5bfc\u4ef7" ? "font-black text-amber-300" : "font-medium text-slate-300"}`}>{item.value}</span></span>)}
-                  <span className={`self-center rounded-full border px-2 py-1 text-center text-[10px] font-black ${items[8]?.value === "Verified" ? "border-[#22b8aa]/35 bg-[#22b8aa]/10 text-[#5ee6d8]" : "border-amber-400/35 bg-amber-400/10 text-amber-300"}`}>{items[8]?.value || "-"}</span>
-                </button>
-              );
-            })}
-          </div>
-
-          {selectedVersion ? (
-            <div className="mt-4 border border-white/10 bg-white/[.025]">
-              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 px-4 py-3"><div><p className="text-[10px] font-black uppercase tracking-[.18em] text-[#5ee6d8]">SELECTED CONFIGURATION</p><strong className="mt-1 block text-sm font-black text-white">{selectedVersion.variant.trim || selectedVersion.variant.id}</strong></div><span className="rounded-full border border-white/10 px-2 py-1 text-[10px] font-bold text-slate-300">{selectedVersion.items[8]?.value || "-"}</span></div>
-              <div className="grid gap-px bg-white/10 lg:grid-cols-2">
-                <dl className="grid gap-x-6 gap-y-4 bg-[#0a1120] p-4 sm:grid-cols-2">{selectedVersion.items.slice(0, 6).map((item) => <div key={item.label}><dt className="text-[10px] text-slate-500">{item.label}</dt><dd className="mt-1 break-words text-[12px] leading-5 text-slate-200">{item.value}</dd></div>)}</dl>
-                <dl className="grid gap-4 bg-[#0a1120] p-4">{selectedVersion.items.slice(6).map((item) => <div key={item.label}><dt className="text-[10px] text-slate-500">{item.label}</dt><dd className="mt-1 break-words text-[12px] leading-5 text-slate-200">{item.value}</dd></div>)}</dl>
-              </div>
+          <div className="grid min-h-[420px] overflow-hidden rounded-lg border border-white/10 bg-[#070e1b] lg:grid-cols-[minmax(210px,.7fr)_minmax(0,1.7fr)]">
+            <div className="max-h-[320px] overflow-y-auto border-b border-white/10 bg-[#080f1c] lg:max-h-[620px] lg:border-b-0 lg:border-r">
+              {versionDetails.map(({ variant, items }) => {
+                const isSelected = selectedVersion?.variant.id === variant.id;
+                return (
+                  <button key={variant.id} type="button" onClick={() => setSelectedVariantId(variant.id)} className={`w-full border-b border-white/[.07] px-4 py-4 text-left transition last:border-b-0 ${isSelected ? "bg-[#22b8aa]/[.09] shadow-[inset_3px_0_0_#22b8aa]" : "hover:bg-white/[.035]"}`}>
+                    <span className="flex items-start justify-between gap-3"><strong className="min-w-0 break-words text-sm font-black text-white">{variant.trim || variant.id}</strong><span className={`shrink-0 rounded-full border px-2 py-1 text-[10px] font-black ${items[8]?.value === "Verified" ? "border-[#22b8aa]/35 bg-[#22b8aa]/10 text-[#5ee6d8]" : "border-amber-400/35 bg-amber-400/10 text-amber-300"}`}>{items[8]?.value || "-"}</span></span>
+                    <span className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2"><span><span className="block text-[10px] text-slate-500">{items[0]?.label}</span><span className="mt-1 block break-words text-[11px] font-black leading-4 text-amber-300">{items[0]?.value}</span></span><span><span className="block text-[10px] text-slate-500">{items[1]?.label}</span><span className="mt-1 block break-words text-[11px] font-medium leading-4 text-slate-300">{items[1]?.value}</span></span></span>
+                  </button>
+                );
+              })}
             </div>
-          ) : null}
+
+            <div className="min-w-0 bg-[#0a1120]">
+              {selectedVersion ? (
+                <div className="h-full">
+                  <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 px-4 py-4"><div><p className="text-[10px] font-black uppercase tracking-[.18em] text-[#5ee6d8]">SELECTED CONFIGURATION</p><strong className="mt-1 block text-sm font-black text-white">{selectedVersion.variant.trim || selectedVersion.variant.id}</strong></div><span className="rounded-full border border-white/10 px-2 py-1 text-[10px] font-bold text-slate-300">{selectedVersion.items[8]?.value || "-"}</span></div>
+                  <div className="grid gap-px bg-white/10 lg:grid-cols-2">
+                    <dl className="grid gap-x-6 gap-y-4 bg-[#0a1120] p-4 sm:grid-cols-2">{selectedVersion.items.slice(0, 6).map((item) => <div key={item.label}><dt className="text-[10px] text-slate-500">{item.label}</dt><dd className="mt-1 break-words text-[12px] leading-5 text-slate-200">{item.value}</dd></div>)}</dl>
+                    <dl className="grid gap-4 bg-[#0a1120] p-4">{selectedVersion.items.slice(6).map((item) => <div key={item.label}><dt className="text-[10px] text-slate-500">{item.label}</dt><dd className="mt-1 break-words text-[12px] leading-5 text-slate-200">{item.value}</dd></div>)}</dl>
+                  </div>
+                </div>
+              ) : null}
+            </div>
+          </div>
         </section>
       ) : null}
     </div>
