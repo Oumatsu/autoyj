@@ -18,7 +18,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
 import { Progress } from "@/components/ui/progress";
-import { RotateCcw } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 import { useTranslation } from "@/i18n/useTranslation";
 import { sanitizeDisplayData } from "@/lib/display-text";
 
@@ -169,6 +169,7 @@ type Vehicle = {
 };
 
 type PriceTerm = { term: string; amount: number };
+type PriceTermSummary = { term: string; min: number; max: number };
 
 type SellableModel = {
   key: string;
@@ -182,7 +183,7 @@ type SellableModel = {
   preorderAvailable: boolean;
   fobPriceRange: string;
   /** 姹囨€昏杞﹀瀷鎵€鏈?offer 涓嚭鐜拌繃鐨?FOB/EXW/FCA 浠锋牸鍖洪棿 */
-  priceTermsSummary: PriceTerm[];
+  priceTermsSummary: PriceTermSummary[];
   offers: VehicleOffer[];
 };
 
@@ -238,6 +239,25 @@ type VehicleOffer = {
   priceLabel: string;
   /** 璇ユ壒娆″疄闄呭～鍐欑殑 1~3 涓环鏍奸」锛屾潵鑷?FOB/EXW/FCA 缇庨噾浠?*/
   priceTermsList: PriceTerm[];
+};
+
+type VehicleResourceColor = {
+  key: string;
+  exteriorColor: string;
+  interiorColor: string;
+  quantity: number;
+  hasStockQuantity: boolean;
+  priceTerms: PriceTerm[];
+  vehicles: Vehicle[];
+};
+
+type VehicleResourceVariant = {
+  key: string;
+  vehicle: Vehicle;
+  vehicles: Vehicle[];
+  stockQuantity: number;
+  hasStockQuantity: boolean;
+  colors: VehicleResourceColor[];
 };
 
 type Inquiry = {
@@ -435,6 +455,10 @@ function formatUsdStrict(value: number) {
   }).format(value);
 }
 
+function formatPriceTermRange({ min, max }: PriceTermSummary) {
+  return min === max ? formatUsdStrict(min) : `${formatUsdStrict(min)} - ${formatUsdStrict(max)}`;
+}
+
 function formatDate(value: string) {
   if (!value) return "";
   const date = new Date(value);
@@ -610,11 +634,13 @@ export default function PortalPage() {
   const [loadedCatalog, setLoadedCatalog] = useState(false);
   const [moduleLoading, setModuleLoading] = useState(false);
 
-  const loadCatalogIfNeeded = useCallback(async () => {
-    if (loadedCatalog) return;
+  const loadCatalogIfNeeded = useCallback(async (force = false) => {
+    if (loadedCatalog && !force) return;
     setModuleLoading(true);
     try {
-      const res = await api<{ vehicleModels: VehicleModel[]; vehicleModelSpecs: VehicleSpec[]; vehicles: Vehicle[] }>("/api/portal/catalog");
+      const res = await api<{ vehicleModels: VehicleModel[]; vehicleModelSpecs: VehicleSpec[]; vehicles: Vehicle[] }>(
+        `/api/portal/catalog${force ? "?refresh=1" : ""}`,
+      );
       if (res) {
         setData((prev) =>
           prev
@@ -891,6 +917,7 @@ export default function PortalPage() {
       onLogout={logout}
       onModuleChange={handleModuleChange}
       onReload={checkSessionAndLoad}
+      onRefreshVehicles={() => loadCatalogIfNeeded(true)}
     />
   );
 
@@ -948,7 +975,7 @@ export default function PortalPage() {
                     <PortalInventoryPill label="Supply" value={formatSupplySummary(item)} />
                     {item.priceTermsSummary.length > 0 ? (
                       item.priceTermsSummary.map((pt) => (
-                        <PortalInventoryPill key={pt.term} label={pt.term} value={formatUsdStrict(pt.amount)} highlight />
+                        <PortalInventoryPill key={pt.term} label={pt.term} value={formatPriceTermRange(pt)} highlight />
                       ))
                     ) : (
                       <PortalInventoryPill label="FOB" value={item.fobPriceRange.replace(/^FOB\s*/i, "")} highlight />
@@ -1192,6 +1219,7 @@ function AdminPortal({
   onModuleChange,
   onLogout,
   onReload,
+  onRefreshVehicles,
   error,
   isModuleLoading,
 }: {
@@ -1200,6 +1228,7 @@ function AdminPortal({
   onModuleChange: (module: AdminModule) => void;
   onLogout: () => Promise<void>;
   onReload: () => Promise<void>;
+  onRefreshVehicles: () => Promise<void>;
   error: string;
   isModuleLoading?: boolean;
 }) {
@@ -1323,7 +1352,13 @@ function AdminPortal({
             </Alert>
           )}
 
-          <AdminModuleContent activeModule={normalizedActiveModule} data={data} isModuleLoading={isModuleLoading} onEditVehicle={setEditingVehicle} />
+          <AdminModuleContent
+            activeModule={normalizedActiveModule}
+            data={data}
+            isModuleLoading={isModuleLoading}
+            onEditVehicle={setEditingVehicle}
+            onRefreshVehicles={onRefreshVehicles}
+          />
         </section>
       </div>
       {editingVehicle && (
@@ -1354,7 +1389,7 @@ function ModuleLoadingSkeleton() {
   );
 }
 
-function AdminModuleContent({ activeModule, data, isModuleLoading, onEditVehicle }: { activeModule: AdminModule; data: BootstrapData; isModuleLoading?: boolean; onEditVehicle: (vehicle: Vehicle) => void }) {
+function AdminModuleContent({ activeModule, data, isModuleLoading, onEditVehicle, onRefreshVehicles }: { activeModule: AdminModule; data: BootstrapData; isModuleLoading?: boolean; onEditVehicle: (vehicle: Vehicle) => void; onRefreshVehicles: () => Promise<void> }) {
   if (isModuleLoading) {
     return <ModuleLoadingSkeleton />;
   }
@@ -1364,7 +1399,7 @@ function AdminModuleContent({ activeModule, data, isModuleLoading, onEditVehicle
     case "vehicle_models":
       return <AdminProfiles data={data} />;
     case "vehicles":
-      return <AdminVehicles data={data} onEdit={onEditVehicle} />;
+      return <AdminVehicles data={data} onEdit={onEditVehicle} onRefresh={onRefreshVehicles} />;
     case "quotes":
       return <AdminQuotes data={data} />;
     case "orders":
@@ -1823,14 +1858,14 @@ function AdminProfiles({ data }: { data: BootstrapData }) {
   );
 }
 
-function AdminVehicles({ data, onEdit }: { data: BootstrapData; onEdit: (vehicle: Vehicle) => void }) {
+function AdminVehicles({ data, onEdit, onRefresh }: { data: BootstrapData; onEdit: (vehicle: Vehicle) => void; onRefresh: () => Promise<void> }) {
   const { t } = useTranslation();
   const sellableModels = buildSellableModels(data);
   const [expandedModels, setExpandedModels] = useState<Set<string>>(() => new Set());
+  const [expandedVariants, setExpandedVariants] = useState<Set<string>>(() => new Set());
   const [searchQuery, setSearchQuery] = useState("");
   const [supplyFilter, setSupplyFilter] = useState("all");
   const [brandFilter, setBrandFilter] = useState("all");
-  const [colorFilter, setColorFilter] = useState("all");
   const [supplierFilter, setSupplierFilter] = useState("all");
   const normalizedSearch = searchQuery.trim().toLowerCase();
   const canSeeSupplier = data.user.role !== "partner" && data.user.role !== "customer";
@@ -1853,16 +1888,6 @@ function AdminVehicles({ data, onEdit }: { data: BootstrapData; onEdit: (vehicle
     return Array.from(set).sort();
   }, [data.vehicles, sellableModels]);
 
-  const colorOptions = useMemo(() => {
-    const set = new Set<string>();
-    data.vehicles.forEach((v) => {
-      const ext = v.exteriorColor || v.color;
-      if (ext && ext.trim() && ext !== "-") set.add(ext.trim());
-      if (v.interiorColor && v.interiorColor.trim() && v.interiorColor !== "-") set.add(v.interiorColor.trim());
-    });
-    return Array.from(set).sort();
-  }, [data.vehicles]);
-
   const supplierOptions = useMemo(() => {
     if (!canSeeSupplier) return [];
     const set = new Set<string>();
@@ -1872,19 +1897,19 @@ function AdminVehicles({ data, onEdit }: { data: BootstrapData; onEdit: (vehicle
     return Array.from(set).sort();
   }, [canSeeSupplier, data.vehicles]);
 
-  const isAllDefault = !normalizedSearch && supplyFilter === "all" && brandFilter === "all" && colorFilter === "all" && effectiveSupplierFilter === "all";
+  const isAllDefault = !normalizedSearch && supplyFilter === "all" && brandFilter === "all" && effectiveSupplierFilter === "all";
 
   const visibleModels = sellableModels
     .map((item) => {
       const rawVehicles = vehiclesForSellableModel(data.vehicles, item).filter((vehicle) =>
-        vehicleMatchesAdminFilters(vehicle, item, normalizedSearch, supplyFilter, brandFilter, colorFilter, effectiveSupplierFilter, canSeeSupplier, canSeeLocation)
+        vehicleMatchesAdminFilters(vehicle, item, normalizedSearch, supplyFilter, brandFilter, effectiveSupplierFilter, canSeeSupplier, canSeeLocation)
       );
       const offers = item.offers.filter((offer) =>
-        offerMatchesAdminFilters(offer, item, normalizedSearch, supplyFilter, brandFilter, colorFilter, effectiveSupplierFilter, canSeeSupplier, canSeeLocation)
+        offerMatchesAdminFilters(offer, item, normalizedSearch, supplyFilter, brandFilter, effectiveSupplierFilter, canSeeSupplier, canSeeLocation)
       );
       const modelMatches = modelMatchesAdminFilters(item, normalizedSearch, brandFilter);
       // 鍙湁褰撻鑹?渚涘簲鍟?渚涘簲鐘舵€佺瓫閫夐兘鏈縺娲绘椂锛屾墠鍏佽 modelMatches 鍥為€€鍒版樉绀哄叏閮?
-      const hasDetailFilter = colorFilter !== "all" || effectiveSupplierFilter !== "all" || supplyFilter !== "all";
+      const hasDetailFilter = effectiveSupplierFilter !== "all" || supplyFilter !== "all";
 
       const effectiveOffers = isAllDefault
         ? item.offers
@@ -1915,6 +1940,15 @@ function AdminVehicles({ data, onEdit }: { data: BootstrapData; onEdit: (vehicle
     });
   }
 
+  function toggleVariant(key: string) {
+    setExpandedVariants((current) => {
+      const next = new Set(current);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  }
+
   return (
     <div className="grid gap-5">
       {/* 椤堕儴 Header 璇存槑鍖?(鍙妯″紡锛屽幓闄や笉鍚堢悊鐨勫綍鍏ヤ笌鏂板缓鎸夐挳) */}
@@ -1929,8 +1963,8 @@ function AdminVehicles({ data, onEdit }: { data: BootstrapData; onEdit: (vehicle
         {/* 鍔ㄦ€佸疄鐢ㄧ瓫閫変笌鍏ㄦ枃鎼滅储宸ュ叿鏍?*/}
         <div className={`mt-5 grid gap-3 border-t border-white/10 pt-4 sm:items-center ${
           canSeeSupplier
-            ? "sm:grid-cols-[minmax(0,2fr)_minmax(0,1.2fr)_minmax(0,1fr)_minmax(0,1.2fr)_minmax(0,1fr)_auto]"
-            : "sm:grid-cols-[minmax(0,2fr)_minmax(0,1.2fr)_minmax(0,1fr)_minmax(0,1fr)_auto]"
+            ? "sm:grid-cols-[minmax(0,2fr)_minmax(0,1.2fr)_minmax(0,1.2fr)_minmax(0,1fr)_auto_auto]"
+            : "sm:grid-cols-[minmax(0,2fr)_minmax(0,1.2fr)_minmax(0,1fr)_auto_auto]"
         }`}>
           {/* 鍏ㄦ枃鎼滅储妗?*/}
           <div className="relative">
@@ -1954,18 +1988,6 @@ function AdminVehicles({ data, onEdit }: { data: BootstrapData; onEdit: (vehicle
             <option value="all">{t("portal.allBrands")}</option>
             {brandOptions.map((brand) => (
               <option key={brand} value={brand}>{brand}</option>
-            ))}
-          </select>
-
-          {/* 全部颜色下拉 */}
-          <select
-            value={colorFilter}
-            onChange={(e) => setColorFilter(e.target.value)}
-            className="rounded-xl border border-white/10 bg-[#0c1424] px-3 py-2.5 text-xs font-medium text-white outline-none transition focus:border-[#22b8aa]"
-          >
-            <option value="all">{t("portal.allColors")}</option>
-            {colorOptions.map((color) => (
-              <option key={color} value={color}>{color}</option>
             ))}
           </select>
 
@@ -1994,19 +2016,32 @@ function AdminVehicles({ data, onEdit }: { data: BootstrapData; onEdit: (vehicle
             <option value="preorder">{t("portal.preorder")}</option>
           </select>
 
+          <button
+            type="button"
+            onClick={() => {
+              void onRefresh();
+            }}
+            className="inline-flex items-center gap-1.5 rounded-xl border border-[#22b8aa]/30 bg-[#22b8aa]/10 px-3.5 py-2.5 text-xs font-bold text-[#5ee6d8] transition hover:border-[#22b8aa] hover:bg-[#22b8aa]/15 hover:text-white"
+            aria-label="刷新"
+            title="刷新"
+          >
+            <RefreshCw className="h-3.5 w-3.5" aria-hidden="true" />
+            刷新
+          </button>
+
           {/* 重置按钮 */}
           <button
             type="button"
             onClick={() => {
               setSearchQuery("");
               setBrandFilter("all");
-              setColorFilter("all");
               setSupplierFilter("all");
               setSupplyFilter("all");
+              setExpandedModels(new Set());
+              setExpandedVariants(new Set());
             }}
-            className="inline-flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/[.04] px-3.5 py-2.5 text-xs font-bold text-slate-300 transition hover:border-[#22b8aa] hover:bg-[#22b8aa]/10 hover:text-white"
+            className="inline-flex items-center justify-center rounded-xl border border-white/10 bg-white/[.04] px-3.5 py-2.5 text-xs font-bold text-slate-300 transition hover:border-[#22b8aa] hover:bg-[#22b8aa]/10 hover:text-white"
           >
-            <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
             {t("portal.reset")}
           </button>
         </div>
@@ -2032,7 +2067,7 @@ function AdminVehicles({ data, onEdit }: { data: BootstrapData; onEdit: (vehicle
           visibleModels.map((item) => {
             const isExpanded = expandedModels.has(item.key);
             const rawVehicles = item.rawVehicles || [];
-            const offers = item.offers || [];
+            const variants = buildVehicleResourceVariants(rawVehicles);
 
             return (
               <section
@@ -2053,8 +2088,8 @@ function AdminVehicles({ data, onEdit }: { data: BootstrapData; onEdit: (vehicle
                         {item.brand} {item.model}
                       </h2>
                       <p className="mt-0.5 text-xs font-medium text-slate-400">
-                        {offers.length > 0 ? `${offers.length} \u4e2a\u914d\u7f6e\u7248\u672c` : ""}
-                        {offers.length > 0 && item.hasStockQuantity ? " / " : ""}
+                        {variants.length > 0 ? `${variants.length} 个细分车型` : ""}
+                        {variants.length > 0 && item.hasStockQuantity ? " / " : ""}
                         {item.hasStockQuantity ? `\u603b\u5e93\u5b58 ${item.stockQuantity} \u53f0` : "\u5e93\u5b58\u5f85\u786e\u8ba4"}
                       </p>
                     </div>
@@ -2082,7 +2117,7 @@ function AdminVehicles({ data, onEdit }: { data: BootstrapData; onEdit: (vehicle
                                   : "text-emerald-300"
                               }`}
                             >
-                              {pt.term} {formatUsdStrict(pt.amount)}
+                              {pt.term} {formatPriceTermRange(pt)}
                             </span>
                           ))}
                         </div>
@@ -2103,68 +2138,86 @@ function AdminVehicles({ data, onEdit }: { data: BootstrapData; onEdit: (vehicle
 
                 {/* 2级配置版本与车源明细表格 */}
                 {isExpanded && (
-                  <div className="p-4 sm:p-5">
-                    <AdminTable
-                      headers={[
-                        "\u7248\u672c\u914d\u7f6e",
-                        "\u5e74\u6b3e",
-                        ...(canSeeLocation ? ["\u8f66\u6e90\u5730\u70b9"] : []),
-                        "\u5de6\u53f3\u8235 / \u7248\u672c",
-                        ...(canSeeSupplier ? ["\u4f9b\u5e94\u5546"] : []),
-                        "\u5916\u89c2 / \u5185\u9970\u989c\u8272",
-                        "\u7f8e\u91d1\u62a5\u4ef7",
-                        "\u5e93\u5b58\u6570\u91cf",
-                        "\u4ea4\u4ed8\u72b6\u6001",
-                      ]}
-                      rows={rawVehicles.map((vehicle) => [
-                        <strong key="configuration" className="text-xs font-bold text-white">
-                          {compactJoin([vehicle.trim || "未指定配置", vehicle.configuration])}
-                        </strong>,
-                        <span key="year" className="text-xs font-medium text-slate-300">
-                          {vehicle.year ? `${vehicle.year}款` : "年款待确认"}
-                        </span>,
-                        ...(canSeeLocation
-                          ? [<span key="loc" className="text-xs font-medium text-slate-200">{vehicle.location || "\u672a\u6307\u5b9a\u5730\u70b9"}</span>]
-                          : []),
-                        <span key="spec" className="text-[11px] font-bold text-[#5ee6d8]">
-                          {compactJoin([vehicle.steering || "左舵 LHD", vehicle.marketVersion || "国内版"])}
-                        </span>,
-                        ...(canSeeSupplier
-                          ? [<span key="supplier" className="text-xs font-medium text-slate-200">{vehicle.supplier || "\u5408\u4f5c\u8f66\u5546"}</span>]
-                          : []),
-                        <span key="color" className="text-xs text-slate-400">
-                          {formatColorPair(vehicle.exteriorColor || vehicle.color, vehicle.interiorColor)}
-                        </span>,
-                        <div key="price" className="flex flex-col gap-1">
-                          {vehicle.priceTermsList && vehicle.priceTermsList.length > 0 ? (
-                            vehicle.priceTermsList.map((p) => (
-                              <span
-                                key={p.term}
-                                className={`w-fit rounded-lg border px-2.5 py-0.5 font-mono text-xs font-black shadow-sm ${
-                                  p.term === "FOB"
-                                    ? "border-amber-500/40 bg-amber-500/10 text-amber-400"
-                                    : p.term === "FCA"
-                                    ? "border-cyan-500/40 bg-cyan-500/10 text-cyan-300"
-                                    : "border-emerald-500/40 bg-emerald-500/10 text-emerald-300"
-                                }`}
-                              >
-                                {p.term} {formatUsdStrict(p.amount)}
+                  <div className="grid gap-3 p-4 sm:p-5">
+                    {variants.map((variant) => {
+                      const variantKey = `${item.key}::${variant.key}`;
+                      const variantExpanded = expandedVariants.has(variantKey);
+                      const vehicle = variant.vehicle;
+                      return (
+                        <section key={variantKey} className="overflow-hidden rounded-xl border border-white/10 bg-[#0b1425]">
+                          <button
+                            type="button"
+                            onClick={() => toggleVariant(variantKey)}
+                            className="flex w-full items-center justify-between gap-4 px-4 py-3 text-left transition hover:bg-white/[.03]"
+                          >
+                            <div>
+                              <div className="text-sm font-bold text-white">
+                                {compactJoin([vehicle.trim || "未指定配置", vehicle.configuration])}
+                              </div>
+                              <div className="mt-1 text-xs text-slate-400">
+                                {vehicle.year ? `${vehicle.year}款` : "年款待确认"}
+                                {" / "}
+                                {compactJoin([vehicle.steering || "左舵 LHD", vehicle.marketVersion || "国内版"])}
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-4 text-xs">
+                              <span className="text-slate-400">{variant.colors.length} 个颜色</span>
+                              <span className="font-mono font-black text-white">
+                                {variant.hasStockQuantity ? `${variant.stockQuantity} 台` : "-"}
                               </span>
-                            ))
-                          ) : vehicle.price ? (
-                            <span className="w-fit rounded-lg border border-amber-500/40 bg-amber-500/10 px-2.5 py-0.5 font-mono text-xs font-black text-amber-400 shadow-sm">
-                              {vehicle.priceTerm || "FOB"} {formatUsdStrict(vehicle.price)}
-                            </span>
-                          ) : (
-                            <span className="text-xs text-slate-500">寰呮姤浠</span>
+                              <span className="text-[#5ee6d8]">{variantExpanded ? "收起颜色" : "查看颜色"}</span>
+                            </div>
+                          </button>
+
+                          {variantExpanded && (
+                            <div className="border-t border-white/10 p-3 sm:p-4">
+                              <AdminTable
+                                headers={[
+                                  "外观 / 内饰颜色",
+                                  "库存数量",
+                                  ...(canSeeSupplier ? ["供应商"] : []),
+                                  ...(canSeeLocation ? ["车源地点"] : []),
+                                  "美金报价",
+                                  "交付状态",
+                                ]}
+                                rows={variant.colors.map((color) => {
+                                  const colorVehicle = color.vehicles[0];
+                                  const suppliers = Array.from(new Set(color.vehicles.map((item) => item.supplier).filter(Boolean)));
+                                  const locations = Array.from(new Set(color.vehicles.map((item) => item.location).filter(Boolean)));
+                                  return [
+                                    <span key="color" className="text-xs text-slate-300">
+                                      {formatColorPair(color.exteriorColor, color.interiorColor)}
+                                    </span>,
+                                    <span key="stock" className="font-mono text-xs font-bold text-white">
+                                      {color.hasStockQuantity ? `${color.quantity} 台` : "-"}
+                                    </span>,
+                                    ...(canSeeSupplier
+                                      ? [<span key="supplier" className="text-xs text-slate-300">{suppliers.length ? suppliers.join(" / ") : "-"}</span>]
+                                      : []),
+                                    ...(canSeeLocation
+                                      ? [<span key="location" className="text-xs text-slate-300">{locations.length ? locations.join(" / ") : "-"}</span>]
+                                      : []),
+                                    <div key="price" className="flex flex-wrap gap-1">
+                                      {color.priceTerms.length > 0 ? color.priceTerms.map((price) => (
+                                        <span key={`${price.term}-${price.amount}`} className="rounded border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 font-mono text-xs font-bold text-amber-400">
+                                          {price.term} {formatUsdStrict(price.amount)}
+                                        </span>
+                                      )) : colorVehicle.price ? (
+                                        <span className="rounded border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 font-mono text-xs font-bold text-amber-400">
+                                          {colorVehicle.priceTerm || "FOB"} {formatUsdStrict(colorVehicle.price)}
+                                        </span>
+                                      ) : "-"}
+                                    </div>,
+                                    <span key="fulfillment" className="text-xs text-slate-300">{formatFulfillmentStatus(colorVehicle)}</span>,
+                                  ];
+                                })}
+                                emptyText="暂无颜色库存"
+                              />
+                            </div>
                           )}
-                          {vehicle.cost ? <span className="font-mono text-[10px] text-slate-500">成本 {formatUsdStrict(vehicle.cost)}</span> : null}
-                        </div>,
-                        <span key="stock" className="text-xs text-slate-300">{formatInventoryQuantity(vehicle)}</span>,
-                        <span key="fulfillment" className="text-xs font-medium text-slate-200">{formatFulfillmentStatus(vehicle)}</span>,
-                      ])}
-                      emptyText="暂无车源数据"
-                    />
+                        </section>
+                      );
+                    })}
                   </div>
                 )}
               </section>
@@ -3038,7 +3091,7 @@ export function buildSellableModels(data: BootstrapData): SellableModel[] {
     modelsByName.set(modelResourceKey(item.brand, item.model), item);
   }
 
-  const grouped = new Map<string, { item: SellableModel; offerMap: Map<string, VehicleOffer>; supplierStock: Map<string, number> }>();
+  const grouped = new Map<string, { item: SellableModel; offerMap: Map<string, VehicleOffer> }>();
   for (const vehicle of data.vehicles || []) {
     const modelInfo = modelsByVehicle.get(vehicle.modelId) || modelsByName.get(modelResourceKey(vehicle.brand, vehicle.model));
     const modelKey = modelResourceKey(vehicle.brand, vehicle.model);
@@ -3058,20 +3111,13 @@ export function buildSellableModels(data: BootstrapData): SellableModel[] {
           offers: [],
         },
         offerMap: new Map(),
-        supplierStock: new Map(),
       });
     }
 
     const entry = grouped.get(modelKey)!;
     const supplyType = getSupplyType(vehicle);
-    // A supplier's model stock is repeated across its colors/configurations; sum only once per supplier.
-    if (vehicle.modelStockQuantity !== null && vehicle.modelStockQuantity !== undefined) {
-      const supplierKey = normalizeKey(vehicle.supplier) || vehicle.id;
-      entry.supplierStock.set(
-        supplierKey,
-        Math.max(entry.supplierStock.get(supplierKey) || 0, vehicle.modelStockQuantity),
-      );
-      entry.item.stockQuantity = Array.from(entry.supplierStock.values()).reduce((total, quantity) => total + quantity, 0);
+    if (vehicle.colorStockQuantity !== null && vehicle.colorStockQuantity !== undefined) {
+      entry.item.stockQuantity += vehicle.colorStockQuantity;
       entry.item.hasStockQuantity = true;
     }
     entry.item.preorderAvailable = entry.item.preorderAvailable || supplyType === "Preorder";
@@ -3137,12 +3183,11 @@ export function buildSellableModels(data: BootstrapData): SellableModel[] {
         }
       }
       const termOrder = ["FOB", "EXW", "FCA"];
-      const priceTermsSummary: PriceTerm[] = termOrder
+      const priceTermsSummary: PriceTermSummary[] = termOrder
         .filter((t) => termMap.has(t))
         .map((t) => {
           const range = termMap.get(t)!;
-          // 取区间最低值代表该 term 的报价（用于卡片展示）
-          return { term: t, amount: range.min };
+          return { term: t, min: range.min, max: range.max };
         });
 
       return {
@@ -3156,6 +3201,74 @@ export function buildSellableModels(data: BootstrapData): SellableModel[] {
       const inStockRank = Number(b.offers.some((offer) => offer.supplyType === "In Stock")) - Number(a.offers.some((offer) => offer.supplyType === "In Stock"));
       return inStockRank || Number(b.hasStockQuantity) - Number(a.hasStockQuantity) || b.stockQuantity - a.stockQuantity || a.brand.localeCompare(b.brand) || a.model.localeCompare(b.model) || b.year.localeCompare(a.year);
     });
+}
+
+export function buildVehicleResourceVariants(vehicles: Vehicle[]): VehicleResourceVariant[] {
+  const grouped = new Map<string, VehicleResourceVariant>();
+
+  for (const vehicle of vehicles) {
+    const key = normalizeKey(
+      vehicle.year,
+      vehicle.trim,
+      vehicle.configuration,
+      vehicle.steering,
+      vehicle.marketVersion,
+    );
+    let variant = grouped.get(key);
+    if (!variant) {
+      variant = {
+        key,
+        vehicle,
+        vehicles: [],
+        stockQuantity: 0,
+        hasStockQuantity: false,
+        colors: [],
+      };
+      grouped.set(key, variant);
+    }
+
+    variant.vehicles.push(vehicle);
+    if (vehicle.colorStockQuantity !== null && vehicle.colorStockQuantity !== undefined) {
+      variant.stockQuantity += vehicle.colorStockQuantity;
+      variant.hasStockQuantity = true;
+    }
+
+    const exteriorColor = vehicle.exteriorColor || vehicle.color;
+    const colorKey = normalizeKey(exteriorColor, vehicle.interiorColor);
+    let color = variant.colors.find((item) => item.key === colorKey);
+    if (!color) {
+      color = {
+        key: colorKey,
+        exteriorColor,
+        interiorColor: vehicle.interiorColor,
+        quantity: 0,
+        hasStockQuantity: false,
+        priceTerms: [],
+        vehicles: [],
+      };
+      variant.colors.push(color);
+    }
+    color.vehicles.push(vehicle);
+    if (vehicle.colorStockQuantity !== null && vehicle.colorStockQuantity !== undefined) {
+      color.quantity += vehicle.colorStockQuantity;
+      color.hasStockQuantity = true;
+    }
+  }
+
+  return Array.from(grouped.values())
+    .map((variant) => ({
+      ...variant,
+      colors: variant.colors
+        .map((color) => ({ ...color, priceTerms: uniqueVehiclePriceTerms(color.vehicles) }))
+        .sort((a, b) =>
+          formatColorPair(a.exteriorColor, a.interiorColor).localeCompare(formatColorPair(b.exteriorColor, b.interiorColor)),
+        ),
+    }))
+    .sort((a, b) =>
+      compactJoin([a.vehicle.trim, a.vehicle.configuration, a.vehicle.year]).localeCompare(
+        compactJoin([b.vehicle.trim, b.vehicle.configuration, b.vehicle.year]),
+      ),
+    );
 }
 
 function getFobPrice(vehicle: Vehicle) {
@@ -3189,7 +3302,6 @@ function offerMatchesAdminFilters(
   query: string,
   supplyFilter: string,
   brandFilter: string,
-  colorFilter: string,
   supplierFilter: string,
   canSeeSupplier = true,
   canSeeLocation = true
@@ -3198,13 +3310,6 @@ function offerMatchesAdminFilters(
     const itemB = (item.brand || "").toLowerCase();
     const filterB = brandFilter.toLowerCase();
     if (!itemB.includes(filterB) && !filterB.includes(itemB)) return false;
-  }
-
-  if (colorFilter !== "all") {
-    const ext = (offer.exteriorColor || "").toLowerCase();
-    const intColor = (offer.interiorColor || "").toLowerCase();
-    const target = colorFilter.toLowerCase();
-    if (!ext.includes(target) && !intColor.includes(target)) return false;
   }
 
   if (canSeeSupplier && supplierFilter !== "all") {
@@ -3244,7 +3349,6 @@ function vehicleMatchesAdminFilters(
   query: string,
   supplyFilter: string,
   brandFilter: string,
-  colorFilter: string,
   supplierFilter: string,
   canSeeSupplier = true,
   canSeeLocation = true
@@ -3253,13 +3357,6 @@ function vehicleMatchesAdminFilters(
     const b = (vehicle.brand || item.brand || "").toLowerCase();
     const filterB = brandFilter.toLowerCase();
     if (!b.includes(filterB) && !filterB.includes(b)) return false;
-  }
-
-  if (colorFilter !== "all") {
-    const ext = (vehicle.exteriorColor || vehicle.color || (canSeeSupplier ? vehicle.supplierExteriorColor : "") || "").toLowerCase();
-    const intColor = (vehicle.interiorColor || (canSeeSupplier ? vehicle.supplierInteriorColor : "") || "").toLowerCase();
-    const target = colorFilter.toLowerCase();
-    if (!ext.includes(target) && !intColor.includes(target)) return false;
   }
 
   if (canSeeSupplier && supplierFilter !== "all") {
@@ -3331,7 +3428,7 @@ function getSupplyType(vehicle: Vehicle) {
 }
 
 function formatInventoryQuantity(vehicle: Vehicle) {
-  const quantity = vehicle.colorStockQuantity ?? vehicle.trimStockQuantity;
+  const quantity = vehicle.colorStockQuantity;
   return quantity !== null && quantity !== undefined ? `${quantity} \u53f0` : "-";
 }
 
@@ -3363,6 +3460,25 @@ function formatColorPair(exteriorColor: string, interiorColor: string) {
 
 function normalizeKey(...values: Array<string | number | null | undefined>) {
   return values.map((value) => String(value ?? "").trim().toLowerCase()).join("::");
+}
+
+function uniqueVehiclePriceTerms(vehicles: Vehicle[]): PriceTerm[] {
+  const unique = new Map<string, PriceTerm>();
+  for (const vehicle of vehicles) {
+    const terms = vehicle.priceTermsList?.length
+      ? vehicle.priceTermsList
+      : vehicle.price !== null && vehicle.price !== undefined
+        ? [{ term: vehicle.priceTerm || "FOB", amount: vehicle.price }]
+        : [];
+    for (const term of terms) {
+      unique.set(normalizeKey(term.term, term.amount), term);
+    }
+  }
+  const termOrder = ["FOB", "EXW", "FCA"];
+  return Array.from(unique.values()).sort((a, b) => {
+    const order = termOrder.indexOf(a.term) - termOrder.indexOf(b.term);
+    return order || a.amount - b.amount;
+  });
 }
 
 function modelResourceKey(brand: string, model: string) {

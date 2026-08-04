@@ -1607,9 +1607,12 @@ async function handleBootstrap(request: Request, env: Env) {
 async function handleGetCatalog(request: Request, env: Env) {
   const session = await requireSession(request, env);
   const cacheKey = `catalog_v5:${session.role}:${session.customerId || "internal"}`;
-  const cachedData = getCached(cacheKey);
-  if (cachedData) {
-    return json(cachedData);
+  const forceRefresh = new URL(request.url).searchParams.get("refresh") === "1";
+  if (!forceRefresh) {
+    const cachedData = getCached(cacheKey);
+    if (cachedData) {
+      return json(cachedData);
+    }
   }
 
   const vehicleModelTableId = optionalEnv(env, "FEISHU_TABLE_VEHICLE_MODELS") || "tblxVNjP9dnJ7b3o";
