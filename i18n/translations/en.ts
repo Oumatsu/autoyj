@@ -926,6 +926,18 @@ export default {
     "backHome": "← Back to Home"
   },
   "portal": {
+    "navDashboard": "Dashboard",
+    "navVehicleModels": "Vehicle Models",
+    "navVehicleResources": "Vehicle Resources",
+    "navSourceImports": "Source Intake & Review",
+    "navQuotes": "Inquiry Management",
+    "navOrders": "Order Management",
+    "navPayments": "Payments & Finance",
+    "navLogistics": "Export Workflow",
+    "navCustomers": "Customer Accounts",
+    "navStaff": "Staff Accounts",
+    "badgePreview": "Preview",
+    "badgeDevelopment": "In Development",
     "titleVehicles": "Inventory Console",
     "titleModels": "Vehicle Models",
     "titleCalculator": "Quote Calculator",

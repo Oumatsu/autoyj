@@ -21,6 +21,7 @@ import { Progress } from "@/components/ui/progress";
 import { RefreshCw } from "lucide-react";
 import { useTranslation } from "@/i18n/useTranslation";
 import { sanitizeDisplayData } from "@/lib/display-text";
+import { formatPortalStatus, localizeVehicleValue, portalRoleLabels } from "@/lib/portal-english";
 
 type PortalRole = "admin" | "sales" | "sourcing" | "finance" | "partner" | "customer";
 type PriceTier = "hidden" | "partner" | "vip" | "internal";
@@ -371,26 +372,19 @@ const roleLabels: Record<PortalRole, string> = {
   customer: "Customer",
 };
 
-const adminRoleLabels: Record<PortalRole, string> = {
-  admin: "管理员",
-  sales: "销售",
-  sourcing: "车源",
-  finance: "财务",
-  partner: "合作伙伴",
-  customer: "客户",
-};
+const adminRoleLabels: Record<PortalRole, string> = portalRoleLabels;
 
-const adminNavItems: { key: AdminModule; label: string; roles: PortalRole[]; icon: AdminIconName; badge?: string }[] = [
-  { key: "dashboard", label: "首页看板", roles: ["admin", "sales", "sourcing", "finance", "partner", "customer"], icon: "dashboard", badge: "开发中" },
-  { key: "vehicle_models", label: "车型库", roles: ["admin", "sales", "sourcing", "partner", "customer"], icon: "vehicle_models", badge: "预览" },
-  { key: "vehicles", label: "车辆资源", roles: ["admin", "sales", "sourcing", "partner", "customer"], icon: "vehicles", badge: "预览" },
-  { key: "source_imports", label: "车源录入与审查", roles: ["admin", "sales", "sourcing"], icon: "vehicles", badge: "开发中" },
-  { key: "quotes", label: "询价管理", roles: ["admin", "sales", "partner", "customer"], icon: "quotes", badge: "开发中" },
-  { key: "orders", label: "订单管理", roles: ["admin", "sales", "finance", "partner", "customer"], icon: "orders", badge: "开发中" },
-  { key: "payments", label: "收款财务", roles: ["admin", "finance"], icon: "payments", badge: "开发中" },
-  { key: "logistics", label: "出口流程", roles: ["admin", "sales", "partner", "customer"], icon: "logistics", badge: "开发中" },
-  { key: "customers", label: "客户资料", roles: ["admin"], icon: "customers", badge: "开发中" },
-  { key: "staff", label: "员工账号", roles: ["admin"], icon: "staff", badge: "开发中" },
+const adminNavItems: { key: AdminModule; labelKey: string; roles: PortalRole[]; icon: AdminIconName; badge?: "preview" | "development" }[] = [
+  { key: "dashboard", labelKey: "portal.navDashboard", roles: ["admin", "sales", "sourcing", "finance", "partner", "customer"], icon: "dashboard", badge: "development" },
+  { key: "vehicle_models", labelKey: "portal.navVehicleModels", roles: ["admin", "sales", "sourcing", "partner", "customer"], icon: "vehicle_models", badge: "preview" },
+  { key: "vehicles", labelKey: "portal.navVehicleResources", roles: ["admin", "sales", "sourcing", "partner", "customer"], icon: "vehicles", badge: "preview" },
+  { key: "source_imports", labelKey: "portal.navSourceImports", roles: ["admin", "sales", "sourcing"], icon: "vehicles", badge: "development" },
+  { key: "quotes", labelKey: "portal.navQuotes", roles: ["admin", "sales", "partner", "customer"], icon: "quotes", badge: "development" },
+  { key: "orders", labelKey: "portal.navOrders", roles: ["admin", "sales", "finance", "partner", "customer"], icon: "orders", badge: "development" },
+  { key: "payments", labelKey: "portal.navPayments", roles: ["admin", "finance"], icon: "payments", badge: "development" },
+  { key: "logistics", labelKey: "portal.navLogistics", roles: ["admin", "sales", "partner", "customer"], icon: "logistics", badge: "development" },
+  { key: "customers", labelKey: "portal.navCustomers", roles: ["admin"], icon: "customers", badge: "development" },
+  { key: "staff", labelKey: "portal.navStaff", roles: ["admin"], icon: "staff", badge: "development" },
 ];
 
 const modelCoreSpecNames = [
@@ -1232,6 +1226,7 @@ function AdminPortal({
   error: string;
   isModuleLoading?: boolean;
 }) {
+  const { t } = useTranslation();
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const visibleNav = adminNavItems.filter((item) => item.roles.includes(data.user.role));
@@ -1257,7 +1252,7 @@ function AdminPortal({
                 EV
               </div>
               <div className={`min-w-0 flex-1 ${sidebarCollapsed ? "lg:hidden" : ""}`}>
-                <strong className="block truncate text-lg font-black tracking-tight text-white">出口管理系统</strong>
+                <strong className="block truncate text-lg font-black tracking-tight text-white">Export Operations</strong>
                 <span className="mt-0.5 block text-xs font-medium text-slate-400">China / Ethiopia</span>
               </div>
               <Button
@@ -1265,8 +1260,8 @@ function AdminPortal({
                 variant="ghost"
                 size="icon"
                 onClick={() => setSidebarCollapsed((current) => !current)}
-                aria-label={sidebarCollapsed ? "\u5c55\u5f00\u5de6\u4fa7\u5bfc\u822a\u680f" : "\u6536\u8d77\u5de6\u4fa7\u5bfc\u822a\u680f"}
-                title={sidebarCollapsed ? "\u5c55\u5f00\u5de6\u4fa7\u5bfc\u822a\u680f" : "\u6536\u8d77\u5de6\u4fa7\u5bfc\u822a\u680f"}
+                aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+                title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
                 className={`hidden shrink-0 border border-white/10 lg:inline-flex ${sidebarCollapsed ? "lg:h-8 lg:w-8 lg:rounded-lg" : ""}`}
               >
                 <svg className={`h-4 w-4 transition-transform ${sidebarCollapsed ? "rotate-180" : ""}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -1286,20 +1281,20 @@ function AdminPortal({
                       e.preventDefault();
                       onModuleChange(item.key);
                     }}
-                    title={item.label}
-                    className={`flex min-h-11 items-center justify-between gap-2 rounded-xl px-3.5 py-2.5 text-left text-sm font-bold transition cursor-pointer ${sidebarCollapsed ? "lg:justify-center lg:px-0" : ""} ${
+                      title={t(item.labelKey)}
+                      className={`grid min-h-12 grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-xl px-3 py-2.5 text-left text-[13px] font-bold transition cursor-pointer ${sidebarCollapsed ? "lg:grid-cols-1 lg:justify-items-center lg:px-0" : ""} ${
                       isActive
                         ? "bg-[#22b8aa]/15 text-[#5ee6d8] shadow-[inset_3px_0_0_#22b8aa]"
                         : "text-slate-400 hover:bg-white/[.06] hover:text-white"
                     }`}
                   >
-                    <div className={`flex items-center gap-3 min-w-0 ${sidebarCollapsed ? "lg:justify-center" : ""}`}>
+                    <div className={`flex min-w-0 items-center gap-2.5 ${sidebarCollapsed ? "lg:justify-center" : ""}`}>
                       <AdminNavIcon name={item.icon} />
-                      <span className={`truncate ${sidebarCollapsed ? "lg:hidden" : ""}`}>{item.label}</span>
+                      <span className={`min-w-0 whitespace-normal break-words leading-4 ${sidebarCollapsed ? "lg:hidden" : ""}`}>{t(item.labelKey)}</span>
                     </div>
                     {item.badge && !sidebarCollapsed && (
-                      <Badge variant={item.badge === "预览" ? "accent" : "amber"}>
-                        {item.badge}
+                      <Badge variant={item.badge === "preview" ? "accent" : "amber"} className="whitespace-nowrap px-2 py-1 text-[9px] leading-3">
+                        {item.badge === "preview" ? t("portal.badgePreview") : t("portal.badgeDevelopment")}
                       </Badge>
                     )}
                   </a>
@@ -1326,7 +1321,7 @@ function AdminPortal({
               onClick={() => void onLogout()}
               className={`mt-3 w-full ${sidebarCollapsed ? "lg:h-9 lg:px-0 lg:text-[0px] lg:after:content-['鈫?] lg:after:text-xs" : ""}`}
             >
-              退出登录
+              Sign out
             </Button>
           </div>
         </aside>
@@ -1335,14 +1330,14 @@ function AdminPortal({
           <header className="mb-6 flex flex-col gap-4 border-b border-white/10 pb-5 xl:flex-row xl:items-end xl:justify-between">
             <div>
               <p className="text-[10px] font-black uppercase tracking-[.24em] text-[#22b8aa]">
-                {adminRoleLabels[data.user.role]}视图 / Feishu Base
+                {adminRoleLabels[data.user.role]} View / Feishu Base
               </p>
-              <h1 className="mt-2 text-3xl font-black tracking-tight text-white sm:text-4xl">{activeItem?.label || "首页看板"}</h1>
+              <h1 className="mt-2 text-3xl font-black tracking-tight text-white sm:text-4xl">{activeItem ? t(activeItem.labelKey) : t("portal.navDashboard")}</h1>
             </div>
             <div className="grid w-full min-w-0 gap-2 text-xs text-slate-400 sm:grid-cols-3 xl:max-w-[520px]">
-              <AdminTopMetric label="库存台数" value={String(totalStock)} />
-              <AdminTopMetric label="待处理询价" value={String(openInquiries)} />
-              <AdminTopMetric label="订单金额" value={formatUsdStrict(orderTotal)} />
+              <AdminTopMetric label="Stock Units" value={String(totalStock)} />
+              <AdminTopMetric label="Open Inquiries" value={String(openInquiries)} />
+              <AdminTopMetric label="Order Value" value={formatUsdStrict(orderTotal)} />
             </div>
           </header>
 
@@ -1380,8 +1375,8 @@ function AdminPortal({
 function ModuleLoadingSkeleton() {
   return (
     <Loading
-      text="飞书 Base 数据加载中..."
-      subtext="正在实时与飞书后台连接通信，极速载入最新数据，请稍候"
+      text="Loading Feishu Base data..."
+      subtext="Connecting to the source system and loading the latest records."
       size="lg"
       fullscreen={false}
       className="rounded-2xl border border-teal-500/20 bg-white/[.03] p-12 shadow-2xl backdrop-blur-md"
@@ -1434,34 +1429,34 @@ function AdminSourceImportsDemo() {
       <section className="grid gap-4 md:grid-cols-4">
         <div className="rounded-xl border border-white/10 bg-white/[.04] p-4">
           <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">{t("portal.pendingAssets")}</span>
-          <strong className="mt-2 block text-2xl font-black text-white">12 份</strong>
-          <span className="mt-1 block text-xs text-slate-400">PDF / 图片 / 微信聊天记录</span>
+          <strong className="mt-2 block text-2xl font-black text-white">12 files</strong>
+          <span className="mt-1 block text-xs text-slate-400">PDFs, images, and chat records</span>
         </div>
         <div className="rounded-xl border border-white/10 bg-white/[.04] p-4">
           <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">{t("portal.aiParsingProgress")}</span>
           <strong className="mt-2 block text-2xl font-black text-[#22b8aa]">98.5%</strong>
-          <span className="mt-1 block text-xs text-slate-400">结合 Nemotron / GPT 视觉模型</span>
+          <span className="mt-1 block text-xs text-slate-400">Processed with Nemotron and GPT vision models</span>
         </div>
         <div className="rounded-xl border border-white/10 bg-white/[.04] p-4">
           <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">{t("portal.duplicateAlert")}</span>
-          <strong className="mt-2 block text-2xl font-black text-amber-400">2 组</strong>
-          <span className="mt-1 block text-xs text-amber-300/80">同 VIN / 车架号交叉校验</span>
+          <strong className="mt-2 block text-2xl font-black text-amber-400">2 groups</strong>
+          <span className="mt-1 block text-xs text-amber-300/80">Cross-checked by VIN and chassis number</span>
         </div>
         <div className="rounded-xl border border-white/10 bg-white/[.04] p-4">
           <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">{t("portal.readyToPublish")}</span>
-          <strong className="mt-2 block text-2xl font-black text-white">35 台</strong>
-          <span className="mt-1 block text-xs text-slate-400">符合出口 PDI 准备标准</span>
+          <strong className="mt-2 block text-2xl font-black text-white">35 units</strong>
+          <span className="mt-1 block text-xs text-slate-400">Ready for export PDI</span>
         </div>
       </section>
 
       <div className="grid gap-5 xl:grid-cols-2">
         <div className="rounded-2xl border border-white/10 bg-white/[.03] p-5">
           <h3 className="text-base font-black text-white">{t("portal.batchImportTitle")}</h3>
-          <p className="mt-1 text-xs text-slate-400">支持拖拽 Excel、车辆识别登记表、供应商朋友圈图片或微信截图</p>
+          <p className="mt-1 text-xs text-slate-400">Accepts Excel files, vehicle registration sheets, supplier images, and chat screenshots.</p>
           <div className="mt-4 grid h-36 place-items-center rounded-xl border border-dashed border-white/20 bg-black/20 text-center">
             <div>
               <p className="text-xs font-bold text-slate-300">{t("portal.dropFilesHere")}</p>
-              <p className="mt-1 text-[10px] text-slate-500">自动提取 VIN、外观/内饰颜色、指导价、车商报价与定金要求</p>
+              <p className="mt-1 text-[10px] text-slate-500">Extracts VIN, exterior and interior colors, list price, supplier price, and deposit requirements.</p>
             </div>
           </div>
         </div>
@@ -1470,15 +1465,15 @@ function AdminSourceImportsDemo() {
           <h3 className="text-base font-black text-white">{t("portal.workflowPreviewTitle")}</h3>
           <div className="mt-4 grid gap-3 text-xs text-slate-300">
             <div className="flex items-center justify-between rounded-lg border border-white/10 bg-black/20 p-3">
-              <span>1. 原始凭证采集 (Excel / 图片 OCR)</span>
+              <span>1. Source document capture (Excel / image OCR)</span>
               <span className="text-[#22b8aa] font-bold">{t("portal.stepPassed")}</span>
             </div>
             <div className="flex items-center justify-between rounded-lg border border-white/10 bg-black/20 p-3">
-              <span>2. 结构化字段映射 (字段校验无空格)</span>
+              <span>2. Structured field mapping and validation</span>
               <span className="text-[#22b8aa] font-bold">{t("portal.stepPassed")}</span>
             </div>
             <div className="flex items-center justify-between rounded-lg border border-white/10 bg-black/20 p-3">
-              <span>3. 多维表格 `vehicle_sources` 增量同步</span>
+              <span>3. Incremental sync to `vehicle_sources`</span>
               <span className="text-amber-400 font-bold">{t("portal.stepInDev")}</span>
             </div>
           </div>
@@ -1514,7 +1509,7 @@ function AdminDashboard({ data }: { data: BootstrapData }) {
       </section>
 
       <section className="grid min-w-0 gap-5 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,.9fr)]">
-        <AdminPanel title={t("portal.recentInquiries")} subtitle="来自飞书 Inquiries / Quotes 表">
+        <AdminPanel title={t("portal.recentInquiries")} subtitle="Latest records from the Feishu Inquiries and Quotes tables">
           <AdminTable
             headers={[t("portal.inquiryNo"), t("portal.vehicle"), t("portal.quantity"), t("portal.status"), t("portal.latestQuote")]}
             rows={latestInquiries.map((inquiry) => {
@@ -1522,21 +1517,21 @@ function AdminDashboard({ data }: { data: BootstrapData }) {
               return [
                 inquiry.inquiryNo,
                 inquiry.vehicleModel || inquiry.vehicleId,
-                `${inquiry.quantity} 台`,
+                `${inquiry.quantity} units`,
                 <AdminStatusBadge key="status" status={inquiry.status || "Pending"} />,
-                quote ? `${quote.quoteNo} / ${formatUsdStrict(quote.unitPrice)}` : "待报价",
+                quote ? `${quote.quoteNo} / ${formatUsdStrict(quote.unitPrice)}` : "Awaiting quote",
               ];
             })}
             emptyText={t("portal.noInquiries")}
           />
         </AdminPanel>
 
-        <AdminPanel title={t("portal.stockAlert")} subtitle="低库存和待确认车辆">
+        <AdminPanel title={t("portal.stockAlert")} subtitle="Low-stock and pending-confirmation vehicles">
           <AdminTable
             headers={[t("portal.vehicle"), t("portal.stockQuantity"), t("portal.location"), t("portal.supplyType")]}
             rows={lowStock.map((vehicle) => [
               vehicleName(vehicle),
-              `${vehicle.stockQuantity} 台`,
+              `${vehicle.stockQuantity} units`,
               vehicle.location || "-",
               <AdminStatusBadge key="status" status={getSupplyType(vehicle)} />,
             ])}
@@ -1549,21 +1544,21 @@ function AdminDashboard({ data }: { data: BootstrapData }) {
 }
 
 function ModelFullSpecsCard({ group }: { group: ModelProfileGroup }) {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const v = group.variants[0] || ({} as VehicleModel);
   const [selectedVariantId, setSelectedVariantId] = useState<string | null>(null);
   const versionDetails = group.variants.map((variant) => ({
     variant,
     items: [
-      { label: "\u6307\u5bfc\u4ef7", value: getModelSpecValue(group.specsByModel, variant.id, ["\u4e2d\u56fd\u5b98\u65b9\u6307\u5bfc\u4ef7"]) || variant.msrpChina || "-" },
-      { label: "CLTC\u7eed\u822a", value: getModelSpecValue(group.specsByModel, variant.id, ["CLTC\u7eed\u822a"]) || variant.range || "-" },
-      { label: "\u7535\u6c60", value: [getModelSpecValue(group.specsByModel, variant.id, ["\u7535\u6c60\u5bb9\u91cf"]) || variant.battery, getModelSpecValue(group.specsByModel, variant.id, ["\u7535\u6c60\u7c7b\u578b"]) || variant.batteryType].filter(Boolean).join(" / ") || "-" },
-      { label: "\u9a71\u52a8 / \u529f\u7387", value: [getModelSpecValue(group.specsByModel, variant.id, ["\u9a71\u52a8\u65b9\u5f0f"]) || variant.driveType, getModelSpecValue(group.specsByModel, variant.id, ["\u7535\u673a\u603b\u529f\u7387"]) || variant.motorPower].filter(Boolean).join(" / ") || "-" },
-      { label: "\u7535\u673a\u626d\u77e9", value: getModelSpecValue(group.specsByModel, variant.id, ["\u7535\u673a\u603b\u626d\u77e9"]) || variant.motorTorque || "-" },
-      { label: "\u76f4\u6d41\u5feb\u5145", value: getModelSpecValue(group.specsByModel, variant.id, ["\u76f4\u6d41\u5feb\u5145"]) || variant.charging || "-" },
-      { label: "\u65b0\u589e\u914d\u7f6e", value: getModelSpecValue(group.specsByModel, variant.id, ["\u65b0\u589e\u914d\u7f6e"]) || "-" },
-      { label: "\u5347\u7ea7\u914d\u7f6e", value: getModelSpecValue(group.specsByModel, variant.id, ["\u5347\u7ea7\u914d\u7f6e"]) || "-" },
-      { label: "\u6838\u9a8c\u72b6\u6001", value: getModelSpecValue(group.specsByModel, variant.id, ["\u7248\u672c\u6838\u9a8c\u72b6\u6001"]) || "-" },
+      { label: "List Price", value: getModelSpecValue(group.specsByModel, variant.id, ["\u4e2d\u56fd\u5b98\u65b9\u6307\u5bfc\u4ef7"]) || variant.msrpChina || "-" },
+      { label: "CLTC Range", value: getModelSpecValue(group.specsByModel, variant.id, ["CLTC\u7eed\u822a"]) || variant.range || "-" },
+      { label: "Battery", value: [getModelSpecValue(group.specsByModel, variant.id, ["\u7535\u6c60\u5bb9\u91cf"]) || variant.battery, getModelSpecValue(group.specsByModel, variant.id, ["\u7535\u6c60\u7c7b\u578b"]) || variant.batteryType].filter(Boolean).join(" / ") || "-" },
+      { label: "Drive / Power", value: [getModelSpecValue(group.specsByModel, variant.id, ["\u9a71\u52a8\u65b9\u5f0f"]) || variant.driveType, getModelSpecValue(group.specsByModel, variant.id, ["\u7535\u673a\u603b\u529f\u7387"]) || variant.motorPower].filter(Boolean).join(" / ") || "-" },
+      { label: "Motor Torque", value: getModelSpecValue(group.specsByModel, variant.id, ["\u7535\u673a\u603b\u626d\u77e9"]) || variant.motorTorque || "-" },
+      { label: "DC Fast Charging", value: getModelSpecValue(group.specsByModel, variant.id, ["\u76f4\u6d41\u5feb\u5145"]) || variant.charging || "-" },
+      { label: "Added Features", value: getModelSpecValue(group.specsByModel, variant.id, ["\u65b0\u589e\u914d\u7f6e"]) || "-" },
+      { label: "Upgrade Features", value: getModelSpecValue(group.specsByModel, variant.id, ["\u5347\u7ea7\u914d\u7f6e"]) || "-" },
+      { label: "Verification", value: getModelSpecValue(group.specsByModel, variant.id, ["\u7248\u672c\u6838\u9a8c\u72b6\u6001"]) || "-" },
     ],
   }));
   const selectedVersion = versionDetails.find(({ variant }) => variant.id === selectedVariantId) ?? versionDetails[0];
@@ -1609,13 +1604,13 @@ function ModelFullSpecsCard({ group }: { group: ModelProfileGroup }) {
       title: `\u{1F6E1}\uFE0F ${t("portal.bodyAndChassis")}`,
       tone: "border-violet-400/20 bg-violet-400/[0.035]",
       titleTone: "text-violet-300",
-      items: [[t("portal.dimensions"), dimensionsVal], [t("portal.wheelbase"), wheelbaseVal], [t("portal.seatsDoors"), `${seatsVal ? `${seatsVal}\u5ea7` : "-"} / ${doorsVal ? `${doorsVal}\u95e8` : "-"}`], [t("portal.suspension"), `${frontSuspensionVal || "-"} / ${rearSuspensionVal || "-"}`], [t("portal.weightTrunk"), `${curbWeightVal || "-"} / ${trunkCapacityVal || "-"}`]],
+      items: [[t("portal.dimensions"), dimensionsVal], [t("portal.wheelbase"), wheelbaseVal], [t("portal.seatsDoors"), `${seatsVal ? `${seatsVal}${locale === "zh" ? "座" : " seats"}` : "-"} / ${doorsVal ? `${doorsVal}${locale === "zh" ? "门" : " doors"}` : "-"}`], [t("portal.suspension"), `${frontSuspensionVal || "-"} / ${rearSuspensionVal || "-"}`], [t("portal.weightTrunk"), `${curbWeightVal || "-"} / ${trunkCapacityVal || "-"}`]],
     },
     {
       title: `\u{1F50E} ${t("portal.adas")}`,
       tone: "border-amber-400/20 bg-amber-400/[0.035]",
       titleTone: "text-amber-300",
-      items: [[t("portal.adas"), adasVal], ["\u56fd\u5185\u5b98\u65b9\u6307\u5bfc\u4ef7", group.guidePriceSummary || v.msrpChina || "-"], ["\u51fa\u53e3\u5408\u89c4/\u5907\u6ce8", v.exportNotes || "\u7b26\u5408\u6d77\u5173\u51fa\u53e3\u901a\u7528\u68c0\u9a8c\u6807\u51c6"]],
+      items: [[t("portal.adas"), adasVal], [locale === "zh" ? "国内官方指导价" : "Domestic List Price", group.guidePriceSummary || v.msrpChina || "-"], [locale === "zh" ? "出口合规/备注" : "Export Compliance / Notes", localizeVehicleValue(v.exportNotes, locale)]],
     },
   ];
 
@@ -1631,7 +1626,7 @@ function ModelFullSpecsCard({ group }: { group: ModelProfileGroup }) {
             <h4 className="mt-3 text-base font-black text-white">{safeText(group.marketPosition) || `${safeText(group.brand)} ${safeText(group.model)} ${t("portal.fullTechSpecs")}`}</h4>
           </div>
           <div className="flex flex-wrap items-center gap-2 text-[10px]">
-            <span className="rounded-md border border-white/10 bg-white/[.025] px-2.5 py-1.5 text-slate-400">{t("portal.dataSource")}：<span className="font-semibold text-slate-200">{safeText(v.sourceName) || "\u98de\u4e66 Base \u8ba4\u8bc1\u6570\u636e"}</span></span>
+            <span className="rounded-md border border-white/10 bg-white/[.025] px-2.5 py-1.5 text-slate-400">{t("portal.dataSource")}{locale === "zh" ? "：" : ": "}<span className="font-semibold text-slate-200">{localizeVehicleValue(safeText(v.sourceName), locale)}</span></span>
             {v.sourceUrl ? <a href={v.sourceUrl} target="_blank" rel="noreferrer" className="rounded-md border border-[#22b8aa]/25 px-2.5 py-1.5 font-bold text-[#5ee6d8] transition hover:bg-[#22b8aa]/10">{t("portal.feishuSource")}</a> : null}
             {v.brochureUrl ? <a href={v.brochureUrl} target="_blank" rel="noreferrer" className="rounded-md border border-amber-400/25 px-2.5 py-1.5 font-bold text-amber-300 transition hover:bg-amber-400/10">{t("portal.pdfBrochure")}</a> : null}
           </div>
@@ -1641,7 +1636,7 @@ function ModelFullSpecsCard({ group }: { group: ModelProfileGroup }) {
       <section>
         <div className="mb-3 flex items-center justify-between gap-3">
           <div><p className="text-[10px] font-black uppercase tracking-[.18em] text-slate-500">MODEL OVERVIEW</p><h5 className="mt-1 text-sm font-black text-white">{t("portal.fullTechSpecs")}</h5></div>
-          <span className="text-[10px] text-slate-500">{t("portal.dataSource")}：{safeText(v.sourceName) || "-"}</span>
+          <span className="text-[10px] text-slate-500">{t("portal.dataSource")}{locale === "zh" ? "：" : ": "}{localizeVehicleValue(safeText(v.sourceName), locale)}</span>
         </div>
         <div className="grid gap-px overflow-hidden rounded-lg border border-white/10 bg-white/10 md:grid-cols-2">
           {overviewSections.map((section) => (
@@ -1658,8 +1653,8 @@ function ModelFullSpecsCard({ group }: { group: ModelProfileGroup }) {
       {versionDetails.length > 0 ? (
         <section className="border-t border-white/10 pt-6">
           <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
-            <div><p className="text-[10px] font-black uppercase tracking-[.18em] text-slate-500">CONFIGURATIONS</p><h5 className="mt-1 text-base font-black text-white">{`\u914d\u7f6e\u7248\u672c (${versionDetails.length})`}</h5></div>
-            <span className="text-[10px] text-slate-500">{t("portal.dataSource")}：<span className="font-medium text-slate-300">{safeText(v.sourceName) || "-"}</span></span>
+            <div><p className="text-[10px] font-black uppercase tracking-[.18em] text-slate-500">CONFIGURATIONS</p><h5 className="mt-1 text-base font-black text-white">{locale === "zh" ? `配置版本 (${versionDetails.length})` : `Configuration Trims (${versionDetails.length})`}</h5></div>
+            <span className="text-[10px] text-slate-500">{t("portal.dataSource")}{locale === "zh" ? "：" : ": "}<span className="font-medium text-slate-300">{localizeVehicleValue(safeText(v.sourceName), locale)}</span></span>
           </div>
           <div className="grid min-h-[420px] overflow-hidden rounded-lg border border-white/10 bg-[#070e1b] lg:grid-cols-[minmax(210px,.7fr)_minmax(0,1.7fr)]">
             <div className="max-h-[320px] overflow-y-auto border-b border-white/10 bg-[#080f1c] lg:max-h-[620px] lg:border-b-0 lg:border-r">
@@ -1667,7 +1662,7 @@ function ModelFullSpecsCard({ group }: { group: ModelProfileGroup }) {
                 const isSelected = selectedVersion?.variant.id === variant.id;
                 return (
                   <button key={variant.id} type="button" onClick={() => setSelectedVariantId(variant.id)} className={`w-full border-b border-white/[.07] px-4 py-4 text-left transition last:border-b-0 ${isSelected ? "bg-[#22b8aa]/[.09] shadow-[inset_3px_0_0_#22b8aa]" : "hover:bg-white/[.035]"}`}>
-                    <span className="flex items-start justify-between gap-3"><strong className="min-w-0 break-words text-sm font-black text-white">{variant.trim || variant.id}</strong><span className={`shrink-0 rounded-full border px-2 py-1 text-[10px] font-black ${items[8]?.value === "Verified" ? "border-[#22b8aa]/35 bg-[#22b8aa]/10 text-[#5ee6d8]" : "border-amber-400/35 bg-amber-400/10 text-amber-300"}`}>{items[8]?.value || "-"}</span></span>
+                    <span className="flex items-start justify-between gap-3"><strong className="min-w-0 break-words text-sm font-black text-white">{localizeVehicleValue(variant.trim || variant.id, locale)}</strong><span className={`shrink-0 rounded-full border px-2 py-1 text-[10px] font-black ${items[8]?.value === "Verified" ? "border-[#22b8aa]/35 bg-[#22b8aa]/10 text-[#5ee6d8]" : "border-amber-400/35 bg-amber-400/10 text-amber-300"}`}>{localizeVehicleValue(items[8]?.value, locale)}</span></span>
                     <span className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2"><span><span className="block text-[10px] text-slate-500">{items[0]?.label}</span><span className="mt-1 block break-words text-[11px] font-black leading-4 text-amber-300">{items[0]?.value}</span></span><span><span className="block text-[10px] text-slate-500">{items[1]?.label}</span><span className="mt-1 block break-words text-[11px] font-medium leading-4 text-slate-300">{items[1]?.value}</span></span></span>
                   </button>
                 );
@@ -1677,7 +1672,7 @@ function ModelFullSpecsCard({ group }: { group: ModelProfileGroup }) {
             <div className="min-w-0 bg-[#0a1120]">
               {selectedVersion ? (
                 <div className="h-full">
-                  <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 px-4 py-4"><div><p className="text-[10px] font-black uppercase tracking-[.18em] text-[#5ee6d8]">SELECTED CONFIGURATION</p><strong className="mt-1 block text-sm font-black text-white">{selectedVersion.variant.trim || selectedVersion.variant.id}</strong></div><span className="rounded-full border border-white/10 px-2 py-1 text-[10px] font-bold text-slate-300">{selectedVersion.items[8]?.value || "-"}</span></div>
+                  <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 px-4 py-4"><div><p className="text-[10px] font-black uppercase tracking-[.18em] text-[#5ee6d8]">SELECTED CONFIGURATION</p><strong className="mt-1 block text-sm font-black text-white">{localizeVehicleValue(selectedVersion.variant.trim || selectedVersion.variant.id, locale)}</strong></div><span className="rounded-full border border-white/10 px-2 py-1 text-[10px] font-bold text-slate-300">{localizeVehicleValue(selectedVersion.items[8]?.value, locale)}</span></div>
                   <div className="grid gap-px bg-white/10 lg:grid-cols-2">
                     <dl className="grid gap-x-6 gap-y-4 bg-[#0a1120] p-4 sm:grid-cols-2">{selectedVersion.items.slice(0, 6).map((item) => <div key={item.label}><dt className="text-[10px] text-slate-500">{item.label}</dt><dd className="mt-1 break-words text-[12px] leading-5 text-slate-200">{item.value}</dd></div>)}</dl>
                     <dl className="grid gap-4 bg-[#0a1120] p-4">{selectedVersion.items.slice(6).map((item) => <div key={item.label}><dt className="text-[10px] text-slate-500">{item.label}</dt><dd className="mt-1 break-words text-[12px] leading-5 text-slate-200">{item.value}</dd></div>)}</dl>
@@ -1707,14 +1702,14 @@ function AdminProfiles({ data }: { data: BootstrapData }) {
 
   return (
     <div className="grid gap-5">
-      <AdminPanel title={t("portal.titleModels")} subtitle="全量展示飞书 Base 关联数据：包含三电系统、电机驱动、尺寸轴距、智驾等级与合规出口字段">
+      <AdminPanel title={t("portal.titleModels")} subtitle="Complete Feishu Base model data, including battery, motor, dimensions, driving assistance, and export fields.">
         {/* Feishu banner */}
         <div className="mb-5 flex flex-col gap-3 rounded-2xl border border-[#22b8aa]/30 bg-[#22b8aa]/10 p-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
             <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#22b8aa]/20 text-lg">{"\u{1F5BC}\uFE0F"}</div>
             <div>
-              <strong className="block text-sm font-bold text-white">飞书带图册实时车型公开视图</strong>
-              <p className="mt-0.5 text-xs text-slate-300">{"包含外观图册、配置参数与现车价格一览，支持免登录公开分享与查阅。"}</p>
+              <strong className="block text-sm font-bold text-white">Live Feishu model catalogue</strong>
+              <p className="mt-0.5 text-xs text-slate-300">Includes image galleries, configuration details, and current inventory pricing for public viewing.</p>
             </div>
           </div>
           <a
@@ -1723,23 +1718,23 @@ function AdminProfiles({ data }: { data: BootstrapData }) {
             rel="noopener noreferrer"
             className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-[#22b8aa] px-4 py-2.5 text-xs font-black text-[#0c1322] transition hover:bg-[#5ee6d8]"
           >
-            <span>{"打开飞书图册一览 \u2192"}</span>
+            <span>Open Feishu catalogue →</span>
           </a>
         </div>
 
         {/* Search bar + summary */}
         <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end">
           <label className="grid flex-1 gap-2 text-xs font-black uppercase tracking-widest text-slate-500">
-            搜索车型
+            Search vehicle models
             <Input
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value)}
-              placeholder="品牌、车型、年款、版本、级别、电池类型、电机功率、智驾等级"
+              placeholder="Brand, model, year, trim, segment, battery, motor, or ADAS"
             />
           </label>
           <div className="flex items-center gap-2 pb-0.5">
-            <AdminSummaryChip label="车型" value={`${visibleGroups.length} / ${groups.length}`} tone="accent" />
-            <AdminSummaryChip label="版本" value={`${visibleGroups.reduce((sum, group) => sum + group.variants.length, 0)} 个`} />
+            <AdminSummaryChip label="Models" value={`${visibleGroups.length} / ${groups.length}`} tone="accent" />
+            <AdminSummaryChip label="Trims" value={String(visibleGroups.reduce((sum, group) => sum + group.variants.length, 0))} />
           </div>
         </div>
 
@@ -1753,7 +1748,7 @@ function AdminProfiles({ data }: { data: BootstrapData }) {
           >
             {visibleGroups.length === 0 ? (
               <div className="flex flex-1 items-center justify-center px-4 py-12 text-center text-sm text-slate-600">
-                暂无匹配车型
+                No matching vehicle models
               </div>
             ) : null}
             {visibleGroups.map((group) => {
@@ -1775,7 +1770,7 @@ function AdminProfiles({ data }: { data: BootstrapData }) {
                         {group.brand}
                       </span>
                       <span className="shrink-0 rounded-full bg-white/[.06] px-1.5 py-0.5 text-[9px] font-black text-slate-400">
-                        {group.variants.length}版
+                        {group.variants.length} trims
                       </span>
                     </div>
                     <strong className={`mt-0.5 block truncate text-sm ${isSelected ? "text-white" : "text-slate-200"}`}>
@@ -1804,7 +1799,7 @@ function AdminProfiles({ data }: { data: BootstrapData }) {
               <div className="flex flex-1 items-center justify-center px-8 py-16 text-center">
                 <div>
                   <div className="mb-3 text-4xl">🚗</div>
-                  <p className="text-sm text-slate-500">{"从左侧选择一款车型查看详情"}</p>
+                  <p className="text-sm text-slate-500">Select a vehicle model to view details.</p>
                 </div>
               </div>
             ) : (
@@ -1817,7 +1812,7 @@ function AdminProfiles({ data }: { data: BootstrapData }) {
                       type="button"
                       onClick={() => setSelectedKey(null)}
                       className="grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-white/15 text-slate-300 transition hover:border-white/30 lg:hidden cursor-pointer"
-                      aria-label="返回列表"
+                      aria-label="Back to model list"
                     >
                       ←
                     </button>
@@ -1832,9 +1827,9 @@ function AdminProfiles({ data }: { data: BootstrapData }) {
                     </div>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
-                    <AdminSummaryChip label="版本" value={`${selectedGroup.variants.length} 个`} tone="accent" />
-                    {selectedGroup.energyType ? <AdminSummaryChip label="能源" value={selectedGroup.energyType} /> : null}
-                    {selectedGroup.guidePriceSummary ? <AdminSummaryChip label="指导价" value={selectedGroup.guidePriceSummary} /> : null}
+                    <AdminSummaryChip label="Trims" value={String(selectedGroup.variants.length)} tone="accent" />
+                    {selectedGroup.energyType ? <AdminSummaryChip label="Powertrain" value={selectedGroup.energyType} /> : null}
+                    {selectedGroup.guidePriceSummary ? <AdminSummaryChip label="List Price" value={selectedGroup.guidePriceSummary} /> : null}
                   </div>
                 </div>
 
@@ -1859,7 +1854,7 @@ function AdminProfiles({ data }: { data: BootstrapData }) {
 }
 
 function AdminVehicles({ data, onEdit, onRefresh }: { data: BootstrapData; onEdit: (vehicle: Vehicle) => void; onRefresh: () => Promise<void> }) {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const sellableModels = buildSellableModels(data);
   const [expandedModels, setExpandedModels] = useState<Set<string>>(() => new Set());
   const [expandedVariants, setExpandedVariants] = useState<Set<string>>(() => new Set());
@@ -1896,6 +1891,7 @@ function AdminVehicles({ data, onEdit, onRefresh }: { data: BootstrapData; onEdi
     });
     return Array.from(set).sort();
   }, [canSeeSupplier, data.vehicles]);
+  const displaySupplierOptions = supplierOptions;
 
   const isAllDefault = !normalizedSearch && supplyFilter === "all" && brandFilter === "all" && effectiveSupplierFilter === "all";
 
@@ -1956,7 +1952,7 @@ function AdminVehicles({ data, onEdit, onRefresh }: { data: BootstrapData; onEdi
         <div>
           <h1 className="text-2xl font-black text-white sm:text-3xl">{t("portal.titleVehicles")}</h1>
           <p className="mt-1.5 text-xs font-medium text-slate-400">
-            按车型集合查看配置版本、现车数量、预订周期和价格有效期。
+            Browse vehicle models, trims, available stock, lead times, and price validity.
           </p>
         </div>
 
@@ -1999,8 +1995,8 @@ function AdminVehicles({ data, onEdit, onRefresh }: { data: BootstrapData; onEdi
             className="rounded-xl border border-white/10 bg-[#0c1424] px-3 py-2.5 text-xs font-medium text-white outline-none transition focus:border-[#22b8aa]"
           >
             <option value="all">{t("portal.allSuppliers")}</option>
-            {supplierOptions.map((supplier) => (
-              <option key={supplier} value={supplier}>{supplier}</option>
+            {displaySupplierOptions.map((supplier) => (
+              <option key={supplier} value={supplier}>{localizeVehicleValue(supplier, locale)}</option>
             ))}
           </select>
           )}
@@ -2022,11 +2018,11 @@ function AdminVehicles({ data, onEdit, onRefresh }: { data: BootstrapData; onEdi
               void onRefresh();
             }}
             className="inline-flex items-center gap-1.5 rounded-xl border border-[#22b8aa]/30 bg-[#22b8aa]/10 px-3.5 py-2.5 text-xs font-bold text-[#5ee6d8] transition hover:border-[#22b8aa] hover:bg-[#22b8aa]/15 hover:text-white"
-            aria-label="刷新"
-            title="刷新"
+            aria-label="Refresh vehicle resources"
+            title="Refresh vehicle resources"
           >
             <RefreshCw className="h-3.5 w-3.5" aria-hidden="true" />
-            刷新
+            Refresh
           </button>
 
           {/* 重置按钮 */}
@@ -2050,10 +2046,10 @@ function AdminVehicles({ data, onEdit, onRefresh }: { data: BootstrapData; onEdi
       {/* 缁撴灉缁熻 Summary Bar (鐜拌溅鎬诲彴鏁版牴鎹姹傞殣钘? */}
       <div className="flex flex-wrap items-center justify-between gap-3 px-1 text-xs font-bold text-slate-400">
         <div>
-          找到 <span className="font-mono font-bold text-[#5ee6d8]">{visibleModels.length}</span> 个车型集合，
+          Found <span className="font-mono font-bold text-[#5ee6d8]">{visibleModels.length}</span> vehicle models and
           <span className="font-mono font-bold text-[#5ee6d8]">
             {visibleModels.reduce((acc, m) => acc + (m.offers?.length || 0), 0)}
-          </span> 个配置版本
+          </span> trims
         </div>
       </div>
 
@@ -2061,7 +2057,7 @@ function AdminVehicles({ data, onEdit, onRefresh }: { data: BootstrapData; onEdi
       <div className="grid gap-4">
         {visibleModels.length === 0 ? (
           <div className="rounded-2xl border border-white/10 bg-[#070e1b] p-10 text-center text-sm font-medium text-slate-500">
-            没有找到匹配的车源及配置版本
+            No matching vehicle resources or trims found.
           </div>
         ) : (
           visibleModels.map((item) => {
@@ -2085,25 +2081,25 @@ function AdminVehicles({ data, onEdit, onRefresh }: { data: BootstrapData; onEdi
                     </span>
                     <div>
                       <h2 className="text-lg font-black text-white sm:text-xl">
-                        {item.brand} {item.model}
+                          {localizeVehicleValue(item.brand, locale)} {localizeVehicleValue(item.model, locale)}
                       </h2>
                       <p className="mt-0.5 text-xs font-medium text-slate-400">
-                        {variants.length > 0 ? `${variants.length} 个细分车型` : ""}
+                        {variants.length > 0 ? `${variants.length} trims` : ""}
                         {variants.length > 0 && item.hasStockQuantity ? " / " : ""}
-                        {item.hasStockQuantity ? `\u603b\u5e93\u5b58 ${item.stockQuantity} \u53f0` : "\u5e93\u5b58\u5f85\u786e\u8ba4"}
+                        {item.hasStockQuantity ? `Total stock: ${item.stockQuantity} units` : "Stock pending confirmation"}
                       </p>
                     </div>
                   </div>
 
                   <div className="flex flex-wrap items-center gap-4 text-xs">
                     <div className="text-right">
-                      <span className="block text-[10px] uppercase tracking-wider text-slate-500">{"\u603b\u5e93\u5b58"}</span>
+                      <span className="block text-[10px] uppercase tracking-wider text-slate-500">Total Stock</span>
                       <span className="font-mono font-black text-white text-sm">
-                        {item.hasStockQuantity ? `${item.stockQuantity} \u53f0` : "-"}
+                        {item.hasStockQuantity ? `${item.stockQuantity} units` : "-"}
                       </span>
                     </div>
                     <div className="text-right">
-                      <span className="block text-[10px] uppercase tracking-wider text-slate-500">价格</span>
+                      <span className="block text-[10px] uppercase tracking-wider text-slate-500">Price</span>
                       {item.priceTermsSummary.length > 0 ? (
                         <div className="flex flex-col items-end gap-0.5">
                           {item.priceTermsSummary.map((pt) => (
@@ -2123,7 +2119,7 @@ function AdminVehicles({ data, onEdit, onRefresh }: { data: BootstrapData; onEdi
                         </div>
                       ) : (
                         <span className="font-mono font-black text-amber-400">
-                          {item.fobPriceRange ? item.fobPriceRange.replace(/^FOB\s*/i, "") : "待录入价格"}
+                          {item.fobPriceRange ? item.fobPriceRange.replace(/^FOB\s*/i, "") : "Price pending"}
                         </span>
                       )}
                     </div>
@@ -2131,7 +2127,7 @@ function AdminVehicles({ data, onEdit, onRefresh }: { data: BootstrapData; onEdi
                       type="button"
                       className="ml-2 rounded-lg border border-white/10 bg-white/[.04] px-3.5 py-1.5 text-xs font-bold text-[#5ee6d8] transition hover:bg-[#22b8aa] hover:text-[#07111f]"
                     >
-                      {isExpanded ? "收起版本" : "查看版本"}
+                      {isExpanded ? "Hide trims" : "View trims"}
                     </button>
                   </div>
                 </header>
@@ -2152,20 +2148,26 @@ function AdminVehicles({ data, onEdit, onRefresh }: { data: BootstrapData; onEdi
                           >
                             <div>
                               <div className="text-sm font-bold text-white">
-                                {compactJoin([vehicle.trim || "未指定配置", vehicle.configuration])}
+                                {compactJoin([
+                                  localizeVehicleValue(vehicle.trim, locale) || "Trim not specified",
+                                  localizeVehicleValue(vehicle.configuration, locale),
+                                ])}
                               </div>
                               <div className="mt-1 text-xs text-slate-400">
-                                {vehicle.year ? `${vehicle.year}款` : "年款待确认"}
+                                {vehicle.year ? `${vehicle.year} model year` : "Model year pending"}
                                 {" / "}
-                                {compactJoin([vehicle.steering || "左舵 LHD", vehicle.marketVersion || "国内版"])}
+                                {compactJoin([
+                                  localizeVehicleValue(vehicle.steering, locale) || "LHD",
+                                  localizeVehicleValue(vehicle.marketVersion, locale) || "China market version",
+                                ])}
                               </div>
                             </div>
                             <div className="flex items-center gap-4 text-xs">
-                              <span className="text-slate-400">{variant.colors.length} 个颜色</span>
+                              <span className="text-slate-400">{variant.colors.length} colors</span>
                               <span className="font-mono font-black text-white">
-                                {variant.hasStockQuantity ? `${variant.stockQuantity} 台` : "-"}
+                                {variant.hasStockQuantity ? `${variant.stockQuantity} units` : "-"}
                               </span>
-                              <span className="text-[#5ee6d8]">{variantExpanded ? "收起颜色" : "查看颜色"}</span>
+                              <span className="text-[#5ee6d8]">{variantExpanded ? "Hide colors" : "View colors"}</span>
                             </div>
                           </button>
 
@@ -2173,12 +2175,12 @@ function AdminVehicles({ data, onEdit, onRefresh }: { data: BootstrapData; onEdi
                             <div className="border-t border-white/10 p-3 sm:p-4">
                               <AdminTable
                                 headers={[
-                                  "外观 / 内饰颜色",
-                                  "库存数量",
-                                  ...(canSeeSupplier ? ["供应商"] : []),
-                                  ...(canSeeLocation ? ["车源地点"] : []),
-                                  "美金报价",
-                                  "交付状态",
+                                  "Exterior / Interior Color",
+                                  "Stock",
+                                  ...(canSeeSupplier ? ["Supplier"] : []),
+                                  ...(canSeeLocation ? ["Location"] : []),
+                                  "USD Price",
+                                  "Fulfilment",
                                 ]}
                                 rows={variant.colors.map((color) => {
                                   const colorVehicle = color.vehicles[0];
@@ -2186,16 +2188,19 @@ function AdminVehicles({ data, onEdit, onRefresh }: { data: BootstrapData; onEdi
                                   const locations = Array.from(new Set(color.vehicles.map((item) => item.location).filter(Boolean)));
                                   return [
                                     <span key="color" className="text-xs text-slate-300">
-                                      {formatColorPair(color.exteriorColor, color.interiorColor)}
+                                      {formatColorPair(
+                                        localizeVehicleValue(color.exteriorColor, locale),
+                                        localizeVehicleValue(color.interiorColor, locale),
+                                      )}
                                     </span>,
                                     <span key="stock" className="font-mono text-xs font-bold text-white">
-                                      {color.hasStockQuantity ? `${color.quantity} 台` : "-"}
+                                      {color.hasStockQuantity ? `${color.quantity} units` : "-"}
                                     </span>,
                                     ...(canSeeSupplier
-                                      ? [<span key="supplier" className="text-xs text-slate-300">{suppliers.length ? suppliers.join(" / ") : "-"}</span>]
+                                      ? [<span key="supplier" className="text-xs text-slate-300">{suppliers.length ? suppliers.map((supplier) => localizeVehicleValue(supplier, locale)).join(" / ") : "-"}</span>]
                                       : []),
                                     ...(canSeeLocation
-                                      ? [<span key="location" className="text-xs text-slate-300">{locations.length ? locations.join(" / ") : "-"}</span>]
+                                      ? [<span key="location" className="text-xs text-slate-300">{locations.length ? locations.map((location) => localizeVehicleValue(location, locale)).join(" / ") : "-"}</span>]
                                       : []),
                                     <div key="price" className="flex flex-wrap gap-1">
                                       {color.priceTerms.length > 0 ? color.priceTerms.map((price) => (
@@ -2211,7 +2216,7 @@ function AdminVehicles({ data, onEdit, onRefresh }: { data: BootstrapData; onEdi
                                     <span key="fulfillment" className="text-xs text-slate-300">{formatFulfillmentStatus(colorVehicle)}</span>,
                                   ];
                                 })}
-                                emptyText="暂无颜色库存"
+                                emptyText="No color-level inventory"
                               />
                             </div>
                           )}
@@ -2231,9 +2236,9 @@ function AdminVehicles({ data, onEdit, onRefresh }: { data: BootstrapData; onEdi
 
 function AdminQuotes({ data }: { data: BootstrapData }) {
   return (
-    <AdminPanel title="询价管理" subtitle="客户询价、报价版本和议价过程">
+    <AdminPanel title="Inquiry Management" subtitle="Customer inquiries, quote versions, and negotiation history">
       <AdminTable
-        headers={["询价号", "客户", "车辆", "目标价", "最新报价", "状态", "更新时间"]}
+        headers={["Inquiry No.", "Customer", "Vehicle", "Target Price", "Latest Quote", "Status", "Updated"]}
         rows={data.inquiries.map((inquiry) => {
           const quote = latestQuoteForInquiry(inquiry.inquiryNo, data.quotes);
           const customer = findCustomer(data, inquiry.customerId);
@@ -2242,12 +2247,12 @@ function AdminQuotes({ data }: { data: BootstrapData }) {
             customer?.company || inquiry.customerId || "-",
             inquiry.vehicleModel || inquiry.vehicleId,
             inquiry.targetPrice ? formatUsdStrict(inquiry.targetPrice) : "-",
-            quote ? `${quote.quoteNo} / V${quote.version} / ${formatUsdStrict(quote.unitPrice)}` : "待报价",
+            quote ? `${quote.quoteNo} / V${quote.version} / ${formatUsdStrict(quote.unitPrice)}` : "Awaiting quote",
             <AdminStatusBadge key="status" status={quote?.status || inquiry.status || "Pending"} />,
             formatDate(inquiry.updatedAt || inquiry.createdAt),
           ];
         })}
-        emptyText="暂无询价"
+        emptyText="No inquiries"
       />
     </AdminPanel>
   );
@@ -2255,9 +2260,9 @@ function AdminQuotes({ data }: { data: BootstrapData }) {
 
 function AdminOrders({ data }: { data: BootstrapData }) {
   return (
-    <AdminPanel title="订单管理" subtitle="已接受报价形成的订单记录">
+    <AdminPanel title="Order Management" subtitle="Orders created from accepted quotes">
       <AdminTable
-        headers={["订单号", "客户", "报价号", "车辆", "数量", "总额", "状态", "创建时间"]}
+        headers={["Order No.", "Customer", "Quote No.", "Vehicle", "Quantity", "Total", "Status", "Created"]}
         rows={data.orders.map((order) => {
           const customer = findCustomer(data, order.customerId);
           return [
@@ -2265,13 +2270,13 @@ function AdminOrders({ data }: { data: BootstrapData }) {
             customer?.company || order.customerId || "-",
             order.quoteNo || "-",
             order.vehicleId,
-            `${order.quantity} 台`,
+            `${order.quantity} units`,
             formatUsdStrict(order.total),
             <AdminStatusBadge key="status" status={order.status || "Draft"} />,
             formatDate(order.createdAt),
           ];
         })}
-        emptyText="暂无订单"
+        emptyText="No orders"
       />
     </AdminPanel>
   );
@@ -2286,13 +2291,13 @@ function AdminPayments({ data }: { data: BootstrapData }) {
   return (
     <div className="grid gap-5">
       <section className="grid gap-4 md:grid-cols-3">
-        <AdminStat label="应收订单额" value={formatUsdStrict(total)} note={`${data.orders.length} 个订单`} />
-        <AdminStat label="已收金额" value={formatUsdStrict(paid)} note="按订单状态汇总" />
-        <AdminStat label="待收余额" value={formatUsdStrict(Math.max(total - paid, 0))} note="财务明细表待扩展" />
+        <AdminStat label="Order Receivables" value={formatUsdStrict(total)} note={`${data.orders.length} orders`} />
+        <AdminStat label="Received" value={formatUsdStrict(paid)} note="Based on order status" />
+        <AdminStat label="Outstanding" value={formatUsdStrict(Math.max(total - paid, 0))} note="Payment detail view pending" />
       </section>
-      <AdminPanel title="收款财务" subtitle="订单金额、付款条款和收款状态">
+      <AdminPanel title="Payments & Finance" subtitle="Order values, payment terms, and payment status">
         <AdminTable
-          headers={["订单号", "客户", "付款条款", "订单金额", "收款状态"]}
+          headers={["Order No.", "Customer", "Payment Terms", "Order Value", "Payment Status"]}
           rows={data.orders.map((order) => {
             const customer = findCustomer(data, order.customerId);
             return [
@@ -2303,7 +2308,7 @@ function AdminPayments({ data }: { data: BootstrapData }) {
               <AdminStatusBadge key="status" status={order.status || "Draft"} />,
             ];
           })}
-          emptyText="暂无财务记录"
+          emptyText="No finance records"
         />
       </AdminPanel>
     </div>
@@ -2314,12 +2319,12 @@ function AdminLogistics({ data }: { data: BootstrapData }) {
   const shippedCount = data.orders.filter((order) => /ship|shipped|shipping|装船|发运/i.test(order.status)).length;
   const customsCount = data.orders.filter((order) => /custom|clearance|清关/i.test(order.status)).length;
   const steps = [
-    ["询价", data.inquiries.length, "客户提交需求"],
-    ["报价", data.quotes.length, "销售给出版本"],
-    ["订单", data.orders.length, "确认成交"],
-    ["收款", data.orders.filter((order) => /paid|deposit|付款|定金/i.test(order.status)).length, "财务状态"],
-    ["装船", shippedCount, "出口发运"],
-    ["清关", customsCount, "目的港流程"],
+    ["Inquiries", data.inquiries.length, "Customer requirements"],
+    ["Quotes", data.quotes.length, "Sales quote versions"],
+    ["Orders", data.orders.length, "Confirmed purchases"],
+    ["Payments", data.orders.filter((order) => /paid|deposit|付款|定金/i.test(order.status)).length, "Financial status"],
+    ["Shipment", shippedCount, "Export dispatch"],
+    ["Customs", customsCount, "Destination-port workflow"],
   ];
 
   return (
@@ -2329,21 +2334,21 @@ function AdminLogistics({ data }: { data: BootstrapData }) {
           <AdminStat key={String(label)} label={String(label)} value={String(count)} note={String(note)} />
         ))}
       </section>
-      <AdminPanel title="出口流程" subtitle="订单物流节点总览">
+      <AdminPanel title="Export Workflow" subtitle="Order logistics milestones">
         <AdminTable
-          headers={["订单号", "客户", "车辆", "数量", "当前节点", "创建时间"]}
+          headers={["Order No.", "Customer", "Vehicle", "Quantity", "Current Stage", "Created"]}
           rows={data.orders.map((order) => {
             const customer = findCustomer(data, order.customerId);
             return [
               order.orderNo,
               customer?.company || order.customerId || "-",
               order.vehicleId,
-              `${order.quantity} 台`,
+              `${order.quantity} units`,
               <AdminStatusBadge key="status" status={order.status || "Draft"} />,
               formatDate(order.createdAt),
             ];
           })}
-          emptyText="暂无出口流程记录"
+          emptyText="No export workflow records"
         />
       </AdminPanel>
     </div>
@@ -2353,9 +2358,9 @@ function AdminLogistics({ data }: { data: BootstrapData }) {
 function AdminCustomers({ data }: { data: BootstrapData }) {
   const customers = data.customers || [];
   return (
-    <AdminPanel title="客户资料" subtitle="飞书 External Accounts 表中的外部账号和价格权限">
+    <AdminPanel title="Customer Accounts" subtitle="External accounts and price permissions from the Feishu table">
       <AdminTable
-        headers={["客户 ID", "公司", "联系人", "邮箱", "角色", "价格权限", "国家", "状态"]}
+        headers={["Customer ID", "Company", "Contact", "Email", "Role", "Price Tier", "Country", "Status"]}
         rows={customers.map((customer) => [
           <span key="id" className="font-mono text-xs text-[#22b8aa]">{customer.customerId}</span>,
           customer.company || "-",
@@ -2366,7 +2371,7 @@ function AdminCustomers({ data }: { data: BootstrapData }) {
           customer.country || "-",
           <AdminStatusBadge key="status" status={customer.status || "Active"} />,
         ])}
-        emptyText="暂无客户资料"
+        emptyText="No customer accounts"
       />
     </AdminPanel>
   );
@@ -2382,21 +2387,21 @@ function AdminStaff({ data }: { data: BootstrapData }) {
           user.email || "-",
           adminRoleLabels[user.role],
           compactJoin([
-            user.canEditVehicles ? "车源编辑" : "",
-            user.canSeeCost ? "成本" : "",
-            user.canSeeSupplier ? "供应商" : "",
+            user.canEditVehicles ? "Vehicle editing" : "",
+            user.canSeeCost ? "Cost visibility" : "",
+            user.canSeeSupplier ? "Supplier visibility" : "",
           ]),
           user.department || "-",
           user.status || "Active",
         ])
       : [
-          [data.user.userId || "USR-ADMIN", data.user.name || data.user.email, data.user.email, adminRoleLabels[data.user.role], "当前登录账号", "-", "Active"],
+          [data.user.userId || "USR-ADMIN", data.user.name || data.user.email, data.user.email, adminRoleLabels[data.user.role], "Current signed-in account", "-", "Active"],
         ];
 
   return (
-    <AdminPanel title="员工账号" subtitle="飞书 Internal Users 表中的内部账号和权限">
+    <AdminPanel title="Staff Accounts" subtitle="Internal accounts and permissions from the Feishu table">
       <AdminTable
-        headers={["User ID", "姓名", "邮箱", "角色", "权限", "部门", "状态"]}
+        headers={["User ID", "Name", "Email", "Role", "Permissions", "Department", "Status"]}
         rows={rows.map((row) => [
           <span key="id" className="font-mono text-xs text-[#22b8aa]">{row[0]}</span>,
           row[1],
@@ -2406,7 +2411,7 @@ function AdminStaff({ data }: { data: BootstrapData }) {
           row[5],
           <AdminStatusBadge key="status" status={row[6]} />,
         ])}
-        emptyText="暂无员工账号"
+        emptyText="No staff accounts"
       />
     </AdminPanel>
   );
@@ -2484,14 +2489,14 @@ function VehicleEditModal({ vehicle, onClose, onSaved }: { vehicle: Vehicle; onC
       });
       await onSaved();
     } catch (saveError) {
-      setError(saveError instanceof Error ? saveError.message : "保存失败");
+      setError(saveError instanceof Error ? saveError.message : "Unable to save changes.");
     } finally {
       setSaving(false);
     }
   }
 
   return (
-    <Modal title={`编辑车源 / ${vehicle.id}`} onClose={onClose}>
+    <Modal title={`Edit vehicle resource / ${vehicle.id}`} onClose={onClose}>
       <form onSubmit={submit} className="grid gap-4">
         <div className="grid gap-3 sm:grid-cols-2">
           {canEditOptionalField("Model ID") && (
@@ -2499,99 +2504,99 @@ function VehicleEditModal({ vehicle, onClose, onSaved }: { vehicle: Vehicle; onC
               <input value={form.modelId} onChange={(event) => updateField("modelId", event.target.value)} placeholder="MDL-001" />
             </FormField>
           )}
-          <FormField label="状态">
+          <FormField label="Status">
             <select value={form.status} onChange={(event) => updateField("status", event.target.value)}>
               <option>In Stock</option>
               <option>Preorder</option>
               <option>Unavailable</option>
             </select>
           </FormField>
-          <FormField label="颜色">
+          <FormField label="Color">
             <input value={form.color} onChange={(event) => updateField("color", event.target.value)} />
           </FormField>
           {canEditOptionalField("Exterior Color") && (
-            <FormField label="外部外观颜色">
+            <FormField label="Exterior color">
               <input value={form.exteriorColor} onChange={(event) => updateField("exteriorColor", event.target.value)} placeholder="White" />
             </FormField>
           )}
           {canEditOptionalField("Interior Color") && (
-            <FormField label="外部内饰颜色">
+            <FormField label="Interior color">
               <input value={form.interiorColor} onChange={(event) => updateField("interiorColor", event.target.value)} placeholder="Black" />
             </FormField>
           )}
           {canEditOptionalField("Supplier Exterior Color") && (
-            <FormField label="供应商外观色">
+            <FormField label="Supplier exterior color">
               <input value={form.supplierExteriorColor} onChange={(event) => updateField("supplierExteriorColor", event.target.value)} placeholder="珍珠白 / 极地白" />
             </FormField>
           )}
           {canEditOptionalField("Supplier Interior Color") && (
-            <FormField label="供应商内饰色">
+            <FormField label="Supplier interior color">
               <input value={form.supplierInteriorColor} onChange={(event) => updateField("supplierInteriorColor", event.target.value)} placeholder="黑内 / 米内" />
             </FormField>
           )}
           {canEditOptionalField("Color Code") && (
-            <FormField label="色号">
+            <FormField label="Color code">
               <input value={form.colorCode} onChange={(event) => updateField("colorCode", event.target.value)} />
             </FormField>
           )}
           {canEditOptionalField("Configuration") && (
-            <FormField label="配置">
+            <FormField label="Configuration">
               <input value={form.configuration} onChange={(event) => updateField("configuration", event.target.value)} placeholder="Standard export configuration" />
             </FormField>
           )}
           {canEditOptionalField("Supplier") && (
-            <FormField label="供应商">
+            <FormField label="Supplier">
               <input value={form.supplier} onChange={(event) => updateField("supplier", event.target.value)} />
             </FormField>
           )}
           {canEditOptionalField("Recorder") && (
-            <FormField label="录入人">
-              <input value={form.recorder} onChange={(event) => updateField("recorder", event.target.value)} placeholder="录入人姓名" />
+            <FormField label="Recorded by">
+              <input value={form.recorder} onChange={(event) => updateField("recorder", event.target.value)} placeholder="Recorder name" />
             </FormField>
           )}
-          <FormField label="地点">
+          <FormField label="Location">
             <input value={form.location} onChange={(event) => updateField("location", event.target.value)} />
           </FormField>
-          <FormField label="库存数量">
+          <FormField label="Stock quantity">
             <input type="number" min="0" value={form.stockQuantity} onChange={(event) => updateField("stockQuantity", event.target.value)} />
           </FormField>
           {canEditOptionalField("Lead Time") && (
-            <FormField label="订车周期">
+            <FormField label="Lead time">
               <input value={form.leadTime} onChange={(event) => updateField("leadTime", event.target.value)} placeholder="30-45 days after deposit" />
             </FormField>
           )}
-          <FormField label="合作价">
+          <FormField label="Partner price">
             <input type="number" value={form.partnerPrice} onChange={(event) => updateField("partnerPrice", event.target.value)} />
           </FormField>
-          <FormField label="客户价">
+          <FormField label="Customer price">
             <input type="number" value={form.customerPrice} onChange={(event) => updateField("customerPrice", event.target.value)} />
           </FormField>
-          <FormField label="成本">
+          <FormField label="Cost">
             <input type="number" value={form.cost} onChange={(event) => updateField("cost", event.target.value)} />
           </FormField>
           {canEditOptionalField("Price Valid Until") && (
-            <FormField label="价格有效期">
+            <FormField label="Price valid until">
               <input value={form.priceValidUntil} onChange={(event) => updateField("priceValidUntil", event.target.value)} placeholder="2026-07-31" />
             </FormField>
           )}
-          <FormField label="图片 URL">
+          <FormField label="Image URL">
             <input value={form.imageUrl} onChange={(event) => updateField("imageUrl", event.target.value)} />
           </FormField>
         </div>
 
-        <FormField label="备注">
+        <FormField label="Notes">
           <Textarea value={form.publicNotes} onChange={(event) => updateField("publicNotes", event.target.value)} />
         </FormField>
 
         {canEditOptionalField("Color Notes") && (
-          <FormField label="颜色内部备注">
-            <Textarea value={form.colorNotes} onChange={(event) => updateField("colorNotes", event.target.value)} placeholder="以实拍图为准、供应商原始描述等" />
+          <FormField label="Internal color notes">
+            <Textarea value={form.colorNotes} onChange={(event) => updateField("colorNotes", event.target.value)} placeholder="Use actual photos and supplier source descriptions as references." />
           </FormField>
         )}
 
         {canEditOptionalField("Color Confirmed") && (
           <div className="flex items-center justify-between rounded-xl border border-white/10 bg-white/[.04] px-4 py-3 text-xs font-bold text-slate-300">
-            <span>颜色已确认</span>
+            <span>Color confirmed</span>
             <Switch
               checked={form.colorConfirmed}
               onCheckedChange={(val) => updateField("colorConfirmed", val)}
@@ -2600,7 +2605,7 @@ function VehicleEditModal({ vehicle, onClose, onSaved }: { vehicle: Vehicle; onC
         )}
 
         <div className="flex items-center justify-between rounded-xl border border-white/10 bg-white/[.04] px-4 py-3 text-xs font-bold text-slate-300">
-          <span>对外上架显示</span>
+          <span>List publicly</span>
           <Switch
             checked={form.isListed}
             onCheckedChange={(val) => updateField("isListed", val)}
@@ -2615,10 +2620,10 @@ function VehicleEditModal({ vehicle, onClose, onSaved }: { vehicle: Vehicle; onC
 
         <div className="flex flex-col gap-3 sm:flex-row sm:justify-end pt-2">
           <Button type="button" variant="outline" onClick={onClose}>
-            取消
+            Cancel
           </Button>
           <Button disabled={saving} variant="default">
-            {saving ? "保存中..." : "保存到飞书"}
+            {saving ? "Saving..." : "Save to Feishu"}
           </Button>
         </div>
       </form>
@@ -2701,7 +2706,8 @@ function AdminTable({ headers, rows, emptyText }: { headers: string[]; rows: Rea
 }
 
 function AdminStatusBadge({ status }: { status: string }) {
-  const normalized = status.toLowerCase();
+  const displayStatus = formatPortalStatus(status);
+  const normalized = displayStatus.toLowerCase();
   const tone =
     /active|accepted|listed|paid|启用|已|active/.test(normalized)
       ? "border-[#22b8aa]/30 bg-[#22b8aa]/10 text-[#5ee6d8]"
@@ -2711,7 +2717,7 @@ function AdminStatusBadge({ status }: { status: string }) {
 
   return (
     <span className={`inline-flex max-w-full items-center rounded-full border px-2.5 py-1 text-[10px] font-black uppercase tracking-widest ${tone}`}>
-      {status || "-"}
+      {displayStatus}
     </span>
   );
 }
@@ -3429,13 +3435,13 @@ function getSupplyType(vehicle: Vehicle) {
 
 function formatInventoryQuantity(vehicle: Vehicle) {
   const quantity = vehicle.colorStockQuantity;
-  return quantity !== null && quantity !== undefined ? `${quantity} \u53f0` : "-";
+  return quantity !== null && quantity !== undefined ? `${quantity} units` : "-";
 }
 
 function formatFulfillmentStatus(vehicle: Vehicle) {
-  if (vehicle.waitDays === 0) return "\u73b0\u8f66";
-  if (vehicle.waitDays !== null && vehicle.waitDays !== undefined && vehicle.waitDays > 0) return `\u8ba2\u8f66 路 ${vehicle.waitDays} \u5929`;
-  return "\u4ea4\u4ed8\u5468\u671f\u5f85\u786e\u8ba4";
+  if (vehicle.waitDays === 0) return "In Stock";
+  if (vehicle.waitDays !== null && vehicle.waitDays !== undefined && vehicle.waitDays > 0) return `Pre-order: ${vehicle.waitDays} days`;
+  return "Lead time pending";
 }
 
 function formatFobRange(prices: number[]) {
@@ -3446,11 +3452,11 @@ function formatFobRange(prices: number[]) {
 }
 
 function formatModelYear(year: string) {
-  return year ? `${year}款` : "年款待确认";
+  return year ? `${year} model year` : "Model year pending";
 }
 
 function formatSupplySummary(item: SellableModel) {
-  return item.stockQuantity > 0 ? "有现车" : "仅可预定";
+  return item.stockQuantity > 0 ? "In Stock" : "Pre-order Only";
 }
 
 function formatColorPair(exteriorColor: string, interiorColor: string) {

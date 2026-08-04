@@ -46,6 +46,12 @@ export function proxy(request: NextRequest) {
     return response;
   }
 
+  if (pathname === "/dashboard" || pathname.startsWith("/dashboard/") || pathname === "/portal" || pathname.startsWith("/portal/")) {
+    const redirectUrl = request.nextUrl.clone();
+    redirectUrl.pathname = `/en${pathname}`;
+    return NextResponse.redirect(redirectUrl);
+  }
+
   const locale = detectLocaleFromRequest(request);
   const redirectUrl = new URL(`/${locale}${pathname}`, request.url);
   return NextResponse.redirect(redirectUrl);
