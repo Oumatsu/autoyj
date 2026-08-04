@@ -153,6 +153,8 @@ test.describe("Tier 4: E2E Real Portal Login & Logout Interactive Journey", () =
     const headers = page.getByRole("columnheader");
     await expect(headers.nth(0)).toHaveText("版本配置");
     await expect(headers.nth(1)).toHaveText("年款");
+    await expect(headers.nth(6)).toHaveText("外观 / 内饰颜色");
+    await expect(headers.nth(7)).toHaveText("美元报价");
     await expect(page.getByRole("columnheader", { name: "资源 ID" })).toHaveCount(0);
   });
 });

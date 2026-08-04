@@ -2108,11 +2108,11 @@ function AdminVehicles({ data, onEdit }: { data: BootstrapData; onEdit: (vehicle
                       headers={[
                         "\u7248\u672c\u914d\u7f6e",
                         "\u5e74\u6b3e",
-                        "\u7f8e\u91d1\u62a5\u4ef7",
                         ...(canSeeLocation ? ["\u8f66\u6e90\u5730\u70b9"] : []),
                         "\u5de6\u53f3\u8235 / \u7248\u672c",
                         ...(canSeeSupplier ? ["\u4f9b\u5e94\u5546"] : []),
                         "\u5916\u89c2 / \u5185\u9970\u989c\u8272",
+                        "\u7f8e\u91d1\u62a5\u4ef7",
                         "\u5e93\u5b58\u6570\u91cf",
                         "\u4ea4\u4ed8\u72b6\u6001",
                       ]}
@@ -2122,6 +2122,18 @@ function AdminVehicles({ data, onEdit }: { data: BootstrapData; onEdit: (vehicle
                         </strong>,
                         <span key="year" className="text-xs font-medium text-slate-300">
                           {vehicle.year ? `${vehicle.year}款` : "年款待确认"}
+                        </span>,
+                        ...(canSeeLocation
+                          ? [<span key="loc" className="text-xs font-medium text-slate-200">{vehicle.location || "\u672a\u6307\u5b9a\u5730\u70b9"}</span>]
+                          : []),
+                        <span key="spec" className="text-[11px] font-bold text-[#5ee6d8]">
+                          {compactJoin([vehicle.steering || "左舵 LHD", vehicle.marketVersion || "国内版"])}
+                        </span>,
+                        ...(canSeeSupplier
+                          ? [<span key="supplier" className="text-xs font-medium text-slate-200">{vehicle.supplier || "\u5408\u4f5c\u8f66\u5546"}</span>]
+                          : []),
+                        <span key="color" className="text-xs text-slate-400">
+                          {formatColorPair(vehicle.exteriorColor || vehicle.color, vehicle.interiorColor)}
                         </span>,
                         <div key="price" className="flex flex-col gap-1">
                           {vehicle.priceTermsList && vehicle.priceTermsList.length > 0 ? (
@@ -2148,18 +2160,6 @@ function AdminVehicles({ data, onEdit }: { data: BootstrapData; onEdit: (vehicle
                           )}
                           {vehicle.cost ? <span className="font-mono text-[10px] text-slate-500">成本 {formatUsdStrict(vehicle.cost)}</span> : null}
                         </div>,
-                        ...(canSeeLocation
-                          ? [<span key="loc" className="text-xs font-medium text-slate-200">{vehicle.location || "\u672a\u6307\u5b9a\u5730\u70b9"}</span>]
-                          : []),
-                        <span key="spec" className="text-[11px] font-bold text-[#5ee6d8]">
-                          {compactJoin([vehicle.steering || "左舵 LHD", vehicle.marketVersion || "国内版"])}
-                        </span>,
-                        ...(canSeeSupplier
-                          ? [<span key="supplier" className="text-xs font-medium text-slate-200">{vehicle.supplier || "\u5408\u4f5c\u8f66\u5546"}</span>]
-                          : []),
-                        <span key="color" className="text-xs text-slate-400">
-                          {formatColorPair(vehicle.exteriorColor || vehicle.color, vehicle.interiorColor)}
-                        </span>,
                         <span key="stock" className="text-xs text-slate-300">{formatInventoryQuantity(vehicle)}</span>,
                         <span key="fulfillment" className="text-xs font-medium text-slate-200">{formatFulfillmentStatus(vehicle)}</span>,
                       ])}
