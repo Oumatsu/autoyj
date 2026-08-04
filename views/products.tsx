@@ -7,6 +7,7 @@ import { vehicles as fallbackRevenue } from "../app/products/revenue-king/data";
 import { vehicles as fallbackElite } from "../app/products/elite-flagship/data";
 import { vehicles as fallbackUtility } from "../app/products/utility-pro/data";
 import { translateOverviewCard } from "./products/productsOverviewTranslations.ts";
+import { sanitizeDisplayData } from "@/lib/display-text";
 
 function getBadgeCls(slug: string, badge: string | null): string {
   if (!badge) return "";
@@ -50,7 +51,7 @@ export default function ProductsPage() {
         if (!res.ok) throw new Error();
         return res.json();
       })
-      .then((data: any) => setProducts(data))
+      .then((data: any) => setProducts(sanitizeDisplayData(data)))
       .catch(() => {});
   }, []);
 

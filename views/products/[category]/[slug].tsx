@@ -4,6 +4,7 @@ import { use, useEffect, useState } from "react";
 import { useTranslation } from "@/i18n/useTranslation";
 import VehicleDetail from "../../../app/products/_VehicleDetail";
 import Loading from "@/components/Loading";
+import { sanitizeDisplayData } from "@/lib/display-text";
 
 export default function DynamicVehiclePage({ params }: any) {
   const { t } = useTranslation();
@@ -17,7 +18,7 @@ export default function DynamicVehiclePage({ params }: any) {
     fetch(`/api/portal/public/products/${slug}`)
       .then((res) => {
         if (!res.ok) throw new Error();
-        return res.json();
+        return res.json().then(sanitizeDisplayData);
       })
       .then(setData)
       .catch(() => setError(true));

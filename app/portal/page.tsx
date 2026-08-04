@@ -20,6 +20,7 @@ import { Switch } from "@/components/ui/switch";
 import { Progress } from "@/components/ui/progress";
 import { RotateCcw } from "lucide-react";
 import { useTranslation } from "@/i18n/useTranslation";
+import { sanitizeDisplayData } from "@/lib/display-text";
 
 type PortalRole = "admin" | "sales" | "sourcing" | "finance" | "partner" | "customer";
 type PriceTier = "hidden" | "partner" | "vip" | "internal";
@@ -477,7 +478,7 @@ async function api<T>(path: string, init?: RequestInit): Promise<T> {
   if (!response.ok) {
     throw new Error(typeof data.error === "string" ? data.error : "Request failed");
   }
-  return data as T;
+  return sanitizeDisplayData(data) as T;
 }
 
 // 妯″潡鍏ㄥ眬缂撳瓨锛堣法璺敱鍒囨崲/缁勪欢鍗歌浇鎸傝浇鍏变韩锛屽疄鐜伴〉闈㈠垏鎹?0 娆￠噸澶嶈姹備笌骞跺彂鍘婚噸锛?
@@ -3029,18 +3030,18 @@ function categoryRank(category: string) {
   return index === -1 ? modelCategoryOrder.length : index;
 }
 
-function buildSellableModels(data: BootstrapData): SellableModel[] {
+export function buildSellableModels(data: BootstrapData): SellableModel[] {
   const modelsByVehicle = new Map<string, VehicleModel>();
   const modelsByName = new Map<string, VehicleModel>();
   for (const item of data.vehicleModels || []) {
     if (item.id) modelsByVehicle.set(item.id, item);
-    modelsByName.set(normalizeKey(item.brand, item.model), item);
+    modelsByName.set(modelResourceKey(item.brand, item.model), item);
   }
 
-  const grouped = new Map<string, { item: SellableModel; offerMap: Map<string, VehicleOffer> }>();
+  const grouped = new Map<string, { item: SellableModel; offerMap: Map<string, VehicleOffer>; supplierStock: Map<string, number> }>();
   for (const vehicle of data.vehicles || []) {
-    const modelInfo = modelsByVehicle.get(vehicle.modelId) || modelsByName.get(normalizeKey(vehicle.brand, vehicle.model));
-    const modelKey = normalizeKey(vehicle.brand, vehicle.model, vehicle.year);
+    const modelInfo = modelsByVehicle.get(vehicle.modelId) || modelsByName.get(modelResourceKey(vehicle.brand, vehicle.model));
+    const modelKey = modelResourceKey(vehicle.brand, vehicle.model);
     if (!grouped.has(modelKey)) {
       grouped.set(modelKey, {
         item: {
@@ -3057,14 +3058,20 @@ function buildSellableModels(data: BootstrapData): SellableModel[] {
           offers: [],
         },
         offerMap: new Map(),
+        supplierStock: new Map(),
       });
     }
 
     const entry = grouped.get(modelKey)!;
     const supplyType = getSupplyType(vehicle);
-    // Total model stock is authored in Base once per model; never add it across color rows.
+    // A supplier's model stock is repeated across its colors/configurations; sum only once per supplier.
     if (vehicle.modelStockQuantity !== null && vehicle.modelStockQuantity !== undefined) {
-      entry.item.stockQuantity = Math.max(entry.item.stockQuantity, vehicle.modelStockQuantity);
+      const supplierKey = normalizeKey(vehicle.supplier) || vehicle.id;
+      entry.supplierStock.set(
+        supplierKey,
+        Math.max(entry.supplierStock.get(supplierKey) || 0, vehicle.modelStockQuantity),
+      );
+      entry.item.stockQuantity = Array.from(entry.supplierStock.values()).reduce((total, quantity) => total + quantity, 0);
       entry.item.hasStockQuantity = true;
     }
     entry.item.preorderAvailable = entry.item.preorderAvailable || supplyType === "Preorder";
@@ -3155,9 +3162,9 @@ function getFobPrice(vehicle: Vehicle) {
   return vehicle.price;
 }
 
-function vehiclesForSellableModel(vehicles: Vehicle[], item: SellableModel) {
+export function vehiclesForSellableModel(vehicles: Vehicle[], item: SellableModel) {
   return vehicles
-    .filter((vehicle) => normalizeKey(vehicle.brand, vehicle.model, vehicle.year) === item.key)
+    .filter((vehicle) => modelResourceKey(vehicle.brand, vehicle.model) === item.key)
     .sort((a, b) => {
       const supplyRank = Number(getSupplyType(b) === "In Stock") - Number(getSupplyType(a) === "In Stock");
       return supplyRank || (getFobPrice(a) || Number.MAX_SAFE_INTEGER) - (getFobPrice(b) || Number.MAX_SAFE_INTEGER);
@@ -3356,6 +3363,15 @@ function formatColorPair(exteriorColor: string, interiorColor: string) {
 
 function normalizeKey(...values: Array<string | number | null | undefined>) {
   return values.map((value) => String(value ?? "").trim().toLowerCase()).join("::");
+}
+
+function modelResourceKey(brand: string, model: string) {
+  const normalizedBrand = String(brand || "").trim().toLowerCase().replace(/[\s_-]+/g, "");
+  const normalizedModel = String(model || "").trim().toLowerCase().replace(/[\s_-]+/g, "");
+  const modelWithoutRepeatedBrand = normalizedBrand && normalizedModel.startsWith(normalizedBrand)
+    ? normalizedModel.slice(normalizedBrand.length)
+    : normalizedModel;
+  return `${normalizedBrand}::${modelWithoutRepeatedBrand}`;
 }
 
 function vehicleName(vehicle: Vehicle) {

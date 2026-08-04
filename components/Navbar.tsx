@@ -9,6 +9,7 @@ import { LocaleLink } from "@/i18n/LocaleLink";
 import { LocaleSwitcher } from "@/i18n/LocaleSwitcher";
 import { Sheet, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
+import { sanitizeDisplayData } from "@/lib/display-text";
 
 export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -81,8 +82,9 @@ export function Navbar() {
     fetch("/api/portal/session")
       .then((res) => res.json())
       .then((data) => {
-        if (data && data.user) {
-          setUser(data.user);
+        const displayData = sanitizeDisplayData(data);
+        if (displayData && displayData.user) {
+          setUser(displayData.user);
         } else {
           setUser(null);
         }

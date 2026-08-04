@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
+import { sanitizeDisplayData } from "@/lib/display-text";
 import {
   getAcademyLessonDate,
   translateAcademyLesson,
@@ -41,7 +42,7 @@ export default function TechnicalWorkshopPage() {
     fetch("/api/portal/public/academy")
       .then((res) => {
         if (!res.ok) throw new Error();
-        return res.json();
+        return res.json().then(sanitizeDisplayData);
       })
       .then((data: any) => {
         if (data?.lessons?.workshop) {

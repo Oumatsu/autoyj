@@ -5,6 +5,7 @@ import { use, useEffect, useState } from "react";
 import { useTranslation } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
 import MarkdownRenderer from "@/components/MarkdownRenderer";
+import { sanitizeDisplayData } from "@/lib/display-text";
 import { asStringArray } from "@/i18n/translationFallback";
 import { translateInsightArticle } from "@/views/insights/articleTranslations";
 
@@ -93,7 +94,7 @@ export default function DynamicInsightPage({ params }: any) {
     fetch(`/api/portal/public/insights/${slug}`)
       .then((res) => {
         if (!res.ok) throw new Error();
-        return res.json();
+        return res.json().then(sanitizeDisplayData);
       })
       .then((data: any) => setArticle(data))
       .catch(() => setError(true));
