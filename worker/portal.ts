@@ -1143,13 +1143,17 @@ function computeAiConfidenceScore(fields: Record<string, unknown>): number {
   return Math.max(0, Math.round(score * 100) / 100);
 }
 
-function mapVehicleSource(record: FeishuRecord, canSeePrice: boolean): Record<string, unknown> {
+function mapVehicleSource(record: FeishuRecord, session: PortalSession): Record<string, unknown> {
   const fields = record.fields;
   const extColor = asText(fields["外饰颜色"] ?? fields.exterior_color);
   const intColor = asText(fields["内饰颜色"] ?? fields.interior_color);
   const colorStr = [extColor ? `Ext: ${extColor}` : "", intColor ? `Int: ${intColor}` : ""].filter(Boolean).join(" / ");
-  
-  const fobUsd = asOptionalNumber(fields["FOB美金价"]) || asOptionalNumber(fields.fob_usd);
+
+  const canSeePrice = canSeePortalPrice(session);
+  const internalFobUsd = asOptionalNumber(fields["FOB美金价"]) || asOptionalNumber(fields.fob_usd);
+  const customerFobUsd = asOptionalNumber(fields["customerFOB美金报价（自动计算）"] ?? fields.customer_fob_usd);
+  const usesCustomerFob = session.role === "partner" || session.role === "customer";
+  const fobUsd = usesCustomerFob ? customerFobUsd : internalFobUsd;
   const exwUsd = asOptionalNumber(fields["EXW美金价"]) || asOptionalNumber(fields.exw_usd);
   const fcaUsd = asOptionalNumber(fields["FCA美金价"]) || asOptionalNumber(fields.fca_usd);
 
@@ -1228,8 +1232,8 @@ function mapVehicleSource(record: FeishuRecord, canSeePrice: boolean): Record<st
     isApproved,
     canSeePrice,
     price: canSeePrice ? priceVal : null,
-    partnerPrice: priceVal,
-    customerPrice: priceVal,
+    partnerPrice: customerFobUsd,
+    customerPrice: customerFobUsd,
     cost: asOptionalNumber(fields["人民币成本价"] ?? fields.supplier_price_cny),
     exwUsd,
     fcaUsd,
@@ -1629,7 +1633,7 @@ async function handleGetCatalog(request: Request, env: Env) {
       return stage === "connected";
     });
 
-    const vehicles = vehicleSourceRecords.map((record) => mapVehicleSource(record, canSeePortalPrice(session)));
+    const vehicles = vehicleSourceRecords.map((record) => mapVehicleSource(record, session));
     const modelDataset = buildVehicleModelDataset(vehicleModelRecords, vehicleVariantRecords);
     const vehicleModelSpecs = modelDataset.vehicleModelSpecs;
     const mappedModels = modelDataset.vehicleModels;
@@ -1672,7 +1676,7 @@ async function handleGetVehicles(request: Request, env: Env) {
       return stage === "connected";
     });
 
-    const vehicles = vehicleSourceRecords.map((record) => mapVehicleSource(record, canSeePortalPrice(session)));
+    const vehicles = vehicleSourceRecords.map((record) => mapVehicleSource(record, session));
     const resPayload = { vehicles };
     setCached(cacheKey, resPayload);
     return resPayload;

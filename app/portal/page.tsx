@@ -18,6 +18,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
 import { Progress } from "@/components/ui/progress";
+import { RotateCcw } from "lucide-react";
 import { useTranslation } from "@/i18n/useTranslation";
 
 type PortalRole = "admin" | "sales" | "sourcing" | "finance" | "partner" | "customer";
@@ -361,7 +362,7 @@ const adminRoleLabels: Record<PortalRole, string> = {
 const adminNavItems: { key: AdminModule; label: string; roles: PortalRole[]; icon: AdminIconName; badge?: string }[] = [
   { key: "dashboard", label: "首页看板", roles: ["admin", "sales", "sourcing", "finance", "partner", "customer"], icon: "dashboard", badge: "开发中" },
   { key: "vehicle_models", label: "车型库", roles: ["admin", "sales", "sourcing", "partner", "customer"], icon: "vehicle_models", badge: "预览" },
-  { key: "vehicles", label: "车辆资源", roles: ["admin", "sales", "sourcing", "partner"], icon: "vehicles", badge: "预览" },
+  { key: "vehicles", label: "车辆资源", roles: ["admin", "sales", "sourcing", "partner", "customer"], icon: "vehicles", badge: "预览" },
   { key: "source_imports", label: "车源录入与审查", roles: ["admin", "sales", "sourcing"], icon: "vehicles", badge: "开发中" },
   { key: "quotes", label: "询价管理", roles: ["admin", "sales", "partner", "customer"], icon: "quotes", badge: "开发中" },
   { key: "orders", label: "订单管理", roles: ["admin", "sales", "finance", "partner", "customer"], icon: "orders", badge: "开发中" },
@@ -1327,8 +1328,8 @@ function AdminPortal({
       {editingVehicle && (
         <VehicleEditModal
           vehicle={editingVehicle}
-          canSeeSupplier={data.user.role !== "partner"}
-          canSeeLocation={data.user.role !== "partner"}
+          canSeeSupplier={data.user.role !== "partner" && data.user.role !== "customer"}
+          canSeeLocation={data.user.role !== "partner" && data.user.role !== "customer"}
           onClose={() => setEditingVehicle(null)}
           onSaved={async () => {
             setEditingVehicle(null);
@@ -1831,8 +1832,8 @@ function AdminVehicles({ data, onEdit }: { data: BootstrapData; onEdit: (vehicle
   const [colorFilter, setColorFilter] = useState("all");
   const [supplierFilter, setSupplierFilter] = useState("all");
   const normalizedSearch = searchQuery.trim().toLowerCase();
-  const canSeeSupplier = data.user.role !== "partner";
-  const canSeeLocation = data.user.role !== "partner";
+  const canSeeSupplier = data.user.role !== "partner" && data.user.role !== "customer";
+  const canSeeLocation = data.user.role !== "partner" && data.user.role !== "customer";
   const effectiveSupplierFilter = canSeeSupplier ? supplierFilter : "all";
 
   useEffect(() => {
@@ -2004,7 +2005,8 @@ function AdminVehicles({ data, onEdit }: { data: BootstrapData; onEdit: (vehicle
             }}
             className="inline-flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/[.04] px-3.5 py-2.5 text-xs font-bold text-slate-300 transition hover:border-[#22b8aa] hover:bg-[#22b8aa]/10 hover:text-white"
           >
-            鈫?{t("portal.reset")}
+            <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
+            {t("portal.reset")}
           </button>
         </div>
       </section>
@@ -2103,9 +2105,9 @@ function AdminVehicles({ data, onEdit }: { data: BootstrapData; onEdit: (vehicle
                   <div className="p-4 sm:p-5">
                     <AdminTable
                       headers={[
-                        "\u8d44\u6e90 ID",
+                        "\u7248\u672c\u914d\u7f6e",
+                        "\u5e74\u6b3e",
                         "\u7f8e\u91d1\u62a5\u4ef7",
-                        "\u914d\u7f6e\u7248\u672c",
                         ...(canSeeLocation ? ["\u8f66\u6e90\u5730\u70b9"] : []),
                         "\u5de6\u53f3\u8235 / \u7248\u672c",
                         ...(canSeeSupplier ? ["\u4f9b\u5e94\u5546"] : []),
@@ -2114,7 +2116,12 @@ function AdminVehicles({ data, onEdit }: { data: BootstrapData; onEdit: (vehicle
                         "\u4ea4\u4ed8\u72b6\u6001",
                       ]}
                       rows={rawVehicles.map((vehicle) => [
-                        <span key="id" className="font-mono text-xs font-bold text-[#22b8aa]">{vehicle.id}</span>,
+                        <strong key="configuration" className="text-xs font-bold text-white">
+                          {compactJoin([vehicle.trim || "未指定配置", vehicle.configuration])}
+                        </strong>,
+                        <span key="year" className="text-xs font-medium text-slate-300">
+                          {vehicle.year ? `${vehicle.year}款` : "年款待确认"}
+                        </span>,
                         <div key="price" className="flex flex-col gap-1">
                           {vehicle.priceTermsList && vehicle.priceTermsList.length > 0 ? (
                             vehicle.priceTermsList.map((p) => (
@@ -2140,9 +2147,6 @@ function AdminVehicles({ data, onEdit }: { data: BootstrapData; onEdit: (vehicle
                           )}
                           {vehicle.cost ? <span className="font-mono text-[10px] text-slate-500">成本 {formatUsdStrict(vehicle.cost)}</span> : null}
                         </div>,
-                        <strong key="trim" className="text-xs font-bold text-white">
-                          {compactJoin([vehicle.year ? `${vehicle.year}款` : "", vehicle.trim || "未指定配置", vehicle.configuration])}
-                        </strong>,
                         ...(canSeeLocation
                           ? [<span key="loc" className="text-xs font-medium text-slate-200">{vehicle.location || "\u672a\u6307\u5b9a\u5730\u70b9"}</span>]
                           : []),
@@ -3148,7 +3152,7 @@ function buildSellableModels(data: BootstrapData): SellableModel[] {
 }
 
 function getFobPrice(vehicle: Vehicle) {
-  return vehicle.partnerPrice ?? vehicle.price;
+  return vehicle.price;
 }
 
 function vehiclesForSellableModel(vehicles: Vehicle[], item: SellableModel) {

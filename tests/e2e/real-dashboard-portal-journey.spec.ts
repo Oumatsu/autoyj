@@ -112,4 +112,47 @@ test.describe("Tier 4: E2E Real Portal Login & Logout Interactive Journey", () =
     await page.goto("/en/dashboard/quotes");
     await expect(page).toHaveURL(/\/en\/dashboard\/quotes/);
   });
+
+  test("Vehicle filters show a clean reset button label", async ({ page }) => {
+    await page.goto("/portal");
+
+    await page.locator("#login-email").fill("admin@local.test");
+    await page.locator("#login-access-code").fill("admin-demo-2026");
+    await page.locator("form button[type='submit'], form button", { hasText: /Sign In/i }).click();
+
+    await page.locator("a[href='/dashboard?tab=vehicles']").click();
+
+    await expect(page.getByRole("button", { name: /^重置$/ })).toBeVisible();
+  });
+
+  test("Customer can open the vehicle resources page", async ({ page }) => {
+    await page.goto("/portal");
+
+    await page.locator("#login-email").fill("customer@example.com");
+    await page.locator("#login-access-code").fill("customer-demo-2026");
+    await page.locator("form button[type='submit'], form button", { hasText: /Sign In/i }).click();
+
+    const vehiclesLink = page.locator("a[href='/dashboard?tab=vehicles']");
+    await expect(vehiclesLink).toBeVisible();
+    await vehiclesLink.click();
+
+    await expect(page).toHaveURL(/\?tab=vehicles/);
+    await expect(page.getByRole("heading", { name: "车源控制台" })).toBeVisible();
+  });
+
+  test("Vehicle resource details lead with configuration and model year", async ({ page }) => {
+    await page.goto("/portal");
+
+    await page.locator("#login-email").fill("admin@local.test");
+    await page.locator("#login-access-code").fill("admin-demo-2026");
+    await page.locator("form button[type='submit'], form button", { hasText: /Sign In/i }).click();
+
+    await page.locator("a[href='/dashboard?tab=vehicles']").click();
+    await page.getByRole("button", { name: "查看版本" }).first().click();
+
+    const headers = page.getByRole("columnheader");
+    await expect(headers.nth(0)).toHaveText("版本配置");
+    await expect(headers.nth(1)).toHaveText("年款");
+    await expect(page.getByRole("columnheader", { name: "资源 ID" })).toHaveCount(0);
+  });
 });
