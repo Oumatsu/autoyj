@@ -1152,15 +1152,17 @@ function mapVehicleSource(record: FeishuRecord, session: PortalSession): Record<
   const canSeePrice = canSeePortalPrice(session);
   const internalFobUsd = asOptionalNumber(fields["FOB美金价"]) || asOptionalNumber(fields.fob_usd);
   const customerFobUsd = asOptionalNumber(fields["customerFOB美金报价（自动计算）"] ?? fields.customer_fob_usd);
-  const usesCustomerFob = session.role === "partner" || session.role === "customer";
-  const fobUsd = usesCustomerFob ? customerFobUsd : internalFobUsd;
-  const exwUsd = asOptionalNumber(fields["EXW美金价"]) || asOptionalNumber(fields.exw_usd);
-  const fcaUsd = asOptionalNumber(fields["FCA美金价"]) || asOptionalNumber(fields.fca_usd);
+  const externalAccount = session.role === "partner" || session.role === "customer";
+  const fobUsd = externalAccount ? customerFobUsd : internalFobUsd;
+  const internalExwUsd = asOptionalNumber(fields["EXW美金价"]) || asOptionalNumber(fields.exw_usd);
+  const internalFcaUsd = asOptionalNumber(fields["FCA美金价"]) || asOptionalNumber(fields.fca_usd);
+  const exwUsd = externalAccount ? null : internalExwUsd;
+  const fcaUsd = externalAccount ? null : internalFcaUsd;
 
   const priceTermsList: { term: string; amount: number }[] = [];
   if (fobUsd) priceTermsList.push({ term: "FOB", amount: fobUsd });
-  if (exwUsd) priceTermsList.push({ term: "EXW", amount: exwUsd });
-  if (fcaUsd) priceTermsList.push({ term: "FCA", amount: fcaUsd });
+  if (!externalAccount && exwUsd) priceTermsList.push({ term: "EXW", amount: exwUsd });
+  if (!externalAccount && fcaUsd) priceTermsList.push({ term: "FCA", amount: fcaUsd });
 
   if (priceTermsList.length === 0) {
     const generalVal = 
