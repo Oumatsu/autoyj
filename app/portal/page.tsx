@@ -1220,7 +1220,7 @@ function AdminPortal({
   const orderTotal = data.orders.reduce((sum, order) => sum + order.total, 0);
 
   return (
-    <main className="min-h-screen overflow-x-hidden bg-[#0c1322] text-slate-100 pt-[var(--navbar-h,56px)]">
+    <main className="min-h-screen overflow-x-hidden bg-[#0c1322] pt-[var(--navbar-h,56px)] text-slate-100 lg:pt-0">
       <div className={`grid min-h-screen min-w-0 transition-[grid-template-columns] duration-200 ${sidebarCollapsed ? "lg:grid-cols-[88px_minmax(0,1fr)]" : "lg:grid-cols-[300px_minmax(0,1fr)]"}`}>
         <aside className={`border-b border-white/10 bg-[#101827] px-4 py-5 transition-[padding] duration-200 lg:sticky lg:h-[calc(100vh-var(--navbar-h,56px))] lg:border-b-0 lg:border-r ${sidebarCollapsed ? "lg:px-3" : "lg:px-5"} flex flex-col justify-between`} style={{ top: "var(--navbar-h, 56px)" }}>
           <div>
@@ -1303,7 +1303,7 @@ function AdminPortal({
           </div>
         </aside>
 
-        <section className="min-w-0 overflow-hidden px-4 py-5 sm:px-6 lg:px-8 lg:py-8">
+        <section className="min-w-0 overflow-hidden px-4 py-5 sm:px-6 lg:px-8 lg:pb-8 lg:pt-[calc(var(--navbar-h,56px)+2rem)]">
           <header className="mb-6 flex flex-col gap-4 border-b border-white/10 pb-5 xl:flex-row xl:items-end xl:justify-between">
             <div>
               <p className="text-[10px] font-black uppercase tracking-[.24em] text-[#22b8aa]">
