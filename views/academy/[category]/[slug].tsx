@@ -1,6 +1,7 @@
 "use client";
 
 import { use, useEffect, useState } from "react";
+import Loading from "@/components/Loading";
 import { useTranslation } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
 import MarkdownRenderer from "@/components/MarkdownRenderer";
@@ -99,14 +100,7 @@ export default function DynamicLessonPage({ params }: any) {
   }
 
   if (loading || !lesson) {
-    return (
-      <div className="min-h-[60vh] flex items-center justify-center bg-a">
-        <div className="text-center">
-          <div className="w-8 h-8 border-2 border-gold border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-400 text-xs tracking-widest uppercase">{t("academyDetail.loadingLesson")}</p>
-        </div>
-      </div>
-    );
+    return <Loading text={t("academyDetail.loadingLesson")} />;
   }
 
   const meta = getCategoryMeta(category, t);

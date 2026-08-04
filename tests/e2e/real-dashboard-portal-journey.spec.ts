@@ -61,8 +61,8 @@ test.describe("Tier 4: E2E Real Portal Login & Logout Interactive Journey", () =
       await codeInput.fill(code);
       await submitBtn.click();
 
-      // Wait for session & catalog load
-      await page.waitForTimeout(1200);
+      const logoutBtn = page.locator("button", { hasText: /退出登录|Log Out|Sign Out|Logout/i }).first();
+      await expect(logoutBtn).toBeVisible({ timeout: 10000 });
     };
 
     // helper to logout

@@ -1,5 +1,6 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import Loading from "@/components/Loading";
 
 export function ProductCatalogSkeleton() {
   return (
@@ -8,7 +9,7 @@ export function ProductCatalogSkeleton() {
       role="status"
       aria-label="Loading vehicle inventory"
     >
-      {Array.from({ length: 6 }, (_, index) => (
+      {Array.from({ length: 4 }, (_, index) => (
         <div
           key={index}
           className="v-card-compact overflow-hidden pointer-events-none rounded-2xl border border-white/10 p-5 bg-[#0c1322]/50"
