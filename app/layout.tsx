@@ -4,6 +4,23 @@ import "./globals.css";
 import { SiteChrome } from "@/components/SiteChrome";
 import { defaultLocale, locales } from "@/i18n/config";
 
+/**
+ * Map each locale to its Tailwind font-family utility class.
+ * Defined here (not inside JSX) so it is evaluated at build time and
+ * serialized into the inline script via JSON.stringify.
+ *
+ * To add a new locale: update i18n/config.ts and add an entry here.
+ */
+const LOCALE_FONT_CLASS: Record<string, string> = {
+  zh: "font-sans",   // Noto Sans SC
+  en: "font-inter",  // Inter
+  am: "font-ethiopic", // Noto Sans Ethiopic
+  // new locales go here → config.ts drives the runtime list
+};
+
+/** All font-class names that the script may need to remove before adding one. */
+const ALL_FONT_CLASSES = [...new Set(Object.values(LOCALE_FONT_CLASS))];
+
 export const dynamic = "force-dynamic";
 
 const inter = Inter({
@@ -60,10 +77,11 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        {/* Inline script: runs before React hydration to set the correct lang attr and
-            font class. Uses JSON.stringify so it stays in sync with i18n/config.ts. */}
+        {/* next/font/google downloads fonts at build time — served from
+            .vinext/fonts/. No CDN preconnect needed or wanted here. */}
+        {/* Runs before React hydration: sets the correct lang attr and font
+            class from the URL path. JSON.stringify keeps it in sync with
+            i18n/config.ts — no locale name is hardcoded here. */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -71,19 +89,20 @@ export default function RootLayout({
                 try {
                   var supportedLocales = ${JSON.stringify(locales)};
                   var defaultLocale = ${JSON.stringify(defaultLocale)};
+                  var fontClasses = ${JSON.stringify(
+                    Object.fromEntries(
+                      locales.map((l) => [l, LOCALE_FONT_CLASS[l] ?? "font-sans"])
+                    )
+                  )};
+                  var allFontClasses = ${JSON.stringify(ALL_FONT_CLASSES)};
                   var segments = window.location.pathname.split('/');
                   var locale = supportedLocales.includes(segments[1]) ? segments[1] : defaultLocale;
                   document.documentElement.lang = locale;
-                  if (locale === 'en') {
-                    document.documentElement.classList.add('font-inter');
-                    document.documentElement.classList.remove('font-sans', 'font-ethiopic');
-                  } else if (locale === 'am') {
-                    document.documentElement.classList.add('font-ethiopic');
-                    document.documentElement.classList.remove('font-inter', 'font-sans');
-                  } else {
-                    document.documentElement.classList.add('font-sans');
-                    document.documentElement.classList.remove('font-inter', 'font-ethiopic');
-                  }
+                  var targetClass = fontClasses[locale] || 'font-sans';
+                  allFontClasses.forEach(function(cls) {
+                    document.documentElement.classList.remove(cls);
+                  });
+                  document.documentElement.classList.add(targetClass);
                 } catch (e) {}
               })();
             `,

@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
+import { defaultLocale } from "@/i18n/config";
 
 export default function RedirectPage() {
-  redirect("/zh/products/utility-pro");
+  redirect(`/${defaultLocale}/products/utility-pro`);
 }
