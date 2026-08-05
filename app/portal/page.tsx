@@ -507,10 +507,20 @@ export default function PortalPage() {
   const [accessCode, setAccessCode] = useState("");
   const [data, setData] = useState<BootstrapData | null>(() => globalBootstrapData);
   const [loading, setLoading] = useState(!globalBootstrapData);
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState("");
-  const [isLocalDev, setIsLocalDev] = useState(false);
-  const [showPreviewTestLogin, setShowPreviewTestLogin] = useState(false);
+  const [isLocalDev] = useState(() => {
+    if (typeof window === "undefined") return false;
+    const host = window.location.hostname.toLowerCase();
+    return host === "localhost" || host === "127.0.0.1" || host === "::1" || host === "[::1]";
+  });
+  const [showPreviewTestLogin] = useState(() => {
+    if (typeof window === "undefined") return false;
+    const host = window.location.hostname.toLowerCase();
+    return (
+      host.includes("workers.dev") ||
+      host.includes("youguard-preview") ||
+      host.includes("preview")
+    );
+  });
   const [activeAdminModule, setActiveAdminModule] = useState<AdminModule>(() => {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
@@ -590,14 +600,6 @@ export default function PortalPage() {
   }, []);
 
   useEffect(() => {
-    const host = window.location.hostname.toLowerCase();
-    setIsLocalDev(host === "localhost" || host === "127.0.0.1" || host === "::1" || host === "[::1]");
-    setShowPreviewTestLogin(
-      host.includes("workers.dev") ||
-      host.includes("youguard-preview") ||
-      host.includes("preview")
-    );
-
     const validModules: AdminModule[] = ["dashboard", "vehicle_models", "vehicles", "quotes", "orders", "payments", "logistics", "customers", "staff"];
     const syncFromUrl = () => {
       const pathname = window.location.pathname.toLowerCase();
@@ -628,7 +630,6 @@ export default function PortalPage() {
   const [moduleLoading, setModuleLoading] = useState(false);
 
   const loadCatalogIfNeeded = useCallback(async (force = false) => {
-    if (loadedCatalog && !force) return;
     setModuleLoading(true);
     try {
       const res = await api<{ vehicleModels: VehicleModel[]; vehicleModelSpecs: VehicleSpec[]; vehicles: Vehicle[] }>(
@@ -652,15 +653,15 @@ export default function PortalPage() {
     } finally {
       setModuleLoading(false);
     }
-  }, [loadedCatalog]);
+  }, []);
 
   useEffect(() => {
     if (!data) return;
     const catalogModules: AdminModule[] = ["dashboard", "vehicle_models", "vehicles"];
-    if (catalogModules.includes(activeAdminModule)) {
+    if (catalogModules.includes(activeAdminModule) && !loadedCatalog) {
       void loadCatalogIfNeeded();
     }
-  }, [data, activeAdminModule, loadCatalogIfNeeded]);
+  }, [data, activeAdminModule, loadedCatalog, loadCatalogIfNeeded]);
 
   const handleModuleChange = (module: AdminModule) => {
     setActiveAdminModule(module);
@@ -1792,10 +1793,6 @@ function AdminVehicles({ data, onEdit, onRefresh }: { data: BootstrapData; onEdi
   const canSeeSupplier = data.user.role !== "partner" && data.user.role !== "customer";
   const canSeeLocation = data.user.role !== "partner" && data.user.role !== "customer";
   const effectiveSupplierFilter = canSeeSupplier ? supplierFilter : "all";
-
-  useEffect(() => {
-    if (!canSeeSupplier && supplierFilter !== "all") setSupplierFilter("all");
-  }, [canSeeSupplier, supplierFilter]);
 
   // 从真实数据中动态提取下拉筛选选项
   const brandOptions = useMemo(() => {

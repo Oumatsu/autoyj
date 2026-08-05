@@ -38,10 +38,17 @@ export default function DynamicLessonPage({ params }: any) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
-  useEffect(() => {
-    if (!category || !slug) return;
+  const [prevKey, setPrevKey] = useState(`${category}/${slug}`);
+  const currentKey = `${category}/${slug}`;
+  if (prevKey !== currentKey) {
+    setPrevKey(currentKey);
     setLoading(true);
     setError(false);
+  }
+
+  useEffect(() => {
+    if (!category || !slug) return;
+    let isMounted = true;
 
     // Fetch the specific lesson
     fetch(`/api/portal/public/academy/${category}/${slug}`)
@@ -50,12 +57,18 @@ export default function DynamicLessonPage({ params }: any) {
         return res.json().then(sanitizeDisplayData);
       })
       .then((data: any) => {
-        setLesson(data);
+        if (isMounted) setLesson(data);
       })
       .catch(() => {
-        setError(true);
-        setLoading(false);
+        if (isMounted) {
+          setError(true);
+          setLoading(false);
+        }
       });
+
+    return () => {
+      isMounted = false;
+    };
   }, [category, slug]);
 
   useEffect(() => {

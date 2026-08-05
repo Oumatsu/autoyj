@@ -8,6 +8,10 @@ import { getLocaleFromPath } from "./utils";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 
+function setLocaleCookie(locale: Locale) {
+  document.cookie = `${LOCALE_COOKIE_NAME}=${locale}; max-age=${COOKIE_TTL_1Y}; path=/; samesite=lax`;
+}
+
 export function LocaleSwitcher() {
   const pathname = usePathname();
   const router = useRouter();
@@ -23,7 +27,7 @@ export function LocaleSwitcher() {
     }
 
     // Persist locale preference so middleware remembers it on future visits
-    document.cookie = `${LOCALE_COOKIE_NAME}=${locale}; max-age=${COOKIE_TTL_1Y}; path=/; samesite=lax`;
+    setLocaleCookie(locale);
 
     const segments = pathname.split("/").filter(Boolean);
     if (locales.includes(segments[0] as Locale)) {
