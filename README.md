@@ -1,6 +1,6 @@
 # Youguard Portal
 
-Youguard 汽车出口 B2B 门户平台。技术栈：Next.js 19 + Cloudflare Workers + Feishu Base。
+Youguard 汽车出口 B2B 门户平台。技术栈：Next.js 16 (vinext) + React 19 + Cloudflare Workers + Feishu Base。
 
 ---
 
