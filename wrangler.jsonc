@@ -3,7 +3,7 @@
   "name": "autoyj",
   "compatibility_date": "2026-05-08",
   "compatibility_flags": ["nodejs_compat"],
-  "main": "./worker/index.ts",
+  "main": "./server/index.ts",
   "assets": {
     "directory": "dist/client",
     "not_found_handling": "none",
@@ -13,6 +13,8 @@
     "binding": "IMAGES"
   },
   "vars": {
+    "FEISHU_APP_ID": "cli_aab1f0eeb0fa9cc0",
+    "FEISHU_APP_SECRET": "TeCD17jlFge9MaOqeKp50cuw4wpSwxEv",
     "FEISHU_BASE_APP_TOKEN": "Is6Xb3btbazhFhsDXgFcqFG1nRc",
     "FEISHU_TABLE_INTERNAL_USERS": "tblzuCupuStUvBwM",
     "FEISHU_TABLE_VEHICLE_MODELS": "tblxVNjP9dnJ7b3o",
@@ -29,5 +31,15 @@
     "FEISHU_TABLE_ACADEMY_LESSONS": "tbl4wwtdHP8sLUsO",
     "FEISHU_TABLE_ACADEMY_VAULT": "tblnMopstEUqjMhu",
     "FEISHU_TABLE_I18N": "tblv6UYxgYKSd8y5"
+  },
+  "d1_databases": [
+    {
+      "binding": "PORTAL_DB",
+      "database_name": "autoyj-portal",
+      "database_id": "68b32d63-714a-48a9-b8f2-af47c076deb4"
+    }
+  ],
+  "triggers": {
+    "crons": ["*/10 * * * *"]
   }
 }

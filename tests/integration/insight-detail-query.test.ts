@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 
 describe("Integration: Insight Detail Query Handler", () => {
   test("Insight detail reads Feishu records without the invalid list-records filter", async () => {
-    const source = await readFile(new URL("../../worker/portal.ts", import.meta.url), "utf8");
+    const source = await readFile(new URL("../../server/api/portal.ts", import.meta.url), "utf8");
     const match = source.match(
       /async function handlePublicInsight\([\s\S]*?(?=async function handlePublicAcademy\()/
     );

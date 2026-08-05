@@ -120,7 +120,7 @@ export default function RevenueKingPage() {
       .catch(() => setLoadState("error"));
   }, []);
 
-  const displayVehicles = loadState === "ready" ? products : [];
+  const displayVehicles = useMemo(() => (loadState === "ready" ? products : []), [loadState, products]);
   const filterGroups = useMemo(
     () => buildCatalogFilterGroups("revenue-king", displayVehicles, t),
     [displayVehicles, t],

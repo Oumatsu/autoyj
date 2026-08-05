@@ -2,7 +2,8 @@
 
 import { handleImageOptimization, DEFAULT_DEVICE_SIZES, DEFAULT_IMAGE_SIZES } from "vinext/server/image-optimization";
 import handler from "vinext/server/app-router-entry";
-import { handlePortalRequest } from "./portal";
+import { handlePortalRequest } from "./api/portal";
+import { runFeishuScheduledSync } from "./jobs/feishu-sync";
 
 interface Env {
   ASSETS: Fetcher;
@@ -32,6 +33,7 @@ interface Env {
   FEISHU_TABLE_ACADEMY_VAULT?: string;
   FEISHU_TABLE_VEHICLE_TRIM_CONFIGURATIONS?: string;
   FEISHU_TABLE_INSIGHTS?: string;
+  PORTAL_DB?: D1Database;
 }
 
 interface ExecutionContext {
@@ -67,6 +69,24 @@ export default {
       return handlePortalRequest(request, env);
     }
 
+    // Manual cron trigger for testing (protected by secret header)
+    if (url.pathname === "/api/admin/sync-now" && request.headers.get("x-admin-key") === (env.PORTAL_SESSION_SECRET || "")) {
+      try {
+        const result = await runFeishuScheduledSync(env);
+        return new Response(JSON.stringify({ ok: true, ...result }), {
+          headers: { "Content-Type": "application/json" },
+        });
+      } catch (e) {
+        return new Response(JSON.stringify({ ok: false, error: String(e) }), {
+          status: 500,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+    }
+
     return handler.fetch(request, env, ctx);
+  },
+  async scheduled(_event: { cron: string }, env: Env, ctx: ExecutionContext): Promise<void> {
+    ctx.waitUntil(runFeishuScheduledSync(env));
   },
 };

@@ -38,11 +38,13 @@ export function Navbar() {
     };
   }, []);
 
-  useEffect(() => {
+  const [prevMobileOpen, setPrevMobileOpen] = useState(mobileOpen);
+  if (prevMobileOpen !== mobileOpen) {
+    setPrevMobileOpen(mobileOpen);
     if (!mobileOpen) {
       setMobileVehiclesOpen(false);
     }
-  }, [mobileOpen]);
+  }
 
   useEffect(() => {
     const handleScroll = () => {

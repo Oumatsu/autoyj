@@ -110,7 +110,7 @@ export default function UtilityProPage() {
       .catch(() => setLoadState("error"));
   }, []);
 
-  const displayVehicles = loadState === "ready" ? products : [];
+  const displayVehicles = useMemo(() => (loadState === "ready" ? products : []), [loadState, products]);
   const filterGroups = useMemo(
     () => buildCatalogFilterGroups("utility-pro", displayVehicles, t),
     [displayVehicles, t],

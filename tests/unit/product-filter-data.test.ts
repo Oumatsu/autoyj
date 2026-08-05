@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { buildProductFilterData } from "../../worker/productFilters";
+import { buildProductFilterData } from "../../server/api/productFilters";
 
 describe("Unit: Product Filter Data Transformer", () => {
   test("maps new Base snake_case fields into structured product filter data", () => {

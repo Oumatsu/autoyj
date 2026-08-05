@@ -507,10 +507,21 @@ export default function PortalPage() {
   const [accessCode, setAccessCode] = useState("");
   const [data, setData] = useState<BootstrapData | null>(() => globalBootstrapData);
   const [loading, setLoading] = useState(!globalBootstrapData);
-  const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const [isLocalDev, setIsLocalDev] = useState(false);
-  const [showPreviewTestLogin, setShowPreviewTestLogin] = useState(false);
+  const [isLocalDev] = useState(() => {
+    if (typeof window === "undefined") return false;
+    const host = window.location.hostname.toLowerCase();
+    return host === "localhost" || host === "127.0.0.1" || host === "::1" || host === "[::1]";
+  });
+  const [showPreviewTestLogin] = useState(() => {
+    if (typeof window === "undefined") return false;
+    const host = window.location.hostname.toLowerCase();
+    return (
+      host.includes("workers.dev") ||
+      host.includes("youguard-preview") ||
+      host.includes("preview")
+    );
+  });
   const [activeAdminModule, setActiveAdminModule] = useState<AdminModule>(() => {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
@@ -590,14 +601,6 @@ export default function PortalPage() {
   }, []);
 
   useEffect(() => {
-    const host = window.location.hostname.toLowerCase();
-    setIsLocalDev(host === "localhost" || host === "127.0.0.1" || host === "::1" || host === "[::1]");
-    setShowPreviewTestLogin(
-      host.includes("workers.dev") ||
-      host.includes("youguard-preview") ||
-      host.includes("preview")
-    );
-
     const validModules: AdminModule[] = ["dashboard", "vehicle_models", "vehicles", "quotes", "orders", "payments", "logistics", "customers", "staff"];
     const syncFromUrl = () => {
       const pathname = window.location.pathname.toLowerCase();
@@ -617,23 +620,25 @@ export default function PortalPage() {
     syncFromUrl();
     window.addEventListener("popstate", syncFromUrl);
 
-    void checkSessionAndLoad();
+    const timer = setTimeout(() => {
+      void checkSessionAndLoad();
+    }, 0);
 
     return () => {
       window.removeEventListener("popstate", syncFromUrl);
+      clearTimeout(timer);
     };
   }, []);
 
-  const [loadedCatalog, setLoadedCatalog] = useState(false);
+  const [loadedModels, setLoadedModels] = useState(false);
+  const [loadedVehicles, setLoadedVehicles] = useState(false);
   const [moduleLoading, setModuleLoading] = useState(false);
 
-  const loadCatalogIfNeeded = useCallback(async (force = false) => {
-    if (loadedCatalog && !force) return;
+  const loadModels = useCallback(async () => {
+    if (loadedModels) return;
     setModuleLoading(true);
     try {
-      const res = await api<{ vehicleModels: VehicleModel[]; vehicleModelSpecs: VehicleSpec[]; vehicles: Vehicle[] }>(
-        `/api/portal/catalog${force ? "?refresh=1" : ""}`,
-      );
+      const res = await api<{ vehicleModels: VehicleModel[]; vehicleModelSpecs: VehicleSpec[] }>("/api/portal/vehicle-models");
       if (res) {
         setData((prev) =>
           prev
@@ -641,26 +646,51 @@ export default function PortalPage() {
                 ...prev,
                 vehicleModels: res.vehicleModels || [],
                 vehicleModelSpecs: res.vehicleModelSpecs || [],
-                vehicles: res.vehicles || [],
               }
             : prev
         );
-        setLoadedCatalog(true);
+        setLoadedModels(true);
       }
     } catch (e) {
-      console.warn("Failed to load catalog on demand:", e);
+      console.warn("Failed to load vehicle models on demand:", e);
     } finally {
       setModuleLoading(false);
     }
-  }, [loadedCatalog]);
+  }, [loadedModels]);
+
+  const loadVehicles = useCallback(async () => {
+    if (loadedVehicles) return;
+    setModuleLoading(true);
+    try {
+      const res = await api<{ vehicles: Vehicle[] }>("/api/portal/vehicles");
+      if (res) {
+        setData((prev) => (prev ? { ...prev, vehicles: res.vehicles || [] } : prev));
+        setLoadedVehicles(true);
+      }
+    } catch (e) {
+      console.warn("Failed to load vehicles on demand:", e);
+    } finally {
+      setModuleLoading(false);
+    }
+  }, [loadedVehicles]);
 
   useEffect(() => {
     if (!data) return;
-    const catalogModules: AdminModule[] = ["dashboard", "vehicle_models", "vehicles"];
-    if (catalogModules.includes(activeAdminModule)) {
-      void loadCatalogIfNeeded();
+    if (data.vehicleModels && data.vehicleModels.length > 0 && !loadedModels) {
+      setLoadedModels(true);
     }
-  }, [data, activeAdminModule, loadCatalogIfNeeded]);
+    if (data.vehicles && data.vehicles.length > 0 && !loadedVehicles) {
+      setLoadedVehicles(true);
+    }
+    const timer = setTimeout(() => {
+      if (activeAdminModule === "vehicle_models" && !loadedModels && (!data.vehicleModels || data.vehicleModels.length === 0)) {
+        void loadModels();
+      } else if (activeAdminModule === "vehicles" && !loadedVehicles && (!data.vehicles || data.vehicles.length === 0)) {
+        void loadVehicles();
+      }
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [data, activeAdminModule, loadedModels, loadedVehicles, loadModels, loadVehicles]);
 
   const handleModuleChange = (module: AdminModule) => {
     setActiveAdminModule(module);
@@ -1329,7 +1359,7 @@ function AdminPortal({
           <header className="mb-6 flex flex-col gap-4 border-b border-white/10 pb-5 xl:flex-row xl:items-end xl:justify-between">
             <div>
               <p className="text-[10px] font-black uppercase tracking-[.24em] text-[#22b8aa]">
-                {adminRoleLabels[data.user.role]} View / Feishu Base
+                {adminRoleLabels[data.user.role]} View
               </p>
               <h1 className="mt-2 text-3xl font-black tracking-tight text-white sm:text-4xl">{activeItem ? t(activeItem.labelKey) : t("portal.navDashboard")}</h1>
             </div>
@@ -1374,8 +1404,8 @@ function AdminPortal({
 function ModuleLoadingSkeleton() {
   return (
     <Loading
-      text="Loading Feishu Base data..."
-      subtext="Connecting to the source system and loading the latest records."
+      text="Loading data..."
+      subtext="Fetching the latest records from database."
       size="lg"
       fullscreen={false}
       className="rounded-2xl border border-teal-500/20 bg-white/[.03] p-12 shadow-2xl backdrop-blur-md"
@@ -1435,7 +1465,7 @@ function AdminDashboard({ data }: { data: BootstrapData }) {
       </section>
 
       <section className="grid min-w-0 gap-5 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,.9fr)]">
-        <AdminPanel title={t("portal.recentInquiries")} subtitle="Latest records from the Feishu Inquiries and Quotes tables">
+        <AdminPanel title={t("portal.recentInquiries")} subtitle="Latest records for inquiries and quotes">
           <AdminTable
             headers={[t("portal.inquiryNo"), t("portal.vehicle"), t("portal.quantity"), t("portal.status"), t("portal.latestQuote")]}
             rows={latestInquiries.map((inquiry) => {
@@ -1628,13 +1658,13 @@ function AdminProfiles({ data }: { data: BootstrapData }) {
 
   return (
     <div className="grid gap-5">
-      <AdminPanel title={t("portal.titleModels")} subtitle="Complete Feishu Base model data, including battery, motor, dimensions, driving assistance, and export fields.">
-        {/* Feishu banner */}
+      <AdminPanel title={t("portal.titleModels")} subtitle="Complete vehicle model data, including battery, motor, dimensions, driving assistance, and export fields.">
+        {/* Model catalogue banner */}
         <div className="mb-5 flex flex-col gap-3 rounded-2xl border border-[#22b8aa]/30 bg-[#22b8aa]/10 p-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
             <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#22b8aa]/20 text-lg">{"\u{1F5BC}\uFE0F"}</div>
             <div>
-              <strong className="block text-sm font-bold text-white">Live Feishu model catalogue</strong>
+              <strong className="block text-sm font-bold text-white">Live vehicle model catalogue</strong>
               <p className="mt-0.5 text-xs text-slate-300">Includes image galleries, configuration details, and current inventory pricing for public viewing.</p>
             </div>
           </div>
@@ -1644,7 +1674,7 @@ function AdminProfiles({ data }: { data: BootstrapData }) {
             rel="noopener noreferrer"
             className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-[#22b8aa] px-4 py-2.5 text-xs font-black text-[#0c1322] transition hover:bg-[#5ee6d8]"
           >
-            <span>Open Feishu catalogue →</span>
+            <span>Open catalogue →</span>
           </a>
         </div>
 
@@ -1792,10 +1822,6 @@ function AdminVehicles({ data, onEdit, onRefresh }: { data: BootstrapData; onEdi
   const canSeeSupplier = data.user.role !== "partner" && data.user.role !== "customer";
   const canSeeLocation = data.user.role !== "partner" && data.user.role !== "customer";
   const effectiveSupplierFilter = canSeeSupplier ? supplierFilter : "all";
-
-  useEffect(() => {
-    if (!canSeeSupplier && supplierFilter !== "all") setSupplierFilter("all");
-  }, [canSeeSupplier, supplierFilter]);
 
   // 从真实数据中动态提取下拉筛选选项
   const brandOptions = useMemo(() => {
@@ -2284,7 +2310,7 @@ function AdminLogistics({ data }: { data: BootstrapData }) {
 function AdminCustomers({ data }: { data: BootstrapData }) {
   const customers = data.customers || [];
   return (
-    <AdminPanel title="Customer Accounts" subtitle="External accounts and price permissions from the Feishu table">
+    <AdminPanel title="Customer Accounts" subtitle="External accounts and price permissions">
       <AdminTable
         headers={["Customer ID", "Company", "Contact", "Email", "Role", "Price Tier", "Country", "Status"]}
         rows={customers.map((customer) => [
@@ -2325,7 +2351,7 @@ function AdminStaff({ data }: { data: BootstrapData }) {
         ];
 
   return (
-    <AdminPanel title="Staff Accounts" subtitle="Internal accounts and permissions from the Feishu table">
+    <AdminPanel title="Staff Accounts" subtitle="Internal accounts and permissions">
       <AdminTable
         headers={["User ID", "Name", "Email", "Role", "Permissions", "Department", "Status"]}
         rows={rows.map((row) => [
@@ -2549,7 +2575,7 @@ function VehicleEditModal({ vehicle, onClose, onSaved }: { vehicle: Vehicle; onC
             Cancel
           </Button>
           <Button disabled={saving} variant="default">
-            {saving ? "Saving..." : "Save to Feishu"}
+            {saving ? "Saving..." : "Save Changes"}
           </Button>
         </div>
       </form>
