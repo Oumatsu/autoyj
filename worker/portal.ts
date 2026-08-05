@@ -190,7 +190,9 @@ function requireEnv(env: Env, key: keyof Env): string {
 
 function optionalEnv(env: Env, key: keyof Env): string {
   const value = env[key];
-  return value ? String(value) : "";
+  if (value) return String(value);
+  if (key === "FEISHU_BASE_APP_TOKEN") return "Is6Xb3btbazhFhsDXgFcqFG1nRc";
+  return "";
 }
 
 function asText(value: unknown): string {
