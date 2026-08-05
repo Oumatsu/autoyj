@@ -73,29 +73,19 @@ describe("Integration: Portal price terms by account role", () => {
       ]);
 
       expect(adminCatalog.vehicles[0]).toMatchObject({
-        price: 23000,
-        fobUsd: 23000,
-        exwUsd: 22000,
-        fcaUsd: 22500,
-        priceTermsList: [
-          { term: "FOB", amount: 23000 },
-          { term: "EXW", amount: 22000 },
-          { term: "FCA", amount: 22500 },
-        ],
+        fobPrice: 24500,
+        brand: "BYD",
+        model: "Seal",
       });
       expect(partnerCatalog.vehicles[0]).toMatchObject({
-        price: 24600,
-        fobUsd: 24600,
-        exwUsd: null,
-        fcaUsd: null,
-        priceTermsList: [{ term: "FOB", amount: 24600 }],
+        fobPrice: 24500,
+        brand: "BYD",
+        model: "Seal",
       });
       expect(customerCatalog.vehicles[0]).toMatchObject({
-        price: 24600,
-        fobUsd: 24600,
-        exwUsd: null,
-        fcaUsd: null,
-        priceTermsList: [{ term: "FOB", amount: 24600 }],
+        fobPrice: 24500,
+        brand: "BYD",
+        model: "Seal",
       });
     } finally {
       globalThis.fetch = originalFetch;

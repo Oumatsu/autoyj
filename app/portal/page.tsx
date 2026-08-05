@@ -505,6 +505,7 @@ let globalBootstrapPromise: Promise<BootstrapData | null> | null = null;
 export default function PortalPage() {
   const [email, setEmail] = useState("");
   const [accessCode, setAccessCode] = useState("");
+  const [busy, setBusy] = useState(false);
   const [data, setData] = useState<BootstrapData | null>(() => globalBootstrapData);
   const [loading, setLoading] = useState(!globalBootstrapData);
   const [error, setError] = useState("");
@@ -544,24 +545,28 @@ export default function PortalPage() {
   const [counterPrice, setCounterPrice] = useState("");
   const [counterMessage, setCounterMessage] = useState("");
 
+  const refreshVehicles = useCallback(async () => {
+    try {
+      const catalog = await api<BootstrapData>("/api/portal/catalog?refresh=1");
+      if (catalog) {
+        setData(catalog);
+        globalBootstrapData = catalog;
+      }
+    } catch (err) {
+      console.error("Failed to refresh catalog:", err);
+    }
+  }, []);
+
   const checkSessionAndLoad = useCallback(async (force = false) => {
     if (force) {
       globalBootstrapData = null;
       globalBootstrapPromise = null;
-      setLoadedCatalog(false);
     }
 
-    // 1. 鑻ラ潪寮哄埗鏇存柊涓斿凡鏈夊叏灞€鏁版嵁缂撳瓨锛岀灛闂村搷搴旓紝0 娆?API 璇锋眰
-    if (!force && globalBootstrapData) {
-      setData(globalBootstrapData);
-      setLoading(false);
-      return;
-    }
-    // 2. 鑻ラ潪寮哄埗鏇存柊涓斿凡鏈夎繘琛屼腑鐨?API 璇锋眰锛屽鐢?Promise 閬垮厤閲嶅骞跺彂鍙戣姹?
     if (!force && globalBootstrapPromise) {
       try {
         const res = await globalBootstrapPromise;
-        if (res) setData(res);
+        setData(res);
       } finally {
         setLoading(false);
       }
@@ -728,7 +733,6 @@ export default function PortalPage() {
       });
       globalBootstrapData = null;
       globalBootstrapPromise = null;
-      setLoadedCatalog(false);
       await checkSessionAndLoad(true);
       if (typeof window !== "undefined") {
         window.dispatchEvent(new Event("youguard-session-changed"));
@@ -755,7 +759,6 @@ export default function PortalPage() {
       });
       globalBootstrapData = null;
       globalBootstrapPromise = null;
-      setLoadedCatalog(false);
       await checkSessionAndLoad(true);
       if (typeof window !== "undefined") {
         window.dispatchEvent(new Event("youguard-session-changed"));
@@ -777,7 +780,6 @@ export default function PortalPage() {
     await api("/api/portal/session", { method: "DELETE" });
     globalBootstrapData = null;
     globalBootstrapPromise = null;
-    setLoadedCatalog(false);
     setData(null);
     setActiveAdminModule("dashboard");
     setSelectedSellableModel(null);
@@ -940,7 +942,7 @@ export default function PortalPage() {
       onLogout={logout}
       onModuleChange={handleModuleChange}
       onReload={checkSessionAndLoad}
-      onRefreshVehicles={() => loadCatalogIfNeeded(true)}
+      onRefreshVehicles={refreshVehicles}
     />
   );
 

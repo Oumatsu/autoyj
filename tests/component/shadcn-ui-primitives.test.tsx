@@ -42,7 +42,7 @@ describe("Component: shadcn/ui Primitives Comprehensive Suite", () => {
     );
     expect(html).toContain("Click Me");
     expect(html).toContain("custom-btn-test");
-    expect(html).toContain("border border-white/10");
+    expect(html).toContain("border border-border");
   });
 
   test("Badge renders default, secondary, and accent variants with ARIA attributes", () => {

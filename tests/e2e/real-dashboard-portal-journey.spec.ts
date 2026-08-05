@@ -123,8 +123,8 @@ test.describe("Tier 4: E2E Real Portal Login & Logout Interactive Journey", () =
     await page.locator("a[href='/dashboard?tab=vehicles']").click();
     await expect(page.locator("[role='status']")).toHaveCount(0, { timeout: 15000 });
 
-    const resetButton = page.getByRole("button", { name: /^重置$/ });
-    const refreshButton = page.getByRole("button", { name: /^刷新$/ });
+    const resetButton = page.getByRole("button", { name: /Reset|重置/i });
+    const refreshButton = page.getByRole("button", { name: /Refresh|刷新/i });
     const searchInput = page.locator("input").first();
     await expect(resetButton).toBeVisible();
     await expect(refreshButton).toBeVisible();
@@ -186,16 +186,16 @@ test.describe("Tier 4: E2E Real Portal Login & Logout Interactive Journey", () =
     await page.locator("form button[type='submit'], form button", { hasText: /Sign In/i }).click();
 
     await page.locator("a[href='/dashboard?tab=vehicles']").click();
-    await page.getByRole("button", { name: "查看版本" }).first().click();
+    await page.getByRole("button", { name: /View trims|查看版本|Trims/i }).first().click();
 
-    await page.getByRole("button", { name: /\u67e5\u770b\u989c\u8272/ }).first().click();
+    await page.getByRole("button", { name: /View colors|查看颜色|Colors/i }).first().click();
 
     const headers = page.getByRole("columnheader");
-    await expect(headers.nth(0)).toHaveText("外观 / 内饰颜色");
-    await expect(headers.nth(1)).toHaveText("库存数量");
-    await expect(headers.nth(2)).toHaveText("供应商");
-    await expect(headers.nth(3)).toHaveText("车源地点");
-    await expect(headers.nth(4)).toHaveText("美金报价");
+    await expect(headers.nth(0)).toHaveText(/Color|外观 \/ 内饰颜色/i);
+    await expect(headers.nth(1)).toHaveText(/Stock|库存数量/i);
+    await expect(headers.nth(2)).toHaveText(/Supplier|供应商/i);
+    await expect(headers.nth(3)).toHaveText(/Location|车源地点/i);
+    await expect(headers.nth(4)).toHaveText(/Price|FOB Price|美金报价/i);
     await expect(page.getByRole("columnheader", { name: "资源 ID" })).toHaveCount(0);
   });
 });

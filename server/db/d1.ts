@@ -256,27 +256,43 @@ export async function upsertVehicles(db: D1Database, rows: D1Vehicle[]): Promise
 // Read helpers (used by API handlers)
 // ---------------------------------------------------------------------------
 
+/** Helper to execute D1 queries with a single automatic retry on transient network drops */
+async function withD1Retry<T>(fn: () => Promise<T>): Promise<T> {
+  try {
+    return await fn();
+  } catch (error) {
+    console.warn("D1 query failed, retrying once...", error);
+    return await fn();
+  }
+}
+
 export async function queryVehicleModels(db: D1Database): Promise<D1VehicleModel[]> {
-  const result = await db.prepare(
-    `SELECT * FROM vehicle_models WHERE status IS NULL OR status NOT IN ('archived','draft','disabled','下架','停售') ORDER BY brand, model`
-  ).all<D1VehicleModel>();
-  return result.results;
+  return withD1Retry(async () => {
+    const result = await db.prepare(
+      `SELECT * FROM vehicle_models WHERE status IS NULL OR status NOT IN ('archived','draft','disabled','下架','停售') ORDER BY brand, model`
+    ).all<D1VehicleModel>();
+    return result.results;
+  });
 }
 
 export async function queryVehicleTrims(db: D1Database, modelId?: string): Promise<D1VehicleTrim[]> {
-  if (modelId) {
-    const result = await db.prepare(
-      `SELECT * FROM vehicle_trims WHERE model_id = ? ORDER BY trim_name`
-    ).bind(modelId).all<D1VehicleTrim>();
+  return withD1Retry(async () => {
+    if (modelId) {
+      const result = await db.prepare(
+        `SELECT * FROM vehicle_trims WHERE model_id = ? ORDER BY trim_name`
+      ).bind(modelId).all<D1VehicleTrim>();
+      return result.results;
+    }
+    const result = await db.prepare(`SELECT * FROM vehicle_trims ORDER BY model_id, trim_name`).all<D1VehicleTrim>();
     return result.results;
-  }
-  const result = await db.prepare(`SELECT * FROM vehicle_trims ORDER BY model_id, trim_name`).all<D1VehicleTrim>();
-  return result.results;
+  });
 }
 
 export async function queryVehicles(db: D1Database): Promise<D1Vehicle[]> {
-  const result = await db.prepare(
-    `SELECT * FROM vehicles WHERE stage = 'connected' ORDER BY brand, model`
-  ).all<D1Vehicle>();
-  return result.results;
+  return withD1Retry(async () => {
+    const result = await db.prepare(
+      `SELECT * FROM vehicles WHERE stage = 'connected' ORDER BY brand, model`
+    ).all<D1Vehicle>();
+    return result.results;
+  });
 }
