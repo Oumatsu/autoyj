@@ -99,11 +99,11 @@ export function proxy(request: NextRequest) {
 export const config = {
   matcher: [
     /*
-     * Match all paths EXCEPT:
-     * - _next/static, _next/image (Next.js internals)
-     * - api routes
-     * - Files with extensions (images, fonts, woff, etc.)
+     * Match all request paths except Next.js internals and static files.
+     * Fine-grained static-file exclusion (svg, png, woff, etc.) is handled
+     * inside the proxy() function body so we don't need complex regex here.
+     * vinext rejects quantifiers like `woff2?` in matcher patterns.
      */
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js|woff2?|ttf|eot|map)).*)",
+    "/((?!_next/static|_next/image|favicon.ico).*)",
   ],
 };

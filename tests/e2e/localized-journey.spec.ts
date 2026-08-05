@@ -14,25 +14,43 @@ import { expect, test } from "@playwright/test";
 // ---------------------------------------------------------------------------
 // 1. proxy.ts: root redirect → defaultLocale
 // ---------------------------------------------------------------------------
-test.describe("proxy.ts — root redirect", () => {
-  test("GET / redirects to /{defaultLocale} (307 → zh)", async ({ page }) => {
+test.describe("proxy.ts — root redirect & Accept-Language resolution", () => {
+  test.beforeEach(async ({ context }) => {
+    await context.clearCookies();
+  });
+
+  test("GET / with zh-CN Accept-Language redirects to /zh", async ({ browser }) => {
+    const context = await browser.newContext({ locale: "zh-CN" });
+    const page = await context.newPage();
     const response = await page.goto("/", { waitUntil: "networkidle" });
-    // After following redirects Playwright lands on the final URL
     await expect(page).toHaveURL(/\/zh(\/|$)/);
-    // Response chain includes a 307 (Playwright follows it)
-    // Verify we didn't get a 404 or 500
     expect(response?.status()).not.toBe(404);
     expect(response?.status()).not.toBe(500);
+    await context.close();
   });
 
-  test("GET /products (no locale) redirects to /zh/products", async ({ page }) => {
+  test("GET / with unsupported Accept-Language (fr-FR) falls back to defaultLocale /zh", async ({ browser }) => {
+    const context = await browser.newContext({ locale: "fr-FR" });
+    const page = await context.newPage();
+    await page.goto("/", { waitUntil: "networkidle" });
+    await expect(page).toHaveURL(/\/zh(\/|$)/);
+    await context.close();
+  });
+
+  test("GET /products with en-US Accept-Language redirects to /en/products", async ({ browser }) => {
+    const context = await browser.newContext({ locale: "en-US" });
+    const page = await context.newPage();
     await page.goto("/products", { waitUntil: "networkidle" });
-    await expect(page).toHaveURL(/\/zh\/products/);
+    await expect(page).toHaveURL(/\/en\/products/);
+    await context.close();
   });
 
-  test("GET /about (no locale) redirects to /zh/about", async ({ page }) => {
+  test("GET /about with zh-CN Accept-Language redirects to /zh/about", async ({ browser }) => {
+    const context = await browser.newContext({ locale: "zh-CN" });
+    const page = await context.newPage();
     await page.goto("/about", { waitUntil: "networkidle" });
     await expect(page).toHaveURL(/\/zh\/about/);
+    await context.close();
   });
 });
 
