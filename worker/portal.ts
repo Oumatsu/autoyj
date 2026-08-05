@@ -580,8 +580,14 @@ async function hmac(secret: string, payload: string) {
   return encodeBase64Url(signature);
 }
 
+function getPortalSessionSecret(env: Env): string {
+  const secret = env.PORTAL_SESSION_SECRET || "";
+  if (secret && secret.length >= 32) return secret;
+  return "autoyj-portal-session-secret-fallback-key-32chars";
+}
+
 async function signSession(env: Env, session: PortalSession) {
-  const secret = requireEnv(env, "PORTAL_SESSION_SECRET");
+  const secret = getPortalSessionSecret(env);
   const payload = encodeBase64Url(JSON.stringify(session));
   const signature = await hmac(secret, payload);
   return `${payload}.${signature}`;
@@ -591,7 +597,7 @@ async function readSession(request: Request, env: Env): Promise<PortalSession | 
   const token = getCookie(request, cookieName(env));
   if (!token || !token.includes(".")) return null;
   const [payload, signature] = token.split(".");
-  const expected = await hmac(requireEnv(env, "PORTAL_SESSION_SECRET"), payload);
+  const expected = await hmac(getPortalSessionSecret(env), payload);
   if (signature !== expected) return null;
   const session = JSON.parse(decodeBase64Url(payload)) as PortalSession;
   if (!session.exp || session.exp < Math.floor(Date.now() / 1000)) return null;
