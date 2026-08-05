@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useCallback, useMemo } from "react";
-import Link from "next/link";
+import { LocaleLink } from "@/i18n/LocaleLink";
+
 import { useTranslation } from "@/i18n/useTranslation";
 import {
   detailModelKey,
@@ -510,9 +511,9 @@ function TrimPoster({ data, v, t }: { data: DetailData; v: DetailData["vehicle"]
                 {t("productsDetail.ui.trimFramework", "Trim Framework - Standard Equipment Across Every Version") as string}
               </h3>
             </div>
-            <Link href="/contact" className="btn-primary px-7 py-3 rounded text-xs font-black tracking-widest uppercase italic flex-shrink-0">
+            <LocaleLink href="/contact" className="btn-primary px-7 py-3 rounded text-xs font-black tracking-widest uppercase italic flex-shrink-0">
               {t("productsDetail.ui.requestTrimPricing", "Request Trim Pricing") as string}
-            </Link>
+            </LocaleLink>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
             {commonGroups.map((group) => (
@@ -678,11 +679,11 @@ export default function VehicleDetail({ data: rawData }: { data: DetailData }) {
 
         <div className="relative z-10 container mx-auto px-4 sm:px-6 md:px-12 pb-12 lg:pb-20 pt-20 lg:pt-36">
           <nav className="hidden min-[504px]:flex items-center gap-2 text-[10px] font-black tracking-widest uppercase mb-8 text-gray-600">
-            <Link href="/" className="hover:text-gray-400 transition">{t("productsDetail.ui.home", "Home")}</Link>
+            <LocaleLink href="/" className="hover:text-gray-400 transition">{t("productsDetail.ui.home", "Home")}</LocaleLink>
             <span>/</span>
-            <Link href={`/products/${data.category}`} className="hover:text-accent transition text-accent">
+            <LocaleLink href={`/products/${data.category}`} className="hover:text-accent transition text-accent">
               {data.category === "revenue-king" ? t("productsDetail.ui.revenueKing", "Revenue King") : data.category === "elite-flagship" ? t("productsDetail.ui.eliteFlagship", "Elite Flagship") : t("productsDetail.ui.utilityPro", "Utility Pro")}
-            </Link>
+            </LocaleLink>
             <span>/</span>
             <span className="text-gray-500">{v.brand} {v.name}</span>
           </nav>
@@ -698,8 +699,8 @@ export default function VehicleDetail({ data: rawData }: { data: DetailData }) {
               <p className="text-2xl font-light italic text-gray-500 mb-8">{data.subtitle}</p>
               <p className="hidden lg:block text-gray-300 text-base font-light leading-relaxed mb-10 max-w-lg italic border-l-2 pl-6" style={{ borderColor: "rgba(16,185,129,.45)" }}>{data.heroDesc}</p>
               <div className="hidden min-[456px]:flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4">
-                <a href="/qr" className="btn-primary px-6 sm:px-9 py-3 sm:py-4 rounded text-xs sm:text-sm font-black tracking-widest uppercase italic shadow-lg text-center">{t("productsDetail.ui.whatsappInquiry", "WhatsApp Inquiry")}</a>
-                <Link href="#specs" className="px-6 sm:px-9 py-3 sm:py-4 rounded text-xs sm:text-sm font-black tracking-widest uppercase italic border border-accent/40 text-accent hover:bg-accent hover:text-black transition text-center">{t("productsDetail.ui.viewFullSpecs", "View Full Specs") as string} ↓</Link>
+                <LocaleLink href="/qr" className="btn-primary px-6 sm:px-9 py-3 sm:py-4 rounded text-xs sm:text-sm font-black tracking-widest uppercase italic shadow-lg text-center">{t("productsDetail.ui.whatsappInquiry", "WhatsApp Inquiry")}</LocaleLink>
+                <LocaleLink href="#specs" className="px-6 sm:px-9 py-3 sm:py-4 rounded text-xs sm:text-sm font-black tracking-widest uppercase italic border border-accent/40 text-accent hover:bg-accent hover:text-black transition text-center">{t("productsDetail.ui.viewFullSpecs", "View Full Specs") as string} ↓</LocaleLink>
               </div>
             </div>
             <div className="hidden min-[812px]:grid grid-cols-3 gap-3">
@@ -708,7 +709,7 @@ export default function VehicleDetail({ data: rawData }: { data: DetailData }) {
               <div className="glass rounded-[1.5rem] p-5 text-center border-accent/20"><div className="text-xl font-black italic text-white mb-1">{data.stat3Value}</div><div className="text-[8px] font-black tracking-[.25em] uppercase text-gray-600">{t("productsDetail.ui.battery", "Battery")}</div></div>
               <div className="col-span-3 glass rounded-[1.5rem] px-6 py-4 flex items-center justify-between border-theme/10">
                 <div className="flex items-center gap-2.5"><div className="pulse-dot" /><span className="text-[10px] font-black tracking-widest uppercase text-gray-500">{t("productsDetail.ui.factoryPrice", "Factory Price")}</span></div>
-                <Link href="/solutions/request-quote" className="text-[10px] font-black tracking-widest uppercase text-theme hover:text-white transition">{t("productsDetail.ui.requestBatchQuote", "Request Batch Quote") as string} →</Link>
+                <LocaleLink href="/solutions/request-quote" className="text-[10px] font-black tracking-widest uppercase text-theme hover:text-white transition">{t("productsDetail.ui.requestBatchQuote", "Request Batch Quote") as string} →</LocaleLink>
               </div>
             </div>
           </div>
@@ -847,7 +848,7 @@ export default function VehicleDetail({ data: rawData }: { data: DetailData }) {
                 <div className="flex justify-between text-xs"><span className="text-gray-600 font-black uppercase tracking-wider">{t("productsDetail.ui.marginPerUnit", "Margin / unit")}</span><span className="text-theme font-black">{batchMargin.low} – {batchMargin.high}</span></div>
                 <div className="flex justify-between text-xs border-t pt-3" style={{ borderColor: "rgba(255,255,255,.05)" }}><span className="text-gray-400 font-black uppercase tracking-wider">{t("productsDetail.ui.totalGross", "Total gross")}</span><span className="text-accent font-black">{batch.display}</span></div>
               </div>
-             <p className="text-[9px] text-gray-700 text-center">*{t("productsDetail.ui.pricingDisclaimer", "Based on typical emerging market retail pricing.")} <Link href="/solutions/request-quote" className="text-theme hover:text-white transition">{t("productsDetail.ui.requestDetailedQuote", "Request a detailed quote")}</Link>.</p>
+             <p className="text-[9px] text-gray-700 text-center">*{t("productsDetail.ui.pricingDisclaimer", "Based on typical emerging market retail pricing.")} <LocaleLink href="/solutions/request-quote" className="text-theme hover:text-white transition">{t("productsDetail.ui.requestDetailedQuote", "Request a detailed quote")}</LocaleLink>.</p>
             </div>
           </div>
         </div>
@@ -960,9 +961,9 @@ export default function VehicleDetail({ data: rawData }: { data: DetailData }) {
                    <span key={i}>{line}{i < arr.length - 1 ? <br /> : null}</span>
                  ))}
               </p>
-              <Link href="/contact" className="btn-primary px-5 sm:px-7 py-2.5 sm:py-3 rounded text-[10px] sm:text-xs font-black tracking-widest uppercase italic flex-shrink-0 whitespace-nowrap">
+              <LocaleLink href="/contact" className="btn-primary px-5 sm:px-7 py-2.5 sm:py-3 rounded text-[10px] sm:text-xs font-black tracking-widest uppercase italic flex-shrink-0 whitespace-nowrap">
                 Request Trim Pricing →
-              </Link>
+              </LocaleLink>
             </div>
           </div>
         </section>
