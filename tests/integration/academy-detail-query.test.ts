@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 
 describe("Integration: Academy Detail Query & Feishu Handler", () => {
   test("Academy lesson detail avoids the invalid Feishu slug filter and finds the published lesson locally", async () => {
-    const source = await readFile(new URL("../../worker/portal.ts", import.meta.url), "utf8");
+    const source = await readFile(new URL("../../server/api/portal.ts", import.meta.url), "utf8");
     const match = source.match(
       /async function handlePublicAcademyLesson\([\s\S]*?(?=export async function handlePortalRequest)/
     );

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { handlePortalRequest } from "../../worker/portal";
+import { handlePortalRequest } from "../../server/api/portal";
 
 const env = {
   DEV: true,

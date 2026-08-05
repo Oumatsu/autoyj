@@ -53,7 +53,7 @@ describe("Unit: Insights Article Translation Resolvers", () => {
   });
 
   test("Base record pagination follows Feishu page tokens", async () => {
-    const source = await readFile(new URL("../../worker/portal.ts", import.meta.url), "utf8");
+    const source = await readFile(new URL("../../server/api/portal.ts", import.meta.url), "utf8");
     const searchRecords = source.slice(
       source.indexOf("async function searchRecords"),
       source.indexOf("async function createRecord")

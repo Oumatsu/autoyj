@@ -5,7 +5,7 @@ const root = new URL("../../", import.meta.url);
 
 describe("Integration: Worker API Contracts & Feishu Base Schema Rules", () => {
   test("Worker reads the new snake_case Base schema without legacy field fallbacks", async () => {
-    const source = await readFile(new URL("worker/portal.ts", root), "utf8");
+    const source = await readFile(new URL("server/api/portal.ts", root), "utf8");
     for (const legacyField of [
       "Model ID",
       "Product Path",
@@ -50,7 +50,7 @@ describe("Integration: Worker API Contracts & Feishu Base Schema Rules", () => {
   });
 
   test("vehicles are mapped from vehicle sources table", async () => {
-    const source = await readFile(new URL("worker/portal.ts", root), "utf8");
+    const source = await readFile(new URL("server/api/portal.ts", root), "utf8");
     expect(source).toMatch(/mapVehicleSource/);
     expect(source).not.toMatch(/requireEnv\(env, "FEISHU_TABLE_VEHICLES"\)/);
     expect(source).not.toMatch(/fields\["Is Listed"\]/);
@@ -85,7 +85,7 @@ describe("Integration: Worker API Contracts & Feishu Base Schema Rules", () => {
   });
 
   test("catalog and detail prices prefer company display prices", async () => {
-    const source = await readFile(new URL("worker/portal.ts", root), "utf8");
+    const source = await readFile(new URL("server/api/portal.ts", root), "utf8");
     expect(source).toMatch(/fields\.display_price_low/);
     expect(source).toMatch(/fields\.display_price_high/);
     expect(source).toMatch(/if \(displayPrice\) return displayPrice/);
