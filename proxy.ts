@@ -47,7 +47,6 @@ export function proxy(request: NextRequest) {
   if (
     pathname.startsWith("/_next") ||
     pathname.startsWith("/api") ||
-    pathname.startsWith("/portal") ||
     pathname.startsWith("/favicon") ||
     pathname.startsWith("/logo") ||
     pathname.startsWith("/icons") ||
@@ -65,6 +64,23 @@ export function proxy(request: NextRequest) {
   if (locales.includes(pathLocale as Locale)) {
     const response = NextResponse.next();
     response.cookies.set(LOCALE_COOKIE_NAME, pathLocale, {
+      maxAge: COOKIE_TTL_1Y,
+      path: "/",
+      sameSite: "lax",
+    });
+    return response;
+  }
+
+  if (
+    pathname === "/dashboard" ||
+    pathname.startsWith("/dashboard/") ||
+    pathname === "/portal" ||
+    pathname.startsWith("/portal/")
+  ) {
+    const url = request.nextUrl.clone();
+    url.pathname = `/en${pathname}`;
+    const response = NextResponse.redirect(url, { status: 307 });
+    response.cookies.set(LOCALE_COOKIE_NAME, "en", {
       maxAge: COOKIE_TTL_1Y,
       path: "/",
       sameSite: "lax",

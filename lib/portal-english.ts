@@ -31,7 +31,6 @@ export function formatPortalStatus(status: string | null | undefined): string {
 
   return translations[normalized] || normalized;
 }
-
 type PortalLocale = "zh" | "en" | "am";
 
 const vehicleEnglishTerms: Array<[string, string]> = [

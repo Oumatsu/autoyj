@@ -27,8 +27,8 @@ export type FeishuAuthUser = {
  */
 export function createFeishuAuth(env: Record<string, string | undefined> = {}) {
   const secret = env.PORTAL_SESSION_SECRET;
-  const resolvedSecret = secret && secret.length >= 32 
-    ? secret 
+  const resolvedSecret = secret && secret.length >= 32
+    ? secret
     : "autoyj-portal-session-secret-fallback-key-32chars";
   if (!secret || secret.length < 32) {
     console.warn("[auth] PORTAL_SESSION_SECRET not set or too short — using default fallback key");

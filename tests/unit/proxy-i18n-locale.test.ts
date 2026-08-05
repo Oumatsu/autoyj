@@ -141,7 +141,6 @@ describe("Unit: proxy.ts — static file / passthrough path rules", () => {
     return (
       pathname.startsWith("/_next") ||
       pathname.startsWith("/api") ||
-      pathname.startsWith("/portal") ||
       pathname.startsWith("/favicon") ||
       pathname.startsWith("/logo") ||
       pathname.startsWith("/icons") ||
@@ -162,9 +161,9 @@ describe("Unit: proxy.ts — static file / passthrough path rules", () => {
     expect(shouldSkip("/api/auth/sign-in")).toBe(true);
   });
 
-  test("portal paths are skipped (handled by own auth layer)", () => {
-    expect(shouldSkip("/portal")).toBe(true);
-    expect(shouldSkip("/portal/dashboard")).toBe(true);
+  test("portal paths remain locale candidates", () => {
+    expect(shouldSkip("/portal")).toBe(false);
+    expect(shouldSkip("/portal/dashboard")).toBe(false);
   });
 
   test("static asset paths are skipped", () => {
