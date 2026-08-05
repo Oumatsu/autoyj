@@ -641,6 +641,7 @@ async function feishuToken(env: Env) {
         app_id: appId,
         app_secret: appSecret,
       }),
+      signal: AbortSignal.timeout(8000),
     });
     const data = (await response.json()) as { code?: number; msg?: string; tenant_access_token?: string; expire?: number };
     if (!response.ok || data.code !== 0 || !data.tenant_access_token) {
@@ -691,6 +692,7 @@ async function feishuRequest<T>(
       "content-type": "application/json; charset=utf-8",
     },
     body: body ? JSON.stringify(body) : undefined,
+    signal: AbortSignal.timeout(8000),
   });
   const data = (await response.json()) as { code?: number; msg?: string; data?: T };
   if (!response.ok || data.code !== 0) {
