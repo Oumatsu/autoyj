@@ -3,8 +3,16 @@
 import { buildProductFilterData } from "./productFilters";
 import { createFeishuAuth } from "../../lib/auth";
 import { findLocalUser } from "../../lib/users";
+import {
+  upsertVehicleModels,
+  upsertVehicleTrims,
+  upsertVehicles,
+  queryVehicleModels,
+  queryVehicleTrims,
+  queryVehicles,
+} from "../db/d1";
 
-type Env = {
+export type Env = {
   FEISHU_API_URL?: string;
   FEISHU_APP_ID?: string;
   FEISHU_APP_SECRET?: string;
@@ -25,9 +33,11 @@ type Env = {
   FEISHU_TABLE_INSIGHTS?: string;
   FEISHU_TABLE_VEHICLE_TRIM_CONFIGURATIONS?: string;
   DEV?: boolean;
+  /** Cloudflare D1 database binding — read by API handlers, written by Cron Job */
+  PORTAL_DB?: D1Database;
 };
 
-type PortalRole = "admin" | "sales" | "sourcing" | "finance" | "partner" | "customer";
+export type PortalRole = "admin" | "sales" | "sourcing" | "finance" | "partner" | "customer";
 type PriceTier = "hidden" | "partner" | "vip" | "internal";
 type AccountType = "internal" | "external";
 
@@ -46,15 +56,15 @@ type BaseRecordListResponse = {
   total?: number;
 };
 
-type PortalSession = {
+export type PortalSession = {
   userId: string;
-  customerId: string;
-  name: string;
+  customerId?: string;
+  name?: string;
   email: string;
   accountType: AccountType;
   role: PortalRole;
-  priceTier: PriceTier;
-  company: string;
+  priceTier?: PriceTier;
+  company?: string;
   exp: number;
 };
 
@@ -724,7 +734,7 @@ function delay(ms: number) {
   });
 }
 
-async function searchRecords(
+export async function searchRecords(
   env: Env,
   tableId: string,
   options: { filter?: Record<string, unknown>; sort?: unknown[]; pageSize?: number; maxPages?: number; viewId?: string } = {},
@@ -1640,48 +1650,67 @@ async function handleGetCatalog(request: Request, env: Env) {
   });
 }
 
-export async function fetchAndCacheVehicles(env: Env, session: PortalSession) {
-  const cacheKey = `vehicles_v4:${session.role}:${session.customerId || "internal"}`;
-  const vehicleSourceTableId = optionalEnv(env, "FEISHU_TABLE_VEHICLES") || "tblte61W3fKoXmSw";
+// ─── Cron-only: fetch Feishu and write to D1 ────────────────────────────────
 
-  const rawVehicleSourceRecords = vehicleSourceTableId
+export async function syncVehiclesToD1(env: Env): Promise<{ synced: number }> {
+  if (!env.PORTAL_DB) return { synced: 0 };
+
+  const vehicleSourceTableId = optionalEnv(env, "FEISHU_TABLE_VEHICLES") || "tblte61W3fKoXmSw";
+  const rawRecords = vehicleSourceTableId
     ? await searchRecords(env, vehicleSourceTableId, { pageSize: 500, maxPages: 50 }).catch(() => [])
     : [];
 
-  const vehicleSourceRecords = rawVehicleSourceRecords.filter((record) => {
-    const stage = parseSourceStage(record.fields);
-    return stage === "connected";
+  const now = new Date().toISOString();
+  const rows = rawRecords.map((record) => {
+    const f = record.fields;
+    const stage = parseSourceStage(f);
+    const fobUsd =
+      asOptionalNumber(f["FOB美金价"]) ||
+      asOptionalNumber(f.fob_usd) ||
+      asOptionalNumber(f["网站显示美金最低价"]) ||
+      asOptionalNumber(f.display_price_low);
+    return {
+      id: record.record_id,
+      vehicle_id: asText(f.vehicle_id) || null,
+      model_id: asText(f.model_id) || null,
+      brand: asText(f["品牌"] ?? f.brand) || null,
+      model: asText(f["型号"] ?? f.model) || null,
+      variant: asText(f["细分型号"] ?? f.variant) || null,
+      stage,
+      steering: asText(f["左右舵"] ?? f.steering) || null,
+      location: asText(f["批发地点"] ?? f["车源地点"] ?? f.location) || null,
+      supplier: asText(f["供应商"] ?? f.supplier) || null,
+      display_price_low: fobUsd ?? null,
+      display_price_high: fobUsd ?? null,
+      currency: "USD",
+      min_order_quantity: asOptionalNumber(f["起订数量"] ?? f.min_order_quantity) ?? null,
+      inventory_count:
+        asOptionalNumber(f["颜色库存"] ?? f.color_stock_quantity) ??
+        asOptionalNumber(f["细分车型库存"] ?? f.trim_stock_quantity) ??
+        null,
+      powertrain_type: asText(f.powertrain_type) || null,
+      color: [asText(f["外饰颜色"] ?? f.exterior_color), asText(f["内饰颜色"] ?? f.interior_color)]
+        .filter(Boolean).join(" / ") || null,
+      color_code: null,
+      image_url: null,
+      gallery_images_json: null,
+      specs_json: null,
+      ai_confidence_score: asOptionalNumber(f["AI置信度"]) ?? computeAiConfidenceScore(f),
+      synced_at: now,
+    };
   });
 
-  const mappedVehicles = vehicleSourceRecords.map((record) => mapVehicleSource(record, session));
-  const vehicles = mappedVehicles.length ? mappedVehicles : getBaselineVehicles(session);
-  const resPayload = { vehicles };
-  setCached(cacheKey, resPayload);
-  return resPayload;
+  await upsertVehicles(env.PORTAL_DB, rows);
+  return { synced: rows.length };
 }
 
-async function handleGetVehicles(request: Request, env: Env) {
-  const session = await requireSession(request, env);
-  const cacheKey = `vehicles_v4:${session.role}:${session.customerId || "internal"}`;
-  const cachedData = getCached(cacheKey);
-  if (cachedData) {
-    return json(cachedData);
-  }
+export async function syncVehicleModelsToDB(env: Env): Promise<{ models: number; trims: number }> {
+  if (!env.PORTAL_DB) return { models: 0, trims: 0 };
 
-  // Asynchronously fetch Feishu data in background to update cache without blocking user
-  singleFlight(cacheKey, () => fetchAndCacheVehicles(env, session)).catch(() => {});
-
-  // Return baseline dataset instantly (< 1ms)
-  const vehicles = getBaselineVehicles(session);
-  return json({ vehicles });
-}
-
-export async function fetchAndCacheVehicleModels(env: Env, session: PortalSession) {
-  const cacheKey = `vehicle_models_v3:${session.role}`;
   const vehicleModelTableId = optionalEnv(env, "FEISHU_TABLE_VEHICLE_MODELS") || "tblxVNjP9dnJ7b3o";
   const vehicleVariantTableId = optionalEnv(env, "FEISHU_TABLE_VEHICLE_TRIM_CONFIGURATIONS") || "tbl8YzkZkMxvHRoT";
 
-  const [vehicleModelRecords, vehicleVariantRecords] = await Promise.all([
+  const [modelRecords, trimRecords] = await Promise.all([
     vehicleModelTableId
       ? searchRecords(env, vehicleModelTableId, { pageSize: 500, maxPages: 50 }).catch(() => [])
       : Promise.resolve([]),
@@ -1690,33 +1719,219 @@ export async function fetchAndCacheVehicleModels(env: Env, session: PortalSessio
       : Promise.resolve([]),
   ]);
 
-  const modelDataset = buildVehicleModelDataset(vehicleModelRecords, vehicleVariantRecords);
-  const vehicleModelSpecs = modelDataset.vehicleModelSpecs;
-  const mappedModels = modelDataset.vehicleModels;
-  const activeModels = mappedModels.filter((m) => {
-    const st = (m.status || "active").toLowerCase().trim();
-    return st === "active" || st === "published" || st === "online" || st === "在售" || st === "启用" || !/archived|draft|disabled|下架|停售/i.test(st);
-  });
-  const fetchedModels = enrichVehicleModelsWithSpecs(activeModels.length ? activeModels : mappedModels, vehicleModelSpecs);
-  const vehicleModels = fetchedModels.length ? fetchedModels : getBaselineVehicleModels();
+  const now = new Date().toISOString();
 
-  const resPayload = { vehicleModels, vehicleModelSpecs };
-  setCached(cacheKey, resPayload);
-  return resPayload;
+  const modelRows = modelRecords.map((record) => {
+    const f = record.fields;
+    return {
+      id: asText(f.model_id) || record.record_id,
+      model_id: asText(f.model_id) || null,
+      brand: asText(f.brand) || null,
+      model: asText(f.model) || null,
+      status: asText(f.status) || null,
+      powertrain_type: asText(f.powertrain_type) || null,
+      segment: asText(f.segment) || null,
+      vehicle_class: asText(f.vehicle_class) || null,
+      display_price_low: asOptionalNumber(f.display_price_low) ?? null,
+      display_price_high: asOptionalNumber(f.display_price_high) ?? null,
+      image_url: asText(f.image_url) || null,
+      hero_description: asText(f.hero_description) || null,
+      page_title: asText(f.page_title) || null,
+      page_subtitle: asText(f.page_subtitle) || null,
+      product_path: productPath(f),
+      cltc_range_min_km: asOptionalNumber(f.cltc_range_min_km_auto) ?? null,
+      cltc_range_max_km: asOptionalNumber(f.cltc_range_max_km_auto) ?? null,
+      battery_capacity_min_kwh: asOptionalNumber(f.battery_capacity_min_kwh_auto) ?? null,
+      battery_capacity_max_kwh: asOptionalNumber(f.battery_capacity_max_kwh_auto) ?? null,
+      motor_power_min_kw: asOptionalNumber(f.motor_power_min_kw_auto) ?? null,
+      motor_power_max_kw: asOptionalNumber(f.motor_power_max_kw_auto) ?? null,
+      top_speed_min_kmh: asOptionalNumber(f.top_speed_min_kmh) ?? null,
+      top_speed_max_kmh: asOptionalNumber(f.top_speed_max_kmh) ?? null,
+      zero_to_100_sec: asOptionalNumber(f["0_100_km_h_sec"]) ?? null,
+      wheelbase_mm: asOptionalNumber(f.wheelbase_mm) ?? null,
+      length_mm: asOptionalNumber(f.length_mm) ?? null,
+      width_mm: asOptionalNumber(f.width_mm) ?? null,
+      height_mm: asOptionalNumber(f.height_mm) ?? null,
+      seats_min: asOptionalNumber(f.seats_min) ?? null,
+      seats_max: asOptionalNumber(f.seats_max) ?? null,
+      voltage_platform_v: asOptionalNumber(f.voltage_platform_v) ?? null,
+      ground_clearance_mm: asOptionalNumber(f.ground_clearance_mm) ?? null,
+      boot_volume_l: asOptionalNumber(f.boot_volume_l) ?? null,
+      drivetrain_display: asText(f.drivetrain_display_auto) || null,
+      battery_chemistry: asText(f.battery_chemistry_auto) || null,
+      battery_technology: asText(f.battery_technology) || null,
+      steering_setup: asText(f.steering_setup) || null,
+      sunroof_availability: asText(f.sunroof_availability) || null,
+      v2l_availability: asText(f.v2l_availability) || null,
+      v2l_output_power_kw: asOptionalNumber(f.v2l_output_power_kw) ?? null,
+      ac_slow_charge_supported: asText(f.ac_slow_charge_supported) === "Yes" ? 1 : 0,
+      ac_slow_charge_full_time_hours: asOptionalNumber(f.ac_slow_charge_full_time_hours) ?? null,
+      battery_warranty_years: asOptionalNumber(f.battery_warranty_years) ?? null,
+      battery_warranty_distance_km: asOptionalNumber(f.battery_warranty_distance_km) ?? null,
+      gallery_images_json: JSON.stringify(f.gallery_images_json ?? null),
+      common_features_json: typeof f.common_features_json_pruned === "string" ? f.common_features_json_pruned : JSON.stringify(f.common_features_json_pruned ?? null),
+      i18n_translations: typeof f.i18n_translations === "string" ? f.i18n_translations : JSON.stringify(f.i18n_translations ?? null),
+      inventory_status: asText(f.inventory_status) || null,
+      version: asText(f.version) || null,
+      synced_at: now,
+    };
+  });
+
+  const modelIdByRecordId = new Map<string, string>();
+  for (const record of modelRecords) {
+    const modelId = asText(record.fields.model_id);
+    if (modelId) modelIdByRecordId.set(record.record_id, modelId);
+  }
+
+  const trimRows = trimRecords.map((record) => {
+    const f = record.fields;
+    const linkedModelId = linkedRecordIds(f.vehicle_model_pruned)
+      .map((rid) => modelIdByRecordId.get(rid))
+      .find(Boolean);
+    const modelId = asText(f.model_id) || linkedModelId || "";
+    return {
+      id: record.record_id,
+      model_id: modelId,
+      parent_model_record_id: linkedRecordIds(f.vehicle_model_pruned)[0] ?? null,
+      trim_name: asText(f.MODEL ?? f.model) || null,
+      status: asText(f.status) || null,
+      display_price_low: asOptionalNumber(f.display_price_low) ?? null,
+      display_price_high: asOptionalNumber(f.display_price_high) ?? null,
+      powertrain_type: asText(f.powertrain_type) || null,
+      cltc_range_km: asOptionalNumber(f.cltc_range_km ?? f.cltc_range_max_km_auto) ?? null,
+      battery_capacity_kwh: asOptionalNumber(f.battery_capacity_kwh ?? f.battery_capacity_max_kwh_auto) ?? null,
+      motor_power_kw: asOptionalNumber(f.motor_power_kw ?? f.motor_power_max_kw_auto) ?? null,
+      top_speed_kmh: asOptionalNumber(f.top_speed_kmh ?? f.top_speed_max_kmh) ?? null,
+      zero_to_100_sec: asOptionalNumber(f["0_100_km_h_sec"]) ?? null,
+      specs_json: typeof f.trim_configurations_pruned === "string" ? f.trim_configurations_pruned : JSON.stringify(f.trim_configurations_pruned ?? null),
+      synced_at: now,
+    };
+  });
+
+  await Promise.all([
+    upsertVehicleModels(env.PORTAL_DB, modelRows),
+    upsertVehicleTrims(env.PORTAL_DB, trimRows),
+  ]);
+
+  return { models: modelRows.length, trims: trimRows.length };
+}
+
+// ─── API handlers: read ONLY from D1, zero Feishu calls ─────────────────────
+
+async function handleGetVehicles(request: Request, env: Env) {
+  const session = await requireSession(request, env);
+
+  // Read from D1 if available (primary source)
+  if (env.PORTAL_DB) {
+
+    const rows = await queryVehicles(env.PORTAL_DB).catch(() => []);
+    if (rows.length > 0) {
+      const canSeePrice = canSeePortalPrice(session);
+      const vehicles = rows.map((row) => ({
+        id: row.id,
+        modelId: row.model_id,
+        brand: row.brand,
+        model: row.model,
+        trim: row.variant,
+        supplier: row.supplier,
+        steering: row.steering,
+        location: row.location,
+        stage: row.stage,
+        price: canSeePrice ? row.display_price_low : null,
+        fobUsd: canSeePrice ? row.display_price_low : null,
+        currency: row.currency || "USD",
+        minOrderQuantity: row.min_order_quantity,
+        stockQuantity: row.inventory_count,
+        powertrain_type: row.powertrain_type,
+        color: row.color,
+        aiConfidence: row.ai_confidence_score,
+        isApproved: true,
+        canSeePrice,
+        syncedAt: row.synced_at,
+      }));
+      return json({ vehicles });
+    }
+  }
+
+  // Fallback: baseline if D1 not populated yet
+  return json({ vehicles: getBaselineVehicles(session) });
 }
 
 async function handleGetVehicleModels(request: Request, env: Env) {
   const session = await requireSession(request, env);
-  const cacheKey = `vehicle_models_v3:${session.role}`;
-  const cachedData = getCached(cacheKey);
-  if (cachedData) {
-    return json(cachedData);
+
+  // Read from D1 if available (primary source)
+  if (env.PORTAL_DB) {
+
+    const [modelRows, trimRows] = await Promise.all([
+      queryVehicleModels(env.PORTAL_DB).catch(() => []),
+      queryVehicleTrims(env.PORTAL_DB).catch(() => []),
+    ]);
+
+    if (modelRows.length > 0) {
+      const vehicleModels: PortalVehicleModel[] = modelRows.map((row) => ({
+        id: row.id,
+        brand: row.brand ?? "",
+        model: row.model ?? "",
+        trim: row.version ?? "",
+        year: "",
+        bodyType: row.vehicle_class ?? row.segment ?? "",
+        fuelType: row.powertrain_type ?? "",
+        msrpChina: row.display_price_low != null ? `¥${formatNumber(row.display_price_low)}` : "",
+        battery: row.battery_capacity_max_kwh != null ? `${row.battery_capacity_max_kwh} kWh` : "",
+        batteryType: row.battery_chemistry ?? "",
+        batteryMaker: "",
+        range: row.cltc_range_max_km != null ? `${row.cltc_range_max_km} km (CLTC)` : "",
+        energyConsumption: "",
+        motorPower: row.motor_power_max_kw != null ? `${row.motor_power_max_kw} kW` : "",
+        motorTorque: "",
+        driveType: row.drivetrain_display ?? "",
+        topSpeed: row.top_speed_max_kmh != null ? `${row.top_speed_max_kmh} km/h` : "",
+        acceleration: row.zero_to_100_sec != null ? `${row.zero_to_100_sec} sec` : "",
+        seats: row.seats_max != null ? `${row.seats_max} seats` : "",
+        doors: "",
+        dimensions: [row.length_mm, row.width_mm, row.height_mm].every((v) => v != null)
+          ? `${row.length_mm} x ${row.width_mm} x ${row.height_mm} mm` : "",
+        wheelbase: row.wheelbase_mm != null ? `${row.wheelbase_mm} mm` : "",
+        curbWeight: "",
+        trunkCapacity: row.boot_volume_l != null ? `${row.boot_volume_l} L` : "",
+        charging: "",
+        frontSuspension: "",
+        rearSuspension: "",
+        adas: "",
+        marketPosition: row.page_subtitle ?? "",
+        exportNotes: "",
+        imageUrl: row.image_url ?? "",
+        brochureUrl: "",
+        sourceUrl: row.product_path ?? "",
+        sourceName: "",
+        lastSyncedAt: row.synced_at,
+        fullSpecsJson: "",
+        status: row.status ?? "Active",
+      }));
+
+      // Build specs from trim rows
+      const vehicleModelSpecs: PortalVehicleModelSpec[] = trimRows.map((trim) => ({
+        id: trim.id,
+        modelId: trim.model_id,
+        name: trim.trim_name ?? "",
+        status: trim.status ?? "",
+        displayPriceLow: trim.display_price_low ?? undefined,
+        displayPriceHigh: trim.display_price_high ?? undefined,
+        powertrainType: trim.powertrain_type ?? undefined,
+        cltcRangeKm: trim.cltc_range_km ?? undefined,
+        batteryCapacityKwh: trim.battery_capacity_kwh ?? undefined,
+        motorPowerKw: trim.motor_power_kw ?? undefined,
+        topSpeedKmh: trim.top_speed_kmh ?? undefined,
+        zeroTo100Sec: trim.zero_to_100_sec ?? undefined,
+        specsJson: trim.specs_json ?? undefined,
+      }));
+
+      return json({ vehicleModels, vehicleModelSpecs });
+    }
   }
 
-  // Asynchronously fetch Feishu data in background to update cache without blocking user
-  singleFlight(cacheKey, () => fetchAndCacheVehicleModels(env, session)).catch(() => {});
-
-  // Return baseline dataset instantly (< 1ms)
+  // Fallback: baseline if D1 not populated yet
   const vehicleModels = getBaselineVehicleModels();
   const vehicleModelSpecs: PortalVehicleModelSpec[] = [];
   return json({ vehicleModels, vehicleModelSpecs });

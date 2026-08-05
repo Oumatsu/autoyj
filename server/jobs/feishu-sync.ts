@@ -1,37 +1,43 @@
-import type { Env, PortalSession } from "../api/portal";
-import { fetchAndCacheVehicleModels, fetchAndCacheVehicles } from "../api/portal";
+import type { Env } from "../api/portal";
+import { syncVehicleModelsToDB, syncVehiclesToD1 } from "../api/portal";
 
 /**
- * Scheduled Cron Job — Runs every 10 minutes in Cloudflare Worker background.
- * Fetches latest records from Feishu Bitable, sanitizes them, and updates edge caches.
- * Ensures user-facing HTTP requests read ONLY from cache with 0ms/near-0ms latency.
+ * Scheduled Cron Job — Runs every 10 minutes via Cloudflare Workers.
+ *
+ * Architecture:
+ *   Feishu Bitable API → (this cron job) → D1 database
+ *   API handlers → D1 database only (zero Feishu calls)
+ *
+ * This is the ONLY place in the system that calls Feishu.
+ * All user-facing API handlers read purely from D1.
  */
-export async function runFeishuScheduledSync(env: Env): Promise<void> {
-  console.log("[cron-job:feishu-sync] Starting 10-minute scheduled synchronization with Feishu Base...");
+export async function runFeishuScheduledSync(env: Env): Promise<{ models: number; trims: number; vehicles: number; elapsed: number }> {
+  console.log("[cron:feishu-sync] Starting sync: Feishu → D1...");
   const startTime = Date.now();
 
-  try {
-    const fakeAdminSession: PortalSession = {
-      userId: "system-cron-job",
-      email: "cron@autoyj.local",
-      role: "admin",
-      accountType: "internal",
-      exp: Math.floor(Date.now() / 1000) + 3600,
-    };
+  const [modelsResult, vehiclesResult] = await Promise.allSettled([
+    syncVehicleModelsToDB(env),
+    syncVehiclesToD1(env),
+  ]);
 
-    const [modelsResult, vehiclesResult] = await Promise.allSettled([
-      fetchAndCacheVehicleModels(env, fakeAdminSession),
-      fetchAndCacheVehicles(env, fakeAdminSession),
-    ]);
+  const elapsed = Date.now() - startTime;
+  let models = 0, trims = 0, vehicles = 0;
 
-    const elapsed = Date.now() - startTime;
-    const modelsSuccess = modelsResult.status === "fulfilled";
-    const vehiclesSuccess = vehiclesResult.status === "fulfilled";
-
-    console.log(
-      `[cron-job:feishu-sync] Finished in ${elapsed}ms | Models: ${modelsSuccess ? "SUCCESS" : "FAILED"} | Vehicles: ${vehiclesSuccess ? "SUCCESS" : "FAILED"}`
-    );
-  } catch (err) {
-    console.error("[cron-job:feishu-sync] Fatal error during scheduled sync:", err);
+  if (modelsResult.status === "fulfilled") {
+    models = modelsResult.value.models;
+    trims = modelsResult.value.trims;
+    console.log(`[cron:feishu-sync] ✓ Vehicle models: ${models} models + ${trims} trims written to D1`);
+  } else {
+    console.error("[cron:feishu-sync] ✗ Vehicle models sync failed:", modelsResult.reason);
   }
+
+  if (vehiclesResult.status === "fulfilled") {
+    vehicles = vehiclesResult.value.synced;
+    console.log(`[cron:feishu-sync] ✓ Vehicles: ${vehicles} records written to D1`);
+  } else {
+    console.error("[cron:feishu-sync] ✗ Vehicles sync failed:", vehiclesResult.reason);
+  }
+
+  console.log(`[cron:feishu-sync] Done in ${elapsed}ms`);
+  return { models, trims, vehicles, elapsed };
 }

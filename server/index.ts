@@ -33,6 +33,7 @@ interface Env {
   FEISHU_TABLE_ACADEMY_VAULT?: string;
   FEISHU_TABLE_VEHICLE_TRIM_CONFIGURATIONS?: string;
   FEISHU_TABLE_INSIGHTS?: string;
+  PORTAL_DB?: D1Database;
 }
 
 interface ExecutionContext {
@@ -66,6 +67,21 @@ export default {
 
     if (url.pathname.startsWith("/api/portal/")) {
       return handlePortalRequest(request, env);
+    }
+
+    // Manual cron trigger for testing (protected by secret header)
+    if (url.pathname === "/api/admin/sync-now" && request.headers.get("x-admin-key") === (env.PORTAL_SESSION_SECRET || "")) {
+      try {
+        const result = await runFeishuScheduledSync(env);
+        return new Response(JSON.stringify({ ok: true, ...result }), {
+          headers: { "Content-Type": "application/json" },
+        });
+      } catch (e) {
+        return new Response(JSON.stringify({ ok: false, error: String(e) }), {
+          status: 500,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
     }
 
     return handler.fetch(request, env, ctx);
