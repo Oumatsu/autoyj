@@ -1353,7 +1353,7 @@ function AdminPortal({
           <header className="mb-6 flex flex-col gap-4 border-b border-white/10 pb-5 xl:flex-row xl:items-end xl:justify-between">
             <div>
               <p className="text-[10px] font-black uppercase tracking-[.24em] text-[#22b8aa]">
-                {adminRoleLabels[data.user.role]} View / Feishu Base
+                {adminRoleLabels[data.user.role]} View
               </p>
               <h1 className="mt-2 text-3xl font-black tracking-tight text-white sm:text-4xl">{activeItem ? t(activeItem.labelKey) : t("portal.navDashboard")}</h1>
             </div>
@@ -1398,8 +1398,8 @@ function AdminPortal({
 function ModuleLoadingSkeleton() {
   return (
     <Loading
-      text="Loading Feishu Base data..."
-      subtext="Connecting to the source system and loading the latest records."
+      text="Loading data..."
+      subtext="Fetching the latest records from database."
       size="lg"
       fullscreen={false}
       className="rounded-2xl border border-teal-500/20 bg-white/[.03] p-12 shadow-2xl backdrop-blur-md"
@@ -1459,7 +1459,7 @@ function AdminDashboard({ data }: { data: BootstrapData }) {
       </section>
 
       <section className="grid min-w-0 gap-5 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,.9fr)]">
-        <AdminPanel title={t("portal.recentInquiries")} subtitle="Latest records from the Feishu Inquiries and Quotes tables">
+        <AdminPanel title={t("portal.recentInquiries")} subtitle="Latest records for inquiries and quotes">
           <AdminTable
             headers={[t("portal.inquiryNo"), t("portal.vehicle"), t("portal.quantity"), t("portal.status"), t("portal.latestQuote")]}
             rows={latestInquiries.map((inquiry) => {
@@ -1652,13 +1652,13 @@ function AdminProfiles({ data }: { data: BootstrapData }) {
 
   return (
     <div className="grid gap-5">
-      <AdminPanel title={t("portal.titleModels")} subtitle="Complete Feishu Base model data, including battery, motor, dimensions, driving assistance, and export fields.">
-        {/* Feishu banner */}
+      <AdminPanel title={t("portal.titleModels")} subtitle="Complete vehicle model data, including battery, motor, dimensions, driving assistance, and export fields.">
+        {/* Model catalogue banner */}
         <div className="mb-5 flex flex-col gap-3 rounded-2xl border border-[#22b8aa]/30 bg-[#22b8aa]/10 p-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
             <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#22b8aa]/20 text-lg">{"\u{1F5BC}\uFE0F"}</div>
             <div>
-              <strong className="block text-sm font-bold text-white">Live Feishu model catalogue</strong>
+              <strong className="block text-sm font-bold text-white">Live vehicle model catalogue</strong>
               <p className="mt-0.5 text-xs text-slate-300">Includes image galleries, configuration details, and current inventory pricing for public viewing.</p>
             </div>
           </div>
@@ -1668,7 +1668,7 @@ function AdminProfiles({ data }: { data: BootstrapData }) {
             rel="noopener noreferrer"
             className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-[#22b8aa] px-4 py-2.5 text-xs font-black text-[#0c1322] transition hover:bg-[#5ee6d8]"
           >
-            <span>Open Feishu catalogue →</span>
+            <span>Open catalogue →</span>
           </a>
         </div>
 
@@ -2304,7 +2304,7 @@ function AdminLogistics({ data }: { data: BootstrapData }) {
 function AdminCustomers({ data }: { data: BootstrapData }) {
   const customers = data.customers || [];
   return (
-    <AdminPanel title="Customer Accounts" subtitle="External accounts and price permissions from the Feishu table">
+    <AdminPanel title="Customer Accounts" subtitle="External accounts and price permissions">
       <AdminTable
         headers={["Customer ID", "Company", "Contact", "Email", "Role", "Price Tier", "Country", "Status"]}
         rows={customers.map((customer) => [
@@ -2345,7 +2345,7 @@ function AdminStaff({ data }: { data: BootstrapData }) {
         ];
 
   return (
-    <AdminPanel title="Staff Accounts" subtitle="Internal accounts and permissions from the Feishu table">
+    <AdminPanel title="Staff Accounts" subtitle="Internal accounts and permissions">
       <AdminTable
         headers={["User ID", "Name", "Email", "Role", "Permissions", "Department", "Status"]}
         rows={rows.map((row) => [
@@ -2569,7 +2569,7 @@ function VehicleEditModal({ vehicle, onClose, onSaved }: { vehicle: Vehicle; onC
             Cancel
           </Button>
           <Button disabled={saving} variant="default">
-            {saving ? "Saving..." : "Save to Feishu"}
+            {saving ? "Saving..." : "Save Changes"}
           </Button>
         </div>
       </form>
