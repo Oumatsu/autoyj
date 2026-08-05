@@ -129,6 +129,3 @@ bun run deploy
 | **后台车型库** | `tblxVNjP9dnJ7b3o` (View: `vewppBx2ht`) | 品牌/车系规格 |
 | **车型配置表** | `tbl8YzkZkMxvHRoT` (View: `vew1Se8rpJ`) | 详细参数与差异配置 |
 | **车辆资源表** | `tblte61W3fKoXmSw` (View: `vewCyPzSbJ`) | 供应商库存与报价资源 |
-| **询价单** | `tblEL6AHiMiWhkVj` | 客户询价线索 |
-| **报价单** | `tblIY4WdBVqvkZf0` | 销售对外报价记录 |
-| **订单管理** | `tblFxuRqSt2oAu0H` | 交易履约与交车追踪 |
