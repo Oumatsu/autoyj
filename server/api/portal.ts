@@ -1668,8 +1668,12 @@ async function handleGetVehicles(request: Request, env: Env) {
     return json(cachedData);
   }
 
-  const payload = await singleFlight(cacheKey, () => fetchAndCacheVehicles(env, session));
-  return json(payload);
+  // Asynchronously fetch Feishu data in background to update cache without blocking user
+  singleFlight(cacheKey, () => fetchAndCacheVehicles(env, session)).catch(() => {});
+
+  // Return baseline dataset instantly (< 1ms)
+  const vehicles = getBaselineVehicles(session);
+  return json({ vehicles });
 }
 
 export async function fetchAndCacheVehicleModels(env: Env, session: PortalSession) {
@@ -1709,8 +1713,13 @@ async function handleGetVehicleModels(request: Request, env: Env) {
     return json(cachedData);
   }
 
-  const payload = await singleFlight(cacheKey, () => fetchAndCacheVehicleModels(env, session));
-  return json(payload);
+  // Asynchronously fetch Feishu data in background to update cache without blocking user
+  singleFlight(cacheKey, () => fetchAndCacheVehicleModels(env, session)).catch(() => {});
+
+  // Return baseline dataset instantly (< 1ms)
+  const vehicleModels = getBaselineVehicleModels();
+  const vehicleModelSpecs: PortalVehicleModelSpec[] = [];
+  return json({ vehicleModels, vehicleModelSpecs });
 }
 
 function getBaselineVehicleModels(): PortalVehicleModel[] {
