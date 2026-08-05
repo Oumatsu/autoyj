@@ -734,7 +734,7 @@ async function searchRecords(
   const pageSize = Math.min(options.pageSize || 100, 500);
   const records: FeishuRecord[] = [];
   let pageToken = "";
-  const maxPages = options.maxPages || 1;
+  const maxPages = options.maxPages || 50;
 
   for (let page = 0; page < maxPages; page++) {
     let data: BaseRecordListResponse;
@@ -1643,10 +1643,9 @@ async function handleGetCatalog(request: Request, env: Env) {
 export async function fetchAndCacheVehicles(env: Env, session: PortalSession) {
   const cacheKey = `vehicles_v4:${session.role}:${session.customerId || "internal"}`;
   const vehicleSourceTableId = optionalEnv(env, "FEISHU_TABLE_VEHICLES") || "tblte61W3fKoXmSw";
-  const vehicleSourceViewId = optionalEnv(env, "FEISHU_VIEW_VEHICLES") || "vewCyPzSbJ";
 
   const rawVehicleSourceRecords = vehicleSourceTableId
-    ? await searchRecords(env, vehicleSourceTableId, { pageSize: 500, maxPages: 5, viewId: vehicleSourceViewId }).catch(() => [])
+    ? await searchRecords(env, vehicleSourceTableId, { pageSize: 500, maxPages: 50 }).catch(() => [])
     : [];
 
   const vehicleSourceRecords = rawVehicleSourceRecords.filter((record) => {
@@ -1669,28 +1668,21 @@ async function handleGetVehicles(request: Request, env: Env) {
     return json(cachedData);
   }
 
-  // Trigger background fetch to populate cache asynchronously without blocking the user
-  singleFlight(cacheKey, () => fetchAndCacheVehicles(env, session)).catch(() => {});
-
-  // Return baseline vehicles immediately (< 5ms response time)
-  const vehicles = getBaselineVehicles(session);
-  return json({ vehicles });
+  const payload = await singleFlight(cacheKey, () => fetchAndCacheVehicles(env, session));
+  return json(payload);
 }
 
 export async function fetchAndCacheVehicleModels(env: Env, session: PortalSession) {
   const cacheKey = `vehicle_models_v3:${session.role}`;
   const vehicleModelTableId = optionalEnv(env, "FEISHU_TABLE_VEHICLE_MODELS") || "tblxVNjP9dnJ7b3o";
-  const vehicleModelViewId = optionalEnv(env, "FEISHU_VIEW_PROFILES") || "vewppBx2ht";
-
   const vehicleVariantTableId = optionalEnv(env, "FEISHU_TABLE_VEHICLE_TRIM_CONFIGURATIONS") || "tbl8YzkZkMxvHRoT";
-  const vehicleVariantViewId = optionalEnv(env, "FEISHU_VIEW_VEHICLE_TRIM_CONFIGURATIONS") || "vew1Se8rpJ";
 
   const [vehicleModelRecords, vehicleVariantRecords] = await Promise.all([
     vehicleModelTableId
-      ? searchRecords(env, vehicleModelTableId, { pageSize: 500, maxPages: 5, viewId: vehicleModelViewId }).catch(() => [])
+      ? searchRecords(env, vehicleModelTableId, { pageSize: 500, maxPages: 50 }).catch(() => [])
       : Promise.resolve([]),
     vehicleVariantTableId
-      ? searchRecords(env, vehicleVariantTableId, { pageSize: 500, maxPages: 5, viewId: vehicleVariantViewId }).catch(() => [])
+      ? searchRecords(env, vehicleVariantTableId, { pageSize: 500, maxPages: 50 }).catch(() => [])
       : Promise.resolve([]),
   ]);
 
@@ -1717,13 +1709,8 @@ async function handleGetVehicleModels(request: Request, env: Env) {
     return json(cachedData);
   }
 
-  // Trigger background fetch to populate cache asynchronously without blocking the user
-  singleFlight(cacheKey, () => fetchAndCacheVehicleModels(env, session)).catch(() => {});
-
-  // Return baseline models immediately (< 5ms response time)
-  const vehicleModels = getBaselineVehicleModels();
-  const vehicleModelSpecs: PortalVehicleModelSpec[] = [];
-  return json({ vehicleModels, vehicleModelSpecs });
+  const payload = await singleFlight(cacheKey, () => fetchAndCacheVehicleModels(env, session));
+  return json(payload);
 }
 
 function getBaselineVehicleModels(): PortalVehicleModel[] {
