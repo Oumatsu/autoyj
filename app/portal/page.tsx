@@ -21,7 +21,7 @@ import { Progress } from "@/components/ui/progress";
 import { RefreshCw } from "lucide-react";
 import { useTranslation } from "@/i18n/useTranslation";
 import { sanitizeDisplayData } from "@/lib/display-text";
-import { formatPortalStatus, localizeVehicleValue, portalRoleLabels } from "@/lib/portal-english";
+import { formatPortalRole, formatPortalStatus, localizeVehicleValue, portalRoleLabels } from "@/lib/portal-english";
 
 type PortalRole = "admin" | "sales" | "sourcing" | "finance" | "partner" | "customer";
 type PriceTier = "hidden" | "partner" | "vip" | "internal";
@@ -306,6 +306,9 @@ type Negotiation = {
   createdAt: string;
 };
 
+type InquiryNote = { id: string; noteId: string; inquiryNo: string; parentNoteId: string; authorUserId: string; authorName: string; authorRole: string; body: string; createdAt: string; deletedAt?: string; };
+type InquiryStatusHistory = { id: string; historyId: string; inquiryNo: string; fromStatus: string; toStatus: string; actorName: string; actorRole: string; createdAt: string; };
+
 type Order = {
   id: string;
   orderNo: string;
@@ -335,6 +338,8 @@ type BootstrapData = {
   inquiries: Inquiry[];
   quotes: Quote[];
   negotiations: Negotiation[];
+  inquiryNotes: InquiryNote[];
+  inquiryStatusHistory: InquiryStatusHistory[];
   orders: Order[];
   internalUsers: InternalUser[];
   customers: Customer[];
@@ -690,7 +695,7 @@ export default function PortalPage() {
     const timer = setTimeout(() => {
       if (activeAdminModule === "vehicle_models" && !loadedModels && (!data.vehicleModels || data.vehicleModels.length === 0)) {
         void loadModels();
-      } else if (activeAdminModule === "vehicles" && !loadedVehicles && (!data.vehicles || data.vehicles.length === 0)) {
+      } else if ((activeAdminModule === "vehicles" || activeAdminModule === "quotes") && !loadedVehicles && (!data.vehicles || data.vehicles.length === 0)) {
         void loadVehicles();
       }
     }, 0);
@@ -1257,7 +1262,7 @@ function AdminPortal({
   error: string;
   isModuleLoading?: boolean;
 }) {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const visibleNav = adminNavItems.filter((item) => item.roles.includes(data.user.role));
@@ -1283,8 +1288,8 @@ function AdminPortal({
                 EV
               </div>
               <div className={`min-w-0 flex-1 ${sidebarCollapsed ? "lg:hidden" : ""}`}>
-                <strong className="block truncate text-lg font-black tracking-tight text-white">Export Operations</strong>
-                <span className="mt-0.5 block text-xs font-medium text-slate-400">China / Ethiopia</span>
+                <strong className="block truncate text-lg font-black tracking-tight text-white">{t("portal.exportOperations")}</strong>
+                <span className="mt-0.5 block text-xs font-medium text-slate-400">{t("portal.chinaEthiopia")}</span>
               </div>
               <Button
                 type="button"
@@ -1343,7 +1348,7 @@ function AdminPortal({
               </Avatar>
               <div className={`min-w-0 flex-1 ${sidebarCollapsed ? "lg:hidden" : ""}`}>
                 <strong className="block truncate text-xs font-black text-white">{data.user.name || data.user.email}</strong>
-                <p className="truncate text-[10px] text-slate-400">{adminRoleLabels[data.user.role]} · {data.user.accountType}</p>
+                <p className="truncate text-[10px] text-slate-400">{formatPortalRole(data.user.role, locale)} · {data.user.accountType}</p>
               </div>
             </div>
             <Button
@@ -1352,7 +1357,7 @@ function AdminPortal({
               onClick={() => void onLogout()}
               className={`mt-3 w-full ${sidebarCollapsed ? "lg:h-9 lg:px-0 lg:text-[0px] lg:after:content-['鈫?] lg:after:text-xs" : ""}`}
             >
-              Sign out
+              {t("portal.navSignOut")}
             </Button>
           </div>
         </aside>
@@ -1366,9 +1371,9 @@ function AdminPortal({
               <h1 className="mt-2 text-3xl font-black tracking-tight text-white sm:text-4xl">{activeItem ? t(activeItem.labelKey) : t("portal.navDashboard")}</h1>
             </div>
             <div className="grid w-full min-w-0 gap-2 text-xs text-slate-400 sm:grid-cols-3 xl:max-w-[520px]">
-              <AdminTopMetric label="Stock Units" value={String(totalStock)} />
-              <AdminTopMetric label="Open Inquiries" value={String(openInquiries)} />
-              <AdminTopMetric label="Order Value" value={formatUsdStrict(orderTotal)} />
+              <AdminTopMetric label={t("portal.stockUnits")} value={String(totalStock)} />
+              <AdminTopMetric label={t("portal.openInquiries")} value={String(openInquiries)} />
+              <AdminTopMetric label={t("portal.orderValue")} value={formatUsdStrict(orderTotal)} />
             </div>
           </header>
 
@@ -1815,6 +1820,7 @@ function AdminVehicles({ data, onEdit, onRefresh }: { data: BootstrapData; onEdi
   const { t, locale } = useTranslation();
   const sellableModels = buildSellableModels(data);
   const [expandedModels, setExpandedModels] = useState<Set<string>>(() => new Set());
+  const [inquiryVehicleId, setInquiryVehicleId] = useState("");
   const [expandedVariants, setExpandedVariants] = useState<Set<string>>(() => new Set());
   const [searchQuery, setSearchQuery] = useState("");
   const [supplyFilter, setSupplyFilter] = useState("all");
@@ -2038,22 +2044,22 @@ function AdminVehicles({ data, onEdit, onRefresh }: { data: BootstrapData; onEdi
                           {localizeVehicleValue(item.brand, locale)} {localizeVehicleValue(item.model, locale)}
                       </h2>
                       <p className="mt-0.5 text-xs font-medium text-slate-400">
-                        {variants.length > 0 ? `${variants.length} trims` : ""}
+                        {variants.length > 0 ? localizeVehicleValue(`${variants.length} trims`, locale) : ""}
                         {variants.length > 0 && item.hasStockQuantity ? " / " : ""}
-                        {item.hasStockQuantity ? `Total stock: ${item.stockQuantity} units` : "Stock pending confirmation"}
+                        {localizeVehicleValue(item.hasStockQuantity ? `Total stock: ${item.stockQuantity} units` : "Stock pending confirmation", locale)}
                       </p>
                     </div>
                   </div>
 
                   <div className="flex flex-wrap items-center gap-4 text-xs">
                     <div className="text-right">
-                      <span className="block text-[10px] uppercase tracking-wider text-slate-500">Total Stock</span>
+                      <span className="block text-[10px] uppercase tracking-wider text-slate-500">{localizeVehicleValue("Total Stock", locale)}</span>
                       <span className="font-mono font-black text-white text-sm">
-                        {item.hasStockQuantity ? `${item.stockQuantity} units` : "-"}
+                        {item.hasStockQuantity ? localizeVehicleValue(`${item.stockQuantity} units`, locale) : "-"}
                       </span>
                     </div>
                     <div className="text-right">
-                      <span className="block text-[10px] uppercase tracking-wider text-slate-500">Price</span>
+                      <span className="block text-[10px] uppercase tracking-wider text-slate-500">{localizeVehicleValue("Price", locale)}</span>
                       {item.priceTermsSummary.length > 0 ? (
                         <div className="flex flex-col items-end gap-0.5">
                           {item.priceTermsSummary.map((pt) => (
@@ -2073,7 +2079,7 @@ function AdminVehicles({ data, onEdit, onRefresh }: { data: BootstrapData; onEdi
                         </div>
                       ) : (
                         <span className="font-mono font-black text-amber-400">
-                          {item.fobPriceRange ? item.fobPriceRange.replace(/^FOB\s*/i, "") : "Price pending"}
+                          {item.fobPriceRange ? item.fobPriceRange.replace(/^FOB\s*/i, "") : localizeVehicleValue("Price pending", locale)}
                         </span>
                       )}
                     </div>
@@ -2081,7 +2087,7 @@ function AdminVehicles({ data, onEdit, onRefresh }: { data: BootstrapData; onEdi
                       type="button"
                       className="ml-2 rounded-lg border border-white/10 bg-white/[.04] px-3.5 py-1.5 text-xs font-bold text-[#5ee6d8] transition hover:bg-[#22b8aa] hover:text-[#07111f]"
                     >
-                      {isExpanded ? "Hide trims" : "View trims"}
+                      {localizeVehicleValue(isExpanded ? "Hide trims" : "View trims", locale)}
                     </button>
                   </div>
                 </header>
@@ -2103,12 +2109,12 @@ function AdminVehicles({ data, onEdit, onRefresh }: { data: BootstrapData; onEdi
                             <div>
                               <div className="text-sm font-bold text-white">
                                 {compactJoin([
-                                  localizeVehicleValue(vehicle.trim, locale) || "Trim not specified",
+                                  localizeVehicleValue(vehicle.trim, locale) || localizeVehicleValue("Trim not specified", locale),
                                   localizeVehicleValue(vehicle.configuration, locale),
                                 ])}
                               </div>
                               <div className="mt-1 text-xs text-slate-400">
-                                {vehicle.year ? `${vehicle.year} model year` : "Model year pending"}
+                                {localizeVehicleValue(vehicle.year ? `${vehicle.year} model year` : "Model year pending", locale)}
                                 {" / "}
                                 {compactJoin([
                                   localizeVehicleValue(vehicle.steering, locale) || "LHD",
@@ -2117,11 +2123,11 @@ function AdminVehicles({ data, onEdit, onRefresh }: { data: BootstrapData; onEdi
                               </div>
                             </div>
                             <div className="flex items-center gap-4 text-xs">
-                              <span className="text-slate-400">{variant.colors.length} colors</span>
+                              <span className="text-slate-400">{localizeVehicleValue(`${variant.colors.length} colors`, locale)}</span>
                               <span className="font-mono font-black text-white">
-                                {variant.hasStockQuantity ? `${variant.stockQuantity} units` : "-"}
+                                {variant.hasStockQuantity ? localizeVehicleValue(`${variant.stockQuantity} units`, locale) : "-"}
                               </span>
-                              <span className="text-[#5ee6d8]">{variantExpanded ? "Hide colors" : "View colors"}</span>
+                              <span className="text-[#5ee6d8]">{localizeVehicleValue(variantExpanded ? "Hide colors" : "View colors", locale)}</span>
                             </div>
                           </button>
 
@@ -2129,12 +2135,13 @@ function AdminVehicles({ data, onEdit, onRefresh }: { data: BootstrapData; onEdi
                             <div className="border-t border-white/10 p-3 sm:p-4">
                               <AdminTable
                                 headers={[
-                                  "Exterior / Interior Color",
-                                  "Stock",
-                                  ...(canSeeSupplier ? ["Supplier"] : []),
-                                  ...(canSeeLocation ? ["Location"] : []),
-                                  "USD Price",
-                                  "Fulfilment",
+                                  localizeVehicleValue("Exterior / Interior Color", locale),
+                                  localizeVehicleValue("Stock", locale),
+                                  ...(canSeeSupplier ? [localizeVehicleValue("Supplier", locale)] : []),
+                                  ...(canSeeLocation ? [localizeVehicleValue("Location", locale)] : []),
+                                  localizeVehicleValue("USD Price", locale),
+                                  localizeVehicleValue("Fulfilment", locale),
+                                  localizeVehicleValue("Inquiry", locale),
                                 ]}
                                 rows={variant.colors.map((color) => {
                                   const colorVehicle = color.vehicles[0];
@@ -2148,7 +2155,7 @@ function AdminVehicles({ data, onEdit, onRefresh }: { data: BootstrapData; onEdi
                                       )}
                                     </span>,
                                     <span key="stock" className="font-mono text-xs font-bold text-white">
-                                      {color.hasStockQuantity ? `${color.quantity} units` : "-"}
+                                      {color.hasStockQuantity ? localizeVehicleValue(`${color.quantity} units`, locale) : "-"}
                                     </span>,
                                     ...(canSeeSupplier
                                       ? [<span key="supplier" className="text-xs text-slate-300">{suppliers.length ? suppliers.map((supplier) => localizeVehicleValue(supplier, locale)).join(" / ") : "-"}</span>]
@@ -2167,11 +2174,13 @@ function AdminVehicles({ data, onEdit, onRefresh }: { data: BootstrapData; onEdi
                                         </span>
                                       ) : "-"}
                                     </div>,
-                                    <span key="fulfillment" className="text-xs text-slate-300">{formatFulfillmentStatus(colorVehicle)}</span>,
+                                    <span key="fulfillment" className="text-xs text-slate-300">{localizeVehicleValue(formatFulfillmentStatus(colorVehicle), locale)}</span>,
+                                    <button key="inquiry" type="button" onClick={() => setInquiryVehicleId((current) => current === colorVehicle.id ? "" : colorVehicle.id)} className="text-xs font-black text-theme">{localizeVehicleValue(inquiryVehicleId === colorVehicle.id ? "Hide inquiry" : "Inquiry discussion", locale)}</button>,
                                   ];
                                 })}
-                                emptyText="No color-level inventory"
+                                emptyText={localizeVehicleValue("No color-level inventory", locale)}
                               />
+                              {inquiryVehicleId && variant.colors.some((color) => color.vehicles.some((vehicle) => vehicle.id === inquiryVehicleId)) && <VehicleInquiryPanel vehicle={data.vehicles.find((vehicle) => vehicle.id === inquiryVehicleId)!} data={data} />}
                             </div>
                           )}
                         </section>
@@ -2188,28 +2197,51 @@ function AdminVehicles({ data, onEdit, onRefresh }: { data: BootstrapData; onEdi
   );
 }
 
+function VehicleInquiryPanel({ vehicle, data }: { vehicle: Vehicle; data: BootstrapData }) {
+  const [message, setMessage] = useState(""); const [busy, setBusy] = useState(false); const [error, setError] = useState("");
+  const inquiries = data.inquiries.filter((item) => item.vehicleId === vehicle.id);
+  const notes = data.inquiryNotes.filter((item) => inquiries.some((inquiry) => inquiry.inquiryNo === item.inquiryNo));
+  async function post(event: React.FormEvent) { event.preventDefault(); if (!message.trim()) return; setBusy(true); setError(""); try { const existing = inquiries[0]; if (existing) await api(`/api/portal/inquiries/${encodeURIComponent(existing.inquiryNo)}/notes`, { method: "POST", body: JSON.stringify({ body: message }) }); else await api("/api/portal/inquiries", { method: "POST", body: JSON.stringify({ vehicleId: vehicle.id, quantity: 1, tradeTerm: "FOB", notes: message }) }); window.location.reload(); } catch (e) { setError(e instanceof Error ? e.message : "Could not post inquiry message"); } finally { setBusy(false); } }
+  return <section className="mt-3 rounded-lg border border-theme/30 bg-theme/5 p-4"><div className="flex items-center justify-between"><div><p className="text-[10px] font-black uppercase tracking-widest text-theme">Inquiry discussion</p><p className="mt-1 text-xs text-slate-300">{[vehicle.brand, vehicle.model, vehicle.configuration || vehicle.trim, vehicle.color].filter(Boolean).join(" / ")}</p></div><span className="text-xs text-slate-400">{notes.length} follow-ups</span></div><div className="mt-3 grid gap-2">{notes.map((item) => <article key={item.id} className={`rounded border border-white/10 bg-black/15 p-3 ${item.parentNoteId ? "ml-5 border-l-2 border-l-theme" : ""}`}><p className="text-xs font-black text-white">{item.authorName}</p><p className="mt-1 text-sm text-slate-300">{item.body}</p></article>)}{notes.length === 0 && <p className="text-xs text-slate-400">No inquiry follow-ups yet.</p>}</div><form onSubmit={post} className="mt-3 grid gap-2"><textarea value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Describe your purchase intention or ask a follow-up" className="min-h-20 rounded border border-white/15 bg-black/20 p-3 text-sm text-white" /><div className="flex justify-between">{error ? <span className="text-xs text-red-300">{error}</span> : <span />}<button disabled={busy || !message.trim()} className="btn-primary rounded px-3 py-2 text-[10px] font-black uppercase">{busy ? "Saving..." : inquiries.length ? "Post follow-up" : "Post inquiry request"}</button></div></form></section>;
+}
+
 function AdminQuotes({ data }: { data: BootstrapData }) {
-  return (
-    <AdminPanel title="Inquiry Management" subtitle="Customer inquiries, quote versions, and negotiation history">
-      <AdminTable
-        headers={["Inquiry No.", "Customer", "Vehicle", "Target Price", "Latest Quote", "Status", "Updated"]}
-        rows={data.inquiries.map((inquiry) => {
-          const quote = latestQuoteForInquiry(inquiry.inquiryNo, data.quotes);
-          const customer = findCustomer(data, inquiry.customerId);
-          return [
-            inquiry.inquiryNo,
-            customer?.company || inquiry.customerId || "-",
-            inquiry.vehicleModel || inquiry.vehicleId,
-            inquiry.targetPrice ? formatUsdStrict(inquiry.targetPrice) : "-",
-            quote ? `${quote.quoteNo} / V${quote.version} / ${formatUsdStrict(quote.unitPrice)}` : "Awaiting quote",
-            <AdminStatusBadge key="status" status={quote?.status || inquiry.status || "Pending"} />,
-            formatDate(inquiry.updatedAt || inquiry.createdAt),
-          ];
-        })}
-        emptyText="No inquiries"
-      />
-    </AdminPanel>
-  );
+  const [selectedNo, setSelectedNo] = useState(data.inquiries[0]?.inquiryNo || "");
+  const [note, setNote] = useState("");
+  const [status, setStatus] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const [showNewInquiry, setShowNewInquiry] = useState(data.inquiries.length === 0);
+  const [vehicleId, setVehicleId] = useState(data.vehicles[0]?.id || "");
+  const [quantity, setQuantity] = useState(1);
+  const [initialNote, setInitialNote] = useState("");
+  const [replyTo, setReplyTo] = useState("");
+  const [showDeleted, setShowDeleted] = useState(false);
+  const [deletedContent, setDeletedContent] = useState<{ inquiries: Inquiry[]; notes: InquiryNote[] }>({ inquiries: [], notes: [] });
+  useEffect(() => { const id = new URLSearchParams(window.location.search).get("vehicle"); if (id) { setVehicleId(id); setShowNewInquiry(true); } }, []);
+  const selected = data.inquiries.find((item) => item.inquiryNo === selectedNo) || data.inquiries[0];
+  const canChangeStatus = data.user.role === "admin" || data.user.role === "sales";
+  const notes = (data.inquiryNotes || []).filter((item) => item.inquiryNo === selected?.inquiryNo).sort((a, b) => getDateTime(a.createdAt) - getDateTime(b.createdAt));
+  const history = (data.inquiryStatusHistory || []).filter((item) => item.inquiryNo === selected?.inquiryNo).sort((a, b) => getDateTime(a.createdAt) - getDateTime(b.createdAt));
+  async function submitNote(event: React.FormEvent) { event.preventDefault(); if (!selected || !note.trim()) return; setBusy(true); setError(""); try { await api(`/api/portal/inquiries/${encodeURIComponent(selected.inquiryNo)}/notes`, { method: "POST", body: JSON.stringify({ body: note, parentNoteId: replyTo }) }); window.location.reload(); } catch (e) { setError(e instanceof Error ? e.message : "Could not add note"); } finally { setBusy(false); } }
+  async function updateStatus() { if (!selected || !status) return; setBusy(true); setError(""); try { await api(`/api/portal/inquiries/${encodeURIComponent(selected.inquiryNo)}/status`, { method: "PATCH", body: JSON.stringify({ status }) }); window.location.reload(); } catch (e) { setError(e instanceof Error ? e.message : "Could not change status"); } finally { setBusy(false); } }
+  async function createInquiry(event: React.FormEvent) { event.preventDefault(); if (!vehicleId || !initialNote.trim()) return; setBusy(true); setError(""); try { await api("/api/portal/inquiries", { method: "POST", body: JSON.stringify({ vehicleId, quantity, tradeTerm: "FOB", notes: initialNote }) }); window.location.reload(); } catch (e) { setError(e instanceof Error ? e.message : "Could not start inquiry"); } finally { setBusy(false); } }
+  async function removeContent(type: "inquiry" | "note", id: string) { if (!window.confirm("Remove this inquiry content?")) return; setBusy(true); try { await api(`/api/portal/inquiry-content/${type}/${encodeURIComponent(id)}`, { method: "DELETE", body: JSON.stringify({ reason: "Removed by portal moderation" }) }); window.location.reload(); } catch (e) { setError(e instanceof Error ? e.message : "Could not remove content"); } finally { setBusy(false); } }
+  async function openDeleted() { setBusy(true); try { setDeletedContent(await api("/api/portal/inquiry-content/deleted")); setShowDeleted(true); } catch (e) { setError(e instanceof Error ? e.message : "Could not load removed content"); } finally { setBusy(false); } }
+  async function moderate(type: "inquiry" | "note", id: string, action: "restore" | "purge") { setBusy(true); try { await api(`/api/portal/inquiry-content/${type}/${encodeURIComponent(id)}`, { method: "PATCH", body: JSON.stringify({ action }) }); await openDeleted(); } catch (e) { setError(e instanceof Error ? e.message : "Could not update content"); } finally { setBusy(false); } }
+  return <AdminPanel title="Inquiry Management" subtitle="Inquiry context, status history, and discussion">
+    <div className="mb-4 flex justify-end gap-2">{data.user.role === "admin" && <button type="button" onClick={openDeleted} className="rounded border border-white/15 px-4 py-2 text-[10px] font-black uppercase text-slate-300">Inquiry content management</button>}<button type="button" onClick={() => setShowNewInquiry((value) => !value)} className="btn-primary rounded px-4 py-2 text-[10px] font-black uppercase">Start inquiry</button></div>
+    {showNewInquiry && <form onSubmit={createInquiry} className="mb-4 grid gap-3 rounded-lg border border-theme/30 bg-theme/5 p-4"><div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_8rem]"><select aria-label="Vehicle" value={vehicleId} onChange={(e) => setVehicleId(e.target.value)} className="rounded border border-white/15 bg-black/20 px-3 py-2 text-sm text-white"><option value="">Select vehicle resource</option>{data.vehicles.map((vehicle) => <option key={vehicle.id} value={vehicle.id}>{[vehicle.brand, vehicle.model, vehicle.configuration || vehicle.trim, vehicle.color].filter(Boolean).join(" / ")}</option>)}</select><input aria-label="Quantity" min="1" type="number" value={quantity} onChange={(e) => setQuantity(Math.max(1, Number(e.target.value)))} className="rounded border border-white/15 bg-black/20 px-3 py-2 text-sm text-white" /></div><textarea value={initialNote} onChange={(e) => setInitialNote(e.target.value)} maxLength={4000} placeholder="Describe your purchase intention, preferred configuration, color, delivery, or payment requirements" className="min-h-24 rounded border border-white/15 bg-black/20 p-3 text-sm text-white" /><div className="flex justify-end"><button disabled={busy || !vehicleId || !initialNote.trim()} className="btn-primary rounded px-4 py-2 text-[10px] font-black uppercase">{busy ? "Saving..." : "Post inquiry note"}</button></div></form>}
+    {data.inquiries.length === 0 ? <Empty text="Start an inquiry to open a shared discussion." /> : <div className="grid gap-4 xl:grid-cols-[19rem_minmax(0,1fr)]">
+      <aside className="grid max-h-[70vh] gap-2 overflow-y-auto pr-1">{data.inquiries.map((inquiry) => <button key={inquiry.inquiryNo} type="button" onClick={() => { setSelectedNo(inquiry.inquiryNo); setStatus(""); }} className={`rounded-lg border p-3 text-left ${selected?.inquiryNo === inquiry.inquiryNo ? "border-theme bg-theme/10" : "border-white/10 bg-white/[.03]"}`}><p className="text-xs font-black text-white">{inquiry.inquiryNo}</p><p className="mt-1 line-clamp-2 text-xs text-gray-400">{inquiry.vehicleModel || inquiry.vehicleId}</p><p className="mt-2 text-[10px] font-black uppercase tracking-widest text-theme">{inquiry.status}</p></button>)}</aside>
+      {selected && <section className="min-w-0">
+        <div className="grid gap-3 rounded-lg border border-white/10 bg-white/[.03] p-4 md:grid-cols-[1fr_auto]"><div><p className="text-[10px] font-black uppercase tracking-widest text-theme">Inquiry request</p><h3 className="mt-1 font-black text-white">{selected.vehicleModel || selected.vehicleId}</h3><p className="mt-1 text-xs text-gray-400">{selected.quantity} units / {selected.tradeTerm || "-"} / {selected.destinationPort || "-"}</p><p className="mt-1 whitespace-pre-wrap text-sm text-slate-300">{selected.notes}</p></div><div className="flex items-start gap-2"><AdminStatusBadge status={selected.status || "New Inquiry"} />{data.user.role === "admin" && <button type="button" onClick={() => removeContent("inquiry", selected.inquiryNo)} className="text-[10px] font-black uppercase text-red-300">Remove</button>}{canChangeStatus && <><select aria-label="Inquiry status" value={status} onChange={(e) => setStatus(e.target.value)} className="rounded border border-white/15 bg-black/20 px-2 py-1 text-xs text-white"><option value="">Change status</option>{["New Inquiry", "Quoted", "Negotiating", "Accepted", "Closed"].map((item) => <option key={item}>{item}</option>)}</select><button type="button" disabled={!status || busy} onClick={updateStatus} className="btn-primary rounded px-3 py-1 text-[10px] font-black uppercase">Save</button></>}</div></div>
+        <div className="mt-4 grid gap-3">{history.map((item) => <p key={item.id} className="text-xs text-gray-500">{item.actorName || item.actorRole} updated the inquiry status to {item.toStatus} / {formatDate(item.createdAt)}</p>)}{notes.map((item) => <article key={item.id} className={`rounded-lg border border-white/10 bg-white/[.03] p-4 ${item.parentNoteId ? "ml-6 border-l-2 border-l-theme" : ""}`}><div className="flex justify-between gap-3"><p className="text-xs font-black text-white">{item.authorName || item.authorRole}</p><p className="text-[10px] text-gray-500">{formatDate(item.createdAt)}</p></div><p className="mt-2 whitespace-pre-wrap text-sm text-gray-300">{item.body}</p><div className="mt-3 flex gap-3"><button type="button" onClick={() => setReplyTo(item.noteId)} className="text-[10px] font-black uppercase text-theme">Follow up</button>{(data.user.role === "admin" || item.authorUserId === data.user.userId) && <button type="button" onClick={() => removeContent("note", item.noteId)} className="text-[10px] font-black uppercase text-red-300">Remove</button>}</div></article>)}</div>
+        <form onSubmit={submitNote} className="mt-4 grid gap-2">{replyTo && <div className="flex justify-between text-xs text-theme">Following up on an earlier response <button type="button" onClick={() => setReplyTo("")}>Cancel</button></div>}<textarea value={note} onChange={(e) => setNote(e.target.value)} maxLength={4000} placeholder={replyTo ? "Write a follow-up response" : "Write an inquiry follow-up"} className="min-h-24 rounded-lg border border-white/10 bg-white/[.03] p-3 text-sm text-white" /><div className="flex items-center justify-between gap-3">{error ? <p className="text-xs text-red-300">{error}</p> : <span /> }<button disabled={busy || !note.trim()} className="btn-primary rounded px-4 py-2 text-[10px] font-black uppercase">{busy ? "Saving..." : "Post follow-up"}</button></div></form>
+      </section>}
+    </div>}
+    <Dialog open={showDeleted} onOpenChange={setShowDeleted}><DialogHeader><DialogTitle>Inquiry content management</DialogTitle><DialogDescription>Restore removed content or permanently clear an already removed record.</DialogDescription></DialogHeader><div className="grid max-h-80 gap-3 overflow-y-auto p-4">{[...deletedContent.inquiries.map((item) => ({ type: "inquiry" as const, id: item.inquiryNo, label: item.vehicleModel })), ...deletedContent.notes.map((item) => ({ type: "note" as const, id: item.noteId, label: item.body }))].map((item) => <div key={`${item.type}-${item.id}`} className="flex items-center justify-between gap-3 rounded border border-white/10 p-3 text-sm text-white"><span className="line-clamp-2">{item.label}</span><div className="flex gap-2"><button onClick={() => moderate(item.type,item.id,"restore")} className="text-xs text-theme">Restore</button><button onClick={() => moderate(item.type,item.id,"purge")} className="text-xs text-red-300">Permanently clear</button></div></div>)}</div></Dialog>
+  </AdminPanel>;
 }
 
 function AdminOrders({ data }: { data: BootstrapData }) {
@@ -2586,11 +2618,12 @@ function VehicleEditModal({ vehicle, onClose, onSaved }: { vehicle: Vehicle; onC
 }
 
 function AdminPanel({ title, subtitle, children }: { title: string; subtitle: string; children: ReactNode }) {
+  const { locale } = useTranslation();
   return (
     <Card className="min-w-0 overflow-hidden shadow-2xl shadow-black/10">
       <CardHeader className="pb-3">
-        <CardTitle className="text-lg font-black text-white">{title}</CardTitle>
-        {subtitle ? <CardDescription className="text-xs text-slate-400">{subtitle}</CardDescription> : null}
+        <CardTitle className="text-lg font-black text-white">{localizeVehicleValue(title, locale)}</CardTitle>
+        {subtitle ? <CardDescription className="text-xs text-slate-400">{localizeVehicleValue(subtitle, locale)}</CardDescription> : null}
       </CardHeader>
       <CardContent>{children}</CardContent>
     </Card>
@@ -2627,12 +2660,13 @@ function AdminSummaryChip({ label, value, tone = "default" }: { label: string; v
 }
 
 function AdminTable({ headers, rows, emptyText }: { headers: string[]; rows: ReactNode[][]; emptyText: string }) {
+  const { locale } = useTranslation();
   return (
     <Table>
       <TableHeader>
         <TableRow>
           {headers.map((header) => (
-            <TableHead key={header}>{header}</TableHead>
+            <TableHead key={header}>{localizeVehicleValue(header, locale)}</TableHead>
           ))}
         </TableRow>
       </TableHeader>
@@ -2640,7 +2674,7 @@ function AdminTable({ headers, rows, emptyText }: { headers: string[]; rows: Rea
         {rows.length === 0 ? (
           <TableRow>
             <TableCell colSpan={headers.length} className="py-8 text-center text-slate-500">
-              {emptyText}
+              {localizeVehicleValue(emptyText, locale)}
             </TableCell>
           </TableRow>
         ) : (
@@ -2648,7 +2682,7 @@ function AdminTable({ headers, rows, emptyText }: { headers: string[]; rows: Rea
             <TableRow key={rowIndex}>
               {row.map((cell, cellIndex) => (
                 <TableCell key={cellIndex} className="break-words">
-                  {cell}
+                  {typeof cell === "string" ? localizeVehicleValue(cell, locale) : cell}
                 </TableCell>
               ))}
             </TableRow>
@@ -2660,7 +2694,8 @@ function AdminTable({ headers, rows, emptyText }: { headers: string[]; rows: Rea
 }
 
 function AdminStatusBadge({ status }: { status: string }) {
-  const displayStatus = formatPortalStatus(status);
+  const { locale } = useTranslation();
+  const displayStatus = formatPortalStatus(status, locale);
   const normalized = displayStatus.toLowerCase();
   const tone =
     /active|accepted|listed|paid|启用|已|active/.test(normalized)

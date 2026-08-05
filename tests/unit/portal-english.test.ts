@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { formatPortalStatus, localizeVehicleValue, portalRoleLabels } from "@/lib/portal-english";
+import { formatPortalRole, formatPortalStatus, localizeVehicleValue, portalRoleLabels } from "@/lib/portal-english";
 
 test("portal roles and common operational statuses have English display values", () => {
   expect(portalRoleLabels.admin).toBe("Administrator");
@@ -16,4 +16,12 @@ test("vehicle values use local translations without changing Chinese source disp
   );
   expect(localizeVehicleValue("左舵 / 国际版", "en")).toBe("LHD / International Version");
   expect(localizeVehicleValue("未维护的新版本", "en")).toBe("未维护的新版本");
+});
+
+test("portal values use Amharic while preserving automotive abbreviations", () => {
+  expect(formatPortalRole("admin", "am")).toBe("አስተዳዳሪ");
+  expect(formatPortalStatus("现车", "am")).toBe("በክምችት ያለ");
+  expect(localizeVehicleValue("左舵 / 国际版", "am")).toBe("LHD / ዓለም አቀፍ ስሪት");
+  expect(localizeVehicleValue("海域青 / 海韵灰", "am")).toBe("የውቅያኖስ ሰማያዊ / የውቅያኖስ ግራጫ");
+  expect(localizeVehicleValue("FOB $20,160 / 85 units", "am")).toBe("FOB $20,160 / 85 ክፍሎች");
 });

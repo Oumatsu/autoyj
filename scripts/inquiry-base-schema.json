@@ -1,0 +1,43 @@
+{
+  "tables": [
+    {
+      "name": "inquiry_notes",
+      "fields": [
+        { "name": "note_id", "type": "text" },
+        { "name": "inquiry_no", "type": "text" },
+        { "name": "parent_note_id", "type": "text" },
+        { "name": "author_user_id", "type": "text" },
+        { "name": "author_name", "type": "text" },
+        { "name": "author_role", "type": "select", "multiple": false, "options": [{ "name": "admin" }, { "name": "sales" }, { "name": "partner" }, { "name": "customer" }] },
+        { "name": "body", "type": "text" },
+        { "name": "created_at", "type": "created_at", "style": { "format": "yyyy-MM-dd HH:mm" } }
+      ]
+    },
+    {
+      "name": "inquiry_participants",
+      "fields": [
+        { "name": "participant_id", "type": "text" },
+        { "name": "inquiry_no", "type": "text" },
+        { "name": "customer_id", "type": "text" },
+        { "name": "user_id", "type": "text" },
+        { "name": "company", "type": "text" },
+        { "name": "role", "type": "select", "multiple": false, "options": [{ "name": "admin" }, { "name": "sales" }, { "name": "partner" }, { "name": "customer" }] },
+        { "name": "access_source", "type": "select", "multiple": false, "options": [{ "name": "Creator" }, { "name": "Internal assignment" }, { "name": "Manual invitation" }] },
+        { "name": "created_at", "type": "created_at", "style": { "format": "yyyy-MM-dd HH:mm" } }
+      ]
+    },
+    {
+      "name": "inquiry_status_history",
+      "fields": [
+        { "name": "history_id", "type": "text" },
+        { "name": "inquiry_no", "type": "text" },
+        { "name": "from_status", "type": "text" },
+        { "name": "to_status", "type": "text" },
+        { "name": "actor_user_id", "type": "text" },
+        { "name": "actor_name", "type": "text" },
+        { "name": "actor_role", "type": "select", "multiple": false, "options": [{ "name": "admin" }, { "name": "sales" }] },
+        { "name": "created_at", "type": "created_at", "style": { "format": "yyyy-MM-dd HH:mm" } }
+      ]
+    }
+  ]
+}

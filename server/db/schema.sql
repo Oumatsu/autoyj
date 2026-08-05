@@ -103,3 +103,71 @@ CREATE INDEX IF NOT EXISTS idx_vehicle_models_status ON vehicle_models(status);
 CREATE INDEX IF NOT EXISTS idx_vehicle_trims_model_id ON vehicle_trims(model_id);
 CREATE INDEX IF NOT EXISTS idx_vehicles_model_id ON vehicles(model_id);
 CREATE INDEX IF NOT EXISTS idx_vehicles_stage ON vehicles(stage);
+
+-- Inquiry management is transactional portal data. D1 is its system of record.
+CREATE TABLE IF NOT EXISTS inquiries (
+  id TEXT PRIMARY KEY,
+  inquiry_no TEXT NOT NULL UNIQUE,
+  customer_id TEXT NOT NULL,
+  vehicle_id TEXT NOT NULL,
+  vehicle_model TEXT NOT NULL,
+  quantity INTEGER NOT NULL CHECK (quantity > 0),
+  destination_port TEXT,
+  trade_term TEXT NOT NULL,
+  target_price REAL,
+  initial_note TEXT,
+  status TEXT NOT NULL DEFAULT 'New Inquiry',
+  source TEXT NOT NULL DEFAULT 'Customer Portal',
+  deleted_at TEXT,
+  deleted_by_user_id TEXT,
+  deleted_by_name TEXT,
+  deletion_reason TEXT,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS inquiry_participants (
+  id TEXT PRIMARY KEY,
+  inquiry_no TEXT NOT NULL REFERENCES inquiries(inquiry_no),
+  customer_id TEXT,
+  user_id TEXT NOT NULL,
+  company TEXT,
+  role TEXT NOT NULL,
+  access_source TEXT NOT NULL,
+  created_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS inquiry_notes (
+  id TEXT PRIMARY KEY,
+  note_id TEXT NOT NULL UNIQUE,
+  inquiry_no TEXT NOT NULL REFERENCES inquiries(inquiry_no),
+  parent_note_id TEXT,
+  author_user_id TEXT NOT NULL,
+  author_name TEXT NOT NULL,
+  author_role TEXT NOT NULL,
+  body TEXT NOT NULL,
+  deleted_at TEXT,
+  deleted_by_user_id TEXT,
+  deleted_by_name TEXT,
+  deletion_reason TEXT,
+  created_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS inquiry_status_history (
+  id TEXT PRIMARY KEY,
+  history_id TEXT NOT NULL UNIQUE,
+  inquiry_no TEXT NOT NULL REFERENCES inquiries(inquiry_no),
+  from_status TEXT,
+  to_status TEXT NOT NULL,
+  actor_user_id TEXT NOT NULL,
+  actor_name TEXT NOT NULL,
+  actor_role TEXT NOT NULL,
+  created_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_inquiries_customer_updated ON inquiries(customer_id, updated_at DESC);
+CREATE INDEX IF NOT EXISTS idx_inquiry_participants_user ON inquiry_participants(user_id, inquiry_no);
+CREATE INDEX IF NOT EXISTS idx_inquiry_notes_inquiry_created ON inquiry_notes(inquiry_no, created_at);
+CREATE INDEX IF NOT EXISTS idx_inquiry_status_history_inquiry_created ON inquiry_status_history(inquiry_no, created_at);
+CREATE INDEX IF NOT EXISTS idx_inquiries_deleted_at ON inquiries(deleted_at);
+CREATE INDEX IF NOT EXISTS idx_inquiry_notes_deleted_at ON inquiry_notes(deleted_at);

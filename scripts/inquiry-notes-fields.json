@@ -1,0 +1,10 @@
+[
+  { "name": "note_id", "type": "text" },
+  { "name": "inquiry_no", "type": "text" },
+  { "name": "parent_note_id", "type": "text" },
+  { "name": "author_user_id", "type": "text" },
+  { "name": "author_name", "type": "text" },
+  { "name": "author_role", "type": "select", "multiple": false, "options": [{ "name": "admin" }, { "name": "sales" }, { "name": "partner" }, { "name": "customer" }] },
+  { "name": "body", "type": "text" },
+  { "name": "created_at", "type": "created_at", "style": { "format": "yyyy-MM-dd HH:mm" } }
+]

@@ -1,0 +1,10 @@
+[
+  { "name": "history_id", "type": "text" },
+  { "name": "inquiry_no", "type": "text" },
+  { "name": "from_status", "type": "text" },
+  { "name": "to_status", "type": "text" },
+  { "name": "actor_user_id", "type": "text" },
+  { "name": "actor_name", "type": "text" },
+  { "name": "actor_role", "type": "select", "multiple": false, "options": [{ "name": "admin" }, { "name": "sales" }] },
+  { "name": "created_at", "type": "created_at", "style": { "format": "yyyy-MM-dd HH:mm" } }
+]

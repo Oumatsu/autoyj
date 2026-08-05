@@ -7,9 +7,24 @@ export const portalRoleLabels = {
   customer: "Customer",
 } as const;
 
-export function formatPortalStatus(status: string | null | undefined): string {
+const portalRoleLabelsAmharic: Record<keyof typeof portalRoleLabels, string> = {
+  admin: "አስተዳዳሪ",
+  sales: "ሽያጭ",
+  sourcing: "ግዥ",
+  finance: "ፋይናንስ",
+  partner: "አጋር",
+  customer: "ደንበኛ",
+};
+
+export function formatPortalRole(role: keyof typeof portalRoleLabels, locale: PortalLocale): string {
+  if (locale === "zh") return portalRoleLabels[role];
+  return locale === "am" ? portalRoleLabelsAmharic[role] : portalRoleLabels[role];
+}
+
+export function formatPortalStatus(status: string | null | undefined, locale: PortalLocale = "en"): string {
   const normalized = String(status || "").trim();
   if (!normalized) return "-";
+  if (locale === "zh") return normalized;
 
   const translations: Record<string, string> = {
     "现车": "In Stock",
@@ -29,7 +44,8 @@ export function formatPortalStatus(status: string | null | undefined): string {
     "下架": "Delisted",
   };
 
-  return translations[normalized] || normalized;
+  const english = translations[normalized] || normalized;
+  return locale === "am" ? localizeVehicleValue(english, locale) : english;
 }
 type PortalLocale = "zh" | "en" | "am";
 
@@ -267,6 +283,172 @@ const vehicleEnglishTerms: Array<[string, string]> = [
   ["随车", "Included"], ["客户", "Customer"], ["自提", "Self Pickup"], ["包邮", "Free Delivery"], ["托运", "Freight Delivery"],
 ];
 
+const vehicleAmharicTerms: Array<[string, string]> = [
+  ["China Market Version", "የቻይና ገበያ ስሪት"],
+  ["International Version", "ዓለም አቀፍ ስሪት"],
+  ["Chinese Version", "የቻይና ስሪት"],
+  ["English Version", "የእንግሊዝኛ ስሪት"],
+  ["Export Version", "የውጭ ገበያ ስሪት"],
+  ["Smart Driving Edition", "ዘመናዊ መንዳት ስሪት"],
+  ["Smart Navigation Edition", "ዘመናዊ አሰሳ ስሪት"],
+  ["Flagship Smart Mobility", "የፍላጎት ዘመናዊ እንቅስቃሴ"],
+  ["Flagship Edition", "ፍላጎት ስሪት"],
+  ["Pilot Plus Edition", "ፓይለት ፕላስ ስሪት"],
+  ["Pilot Pro Edition", "ፓይለት ፕሮ ስሪት"],
+  ["Pilot Edition", "ፓይለት ስሪት"],
+  ["Premium Edition", "ፕሪሚየም ስሪት"],
+  ["Luxury Edition", "የቅንጦት ስሪት"],
+  ["Comfort Edition", "ምቹ ስሪት"],
+  ["Standard Edition", "መደበኛ ስሪት"],
+  ["Entry Edition", "መግቢያ ስሪት"],
+  ["Pre-order Only", "ለቅድሚያ ማዘዝ ብቻ"],
+  ["Pending Confirmation", "ማረጋገጫ በመጠባበቅ ላይ"],
+  ["Awaiting Quote", "ዋጋ በመጠባበቅ ላይ"],
+  ["Customs Clearance", "የጉምሩክ ማጣሪያ"],
+  ["Model year pending", "የሞዴል ዓመት በመጠባበቅ ላይ"],
+  ["Lead time pending", "የማቅረቢያ ጊዜ በመጠባበቅ ላይ"],
+  ["FOB on request", "FOB በጥያቄ"],
+  ["China Standard", "የቻይና መደበኛ"],
+  ["EU Standard", "የEU መደበኛ"],
+  ["Long Wheelbase", "ረጅም ዊልቤዝ"],
+  ["Medium Wheelbase", "መካከለኛ ዊልቤዝ"],
+  ["Short Wheelbase", "አጭር ዊልቤዝ"],
+  ["Passenger Version", "የተሳፋሪ ስሪት"],
+  ["Cargo Version", "የጭነት ስሪት"],
+  ["Window Van", "መስኮት ያለው ቫን"],
+  ["Panel Van", "ፓነል ቫን"],
+  ["Extended Range", "የተራዘመ ርቀት"],
+  ["Long Range", "ረጅም ርቀት"],
+  ["Fast Charge", "ፈጣን መሙላት"],
+  ["Slow Charge", "ዝግ መሙላት"],
+  ["Smart Driving", "ዘመናዊ መንዳት"],
+  ["Smart Navigation", "ዘመናዊ አሰሳ"],
+  ["Smart Mobility", "ዘመናዊ እንቅስቃሴ"],
+  ["Ocean Blue", "የውቅያኖስ ሰማያዊ"],
+  ["Ocean Grey", "የውቅያኖስ ግራጫ"],
+  ["Pearl White", "የዕንቁ ነጭ"],
+  ["Polar White", "የዋልታ ነጭ"],
+  ["Obsidian Black", "ኦብሲዲያን ጥቁር"],
+  ["Galaxy Silver", "ጋላክሲ ብር"],
+  ["Glacier Blue", "የበረዶ ግግር ሰማያዊ"],
+  ["Black Roof", "ጥቁር ጣሪያ"],
+  ["In Stock", "በክምችት ያለ"],
+  ["Pre-order", "በቅድሚያ ማዘዝ"],
+  ["Preorder", "በቅድሚያ ማዘዝ"],
+  ["On request", "በጥያቄ"],
+  ["Pending", "በመጠባበቅ ላይ"],
+  ["Accepted", "ተቀባይነት አግኝቷል"],
+  ["Paid", "ተከፍሏል"],
+  ["Shipped", "ተልኳል"],
+  ["Cancelled", "ተሰርዟል"],
+  ["Draft", "ረቂቅ"],
+  ["Active", "ንቁ"],
+  ["Delisted", "ከዝርዝር ተወግዷል"],
+  ["Unspecified", "ያልተገለጸ"],
+  ["Unknown", "ያልታወቀ"],
+  ["Interior", "የውስጥ"],
+  ["Exterior", "የውጭ"],
+  ["Standard", "መደበኛ"],
+  ["Luxury", "የቅንጦት"],
+  ["Comfort", "ምቹ"],
+  ["Flagship", "ፍላጎት"],
+  ["Premium", "ፕሪሚየም"],
+  ["Edition", "ስሪት"],
+  ["Variant", "የልዩነት ስሪት"],
+  ["seats", "መቀመጫዎች"],
+  ["High Roof", "ከፍተኛ ጣሪያ"],
+  ["Mid Roof", "መካከለኛ ጣሪያ"],
+  ["Low Roof", "ዝቅተኛ ጣሪያ"],
+  ["Optional", "አማራጭ"],
+  ["Warranty", "ዋስትና"],
+  ["Tax Included", "ግብር ተካትቷል"],
+  ["Excl. Tax", "ግብር አልተካተተም"],
+  ["Full Documents Ready", "ሙሉ ሰነዶች ዝግጁ ናቸው"],
+  ["Self Pickup", "በራስ መረከብ"],
+  ["Free Delivery", "ነጻ መላኪያ"],
+  ["Freight Delivery", "በጭነት መላኪያ"],
+  ["Exterior / Interior Color", "የውጭ / የውስጥ ቀለም"],
+  ["No color-level inventory", "በቀለም ደረጃ የተመዘገበ ክምችት የለም"],
+  ["Stock pending confirmation", "የክምችት ማረጋገጫ በመጠባበቅ ላይ"],
+  ["Trim not specified", "የስሪት ዝርዝር አልተገለጸም"],
+  ["Price pending", "ዋጋ በመጠባበቅ ላይ"],
+  ["Total stock:", "ጠቅላላ ክምችት:"],
+  ["Total Stock", "ጠቅላላ ክምችት"],
+  ["USD Price", "የUSD ዋጋ"],
+  ["Fulfilment", "ማሟላት"],
+  ["Supplier", "አቅራቢ"],
+  ["Location", "ቦታ"],
+  ["Supply", "አቅርቦት"],
+  ["Stock", "ክምችት"],
+  ["Price", "ዋጋ"],
+  ["trims", "ስሪቶች"],
+  ["colors", "ቀለሞች"],
+  ["Hide trims", "ስሪቶችን ደብቅ"],
+  ["View trims", "ስሪቶችን አሳይ"],
+  ["Hide colors", "ቀለሞችን ደብቅ"],
+  ["View colors", "ቀለሞችን አሳይ"],
+  ["Customer inquiries, quote versions, and negotiation history", "የደንበኛ ጥያቄዎች፣ የዋጋ ማቅረቢያ ስሪቶች እና የድርድር ታሪክ"],
+  ["External accounts and price permissions from the Feishu table", "ከFeishu ሰንጠረዥ የተወሰዱ ውጫዊ መለያዎች እና የዋጋ ፈቃዶች"],
+  ["Internal accounts and permissions from the Feishu table", "ከFeishu ሰንጠረዥ የተወሰዱ ውስጣዊ መለያዎች እና ፈቃዶች"],
+  ["Low-stock and pending-confirmation vehicles", "ዝቅተኛ ክምችት ያላቸው እና ማረጋገጫ ላይ ያሉ ተሽከርካሪዎች"],
+  ["Latest records from the Feishu Inquiries and Quotes tables", "ከFeishu ጥያቄዎች እና የዋጋ ማቅረቢያ ሰንጠረዦች የቅርብ መዝገቦች"],
+  ["Order values, payment terms, and payment status", "የትዕዛዝ ዋጋዎች፣ የክፍያ ውሎች እና የክፍያ ሁኔታ"],
+  ["Orders created from accepted quotes", "ከተቀበሉ የዋጋ ማቅረቢያዎች የተፈጠሩ ትዕዛዞች"],
+  ["Order logistics milestones", "የትዕዛዝ ሎጂስቲክስ ዋና ደረጃዎች"],
+  ["Inquiry Management", "የጥያቄ አስተዳደር"],
+  ["Order Management", "የትዕዛዝ አስተዳደር"],
+  ["Payments & Finance", "ክፍያዎች እና ፋይናንስ"],
+  ["Export Workflow", "የወጪ ንግድ የሥራ ፍሰት"],
+  ["Customer Accounts", "የደንበኛ መለያዎች"],
+  ["Staff Accounts", "የሰራተኛ መለያዎች"],
+  ["Inquiry No.", "የጥያቄ ቁጥር"],
+  ["Order No.", "የትዕዛዝ ቁጥር"],
+  ["Quote No.", "የዋጋ ማቅረቢያ ቁጥር"],
+  ["Target Price", "የታለመ ዋጋ"],
+  ["Latest Quote", "የቅርብ ዋጋ ማቅረቢያ"],
+  ["Updated", "የተዘመነ"],
+  ["Created", "የተፈጠረ"],
+  ["Customer", "ደንበኛ"],
+  ["Vehicle", "ተሽከርካሪ"],
+  ["Quantity", "መጠን"],
+  ["Total", "ጠቅላላ"],
+  ["Payment Terms", "የክፍያ ውሎች"],
+  ["Payment Status", "የክፍያ ሁኔታ"],
+  ["Current Stage", "የአሁኑ ደረጃ"],
+  ["Customer ID", "የደንበኛ መለያ"],
+  ["Company", "ድርጅት"],
+  ["Contact", "የመገኛ ሰው"],
+  ["Email", "ኢሜይል"],
+  ["Role", "ሚና"],
+  ["Price Tier", "የዋጋ ደረጃ"],
+  ["Country", "ሀገር"],
+  ["User ID", "የተጠቃሚ መለያ"],
+  ["Name", "ስም"],
+  ["Permissions", "ፈቃዶች"],
+  ["Department", "ክፍል"],
+  ["Administrator", "አስተዳዳሪ"],
+  ["Sales", "ሽያጭ"],
+  ["Sourcing", "ግዥ"],
+  ["Finance", "ፋይናንስ"],
+  ["Partner", "አጋር"],
+  ["Customer", "ደንበኛ"],
+  ["model year", "የሞዴል ዓመት"],
+  ["Pre-order:", "ቅድሚያ ማዘዝ:"],
+  ["days", "ቀናት"],
+  ["units", "ክፍሎች"],
+  ["Black", "ጥቁር"],
+  ["White", "ነጭ"],
+  ["Grey", "ግራጫ"],
+  ["Blue", "ሰማያዊ"],
+  ["Green", "አረንጓዴ"],
+  ["Purple", "ሐምራዊ"],
+  ["Silver", "ብር"],
+  ["Gold", "ወርቅ"],
+  ["Orange", "ብርቱካናማ"],
+  ["Brown", "ቡናማ"],
+  ["Beige", "ቤዥ"],
+];
+
 export function localizeVehicleValue(value: string | null | undefined, locale: PortalLocale): string {
   const source = String(value || "").trim();
   if (!source || locale === "zh") return source || "-";
@@ -274,6 +456,12 @@ export function localizeVehicleValue(value: string | null | undefined, locale: P
   let translated = source;
   for (const [chinese, english] of [...vehicleEnglishTerms].sort((a, b) => b[0].length - a[0].length)) {
     translated = translated.replaceAll(chinese, english);
+  }
+
+  if (locale === "am") {
+    for (const [english, amharic] of [...vehicleAmharicTerms].sort((a, b) => b[0].length - a[0].length)) {
+      translated = translated.replaceAll(english, amharic);
+    }
   }
   translated = translated.replace(/(\d)([A-Z])/g, "$1 $2").replace(/\s{2,}/g, " ").trim();
 

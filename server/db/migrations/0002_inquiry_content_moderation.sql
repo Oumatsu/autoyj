@@ -1,0 +1,10 @@
+ALTER TABLE inquiries ADD COLUMN deleted_at TEXT;
+ALTER TABLE inquiries ADD COLUMN deleted_by_user_id TEXT;
+ALTER TABLE inquiries ADD COLUMN deleted_by_name TEXT;
+ALTER TABLE inquiries ADD COLUMN deletion_reason TEXT;
+ALTER TABLE inquiry_notes ADD COLUMN deleted_at TEXT;
+ALTER TABLE inquiry_notes ADD COLUMN deleted_by_user_id TEXT;
+ALTER TABLE inquiry_notes ADD COLUMN deleted_by_name TEXT;
+ALTER TABLE inquiry_notes ADD COLUMN deletion_reason TEXT;
+CREATE INDEX IF NOT EXISTS idx_inquiries_deleted_at ON inquiries(deleted_at);
+CREATE INDEX IF NOT EXISTS idx_inquiry_notes_deleted_at ON inquiry_notes(deleted_at);
