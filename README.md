@@ -1,163 +1,134 @@
 # Youguard Portal
 
-Youguard 汽车出口 B2B 门户平台。技术栈：Next.js 16 (vinext 1.0+) + React 19 + Cloudflare Workers + Feishu Base。
+Youguard 汽车出口 B2B 门户平台。
+
+**技术栈**：Next.js 16 (`vinext` 1.0+) + React 19 + Better Auth + Cloudflare Workers + Feishu Base  
+**代码质量**：ESLint v9 Flat Config + Knip + Bun Test (160/160 PASS) + Playwright E2E  
+**线上预览**：[https://autoyj.haipee.workers.dev](https://autoyj.haipee.workers.dev)
 
 ---
 
-## 快速启动
+## 🚀 快速启动
 
 ```bash
-# 1. 安装依赖
+# 1. 安装依赖 (使用 bun)
 bun install
 
 # 2. 配置环境变量（复制示例文件）
 cp .dev.vars.example .dev.vars
-# 然后填入飞书 App ID / App Secret（见下方说明）
+# 填入飞书 App ID / App Secret / App Token 等配置
 
-# 3. 本地开发服务
+# 3. 启动本地开发服务
 bun run dev
 ```
 
-访问 `http://localhost:3000/portal` 打开门户登录页。
+打开浏览器访问 `http://localhost:3000/portal` 即可加载门户登录与管理系统。
 
 ---
 
-## 4种身份账号
+## 🔑 4 种身份预置账号
 
-> **这些账号仅用于初版**
+> **仅用于开发与测试。正式账号由管理员在系统预设管理。**
 
 | 角色 | 邮箱 | Access Code | 权限范围 |
 |------|------|-------------|----------|
-| **Admin** | `admin@local.test` | `admin-demo-2026` | 全权限：看板、车型、车源、询价、订单、财务、客户、员工 |
-| **Sales** | `sales@local.test` | `sales-demo-2026` | 销售视角：车型、询价、订单、出口流程 |
-| **Partner** | `partner@example.com` | `partner-demo-2026` | 合作商：车辆资源（合作价）、询价、订单、出口流程 |
-| **Customer** | `customer@example.com` | `customer-demo-2026` | 普通客户：车辆库存（无价格）、询价、订单 |
+| **Admin** | `admin@local.test` | `admin-demo-2026` | **全权限**：看板、车型库、车源库、询价单、订单、财务、客户、员工管理 |
+| **Sales** | `sales@local.test` | `sales-demo-2026` | **销售视角**：车型库、询价单、订单、出口流程控制 |
+| **Partner** | `partner@example.com` | `partner-demo-2026` | **合作商**：车辆资源库（合作价）、询价、订单、出口流程 |
+| **Customer** | `customer@example.com` | `customer-demo-2026` | **普通客户**：车辆库存（隐藏敏感底价）、询价、订单 |
 
-### 登录方式
+### 快捷登录方式
+1. **快速填充按钮（推荐开发用）**：登录页底部直接点击角色按钮，自动填充凭证并提交。
+2. **手动输入**：在邮箱栏填入邮箱，Access Code 栏填入通行密码登录。
+3. **Dev Session API（仅限 localhost）**：
+   ```bash
+   curl -X POST http://localhost:3000/api/portal/dev-session \
+     -H "Content-Type: application/json" \
+     -d '{"role": "partner"}'
+   ```
 
-**方式 1 — 快速填充按钮（推荐用于开发）**
+---
 
-登录页底部点击角色按钮，自动填入邮箱和 Access Code，然后点击"登录"。
+## 🛡️ 认证与安全架构 (Better Auth)
 
-**方式 2 — 手动输入**
+### 无注册模式（No-Registration Auth）
+系统采用**严格无注册（禁止公开注册）**的认证设计：
 
-在邮箱栏填入上表邮箱，Access Code 栏填入对应 code，点击登录。
+```
+Better Auth 托管安全引擎 ──(闭环)──> 本地/预设凭证仓 (localUserStore) ──> 7天 HMAC-SHA256 会话派发
+```
 
-**方式 3 — Dev Session API（仅 localhost）**
+* **彻底隔离注册**：在 `lib/auth.ts` 中通过 Better Auth 的 `emailAndPassword.disableSignUp: true` 强制禁用注册；Worker 层拦截全部 `/api/auth/sign-up` / `/register` 请求并返回 `HTTP 403 Forbidden`。
+* **独立于飞书**：身份认证、密码/Access Code 校验、会话维持（Session Cookie）与权限计算**100% 由 Better Auth 引擎接管**，无需实时依赖飞书接口，登录校验 `<5ms` 瞬时完成。
+
+### 会话配置
+
+| 属性 | 参数规格 |
+|------|----------|
+| **认证框架** | Better Auth (`better-auth`) |
+| **会话有效期** | 7 天 (`SESSION_TTL_7D` = 604800s) |
+| **Token 自动刷新**| 每天刷新 (`SESSION_UPDATE_AGE_1D` = 86400s) |
+| **Cookie 安全配置**| `youguard_portal` (HttpOnly, SameSite=Lax) |
+
+---
+
+## 🛠️ 代码质量与测试命令
 
 ```bash
-# 直接获取 admin session（绕过 access code 校验，仅 localhost 可用）
-curl -X POST http://localhost:3000/api/portal/dev-session \
-  -H "Content-Type: application/json" \
-  -d '{"role": "partner"}'
-```
-
----
-
-## 认证架构
-
-### 无注册系统（No-Registration Auth）
-
-本项目采用**仅登录，禁止注册**的认证模式：
-
-```
-用户在飞书 Base 中预先创建 → 分配 Access Code → 用户凭 email + code 登录
-```
-
-- **公开注册入口已彻底关闭**（`disableSignUp: true` + Worker 层拦截 `/api/auth/sign-up`）
-- 账号由管理员在飞书 Base「内部用户表」或「客户表」中维护
-- Access Code 由管理员分配，类似一次性通行证
-
-### 认证流程
-
-```
-浏览器 → /api/portal/session (POST) → Worker (portal.ts)
-         → findLoginAccount()
-           ├── 先查 lib/users.ts 本地存根（<5ms，开发/测试用）
-           ├── 再查飞书 FEISHU_TABLE_INTERNAL_USERS（内部员工）
-           └── 再查飞书 FEISHU_TABLE_CUSTOMERS（外部客户）
-         → signSession() HMAC-SHA256 签名
-         → Set-Cookie: youguard_portal=<signed-jwt>; HttpOnly; SameSite=Lax
-```
-
-### 会话安全
-
-| 属性 | 值 |
-|------|----|
-| 签名算法 | HMAC-SHA256 |
-| 有效期 | 12 小时 |
-| Cookie 标志 | `HttpOnly; SameSite=Lax; Secure`（生产环境） |
-| 注册阻断 | Worker 层 + better-auth `disableSignUp: true` 双重保障 |
-
----
-
-## 环境变量
-
-复制 `.dev.vars.example` 为 `.dev.vars` 并填写：
-
-| 变量 | 必填 | 说明 |
-|------|------|------|
-| `FEISHU_APP_ID` | ✅ | 飞书开放平台应用 App ID |
-| `FEISHU_APP_SECRET` | ✅ | 飞书开放平台应用密钥 |
-| `FEISHU_BASE_APP_TOKEN` | ✅ | 飞书多维表格 App Token |
-| `PORTAL_SESSION_SECRET` | ✅ | Session 签名密钥（≥32位随机字符串） |
-| `FEISHU_TABLE_INTERNAL_USERS` | ❌ | 内部员工表 ID（留空则只用本地存根） |
-| `FEISHU_TABLE_CUSTOMERS` | ❌ | 客户表 ID |
-| `PORTAL_COOKIE_NAME` | ❌ | Cookie 名称，默认 `youguard_portal` |
-
-> **注意**：生产环境通过 Cloudflare Workers 的 Secrets 管理，不要提交 `.dev.vars` 到 Git。
-
----
-
-## 测试
-
-```bash
-# 单元 + 组件 + 集成测试（快速，<3s）
+# 运行单元测试、组件测试与集成契约测试 (160/160 PASS)
 bun test
 
-# E2E 浏览器测试（需要 dev server 启动）
+# 运行 ESLint 代码质量规范检查 (ESLint v9 Flat Config)
+bun run lint
+
+# 运行 Knip 死代码与无用依赖扫描
+bun run knip
+
+# 运行 Playwright E2E 浏览器自动化测试
 bun run test:e2e
 
-# 全部测试
-bun run test:all
+# 运行生产打包与 Cloudflare Workers 部署
+bun run build
+bun run deploy
 ```
-
-### E2E 测试账号配置
-
-E2E 测试中使用 `partner@example.com` / `partner-demo-2026` 作为主要测试账号（外部视角，权限最具代表性）。
 
 ---
 
-## 项目结构
+## 📁 项目目录结构
 
 ```
-├── app/portal/page.tsx     # 门户前端（单文件全量 SPA）
-├── worker/portal.ts        # Cloudflare Worker 后端（API 路由 + 飞书集成）
+├── app/                  # Next.js App Router 页面路由
+│   ├── portal/page.tsx   # 门户后台管理单页应用 (SPA)
+│   ├── layout.tsx        # 根布局与全局样式定义
+│   └── page.tsx          # 官网首页
+├── worker/
+│   └── portal.ts         # Cloudflare Workers 后端逻辑（API 路由与飞书 Base 数据对接）
 ├── lib/
-│   ├── auth.ts             # Better Auth 服务端配置（disableSignUp: true）
-│   ├── auth-client.ts      # Better Auth 客户端实例
-│   └── users.ts            # 本地开发用户存根（4个测试账号）
+│   ├── auth.ts           # Better Auth 服务端官方配置 (disableSignUp: true)
+│   ├── users.ts          # 预设用户身份与权限凭证仓
+│   └── constants.ts      # 常量与 Cookie 统一标准定义
+├── components/           # UI 组件与 shadcn/ui 基础部件
+├── i18n/                 # 国际化配置 (zh / en / am) 与 Tolgee 绑定
 ├── tests/
-│   ├── unit/               # 纯逻辑单元测试
-│   ├── component/          # React 组件测试（happy-dom）
-│   ├── integration/        # API 契约测试（MSW mock）
-│   └── e2e/                # Playwright 真实浏览器测试
-└── docs/
-    └── feishu-cloudflare-portal.md  # 飞书+Cloudflare 架构详解
+│   ├── unit/             # 纯逻辑单元测试
+│   ├── component/        # React 组件测试 (happy-dom)
+│   ├── integration/      # API 契约与接口测试 (MSW mock)
+│   └── e2e/              # Playwright E2E 真实浏览器测试
+├── eslint.config.mjs     # ESLint v9 Flat Config 规范配置
+└── knip.json             # Knip 死代码/无用导出扫描配置
 ```
 
 ---
 
-## 飞书 Base 表结构
+## 📊 飞书 Base 多维表格数据映射
 
-| 环境变量 | 表用途 |
-|----------|--------|
-| `FEISHU_TABLE_INTERNAL_USERS` | 内部员工账号（admin/sales/sourcing/finance） |
-| `FEISHU_TABLE_CUSTOMERS` | 外部客户账号（partner/customer） |
-| `FEISHU_TABLE_VEHICLE_MODELS` | 车型规格库 |
-| `FEISHU_TABLE_INQUIRIES` | 询价单 |
-| `FEISHU_TABLE_QUOTES` | 报价单 |
-| `FEISHU_TABLE_ORDERS` | 订单 |
-| `FEISHU_TABLE_NEGOTIATIONS` | 议价记录 |
+后端的车辆数据与信息查询对接飞书 Base 表格：
 
-详细字段映射见 [`docs/feishu-cloudflare-portal.md`](docs/feishu-cloudflare-portal.md)。
+| 表用途 | 飞书 Table ID / View ID | 场景应用 |
+|--------|------------------------|----------|
+| **后台车型库** | `tblxVNjP9dnJ7b3o` (View: `vewppBx2ht`) | 品牌/车系规格 |
+| **车型配置表** | `tbl8YzkZkMxvHRoT` (View: `vew1Se8rpJ`) | 详细参数与差异配置 |
+| **车辆资源表** | `tblte61W3fKoXmSw` (View: `vewCyPzSbJ`) | 供应商库存与报价资源 |
+| **询价单** | `tblEL6AHiMiWhkVj` | 客户询价线索 |
+| **报价单** | `tblIY4WdBVqvkZf0` | 销售对外报价记录 |
+| **订单管理** | `tblFxuRqSt2oAu0H` | 交易履约与交车追踪 |
