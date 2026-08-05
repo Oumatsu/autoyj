@@ -15,7 +15,6 @@
     "test:component": "bun test tests/component",
     "test:integration": "bun test tests/integration",
     "test:e2e": "bunx playwright test",
-    "test:stagehand": "bun run scripts/stagehand-ai-qa.ts",
     "test:all": "bun run test && bun run test:e2e",
     "setup:feishu": "node scripts/setup-feishu-base.mjs",
     "sync:feishu-data": "node scripts/import-frontend-to-feishu.mjs",
@@ -35,7 +34,6 @@
     "tailwind-merge": "^3.6.0"
   },
   "devDependencies": {
-    "@browserbasehq/stagehand": "^3.7.1",
     "@cloudflare/vite-plugin": "^1.50.0",
     "@cloudflare/workers-types": "^4.20260507.1",
     "@next/eslint-plugin-next": "^16.3.0",
