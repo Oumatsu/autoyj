@@ -20,7 +20,7 @@ export function Dialog({ open, onOpenChange, children }: DialogProps) {
       <div
         role="dialog"
         aria-modal="true"
-        className="relative z-10 w-full max-w-lg rounded-2xl border border-white/10 bg-[#0c1322] p-6 text-white shadow-2xl animate-in zoom-in-95 duration-200"
+        className="relative z-10 w-full max-w-lg rounded-2xl border border-border bg-background p-6 text-foreground shadow-2xl animate-in zoom-in-95 duration-200"
       >
         {children}
       </div>

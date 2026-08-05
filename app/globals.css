@@ -31,6 +31,27 @@
   --color-bg2: #232323;
   --color-bg3: #2a2a2a;
   --color-mid: #1c1c1c;
+
+  /* ── shadcn/ui & Base UI Design Tokens ── */
+  --color-background: #0c1322;
+  --color-foreground: #ffffff;
+  --color-card: #0c1322;
+  --color-card-foreground: #ffffff;
+  --color-popover: #0c1322;
+  --color-popover-foreground: #ffffff;
+  --color-primary: #22b8aa;
+  --color-primary-foreground: #0c1322;
+  --color-secondary: #1e293b;
+  --color-secondary-foreground: #ffffff;
+  --color-muted: #1e293b;
+  --color-muted-foreground: #94a3b8;
+  --color-accent: #22b8aa;
+  --color-accent-foreground: #0c1322;
+  --color-destructive: #ef4444;
+  --color-destructive-foreground: #ffffff;
+  --color-border: rgba(255, 255, 255, 0.1);
+  --color-input: rgba(255, 255, 255, 0.1);
+  --color-ring: #22b8aa;
 }
 
 /* ── Article Body Typography (Mobile-First) ── */
