@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Loading from "../../components/Loading";
@@ -517,7 +517,8 @@ export default function PortalPage() {
       const params = new URLSearchParams(window.location.search);
       const queryTab = (params.get("tab") || params.get("module") || "").toLowerCase().replaceAll("-", "_");
       if (queryTab === "vehicle_models" || queryTab === "profiles") return "vehicle_models";
-      if (queryTab === "source_imports" || queryTab === "vehicles") return "source_imports";
+      if (queryTab === "vehicles") return "vehicles";
+      if (queryTab === "source_imports") return "source_imports";
       if (queryTab === "quotes" || queryTab === "inquiries") return "quotes";
       if (queryTab === "orders") return "orders";
       if (queryTab === "payments") return "payments";
