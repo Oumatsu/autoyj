@@ -5,6 +5,7 @@ import Loading from "@/components/Loading";
 import { useTranslation } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
 import MarkdownRenderer from "@/components/MarkdownRenderer";
+import { sanitizeDisplayData } from "@/lib/display-text";
 import {
   getAcademyLessonDate,
   translateAcademyLesson,
@@ -46,7 +47,7 @@ export default function DynamicLessonPage({ params }: any) {
     fetch(`/api/portal/public/academy/${category}/${slug}`)
       .then((res) => {
         if (!res.ok) throw new Error("Lesson not found");
-        return res.json();
+        return res.json().then(sanitizeDisplayData);
       })
       .then((data: any) => {
         setLesson(data);
@@ -64,7 +65,7 @@ export default function DynamicLessonPage({ params }: any) {
     fetch("/api/portal/public/academy")
       .then((res) => {
         if (!res.ok) throw new Error();
-        return res.json();
+        return res.json().then(sanitizeDisplayData);
       })
       .then((data: any) => {
         const meta = getCategoryMeta(category, t);

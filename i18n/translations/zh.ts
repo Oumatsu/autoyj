@@ -926,6 +926,18 @@ export default {
     "backHome": "← 返回首页"
   },
   "portal": {
+    "navDashboard": "首页看板",
+    "navVehicleModels": "车型库",
+    "navVehicleResources": "车辆资源",
+    "navSourceImports": "车源录入与审查",
+    "navQuotes": "询价管理",
+    "navOrders": "订单管理",
+    "navPayments": "收款财务",
+    "navLogistics": "出口流程",
+    "navCustomers": "客户资料",
+    "navStaff": "员工账号",
+    "badgePreview": "预览",
+    "badgeDevelopment": "开发中",
     "titleVehicles": "车源控制台",
     "titleModels": "车型",
     "titleCalculator": "报价计算器",

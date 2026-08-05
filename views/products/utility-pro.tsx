@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { useTranslation } from "@/i18n/useTranslation";
+import { sanitizeDisplayData } from "@/lib/display-text";
 import { LocaleLink } from "@/i18n/LocaleLink";
 import { ProductCatalogSkeleton, ProductCatalogUnavailable } from "@/components/ProductCatalogState";
 import { buildCatalogFilterGroups, filterCatalogProducts } from "./catalogFilters";
@@ -80,7 +81,7 @@ export default function UtilityProPage() {
     fetch("/api/portal/public/products")
       .then((res) => {
         if (!res.ok) throw new Error();
-        return res.json();
+        return res.json().then(sanitizeDisplayData);
       })
       .then((data: any) => {
         const filtered = data.filter((p: any) => p.category === "utility-pro");

@@ -112,4 +112,90 @@ test.describe("Tier 4: E2E Real Portal Login & Logout Interactive Journey", () =
     await page.goto("/en/dashboard/quotes");
     await expect(page).toHaveURL(/\/en\/dashboard\/quotes/);
   });
+
+  test("Vehicle filters separate reset from list refresh", async ({ page }) => {
+    await page.goto("/portal");
+
+    await page.locator("#login-email").fill("admin@local.test");
+    await page.locator("#login-access-code").fill("admin-demo-2026");
+    await page.locator("form button[type='submit'], form button", { hasText: /Sign In/i }).click();
+
+    await page.locator("a[href='/dashboard?tab=vehicles']").click();
+    await expect(page.locator("[role='status']")).toHaveCount(0, { timeout: 15000 });
+
+    const resetButton = page.getByRole("button", { name: /^重置$/ });
+    const refreshButton = page.getByRole("button", { name: /^刷新$/ });
+    const searchInput = page.locator("input").first();
+    await expect(resetButton).toBeVisible();
+    await expect(refreshButton).toBeVisible();
+    await searchInput.fill("no-match-vehicle");
+    await expect(searchInput).toHaveValue("no-match-vehicle");
+
+    let catalogRequestsAfterReset = 0;
+    page.on("request", (request) => {
+      if (new URL(request.url()).pathname === "/api/portal/catalog" && request.method() === "GET") {
+        catalogRequestsAfterReset += 1;
+      }
+    });
+    await resetButton.click();
+    await page.waitForTimeout(300);
+    expect(catalogRequestsAfterReset).toBe(0);
+    await expect(searchInput).toHaveValue("");
+
+    const refreshResponse = page.waitForResponse((response) =>
+      new URL(response.url()).pathname === "/api/portal/catalog" &&
+      new URL(response.url()).searchParams.get("refresh") === "1" &&
+      response.request().method() === "GET"
+    );
+    await refreshButton.click();
+    await refreshResponse;
+  });
+
+  test("Customer can open the vehicle resources page", async ({ page }) => {
+    await page.goto("/portal");
+
+    await page.locator("#login-email").fill("customer@example.com");
+    await page.locator("#login-access-code").fill("customer-demo-2026");
+    await page.locator("form button[type='submit'], form button", { hasText: /Sign In/i }).click();
+
+    const vehiclesLink = page.locator("a[href='/dashboard?tab=vehicles']");
+    await expect(vehiclesLink).toBeVisible();
+    await vehiclesLink.click();
+
+    await expect(page).toHaveURL(/\?tab=vehicles/);
+    await expect(page.getByRole("heading", { name: "车源控制台" })).toBeVisible();
+  });
+
+  test("Vehicle resources do not expose a color filter", async ({ page }) => {
+    await page.goto("/portal");
+
+    await page.locator("#login-email").fill("admin@local.test");
+    await page.locator("#login-access-code").fill("admin-demo-2026");
+    await page.locator("form button[type='submit'], form button", { hasText: /Sign In/i }).click();
+    await page.locator("a[href='/dashboard?tab=vehicles']").click();
+    await expect(page.locator("[role='status']")).toHaveCount(0, { timeout: 15000 });
+
+    await expect(page.locator("select")).toHaveCount(3);
+  });
+
+  test("Vehicle resource details group colors beneath each configuration", async ({ page }) => {
+    await page.goto("/portal");
+
+    await page.locator("#login-email").fill("admin@local.test");
+    await page.locator("#login-access-code").fill("admin-demo-2026");
+    await page.locator("form button[type='submit'], form button", { hasText: /Sign In/i }).click();
+
+    await page.locator("a[href='/dashboard?tab=vehicles']").click();
+    await page.getByRole("button", { name: "查看版本" }).first().click();
+
+    await page.getByRole("button", { name: /\u67e5\u770b\u989c\u8272/ }).first().click();
+
+    const headers = page.getByRole("columnheader");
+    await expect(headers.nth(0)).toHaveText("外观 / 内饰颜色");
+    await expect(headers.nth(1)).toHaveText("库存数量");
+    await expect(headers.nth(2)).toHaveText("供应商");
+    await expect(headers.nth(3)).toHaveText("车源地点");
+    await expect(headers.nth(4)).toHaveText("美金报价");
+    await expect(page.getByRole("columnheader", { name: "资源 ID" })).toHaveCount(0);
+  });
 });

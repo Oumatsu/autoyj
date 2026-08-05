@@ -926,6 +926,18 @@ export default {
     "backHome": "← ወደ ቤት ተመለስ"
   },
   "portal": {
+    "navDashboard": "ዳሽቦርድ",
+    "navVehicleModels": "የተሽከርካሪ ሞዴሎች",
+    "navVehicleResources": "የተሽከርካሪ ምንጮች",
+    "navSourceImports": "የምንጭ ግቤት እና ግምገማ",
+    "navQuotes": "የዋጋ መጠየቂያ አስተዳደር",
+    "navOrders": "የትዕዛዝ አስተዳደር",
+    "navPayments": "ክፍያዎች እና ፋይናንስ",
+    "navLogistics": "የመላክ ሂደት",
+    "navCustomers": "የደንበኛ መለያዎች",
+    "navStaff": "የሰራተኛ መለያዎች",
+    "badgePreview": "ቅድመ እይታ",
+    "badgeDevelopment": "በልማት ላይ",
     "titleVehicles": "የተሽከርካሪ መቆጣጠሪያ",
     "titleModels": "የተሽከርካሪ ሞዴሎች",
     "titleCalculator": "የዋጋ ማስያ",

@@ -4,6 +4,7 @@ import Loading from "../components/Loading";
 import { useState, useEffect } from "react";
 import { useTranslation } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
+import { sanitizeDisplayData } from "@/lib/display-text";
 import { translateInsightArticle } from "@/views/insights/articleTranslations";
 
 type SortMode = "recommended" | "newest" | "oldest";
@@ -67,7 +68,7 @@ export default function InsightsPage() {
     fetch("/api/portal/public/insights")
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch insights");
-        return res.json();
+        return res.json().then(sanitizeDisplayData);
       })
       .then((data: any) => {
         setArticles(data || []);

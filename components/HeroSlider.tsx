@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useRef, useCallback } from "react";
 import { useTranslation } from "@/i18n/useTranslation";
 import { Locale } from "@/i18n/config";
+import { toStaticAssetUrl } from "@/lib/static-asset-url";
 
 type H1Seg = string | { text: string; cls: string };
 
@@ -324,7 +325,7 @@ export function HeroSlider() {
           className={`slide ${i === 0 ? "active" : ""}`}
         >
           <img
-            src={slide.img}
+            src={toStaticAssetUrl(slide.img)}
             className="absolute inset-0 w-full h-full object-cover"
             style={{ filter: "brightness(.95)" }}
             alt={slide.alt}

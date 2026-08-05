@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useTranslation } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
+import { sanitizeDisplayData } from "@/lib/display-text";
 import {
   translateAcademyLesson,
   translateAcademyVaultItem,
@@ -45,7 +46,7 @@ export default function AcademyPage() {
     fetch("/api/portal/public/academy")
       .then((res) => {
         if (!res.ok) throw new Error("Failed to load");
-        return res.json();
+        return res.json().then(sanitizeDisplayData);
       })
       .then((data: any) => {
         if (data?.lessons) {
