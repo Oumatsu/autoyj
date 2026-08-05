@@ -1,0 +1,31 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "entry": [
+    "app/**/page.tsx",
+    "app/**/layout.tsx",
+    "scripts/**/*.mjs",
+    "scripts/**/*.ts",
+    "tests/**/*.ts"
+  ],
+  "project": [
+    "app/**/*.{ts,tsx}",
+    "components/**/*.{ts,tsx}",
+    "lib/**/*.{ts,tsx}",
+    "worker/**/*.{ts,tsx}",
+    "views/**/*.{ts,tsx}"
+  ],
+  "ignoreDependencies": [
+    "tailwindcss",
+    "@testing-library/jest-dom",
+    "@testing-library/react",
+    "eslint-config-next"
+  ],
+  "ignoreExportsUsedInFile": true,
+  "ignoreIssues": {
+    "components/ui/**": ["exports", "types"],
+    "lib/auth.ts": ["exports", "types"],
+    "lib/users.ts": ["exports", "types"],
+    "views/products/catalogFilters.ts": ["types"],
+    "worker/productFilters.ts": ["types"]
+  }
+}

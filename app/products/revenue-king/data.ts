@@ -1,4 +1,4 @@
-﻿const vehicles = [
+const vehicles = [
   { brand: "Geely", name: "Geome", fob: "$9,700 - $11,700", battery: "40.16 kWh", batteryType: "LFP", range: "410 km", charging: "Smart urban hatch — Flyme Auto + 36 storage compartments + 540° camera", img: "/pic/hero/Geome display.webp", status: "in-stock", statusText: "In Stock: Shanghai", link: "/products/revenue-king/geely-geome", tags: ["Hatchback (Sub-Compact)", "LFP (Lithium Iron Phosphate)", "300 km - 450 km", "Under $15,000", "LHD (Left-Hand Drive)", "In Stock (Port)"] },
   { brand: "BYD", name: "Yuan UP", fob: "$11,500 - $16,900", battery: "45.12 kWh", batteryType: "LFP Blade", range: "401 km", charging: "Best-selling compact SUV — DiLink cockpit + Blade Battery + V2L", img: "/pic/revenue-king/yuanup/5.webp", status: "in-stock", statusText: "In Stock: Shenzhen", link: "/products/revenue-king/byd-yuan-up", tags: ["Compact SUV", "LFP (Lithium Iron Phosphate)", "300 km - 450 km", "Under $15,000", "LHD (Left-Hand Drive)", "In Stock (Port)"] },
   { brand: "Leapmotor", name: "Lafa 5", fob: "$15,500 - $19,500", battery: "67.1 kWh", batteryType: "LFP", range: "605 km", charging: "Tech disruptor — 800V + LiDAR + 2.5K cockpit + 605km range", img: "/pic/revenue-king/lafa5/8cut.webp", status: "factory", statusText: "Factory Order: 14 Days", link: "/products/revenue-king/leapmotor-lafa5", tags: ["Hatchback (Sub-Compact)", "LFP (Lithium Iron Phosphate)", "450 km +", "$15,000 - $20,000", "LHD (Left-Hand Drive)", "Factory Order (14+ Days)"] },
@@ -51,4 +51,4 @@ const specLabels: Record<string, string> = {
   "Formula Leopard — rugged EV SUV with 4.9s 0-100 + 151L frunk": "Buyer Logic",
 };
 
-export { vehicles, specLabels };
+export { vehicles };

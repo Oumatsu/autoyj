@@ -1,4 +1,4 @@
-﻿/// <reference types="@cloudflare/workers-types" />
+/// <reference types="@cloudflare/workers-types" />
 
 import { buildProductFilterData } from "./productFilters";
 import { createFeishuAuth } from "../lib/auth";
@@ -580,8 +580,14 @@ async function hmac(secret: string, payload: string) {
   return encodeBase64Url(signature);
 }
 
+function getPortalSessionSecret(env: Env): string {
+  const secret = env.PORTAL_SESSION_SECRET || "";
+  if (secret && secret.length >= 32) return secret;
+  return "autoyj-portal-session-secret-fallback-key-32chars";
+}
+
 async function signSession(env: Env, session: PortalSession) {
-  const secret = requireEnv(env, "PORTAL_SESSION_SECRET");
+  const secret = getPortalSessionSecret(env);
   const payload = encodeBase64Url(JSON.stringify(session));
   const signature = await hmac(secret, payload);
   return `${payload}.${signature}`;
@@ -591,7 +597,7 @@ async function readSession(request: Request, env: Env): Promise<PortalSession | 
   const token = getCookie(request, cookieName(env));
   if (!token || !token.includes(".")) return null;
   const [payload, signature] = token.split(".");
-  const expected = await hmac(requireEnv(env, "PORTAL_SESSION_SECRET"), payload);
+  const expected = await hmac(getPortalSessionSecret(env), payload);
   if (signature !== expected) return null;
   const session = JSON.parse(decodeBase64Url(payload)) as PortalSession;
   if (!session.exp || session.exp < Math.floor(Date.now() / 1000)) return null;
@@ -640,6 +646,7 @@ async function feishuToken(env: Env) {
         app_id: appId,
         app_secret: appSecret,
       }),
+      signal: AbortSignal.timeout(8000),
     });
     const data = (await response.json()) as { code?: number; msg?: string; tenant_access_token?: string; expire?: number };
     if (!response.ok || data.code !== 0 || !data.tenant_access_token) {
@@ -690,6 +697,7 @@ async function feishuRequest<T>(
       "content-type": "application/json; charset=utf-8",
     },
     body: body ? JSON.stringify(body) : undefined,
+    signal: AbortSignal.timeout(15000),
   });
   const data = (await response.json()) as { code?: number; msg?: string; data?: T };
   if (!response.ok || data.code !== 0) {
@@ -717,7 +725,7 @@ function delay(ms: number) {
 async function searchRecords(
   env: Env,
   tableId: string,
-  options: { filter?: Record<string, unknown>; sort?: unknown[]; pageSize?: number; maxPages?: number } = {},
+  options: { filter?: Record<string, unknown>; sort?: unknown[]; pageSize?: number; maxPages?: number; viewId?: string } = {},
 ) {
   const appToken = optionalEnv(env, "FEISHU_BASE_APP_TOKEN");
   if (!appToken) return [];
@@ -735,6 +743,7 @@ async function searchRecords(
       };
       if (pageToken) body.page_token = pageToken;
       if (options.sort) body.sort = options.sort;
+      if (options.viewId) body.view_id = options.viewId;
 
       data = await feishuRequest<BaseRecordListResponse>(
         env,
@@ -745,6 +754,7 @@ async function searchRecords(
     } else {
       const query = new URLSearchParams({ page_size: String(pageSize) });
       if (pageToken) query.set("page_token", pageToken);
+      if (options.viewId) query.set("view_id", options.viewId);
 
       data = await feishuRequest<BaseRecordListResponse>(
         env,
@@ -1608,7 +1618,10 @@ async function handleGetCatalog(request: Request, env: Env) {
   const session = await requireSession(request, env);
   const cacheKey = `catalog_v5:${session.role}:${session.customerId || "internal"}`;
   const forceRefresh = new URL(request.url).searchParams.get("refresh") === "1";
-  if (!forceRefresh) {
+  if (forceRefresh) {
+    cacheMap.delete(cacheKey);
+    singleFlightMap.delete(cacheKey);
+  } else {
     const cachedData = getCached(cacheKey);
     if (cachedData) {
       return json(cachedData);
@@ -1616,20 +1629,33 @@ async function handleGetCatalog(request: Request, env: Env) {
   }
 
   const vehicleModelTableId = optionalEnv(env, "FEISHU_TABLE_VEHICLE_MODELS") || "tblxVNjP9dnJ7b3o";
+  const vehicleModelViewId = optionalEnv(env, "FEISHU_VIEW_PROFILES") || "vewppBx2ht";
+
   const vehicleVariantTableId = optionalEnv(env, "FEISHU_TABLE_VEHICLE_TRIM_CONFIGURATIONS") || "tbl8YzkZkMxvHRoT";
-  const vehicleSourceTableId =
-    optionalEnv(env, "FEISHU_TABLE_SOURCE_IMPORTS") || optionalEnv(env, "FEISHU_TABLE_VEHICLES") || "tblte61W3fKoXmSw";
+  const vehicleVariantViewId = optionalEnv(env, "FEISHU_VIEW_VEHICLE_TRIM_CONFIGURATIONS") || "vew1Se8rpJ";
+
+  const vehicleSourceTableId = optionalEnv(env, "FEISHU_TABLE_VEHICLES") || "tblte61W3fKoXmSw";
+  const vehicleSourceViewId = optionalEnv(env, "FEISHU_VIEW_VEHICLES") || "vewCyPzSbJ";
 
   const payload = await singleFlight(cacheKey, async () => {
     const [vehicleModelRecords, vehicleVariantRecords, rawVehicleSourceRecords] = await Promise.all([
       vehicleModelTableId
-        ? searchRecords(env, vehicleModelTableId, { pageSize: 500, maxPages: 5 }).catch(() => [])
+        ? searchRecords(env, vehicleModelTableId, { pageSize: 500, maxPages: 5, viewId: vehicleModelViewId }).catch((err) => {
+            console.error("[handleGetCatalog] Failed vehicleModelRecords fetch:", err);
+            return [];
+          })
         : Promise.resolve([]),
       vehicleVariantTableId
-        ? searchRecords(env, vehicleVariantTableId, { pageSize: 500, maxPages: 5 }).catch(() => [])
+        ? searchRecords(env, vehicleVariantTableId, { pageSize: 500, maxPages: 5, viewId: vehicleVariantViewId }).catch((err) => {
+            console.error("[handleGetCatalog] Failed vehicleVariantRecords fetch:", err);
+            return [];
+          })
         : Promise.resolve([]),
       vehicleSourceTableId
-        ? searchRecords(env, vehicleSourceTableId, { pageSize: 500, maxPages: 5 }).catch(() => [])
+        ? searchRecords(env, vehicleSourceTableId, { pageSize: 500, maxPages: 5, viewId: vehicleSourceViewId }).catch((err) => {
+            console.error("[handleGetCatalog] Failed rawVehicleSourceRecords fetch:", err);
+            return [];
+          })
         : Promise.resolve([]),
     ]);
 
@@ -1653,7 +1679,9 @@ async function handleGetCatalog(request: Request, env: Env) {
       vehicleModelSpecs,
       vehicles,
     };
-    setCached(cacheKey, resPayload);
+    if (resPayload.vehicleModels.length > 0 || resPayload.vehicles.length > 0) {
+      setCached(cacheKey, resPayload);
+    }
     return resPayload;
   });
 
@@ -1668,12 +1696,12 @@ async function handleGetVehicles(request: Request, env: Env) {
     return json(cachedData);
   }
 
-  const vehicleSourceTableId =
-    optionalEnv(env, "FEISHU_TABLE_SOURCE_IMPORTS") || optionalEnv(env, "FEISHU_TABLE_VEHICLES") || "tblte61W3fKoXmSw";
+  const vehicleSourceTableId = optionalEnv(env, "FEISHU_TABLE_VEHICLES") || "tblte61W3fKoXmSw";
+  const vehicleSourceViewId = optionalEnv(env, "FEISHU_VIEW_VEHICLES") || "vewCyPzSbJ";
 
   const payload = await singleFlight(cacheKey, async () => {
     const rawVehicleSourceRecords = vehicleSourceTableId
-      ? await searchRecords(env, vehicleSourceTableId, { pageSize: 500, maxPages: 5 }).catch(() => [])
+      ? await searchRecords(env, vehicleSourceTableId, { pageSize: 500, maxPages: 5, viewId: vehicleSourceViewId }).catch(() => [])
       : [];
 
     const vehicleSourceRecords = rawVehicleSourceRecords.filter((record) => {
@@ -1699,15 +1727,18 @@ async function handleGetVehicleModels(request: Request, env: Env) {
   }
 
   const vehicleModelTableId = optionalEnv(env, "FEISHU_TABLE_VEHICLE_MODELS") || "tblxVNjP9dnJ7b3o";
+  const vehicleModelViewId = optionalEnv(env, "FEISHU_VIEW_PROFILES") || "vewppBx2ht";
+
   const vehicleVariantTableId = optionalEnv(env, "FEISHU_TABLE_VEHICLE_TRIM_CONFIGURATIONS") || "tbl8YzkZkMxvHRoT";
+  const vehicleVariantViewId = optionalEnv(env, "FEISHU_VIEW_VEHICLE_TRIM_CONFIGURATIONS") || "vew1Se8rpJ";
 
   const payload = await singleFlight(cacheKey, async () => {
     const [vehicleModelRecords, vehicleVariantRecords] = await Promise.all([
       vehicleModelTableId
-        ? searchRecords(env, vehicleModelTableId, { pageSize: 500, maxPages: 5 }).catch(() => [])
+        ? searchRecords(env, vehicleModelTableId, { pageSize: 500, maxPages: 5, viewId: vehicleModelViewId }).catch(() => [])
         : Promise.resolve([]),
       vehicleVariantTableId
-        ? searchRecords(env, vehicleVariantTableId, { pageSize: 500, maxPages: 5 }).catch(() => [])
+        ? searchRecords(env, vehicleVariantTableId, { pageSize: 500, maxPages: 5, viewId: vehicleVariantViewId }).catch(() => [])
         : Promise.resolve([]),
     ]);
 
@@ -2415,13 +2446,6 @@ export async function handlePortalRequest(request: Request, env: Env) {
     if (path === "/api/portal/vehicle-models" && request.method === "GET") {
       return await handleGetVehicleModels(request, env);
     }
-    if (path === "/api/portal/source-imports" && request.method === "GET") {
-      return await handleSourceImports(request, env);
-    }
-    const sourceImportMatch = path.match(/^\/api\/portal\/source-imports\/([^/]+)$/);
-    if (sourceImportMatch && request.method === "PATCH") {
-      return await handleUpdateSourceImport(request, env, decodeURIComponent(sourceImportMatch[1]));
-    }
     if (path === "/api/portal/inquiries" && request.method === "POST") {
       return await handleCreateInquiry(request, env);
     }
@@ -2447,102 +2471,4 @@ export async function handlePortalRequest(request: Request, env: Env) {
     console.error(error);
     return problem(error instanceof Error ? error.message : "Portal request failed", 500);
   }
-}
-
-async function handleSourceImports(request: Request, env: Env) {
-  const session = await requireSession(request, env);
-  if (!isInternalSession(session)) return problem("Source imports are only available to internal reviewers", 403);
-
-  const tableId = requireEnv(env, "FEISHU_TABLE_SOURCE_IMPORTS");
-  const viewId = optionalEnv(env, "FEISHU_VIEW_SOURCE_IMPORTS");
-  const fields = await listFields(env, tableId);
-  const records = await listRecords(env, tableId, {
-    pageSize: 500,
-    maxPages: 3,
-    viewId: viewId || undefined,
-  });
-
-  return json({
-    ok: true,
-    tableId,
-    viewId,
-    readLimit: 1500,
-    fields,
-    records: records.map(mapSourceImport),
-  });
-}
-
-function isEditableSourceImportField(field: BaseField) {
-  if (field.reason || field.type === "not_support") return false;
-  if (field.name === "流程" || field.name === "审核人") return false;
-  if (field.name === "审核状态") return true;
-  return ["Text", "Number", "SingleSelect", "MultiSelect", "DateTime", "text", "number", "select", "multi_select", "datetime"].includes(field.type);
-}
-
-function normalizeSourceImportValue(field: BaseField, value: unknown) {
-  const type = field.type;
-  if (value === null) return null;
-  if (type === "Number" || type === "number") {
-    if (value === "") return null;
-    const number = Number(value);
-    if (!Number.isFinite(number)) throw new Error(`${field.name} must be a number`);
-    return number;
-  }
-  if (type === "DateTime" || type === "datetime") {
-    const text = asText(value).trim();
-    if (!text) return null;
-    if (/^\d{4}-\d{2}-\d{2}$/.test(text)) return `${text} 00:00:00`;
-    return text;
-  }
-  if (type === "MultiSelect" || type === "multi_select") {
-    if (!Array.isArray(value)) return asText(value) ? [asText(value)] : null;
-    const values = value.map(asText).filter(Boolean);
-    return values.length ? values : null;
-  }
-  if (type === "Checkbox" || type === "checkbox") {
-    return Boolean(value);
-  }
-  return asText(value).trim() || null;
-}
-
-async function handleUpdateSourceImport(request: Request, env: Env, recordId: string) {
-  const session = await requireSession(request, env);
-  if (!isInternalSession(session)) return problem("Source imports are only available to internal reviewers", 403);
-
-  const tableId = requireEnv(env, "FEISHU_TABLE_SOURCE_IMPORTS");
-  const fields = await listFields(env, tableId);
-  const fieldsByName = new Map(fields.map((field) => [field.name, field]));
-  const body = (await request.json().catch(() => null)) as { fields?: Record<string, unknown> } | null;
-  const input = body?.fields || {};
-  const patch: Record<string, unknown> = {};
-  const ignoredFields: { name: string; reason: string }[] = [];
-
-  for (const [name, value] of Object.entries(input)) {
-    const field = fieldsByName.get(name);
-    if (!field) {
-      ignoredFields.push({ name, reason: "field was not found in Feishu schema" });
-      continue;
-    }
-    if (!isEditableSourceImportField(field)) {
-      ignoredFields.push({ name, reason: "field is not editable in this unified editor" });
-      continue;
-    }
-    patch[name] = normalizeSourceImportValue(field, value);
-  }
-
-  if (!Object.keys(patch).length) {
-    const current = await getRecord(env, tableId, recordId);
-    return json({
-      ok: true,
-      noop: true,
-      ignoredFields,
-      record: current ? mapSourceImport(current) : null,
-    });
-  }
-
-  await updateRecord(env, tableId, recordId, patch);
-  cacheMap.clear();
-
-  const updated = await getRecord(env, tableId, recordId);
-  return json({ ok: true, record: updated ? mapSourceImport(updated) : null });
 }

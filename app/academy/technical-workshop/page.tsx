@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
+import { defaultLocale } from "@/i18n/config";
 
 export default function RedirectPage() {
-  redirect("/zh/academy/technical-workshop");
+  redirect(`/${defaultLocale}/academy/technical-workshop`);
 }

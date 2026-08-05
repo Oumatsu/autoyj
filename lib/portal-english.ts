@@ -259,6 +259,13 @@ const vehicleEnglishTerms: Array<[string, string]> = [
   ["苍烟色", "Misty Grey"], ["苍烟", "Misty Grey"], ["滑雪白", "Ski White"], ["乐动米", "Joy Beige"], ["印象蓝", "Impression Blue"], ["樱花粉", "Cherry Blossom Pink"], ["星云白", "Nebula White"], ["沐川青", "River Green"], ["碳黑", "Carbon Black"], ["茶珀棕", "Tea Amber Brown"], ["汉玉白", "Han Jade White"], ["玉瓷灰", "Porcelain Grey"], ["暮紫", "Dusk Purple"], ["烟白", "Smoke White"], ["丹红", "Cinnabar Red"], ["烟紫", "Smoke Purple"], ["皓白", "Bright White"], ["曜灰", "Jet Grey"], ["云紫", "Cloud Purple"], ["曜黑", "Jet Black"], ["雾白", "Mist White"], ["月华银", "Moonlight Silver"],
   ["星璨黑", "Star Black"], ["曜夜黑", "Night Black"], ["浅砂灰", "Light Sand Grey"], ["果壳棕", "Nut Brown"], ["森绿", "Forest Green"], ["深紫", "Deep Purple"], ["墨黑", "Ink Black"], ["岱红", "Mount Tai Red"], ["水墨色", "Ink Wash"],
   ["北京华鹏", "Beijing Huapeng"], ["温州迈卡新能源", "Wenzhou Maika New Energy"], ["重庆盛世惠迪", "Chongqing Shengshi Huidi"], ["重庆赛曼", "Chongqing Saiman"], ["重庆车智汇通", "Chongqing Chezhi Huitong"], ["北京华驰集团", "Beijing Huachi Group"], ["广东", "Guangdong"], ["广州恩特湃", "Guangzhou Enterprise"], ["杭州三只盒子", "Hangzhou Three Boxes"], ["河南优车", "Henan Youche"], ["河南新商筹", "Henan Xinshangchou"], ["浙江创睿", "Zhejiang Chuangrui"], ["福田", "Foton"], ["重庆万友", "Chongqing Wanyou"], ["重庆庆长风", "Chongqing Qingchangfeng"], ["长沙正熙国际", "Changsha Zhengxi International"], ["香港科技智能", "Hong Kong Technology Intelligence"], ["重庆鼎饶", "Chongqing Dingrao"], ["华轮互联科技", "Hualun Connected Technology"], ["青岛", "Qingdao"], ["有限公司", "Co., Ltd."], ["远航国际香港", "Hong Kong Yuanhang International"],
+  ["合作车商/未归类", "Partner Dealer / Unclassified"], ["未归类", "Unclassified"], ["合作车商", "Partner Dealer"], ["现车资源", "In-Stock Inventory"], ["车源审核", "Vehicle Audit"], ["待审核", "Pending Audit"],
+  ["微型车", "Microcar"], ["小型车", "Compact Car"], ["紧凑型车", "Subcompact Car"], ["中型车", "Mid-size Car"], ["中大型车", "Full-size Car"], ["大型车", "Large Car"],
+  ["紧凑型SUV", "Compact SUV"], ["中型SUV", "Mid-size SUV"], ["中大型SUV", "Full-size SUV"], ["大型SUV", "Large SUV"],
+  ["纯电动", "BEV"], ["插电式混合动力", "PHEV"], ["增程式", "EREV"], ["汽油", "Gasoline"], ["柴油", "Diesel"],
+  ["在售", "Active"], ["停售", "Discontinued"], ["未发布", "Unreleased"], ["全国", "Nationwide"],
+  ["质保", "Warranty"], ["含税", "Tax Included"], ["不含税", "Excl. Tax"], ["手续齐全", "Full Documents Ready"],
+  ["随车", "Included"], ["客户", "Customer"], ["自提", "Self Pickup"], ["包邮", "Free Delivery"], ["托运", "Freight Delivery"],
 ];
 
 export function localizeVehicleValue(value: string | null | undefined, locale: PortalLocale): string {
@@ -274,3 +281,4 @@ export function localizeVehicleValue(value: string | null | undefined, locale: P
   // Avoid presenting a partially translated value when a new source value has no complete local coverage.
   return /[\u3400-\u9fff]/.test(translated) ? source : translated;
 }
+

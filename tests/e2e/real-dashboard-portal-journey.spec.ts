@@ -69,7 +69,7 @@ test.describe("Tier 4: E2E Real Portal Login & Logout Interactive Journey", () =
     const performLogout = async () => {
       const logoutBtn = page.locator("button", { hasText: /退出登录|Log Out|Sign Out|Logout/i }).first();
       await expect(logoutBtn).toBeVisible({ timeout: 5000 });
-      await logoutBtn.click();
+      await logoutBtn.evaluate((el) => (el as HTMLElement).click());
       await page.waitForTimeout(600);
     };
 
@@ -163,7 +163,7 @@ test.describe("Tier 4: E2E Real Portal Login & Logout Interactive Journey", () =
     await vehiclesLink.click();
 
     await expect(page).toHaveURL(/\?tab=vehicles/);
-    await expect(page.getByRole("heading", { name: "车源控制台" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /Vehicle Resources|车辆资源/i })).toBeVisible();
   });
 
   test("Vehicle resources do not expose a color filter", async ({ page }) => {

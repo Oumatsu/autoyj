@@ -35,7 +35,7 @@ describe("Integration: Feishu Base Tables - Profiles & Vehicles Verification", (
     expect(modelsRes.code).toBe(0);
     expect(Array.isArray(modelsRes.data.items)).toBe(true);
 
-    const vehiclesTableId = env.FEISHU_TABLE_SOURCE_IMPORTS || "tblte61W3fKoXmSw";
+    const vehiclesTableId = env.FEISHU_TABLE_VEHICLES || "tblte61W3fKoXmSw";
 
     const sourcesRes = await fetch(
       `https://open.feishu.cn/open-apis/bitable/v1/apps/${appToken}/tables/${vehiclesTableId}/records/search`,

@@ -1,6 +1,7 @@
 import { betterAuth } from "better-auth";
 import { customSession } from "better-auth/plugins";
 import { findLocalUser, localUserStore } from "./users.ts";
+import { SESSION_TTL_7D, SESSION_UPDATE_AGE_1D } from "./constants";
 
 export type PortalRole = "admin" | "sales" | "sourcing" | "finance" | "partner" | "customer";
 export type PriceTier = "hidden" | "partner" | "vip" | "internal";
@@ -25,12 +26,21 @@ export type FeishuAuthUser = {
  * 3. 挂载 customSession 实时解析 4 种角色 (admin / sales / partner / customer)
  */
 export function createFeishuAuth(env: Record<string, string | undefined> = {}) {
-  const secret = env.PORTAL_SESSION_SECRET || "youguard-portal-secret-key-2026";
+  const secret = env.PORTAL_SESSION_SECRET;
+  const resolvedSecret = secret && secret.length >= 32 
+    ? secret 
+    : "autoyj-portal-session-secret-fallback-key-32chars";
+  if (!secret || secret.length < 32) {
+    console.warn("[auth] PORTAL_SESSION_SECRET not set or too short — using default fallback key");
+  }
+
+  // PORTAL_BASE_URL defaults to localhost only for local development
   const baseURL = env.PORTAL_BASE_URL || "http://localhost:3000";
+
 
   return betterAuth({
     baseURL,
-    secret,
+    secret: resolvedSecret,
     emailAndPassword: {
       enabled: true,
       disableSignUp: true, // 🚫 彻底关闭公开注册入口
@@ -47,8 +57,8 @@ export function createFeishuAuth(env: Record<string, string | undefined> = {}) {
       },
     },
     session: {
-      expiresIn: 60 * 60 * 24 * 7, // 7 天 Session
-      updateAge: 60 * 60 * 24, // 1 天更新粒度
+      expiresIn: SESSION_TTL_7D,       // 7 days
+      updateAge: SESSION_UPDATE_AGE_1D, // refresh token daily
     },
     plugins: [
       customSession(async ({ user, session }) => {
