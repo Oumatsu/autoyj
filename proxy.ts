@@ -17,7 +17,8 @@ import { COOKIE_TTL_1Y, LOCALE_COOKIE_NAME } from "./lib/constants";
  * Parse the best-matching locale from Accept-Language header.
  * Supports weighted quality values (e.g. "zh-CN,zh;q=0.9,en;q=0.8").
  */
-function getLocaleFromAcceptLanguage(header: string | null): Locale | null {
+/** @internal exported for unit tests — do not use directly in app code */
+export function getLocaleFromAcceptLanguage(header: string | null): Locale | null {
   if (!header) return null;
 
   const parts = header
