@@ -7,7 +7,7 @@ const env = {
   FEISHU_APP_ID: "test-app-id",
   FEISHU_APP_SECRET: "test-app-secret",
   FEISHU_BASE_APP_TOKEN: "test-base-token",
-  FEISHU_TABLE_SOURCE_IMPORTS: "source-table",
+  FEISHU_TABLE_VEHICLES: "source-table",
   FEISHU_TABLE_VEHICLE_MODELS: "model-table",
   FEISHU_TABLE_VEHICLE_TRIM_CONFIGURATIONS: "variant-table",
 };

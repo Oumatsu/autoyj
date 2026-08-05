@@ -26,7 +26,7 @@ import { formatPortalStatus, localizeVehicleValue, portalRoleLabels } from "@/li
 type PortalRole = "admin" | "sales" | "sourcing" | "finance" | "partner" | "customer";
 type PriceTier = "hidden" | "partner" | "vip" | "internal";
 type AccountType = "internal" | "external";
-type AdminModule = "dashboard" | "vehicle_models" | "vehicles" | "source_imports" | "quotes" | "orders" | "payments" | "logistics" | "customers" | "staff";
+type AdminModule = "dashboard" | "vehicle_models" | "vehicles" | "quotes" | "orders" | "payments" | "logistics" | "customers" | "staff";
 type AdminIconName = "dashboard" | "vehicle_models" | "vehicles" | "quotes" | "orders" | "payments" | "logistics" | "customers" | "staff";
 
 type PortalUser = {
@@ -378,7 +378,6 @@ const adminNavItems: { key: AdminModule; labelKey: string; roles: PortalRole[]; 
   { key: "dashboard", labelKey: "portal.navDashboard", roles: ["admin", "sales", "sourcing", "finance", "partner", "customer"], icon: "dashboard", badge: "development" },
   { key: "vehicle_models", labelKey: "portal.navVehicleModels", roles: ["admin", "sales", "sourcing", "partner", "customer"], icon: "vehicle_models", badge: "preview" },
   { key: "vehicles", labelKey: "portal.navVehicleResources", roles: ["admin", "sales", "sourcing", "partner", "customer"], icon: "vehicles", badge: "preview" },
-  { key: "source_imports", labelKey: "portal.navSourceImports", roles: ["admin", "sales", "sourcing"], icon: "vehicles", badge: "development" },
   { key: "quotes", labelKey: "portal.navQuotes", roles: ["admin", "sales", "partner", "customer"], icon: "quotes", badge: "development" },
   { key: "orders", labelKey: "portal.navOrders", roles: ["admin", "sales", "finance", "partner", "customer"], icon: "orders", badge: "development" },
   { key: "payments", labelKey: "portal.navPayments", roles: ["admin", "finance"], icon: "payments", badge: "development" },
@@ -518,7 +517,6 @@ export default function PortalPage() {
       const queryTab = (params.get("tab") || params.get("module") || "").toLowerCase().replaceAll("-", "_");
       if (queryTab === "vehicle_models" || queryTab === "profiles") return "vehicle_models";
       if (queryTab === "vehicles") return "vehicles";
-      if (queryTab === "source_imports") return "source_imports";
       if (queryTab === "quotes" || queryTab === "inquiries") return "quotes";
       if (queryTab === "orders") return "orders";
       if (queryTab === "payments") return "payments";
@@ -600,7 +598,7 @@ export default function PortalPage() {
       host.includes("preview")
     );
 
-    const validModules: AdminModule[] = ["dashboard", "vehicle_models", "vehicles", "source_imports", "quotes", "orders", "payments", "logistics", "customers", "staff"];
+    const validModules: AdminModule[] = ["dashboard", "vehicle_models", "vehicles", "quotes", "orders", "payments", "logistics", "customers", "staff"];
     const syncFromUrl = () => {
       const pathname = window.location.pathname.toLowerCase();
       const segments = pathname.split("/").filter(Boolean);
@@ -658,7 +656,7 @@ export default function PortalPage() {
 
   useEffect(() => {
     if (!data) return;
-    const catalogModules: AdminModule[] = ["dashboard", "vehicle_models", "vehicles", "source_imports"];
+    const catalogModules: AdminModule[] = ["dashboard", "vehicle_models", "vehicles"];
     if (catalogModules.includes(activeAdminModule)) {
       void loadCatalogIfNeeded();
     }
@@ -1088,7 +1086,7 @@ export default function PortalPage() {
               <table className="w-full min-w-[760px] border-separate border-spacing-0 text-left text-sm">
                 <thead>
                   <tr>
-                    {["Year", "Trim / Config", "Color", "Qty", "Supply", "Lead Time", "Location", "报价", "Action"].map((header) => (
+                    {["Year", "Trim / Config", "Color", "Qty", "Supply", "Lead Time", "Location", locale === "zh" ? "报价" : "Quote", "Action"].map((header) => (
                       <th key={header} className="border-b border-white/10 px-3 py-3 text-[10px] font-black uppercase tracking-widest text-gray-500">
                         {header}
                       </th>
@@ -1390,8 +1388,6 @@ function AdminModuleContent({ activeModule, data, isModuleLoading, onEditVehicle
     return <ModuleLoadingSkeleton />;
   }
   switch (activeModule) {
-    case "source_imports":
-      return <AdminSourceImportsDemo />;
     case "vehicle_models":
       return <AdminProfiles data={data} />;
     case "vehicles":
@@ -1411,77 +1407,6 @@ function AdminModuleContent({ activeModule, data, isModuleLoading, onEditVehicle
     default:
       return <AdminDashboard data={data} />;
   }
-}
-
-function AdminSourceImportsDemo() {
-  const { t } = useTranslation();
-  return (
-    <div className="grid min-w-0 gap-6">
-      <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-5 text-amber-300">
-        <div className="flex items-center gap-3">
-          <span className="rounded-md bg-amber-400 px-2 py-0.5 text-xs font-black uppercase text-black">{t("portal.stepInDev")} / Demo</span>
-          <h2 className="text-lg font-black tracking-tight text-white">{t("portal.demoTitle")}</h2>
-        </div>
-        <p className="mt-2 text-xs text-amber-200/80">
-          {t("portal.demoDesc")}
-        </p>
-      </div>
-
-      <section className="grid gap-4 md:grid-cols-4">
-        <div className="rounded-xl border border-white/10 bg-white/[.04] p-4">
-          <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">{t("portal.pendingAssets")}</span>
-          <strong className="mt-2 block text-2xl font-black text-white">12 files</strong>
-          <span className="mt-1 block text-xs text-slate-400">PDFs, images, and chat records</span>
-        </div>
-        <div className="rounded-xl border border-white/10 bg-white/[.04] p-4">
-          <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">{t("portal.aiParsingProgress")}</span>
-          <strong className="mt-2 block text-2xl font-black text-[#22b8aa]">98.5%</strong>
-          <span className="mt-1 block text-xs text-slate-400">Processed with Nemotron and GPT vision models</span>
-        </div>
-        <div className="rounded-xl border border-white/10 bg-white/[.04] p-4">
-          <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">{t("portal.duplicateAlert")}</span>
-          <strong className="mt-2 block text-2xl font-black text-amber-400">2 groups</strong>
-          <span className="mt-1 block text-xs text-amber-300/80">Cross-checked by VIN and chassis number</span>
-        </div>
-        <div className="rounded-xl border border-white/10 bg-white/[.04] p-4">
-          <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">{t("portal.readyToPublish")}</span>
-          <strong className="mt-2 block text-2xl font-black text-white">35 units</strong>
-          <span className="mt-1 block text-xs text-slate-400">Ready for export PDI</span>
-        </div>
-      </section>
-
-      <div className="grid gap-5 xl:grid-cols-2">
-        <div className="rounded-2xl border border-white/10 bg-white/[.03] p-5">
-          <h3 className="text-base font-black text-white">{t("portal.batchImportTitle")}</h3>
-          <p className="mt-1 text-xs text-slate-400">Accepts Excel files, vehicle registration sheets, supplier images, and chat screenshots.</p>
-          <div className="mt-4 grid h-36 place-items-center rounded-xl border border-dashed border-white/20 bg-black/20 text-center">
-            <div>
-              <p className="text-xs font-bold text-slate-300">{t("portal.dropFilesHere")}</p>
-              <p className="mt-1 text-[10px] text-slate-500">Extracts VIN, exterior and interior colors, list price, supplier price, and deposit requirements.</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="rounded-2xl border border-white/10 bg-white/[.03] p-5">
-          <h3 className="text-base font-black text-white">{t("portal.workflowPreviewTitle")}</h3>
-          <div className="mt-4 grid gap-3 text-xs text-slate-300">
-            <div className="flex items-center justify-between rounded-lg border border-white/10 bg-black/20 p-3">
-              <span>1. Source document capture (Excel / image OCR)</span>
-              <span className="text-[#22b8aa] font-bold">{t("portal.stepPassed")}</span>
-            </div>
-            <div className="flex items-center justify-between rounded-lg border border-white/10 bg-black/20 p-3">
-              <span>2. Structured field mapping and validation</span>
-              <span className="text-[#22b8aa] font-bold">{t("portal.stepPassed")}</span>
-            </div>
-            <div className="flex items-center justify-between rounded-lg border border-white/10 bg-black/20 p-3">
-              <span>3. Incremental sync to `vehicle_sources`</span>
-              <span className="text-amber-400 font-bold">{t("portal.stepInDev")}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
 }
 
 function AdminDashboard({ data }: { data: BootstrapData }) {
@@ -2527,12 +2452,12 @@ function VehicleEditModal({ vehicle, onClose, onSaved }: { vehicle: Vehicle; onC
           )}
           {canEditOptionalField("Supplier Exterior Color") && (
             <FormField label="Supplier exterior color">
-              <input value={form.supplierExteriorColor} onChange={(event) => updateField("supplierExteriorColor", event.target.value)} placeholder="珍珠白 / 极地白" />
+              <input value={form.supplierExteriorColor} onChange={(event) => updateField("supplierExteriorColor", event.target.value)} placeholder={locale === "zh" ? "珍珠白 / 极地白" : "Pearl White / Polar White"} />
             </FormField>
           )}
           {canEditOptionalField("Supplier Interior Color") && (
             <FormField label="Supplier interior color">
-              <input value={form.supplierInteriorColor} onChange={(event) => updateField("supplierInteriorColor", event.target.value)} placeholder="黑内 / 米内" />
+              <input value={form.supplierInteriorColor} onChange={(event) => updateField("supplierInteriorColor", event.target.value)} placeholder={locale === "zh" ? "黑内 / 米内" : "Black Interior / Beige Interior"} />
             </FormField>
           )}
           {canEditOptionalField("Color Code") && (
@@ -2966,8 +2891,8 @@ function buildModelComparisonRows(group: ModelProfileGroup, mode: "core" | "full
   return result;
 }
 
-function buildVariantDifferenceSteps(group: ModelProfileGroup): VariantDifferenceStep[] {
-  const ignoredNames = new Set(["品牌", "车系", "车型", "年款", "版本", "市场定位", "原始参数JSON", "出口备注", "版本核对", "中国官方指导价"]);
+function buildVariantDifferenceSteps(group: ModelProfileGroup, locale: string = "zh"): VariantDifferenceStep[] {
+  const ignoredNames = new Set(["品牌", "车系", "车型", "年款", "版本", "市场定位", "原始参数JSON", "出口备注", "版本核对", "中国官方指导价", "国内官方指导价"]);
   const entryNames = new Set(["车身级别", "能源类型", "CLTC续航", "电池容量", "电池类型", "电机总功率", "驱动方式", "座位数"]);
   const sections: VariantDifferenceStep["sections"] = [];
   return group.variants.map((variant, index) => {

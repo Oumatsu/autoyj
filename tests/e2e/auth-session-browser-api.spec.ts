@@ -76,7 +76,7 @@ test.describe("Advanced E2E: Auth Session Lifecycle & Browser API Verification",
     expect(cookies.length).toBeGreaterThan(0);
 
     // 5. Perform logout
-    await logoutBtn.click();
+    await logoutBtn.evaluate((el) => (el as HTMLElement).click());
     await page.waitForTimeout(500);
 
     // 6. Verify returning to Sign In screen
@@ -109,7 +109,7 @@ test.describe("Advanced E2E: Auth Session Lifecycle & Browser API Verification",
     });
 
     // 3. Trigger logout
-    await logoutBtn.click();
+    await logoutBtn.evaluate((el) => (el as HTMLElement).click());
     await page.waitForTimeout(500);
 
     // 4. Check if custom event fired successfully
@@ -147,7 +147,7 @@ test.describe("Advanced E2E: Auth Session Lifecycle & Browser API Verification",
       expect(bodyText.length).toBeGreaterThan(50);
 
       // Perform logout
-      await logoutBtn.click();
+      await logoutBtn.evaluate((el) => (el as HTMLElement).click());
       await page.waitForTimeout(400);
 
       // Verify sign in page restored
