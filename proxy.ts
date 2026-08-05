@@ -1,6 +1,12 @@
+/**
+ * @deprecated DEAD CODE — Next.js middleware entry point is now `middleware.ts`.
+ * This file is kept for reference only. Do NOT use or import it.
+ * The locale cookie name here (`youguard_locale`) differs from middleware.ts (`NEXT_LOCALE`).
+ */
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { defaultLocale, locales, Locale } from "./i18n/config";
+import { COOKIE_TTL_1Y } from "./lib/constants";
 
 function detectLocaleFromRequest(request: NextRequest): Locale {
   const cookieLocale = request.cookies.get("youguard_locale")?.value;
@@ -23,9 +29,8 @@ function detectLocaleFromRequest(request: NextRequest): Locale {
     .sort((a, b) => b.q - a.q);
 
   for (const { lang } of preferred) {
-    if (lang === "zh") return "zh";
-    if (lang === "en") return "en";
-    if (lang === "am") return "am";
+    const matched = locales.find((l) => l === lang);
+    if (matched) return matched;
   }
 
   return defaultLocale;
@@ -41,7 +46,7 @@ export function proxy(request: NextRequest) {
     response.headers.set("x-locale", firstSegment);
     response.cookies.set("youguard_locale", firstSegment, {
       path: "/",
-      maxAge: 60 * 60 * 24 * 365,
+      maxAge: COOKIE_TTL_1Y,
     });
     return response;
   }

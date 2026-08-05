@@ -1,6 +1,7 @@
 import { betterAuth } from "better-auth";
 import { customSession } from "better-auth/plugins";
 import { findLocalUser, localUserStore } from "./users.ts";
+import { SESSION_TTL_7D, SESSION_UPDATE_AGE_1D } from "./constants";
 
 export type PortalRole = "admin" | "sales" | "sourcing" | "finance" | "partner" | "customer";
 export type PriceTier = "hidden" | "partner" | "vip" | "internal";
@@ -25,12 +26,27 @@ export type FeishuAuthUser = {
  * 3. 挂载 customSession 实时解析 4 种角色 (admin / sales / partner / customer)
  */
 export function createFeishuAuth(env: Record<string, string | undefined> = {}) {
-  const secret = env.PORTAL_SESSION_SECRET || "youguard-portal-secret-key-2026";
+  // PORTAL_SESSION_SECRET must be set in production — fail loudly so a
+  // deployment never silently runs with a known-weak secret.
+  const secret = env.PORTAL_SESSION_SECRET;
+  if (!secret || secret.length < 32) {
+    if (process.env.NODE_ENV === "production") {
+      throw new Error(
+        "[auth] PORTAL_SESSION_SECRET is missing or too short. " +
+          "Set a ≥32-char random string in your deployment environment."
+      );
+    }
+    console.warn("[auth] PORTAL_SESSION_SECRET not set — using insecure dev fallback");
+  }
+  const resolvedSecret = secret || "__DEV_ONLY_INSECURE_FALLBACK_DO_NOT_USE_IN_PROD__";
+
+  // PORTAL_BASE_URL defaults to localhost only for local development
   const baseURL = env.PORTAL_BASE_URL || "http://localhost:3000";
+
 
   return betterAuth({
     baseURL,
-    secret,
+    secret: resolvedSecret,
     emailAndPassword: {
       enabled: true,
       disableSignUp: true, // 🚫 彻底关闭公开注册入口
@@ -47,8 +63,8 @@ export function createFeishuAuth(env: Record<string, string | undefined> = {}) {
       },
     },
     session: {
-      expiresIn: 60 * 60 * 24 * 7, // 7 天 Session
-      updateAge: 60 * 60 * 24, // 1 天更新粒度
+      expiresIn: SESSION_TTL_7D,       // 7 days
+      updateAge: SESSION_UPDATE_AGE_1D, // refresh token daily
     },
     plugins: [
       customSession(async ({ user, session }) => {

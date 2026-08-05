@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Noto_Sans, Noto_Sans_SC, Noto_Sans_Ethiopic } from "next/font/google";
 import "./globals.css";
 import { SiteChrome } from "@/components/SiteChrome";
+import { defaultLocale, locales } from "@/i18n/config";
 
 export const dynamic = "force-dynamic";
 
@@ -53,7 +54,7 @@ export default function RootLayout({
 }) {
   return (
     <html
-      lang="zh"
+      lang={defaultLocale}
       dir="ltr"
       className={`${inter.variable} ${notoSans.variable} ${notoSansSc.variable} ${notoSansEthiopic.variable} font-sans`}
       suppressHydrationWarning
@@ -61,13 +62,17 @@ export default function RootLayout({
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        {/* Inline script: runs before React hydration to set the correct lang attr and
+            font class. Uses JSON.stringify so it stays in sync with i18n/config.ts. */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
                 try {
-                  const segments = window.location.pathname.split('/');
-                  const locale = ['zh', 'en', 'am'].includes(segments[1]) ? segments[1] : 'zh';
+                  var supportedLocales = ${JSON.stringify(locales)};
+                  var defaultLocale = ${JSON.stringify(defaultLocale)};
+                  var segments = window.location.pathname.split('/');
+                  var locale = supportedLocales.includes(segments[1]) ? segments[1] : defaultLocale;
                   document.documentElement.lang = locale;
                   if (locale === 'en') {
                     document.documentElement.classList.add('font-inter');

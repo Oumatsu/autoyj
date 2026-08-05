@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Locale, localeLabels, locales } from "./config";
+import { COOKIE_TTL_1Y, LOCALE_COOKIE_NAME } from "@/lib/constants";
 import { getLocaleFromPath } from "./utils";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
@@ -22,7 +23,7 @@ export function LocaleSwitcher() {
     }
 
     // Persist locale preference so middleware remembers it on future visits
-    document.cookie = `NEXT_LOCALE=${locale}; max-age=${60 * 60 * 24 * 365}; path=/; samesite=lax`;
+    document.cookie = `${LOCALE_COOKIE_NAME}=${locale}; max-age=${COOKIE_TTL_1Y}; path=/; samesite=lax`;
 
     const segments = pathname.split("/").filter(Boolean);
     if (locales.includes(segments[0] as Locale)) {

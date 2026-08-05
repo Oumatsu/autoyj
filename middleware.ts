@@ -1,8 +1,9 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { defaultLocale, locales, type Locale } from "./i18n/config";
+import { COOKIE_TTL_1Y, LOCALE_COOKIE_NAME } from "./lib/constants";
 
-/** Cookie name — matches Next.js built-in i18n convention */
-const LOCALE_COOKIE = "NEXT_LOCALE";
+/** Cookie name — imported from lib/constants for single source of truth */
+const LOCALE_COOKIE = LOCALE_COOKIE_NAME;
 
 /**
  * Parse the best-matching locale from Accept-Language header.
@@ -56,7 +57,7 @@ export function middleware(request: NextRequest) {
     const response = NextResponse.next();
     // Persist the locale so future root-level visits remember the choice
     response.cookies.set(LOCALE_COOKIE, pathLocale, {
-      maxAge: 60 * 60 * 24 * 365, // 1 year
+      maxAge: COOKIE_TTL_1Y,
       path: "/",
       sameSite: "lax",
     });
@@ -80,7 +81,7 @@ export function middleware(request: NextRequest) {
 
   const response = NextResponse.redirect(url, { status: 307 });
   response.cookies.set(LOCALE_COOKIE, targetLocale, {
-    maxAge: 60 * 60 * 24 * 365,
+    maxAge: COOKIE_TTL_1Y,
     path: "/",
     sameSite: "lax",
   });
