@@ -21,6 +21,9 @@ export function LocaleSwitcher() {
       return;
     }
 
+    // Persist locale preference so middleware remembers it on future visits
+    document.cookie = `NEXT_LOCALE=${locale}; max-age=${60 * 60 * 24 * 365}; path=/; samesite=lax`;
+
     const segments = pathname.split("/").filter(Boolean);
     if (locales.includes(segments[0] as Locale)) {
       segments[0] = locale;
