@@ -680,9 +680,6 @@ export default function PortalPage() {
         void loadModels();
       } else if (activeAdminModule === "vehicles" && !loadedVehicles) {
         void loadVehicles();
-      } else if (activeAdminModule === "dashboard") {
-        if (!loadedModels) void loadModels();
-        if (!loadedVehicles) void loadVehicles();
       }
     }, 0);
     return () => clearTimeout(timer);
