@@ -619,22 +619,25 @@ export default function PortalPage() {
     syncFromUrl();
     window.addEventListener("popstate", syncFromUrl);
 
-    void checkSessionAndLoad();
+    const timer = setTimeout(() => {
+      void checkSessionAndLoad();
+    }, 0);
 
     return () => {
       window.removeEventListener("popstate", syncFromUrl);
+      clearTimeout(timer);
     };
   }, []);
 
-  const [loadedCatalog, setLoadedCatalog] = useState(false);
+  const [loadedModels, setLoadedModels] = useState(false);
+  const [loadedVehicles, setLoadedVehicles] = useState(false);
   const [moduleLoading, setModuleLoading] = useState(false);
 
-  const loadCatalogIfNeeded = useCallback(async (force = false) => {
+  const loadModels = useCallback(async () => {
+    if (loadedModels) return;
     setModuleLoading(true);
     try {
-      const res = await api<{ vehicleModels: VehicleModel[]; vehicleModelSpecs: VehicleSpec[]; vehicles: Vehicle[] }>(
-        `/api/portal/catalog${force ? "?refresh=1" : ""}`,
-      );
+      const res = await api<{ vehicleModels: VehicleModel[]; vehicleModelSpecs: VehicleSpec[] }>("/api/portal/vehicle-models");
       if (res) {
         setData((prev) =>
           prev
@@ -642,26 +645,48 @@ export default function PortalPage() {
                 ...prev,
                 vehicleModels: res.vehicleModels || [],
                 vehicleModelSpecs: res.vehicleModelSpecs || [],
-                vehicles: res.vehicles || [],
               }
             : prev
         );
-        setLoadedCatalog(true);
+        setLoadedModels(true);
       }
     } catch (e) {
-      console.warn("Failed to load catalog on demand:", e);
+      console.warn("Failed to load vehicle models on demand:", e);
     } finally {
       setModuleLoading(false);
     }
-  }, []);
+  }, [loadedModels]);
+
+  const loadVehicles = useCallback(async () => {
+    if (loadedVehicles) return;
+    setModuleLoading(true);
+    try {
+      const res = await api<{ vehicles: Vehicle[] }>("/api/portal/vehicles");
+      if (res) {
+        setData((prev) => (prev ? { ...prev, vehicles: res.vehicles || [] } : prev));
+        setLoadedVehicles(true);
+      }
+    } catch (e) {
+      console.warn("Failed to load vehicles on demand:", e);
+    } finally {
+      setModuleLoading(false);
+    }
+  }, [loadedVehicles]);
 
   useEffect(() => {
     if (!data) return;
-    const catalogModules: AdminModule[] = ["dashboard", "vehicle_models", "vehicles"];
-    if (catalogModules.includes(activeAdminModule) && !loadedCatalog) {
-      void loadCatalogIfNeeded();
-    }
-  }, [data, activeAdminModule, loadedCatalog, loadCatalogIfNeeded]);
+    const timer = setTimeout(() => {
+      if (activeAdminModule === "vehicle_models" && !loadedModels) {
+        void loadModels();
+      } else if (activeAdminModule === "vehicles" && !loadedVehicles) {
+        void loadVehicles();
+      } else if (activeAdminModule === "dashboard") {
+        if (!loadedModels) void loadModels();
+        if (!loadedVehicles) void loadVehicles();
+      }
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [data, activeAdminModule, loadedModels, loadedVehicles, loadModels, loadVehicles]);
 
   const handleModuleChange = (module: AdminModule) => {
     setActiveAdminModule(module);

@@ -1615,77 +1615,27 @@ async function handleBootstrap(request: Request, env: Env) {
 }
 
 async function handleGetCatalog(request: Request, env: Env) {
-  const session = await requireSession(request, env);
-  const cacheKey = `catalog_v5:${session.role}:${session.customerId || "internal"}`;
-  const forceRefresh = new URL(request.url).searchParams.get("refresh") === "1";
-  if (forceRefresh) {
-    cacheMap.delete(cacheKey);
-    singleFlightMap.delete(cacheKey);
-  } else {
-    const cachedData = getCached(cacheKey);
-    if (cachedData) {
-      return json(cachedData);
-    }
+  const url = new URL(request.url);
+  const scope = (url.searchParams.get("scope") || url.searchParams.get("tab") || "").toLowerCase().replaceAll("-", "_");
+
+  if (scope === "vehicle_models") {
+    return handleGetVehicleModels(request, env);
+  }
+  if (scope === "vehicles") {
+    return handleGetVehicles(request, env);
   }
 
-  const vehicleModelTableId = optionalEnv(env, "FEISHU_TABLE_VEHICLE_MODELS") || "tblxVNjP9dnJ7b3o";
-  const vehicleModelViewId = optionalEnv(env, "FEISHU_VIEW_PROFILES") || "vewppBx2ht";
+  // Default fallback: execute decoupled sub-requests independently
+  const [modelsRes, vehiclesRes] = await Promise.all([
+    handleGetVehicleModels(request, env).then(r => r.json() as Promise<{ vehicleModels?: VehicleModel[]; vehicleModelSpecs?: VehicleSpec[] }>).catch(() => ({})),
+    handleGetVehicles(request, env).then(r => r.json() as Promise<{ vehicles?: Vehicle[] }>).catch(() => ({})),
+  ]);
 
-  const vehicleVariantTableId = optionalEnv(env, "FEISHU_TABLE_VEHICLE_TRIM_CONFIGURATIONS") || "tbl8YzkZkMxvHRoT";
-  const vehicleVariantViewId = optionalEnv(env, "FEISHU_VIEW_VEHICLE_TRIM_CONFIGURATIONS") || "vew1Se8rpJ";
-
-  const vehicleSourceTableId = optionalEnv(env, "FEISHU_TABLE_VEHICLES") || "tblte61W3fKoXmSw";
-  const vehicleSourceViewId = optionalEnv(env, "FEISHU_VIEW_VEHICLES") || "vewCyPzSbJ";
-
-  const payload = await singleFlight(cacheKey, async () => {
-    const [vehicleModelRecords, vehicleVariantRecords, rawVehicleSourceRecords] = await Promise.all([
-      vehicleModelTableId
-        ? searchRecords(env, vehicleModelTableId, { pageSize: 500, maxPages: 5, viewId: vehicleModelViewId }).catch((err) => {
-            console.error("[handleGetCatalog] Failed vehicleModelRecords fetch:", err);
-            return [];
-          })
-        : Promise.resolve([]),
-      vehicleVariantTableId
-        ? searchRecords(env, vehicleVariantTableId, { pageSize: 500, maxPages: 5, viewId: vehicleVariantViewId }).catch((err) => {
-            console.error("[handleGetCatalog] Failed vehicleVariantRecords fetch:", err);
-            return [];
-          })
-        : Promise.resolve([]),
-      vehicleSourceTableId
-        ? searchRecords(env, vehicleSourceTableId, { pageSize: 500, maxPages: 5, viewId: vehicleSourceViewId }).catch((err) => {
-            console.error("[handleGetCatalog] Failed rawVehicleSourceRecords fetch:", err);
-            return [];
-          })
-        : Promise.resolve([]),
-    ]);
-
-    const vehicleSourceRecords = rawVehicleSourceRecords.filter((record) => {
-      const stage = parseSourceStage(record.fields);
-      return stage === "connected";
-    });
-
-    const vehicles = vehicleSourceRecords.map((record) => mapVehicleSource(record, session));
-    const modelDataset = buildVehicleModelDataset(vehicleModelRecords, vehicleVariantRecords);
-    const vehicleModelSpecs = modelDataset.vehicleModelSpecs;
-    const mappedModels = modelDataset.vehicleModels;
-    const activeModels = mappedModels.filter((m) => {
-      const st = (m.status || "active").toLowerCase().trim();
-      return st === "active" || st === "published" || st === "online" || st === "在售" || st === "启用" || !/archived|draft|disabled|下架|停售/i.test(st);
-    });
-    const vehicleModels = enrichVehicleModelsWithSpecs(activeModels.length ? activeModels : mappedModels, vehicleModelSpecs);
-
-    const resPayload = {
-      vehicleModels,
-      vehicleModelSpecs,
-      vehicles,
-    };
-    if (resPayload.vehicleModels.length > 0 || resPayload.vehicles.length > 0) {
-      setCached(cacheKey, resPayload);
-    }
-    return resPayload;
+  return json({
+    vehicleModels: modelsRes.vehicleModels || [],
+    vehicleModelSpecs: modelsRes.vehicleModelSpecs || [],
+    vehicles: vehiclesRes.vehicles || [],
   });
-
-  return json(payload);
 }
 
 async function handleGetVehicles(request: Request, env: Env) {
