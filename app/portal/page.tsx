@@ -507,6 +507,7 @@ export default function PortalPage() {
   const [accessCode, setAccessCode] = useState("");
   const [data, setData] = useState<BootstrapData | null>(() => globalBootstrapData);
   const [loading, setLoading] = useState(!globalBootstrapData);
+  const [error, setError] = useState("");
   const [isLocalDev] = useState(() => {
     if (typeof window === "undefined") return false;
     const host = window.location.hostname.toLowerCase();
