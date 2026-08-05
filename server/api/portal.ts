@@ -1,8 +1,8 @@
 /// <reference types="@cloudflare/workers-types" />
 
 import { buildProductFilterData } from "./productFilters";
-import { createFeishuAuth } from "../lib/auth";
-import { findLocalUser } from "../lib/users";
+import { createFeishuAuth } from "../../lib/auth";
+import { findLocalUser } from "../../lib/users";
 
 type Env = {
   FEISHU_API_URL?: string;
