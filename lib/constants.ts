@@ -27,9 +27,6 @@ export const LOCALE_COOKIE_NAME = "NEXT_LOCALE";
 /** Portal session cookie managed by Better Auth */
 export const PORTAL_COOKIE_NAME_DEFAULT = "youguard_portal";
 
-/** Locale cookie used by the legacy proxy.ts (kept for reference, not used in middleware.ts) */
-export const LOCALE_COOKIE_LEGACY = "youguard_locale";
-
 // ---------------------------------------------------------------------------
 // Tolgee
 // ---------------------------------------------------------------------------
