@@ -297,7 +297,7 @@ interface MarkdownRendererProps {
   imageBasePath?: string;
 }
 
-export function MarkdownRenderer({
+function MarkdownRenderer({
   content,
   imageBasePath,
 }: MarkdownRendererProps) {

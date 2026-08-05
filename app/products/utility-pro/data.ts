@@ -26,4 +26,4 @@ const specLabels: Record<string, string> = {
   "[Hyper-Luxury SUV] 900V Haohan-S platform — 1,030 kW tri-motor + 3.1s 0-100 + 6-seat + 6C super-fast charge": "Buyer Logic",
 };
 
-export { vehicles, specLabels };
+export { vehicles };

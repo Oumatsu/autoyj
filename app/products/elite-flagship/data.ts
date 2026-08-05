@@ -40,4 +40,4 @@ const specLabels: Record<string, string> = {
   "[Luxury All-Terrain SUV] Huawei HarmonyOS cockpit + 800V PHEV/EV options + 5-seat flagship space": "Buyer Logic",
 };
 
-export { vehicles, specLabels };
+export { vehicles };

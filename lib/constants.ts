@@ -24,9 +24,6 @@ export const SESSION_UPDATE_AGE_1D = 60 * 60 * 24;
 /** Next.js / middleware locale cookie — persists the user's language preference */
 export const LOCALE_COOKIE_NAME = "NEXT_LOCALE";
 
-/** Portal session cookie managed by Better Auth */
-export const PORTAL_COOKIE_NAME_DEFAULT = "youguard_portal";
-
 // ---------------------------------------------------------------------------
 // Tolgee
 // ---------------------------------------------------------------------------

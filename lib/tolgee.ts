@@ -6,8 +6,8 @@ import en from "@/i18n/translations/en";
 import am from "@/i18n/translations/am";
 
 // Re-export from config so callers that imported from here still work
-export const defaultLanguage = defaultLocale;
-export const availableLanguages = locales;
+const defaultLanguage = defaultLocale;
+const availableLanguages = locales;
 
 // Map of locale → static translation bundle (update here when adding a language)
 const staticData: Record<string, unknown> = { zh, en, am };
