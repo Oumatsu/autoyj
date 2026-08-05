@@ -2,7 +2,7 @@
 
 import { handleImageOptimization, DEFAULT_DEVICE_SIZES, DEFAULT_IMAGE_SIZES } from "vinext/server/image-optimization";
 import handler from "vinext/server/app-router-entry";
-import { handlePortalRequest } from "./portal";
+import { handlePortalRequest, handleScheduledSync } from "./portal";
 
 interface Env {
   ASSETS: Fetcher;
@@ -68,5 +68,8 @@ export default {
     }
 
     return handler.fetch(request, env, ctx);
+  },
+  async scheduled(_event: { cron: string }, env: Env, ctx: ExecutionContext): Promise<void> {
+    ctx.waitUntil(handleScheduledSync(env));
   },
 };

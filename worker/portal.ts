@@ -2507,8 +2507,32 @@ async function handlePublicAcademyLesson(category: string, slug: string, env: En
     content: asText(fields.content)
   };
 
-  setCached(cacheKey, data, env);
+  setCached(cacheKey, data);
   return json(data);
+}
+
+export async function handleScheduledSync(env: Env): Promise<void> {
+  console.log("[scheduled-sync] Running 10-minute Feishu background synchronization...");
+  try {
+    const fakeAdminSession: PortalSession = {
+      userId: "system-cron",
+      email: "cron@autoyj.local",
+      role: "admin",
+      accountType: "internal",
+      exp: Math.floor(Date.now() / 1000) + 3600,
+    };
+    // Pre-warm caches for admin and default roles
+    const mockReq = new Request("https://autoyj.local/api/portal/catalog", {
+      headers: { cookie: "youguard_portal=cron" },
+    });
+    await Promise.all([
+      handleGetVehicleModels(mockReq, env).catch(() => null),
+      handleGetVehicles(mockReq, env).catch(() => null),
+    ]);
+    console.log("[scheduled-sync] Feishu background synchronization completed successfully.");
+  } catch (err) {
+    console.error("[scheduled-sync] Background sync failed:", err);
+  }
 }
 
 export async function handlePortalRequest(request: Request, env: Env) {
