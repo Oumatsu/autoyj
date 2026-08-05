@@ -1607,6 +1607,15 @@ async function handleDevLogin(request: Request, env: Env) {
 async function handleBootstrap(request: Request, env: Env) {
   const session = await requireSession(request, env);
 
+  const [modelsRes, vehiclesRes] = await Promise.all([
+    handleGetVehicleModels(request, env)
+      .then((r) => r.json() as Promise<{ vehicleModels?: PortalVehicleModel[]; vehicleModelSpecs?: PortalVehicleModelSpec[] }>)
+      .catch(() => ({})),
+    handleGetVehicles(request, env)
+      .then((r) => r.json() as Promise<{ vehicles?: Vehicle[] }>)
+      .catch(() => ({})),
+  ]);
+
   return json({
     user: publicUser(session),
     permissions: {
@@ -1614,9 +1623,9 @@ async function handleBootstrap(request: Request, env: Env) {
       canRequestQuote: true,
       canCounterOffer: true,
     },
-    vehicleModels: [],
-    vehicleModelSpecs: [],
-    vehicles: [],
+    vehicleModels: modelsRes.vehicleModels || [],
+    vehicleModelSpecs: modelsRes.vehicleModelSpecs || [],
+    vehicles: vehiclesRes.vehicles || [],
     inquiries: [],
     quotes: [],
     negotiations: [],

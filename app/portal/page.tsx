@@ -676,10 +676,16 @@ export default function PortalPage() {
 
   useEffect(() => {
     if (!data) return;
+    if (data.vehicleModels && data.vehicleModels.length > 0 && !loadedModels) {
+      setLoadedModels(true);
+    }
+    if (data.vehicles && data.vehicles.length > 0 && !loadedVehicles) {
+      setLoadedVehicles(true);
+    }
     const timer = setTimeout(() => {
-      if (activeAdminModule === "vehicle_models" && !loadedModels) {
+      if (activeAdminModule === "vehicle_models" && !loadedModels && (!data.vehicleModels || data.vehicleModels.length === 0)) {
         void loadModels();
-      } else if (activeAdminModule === "vehicles" && !loadedVehicles) {
+      } else if (activeAdminModule === "vehicles" && !loadedVehicles && (!data.vehicles || data.vehicles.length === 0)) {
         void loadVehicles();
       }
     }, 0);
