@@ -1511,15 +1511,15 @@ function ModelFullSpecsCard({ group }: { group: ModelProfileGroup }) {
   const versionDetails = group.variants.map((variant) => ({
     variant,
     items: [
-      { label: "List Price", value: getModelSpecValue(group.specsByModel, variant.id, ["\u4e2d\u56fd\u5b98\u65b9\u6307\u5bfc\u4ef7"]) || variant.msrpChina || "-" },
-      { label: "CLTC Range", value: getModelSpecValue(group.specsByModel, variant.id, ["CLTC\u7eed\u822a"]) || variant.range || "-" },
-      { label: "Battery", value: [getModelSpecValue(group.specsByModel, variant.id, ["\u7535\u6c60\u5bb9\u91cf"]) || variant.battery, getModelSpecValue(group.specsByModel, variant.id, ["\u7535\u6c60\u7c7b\u578b"]) || variant.batteryType].filter(Boolean).join(" / ") || "-" },
-      { label: "Drive / Power", value: [getModelSpecValue(group.specsByModel, variant.id, ["\u9a71\u52a8\u65b9\u5f0f"]) || variant.driveType, getModelSpecValue(group.specsByModel, variant.id, ["\u7535\u673a\u603b\u529f\u7387"]) || variant.motorPower].filter(Boolean).join(" / ") || "-" },
-      { label: "Motor Torque", value: getModelSpecValue(group.specsByModel, variant.id, ["\u7535\u673a\u603b\u626d\u77e9"]) || variant.motorTorque || "-" },
-      { label: "DC Fast Charging", value: getModelSpecValue(group.specsByModel, variant.id, ["\u76f4\u6d41\u5feb\u5145"]) || variant.charging || "-" },
-      { label: "Added Features", value: getModelSpecValue(group.specsByModel, variant.id, ["\u65b0\u589e\u914d\u7f6e"]) || "-" },
-      { label: "Upgrade Features", value: getModelSpecValue(group.specsByModel, variant.id, ["\u5347\u7ea7\u914d\u7f6e"]) || "-" },
-      { label: "Verification", value: getModelSpecValue(group.specsByModel, variant.id, ["\u7248\u672c\u6838\u9a8c\u72b6\u6001"]) || "-" },
+      { label: "List Price", value: getModelSpecValue(group.specsByModel, variant.id, ["中国官方指导价"]) || variant.msrpChina || "-" },
+      { label: "CLTC Range", value: getModelSpecValue(group.specsByModel, variant.id, ["CLTC续航"]) || variant.range || "-" },
+      { label: "Battery", value: compactJoin([getModelSpecValue(group.specsByModel, variant.id, ["电池容量"]) || variant.battery, getModelSpecValue(group.specsByModel, variant.id, ["电池类型"]) || variant.batteryType]) },
+      { label: "Drive / Power", value: compactJoin([getModelSpecValue(group.specsByModel, variant.id, ["驱动方式"]) || variant.driveType, getModelSpecValue(group.specsByModel, variant.id, ["电机总功率"]) || variant.motorPower]) },
+      { label: "Motor Torque", value: getModelSpecValue(group.specsByModel, variant.id, ["电机总扭矩"]) || variant.motorTorque || "-" },
+      { label: "DC Fast Charging", value: getModelSpecValue(group.specsByModel, variant.id, ["直流快充"]) || variant.charging || "-" },
+      { label: "Added Features", value: getModelSpecValue(group.specsByModel, variant.id, ["新增配置"]) || "-" },
+      { label: "Upgrade Features", value: getModelSpecValue(group.specsByModel, variant.id, ["升级配置"]) || "-" },
+      { label: "Verification", value: getModelSpecValue(group.specsByModel, variant.id, ["版本核验状态"]) || "-" },
     ],
   }));
   const selectedVersion = versionDetails.find(({ variant }) => variant.id === selectedVariantId) ?? versionDetails[0];
@@ -1537,7 +1537,7 @@ function ModelFullSpecsCard({ group }: { group: ModelProfileGroup }) {
   const accelerationVal = safeText(v.acceleration) || "-";
   const topSpeedVal = safeText(v.topSpeed) || "-";
 
-  const dimensionsVal = safeText(v.dimensions) || getModelSpecValue(group.specsByModel, v.id, ["闀?瀹?楂?mm)"]) || "-";
+  const dimensionsVal = safeText(v.dimensions) || getModelSpecValue(group.specsByModel, v.id, ["长*宽*高(mm)"]) || "-";
   const wheelbaseVal = safeText(v.wheelbase) || getModelSpecValue(group.specsByModel, v.id, ["轴距(mm)"]) || "-";
   const seatsVal = safeText(v.seats);
   const doorsVal = safeText(v.doors);
@@ -1546,48 +1546,51 @@ function ModelFullSpecsCard({ group }: { group: ModelProfileGroup }) {
   const curbWeightVal = safeText(v.curbWeight);
   const trunkCapacityVal = safeText(v.trunkCapacity);
 
+  const seatsStr = seatsVal && seatsVal !== "-" ? `${seatsVal}${locale === "zh" ? "座" : " seats"}` : "";
+  const doorsStr = doorsVal && doorsVal !== "-" ? `${doorsVal}${locale === "zh" ? "门" : " doors"}` : "";
+  const seatsDoorsVal = compactJoin([seatsStr, doorsStr]);
+
+  const frontSusp = frontSuspensionVal && frontSuspensionVal !== "-" ? frontSuspensionVal : "";
+  const rearSusp = rearSuspensionVal && rearSuspensionVal !== "-" ? rearSuspensionVal : "";
+  const suspensionVal = compactJoin([frontSusp, rearSusp]);
+
+  const curbWeightStr = curbWeightVal && curbWeightVal !== "-" ? curbWeightVal : "";
+  const trunkCapacityStr = trunkCapacityVal && trunkCapacityVal !== "-" ? trunkCapacityVal : "";
+  const weightTrunkVal = compactJoin([curbWeightStr, trunkCapacityStr]);
+
   const adasVal = safeText(v.adas) || getModelSpecValue(group.specsByModel, v.id, ["ADAS"]) || "-";
 
   const overviewSections = [
     {
-      title: `\u26A1 ${t("portal.batteryAndCharging")}`,
-      tone: "border-[#22b8aa]/25 bg-[#22b8aa]/[0.035]",
-      titleTone: "text-[#5ee6d8]",
+      title: `⚡ ${t("portal.batteryAndCharging")}`,
       items: [[t("portal.cltcRange"), rangeVal], [t("portal.batteryCapacity"), batteryVal], [t("portal.batteryType"), batteryTypeVal], [t("portal.chargingSpecs"), chargingVal], [t("portal.energyConsumption"), energyConsumptionVal], [t("portal.batteryMaker"), batteryMakerVal]],
     },
     {
-      title: `\u{1F3C1} ${t("portal.motorAndPerformance")}`,
-      tone: "border-sky-400/20 bg-sky-400/[0.035]",
-      titleTone: "text-sky-300",
+      title: `🏁 ${t("portal.motorAndPerformance")}`,
       items: [[t("portal.driveType"), driveTypeVal], [t("portal.motorPower"), motorPowerVal], [t("portal.motorTorque"), motorTorqueVal], [t("portal.acceleration"), accelerationVal], [t("portal.topSpeed"), topSpeedVal]],
     },
     {
-      title: `\u{1F6E1}\uFE0F ${t("portal.bodyAndChassis")}`,
-      tone: "border-violet-400/20 bg-violet-400/[0.035]",
-      titleTone: "text-violet-300",
-      items: [[t("portal.dimensions"), dimensionsVal], [t("portal.wheelbase"), wheelbaseVal], [t("portal.seatsDoors"), `${seatsVal ? `${seatsVal}${locale === "zh" ? "座" : " seats"}` : "-"} / ${doorsVal ? `${doorsVal}${locale === "zh" ? "门" : " doors"}` : "-"}`], [t("portal.suspension"), `${frontSuspensionVal || "-"} / ${rearSuspensionVal || "-"}`], [t("portal.weightTrunk"), `${curbWeightVal || "-"} / ${trunkCapacityVal || "-"}`]],
+      title: `🛡️ ${t("portal.bodyAndChassis")}`,
+      items: [[t("portal.dimensions"), dimensionsVal], [t("portal.wheelbase"), wheelbaseVal], [t("portal.seatsDoors"), seatsDoorsVal], [t("portal.suspension"), suspensionVal], [t("portal.weightTrunk"), weightTrunkVal]],
     },
     {
-      title: `\u{1F50E} ${t("portal.adas")}`,
-      tone: "border-amber-400/20 bg-amber-400/[0.035]",
-      titleTone: "text-amber-300",
+      title: `🔎 ${t("portal.adas")}`,
       items: [[t("portal.adas"), adasVal], [locale === "zh" ? "国内官方指导价" : "Domestic List Price", group.guidePriceSummary || v.msrpChina || "-"], [locale === "zh" ? "出口合规/备注" : "Export Compliance / Notes", localizeVehicleValue(v.exportNotes, locale)]],
     },
   ];
 
   return (
-    <div className="space-y-7 text-xs">
-      <section className="border-b border-white/10 pb-5">
+    <div className="space-y-6 text-xs">
+      <section className="border-b border-white/10 pb-4">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
               <span className="rounded-md bg-[#22b8aa]/10 px-2 py-1 font-mono text-[10px] font-black uppercase tracking-wider text-[#5ee6d8]">{safeText(group.brand)} · {safeText(group.model)}</span>
-              <span className="text-[11px] text-slate-500">{group.variants.length} {t("portal.variantsInStock")}</span>
+              <span className="text-[11px] text-slate-400">{group.variants.length} {t("portal.variantsInStock")}</span>
             </div>
-            <h4 className="mt-3 text-base font-black text-white">{safeText(group.marketPosition) || `${safeText(group.brand)} ${safeText(group.model)} ${t("portal.fullTechSpecs")}`}</h4>
+            <h4 className="mt-2 text-base font-black text-white">{safeText(group.marketPosition) || `${safeText(group.brand)} ${safeText(group.model)} ${t("portal.fullTechSpecs")}`}</h4>
           </div>
           <div className="flex flex-wrap items-center gap-2 text-[10px]">
-            <span className="rounded-md border border-white/10 bg-white/[.025] px-2.5 py-1.5 text-slate-400">{t("portal.dataSource")}{locale === "zh" ? "：" : ": "}<span className="font-semibold text-slate-200">{localizeVehicleValue(safeText(v.sourceName), locale)}</span></span>
             {v.sourceUrl ? <a href={v.sourceUrl} target="_blank" rel="noreferrer" className="rounded-md border border-[#22b8aa]/25 px-2.5 py-1.5 font-bold text-[#5ee6d8] transition hover:bg-[#22b8aa]/10">{t("portal.feishuSource")}</a> : null}
             {v.brochureUrl ? <a href={v.brochureUrl} target="_blank" rel="noreferrer" className="rounded-md border border-amber-400/25 px-2.5 py-1.5 font-bold text-amber-300 transition hover:bg-amber-400/10">{t("portal.pdfBrochure")}</a> : null}
           </div>
@@ -1595,16 +1598,21 @@ function ModelFullSpecsCard({ group }: { group: ModelProfileGroup }) {
       </section>
 
       <section>
-        <div className="mb-3 flex items-center justify-between gap-3">
-          <div><p className="text-[10px] font-black uppercase tracking-[.18em] text-slate-500">MODEL OVERVIEW</p><h5 className="mt-1 text-sm font-black text-white">{t("portal.fullTechSpecs")}</h5></div>
-          <span className="text-[10px] text-slate-500">{t("portal.dataSource")}{locale === "zh" ? "：" : ": "}{localizeVehicleValue(safeText(v.sourceName), locale)}</span>
+        <div className="mb-3">
+          <p className="text-[10px] font-black uppercase tracking-[.18em] text-slate-400">MODEL OVERVIEW</p>
+          <h5 className="mt-0.5 text-sm font-black text-white">{t("portal.fullTechSpecs")}</h5>
         </div>
-        <div className="grid gap-px overflow-hidden rounded-lg border border-white/10 bg-white/10 md:grid-cols-2">
+        <div className="grid gap-3.5 grid-cols-1 md:grid-cols-2">
           {overviewSections.map((section) => (
-            <div key={section.title} className={`p-4 ${section.tone}`}>
-              <strong className={`block border-b border-white/10 pb-2 text-xs font-black ${section.titleTone}`}>{section.title}</strong>
-              <dl className="mt-3 grid gap-x-4 gap-y-3 sm:grid-cols-2">
-                {section.items.map(([label, value]) => <div key={label} className="min-w-0"><dt className="text-[10px] text-slate-500">{label}</dt><dd className="mt-1 break-words font-medium leading-5 text-slate-200">{value}</dd></div>)}
+            <div key={section.title} className="rounded-xl border border-white/10 bg-[#0c1424] p-4 text-xs transition">
+              <strong className="block border-b border-white/10 pb-2 text-xs font-bold uppercase tracking-wide text-[#5ee6d8]">{section.title}</strong>
+              <dl className="mt-3 grid gap-x-4 gap-y-3 grid-cols-1 sm:grid-cols-2">
+                {section.items.map(([label, value]) => (
+                  <div key={label} className="min-w-0">
+                    <dt className="text-[10px] font-medium text-slate-400">{label}</dt>
+                    <dd className="mt-0.5 break-words font-semibold text-slate-100 leading-5">{value}</dd>
+                  </div>
+                ))}
               </dl>
             </div>
           ))}
@@ -1613,11 +1621,11 @@ function ModelFullSpecsCard({ group }: { group: ModelProfileGroup }) {
 
       {versionDetails.length > 0 ? (
         <section className="border-t border-white/10 pt-6">
-          <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
-            <div><p className="text-[10px] font-black uppercase tracking-[.18em] text-slate-500">CONFIGURATIONS</p><h5 className="mt-1 text-base font-black text-white">{locale === "zh" ? `配置版本 (${versionDetails.length})` : `Configuration Trims (${versionDetails.length})`}</h5></div>
-            <span className="text-[10px] text-slate-500">{t("portal.dataSource")}{locale === "zh" ? "：" : ": "}<span className="font-medium text-slate-300">{localizeVehicleValue(safeText(v.sourceName), locale)}</span></span>
+          <div className="mb-4">
+            <p className="text-[10px] font-black uppercase tracking-[.18em] text-slate-400">CONFIGURATIONS</p>
+            <h5 className="mt-0.5 text-base font-black text-white">{locale === "zh" ? `配置版本 (${versionDetails.length})` : `Configuration Trims (${versionDetails.length})`}</h5>
           </div>
-          <div className="grid min-h-[420px] overflow-hidden rounded-lg border border-white/10 bg-[#070e1b] lg:grid-cols-[minmax(210px,.7fr)_minmax(0,1.7fr)]">
+          <div className="grid min-h-[420px] overflow-hidden rounded-xl border border-white/10 bg-[#070e1b] lg:grid-cols-[minmax(210px,.7fr)_minmax(0,1.7fr)]">
             <div className="max-h-[320px] overflow-y-auto border-b border-white/10 bg-[#080f1c] lg:max-h-[620px] lg:border-b-0 lg:border-r">
               {versionDetails.map(({ variant, items }) => {
                 const isSelected = selectedVersion?.variant.id === variant.id;
@@ -1635,8 +1643,8 @@ function ModelFullSpecsCard({ group }: { group: ModelProfileGroup }) {
                 <div className="h-full">
                   <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 px-4 py-4"><div><p className="text-[10px] font-black uppercase tracking-[.18em] text-[#5ee6d8]">SELECTED CONFIGURATION</p><strong className="mt-1 block text-sm font-black text-white">{localizeVehicleValue(selectedVersion.variant.trim || selectedVersion.variant.id, locale)}</strong></div><span className="rounded-full border border-white/10 px-2 py-1 text-[10px] font-bold text-slate-300">{localizeVehicleValue(selectedVersion.items[8]?.value, locale)}</span></div>
                   <div className="grid gap-px bg-white/10 lg:grid-cols-2">
-                    <dl className="grid gap-x-6 gap-y-4 bg-[#0a1120] p-4 sm:grid-cols-2">{selectedVersion.items.slice(0, 6).map((item) => <div key={item.label}><dt className="text-[10px] text-slate-500">{item.label}</dt><dd className="mt-1 break-words text-[12px] leading-5 text-slate-200">{item.value}</dd></div>)}</dl>
-                    <dl className="grid gap-4 bg-[#0a1120] p-4">{selectedVersion.items.slice(6).map((item) => <div key={item.label}><dt className="text-[10px] text-slate-500">{item.label}</dt><dd className="mt-1 break-words text-[12px] leading-5 text-slate-200">{item.value}</dd></div>)}</dl>
+                    <dl className="grid gap-x-6 gap-y-4 bg-[#0a1120] p-4 sm:grid-cols-2">{selectedVersion.items.slice(0, 6).map((item) => <div key={item.label}><dt className="text-[10px] text-slate-400">{item.label}</dt><dd className="mt-1 break-words text-[12px] leading-5 text-slate-100">{item.value}</dd></div>)}</dl>
+                    <dl className="grid gap-4 bg-[#0a1120] p-4">{selectedVersion.items.slice(6).map((item) => <div key={item.label}><dt className="text-[10px] text-slate-400">{item.label}</dt><dd className="mt-1 break-words text-[12px] leading-5 text-slate-100">{item.value}</dd></div>)}</dl>
                   </div>
                 </div>
               ) : null}
