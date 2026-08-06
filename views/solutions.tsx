@@ -6,9 +6,9 @@ import { LocaleLink } from "@/i18n/LocaleLink";
 export default function SolutionsPage() {
   const { t, tArray } = useTranslation();
 
-  const pdiChecklist = (t("solutions.pdi.checklist") as any[]) || [];
+  const pdiChecklist = tArray("solutions.pdi.checklist");
   const kitItems = tArray("solutions.partsKit.kitItems");
-  const serviceCentreItems = (t("solutions.serviceCentre.items") as any[]) || [];
+  const serviceCentreItems = tArray("solutions.serviceCentre.items");
 
   return (
     <>

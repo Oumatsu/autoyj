@@ -12,12 +12,26 @@ const availableLanguages = locales;
 // Map of locale → static translation bundle (update here when adding a language)
 const staticData: Record<string, unknown> = { zh, en, am };
 
+function getEnvVar(key: string): string | undefined {
+  if (typeof process !== "undefined" && process.env && process.env[key]) {
+    return process.env[key];
+  }
+  try {
+    return (import.meta as any).env?.[key];
+  } catch {
+    return undefined;
+  }
+}
+
 export function createTolgee(initialLocale: string = defaultLanguage) {
   const language = (availableLanguages as readonly string[]).includes(initialLocale)
     ? initialLocale
     : defaultLanguage;
 
-  const projectIdRaw = import.meta.env.NEXT_PUBLIC_TOLGEE_PROJECT_ID;
+  const apiKey = getEnvVar("NEXT_PUBLIC_TOLGEE_API_KEY");
+  const apiUrl = getEnvVar("NEXT_PUBLIC_TOLGEE_API_URL") || TOLGEE_API_URL_DEFAULT;
+  const projectIdRaw = getEnvVar("NEXT_PUBLIC_TOLGEE_PROJECT_ID");
+
   const parsedProjectId = projectIdRaw ? Number(projectIdRaw) : TOLGEE_PROJECT_ID_FALLBACK;
   const projectId = Number.isNaN(parsedProjectId) ? TOLGEE_PROJECT_ID_FALLBACK : parsedProjectId;
 
@@ -28,8 +42,8 @@ export function createTolgee(initialLocale: string = defaultLanguage) {
       language,
       defaultLanguage,
       fallbackLanguage: defaultLanguage,
-      apiUrl: import.meta.env.NEXT_PUBLIC_TOLGEE_API_URL || TOLGEE_API_URL_DEFAULT,
-      apiKey: import.meta.env.NEXT_PUBLIC_TOLGEE_API_KEY,
+      apiUrl,
+      apiKey,
       projectId,
       staticData,
     });

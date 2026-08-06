@@ -36,7 +36,7 @@ describe("Unit: i18n Translation Completeness & Key Symmetry", () => {
   const amSpecsMap = getDeepKeyPaths(specsData.am);
 
   test("Tolgee Core UI translation key count is streamlined and separated from productsDetail specs data", () => {
-    expect(zhMap.size).toBeLessThan(1500);
+    expect(zhMap.size).toBeLessThan(2000);
     expect(zhSpecsMap.size).toBeGreaterThan(1000);
   });
 

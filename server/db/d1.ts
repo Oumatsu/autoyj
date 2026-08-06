@@ -297,3 +297,92 @@ export async function queryVehicles(db: D1Database): Promise<D1Vehicle[]> {
     return result.results;
   });
 }
+
+// ---------------------------------------------------------------------------
+// Better Auth User Sync Helpers
+// ---------------------------------------------------------------------------
+
+export interface D1AuthUserRecord {
+  id: string;
+  name: string;
+  email: string;
+  emailVerified?: number;
+  image?: string | null;
+  createdAt: number;
+  updatedAt: number;
+  user_id?: string;
+  customer_id?: string;
+  company?: string;
+  account_type?: string;
+  role?: string;
+  price_tier?: string;
+  status?: string;
+  accessCode?: string;
+}
+
+export async function upsertUsersToD1(db: D1Database, users: D1AuthUserRecord[]): Promise<void> {
+  if (!users.length) return;
+  const now = Date.now();
+
+  const userStmts = users.map((u) =>
+    db.prepare(`
+      INSERT INTO user (
+        id, name, email, emailVerified, image, createdAt, updatedAt,
+        user_id, customer_id, company, account_type, role, price_tier, status
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT(id) DO UPDATE SET
+        name = excluded.name,
+        email = excluded.email,
+        updatedAt = excluded.updatedAt,
+        user_id = excluded.user_id,
+        customer_id = excluded.customer_id,
+        company = excluded.company,
+        account_type = excluded.account_type,
+        role = excluded.role,
+        price_tier = excluded.price_tier,
+        status = excluded.status;
+    `).bind(
+      u.id,
+      u.name,
+      u.email.toLowerCase(),
+      u.emailVerified ?? 1,
+      u.image ?? null,
+      u.createdAt || now,
+      now,
+      u.user_id ?? u.id,
+      u.customer_id ?? u.id,
+      u.company ?? "Youguard",
+      u.account_type ?? "external",
+      u.role ?? "customer",
+      u.price_tier ?? "vip",
+      u.status ?? "Active"
+    )
+  );
+
+  const accountStmts = users
+    .filter((u) => Boolean(u.accessCode))
+    .map((u) =>
+      db.prepare(`
+        INSERT INTO account (
+          id, userId, accountId, providerId, password, createdAt, updatedAt
+        ) VALUES (?, ?, ?, 'credential', ?, ?, ?)
+        ON CONFLICT(id) DO UPDATE SET
+          password = excluded.password,
+          updatedAt = excluded.updatedAt;
+      `).bind(
+        `acc_${u.id}`,
+        u.id,
+        u.email.toLowerCase(),
+        u.accessCode,
+        now,
+        now
+      )
+    );
+
+  const BATCH_SIZE = 50;
+  const allStmts = [...userStmts, ...accountStmts];
+  for (let i = 0; i < allStmts.length; i += BATCH_SIZE) {
+    await db.batch(allStmts.slice(i, i + BATCH_SIZE));
+  }
+}
+

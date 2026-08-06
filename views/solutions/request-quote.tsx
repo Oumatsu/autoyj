@@ -4,17 +4,17 @@ import { useTranslation } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
 
 export default function RequestQuotePage() {
-  const { t } = useTranslation();
+  const { t, tArray } = useTranslation();
 
   const serviceTiers = (t("solutionsRequestQuote.tiers") as any) || {};
-  const whatsIncludedItems = (t("solutionsRequestQuote.included.items") as string[]) || [];
-  const tierOptions = (t("solutionsRequestQuote.form.tierOptions") as any[]) || [];
-  const sizeOptions = (t("solutionsRequestQuote.form.sizeOptions") as string[]) || [];
-  const volumeOptions = (t("solutionsRequestQuote.form.volumeOptions") as string[]) || [];
-  const powerOptions = (t("solutionsRequestQuote.form.powerOptions") as string[]) || [];
-  const technicianOptions = (t("solutionsRequestQuote.form.technicianOptions") as string[]) || [];
-  const equipmentList = (t("solutionsRequestQuote.form.equipment") as any[]) || [];
-  const countryOptions = (t("solutionsRequestQuote.form.countryOptions") as string[]) || [];
+  const whatsIncludedItems = tArray("solutionsRequestQuote.included.items");
+  const tierOptions = tArray("solutionsRequestQuote.form.tierOptions");
+  const sizeOptions = tArray("solutionsRequestQuote.form.sizeOptions");
+  const volumeOptions = tArray("solutionsRequestQuote.form.volumeOptions");
+  const powerOptions = tArray("solutionsRequestQuote.form.powerOptions");
+  const technicianOptions = tArray("solutionsRequestQuote.form.technicianOptions");
+  const equipmentList = tArray("solutionsRequestQuote.form.equipment");
+  const countryOptions = tArray("solutionsRequestQuote.form.countryOptions");
 
   const tierData = [
     {

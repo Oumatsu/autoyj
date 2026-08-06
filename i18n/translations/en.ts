@@ -1,4 +1,4 @@
-export default {
+const en = {
   "nav": {
     "vehicles": "Vehicles",
     "revenueKing": "Revenue King",
@@ -18,20 +18,72 @@ export default {
       "heading1": "Source smarter.",
       "heading2": "Scale faster.",
       "subheading": "End-to-end EV procurement from China to Africa — transparent pricing, certified PDI, dealer-ready support.",
-      "ctaPrimary": "Explore Vehicles",
-      "ctaSecondary": "Talk to the Team",
-      "process": "Our Process"
+      "ctaPrimary": "Explore Selection",
+      "ctaSecondary": "Talk to Expert",
+      "process": "Our Standardized Process",
+      "slides": {
+        "s0": {
+          "label": "Expert Buyer Network",
+          "line1": "Your Dedicated",
+          "line2": "",
+          "line2Accent": "",
+          "line2Theme": "EV Sourcing",
+          "line3": "Expert",
+          "sub": "Data-driven selection and rigorous quality checks tailored for the African market",
+          "cta": "View Selection"
+        },
+        "s1": {
+          "label": "Seamless Port Logistics",
+          "line1": "China to Your Port",
+          "line2": " Delivered",
+          "line2Accent": "",
+          "line2Theme": "Seamlessly",
+          "line3": "",
+          "sub": "We handle complex shipping, customs documentation, and secure container loading",
+          "cta": "Explore Our Process"
+        },
+        "s2": {
+          "label": "Built for African Roads",
+          "line1": "Selected for",
+          "line2": "",
+          "line2Accent": "Ecosystem",
+          "line2Theme": " Profitability",
+          "line3": "",
+          "sub": "High ground clearance, durable EVs built to thrive in local road conditions and climates",
+          "cta": "Explore Utility Vehicles"
+        },
+        "s3": {
+          "label": "Peace-of-Mind Aftersales",
+          "line1": "Full Support for",
+          "line2": "",
+          "line2Accent": "Every Single",
+          "line2Theme": " Shipment",
+          "line3": "",
+          "sub": "Includes Starter Parts Kit, digital maintenance manuals, and remote tech support",
+          "cta": "Explore Dealer Support"
+        },
+        "s4": {
+          "label": "Ecosystem Partners",
+          "line1": "More Than Just",
+          "line2": "",
+          "line2Accent": "",
+          "line2Theme": "Selling EVs",
+          "line3": "",
+          "sub": "We build dealership capability — from marketing collateral to showroom strategies",
+          "cta": "Become a Partner"
+        }
+      }
     },
     "trustBar": {
       "label": "Trusted Supply Chain Partners",
-      "partners": [
-        "COSCO",
-        "Maersk",
-        "SGS",
-        "TÜV Rheinland",
-        "Lloyd's Register",
-        "Bureau Veritas"
-      ]
+      "partners": {
+        "0": "COSCO",
+        "1": "Maersk",
+        "2": "SGS",
+        "3": "TÜV Rheinland",
+        "4": "Lloyd's Register",
+        "5": "Bureau Veritas"
+      }
     },
     "products": {
       "label": "Curated for Profitability",
@@ -45,30 +97,30 @@ export default {
         "category": "Category 01",
         "title": "Revenue King",
         "desc": "Ride-hailing & urban fleets. Save up to $350/month.",
-        "tags": [
-          "Ride-Hailing",
-          "LFP Battery"
-        ]
+        "tags": {
+          "0": "Ride-Hailing",
+          "1": "LFP Battery"
+        }
       },
       "eliteFlagship": {
         "badge": "Premium Returns",
         "category": "Category 02",
         "title": "Elite Flagship",
         "desc": "Government & corporate procurement. B2B social currency.",
-        "tags": [
-          "Gov Procurement",
-          "800V Fast Charge"
-        ]
+        "tags": {
+          "0": "Gov Procurement",
+          "1": "800V Fast Charge"
+        }
       },
       "utilityPro": {
         "badge": "Rugged Off-Road",
         "category": "Category 03",
         "title": "Utility Pro",
         "desc": "All-terrain & logistics. 50–60% fuel cost reduction.",
-        "tags": [
-          "Off-Road",
-          "V2L Output"
-        ]
+        "tags": {
+          "0": "Off-Road",
+          "1": "V2L Output"
+        }
       }
     },
     "process": {
@@ -77,50 +129,50 @@ export default {
       "titleAccent1": "Gold",
       "title2": "",
       "titleAccent2": "Eco Standard",
-      "steps": [
-        {
+      "steps": {
+        "0": {
           "num": "01",
           "title": "Needs Assessment",
           "desc": "Tell us your market, budget, and use case. We'll match vehicles within 2 hours.",
           "badge": "2-Hour Response SLA"
         },
-        {
+        "1": {
           "num": "02",
           "title": "Rapid Sourcing",
           "desc": "Direct factory connections. Lock in optimal FOB pricing. Batch scheduling across our full supplier network.",
           "badge": "Direct to Factory"
         },
-        {
+        "2": {
           "num": "03",
           "title": "Transparent PDI",
           "desc": "50-point inspection. Full container loading video before shipment. No surprises at the port.",
           "badge": "50-Point PDI"
         },
-        {
+        "3": {
           "num": "04",
           "title": "Delivery & Empowerment",
           "desc": "Includes Starter Parts Kit, marketing assets, sales scripts, and technical support so you sell faster.",
           "badge": "One-Stop Dealer Support"
         }
-      ],
-      "stats": [
-        {
+      },
+      "stats": {
+        "0": {
           "num": "50+",
           "label": "PDI Checkpoints"
         },
-        {
+        "1": {
           "num": "2h",
           "label": "Quote Response"
         },
-        {
+        "2": {
           "num": "10+",
           "label": "Years in Industry"
         },
-        {
+        "3": {
           "num": "100%",
           "label": "Transparency"
         }
-      ],
+      },
       "title3": ""
     },
     "tco": {
@@ -132,35 +184,35 @@ export default {
       "titleAccent2": "Profits",
       "title4": "",
       "desc": "Your customers choose EV because it saves real money every month. Give them the data that closes deals.",
-      "benefits": [
-        {
+      "benefits": {
+        "0": {
           "prefix": "Fuel savings:",
           "value": "$180–$500/month"
         },
-        {
+        "1": {
           "prefix": "Lower maintenance:",
           "value": "No oil changes, fewer brake jobs"
         },
-        {
+        "2": {
           "prefix": "3-year net savings:",
           "value": "$6,000–$18,000 per vehicle",
           "accent": true
         }
-      ],
+      },
       "cta": "Get My Profit Estimate",
       "chartTitle": "Midsize Sedan Monthly Operating Cost",
       "evLabel": "Electric (EV)",
       "evValue": "~$120 / month",
-      "evBreakdown": [
-        "⚡ Electricity ~$60",
-        "🔧 Maintenance ~$60"
-      ],
+      "evBreakdown": {
+        "0": "⚡ Electricity ~$60",
+        "1": "🔧 Maintenance ~$60"
+      },
       "iceLabel": "Internal Combustion (ICE)",
       "iceValue": "~$420 / month",
-      "iceBreakdown": [
-        "⛽ Fuel ~$280",
-        "🔧 Repairs ~$140"
-      ],
+      "iceBreakdown": {
+        "0": "⛽ Fuel ~$280",
+        "1": "🔧 Repairs ~$140"
+      },
       "savingsLabel": "Monthly Savings per Vehicle",
       "savingsValue": "$10,800 over 3 years",
       "disclaimer": "*Midsize sedan, local fuel at $1.4/L, 3,000 km/month, East African average."
@@ -190,24 +242,24 @@ export default {
       "quote2": "",
       "desc": "Our dual-track strategy goes beyond procurement. We equip every partner with the tools, knowledge, and support to win in their local market from day one.",
       "cta": "Meet the Team →",
-      "stats": [
-        {
+      "stats": {
+        "0": {
           "num": "10+",
           "label": "Years in Industry"
         },
-        {
+        "1": {
           "num": "100%",
           "label": "Transparency"
         },
-        {
+        "2": {
           "num": "50pt",
           "label": "PDI per Vehicle"
         },
-        {
+        "3": {
           "num": "2h",
           "label": "Quote Response"
         }
-      ]
+      }
     },
     "leadMagnet": {
       "label": "Free Insider Report",
@@ -275,32 +327,32 @@ export default {
       "inspectionRate": "Inspection Rate",
       "digitalReports": "Digital PDI Reports",
       "pdiCategories": "PDI Inspection Categories",
-      "checklist": [
-        {
+      "checklist": {
+        "0": {
           "title": "Battery & Powertrain",
-          "items": [
-            "SoH (State of Health) verification",
-            "High-voltage harness insulation check",
-            "DC/AC charging port function test"
-          ]
+          "items": {
+            "0": "SoH (State of Health) verification",
+            "1": "High-voltage harness insulation check",
+            "2": "DC/AC charging port function test"
+          }
         },
-        {
+        "1": {
           "title": "Exterior & Structure",
-          "items": [
-            "Paint depth & micro-scratch audit",
-            "Seal integrity & water leak test",
-            "Chassis suspension & underbody inspection"
-          ]
+          "items": {
+            "0": "Paint depth & micro-scratch audit",
+            "1": "Seal integrity & water leak test",
+            "2": "Chassis suspension & underbody inspection"
+          }
         },
-        {
+        "2": {
           "title": "Systems & Software",
-          "items": [
-            "Infotainment language & GPS setup",
-            "ADAS calibration & sensor check",
-            "Factory key & remote app synchronization"
-          ]
+          "items": {
+            "0": "Infotainment language & GPS setup",
+            "1": "ADAS calibration & sensor check",
+            "2": "Factory key & remote app synchronization"
+          }
         }
-      ]
+      }
     },
     "loading": {
       "badge": "Zero Surprises",
@@ -318,32 +370,32 @@ export default {
       "description": "Don't let a missing air filter or worn brake pad stall your sales. We supply pre-packaged maintenance kits tailored to your specific fleet models, loaded alongside vehicles to maximize logistics efficiency.",
       "kitInventory": "Typical 'Category A' Kit Inventory",
       "kitDisclaimer": "Customized by model (BYD, GAC, Geely) and market requirements.",
-      "kitItems": [
-        {
+      "kitItems": {
+        "0": {
           "name": "Brake Pads (Full Set)",
           "qty": "× 2"
         },
-        {
+        "1": {
           "name": "HEPA Cabin Filters",
           "qty": "× 4"
         },
-        {
+        "2": {
           "name": "Wiper Blade Set",
           "qty": "× 2"
         },
-        {
+        "3": {
           "name": "Auxiliary 12V Battery",
           "qty": "× 1"
         },
-        {
+        "4": {
           "name": "Charging Cable (Type 2)",
           "qty": "× 1"
         },
-        {
+        "5": {
           "name": "OBD2 Diagnostic Tool",
           "qty": "× 1"
         }
-      ],
+      },
       "quote": "Basic parts availability is the #1 obstacle facing African EV buyers. We solve this at the export stage.",
       "configureButton": "Configure My Kit →"
     },
@@ -352,20 +404,20 @@ export default {
       "heading": "Build Your",
       "headingAccent": "Service Centre.",
       "description": "We represent China's leading automotive maintenance equipment brands. When your dealership is ready to offer in-house EV servicing, we supply complete equipment configurations — from diagnostics to high-voltage safety tools.",
-      "items": [
-        {
+      "items": {
+        "0": {
           "title": "EV Diagnostic Station",
           "desc": "Battery SoH reader, multi-brand OBD scanner, HV insulation tester"
         },
-        {
+        "1": {
           "title": "Workshop Lifts & Tools",
           "desc": "4-post alignment lift, tire balancer, EV-grade jack set"
         },
-        {
+        "2": {
           "title": "Technician Onboarding",
           "desc": "Includes remote training guide and bilingual (CN/EN) technical manual set"
         }
-      ],
+      },
       "requestButton": "Request Setup Quote →"
     },
     "marketing": {
@@ -411,44 +463,44 @@ export default {
       "description": "Headquartered in Shanghai, China — the global hub of advanced EV manufacturing and logistics — Youguard bridges the gap between tier-one automotive factories and the African market's need for a reliable, end-to-end green mobility partner.",
       "quote": "True partnership isn't about single transactions. It's about inventory turnover and sustainable dealer growth.",
       "quoteLabel": "Founder's Vision",
-      "stats": [
-        {
+      "stats": {
+        "0": {
           "value": "200+",
           "label": "Batches Shipped"
         },
-        {
+        "1": {
           "value": "12",
           "label": "African Markets"
         },
-        {
+        "2": {
           "value": "30+",
           "label": "Brands Sourced"
         }
-      ]
+      }
     },
     "verification": {
       "label": "Company Verification",
       "heading": "Youguard",
       "headingAccent": "Technology",
       "headingSuffix": "Limited.",
-      "stats": [
-        {
+      "stats": {
+        "0": {
           "value": "2013",
           "label": "Parent Company Founded"
         },
-        {
+        "1": {
           "value": "13+",
           "label": "Years in Automotive"
         },
-        {
+        "2": {
           "value": "300m²",
           "label": "Ethiopia Showroom & Service Facility"
         },
-        {
+        "3": {
           "value": "2",
           "label": "Core African Service Nodes"
         }
-      ],
+      },
       "paragraph1": "Youguard Technology Limited is a China-based automotive enterprise with a solid industrial foundation and over 13 years of automotive industry experience. Its parent company, founded in 2013, has accumulated deep expertise in vehicle supply chains, international trade, and after-sales systems.",
       "paragraph2": "The group is recognized as a National High-Tech Enterprise of China and serves as vice chairman of the Shanghai Technology Enterprise Federation, demonstrating its strong technical foundation and industry influence.",
       "paragraph3": "Building on this foundation, Youguard focuses on EV and hybrid vehicle exports and integrated automotive solutions, while providing overseas dealers with technical training, diagnostic support, repair solutions, and long-term service capabilities."
@@ -458,24 +510,24 @@ export default {
       "heading": "Full",
       "headingAccent": "Automotive Capability.",
       "subtitle": "The following are company-level operational capabilities behind the export business, distinct from the individual service packages shown on the Solutions page.",
-      "items": [
-        {
+      "items": {
+        "0": {
           "title": "EV & Hybrid Export",
           "desc": "Comprehensive services for sourcing and exporting pure electric and hybrid vehicles from China for overseas dealers."
         },
-        {
+        "1": {
           "title": "Parts Supply",
           "desc": "Parts procurement, starter inventory planning, and long-term replenishment support for exported vehicles."
         },
-        {
+        "2": {
           "title": "Maintenance Equipment",
           "desc": "Workshop tools, diagnostic equipment, repair gear, and service process setup for local partners."
         },
-        {
+        "3": {
           "title": "After-Sales Systems",
           "desc": "Technical training, diagnostic support, repair solutions, and full lifecycle service capability building."
         }
-      ]
+      }
     },
     "presence": {
       "label": "Africa Service Network",
@@ -485,20 +537,20 @@ export default {
       "description1": "In Ethiopia, Youguard collaborates closely with local partners to operate a 300m² automotive showroom and service facility, providing vehicle display, sales support, and after-sales maintenance capabilities.",
       "description2": "In Djibouti, partner companies provide logistics and trade facilitation support, including customs clearance services and import coordination for vehicles entering Ethiopia via Djibouti.",
       "crossBorder": "Cross-Border Layout",
-      "nodes": [
-        {
+      "nodes": {
+        "0": {
           "place": "China",
           "desc": "Vehicle procurement, export preparation, documentation"
         },
-        {
+        "1": {
           "place": "Djibouti",
           "desc": "Port coordination, customs clearance, transshipment support"
         },
-        {
+        "2": {
           "place": "Ethiopia",
           "desc": "Showroom display, sales support, after-sales response"
         }
-      ]
+      }
     },
     "gallery": {
       "label": "Evidence Gallery",
@@ -506,32 +558,32 @@ export default {
       "headingAccent": "Assets.",
       "description": "Photo albums including scanned business licenses, China office photos, team records, company events, Ethiopia showroom assets, and local partner contact verification.",
       "photos": "photos",
-      "albums": [
-        {
+      "albums": {
+        "0": {
           "title": "Business License",
           "label": "License Scan Album"
         },
-        {
+        "1": {
           "title": "China Office",
           "label": "Office Photo Album"
         },
-        {
+        "2": {
           "title": "Core Team",
           "label": "Team Member Album"
         },
-        {
+        "3": {
           "title": "Company Events",
           "label": "Team Event Album"
         },
-        {
+        "4": {
           "title": "Ethiopia Showroom",
           "label": "Showroom Album"
         },
-        {
+        "5": {
           "title": "Ethiopia Contact",
           "label": "Local Partner Contact Album"
         }
-      ],
+      },
       "lightbox": {
         "photoCounter": "Photo {current} / {total}",
         "prev": "Previous",
@@ -546,20 +598,20 @@ export default {
       "heading": "Global",
       "headingAccent": "Footprint.",
       "description": "Our supply chain is built for scale and maximum flexibility. Leveraging a deep-water port network spanning China, we customize routing based on client logistics needs, connecting key customs hubs across the African continent-to-end route planning to eliminate friction in cross-border EV procurement.",
-      "features": [
-        {
+      "features": {
+        "0": {
           "title": "RoRo & Container",
           "desc": "Flexible shipping modes. Whether securing RoRo slots for fleet batches or optimizing 40HQ container loading for mixed consignments."
         },
-        {
+        "1": {
           "title": "Customs Clearance",
           "desc": "Pre-audited export documentation (Certificate of Origin, EV-specific battery certifications) ensures rapid clearance at destination ports."
         },
-        {
+        "2": {
           "title": "Port-to-Port Tracking",
           "desc": "Full transparency from the moment vehicles leave the factory floor until they arrive at your designated terminal."
         }
-      ]
+      }
     }
   },
   "marketsEthiopia": {
@@ -576,68 +628,68 @@ export default {
       "heading": "Why",
       "headingAccent": "Ethiopia?",
       "description": "Ethiopia has become Africa's most aggressive adopter of EV-forward policy. The government's ten-year plan targets over 150,000 EVs on the road by 2030, backed by the continent's most favorable import tariff structure.",
-      "stats": [
-        {
+      "stats": {
+        "0": {
           "value": "0%",
           "label": "EV Import Tariff"
         },
-        {
+        "1": {
           "value": "$0.02",
           "label": "Industrial Electricity / kWh"
         },
-        {
+        "2": {
           "value": "150K+",
           "label": "Gov't 2030 EV Target"
         },
-        {
+        "3": {
           "value": "120M+",
           "label": "Population & Growing Middle Class"
         }
-      ]
+      }
     },
     "policy": {
       "label": "Key Policy Drivers",
-      "items": [
-        {
+      "items": {
+        "0": {
           "title": "Zero Import Tariff",
           "desc": "Battery EVs enjoy 0% import tariff, while ICE vehicles face up to 200%. This single policy makes Chinese EVs cheaper in Addis Ababa than in Nairobi."
         },
-        {
+        "1": {
           "title": "Africa's Cheapest Electricity",
           "desc": "The Grand Ethiopian Renaissance Dam (GERD) delivers industrial electricity at approximately $0.02/kWh — making EV per-kilometer running costs nearly negligible."
         },
-        {
+        "2": {
           "title": "ICE Phase-Out Mandate",
           "desc": "The Ministry of Transport has announced a progressive ban on ICE vehicle imports, creating urgent EV replacement demand across all segments."
         },
-        {
+        "3": {
           "title": "Chinese OEM Brand Affinity",
           "desc": "Strong bilateral trade ties and existing Chinese infrastructure investments create natural brand affinity for BYD, Geely, and GAC products."
         }
-      ]
+      }
     },
     "curated": {
       "label": "Curated for Ethiopia",
       "heading": "Market",
       "headingAccent": "Top Performers."
     },
-    "vehicles": [
-      {
+    "vehicles": {
+      "0": {
         "name": "BYD Seagull",
         "segment": "Ride-Hailing King",
         "reason": "405km range, LFP safety, and sub-$12,000 FOB pricing make it the go-to choice for Addis taxi fleets."
       },
-      {
+      "1": {
         "name": "GAC Aion RT",
         "segment": "Premium Fleet",
         "reason": "LiDAR ADAS and 520km range appeal to corporate and government procurement contracts."
       },
-      {
+      "2": {
         "name": "Farizon Super Van",
         "segment": "Last-Mile Logistics",
         "reason": "As Addis Ababa's e-commerce sector booms, electric cargo vans deliver unrivaled urban delivery economics."
       }
-    ],
+    },
     "logistics": {
       "label": "Export Logistics",
       "heading": "Shanghai",
@@ -647,28 +699,28 @@ export default {
       "description2": "For Ethiopian importers, we support LC, CAD, and TT advance payment workflows, including franco-valuta structures where freight requires local banking and FX coordination.",
       "quoteButton": "Request Ethiopia FOB Quote →",
       "routeTimeline": "Route Timeline",
-      "steps": [
-        {
+      "steps": {
+        "0": {
           "label": "Factory Pickup",
           "time": "Day 1–3"
         },
-        {
+        "1": {
           "label": "Shanghai Port Loading",
           "time": "Day 4–7"
         },
-        {
+        "2": {
           "label": "Ocean Voyage",
           "time": "Day 8–28"
         },
-        {
+        "3": {
           "label": "Djibouti Port Clearance",
           "time": "Day 29–32"
         },
-        {
+        "4": {
           "label": "Rail to Addis Ababa",
           "time": "Day 33–35"
         }
-      ]
+      }
     },
     "cta": {
       "badge": "Ethiopia Priority Window",
@@ -715,30 +767,30 @@ export default {
       "email": "Work Email *",
       "targetMarket": "Target Market *",
       "marketPlaceholder": "Select destination...",
-      "marketOptions": [
-        "East Africa (Kenya, Tanzania, etc.)",
-        "West Africa (Nigeria, Ghana, etc.)",
-        "Southern Africa",
-        "North Africa",
-        "Other Region"
-      ],
+      "marketOptions": {
+        "0": "East Africa (Kenya, Tanzania, etc.)",
+        "1": "West Africa (Nigeria, Ghana, etc.)",
+        "2": "Southern Africa",
+        "3": "North Africa",
+        "4": "Other Region"
+      },
       "monthlyVolume": "Estimated Monthly Volume *",
       "volumePlaceholder": "Select quantity...",
-      "volumeOptions": [
-        "1 – 3 units (Trial / First order)",
-        "4 – 9 units (1×40HQ container)",
-        "10 – 20 units (Fleet build-out)",
-        "20+ units (Master dealer)"
-      ],
+      "volumeOptions": {
+        "0": "1 – 3 units (Trial / First order)",
+        "1": "4 – 9 units (1×40HQ container)",
+        "2": "10 – 20 units (Fleet build-out)",
+        "3": "20+ units (Master dealer)"
+      },
       "primaryInterest": "Primary Interest *",
       "interestPlaceholder": "Select vehicle category...",
-      "interestOptions": [
-        "Revenue King Matrix (Ride-Hailing / Economy)",
-        "Elite Flagship (Premium SUV / Sedan)",
-        "Utility Pro (Vans / Pickups)",
-        "Starter Parts Kit & Maintenance Only",
-        "Mixed Container Strategy"
-      ],
+      "interestOptions": {
+        "0": "Revenue King Matrix (Ride-Hailing / Economy)",
+        "1": "Elite Flagship (Premium SUV / Sedan)",
+        "2": "Utility Pro (Vans / Pickups)",
+        "3": "Starter Parts Kit & Maintenance Only",
+        "4": "Mixed Container Strategy"
+      },
       "specificRequirements": "Specific Requirements or Models",
       "requirementsPlaceholder": "e.g. Interested in BYD Seagull LHD, with home charger included...",
       "submitButton": "Submit Dealer Application",
@@ -809,112 +861,112 @@ export default {
     "title": "Privacy",
     "titleAccent": "Policy",
     "lastUpdated": "Last updated: January 2026",
-    "sections": [
-      {
+    "sections": {
+      "0": {
         "heading": "1. Information We Collect",
         "content": "When you submit a dealer application or contact form on our website, we collect the following: your name, company name, WhatsApp number, email address, target market, estimated monthly volume, and vehicle preferences. We also collect standard web server log data including IP address, browser type, and pages visited for analytics purposes."
       },
-      {
+      "1": {
         "heading": "2. How We Use Your Information",
         "intro": "We use the information you provide exclusively to:",
-        "items": [
-          "Process and respond to your dealer application or inquiry",
-          "Provide you with relevant batch pricing and inventory information",
-          "Communicate about your orders, shipments, and account status",
-          "Improve our website and services based on usage analytics",
-          "Comply with legal and regulatory obligations"
-        ]
+        "items": {
+          "0": "Process and respond to your dealer application or inquiry",
+          "1": "Provide you with relevant batch pricing and inventory information",
+          "2": "Communicate about your orders, shipments, and account status",
+          "3": "Improve our website and services based on usage analytics",
+          "4": "Comply with legal and regulatory obligations"
+        }
       },
-      {
+      "2": {
         "heading": "3. Data Sharing & Third Parties",
         "content": "We do not sell, rent, or trade your personal information to third parties. We may share your data with logistics partners and customs brokers solely for the purpose of fulfilling your export orders. All third-party service providers are contractually bound to maintain the confidentiality and security of your data."
       },
-      {
+      "3": {
         "heading": "4. Data Security",
         "content": "We implement industry-standard security measures including SSL/TLS encryption for all data transmissions, secure server infrastructure, and access controls to protect your personal information. However, no method of electronic storage or transmission is 100% secure, and we cannot guarantee absolute security."
       },
-      {
+      "4": {
         "heading": "5. Data Retention",
         "content": "We retain your dealer application data and communication records for the duration of the business relationship plus 3 years for legal and audit purposes. Web server logs are retained for 90 days."
       },
-      {
+      "5": {
         "heading": "6. Your Rights",
         "intro": "You have the right to:",
-        "items": [
-          "Request access to the personal data we hold about you",
-          "Request correction of any inaccurate data",
-          "Request deletion of your data (subject to legal retention requirements)",
-          "Withdraw consent for marketing communications at any time",
-          "Lodge a complaint with your local data protection authority"
-        ]
+        "items": {
+          "0": "Request access to the personal data we hold about you",
+          "1": "Request correction of any inaccurate data",
+          "2": "Request deletion of your data (subject to legal retention requirements)",
+          "3": "Withdraw consent for marketing communications at any time",
+          "4": "Lodge a complaint with your local data protection authority"
+        }
       },
-      {
+      "6": {
         "heading": "7. Cookies",
         "content": "Our website uses essential cookies for session management and security. We also use analytics cookies to understand how visitors interact with the site. You can manage cookie preferences through your browser settings."
       },
-      {
+      "7": {
         "heading": "8. Contact Us",
         "content": "For any questions about this Privacy Policy or to exercise your data rights, please contact us at privacy@youguard.com or via our WhatsApp business number."
       }
-    ]
+    }
   },
   "terms": {
     "badge": "Legal",
     "title": "Terms of",
     "titleAccent": "Service",
     "lastUpdated": "Last updated: January 2026",
-    "sections": [
-      {
+    "sections": {
+      "0": {
         "heading": "1. Acceptance of Terms",
         "content": "By accessing and using the Youguard website and services, you agree to be bound by these Terms of Service. If you do not agree with any part of these terms, you may not use our website or services."
       },
-      {
+      "1": {
         "heading": "2. Description of Services",
         "content": "Youguard provides electric vehicle procurement, export logistics, and dealer support services connecting Chinese OEMs with African markets. Our services include but are not limited to: vehicle sourcing, pre-delivery inspection (PDI), export documentation, ocean freight logistics, Starter Parts Kit provision, and dealer consulting."
       },
-      {
+      "2": {
         "heading": "3. Trade Terms & Payment",
         "intro": "Our standard trade terms are:",
-        "items": [
-          "30/70 T/T structure: 30% deposit confirms order, 70% balance payable against shipping documents (Bill of Lading)",
-          "FOB/CIF options: Quotations available on FOB (Free on Board) or CIF (Cost, Insurance, Freight) basis per client preference",
-          "Currency: All transactions denominated in USD unless otherwise agreed in writing",
-          "Documentation: Original compliance documents (Bill of Lading, Commercial Invoice, Certificate of Origin) released upon final settlement"
-        ]
+        "items": {
+          "0": "30/70 T/T structure: 30% deposit confirms order, 70% balance payable against shipping documents (Bill of Lading)",
+          "1": "FOB/CIF options: Quotations available on FOB (Free on Board) or CIF (Cost, Insurance, Freight) basis per client preference",
+          "2": "Currency: All transactions denominated in USD unless otherwise agreed in writing",
+          "3": "Documentation: Original compliance documents (Bill of Lading, Commercial Invoice, Certificate of Origin) released upon final settlement"
+        }
       },
-      {
+      "3": {
         "heading": "4. Order Process & Lead Times",
         "content": "Vehicle lead times vary by model and factory production schedules. Typical lead time is 2–8 weeks from order confirmation to port loading. Ocean transit times vary by destination (28–45 days for most African ports). Youguard provides estimated timelines in good faith but cannot guarantee exact delivery dates due to factors beyond our control such"
       },
-      {
+      "4": {
         "heading": "5. Quality Assurance & PDI",
         "content": "All vehicles undergo our 50-point pre-delivery inspection (PDI) prior to port loading. Digital PDI reports and HD loading videos are provided to the buyer. Any defects identified during PDI will be communicated to the buyer before shipment. Youguard acts; vehicle warranties are provided by the respective OEMs under their standard terms."
       },
-      {
+      "5": {
         "heading": "6. Intellectual Property",
         "content": "All content on this website, including text, graphics, logos, images, and software, is the property of Youguard or its content suppliers and is protected by international copyright laws. The Youguard name, logo, and brand assets are trademarks and may not be used without prior written permission."
       },
-      {
+      "6": {
         "heading": "7. Limitation of Liability",
         "content": "Youguard shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising from the use of our services. Our total liability for any claim arising from our services shall not exceed the total fees paid by you for the specific transaction giving rise to the claim."
       },
-      {
+      "7": {
         "heading": "8. Force Majeure",
         "content": "Youguard shall not be liable for any failure or delay in performance due to circumstances beyond our reasonable control, including but not limited to: acts of God, war, terrorism, natural disasters, epidemics, government actions, port closures, shipping line disruptions, or factory shutdowns."
       },
-      {
+      "8": {
         "heading": "9. Governing Law",
         "content": "These Terms of Service shall be governed by and construed in accordance with the laws of the People's Republic of China. Any disputes arising from these terms shall be submitted to the exclusive jurisdiction of the courts of Shanghai, China."
       },
-      {
+      "9": {
         "heading": "10. Changes to Terms",
         "content": "We reserve the right to modify these Terms of Service at any time. Modifications become effective immediately upon posting to this website. Your continued use of our services after modifications constitutes acceptance of the updated terms."
       },
-      {
+      "10": {
         "heading": "11. Contact Information",
         "content": "For any questions regarding these Terms of Service, please contact us at legal@youguard.com or via our contact page."
       }
-    ]
+    }
   },
   "qr": {
     "badge": "Scan to Connect on WhatsApp",
@@ -1093,38 +1145,38 @@ export default {
     "description": "Customize maintenance kits for your exact fleet. Loaded alongside vehicles — zero wasted container space.",
     "preview": {
       "title": "Your Kit Preview",
-      "items": [
-        {
+      "items": {
+        "0": {
           "name": "Brake Pads (Full Set)",
           "qty": "× 2",
           "price": "$120"
         },
-        {
+        "1": {
           "name": "HEPA Cabin Filters",
           "qty": "× 4",
           "price": "$48"
         },
-        {
+        "2": {
           "name": "Wiper Blade Set",
           "qty": "× 2",
           "price": "$36"
         },
-        {
+        "3": {
           "name": "Auxiliary 12V Battery",
           "qty": "× 1",
           "price": "$85"
         },
-        {
+        "4": {
           "name": "Charging Cable (Type 2)",
           "qty": "× 1",
           "price": "$180"
         },
-        {
+        "5": {
           "name": "OBD2 Diagnostic Tool",
           "qty": "× 1",
           "price": "$245"
         }
-      ],
+      },
       "estimatedTotal": "Estimated Total",
       "perVehicleKit": "Per-Vehicle Kit",
       "notice": "Kits loaded per vehicle, no additional freight. Customs classification: Auto Parts (HS 8708) — duty-free or low-tariff clearance in most markets."
@@ -1137,52 +1189,52 @@ export default {
       "addVehicle": "+ Add Vehicle",
       "maintenanceParts": "Maintenance Parts",
       "optionalAddOns": "Optional Add-Ons",
-      "parts": [
-        {
+      "parts": {
+        "0": {
           "name": "Brake Pads (Full Axle Set)",
           "desc": "Ceramic formula, OEM spec",
           "price": "$120"
         },
-        {
+        "1": {
           "name": "HEPA Cabin Filter Set",
           "desc": "PM2.5 filtration, 4-pack",
           "price": "$48"
         },
-        {
+        "2": {
           "name": "Wiper Blade Set (Front + Rear)",
           "desc": "Aerodynamic design, all-season",
           "price": "$36"
         },
-        {
+        "3": {
           "name": "Auxiliary 12V Battery",
           "desc": "AGM deep cycle, maintenance-free",
           "price": "$85"
         },
-        {
+        "4": {
           "name": "Charging Cable (Type 2, 7.4 kW)",
           "desc": "5m, IP55 weatherproof",
           "price": "$180"
         },
-        {
+        "5": {
           "name": "OBD2 Multi-Brand Diagnostic Tool",
           "desc": "Includes EV battery SoH reading",
           "price": "$245"
         }
-      ],
-      "addOns": [
-        {
+      },
+      "addOns": {
+        "0": {
           "name": "TPMS Sensors",
           "price": "$42"
         },
-        {
+        "1": {
           "name": "Portable EVSE Charger (3.3 kW)",
           "price": "$160"
         },
-        {
+        "2": {
           "name": "Emergency HV Safety Kit (Gloves + Tester)",
           "price": "$95"
         }
-      ],
+      },
       "contactDetails": "Your Contact Details",
       "fullName": "Full Name *",
       "company": "Company *",
@@ -1230,113 +1282,113 @@ export default {
     },
     "included": {
       "title": "What's Included",
-      "items": [
-        "Equipment procurement from leading Chinese brands",
-        "Factory-to-port logistics coordination",
-        "Installation guide & layout drawings",
-        "Remote technician training sessions",
-        "12-month parts warranty on tools & equipment",
-        "Ongoing WhatsApp support channel"
-      ]
+      "items": {
+        "0": "Equipment procurement from leading Chinese brands",
+        "1": "Factory-to-port logistics coordination",
+        "2": "Installation guide & layout drawings",
+        "3": "Remote technician training sessions",
+        "4": "12-month parts warranty on tools & equipment",
+        "5": "Ongoing WhatsApp support channel"
+      }
     },
     "form": {
       "title": "Tell Us About Your Facility",
       "description": "Fill in the form below and our infrastructure team will prepare a detailed equipment list and CIF quotation within 48 hours.",
       "targetTier": "Target Service Tier *",
-      "tierOptions": [
-        {
+      "tierOptions": {
+        "0": {
           "label": "Essential — 1-bay Workshop",
           "desc": "Basic diagnostics & maintenance"
         },
-        {
+        "1": {
           "label": "Professional — 3-bay Workshop",
           "desc": "Full diagnostics, alignment, HV tools"
         },
-        {
+        "2": {
           "label": "Master — 5+ Bay Facility",
           "desc": "Complete EV service centre with battery testing station"
         }
-      ],
+      },
       "facilityDetails": "Facility Details",
       "workshopSize": "Workshop Size (m²) *",
       "sizePlaceholder": "Select size...",
-      "sizeOptions": [
-        "Under 100 m²",
-        "100 – 200 m²",
-        "200 – 500 m²",
-        "Above 500 m²"
-      ],
+      "sizeOptions": {
+        "0": "Under 100 m²",
+        "1": "100 – 200 m²",
+        "2": "200 – 500 m²",
+        "3": "Above 500 m²"
+      },
       "monthlyVehicles": "Target Monthly Vehicle Throughput *",
       "volumePlaceholder": "Select quantity...",
-      "volumeOptions": [
-        "1 – 10 units",
-        "10 – 30 units",
-        "30 – 100 units",
-        "100+ units"
-      ],
+      "volumeOptions": {
+        "0": "1 – 10 units",
+        "1": "10 – 30 units",
+        "2": "30 – 100 units",
+        "3": "100+ units"
+      },
       "powerSupply": "Power Supply (3-Phase?)",
       "powerPlaceholder": "Select...",
-      "powerOptions": [
-        "3-Phase Available",
-        "Single-Phase Only",
-        "Not Sure"
-      ],
+      "powerOptions": {
+        "0": "3-Phase Available",
+        "1": "Single-Phase Only",
+        "2": "Not Sure"
+      },
       "technicianCount": "Current Technician Count",
       "technicianPlaceholder": "Select...",
-      "technicianOptions": [
-        "0 — Starting from scratch",
-        "1 – 3",
-        "4 – 10",
-        "10+"
-      ],
+      "technicianOptions": {
+        "0": "0 — Starting from scratch",
+        "1": "1 – 3",
+        "2": "4 – 10",
+        "3": "10+"
+      },
       "equipmentPreferences": "Equipment Preferences",
-      "equipment": [
-        {
+      "equipment": {
+        "0": {
           "name": "EV Battery SoH Diagnostic Station",
           "desc": "Reads battery health, cell balancing & degradation",
           "price": "from $3,500"
         },
-        {
+        "1": {
           "name": "4-Post Alignment Lift (5 Ton)",
           "desc": "EV-rated with rolling jack bridge",
           "price": "from $4,200"
         },
-        {
+        "2": {
           "name": "Multi-Brand OBD2 Scanning Suite",
           "desc": "Covers BYD, GAC, Geely, Wuling diagnostics",
           "price": "from $2,800"
         },
-        {
+        "3": {
           "name": "HV Insulation Tester & Safety Kit",
           "desc": "CAT III 1000V rated, gloves + rescue hook",
           "price": "from $950"
         },
-        {
+        "4": {
           "name": "Tire Balancer & Changer",
           "desc": "Fully automatic, fits 10–24 inch wheels",
           "price": "from $3,200"
         },
-        {
+        "5": {
           "name": "Technician Onboarding Package",
           "desc": "Remote training + bilingual manuals",
           "price": "from $1,500"
         }
-      ],
+      },
       "contactDetails": "Your Contact Details",
       "fullName": "Full Name *",
       "company": "Company *",
       "country": "Country / Market *",
       "countryPlaceholder": "Select destination...",
-      "countryOptions": [
-        "Kenya",
-        "Tanzania",
-        "Uganda",
-        "Nigeria",
-        "Ghana",
-        "Ethiopia",
-        "Rwanda",
-        "Other"
-      ],
+      "countryOptions": {
+        "0": "Kenya",
+        "1": "Tanzania",
+        "2": "Uganda",
+        "3": "Nigeria",
+        "4": "Ghana",
+        "5": "Ethiopia",
+        "6": "Rwanda",
+        "7": "Other"
+      },
       "email": "Email *",
       "additionalRequirements": "Additional Requirements",
       "additionalRequirementsPlaceholder": "e.g. Need paint booth, specific brand preference, timeline constraints...",
@@ -2234,40 +2286,40 @@ export default {
       "bookConsultation": "Book a Consultation"
     },
     "tags": {
-      "market": [
-        "Market Analysis",
-        "African EV Market",
-        "Industry Report"
-      ],
-      "policy": [
-        "China Export Policy",
-        "Import Compliance",
-        "African Market"
-      ],
-      "sourcing": [
-        "Sourcing Intelligence",
-        "Supplier Audit",
-        "China Export"
-      ],
-      "operator": [
-        "Operator Hub",
-        "Charging Solutions",
-        "Local Infrastructure"
-      ],
-      "product": [
-        "Product Watch",
-        "Chinese EV Brands",
-        "Battery Technology"
-      ],
-      "pricing": [
-        "Pricing & Trade",
-        "Exchange Rates",
-        "Freight Costs"
-      ],
-      "default": [
-        "EV Export",
-        "Africa EV Procurement"
-      ]
+      "market": {
+        "0": "Market Analysis",
+        "1": "African EV Market",
+        "2": "Industry Report"
+      },
+      "policy": {
+        "0": "China Export Policy",
+        "1": "Import Compliance",
+        "2": "African Market"
+      },
+      "sourcing": {
+        "0": "Sourcing Intelligence",
+        "1": "Supplier Audit",
+        "2": "China Export"
+      },
+      "operator": {
+        "0": "Operator Hub",
+        "1": "Charging Solutions",
+        "2": "Local Infrastructure"
+      },
+      "product": {
+        "0": "Product Watch",
+        "1": "Chinese EV Brands",
+        "2": "Battery Technology"
+      },
+      "pricing": {
+        "0": "Pricing & Trade",
+        "1": "Exchange Rates",
+        "2": "Freight Costs"
+      },
+      "default": {
+        "0": "EV Export",
+        "1": "Africa EV Procurement"
+      }
     },
     "subcategories": {
       "market": "Market",
@@ -2280,3 +2332,5 @@ export default {
     }
   }
 };
+
+export default en;

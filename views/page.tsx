@@ -85,12 +85,7 @@ export default function HomePage() {
             <ProductCard
               href="/products/revenue-king"
               image="/pic/hero/Ti3 display.webp"
-              badge={t("home.products.revenueKing.badge")}
-              badgeStyle={{ background: "var(--color-green)", color: "#000" }}
-              category={t("home.products.revenueKing.category")}
-              title={t("home.products.revenueKing.title")}
-              desc={t("home.products.revenueKing.desc")}
-              tags={tArray("home.products.revenueKing.tags")}
+              productKey="revenueKing"
               tagColor="green"
             />
 
@@ -98,12 +93,7 @@ export default function HomePage() {
             <ProductCard
               href="/products/elite-flagship"
               image="/pic/elite-flagship/E-HS9/6cut.webp"
-              badge={t("home.products.eliteFlagship.badge")}
-              badgeStyle={{ background: "var(--color-gold)", color: "#000" }}
-              category={t("home.products.eliteFlagship.category")}
-              title={t("home.products.eliteFlagship.title")}
-              desc={t("home.products.eliteFlagship.desc")}
-              tags={tArray("home.products.eliteFlagship.tags")}
+              productKey="eliteFlagship"
               tagColor="gold"
               cardStyle={{ boxShadow: "0 0 40px rgba(197,160,89,.07)" }}
               borderColor="border-theme/25"
@@ -113,12 +103,7 @@ export default function HomePage() {
             <ProductCard
               href="/products/utility-pro"
               image="/pic/utility-pro/9x/6cut.webp"
-              badge={t("home.products.utilityPro.badge")}
-              badgeStyle={{ background: "var(--color-green)", color: "#000" }}
-              category={t("home.products.utilityPro.category")}
-              title={t("home.products.utilityPro.title")}
-              desc={t("home.products.utilityPro.desc")}
-              tags={tArray("home.products.utilityPro.tags")}
+              productKey="utilityPro"
               tagColor="green"
             />
           </div>
@@ -693,29 +678,24 @@ export default function HomePage() {
 function ProductCard({
   href,
   image,
-  badge,
-  badgeStyle,
-  category,
-  title,
-  desc,
-  tags,
+  productKey,
   tagColor,
   cardStyle,
   borderColor = "border-accent/20",
 }: {
   href: string;
   image: string;
-  badge: string;
-  badgeStyle: React.CSSProperties;
-  category: string;
-  title: string;
-  desc: string;
-  tags: string[];
+  productKey: "revenueKing" | "eliteFlagship" | "utilityPro";
   tagColor: "green" | "gold";
   cardStyle?: React.CSSProperties;
   borderColor?: string;
 }) {
   const { t } = useTranslation();
+  const badgeStyle =
+    tagColor === "gold"
+      ? { background: "var(--color-gold)", color: "#000" }
+      : { background: "var(--color-green)", color: "#000" };
+
   return (
     <div>
       <LocaleLink href={href} className="block">
@@ -726,7 +706,7 @@ function ProductCard({
           <img
             src={image}
             className="w-full h-full object-cover absolute inset-0"
-            alt={title}
+            alt={t(`home.products.${productKey}.title`)}
           />
           <div className="v-card-overlay" />
           <div className="absolute top-8 left-8">
@@ -734,7 +714,7 @@ function ProductCard({
               className="text-[9px] font-black px-3 py-1 rounded uppercase tracking-widest"
               style={badgeStyle}
             >
-              {badge}
+              {t(`home.products.${productKey}.badge`)}
             </span>
           </div>
           <div className="absolute bottom-8 left-8 right-8">
@@ -743,35 +723,49 @@ function ProductCard({
                 tagColor === "gold" ? "label-gold" : ""
               }`}
             >
-              {category}
+              {t(`home.products.${productKey}.category`)}
             </div>
             <h3 className="text-2xl font-black text-white uppercase italic tracking-tight">
-              {title}
+              {t(`home.products.${productKey}.title`)}
             </h3>
-            <p className="text-gray-400 text-xs mt-2 font-light">{desc}</p>
+            <p className="text-gray-400 text-xs mt-2 font-light">
+              {t(`home.products.${productKey}.desc`)}
+            </p>
           </div>
         </ScrollColorCard>
       </LocaleLink>
       <div className="mt-5 flex items-center justify-between px-1">
         <div className="flex flex-wrap gap-2">
-          {tags.map((tag) => (
-            <span
-              key={tag}
-              className="text-[9px] font-black tracking-widest uppercase px-2.5 py-1 rounded-full"
-              style={{
-                background:
-                  tagColor === "gold"
-                    ? "rgba(197,160,89,.1)"
-                    : "rgba(16,185,129,.1)",
-                color:
-                  tagColor === "gold"
-                    ? "var(--color-gold)"
-                    : "var(--color-green)",
-              }}
-            >
-              {tag}
-            </span>
-          ))}
+          <span
+            className="text-[9px] font-black tracking-widest uppercase px-2.5 py-1 rounded-full"
+            style={{
+              background:
+                tagColor === "gold"
+                  ? "rgba(197,160,89,.1)"
+                  : "rgba(16,185,129,.1)",
+              color:
+                tagColor === "gold"
+                  ? "var(--color-gold)"
+                  : "var(--color-green)",
+            }}
+          >
+            {t(`home.products.${productKey}.tags.0`)}
+          </span>
+          <span
+            className="text-[9px] font-black tracking-widest uppercase px-2.5 py-1 rounded-full"
+            style={{
+              background:
+                tagColor === "gold"
+                  ? "rgba(197,160,89,.1)"
+                  : "rgba(16,185,129,.1)",
+              color:
+                tagColor === "gold"
+                  ? "var(--color-gold)"
+                  : "var(--color-green)",
+            }}
+          >
+            {t(`home.products.${productKey}.tags.1`)}
+          </span>
         </div>
         <LocaleLink
           href={href}

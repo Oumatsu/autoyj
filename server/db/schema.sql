@@ -51,11 +51,20 @@ CREATE TABLE IF NOT EXISTS vehicle_models (
   i18n_translations TEXT,
   inventory_status TEXT,
   version TEXT,
+  airbags INTEGER,
+  charging TEXT,
+  household_charging TEXT,
+  model_year INTEGER,
+  brochure_cover TEXT,
+  why_section_description TEXT,
+  guide_price_min_usd_auto REAL,
+  guide_price_max_usd_auto REAL,
   synced_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
 CREATE TABLE IF NOT EXISTS vehicle_trims (
   id TEXT PRIMARY KEY,
+  trim_config_id TEXT,
   model_id TEXT NOT NULL,
   parent_model_record_id TEXT,
   trim_name TEXT,
@@ -68,6 +77,18 @@ CREATE TABLE IF NOT EXISTS vehicle_trims (
   motor_power_kw REAL,
   top_speed_kmh INTEGER,
   zero_to_100_sec REAL,
+  battery_chemistry TEXT,
+  dc_fast_charge_supported INTEGER,
+  dc_fast_charge_time_hours REAL,
+  dc_fast_charge_min_percent REAL,
+  dc_fast_charge_max_percent REAL,
+  motor_torque_n_m REAL,
+  drivetrain_display TEXT,
+  trim_order INTEGER,
+  recommended INTEGER,
+  added_features_json TEXT,
+  upgraded_features_json TEXT,
+  base_spec_summary_json TEXT,
   specs_json TEXT,
   synced_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
@@ -96,6 +117,14 @@ CREATE TABLE IF NOT EXISTS vehicles (
   gallery_images_json TEXT,
   specs_json TEXT,
   ai_confidence_score REAL,
+  exw_usd REAL,
+  fca_usd REAL,
+  fob_usd REAL,
+  guide_price_cny REAL,
+  production_year INTEGER,
+  production_month INTEGER,
+  exterior_color TEXT,
+  interior_color TEXT,
   synced_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
@@ -172,3 +201,61 @@ CREATE INDEX IF NOT EXISTS idx_inquiry_notes_inquiry_created ON inquiry_notes(in
 CREATE INDEX IF NOT EXISTS idx_inquiry_status_history_inquiry_created ON inquiry_status_history(inquiry_no, created_at);
 CREATE INDEX IF NOT EXISTS idx_inquiries_deleted_at ON inquiries(deleted_at);
 CREATE INDEX IF NOT EXISTS idx_inquiry_notes_deleted_at ON inquiry_notes(deleted_at);
+
+-- Better Auth Standard Tables for Cloudflare D1
+CREATE TABLE IF NOT EXISTS user (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  email TEXT NOT NULL UNIQUE,
+  emailVerified INTEGER NOT NULL DEFAULT 0,
+  image TEXT,
+  createdAt INTEGER NOT NULL,
+  updatedAt INTEGER NOT NULL,
+  user_id TEXT,
+  customer_id TEXT,
+  company TEXT,
+  account_type TEXT DEFAULT 'external',
+  role TEXT DEFAULT 'customer',
+  price_tier TEXT DEFAULT 'vip',
+  status TEXT DEFAULT 'Active'
+);
+
+CREATE TABLE IF NOT EXISTS session (
+  id TEXT PRIMARY KEY,
+  userId TEXT NOT NULL REFERENCES user(id) ON DELETE CASCADE,
+  token TEXT NOT NULL UNIQUE,
+  expiresAt INTEGER NOT NULL,
+  ipAddress TEXT,
+  userAgent TEXT,
+  createdAt INTEGER NOT NULL,
+  updatedAt INTEGER NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS account (
+  id TEXT PRIMARY KEY,
+  userId TEXT NOT NULL REFERENCES user(id) ON DELETE CASCADE,
+  accountId TEXT NOT NULL,
+  providerId TEXT NOT NULL,
+  accessToken TEXT,
+  refreshToken TEXT,
+  accessTokenExpiresAt INTEGER,
+  refreshTokenExpiresAt INTEGER,
+  scope TEXT,
+  password TEXT,
+  createdAt INTEGER NOT NULL,
+  updatedAt INTEGER NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS verification (
+  id TEXT PRIMARY KEY,
+  identifier TEXT NOT NULL,
+  value TEXT NOT NULL,
+  expiresAt INTEGER NOT NULL,
+  createdAt INTEGER,
+  updatedAt INTEGER
+);
+
+CREATE INDEX IF NOT EXISTS idx_user_email ON user(email);
+CREATE INDEX IF NOT EXISTS idx_session_userId ON session(userId);
+CREATE INDEX IF NOT EXISTS idx_account_userId ON account(userId);
+

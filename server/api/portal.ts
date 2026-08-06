@@ -989,15 +989,22 @@ function mapVehicleModel(record: FeishuRecord): PortalVehicleModel {
 
 function linkedRecordIds(value: unknown): string[] {
   if (!Array.isArray(value)) return [];
-  return value
-    .map((item) => {
-      if (item && typeof item === "object") {
-        const record = item as Record<string, unknown>;
-        return asText(record.id ?? record.record_id);
+  const ids: string[] = [];
+  for (const item of value) {
+    if (item && typeof item === "object") {
+      const record = item as Record<string, unknown>;
+      if (Array.isArray(record.record_ids)) {
+        ids.push(...record.record_ids.map(String));
+      } else if (record.id) {
+        ids.push(String(record.id));
+      } else if (record.record_id) {
+        ids.push(String(record.record_id));
       }
-      return asText(item);
-    })
-    .filter(Boolean);
+    } else if (item) {
+      ids.push(String(item));
+    }
+  }
+  return ids.filter(Boolean);
 }
 
 function mapVehicleVariant(
@@ -1698,6 +1705,231 @@ async function handleGetCatalog(request: Request, env: Env) {
 
 // ─── Cron-only: fetch Feishu and write to D1 ────────────────────────────────
 
+// ─── Cron-only: fetch Feishu and write to D1 ────────────────────────────────
+
+interface ColumnInfo {
+  name: string;
+  type: string;
+  pk: number;
+}
+
+function getFeishuFieldValue(f: Record<string, any>, columnName: string) {
+  // 1. Try exact match
+  if (columnName in f) return f[columnName];
+  
+  // 2. Try formula/auto fields mapping
+  if (`${columnName}_auto` in f) return f[`${columnName}_auto`];
+  
+  // 3. Try standard suffix / prefix conversions
+  if (columnName === "display_price_low") return f.display_price_low ?? f.trim_price_display ?? f.display_price_low_auto;
+  if (columnName === "display_price_high") return f.display_price_high ?? f.trim_price_display ?? f.display_price_high_auto;
+  if (columnName === "cltc_range_km") return f.cltc_range_km ?? f.range_display ?? f.cltc_range_max_km_auto;
+  if (columnName === "status") return f.status ?? f.source_status;
+  if (columnName === "zero_to_100_sec" && "0_100_km_h_sec" in f) return f["0_100_km_h_sec"];
+  if (columnName === "cltc_range_min_km" && "cltc_range_min_km_auto" in f) return f.cltc_range_min_km_auto;
+  if (columnName === "cltc_range_max_km" && "cltc_range_max_km_auto" in f) return f.cltc_range_max_km_auto;
+  if (columnName === "battery_capacity_min_kwh" && "battery_capacity_min_kwh_auto" in f) return f.battery_capacity_min_kwh_auto;
+  if (columnName === "battery_capacity_max_kwh" && "battery_capacity_max_kwh_auto" in f) return f.battery_capacity_max_kwh_auto;
+  if (columnName === "battery_capacity_kwh" && "battery_capacity_max_kwh_auto" in f) return f.battery_capacity_max_kwh_auto;
+  if (columnName === "motor_power_min_kw" && "motor_power_min_kw_auto" in f) return f.motor_power_min_kw_auto;
+  if (columnName === "motor_power_max_kw" && "motor_power_max_kw_auto" in f) return f.motor_power_max_kw_auto;
+  if (columnName === "motor_power_kw" && "motor_power_max_kw_auto" in f) return f.motor_power_max_kw_auto;
+  if (columnName === "top_speed_min_kmh" && "top_speed_min_kmh" in f) return f.top_speed_min_kmh;
+  if (columnName === "top_speed_max_kmh" && "top_speed_max_kmh" in f) return f.top_speed_max_kmh;
+  if (columnName === "top_speed_kmh" && "top_speed_max_kmh" in f) return f.top_speed_max_kmh;
+  if (columnName === "drivetrain_display" && "drivetrain_display_auto" in f) return f.drivetrain_display_auto;
+  if (columnName === "battery_chemistry" && "battery_chemistry_auto" in f) return f.battery_chemistry_auto;
+  if (columnName === "trim_name" && "variant" in f) return f.variant;
+  if (columnName === "specs_json") return f;
+  if (columnName === "common_features_json" && "common_features_json_pruned" in f) return f.common_features_json_pruned;
+  if (columnName === "i18n_translations" && "i18n_translations" in f) return f.i18n_translations;
+  if (columnName === "brand" && "品牌" in f) return f["品牌"];
+  if (columnName === "model" && "型号" in f) return f["型号"];
+  if (columnName === "variant" && "细分型号" in f) return f["细分型号"];
+  if (columnName === "steering" && "左右舵" in f) return f["左右舵"];
+  if (columnName === "location") return f["批发地点"] ?? f["车源地点"];
+  if (columnName === "supplier" && "供应商" in f) return f["供应商"];
+  if (columnName === "min_order_quantity" && "起订数量" in f) return f["起订数量"];
+  if (columnName === "inventory_count") return f["颜色库存"] ?? f["细分车型库存"] ?? f.color_stock_quantity ?? f.trim_stock_quantity;
+  if (columnName === "wait_days" && "下单后需要等待天数" in f) return f["下单后需要等待天数"];
+  if (columnName === "exw_usd") return f["EXW美金价"] ?? f.exw_usd;
+  if (columnName === "fca_usd") return f["FCA美金价"] ?? f.fca_usd;
+  if (columnName === "fob_usd") return f["FOB美金价"] ?? f.fob_usd;
+  if (columnName === "guide_price_cny") return f["人民币指导价"] ?? f.guide_price_cny;
+  if (columnName === "production_year") return f["生产年份"] ?? f.production_year;
+  if (columnName === "production_month") return f["生产月份"] ?? f.production_month;
+  if (columnName === "exterior_color") return f["外饰颜色"] ?? f.exterior_color;
+  if (columnName === "interior_color") return f["内饰颜色"] ?? f.interior_color;
+  if (columnName === "ai_confidence_score") return f["AI置信度"] ?? f.ai_confidence_score;
+  if (columnName === "color") {
+    return [asText(f["外饰颜色"] ?? f.exterior_color), asText(f["内饰颜色"] ?? f.interior_color)]
+      .filter(Boolean)
+      .join(" / ") || null;
+  }
+
+  return undefined;
+}
+
+function cleanFeishuFieldValue(val: any): any {
+  if (val === null || val === undefined) return null;
+
+  // If primitive string, number, boolean
+  if (typeof val === "number" || typeof val === "boolean") return val;
+  if (typeof val === "string") return val;
+
+  // If array
+  if (Array.isArray(val)) {
+    if (val.length === 0) return null;
+    const extracted = val.map((item) => cleanFeishuFieldValue(item)).filter((v) => v !== null && v !== undefined && v !== "" && v !== "[object Object]");
+    if (extracted.length === 0) return null;
+    if (extracted.length === 1) return extracted[0];
+    return extracted.join(", ");
+  }
+
+  // If object wrapper (Feishu link, lookup, person, or select object)
+  if (typeof val === "object") {
+    // 1. Check text_arr
+    if (Array.isArray(val.text_arr) && val.text_arr.length > 0) {
+      const arr = val.text_arr.filter(Boolean);
+      if (arr.length === 1) return String(arr[0]);
+      if (arr.length > 1) return arr.join(", ");
+    }
+    // 2. Check text
+    if (val.text) {
+      return String(val.text);
+    }
+    // 3. Check name (for Person/User fields)
+    if (val.name) {
+      return String(val.name);
+    }
+    // 4. Check label
+    if (val.label) {
+      return String(val.label);
+    }
+    // 5. Check value
+    if (val.value) {
+      return String(val.value);
+    }
+    // 6. Check record_ids
+    if (Array.isArray(val.record_ids) && val.record_ids.length > 0) {
+      const rids = val.record_ids.filter(Boolean);
+      if (rids.length > 0) return rids.join(", ");
+    }
+    return null;
+  }
+
+  return String(val);
+}
+
+async function dynamicUpsert(
+  db: D1Database,
+  tableName: string,
+  records: FeishuRecord[],
+  mapRecord: (record: FeishuRecord) => Record<string, any>
+) {
+  if (!records.length) return;
+
+  // 1. Discover all raw field keys in Feishu records
+  const allFeishuKeys = new Set<string>();
+  for (const r of records) {
+    if (r.fields) {
+      for (const k of Object.keys(r.fields)) {
+        if (k && k !== "specs_json") {
+          allFeishuKeys.add(k);
+        }
+      }
+    }
+  }
+
+  // 2. Fetch existing database columns
+  let info = await db.prepare(`PRAGMA table_info("${tableName}")`).all<ColumnInfo>();
+  const existingCols = new Set(info.results.map(col => col.name));
+
+  // 3. Dynamically add missing columns to SQLite table
+  for (const key of allFeishuKeys) {
+    if (!existingCols.has(key)) {
+      try {
+        await db.prepare(`ALTER TABLE "${tableName}" ADD COLUMN "${key}" TEXT`).run();
+        existingCols.add(key);
+      } catch (err) {
+        // Column may already exist or handle duplicate column error
+      }
+    }
+  }
+
+  // Refresh column list after additions
+  info = await db.prepare(`PRAGMA table_info("${tableName}")`).all<ColumnInfo>();
+  const columns = info.results.map(col => ({ name: col.name, type: col.type, isPk: col.pk > 0 }));
+  const pkCol = columns.find(c => c.isPk)?.name || "id";
+
+  // 4. Build rows
+  const now = new Date().toISOString();
+  const rows = records.map((record) => {
+    const customFields = mapRecord(record);
+    const f = record.fields || {};
+    const row: Record<string, any> = {};
+
+    for (const col of columns) {
+      if (col.name === "synced_at") {
+        row.synced_at = now;
+        continue;
+      }
+      if (col.name === "specs_json") {
+        row.specs_json = null;
+        continue;
+      }
+
+      let val = customFields[col.name];
+      if (val === undefined) {
+        if (col.name in f) {
+          val = f[col.name];
+        } else {
+          val = getFeishuFieldValue(f, col.name);
+        }
+      }
+
+      val = cleanFeishuFieldValue(val);
+
+      if (val === undefined || val === null) {
+        row[col.name] = null;
+      } else if (col.type === "INTEGER") {
+        if (typeof val === "boolean") {
+          row[col.name] = val ? 1 : 0;
+        } else {
+          const num = asOptionalNumber(val);
+          row[col.name] = num === null ? null : Math.round(num);
+        }
+      } else if (col.type === "REAL") {
+        row[col.name] = asOptionalNumber(val);
+      } else {
+        row[col.name] = val;
+      }
+    }
+    return row;
+  });
+
+  // 5. Batch execute SQL Upserts
+  const BATCH_SIZE = 50;
+  const colNames = columns.map(c => `"${c.name}"`);
+  const placeholders = columns.map(() => "?").join(",");
+  const updateClauses = columns.filter(c => !c.isPk).map(c => `"${c.name}"=excluded."${c.name}"`).join(",");
+
+  const sql = `
+    INSERT INTO "${tableName}" (${colNames.join(",")})
+    VALUES (${placeholders})
+    ON CONFLICT("${pkCol}") DO UPDATE SET ${updateClauses}
+  `;
+
+  for (let i = 0; i < rows.length; i += BATCH_SIZE) {
+    const batch = rows.slice(i, i + BATCH_SIZE);
+    const statements = batch.map((row) => {
+      const values = columns.map(c => row[c.name]);
+      return db.prepare(sql).bind(...values);
+    });
+    await db.batch(statements);
+  }
+}
+
 export async function syncVehiclesToD1(env: Env): Promise<{ synced: number }> {
   if (!env.PORTAL_DB) return { synced: 0 };
 
@@ -1706,8 +1938,9 @@ export async function syncVehiclesToD1(env: Env): Promise<{ synced: number }> {
     ? await searchRecords(env, vehicleSourceTableId, { pageSize: 500, maxPages: 50 }).catch(() => [])
     : [];
 
-  const now = new Date().toISOString();
-  const rows = rawRecords.map((record) => {
+  await env.PORTAL_DB.prepare("DELETE FROM vehicles").run();
+
+  await dynamicUpsert(env.PORTAL_DB, "vehicles", rawRecords, (record) => {
     const f = record.fields;
     const stage = parseSourceStage(f);
     const fobUsd =
@@ -1717,38 +1950,40 @@ export async function syncVehiclesToD1(env: Env): Promise<{ synced: number }> {
       asOptionalNumber(f.display_price_low);
     return {
       id: record.record_id,
-      vehicle_id: asText(f.vehicle_id) || null,
-      model_id: asText(f.model_id) || null,
-      brand: asText(f["品牌"] ?? f.brand) || null,
-      model: asText(f["型号"] ?? f.model) || null,
-      variant: asText(f["细分型号"] ?? f.variant) || null,
-      stage,
-      steering: asText(f["左右舵"] ?? f.steering) || null,
-      location: asText(f["批发地点"] ?? f["车源地点"] ?? f.location) || null,
-      supplier: asText(f["供应商"] ?? f.supplier) || null,
       display_price_low: fobUsd ?? null,
       display_price_high: fobUsd ?? null,
       currency: "USD",
-      min_order_quantity: asOptionalNumber(f["起订数量"] ?? f.min_order_quantity) ?? null,
-      inventory_count:
-        asOptionalNumber(f["颜色库存"] ?? f.color_stock_quantity) ??
-        asOptionalNumber(f["细分车型库存"] ?? f.trim_stock_quantity) ??
-        null,
-      wait_days: asOptionalNumber(f["下单后需要等待天数"] ?? f.wait_days) ?? null,
-      powertrain_type: asText(f.powertrain_type) || null,
-      color: [asText(f["外饰颜色"] ?? f.exterior_color), asText(f["内饰颜色"] ?? f.interior_color)]
-        .filter(Boolean).join(" / ") || null,
-      color_code: null,
-      image_url: null,
-      gallery_images_json: null,
-      specs_json: null,
-      ai_confidence_score: asOptionalNumber(f["AI置信度"]) ?? computeAiConfidenceScore(f),
-      synced_at: now,
+      stage,
     };
   });
+  return { synced: rawRecords.length };
+}
 
-  await upsertVehicles(env.PORTAL_DB, rows);
-  return { synced: rows.length };
+export async function syncUsersToD1(env: Env): Promise<{ users: number }> {
+  if (!env.PORTAL_DB) return { users: 0 };
+  const { localUserStore } = await import("../../lib/users");
+  const { upsertUsersToD1 } = await import("../db/d1");
+
+  const userRecords = localUserStore.map((u) => ({
+    id: u.userId,
+    name: u.name,
+    email: u.email,
+    emailVerified: 1,
+    image: null,
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
+    user_id: u.userId,
+    customer_id: u.customerId,
+    company: u.company,
+    account_type: u.accountType,
+    role: u.role,
+    price_tier: u.priceTier,
+    status: u.status,
+    accessCode: u.accessCode,
+  }));
+
+  await upsertUsersToD1(env.PORTAL_DB, userRecords);
+  return { users: userRecords.length };
 }
 
 export async function syncVehicleModelsToDB(env: Env): Promise<{ models: number; trims: number }> {
@@ -1766,101 +2001,50 @@ export async function syncVehicleModelsToDB(env: Env): Promise<{ models: number;
       : Promise.resolve([]),
   ]);
 
-  const now = new Date().toISOString();
-
-  const modelRows = modelRecords.map((record) => {
-    const f = record.fields;
-    return {
-      id: asText(f.model_id) || record.record_id,
-      model_id: asText(f.model_id) || null,
-      brand: asText(f.brand) || null,
-      model: asText(f.model) || null,
-      status: asText(f.status) || null,
-      powertrain_type: asText(f.powertrain_type) || null,
-      segment: asText(f.segment) || null,
-      vehicle_class: asText(f.vehicle_class) || null,
-      display_price_low: asOptionalNumber(f.display_price_low) ?? null,
-      display_price_high: asOptionalNumber(f.display_price_high) ?? null,
-      image_url: asText(f.image_url) || null,
-      hero_description: asText(f.hero_description) || null,
-      page_title: asText(f.page_title) || null,
-      page_subtitle: asText(f.page_subtitle) || null,
-      product_path: productPath(f),
-      cltc_range_min_km: asOptionalNumber(f.cltc_range_min_km_auto) ?? null,
-      cltc_range_max_km: asOptionalNumber(f.cltc_range_max_km_auto) ?? null,
-      battery_capacity_min_kwh: asOptionalNumber(f.battery_capacity_min_kwh_auto) ?? null,
-      battery_capacity_max_kwh: asOptionalNumber(f.battery_capacity_max_kwh_auto) ?? null,
-      motor_power_min_kw: asOptionalNumber(f.motor_power_min_kw_auto) ?? null,
-      motor_power_max_kw: asOptionalNumber(f.motor_power_max_kw_auto) ?? null,
-      top_speed_min_kmh: asOptionalNumber(f.top_speed_min_kmh) ?? null,
-      top_speed_max_kmh: asOptionalNumber(f.top_speed_max_kmh) ?? null,
-      zero_to_100_sec: asOptionalNumber(f["0_100_km_h_sec"]) ?? null,
-      wheelbase_mm: asOptionalNumber(f.wheelbase_mm) ?? null,
-      length_mm: asOptionalNumber(f.length_mm) ?? null,
-      width_mm: asOptionalNumber(f.width_mm) ?? null,
-      height_mm: asOptionalNumber(f.height_mm) ?? null,
-      seats_min: asOptionalNumber(f.seats_min) ?? null,
-      seats_max: asOptionalNumber(f.seats_max) ?? null,
-      voltage_platform_v: asOptionalNumber(f.voltage_platform_v) ?? null,
-      ground_clearance_mm: asOptionalNumber(f.ground_clearance_mm) ?? null,
-      boot_volume_l: asOptionalNumber(f.boot_volume_l) ?? null,
-      drivetrain_display: asText(f.drivetrain_display_auto) || null,
-      battery_chemistry: asText(f.battery_chemistry_auto) || null,
-      battery_technology: asText(f.battery_technology) || null,
-      steering_setup: asText(f.steering_setup) || null,
-      sunroof_availability: asText(f.sunroof_availability) || null,
-      v2l_availability: asText(f.v2l_availability) || null,
-      v2l_output_power_kw: asOptionalNumber(f.v2l_output_power_kw) ?? null,
-      ac_slow_charge_supported: asText(f.ac_slow_charge_supported) === "Yes" ? 1 : 0,
-      ac_slow_charge_full_time_hours: asOptionalNumber(f.ac_slow_charge_full_time_hours) ?? null,
-      battery_warranty_years: asOptionalNumber(f.battery_warranty_years) ?? null,
-      battery_warranty_distance_km: asOptionalNumber(f.battery_warranty_distance_km) ?? null,
-      gallery_images_json: JSON.stringify(f.gallery_images_json ?? null),
-      common_features_json: typeof f.common_features_json_pruned === "string" ? f.common_features_json_pruned : JSON.stringify(f.common_features_json_pruned ?? null),
-      i18n_translations: typeof f.i18n_translations === "string" ? f.i18n_translations : JSON.stringify(f.i18n_translations ?? null),
-      inventory_status: asText(f.inventory_status) || null,
-      version: asText(f.version) || null,
-      synced_at: now,
-    };
-  });
-
   const modelIdByRecordId = new Map<string, string>();
+  const modelRecordsByRecordId = new Map<string, FeishuRecord>();
   for (const record of modelRecords) {
     const modelId = asText(record.fields.model_id);
     if (modelId) modelIdByRecordId.set(record.record_id, modelId);
+    modelRecordsByRecordId.set(record.record_id, record);
   }
 
-  const trimRows = trimRecords.map((record) => {
-    const f = record.fields;
-    const linkedModelId = linkedRecordIds(f.vehicle_model_pruned)
-      .map((rid) => modelIdByRecordId.get(rid))
-      .find(Boolean);
-    const modelId = asText(f.model_id) || linkedModelId || "";
-    return {
-      id: record.record_id,
-      model_id: modelId,
-      parent_model_record_id: linkedRecordIds(f.vehicle_model_pruned)[0] ?? null,
-      trim_name: asText(f.MODEL ?? f.model) || null,
-      status: asText(f.status) || null,
-      display_price_low: asOptionalNumber(f.display_price_low) ?? null,
-      display_price_high: asOptionalNumber(f.display_price_high) ?? null,
-      powertrain_type: asText(f.powertrain_type) || null,
-      cltc_range_km: asOptionalNumber(f.cltc_range_km ?? f.cltc_range_max_km_auto) ?? null,
-      battery_capacity_kwh: asOptionalNumber(f.battery_capacity_kwh ?? f.battery_capacity_max_kwh_auto) ?? null,
-      motor_power_kw: asOptionalNumber(f.motor_power_kw ?? f.motor_power_max_kw_auto) ?? null,
-      top_speed_kmh: asOptionalNumber(f.top_speed_kmh ?? f.top_speed_max_kmh) ?? null,
-      zero_to_100_sec: asOptionalNumber(f["0_100_km_h_sec"]) ?? null,
-      specs_json: typeof f.trim_configurations_pruned === "string" ? f.trim_configurations_pruned : JSON.stringify(f.trim_configurations_pruned ?? null),
-      synced_at: now,
-    };
-  });
-
   await Promise.all([
-    upsertVehicleModels(env.PORTAL_DB, modelRows),
-    upsertVehicleTrims(env.PORTAL_DB, trimRows),
+    env.PORTAL_DB.prepare("DELETE FROM vehicle_models").run(),
+    env.PORTAL_DB.prepare("DELETE FROM vehicle_trims").run(),
   ]);
 
-  return { models: modelRows.length, trims: trimRows.length };
+  await Promise.all([
+    dynamicUpsert(env.PORTAL_DB, "vehicle_models", modelRecords, (record) => {
+      const f = record.fields;
+      return {
+        id: asText(f.model_id) || record.record_id,
+        model_id: asText(f.model_id) || null,
+        product_path: productPath(f),
+      };
+    }),
+    dynamicUpsert(env.PORTAL_DB, "vehicle_trims", trimRecords, (record) => {
+      const f = record.fields;
+      const linkedModelId = linkedRecordIds(f.vehicle_model_pruned)
+        .map((rid) => modelIdByRecordId.get(rid))
+        .find(Boolean);
+      const modelId = asText(f.model_id) || linkedModelId || "";
+      const trimId = asText(f.trim_config_id) || record.record_id;
+      const parentRecordId = linkedRecordIds(f.vehicle_model_pruned)[0];
+      const parentModel = parentRecordId ? modelRecordsByRecordId.get(parentRecordId) : null;
+      const p = parentModel?.fields || {};
+      return {
+        id: trimId,
+        model_id: modelId,
+        parent_model_record_id: parentRecordId ?? null,
+        powertrain_type: asText(f.powertrain_type) || asText(p.powertrain_type) || null,
+        top_speed_kmh: asOptionalNumber(f.top_speed_kmh ?? f.top_speed_max_kmh) ?? asOptionalNumber(p.top_speed_max_kmh) ?? null,
+        zero_to_100_sec: asOptionalNumber(f["0_100_km_h_sec"]) ?? asOptionalNumber(p["0_100_km_h_sec"]) ?? null,
+      };
+    }),
+  ]);
+
+  return { models: modelRecords.length, trims: trimRecords.length };
 }
 
 // ─── API handlers: read ONLY from D1, zero Feishu calls ─────────────────────
@@ -3280,6 +3464,20 @@ export async function handlePortalRequest(request: Request, env: Env) {
     if (path === "/api/portal/webhook/sync" && request.method === "POST") {
       cacheMap.clear();
       return json({ ok: true, cleared: true });
+    }
+    if (path === "/api/portal/webhook/sync-d1" && request.method === "POST") {
+      const adminKey = request.headers.get("x-admin-key");
+      if (!adminKey || adminKey !== (env.PORTAL_SESSION_SECRET || "")) {
+        return problem("Unauthorized", 401);
+      }
+      try {
+        const { runFeishuScheduledSync } = await import("../jobs/feishu-sync");
+        const result = await runFeishuScheduledSync(env);
+        cacheMap.clear();
+        return json({ ok: true, ...result });
+      } catch (e) {
+        return problem(`Sync failed: ${String(e)}`, 500);
+      }
     }
 
     if (path.startsWith("/api/auth/")) {
