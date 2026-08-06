@@ -21,6 +21,7 @@
     "sync:feishu-env": "node scripts/sync-feishu-env.mjs",
     "tolgee:push": "bun run scripts/tolgee-sync.ts push",
     "tolgee:pull": "bun run scripts/tolgee-sync.ts pull",
+    "tolgee:server": "mise exec -- java -jar tolgee.jar --tolgee.postgres-autostart.enabled=false --spring.datasource.url=jdbc:postgresql://localhost:5432/tolgee --spring.datasource.username=$(whoami) --tolgee.authentication.enabled=true --tolgee.authentication.registration-enabled=true --tolgee.authentication.initial-username=admin@local.test --tolgee.authentication.initial-password=admin123456 --server.port=8085",
     "knip": "knip"
   },
   "dependencies": {

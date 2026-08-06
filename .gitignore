@@ -35,6 +35,8 @@ tsconfig.tsbuildinfo
 next-env.d.ts
 
 # 测试结果产物
-test-results/
+# Tolgee standalone binary
+tolgee.jar
+
 
 
