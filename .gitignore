@@ -38,5 +38,18 @@ next-env.d.ts
 # Tolgee standalone binary
 tolgee.jar
 
+# 本地/导出 SQLite 数据库
+*.sqlite
+*.sqlite3
+*.db
+
+# 临时排查截图与产物
+*_screenshot.png
+*_preview.png
+*_final.png
+*_chinese.png
+*.sql.tmp
+
+
 
 
