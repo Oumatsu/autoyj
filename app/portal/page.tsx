@@ -267,14 +267,23 @@ type Inquiry = {
   customerId: string;
   vehicleId: string;
   vehicleModel: string;
+  title: string;
   quantity: number;
   destinationPort: string;
   tradeTerm: string;
   targetPrice: number;
   notes: string;
+  isPublic: boolean;
+  creatorUserId: string;
+  hasUnreadFollowUps: boolean;
   status: string;
   createdAt: string;
   updatedAt: string;
+};
+
+type InquiryVehicleTarget = {
+  vehicleId: string;
+  vehicleModel: string;
 };
 
 type Quote = {
@@ -306,7 +315,7 @@ type Negotiation = {
   createdAt: string;
 };
 
-type InquiryNote = { id: string; noteId: string; inquiryNo: string; parentNoteId: string; authorUserId: string; authorName: string; authorRole: string; body: string; createdAt: string; deletedAt?: string; };
+type InquiryNote = { id: string; noteId: string; inquiryNo: string; parentNoteId: string; authorUserId: string; authorName: string; authorRole: string; body: string; isPublic: boolean; createdAt: string; deletedAt?: string; };
 type InquiryStatusHistory = { id: string; historyId: string; inquiryNo: string; fromStatus: string; toStatus: string; actorName: string; actorRole: string; createdAt: string; };
 
 type Order = {
@@ -351,6 +360,7 @@ type InquiryForm = {
   tradeTerm: string;
   targetPrice: string;
   notes: string;
+  isPublic: boolean;
 };
 
 const emptyInquiryForm: InquiryForm = {
@@ -359,6 +369,7 @@ const emptyInquiryForm: InquiryForm = {
   tradeTerm: "FOB",
   targetPrice: "",
   notes: "",
+  isPublic: false,
 };
 
 const devLoginOptions: { role: PortalRole; label: string; detail: string; email: string; accessCode: string }[] = [
@@ -810,6 +821,7 @@ export default function PortalPage() {
           tradeTerm: inquiryForm.tradeTerm,
           targetPrice: Number(inquiryForm.targetPrice || 0),
           notes: inquiryForm.notes,
+          isPublic: inquiryForm.isPublic,
         }),
       });
       setSelectedVehicle(null);
@@ -1218,6 +1230,10 @@ export default function PortalPage() {
             <FormField label="Notes">
               <textarea value={inquiryForm.notes} onChange={(event) => setInquiryForm((current) => ({ ...current, notes: event.target.value }))} placeholder="Color, payment, delivery window, local requirements..." />
             </FormField>
+            <label className="flex items-center gap-2 text-xs font-semibold text-slate-300">
+              <input aria-label="Make this inquiry public" type="checkbox" checked={inquiryForm.isPublic} onChange={(event) => setInquiryForm((current) => ({ ...current, isPublic: event.target.checked }))} />
+              Make this inquiry public
+            </label>
             <button disabled={busy} className="btn-primary rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest disabled:opacity-60">
               {busy ? "Submitting..." : "Submit Inquiry"}
             </button>
@@ -2187,7 +2203,7 @@ function AdminVehicles({ data, onEdit, onRefresh }: { data: BootstrapData; onEdi
                                 })}
                                 emptyText={localizeVehicleValue("No color-level inventory", locale)}
                               />
-                              {inquiryVehicleId && variant.colors.some((color) => color.vehicles.some((vehicle) => vehicle.id === inquiryVehicleId)) && <VehicleInquiryPanel vehicle={data.vehicles.find((vehicle) => vehicle.id === inquiryVehicleId)!} data={data} />}
+                              {inquiryVehicleId && variant.colors.some((color) => color.vehicles.some((vehicle) => vehicle.id === inquiryVehicleId)) && <VehicleInquiryPanelV2 vehicle={data.vehicles.find((vehicle) => vehicle.id === inquiryVehicleId)!} data={data} />}
                             </div>
                           )}
                         </section>
@@ -2213,7 +2229,118 @@ function VehicleInquiryPanel({ vehicle, data }: { vehicle: Vehicle; data: Bootst
   return <section className="mt-3 rounded-lg border border-theme/30 bg-theme/5 p-4"><div className="flex items-center justify-between"><div><p className="text-[10px] font-black uppercase tracking-widest text-theme">Inquiry discussion</p><p className="mt-1 text-xs text-slate-300">{[vehicle.brand, vehicle.model, vehicle.configuration || vehicle.trim, vehicle.color].filter(Boolean).join(" / ")}</p></div><span className="text-xs text-slate-400">{notes.length} follow-ups</span></div><div className="mt-3 grid gap-2">{notes.map((item) => <article key={item.id} className={`rounded border border-white/10 bg-black/15 p-3 ${item.parentNoteId ? "ml-5 border-l-2 border-l-theme" : ""}`}><p className="text-xs font-black text-white">{item.authorName}</p><p className="mt-1 text-sm text-slate-300">{item.body}</p><div className="mt-2 flex gap-3"><button type="button" onClick={() => setReplyTo(item.noteId)} className="text-[10px] font-black uppercase text-theme">Follow up</button>{item.authorUserId === data.user.userId && <button type="button" onClick={() => remove(item.noteId)} className="text-[10px] font-black uppercase text-red-300">Remove my follow-up</button>}</div></article>)}{notes.length === 0 && <p className="text-xs text-slate-400">No inquiry follow-ups yet.</p>}</div><form onSubmit={post} className="mt-3 grid gap-2">{replyTo && <div className="flex justify-between text-xs text-theme">Following up on a specific response <button type="button" onClick={() => setReplyTo("")}>Cancel</button></div>}<textarea value={message} onChange={(e) => setMessage(e.target.value)} placeholder={replyTo ? "Write a follow-up response" : "Describe your purchase intention or ask a follow-up"} className="min-h-20 rounded border border-white/15 bg-black/20 p-3 text-sm text-white" /><div className="flex justify-between">{error ? <span className="text-xs text-red-300">{error}</span> : <span />}<button disabled={busy || !message.trim()} className="btn-primary rounded px-3 py-2 text-[10px] font-black uppercase">{busy ? "Saving..." : inquiries.length ? "Post follow-up" : "Post inquiry request"}</button></div></form></section>;
 }
 
+function InquiryVisibilityToggle({ checked, disabled = false, onChange, label }: { checked: boolean; disabled?: boolean; onChange: (value: boolean) => void; label: string }) {
+  return <label className="flex items-center gap-2 text-xs text-slate-300"><input type="checkbox" checked={checked} disabled={disabled} onChange={(event) => onChange(event.target.checked)} />{label}</label>;
+}
+
+function VehicleInquiryPanelV2({ vehicle, data }: { vehicle: Vehicle; data: BootstrapData }) {
+  const [message, setMessage] = useState(""); const [replyTo, setReplyTo] = useState(""); const [isPublic, setIsPublic] = useState(false); const [showOnlyMine, setShowOnlyMine] = useState(() => localStorage.getItem("portal-vehicle-inquiries-only-mine") === "1"); const [busy, setBusy] = useState(false); const [error, setError] = useState("");
+  const allInquiries = data.inquiries.filter((item) => item.vehicleId === vehicle.id); const inquiries = showOnlyMine ? allInquiries.filter((item) => item.creatorUserId === data.user.userId) : allInquiries; const targetInquiry = inquiries[0]; const notes = data.inquiryNotes.filter((item) => inquiries.some((inquiry) => inquiry.inquiryNo === item.inquiryNo)); const parent = notes.find((item) => item.noteId === replyTo); const canPublishPublic = !!targetInquiry?.isPublic && (!replyTo || !!parent?.isPublic);
+  function toggleMine(value: boolean) { setShowOnlyMine(value); localStorage.setItem("portal-vehicle-inquiries-only-mine", value ? "1" : "0"); }
+  async function post(event: React.FormEvent) { event.preventDefault(); if (!message.trim()) return; setBusy(true); setError(""); try { if (targetInquiry) await api(`/api/portal/inquiries/${encodeURIComponent(targetInquiry.inquiryNo)}/notes`, { method: "POST", body: JSON.stringify({ body: message, parentNoteId: replyTo, isPublic }) }); else await api("/api/portal/inquiries", { method: "POST", body: JSON.stringify({ vehicleId: vehicle.id, quantity: 1, tradeTerm: "FOB", notes: message, isPublic }) }); window.location.reload(); } catch (e) { setError(e instanceof Error ? e.message : "Could not post inquiry message"); } finally { setBusy(false); } }
+  return <section className="mt-3 rounded-lg border border-theme/30 bg-theme/5 p-4"><div className="flex flex-wrap items-center justify-between gap-3"><div><p className="text-[10px] font-black uppercase tracking-widest text-theme">Inquiry discussion</p><p className="mt-1 text-xs text-slate-300">{[vehicle.brand, vehicle.model, vehicle.configuration || vehicle.trim, vehicle.color].filter(Boolean).join(" / ")}</p></div><InquiryVisibilityToggle checked={showOnlyMine} onChange={toggleMine} label="Show only mine" /></div><div className="mt-3 grid gap-2">{notes.map((item) => <article key={item.id} className={`rounded border border-white/10 bg-black/15 p-3 ${item.parentNoteId ? "ml-5 border-l-2 border-l-theme" : ""}`}><div className="flex justify-between gap-3"><p className="text-xs font-black text-white">{item.authorName}</p><span className="text-[10px] text-slate-400">{item.isPublic ? "Public" : "Private"}</span></div><p className="mt-1 text-sm text-slate-300">{item.body}</p><button type="button" onClick={() => { setReplyTo(item.noteId); setIsPublic(item.isPublic); }} className="mt-2 text-[10px] font-black uppercase text-theme">Follow up</button></article>)}</div><form onSubmit={post} className="mt-3 grid gap-2"><InquiryVisibilityToggle checked={isPublic} disabled={!canPublishPublic && !!targetInquiry} onChange={setIsPublic} label="Make this inquiry public" /><textarea value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Describe your purchase intention or ask a follow-up" className="min-h-20 rounded border border-white/15 bg-black/20 p-3 text-sm text-white" /><div className="flex justify-between">{error ? <span className="text-xs text-red-300">{error}</span> : <span />}<button disabled={busy || !message.trim()} className="btn-primary rounded px-3 py-2 text-[10px] font-black uppercase">{busy ? "Saving..." : targetInquiry ? "Post follow-up" : "Post inquiry request"}</button></div></form></section>;
+}
+
 function AdminQuotes({ data }: { data: BootstrapData }) {
+  const { locale } = useTranslation();
+  const localizedData = useMemo(() => ({
+    ...data,
+    inquiries: data.inquiries.map((inquiry) => ({
+      ...inquiry,
+      vehicleModel: localizeVehicleValue(inquiry.vehicleModel, locale),
+    })),
+  }), [data, locale]);
+
+  return <AdminQuotesLocalized data={localizedData} />;
+}
+
+function InquiryVehiclePicker({ vehicles, value, onChange }: { vehicles: Vehicle[]; value: InquiryVehicleTarget; onChange: (target: InquiryVehicleTarget) => void }) {
+  const { locale } = useTranslation();
+  const options = useMemo(() => buildInquiryVehiclePickerOptions(vehicles), [vehicles]);
+  const [search, setSearch] = useState("");
+  const selectedEntry = useMemo(() => options.flatMap((model) => model.variants.flatMap((variant) => variant.colors.flatMap((color) => color.vehicles.map((vehicle) => ({ model, variant, color, vehicle }))))).find((entry) => entry.vehicle.id === value.vehicleId), [options, value.vehicleId]);
+  const [modelKey, setModelKey] = useState(selectedEntry?.model.key || "");
+  const [variantKey, setVariantKey] = useState(selectedEntry?.variant.key || "");
+  const [colorKey, setColorKey] = useState(selectedEntry?.color.key || "");
+  const query = search.trim().toLocaleLowerCase();
+  const matches = (values: Array<string | undefined>) => !query || values.some((item) => {
+    const raw = item || "";
+    return raw.toLocaleLowerCase().includes(query) || localizeVehicleValue(raw, locale).toLocaleLowerCase().includes(query);
+  });
+  const filteredModels = options.filter((model) => matches([model.brand, model.model]) || model.variants.some((variant) => matches([variant.vehicle.trim, variant.vehicle.configuration, variant.vehicle.year, variant.vehicle.steering, variant.vehicle.marketVersion]) || variant.colors.some((color) => matches([color.exteriorColor, color.interiorColor]))));
+  const selectedModel = filteredModels.find((model) => model.key === modelKey) || options.find((model) => model.key === modelKey);
+  const selectedVariant = selectedModel?.variants.find((variant) => variant.key === variantKey);
+  const selectedColor = selectedVariant?.colors.find((color) => color.key === colorKey);
+
+  function chooseModel(nextModelKey: string) {
+    const model = options.find((item) => item.key === nextModelKey);
+    setModelKey(nextModelKey); setVariantKey(""); setColorKey("");
+    onChange(model ? { vehicleId: "", vehicleModel: compactJoin([model.brand, model.model]) } : { vehicleId: "", vehicleModel: "" });
+  }
+  function chooseVariant(nextVariantKey: string) {
+    const variant = selectedModel?.variants.find((item) => item.key === nextVariantKey);
+    setVariantKey(nextVariantKey); setColorKey("");
+    onChange(variant && selectedModel ? { vehicleId: "", vehicleModel: compactJoin([selectedModel.brand, selectedModel.model, variant.vehicle.trim, variant.vehicle.configuration, variant.vehicle.year ? `${variant.vehicle.year} MY` : "", variant.vehicle.steering, variant.vehicle.marketVersion]) } : { vehicleId: "", vehicleModel: "" });
+  }
+  function chooseColor(nextColorKey: string) {
+    setColorKey(nextColorKey);
+    const color = selectedVariant?.colors.find((item) => item.key === nextColorKey);
+    onChange(color && selectedModel && selectedVariant ? { vehicleId: color.vehicles[0]?.id || "", vehicleModel: compactJoin([selectedModel.brand, selectedModel.model, selectedVariant.vehicle.trim, selectedVariant.vehicle.configuration, selectedVariant.vehicle.year ? `${selectedVariant.vehicle.year} MY` : "", selectedVariant.vehicle.steering, selectedVariant.vehicle.marketVersion, formatColorPair(color.exteriorColor, color.interiorColor)]) } : { vehicleId: "", vehicleModel: "" });
+  }
+
+  return <div className="grid gap-3 rounded border border-white/10 bg-black/10 p-3">
+    <Input aria-label="Search vehicle resources" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search model, configuration, or color" />
+    <div className="grid gap-3 md:grid-cols-3">
+      <select aria-label="Vehicle model" value={modelKey} onChange={(event) => chooseModel(event.target.value)} className="rounded border border-white/15 bg-black/20 p-2 text-sm text-white">
+        <option value="">Select vehicle model</option>
+        {filteredModels.map((model) => <option key={model.key} value={model.key}>{compactJoin([localizeVehicleValue(model.brand, locale), localizeVehicleValue(model.model, locale)])}</option>)}
+      </select>
+      <select aria-label="Vehicle configuration" value={variantKey} disabled={!selectedModel} onChange={(event) => chooseVariant(event.target.value)} className="rounded border border-white/15 bg-black/20 p-2 text-sm text-white disabled:opacity-50">
+        <option value="">Select configuration</option>
+        {selectedModel?.variants.map((variant) => <option key={variant.key} value={variant.key}>{compactJoin([localizeVehicleValue(variant.vehicle.trim, locale) || localizeVehicleValue("Trim not specified", locale), localizeVehicleValue(variant.vehicle.configuration, locale), variant.vehicle.year ? `${variant.vehicle.year} MY` : "", localizeVehicleValue(variant.vehicle.steering, locale), localizeVehicleValue(variant.vehicle.marketVersion, locale)])}</option>)}
+      </select>
+      <select aria-label="Vehicle color" value={colorKey} disabled={!selectedVariant} onChange={(event) => chooseColor(event.target.value)} className="rounded border border-white/15 bg-black/20 p-2 text-sm text-white disabled:opacity-50">
+        <option value="">Select color inventory</option>
+        {selectedVariant?.colors.map((color) => <option key={color.key} value={color.key}>{compactJoin([formatColorPair(localizeVehicleValue(color.exteriorColor, locale), localizeVehicleValue(color.interiorColor, locale)), color.hasStockQuantity ? localizeVehicleValue(`${color.quantity} units`, locale) : ""] )}</option>)}
+      </select>
+    </div>
+  </div>;
+}
+
+function AdminQuotesLocalized({ data }: { data: BootstrapData }) {
+  const [selectedNo, setSelectedNo] = useState(data.inquiries[0]?.inquiryNo || "");
+  const [note, setNote] = useState("");
+  const [replyTo, setReplyTo] = useState("");
+  const [isPublic, setIsPublic] = useState(false);
+  const [showOnlyMine, setShowOnlyMine] = useState(() => localStorage.getItem("portal-inquiries-only-mine") === "1");
+  const [showNew, setShowNew] = useState(data.inquiries.length === 0);
+  const [target, setTarget] = useState<InquiryVehicleTarget>({ vehicleId: "", vehicleModel: "" });
+  const [title, setTitle] = useState("");
+  const [initialNote, setInitialNote] = useState("");
+  const [status, setStatus] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const inquiries = showOnlyMine ? data.inquiries.filter((item) => item.creatorUserId === data.user.userId) : data.inquiries;
+  const selected = inquiries.find((item) => item.inquiryNo === selectedNo) || inquiries[0];
+  const notes = data.inquiryNotes.filter((item) => item.inquiryNo === selected?.inquiryNo);
+  const parent = notes.find((item) => item.noteId === replyTo);
+  const canPublishPublic = !!selected?.isPublic && (!replyTo || !!parent?.isPublic);
+  const canChangeStatus = data.user.role === "admin" || data.user.role === "sales";
+
+  function select(inquiry: Inquiry) { setSelectedNo(inquiry.inquiryNo); setStatus(""); if (inquiry.creatorUserId === data.user.userId && inquiry.hasUnreadFollowUps) void api(`/api/portal/inquiries/${encodeURIComponent(inquiry.inquiryNo)}/read`, { method: "POST" }); }
+  function toggleMine(value: boolean) { setShowOnlyMine(value); localStorage.setItem("portal-inquiries-only-mine", value ? "1" : "0"); }
+  async function create(event: React.FormEvent) { event.preventDefault(); if ((!target.vehicleModel && !title.trim()) || !initialNote.trim()) return; setBusy(true); try { await api("/api/portal/inquiries", { method: "POST", body: JSON.stringify({ vehicleId: target.vehicleId, vehicleModel: target.vehicleModel, title, quantity: 1, tradeTerm: "FOB", notes: initialNote, isPublic }) }); window.location.reload(); } catch (e) { setError(e instanceof Error ? e.message : "Could not start inquiry"); } finally { setBusy(false); } }
+  async function post(event: React.FormEvent) { event.preventDefault(); if (!selected || !note.trim()) return; setBusy(true); try { await api(`/api/portal/inquiries/${encodeURIComponent(selected.inquiryNo)}/notes`, { method: "POST", body: JSON.stringify({ body: note, parentNoteId: replyTo, isPublic }) }); window.location.reload(); } catch (e) { setError(e instanceof Error ? e.message : "Could not add follow-up"); } finally { setBusy(false); } }
+  async function updateStatus() { if (!selected || !status) return; await api(`/api/portal/inquiries/${encodeURIComponent(selected.inquiryNo)}/status`, { method: "PATCH", body: JSON.stringify({ status }) }); window.location.reload(); }
+
+  return <AdminPanel title="Inquiry Management" subtitle="Inquiry context, status history, and discussion">
+    <div className="mb-4 flex flex-wrap justify-end gap-3"><InquiryVisibilityToggle checked={showOnlyMine} onChange={toggleMine} label="Show only mine" /><button type="button" onClick={() => setShowNew((value) => !value)} className="btn-primary rounded px-4 py-2 text-[10px] font-black uppercase">Start inquiry</button></div>
+    {showNew && <form onSubmit={create} className="mb-4 grid gap-3 rounded-lg border border-theme/30 bg-theme/5 p-4"><InquiryVehiclePicker vehicles={data.vehicles} value={target} onChange={setTarget} /><Input aria-label="Inquiry title" value={title} onChange={(event) => setTitle(event.target.value)} placeholder={target.vehicleModel ? "Inquiry title (optional)" : "Inquiry title (required when no vehicle is selected)"} required={!target.vehicleModel} /><textarea value={initialNote} onChange={(event) => setInitialNote(event.target.value)} className="min-h-24 rounded border border-white/15 bg-black/20 p-3 text-sm text-white" /><InquiryVisibilityToggle checked={isPublic} onChange={setIsPublic} label="Make this inquiry public" /><button disabled={busy || (!target.vehicleModel && !title.trim()) || !initialNote.trim()} className="btn-primary rounded px-4 py-2 text-[10px] font-black uppercase">Post inquiry</button></form>}
+    <div className="grid gap-4 xl:grid-cols-[19rem_minmax(0,1fr)]"><aside className="grid max-h-[70vh] gap-2 overflow-y-auto">{inquiries.map((inquiry) => <button key={inquiry.inquiryNo} onClick={() => select(inquiry)} className="rounded-lg border border-white/10 p-3 text-left"><div className="flex justify-between gap-2"><p className="text-xs font-black text-white">{inquiry.inquiryNo}</p>{inquiry.hasUnreadFollowUps && <span className="h-2 w-2 rounded-full bg-amber-300" />}</div><p className="mt-1 line-clamp-2 text-xs text-gray-400">{inquiry.title || inquiry.vehicleModel}</p><p className="mt-2 text-[10px] text-theme">{inquiry.isPublic ? "Public" : "Private"}</p></button>)}</aside>{selected && <section><div className="rounded-lg border border-white/10 p-4"><p className="text-[10px] font-black uppercase text-theme">Inquiry request</p><h3 className="mt-1 font-black text-white">{selected.title || selected.vehicleModel}</h3>{selected.title && <p className="mt-1 text-xs text-slate-400">{selected.vehicleModel}</p>}<p className="mt-2 text-sm text-slate-300">{selected.notes}</p>{canChangeStatus && <div className="mt-3 flex gap-2"><select value={status} onChange={(event) => setStatus(event.target.value)} className="rounded bg-black p-2 text-xs text-white"><option value="">Change status</option>{["New Inquiry", "Quoted", "Negotiating", "Accepted", "Closed"].map((item) => <option key={item}>{item}</option>)}</select><button onClick={updateStatus} disabled={!status} className="btn-primary rounded px-3 text-xs">Save</button></div>}</div><div className="mt-4 grid gap-3">{notes.map((item) => <article key={item.id} className={`rounded-lg border border-white/10 p-4 ${item.parentNoteId ? "ml-6" : ""}`}><p className="text-xs font-black text-white">{item.authorName} <span className="text-slate-400">{item.isPublic ? "Public" : "Private"}</span></p><p className="mt-2 text-sm text-slate-300">{item.body}</p><button onClick={() => { setReplyTo(item.noteId); setIsPublic(item.isPublic); }} className="mt-3 text-xs text-theme">Follow up</button></article>)}</div><form onSubmit={post} className="mt-4 grid gap-2"><InquiryVisibilityToggle checked={isPublic} disabled={!canPublishPublic} onChange={setIsPublic} label="Make this follow-up public" /><textarea value={note} onChange={(event) => setNote(event.target.value)} className="min-h-24 rounded border border-white/10 bg-black/20 p-3 text-sm text-white" /><button disabled={busy || !note.trim()} className="btn-primary rounded px-4 py-2 text-[10px] font-black uppercase">Post follow-up</button>{error && <p className="text-xs text-red-300">{error}</p>}</form></section>}</div>
+  </AdminPanel>;
+}
+
+function AdminQuotesLegacy({ data }: { data: BootstrapData }) {
   const [selectedNo, setSelectedNo] = useState(data.inquiries[0]?.inquiryNo || "");
   const [note, setNote] = useState("");
   const [status, setStatus] = useState("");
@@ -3274,6 +3401,24 @@ export function buildVehicleResourceVariants(vehicles: Vehicle[]): VehicleResour
         compactJoin([b.vehicle.trim, b.vehicle.configuration, b.vehicle.year]),
       ),
     );
+}
+
+export function buildInquiryVehiclePickerOptions(vehicles: Vehicle[]) {
+  const grouped = new Map<string, { key: string; brand: string; model: string; vehicles: Vehicle[] }>();
+
+  for (const vehicle of vehicles) {
+    const key = modelResourceKey(vehicle.brand, vehicle.model);
+    const existing = grouped.get(key);
+    if (existing) {
+      existing.vehicles.push(vehicle);
+    } else {
+      grouped.set(key, { key, brand: vehicle.brand, model: vehicle.model, vehicles: [vehicle] });
+    }
+  }
+
+  return Array.from(grouped.values())
+    .map((model) => ({ ...model, variants: buildVehicleResourceVariants(model.vehicles) }))
+    .sort((left, right) => compactJoin([left.brand, left.model]).localeCompare(compactJoin([right.brand, right.model])));
 }
 
 function getFobPrice(vehicle: Vehicle) {

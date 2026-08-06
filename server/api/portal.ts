@@ -11,6 +11,14 @@ import {
   queryVehicleTrims,
   queryVehicles,
 } from "../db/d1";
+import {
+  canDeleteInquiry,
+  canDeleteNote,
+  canPublishPublicNote,
+  canViewInquiry,
+  canViewNote,
+  hasUnreadFollowUp,
+} from "../inquiries/visibility";
 
 export type Env = {
   FEISHU_API_URL?: string;
@@ -252,6 +260,12 @@ function safeJsonParse(val: unknown, fallback: any = []): any {
 function asNumber(value: unknown) {
   const number = Number(Array.isArray(value) ? value[0] : value);
   return Number.isFinite(number) ? number : 0;
+}
+
+function asBoolean(value: unknown) {
+  if (typeof value === "boolean") return value;
+  if (typeof value === "number") return value === 1;
+  return ["1", "true", "yes", "on"].includes(asText(value).trim().toLowerCase());
 }
 
 function asOptionalNumber(value: unknown) {
@@ -1644,12 +1658,25 @@ async function handleBootstrap(request: Request, env: Env) {
       .then((r) => r.json() as Promise<{ vehicles?: Vehicle[] }>)
       .catch(() => ({})),
   ]);
-  const [inquiries, inquiryNotes, inquiryStatusHistory] = await Promise.all([
-    listScopedInquiries(env, session),
-    listInquiryNotes(env),
-    listInquiryStatusHistory(env),
-  ]);
+  const inquiries = await listScopedInquiries(env, session);
   const inquiryNumbers = new Set(inquiries.map((item) => item.inquiryNo));
+  const [inquiryNotes, inquiryStatusHistory] = await Promise.all([
+    listInquiryNotes(env, session, inquiries),
+    listInquiryStatusHistory(env, [...inquiryNumbers]),
+  ]);
+  const inquiryNotesByNumber = new Map<string, ReturnType<typeof mapD1Note>[]>();
+  for (const note of inquiryNotes) inquiryNotesByNumber.set(note.inquiryNo, [...(inquiryNotesByNumber.get(note.inquiryNo) || []), note]);
+  const inquiriesWithUnread = inquiries.map((inquiry) => ({
+    ...inquiry,
+    hasUnreadFollowUps: inquiry.creatorUserId === session.userId && (inquiryNotesByNumber.get(inquiry.inquiryNo) || []).some((note) => hasUnreadFollowUp({
+      creatorUserId: inquiry.creatorUserId,
+      viewerUserId: session.userId,
+      noteAuthorUserId: note.authorUserId,
+      noteVisible: true,
+      noteCreatedAt: note.createdAt,
+      lastReadAt: inquiry.lastReadAt,
+    })),
+  }));
 
   return json({
     user: publicUser(session),
@@ -1661,11 +1688,11 @@ async function handleBootstrap(request: Request, env: Env) {
     vehicleModels: modelsRes.vehicleModels || [],
     vehicleModelSpecs: modelsRes.vehicleModelSpecs || [],
     vehicles: vehiclesRes.vehicles || [],
-    inquiries,
+    inquiries: inquiriesWithUnread,
     quotes: [],
     negotiations: [],
-    inquiryNotes: inquiryNotes.filter((item) => inquiryNumbers.has(item.inquiryNo)),
-    inquiryStatusHistory: inquiryStatusHistory.filter((item) => inquiryNumbers.has(item.inquiryNo)),
+    inquiryNotes,
+    inquiryStatusHistory,
     orders: [],
     internalUsers: [],
     customers: [],
@@ -2537,35 +2564,59 @@ async function handleCreateInquiry(request: Request, env: Env) {
   const session = await requireSession(request, env);
   const body = (await request.json().catch(() => null)) as Record<string, unknown> | null;
   const vehicleId = asText(body?.vehicleId).trim();
+  const requestedVehicleModel = asText(body?.vehicleModel).trim();
+  const title = asText(body?.title).trim();
   const quantity = asNumber(body?.quantity);
-  if (!vehicleId || quantity <= 0) return problem("Vehicle and quantity are required");
-  const db = requirePortalDb(env); const now = nowText();
+  if (quantity <= 0) return problem("Quantity is required");
+  if (!vehicleId && !requestedVehicleModel && !title) return problem("Select a vehicle scope or provide an inquiry title");
+  const db = requirePortalDb(env); const now = nowText(); const isPublic = asBoolean(body?.isPublic);
   const inquiryNo = nextId("INQ");
-  const vehicle = await db.prepare("SELECT brand, model, variant FROM vehicles WHERE id = ?").bind(vehicleId).first<{ brand: string | null; model: string | null; variant: string | null }>();
-  const vehicleModel = vehicle ? [vehicle.brand, vehicle.model, vehicle.variant].filter(Boolean).join(" ") : vehicleId;
+  const vehicle = vehicleId ? await db.prepare("SELECT brand, model, variant FROM vehicles WHERE id = ?").bind(vehicleId).first<{ brand: string | null; model: string | null; variant: string | null }>() : null;
+  if (vehicleId && !vehicle) return problem("Selected vehicle resource was not found", 404);
+  const vehicleModel = requestedVehicleModel || (vehicle ? [vehicle.brand, vehicle.model, vehicle.variant].filter(Boolean).join(" ") : "General inquiry");
   await db.batch([
-    db.prepare("INSERT INTO inquiries (id,inquiry_no,customer_id,vehicle_id,vehicle_model,quantity,destination_port,trade_term,target_price,initial_note,status,source,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)").bind(crypto.randomUUID(), inquiryNo, session.customerId, vehicleId, vehicleModel, quantity, asText(body?.destinationPort), asText(body?.tradeTerm) || "FOB", asNumber(body?.targetPrice) || null, asText(body?.notes), "New Inquiry", "Customer Portal", now, now),
+    db.prepare("INSERT INTO inquiries (id,inquiry_no,customer_id,vehicle_id,vehicle_model,title,quantity,destination_port,trade_term,target_price,initial_note,is_public,status,source,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)").bind(crypto.randomUUID(), inquiryNo, session.customerId, vehicleId, vehicleModel, title, quantity, asText(body?.destinationPort), asText(body?.tradeTerm) || "FOB", asNumber(body?.targetPrice) || null, asText(body?.notes), Number(isPublic), "New Inquiry", "Customer Portal", now, now),
     db.prepare("INSERT INTO inquiry_participants (id,inquiry_no,customer_id,user_id,company,role,access_source,created_at) VALUES (?,?,?,?,?,?,?,?)").bind(crypto.randomUUID(), inquiryNo, session.customerId, session.userId, session.company, session.role, "Creator", now),
   ]);
-  if (asText(body?.notes).trim()) await createInquiryNote(env, session, inquiryNo, asText(body?.notes));
+  if (asText(body?.notes).trim()) await createInquiryNote(env, session, inquiryNo, asText(body?.notes), "", isPublic);
   return json({ ok: true, inquiryNo }, { status: 201 });
 }
 
 function canManageInquiryStatus(session: PortalSession) { return session.role === "admin" || session.role === "sales"; }
 
 function requirePortalDb(env: Env) { if (!env.PORTAL_DB) throw problem("Inquiry database is unavailable", 503); return env.PORTAL_DB; }
-function mapD1Inquiry(row: any) { return { id: row.id, inquiryNo: row.inquiry_no, customerId: row.customer_id, vehicleId: row.vehicle_id, vehicleModel: row.vehicle_model, quantity: Number(row.quantity || 0), destinationPort: row.destination_port || "", tradeTerm: row.trade_term || "", targetPrice: Number(row.target_price || 0), notes: row.initial_note || "", status: row.status || "New Inquiry", createdAt: row.created_at, updatedAt: row.updated_at, deletedAt: row.deleted_at || "" }; }
-function mapD1Note(row: any) { return { id: row.id, noteId: row.note_id, inquiryNo: row.inquiry_no, parentNoteId: row.parent_note_id || "", authorUserId: row.author_user_id, authorName: row.author_name, authorRole: row.author_role, body: row.body, createdAt: row.created_at, deletedAt: row.deleted_at || "" }; }
+function mapD1Inquiry(row: any) { return { id: row.id, inquiryNo: row.inquiry_no, customerId: row.customer_id, vehicleId: row.vehicle_id, vehicleModel: row.vehicle_model, title: row.title || "", quantity: Number(row.quantity || 0), destinationPort: row.destination_port || "", tradeTerm: row.trade_term || "", targetPrice: Number(row.target_price || 0), notes: row.initial_note || "", isPublic: Boolean(row.is_public), creatorUserId: row.creator_user_id || "", lastReadAt: row.last_read_at || null, hasUnreadFollowUps: Boolean(row.has_unread_follow_ups), status: row.status || "New Inquiry", createdAt: row.created_at, updatedAt: row.updated_at, deletedAt: row.deleted_at || "" }; }
+function mapD1Note(row: any) { return { id: row.id, noteId: row.note_id, inquiryNo: row.inquiry_no, parentNoteId: row.parent_note_id || "", authorUserId: row.author_user_id, authorName: row.author_name, authorRole: row.author_role, body: row.body, isPublic: Boolean(row.is_public), createdAt: row.created_at, deletedAt: row.deleted_at || "" }; }
 function mapD1History(row: any) { return { id: row.id, historyId: row.history_id, inquiryNo: row.inquiry_no, fromStatus: row.from_status || "", toStatus: row.to_status, actorName: row.actor_name, actorRole: row.actor_role, createdAt: row.created_at }; }
-async function listInquiryNotes(env: Env) { const r = await requirePortalDb(env).prepare("SELECT * FROM inquiry_notes WHERE deleted_at IS NULL ORDER BY created_at").all(); return r.results.map(mapD1Note); }
-async function listInquiryStatusHistory(env: Env) { const r = await requirePortalDb(env).prepare("SELECT * FROM inquiry_status_history ORDER BY created_at").all(); return r.results.map(mapD1History); }
+async function listInquiryNotes(env: Env, session: PortalSession, inquiries: ReturnType<typeof mapD1Inquiry>[]) {
+  if (inquiries.length === 0) return [];
+  const db = requirePortalDb(env); const placeholders = inquiries.map(() => "?").join(",");
+  const result = await db.prepare(`SELECT * FROM inquiry_notes WHERE deleted_at IS NULL AND inquiry_no IN (${placeholders}) ORDER BY created_at`).bind(...inquiries.map((item) => item.inquiryNo)).all();
+  const inquiryByNumber = new Map(inquiries.map((item) => [item.inquiryNo, item]));
+  return result.results.map(mapD1Note).filter((note) => {
+    const inquiry = inquiryByNumber.get(note.inquiryNo);
+    return inquiry ? canViewNote(session, inquiry, note) : false;
+  });
+}
+async function listInquiryStatusHistory(env: Env, inquiryNumbers: string[]) {
+  if (inquiryNumbers.length === 0) return [];
+  const placeholders = inquiryNumbers.map(() => "?").join(",");
+  const result = await requirePortalDb(env).prepare(`SELECT * FROM inquiry_status_history WHERE inquiry_no IN (${placeholders}) ORDER BY created_at`).bind(...inquiryNumbers).all();
+  return result.results.map(mapD1History);
+}
 
 async function listScopedInquiries(env: Env, session: PortalSession) {
   const db = requirePortalDb(env);
-  const result = canManageInquiryStatus(session)
-    ? await db.prepare("SELECT * FROM inquiries WHERE deleted_at IS NULL ORDER BY updated_at DESC").all()
-    : await db.prepare("SELECT DISTINCT i.* FROM inquiries i LEFT JOIN inquiry_participants p ON p.inquiry_no=i.inquiry_no WHERE i.deleted_at IS NULL AND (i.customer_id=? OR p.customer_id=? OR p.user_id=?) ORDER BY i.updated_at DESC").bind(session.customerId, session.customerId, session.userId).all();
-  return result.results.map(mapD1Inquiry);
+  const result = await db.prepare(`
+    SELECT i.*, creator.user_id AS creator_user_id, reads.last_read_at
+    FROM inquiries i
+    JOIN inquiry_participants creator ON creator.inquiry_no=i.inquiry_no AND creator.access_source='Creator'
+    LEFT JOIN inquiry_reads reads ON reads.inquiry_no=i.inquiry_no AND reads.user_id=?
+    WHERE i.deleted_at IS NULL
+      AND (i.is_public=1 OR ? IN ('admin','sales') OR creator.user_id=?)
+    ORDER BY i.updated_at DESC
+  `).bind(session.userId, session.role, session.userId).all();
+  return result.results.map(mapD1Inquiry).filter((inquiry) => canViewInquiry(session, inquiry));
 }
 
 async function findScopedInquiry(env: Env, session: PortalSession, inquiryNo: string) {
@@ -2574,15 +2625,25 @@ async function findScopedInquiry(env: Env, session: PortalSession, inquiryNo: st
   return { inquiry };
 }
 
-async function createInquiryNote(env: Env, session: PortalSession, inquiryNo: string, body: string, parentNoteId = "") {
-  const now = nowText(); return requirePortalDb(env).prepare("INSERT INTO inquiry_notes (id,note_id,inquiry_no,parent_note_id,author_user_id,author_name,author_role,body,created_at) VALUES (?,?,?,?,?,?,?,?,?)").bind(crypto.randomUUID(), nextId("NOTE"), inquiryNo, parentNoteId || null, session.userId, session.name, session.role, body.trim(), now).run();
+async function createInquiryNote(env: Env, session: PortalSession, inquiryNo: string, body: string, parentNoteId = "", isPublic = false) {
+  const now = nowText(); return requirePortalDb(env).prepare("INSERT INTO inquiry_notes (id,note_id,inquiry_no,parent_note_id,author_user_id,author_name,author_role,body,is_public,created_at) VALUES (?,?,?,?,?,?,?,?,?,?)").bind(crypto.randomUUID(), nextId("NOTE"), inquiryNo, parentNoteId || null, session.userId, session.name, session.role, body.trim(), Number(isPublic), now).run();
 }
 
 async function handleCreateInquiryNote(request: Request, env: Env, inquiryNo: string) {
-  const session = await requireSession(request, env); await findScopedInquiry(env, session, inquiryNo);
+  const session = await requireSession(request, env); const { inquiry } = await findScopedInquiry(env, session, inquiryNo);
   const body = (await request.json().catch(() => null)) as Record<string, unknown> | null; const text = asText(body?.body).trim();
   if (!text) return problem("Note is required"); if (text.length > 4000) return problem("Note must be 4000 characters or fewer");
-  await createInquiryNote(env, session, inquiryNo, text, asText(body?.parentNoteId)); return json({ ok: true }, { status: 201 });
+  const parentNoteId = asText(body?.parentNoteId); const isPublic = asBoolean(body?.isPublic);
+  let parentIsPublic: boolean | null = null;
+  if (parentNoteId) {
+    const parent = await requirePortalDb(env).prepare("SELECT * FROM inquiry_notes WHERE note_id=? AND inquiry_no=? AND deleted_at IS NULL").bind(parentNoteId, inquiryNo).first();
+    if (!parent) return problem("Parent follow-up not found", 404);
+    const note = mapD1Note(parent);
+    if (!canViewNote(session, inquiry, note)) return problem("Parent follow-up not found", 404);
+    parentIsPublic = note.isPublic;
+  }
+  if (!canPublishPublicNote({ inquiryIsPublic: inquiry.isPublic, parentIsPublic, isPublic })) return problem("Public follow-ups require public inquiry content", 403);
+  await createInquiryNote(env, session, inquiryNo, text, parentNoteId, isPublic); return json({ ok: true }, { status: 201 });
 }
 
 async function handleUpdateInquiryStatus(request: Request, env: Env, inquiryNo: string) {
@@ -2596,8 +2657,20 @@ async function handleUpdateInquiryStatus(request: Request, env: Env, inquiryNo: 
 async function handleDeleteInquiryContent(request: Request, env: Env, type: "inquiry" | "note", id: string) {
   const session = await requireSession(request, env); const db = requirePortalDb(env); const table = type === "inquiry" ? "inquiries" : "inquiry_notes"; const key = type === "inquiry" ? "inquiry_no" : "note_id";
   const row = await db.prepare(`SELECT * FROM ${table} WHERE ${key}=?`).bind(id).first<any>(); if (!row) return problem("Inquiry content not found", 404);
-  const authorId = type === "inquiry" ? row.customer_id : row.author_user_id; if (session.role !== "admin" && authorId !== session.userId && authorId !== session.customerId) return problem("Only an administrator can remove another account's content", 403);
+  if (type === "inquiry") {
+    const creator = await db.prepare("SELECT user_id FROM inquiry_participants WHERE inquiry_no=? AND access_source='Creator'").bind(row.inquiry_no).first<{ user_id: string }>();
+    if (!creator || !canDeleteInquiry(session, creator.user_id)) return problem("Only an administrator can remove another account's content", 403);
+  } else if (!canDeleteNote(session, row.author_user_id)) {
+    return problem("Only an administrator can remove another account's content", 403);
+  }
   const body = await request.json().catch(() => ({})) as Record<string, unknown>; await db.prepare(`UPDATE ${table} SET deleted_at=?, deleted_by_user_id=?, deleted_by_name=?, deletion_reason=? WHERE ${key}=?`).bind(nowText(), session.userId, session.name, asText(body.reason), id).run(); return json({ ok: true });
+}
+
+async function handleMarkInquiryRead(request: Request, env: Env, inquiryNo: string) {
+  const session = await requireSession(request, env); const { inquiry } = await findScopedInquiry(env, session, inquiryNo);
+  if (inquiry.creatorUserId !== session.userId) return problem("Only the inquiry creator can acknowledge follow-ups", 403);
+  await requirePortalDb(env).prepare("INSERT INTO inquiry_reads (inquiry_no,user_id,last_read_at) VALUES (?,?,?) ON CONFLICT(inquiry_no,user_id) DO UPDATE SET last_read_at=excluded.last_read_at").bind(inquiryNo, session.userId, nowText()).run();
+  return json({ ok: true });
 }
 
 async function handleDeletedInquiryContent(request: Request, env: Env) {
@@ -3323,6 +3396,8 @@ export async function handlePortalRequest(request: Request, env: Env) {
     if (inquiryNoteMatch && request.method === "POST") return await handleCreateInquiryNote(request, env, decodeURIComponent(inquiryNoteMatch[1]));
     const inquiryStatusMatch = path.match(/^\/api\/portal\/inquiries\/([^/]+)\/status$/);
     if (inquiryStatusMatch && request.method === "PATCH") return await handleUpdateInquiryStatus(request, env, decodeURIComponent(inquiryStatusMatch[1]));
+    const inquiryReadMatch = path.match(/^\/api\/portal\/inquiries\/([^/]+)\/read$/);
+    if (inquiryReadMatch && request.method === "POST") return await handleMarkInquiryRead(request, env, decodeURIComponent(inquiryReadMatch[1]));
     const inquiryContentMatch = path.match(/^\/api\/portal\/inquiry-content\/(inquiry|note)\/([^/]+)$/);
     if (inquiryContentMatch && request.method === "DELETE") return await handleDeleteInquiryContent(request, env, inquiryContentMatch[1] as "inquiry" | "note", decodeURIComponent(inquiryContentMatch[2]));
     if (path === "/api/portal/inquiry-content/deleted" && request.method === "GET") return await handleDeletedInquiryContent(request, env);

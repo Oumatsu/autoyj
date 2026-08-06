@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { buildSellableModels, buildVehicleResourceVariants, vehiclesForSellableModel } from "../../app/portal/page";
+import { buildInquiryVehiclePickerOptions, buildSellableModels, buildVehicleResourceVariants, vehiclesForSellableModel } from "../../app/portal/page";
 
 describe("Portal vehicle resource grouping", () => {
   test("groups matching vehicles across years and keeps supplier resources in the detail rows", () => {
@@ -168,5 +168,18 @@ describe("Portal vehicle resource grouping", () => {
     expect((variants[0].colors[0] as any).priceTerms).toEqual([
       { term: "FOB", amount: 20685 },
     ]);
+  });
+
+  test("provides the same model, trim, and color hierarchy for inquiry selection", () => {
+    const options = buildInquiryVehiclePickerOptions([
+      { id: "white", brand: "BYD", model: "Sealion 06", year: "2025", trim: "Dynamic", configuration: "510 km", exteriorColor: "White", interiorColor: "Black", colorStockQuantity: 10 },
+      { id: "blue", brand: "BYD", model: "Sealion 06", year: "2025", trim: "Dynamic", configuration: "510 km", exteriorColor: "Blue", interiorColor: "Black", colorStockQuantity: 8 },
+      { id: "other", brand: "Avatr", model: "06", year: "2025", trim: "Max", configuration: "EREV", exteriorColor: "Grey", interiorColor: "Black", colorStockQuantity: 2 },
+    ] as any);
+
+    expect(options).toHaveLength(2);
+    const byd = options.find((option) => option.brand === "BYD")!;
+    expect(byd.variants).toHaveLength(1);
+    expect(byd.variants[0].colors.map((color) => color.vehicles[0].id)).toEqual(["blue", "white"]);
   });
 });

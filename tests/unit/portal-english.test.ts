@@ -25,3 +25,11 @@ test("portal values use Amharic while preserving automotive abbreviations", () =
   expect(localizeVehicleValue("海域青 / 海韵灰", "am")).toBe("የውቅያኖስ ሰማያዊ / የውቅያኖስ ግራጫ");
   expect(localizeVehicleValue("FOB $20,160 / 85 units", "am")).toBe("FOB $20,160 / 85 ክፍሎች");
 });
+
+test("inquiry vehicle configuration names are localized for all portal languages", () => {
+  const trim = "Avatr Avatr 06 2025款 Max 增程版";
+
+  expect(localizeVehicleValue(trim, "zh")).toBe(trim);
+  expect(localizeVehicleValue(trim, "en")).toBe("Avatr Avatr 06 2025 MY Max Range-Extended Edition");
+  expect(localizeVehicleValue(trim, "am")).toBe("Avatr Avatr 06 2025 MY Max Range-Extended ስሪት");
+});

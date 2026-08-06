@@ -1,0 +1,1 @@
+ALTER TABLE inquiries ADD COLUMN title TEXT NOT NULL DEFAULT '';
