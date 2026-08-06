@@ -1208,13 +1208,29 @@ function mapVehicleSource(record: FeishuRecord, session: PortalSession): Record<
 
   const stage = parseSourceStage(fields);
   const isApproved = stage === "connected";
-  const modelStockQuantity = asOptionalNumber(fields["\u5355\u8f66\u578b\u603b\u5e93\u5b58"] ?? fields.model_stock_quantity);
-  const trimStockQuantity = asOptionalNumber(fields["\u7ec6\u5206\u8f66\u578b\u5e93\u5b58"] ?? fields.trim_stock_quantity);
-  const colorStockQuantity = asOptionalNumber(fields["\u989c\u8272\u5e93\u5b58"] ?? fields.color_stock_quantity);
-  const waitDays = asOptionalNumber(fields["\u4e0b\u5355\u540e\u9700\u8981\u7b49\u5f85\u5929\u6570"] ?? fields.wait_days);
+  const modelStockQuantity = asOptionalNumber(fields["单车型总库存"] ?? fields.model_stock_quantity);
+  const trimStockQuantity = asOptionalNumber(fields["细分车型库存"] ?? fields.trim_stock_quantity);
+  const colorStockQuantity = asOptionalNumber(
+    fields["颜色库存"] ??
+    fields["现车数量"] ??
+    fields["库存数量"] ??
+    fields["现车库存"] ??
+    fields["库存（辆）"] ??
+    fields["现车（辆）"] ??
+    fields["库存"] ??
+    fields["现车"] ??
+    fields["数量"] ??
+    fields.color_stock_quantity ??
+    fields.stock_quantity ??
+    fields.stockQuantity ??
+    fields.stock ??
+    fields.quantity
+  );
+  const waitDays = asOptionalNumber(fields["下单后需要等待天数"] ?? fields.wait_days);
   const steeringVal = asText(fields["左右舵"] ?? fields.steering) || "左舵 LHD";
   const marketVersionVal = asText(fields["国际国内版本（多选）"] ?? fields.market_version) || "国内版";
   const computedConfidence = computeAiConfidenceScore(fields);
+  const resolvedStock = colorStockQuantity ?? 0;
 
   return {
     id: asText(fields.record_id) || record.record_id,
@@ -1243,9 +1259,9 @@ function mapVehicleSource(record: FeishuRecord, session: PortalSession): Record<
     location: asText(fields["批发地点"] ?? fields["车源地点"] ?? fields.location) || "中国",
     status: waitDays === 0 ? "In Stock" : waitDays !== null ? "Preorder" : "",
     exportStatus: "Available",
-    stockQuantity: colorStockQuantity ?? trimStockQuantity ?? 0,
-    modelStockQuantity,
-    trimStockQuantity,
+    stockQuantity: resolvedStock,
+    modelStockQuantity: null,
+    trimStockQuantity: null,
     colorStockQuantity,
     minOrderQuantity: asNumber(fields["起订数量"] ?? fields.min_order_quantity) || 0,
     fullOrderQuantity: asNumber(fields["满订数量"] ?? fields.full_order_quantity) || 0,

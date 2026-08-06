@@ -66,15 +66,11 @@ async function main() {
     const langMap: Record<string, number> = {};
     langs.forEach((l: any) => (langMap[l.tag] = l.id));
 
-    // Upload filtered core files
-    const zhCore = filterObj(zh);
-    const enCore = filterObj(en);
-    const amCore = filterObj(am);
-
+    // Upload 100% complete translation files (no filtering)
     const formData = new FormData();
-    formData.append("files", new Blob([JSON.stringify(zhCore, null, 2)], { type: "application/json" }), "zh.json");
-    formData.append("files", new Blob([JSON.stringify(enCore, null, 2)], { type: "application/json" }), "en.json");
-    formData.append("files", new Blob([JSON.stringify(amCore, null, 2)], { type: "application/json" }), "am.json");
+    formData.append("files", new Blob([JSON.stringify(zh, null, 2)], { type: "application/json" }), "zh.json");
+    formData.append("files", new Blob([JSON.stringify(en, null, 2)], { type: "application/json" }), "en.json");
+    formData.append("files", new Blob([JSON.stringify(am, null, 2)], { type: "application/json" }), "am.json");
 
     const importRes = await fetch(`${apiUrl}/v2/projects/${project.id}/import`, {
       method: "POST",

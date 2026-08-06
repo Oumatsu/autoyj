@@ -1448,13 +1448,11 @@ function AdminModuleContent({ activeModule, data, isModuleLoading, onEditVehicle
 
 function AdminDashboard({ data }: { data: BootstrapData }) {
   const { t } = useTranslation();
-  // 按车型去重取最大库存（同车型不同颜色共享库存池，不能累加）
-  const stockByModel = new Map<string, number>();
-  for (const v of data.vehicles) {
-    const mk = `${v.brand}|${v.model}|${v.year}`;
-    stockByModel.set(mk, Math.max(stockByModel.get(mk) || 0, v.stockQuantity));
-  }
-  const totalStock = Array.from(stockByModel.values()).reduce((s, q) => s + q, 0);
+  // 汇总所有颜色与细分车型的实际库存数量（全量累加）
+  const totalStock = data.vehicles.reduce((sum, v) => {
+    const qty = v.colorStockQuantity ?? (typeof v.stockQuantity === "number" && v.stockQuantity > 0 ? v.stockQuantity : 0);
+    return sum + qty;
+  }, 0);
   const modelCount = (data.vehicleModels || []).length;
   const quoteValue = data.quotes.reduce((sum, quote) => sum + quote.unitPrice * Math.max(quote.quantity, 1), 0);
   const latestInquiries = [...data.inquiries]
@@ -3112,8 +3110,9 @@ export function buildSellableModels(data: BootstrapData): SellableModel[] {
 
     const entry = grouped.get(modelKey)!;
     const supplyType = getSupplyType(vehicle);
-    if (vehicle.colorStockQuantity !== null && vehicle.colorStockQuantity !== undefined) {
-      entry.item.stockQuantity += vehicle.colorStockQuantity;
+    const itemStock = vehicle.colorStockQuantity ?? (typeof vehicle.stockQuantity === "number" && vehicle.stockQuantity > 0 ? vehicle.stockQuantity : null);
+    if (itemStock !== null && itemStock !== undefined) {
+      entry.item.stockQuantity += itemStock;
       entry.item.hasStockQuantity = true;
     }
     entry.item.preorderAvailable = entry.item.preorderAvailable || supplyType === "Preorder";
@@ -3135,7 +3134,7 @@ export function buildSellableModels(data: BootstrapData): SellableModel[] {
     );
     const existing = entry.offerMap.get(offerKey);
     if (existing) {
-      existing.quantity += vehicle.stockQuantity;
+      existing.quantity += itemStock ?? vehicle.stockQuantity;
       existing.vehicles.push(vehicle);
     } else {
       entry.offerMap.set(offerKey, {
@@ -3147,7 +3146,7 @@ export function buildSellableModels(data: BootstrapData): SellableModel[] {
         exteriorColor: vehicle.exteriorColor || vehicle.color,
         interiorColor: vehicle.interiorColor,
         configuration: vehicle.configuration,
-        quantity: vehicle.stockQuantity,
+        quantity: itemStock ?? vehicle.stockQuantity,
         supplyType,
         leadTime: vehicle.leadTime,
         location: vehicle.location,
@@ -3165,7 +3164,7 @@ export function buildSellableModels(data: BootstrapData): SellableModel[] {
         return stockRank || (a.price || Number.MAX_SAFE_INTEGER) - (b.price || Number.MAX_SAFE_INTEGER);
       });
 
-      // 姹囨€昏杞﹀瀷鎵€鏈?offer 鐨?FOB/EXW/FCA 浠锋牸鍖洪棿锛堝彇鍚?term 鐨勬渶浣巭鏈€楂橈級
+      // 汇总该车型所有 offer 的 FOB/EXW/FCA 价格区间（取各 term 的最低与最高）
       const termMap = new Map<string, { min: number; max: number }>();
       for (const offer of offers) {
         for (const pt of offer.priceTermsList) {
@@ -3224,8 +3223,9 @@ export function buildVehicleResourceVariants(vehicles: Vehicle[]): VehicleResour
     }
 
     variant.vehicles.push(vehicle);
-    if (vehicle.colorStockQuantity !== null && vehicle.colorStockQuantity !== undefined) {
-      variant.stockQuantity += vehicle.colorStockQuantity;
+    const itemStock = vehicle.colorStockQuantity ?? (typeof vehicle.stockQuantity === "number" && vehicle.stockQuantity > 0 ? vehicle.stockQuantity : null);
+    if (itemStock !== null && itemStock !== undefined) {
+      variant.stockQuantity += itemStock;
       variant.hasStockQuantity = true;
     }
 
@@ -3245,8 +3245,8 @@ export function buildVehicleResourceVariants(vehicles: Vehicle[]): VehicleResour
       variant.colors.push(color);
     }
     color.vehicles.push(vehicle);
-    if (vehicle.colorStockQuantity !== null && vehicle.colorStockQuantity !== undefined) {
-      color.quantity += vehicle.colorStockQuantity;
+    if (itemStock !== null && itemStock !== undefined) {
+      color.quantity += itemStock;
       color.hasStockQuantity = true;
     }
   }
@@ -3424,7 +3424,7 @@ function getSupplyType(vehicle: Vehicle) {
 }
 
 function formatInventoryQuantity(vehicle: Vehicle) {
-  const quantity = vehicle.colorStockQuantity;
+  const quantity = vehicle.colorStockQuantity ?? (typeof vehicle.stockQuantity === "number" && vehicle.stockQuantity > 0 ? vehicle.stockQuantity : null);
   return quantity !== null && quantity !== undefined ? `${quantity} units` : "-";
 }
 
