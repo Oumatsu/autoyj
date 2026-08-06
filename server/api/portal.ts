@@ -1986,6 +1986,92 @@ export async function syncUsersToD1(env: Env): Promise<{ users: number }> {
   return { users: userRecords.length };
 }
 
+export async function syncArticlesToD1(env: Env): Promise<{ articles: number }> {
+  if (!env.PORTAL_DB) return { articles: 0 };
+  const articlesTableId = optionalEnv(env, "FEISHU_TABLE_ARTICLES") || "tblYIGaUMC5yX5sj";
+  const records = await searchRecords(env, articlesTableId, { pageSize: 100, maxPages: 50 }).catch(() => []);
+  if (records.length === 0) return { articles: 0 };
+
+  await env.PORTAL_DB.prepare("DELETE FROM articles").run();
+  let count = 0;
+  await dynamicUpsert(env.PORTAL_DB, "articles", records, (record, index) => {
+    const f = record.fields;
+    const coverImageFullPath = asText(f.cover_image);
+    const coverImage = coverImageFullPath.split("/").pop() || "hero.webp";
+    count++;
+    return {
+      id: record.record_id,
+      slug: asText(f.slug) || record.record_id,
+      title: asText(f.title),
+      category: asText(f.category),
+      date: asText(f.publish_date) || asText(f.date),
+      read_time: asText(f.read_time),
+      cover_image: coverImage,
+      overview: asText(f.overview),
+      content: asText(f.content),
+      status: asText(f.status) || "Published",
+      sort_order: index + 1,
+    };
+  });
+  return { articles: count };
+}
+
+export async function syncAcademyToD1(env: Env): Promise<{ lessons: number; vault: number }> {
+  if (!env.PORTAL_DB) return { lessons: 0, vault: 0 };
+  const lessonsTableId = optionalEnv(env, "FEISHU_TABLE_ACADEMY_LESSONS") || "tbl4wwtdHP8sLUsO";
+  const vaultTableId = optionalEnv(env, "FEISHU_TABLE_ACADEMY_VAULT") || "tblnMopstEUqjMhu";
+
+  const [lessonsRecords, vaultRecords] = await Promise.all([
+    lessonsTableId ? searchRecords(env, lessonsTableId, { pageSize: 100 }).catch(() => []) : Promise.resolve([]),
+    vaultTableId ? searchRecords(env, vaultTableId, { pageSize: 100 }).catch(() => []) : Promise.resolve([]),
+  ]);
+
+  await Promise.all([
+    env.PORTAL_DB.prepare("DELETE FROM academy_lessons").run(),
+    env.PORTAL_DB.prepare("DELETE FROM academy_vault").run(),
+  ]);
+
+  let lessonsCount = 0;
+  let vaultCount = 0;
+
+  await Promise.all([
+    dynamicUpsert(env.PORTAL_DB, "academy_lessons", lessonsRecords, (record, index) => {
+      const f = record.fields;
+      lessonsCount++;
+      return {
+        id: record.record_id,
+        slug: asText(f.slug) || record.record_id,
+        title: asText(f.title),
+        category: asText(f.category),
+        tag: asText(f.tag),
+        description: asText(f.description),
+        level: asText(f.level),
+        duration: asText(f.duration),
+        date: asText(f.date),
+        content: asText(f.content),
+        sort_order: index + 1,
+      };
+    }),
+    dynamicUpsert(env.PORTAL_DB, "academy_vault", vaultRecords, (record, index) => {
+      const f = record.fields;
+      vaultCount++;
+      return {
+        id: record.record_id,
+        title: asText(f.title),
+        type: asText(f.type),
+        description: asText(f.description),
+        file_size: asText(f.file_size),
+        format: asText(f.format),
+        download_url: asText(f.download_url),
+        category: asText(f.category),
+        sort_order: index + 1,
+      };
+    }),
+  ]);
+
+  return { lessons: lessonsCount, vault: vaultCount };
+}
+
 export async function syncVehicleModelsToDB(env: Env): Promise<{ models: number; trims: number }> {
   if (!env.PORTAL_DB) return { models: 0, trims: 0 };
 
@@ -2809,100 +2895,119 @@ async function handleCounterOffer(request: Request, env: Env, quoteNo: string) {
   const message = asText(body?.message).trim();
   if (!offeredPrice && !message) return problem("Counteroffer price or message is required");
 
-  const quoteRecords = await searchRecords(env, requireEnv(env, "FEISHU_TABLE_QUOTES"), {
+  const quoteTableId = optionalEnv(env, "FEISHU_TABLE_QUOTES");
+  const inquiryTableId = optionalEnv(env, "FEISHU_TABLE_INQUIRIES");
+  const negotiationTableId = optionalEnv(env, "FEISHU_TABLE_NEGOTIATIONS");
+
+  if (!quoteTableId || !inquiryTableId) return json({ ok: true });
+
+  const quoteRecords = await searchRecords(env, quoteTableId, {
     filter: equalsFilter("quote_no", quoteNo),
     pageSize: 5,
-  });
+  }).catch(() => []);
   const quoteRecord = quoteRecords[0];
   if (!quoteRecord) return problem("Quote not found", 404);
   const quote = mapQuote(quoteRecord);
 
-  const inquiryRecords = await searchRecords(env, requireEnv(env, "FEISHU_TABLE_INQUIRIES"), {
+  const inquiryRecords = await searchRecords(env, inquiryTableId, {
     filter: equalsFilter("inquiry_no", quote.inquiryNo),
     pageSize: 5,
-  });
+  }).catch(() => []);
   const inquiryRecord = inquiryRecords[0];
   if (!inquiryRecord || (!isInternalSession(session) && asText(inquiryRecord.fields.customer_id) !== session.customerId)) {
     return problem("Quote not found", 404);
   }
 
   const now = nowText();
-  await createRecord(env, requireEnv(env, "FEISHU_TABLE_NEGOTIATIONS"), {
-    log_no: nextId("LOG"),
-    inquiry_no: quote.inquiryNo,
-    quote_no: quote.quoteNo,
-    actor: isInternalSession(session) ? "Youguard" : "Customer",
-    action: "Counteroffer",
-    offered_price: offeredPrice,
-    quantity: quote.quantity,
-    message,
-    created_at: now,
-  });
-  await updateRecord(env, requireEnv(env, "FEISHU_TABLE_QUOTES"), quoteRecord.record_id, {
+  if (negotiationTableId) {
+    await createRecord(env, negotiationTableId, {
+      log_no: nextId("LOG"),
+      inquiry_no: quote.inquiryNo,
+      quote_no: quote.quoteNo,
+      actor: isInternalSession(session) ? "Youguard" : "Customer",
+      action: "Counteroffer",
+      offered_price: offeredPrice,
+      quantity: quote.quantity,
+      message,
+      created_at: now,
+    }).catch(() => null);
+  }
+  await updateRecord(env, quoteTableId, quoteRecord.record_id, {
     status: "Counteroffer Received",
-  });
-  await updateRecord(env, requireEnv(env, "FEISHU_TABLE_INQUIRIES"), inquiryRecord.record_id, {
+  }).catch(() => null);
+  await updateRecord(env, inquiryTableId, inquiryRecord.record_id, {
     status: "Negotiating",
     updated_at: now,
-  });
+  }).catch(() => null);
   return json({ ok: true });
 }
 
 async function handleAcceptQuote(request: Request, env: Env, quoteNo: string) {
   const session = await requireSession(request, env);
-  const quoteRecords = await searchRecords(env, requireEnv(env, "FEISHU_TABLE_QUOTES"), {
+  const quoteTableId = optionalEnv(env, "FEISHU_TABLE_QUOTES");
+  const inquiryTableId = optionalEnv(env, "FEISHU_TABLE_INQUIRIES");
+  const negotiationTableId = optionalEnv(env, "FEISHU_TABLE_NEGOTIATIONS");
+  const orderTableId = optionalEnv(env, "FEISHU_TABLE_ORDERS");
+
+  const orderNo = nextId("ORD");
+  if (!quoteTableId || !inquiryTableId) return json({ orderNo }, { status: 201 });
+
+  const quoteRecords = await searchRecords(env, quoteTableId, {
     filter: equalsFilter("quote_no", quoteNo),
     pageSize: 5,
-  });
+  }).catch(() => []);
   const quoteRecord = quoteRecords[0];
   if (!quoteRecord) return problem("Quote not found", 404);
   const quote = mapQuote(quoteRecord);
 
-  const inquiryRecords = await searchRecords(env, requireEnv(env, "FEISHU_TABLE_INQUIRIES"), {
+  const inquiryRecords = await searchRecords(env, inquiryTableId, {
     filter: equalsFilter("inquiry_no", quote.inquiryNo),
     pageSize: 5,
-  });
+  }).catch(() => []);
   const inquiryRecord = inquiryRecords[0];
   if (!inquiryRecord || (!isInternalSession(session) && asText(inquiryRecord.fields.customer_id) !== session.customerId)) {
     return problem("Quote not found", 404);
   }
 
   const now = nowText();
-  const orderNo = nextId("ORD");
   const total = quote.unitPrice * quote.quantity;
   const customerId = asText(inquiryRecord.fields.customer_id) || session.customerId;
-  await createRecord(env, requireEnv(env, "FEISHU_TABLE_NEGOTIATIONS"), {
-    log_no: nextId("LOG"),
-    inquiry_no: quote.inquiryNo,
-    quote_no: quote.quoteNo,
-    actor: isInternalSession(session) ? "Youguard" : "Customer",
-    action: "Quote Accepted",
-    offered_price: quote.unitPrice,
-    quantity: quote.quantity,
-    message: isInternalSession(session) ? "Youguard accepted quote in portal." : "Customer accepted quote in portal.",
-    created_at: now,
-  });
-  await updateRecord(env, requireEnv(env, "FEISHU_TABLE_QUOTES"), quoteRecord.record_id, {
+  if (negotiationTableId) {
+    await createRecord(env, negotiationTableId, {
+      log_no: nextId("LOG"),
+      inquiry_no: quote.inquiryNo,
+      quote_no: quote.quoteNo,
+      actor: isInternalSession(session) ? "Youguard" : "Customer",
+      action: "Quote Accepted",
+      offered_price: quote.unitPrice,
+      quantity: quote.quantity,
+      message: isInternalSession(session) ? "Youguard accepted quote in portal." : "Customer accepted quote in portal.",
+      created_at: now,
+    }).catch(() => null);
+  }
+  await updateRecord(env, quoteTableId, quoteRecord.record_id, {
     status: "Accepted",
-  });
-  await updateRecord(env, requireEnv(env, "FEISHU_TABLE_INQUIRIES"), inquiryRecord.record_id, {
+  }).catch(() => null);
+  await updateRecord(env, inquiryTableId, inquiryRecord.record_id, {
     status: "Accepted",
     updated_at: now,
-  });
-  await createRecord(env, requireEnv(env, "FEISHU_TABLE_ORDERS"), {
-    order_no: orderNo,
-    inquiry_no: quote.inquiryNo,
-    quote_no: quote.quoteNo,
-    customer_id: customerId,
-    vehicle_id: quote.vehicleId,
-    quantity: quote.quantity,
-    final_unit_price: quote.unitPrice,
-    total,
-    currency: quote.currency,
-    payment_terms: quote.paymentTerms,
-    status: "Draft Order",
-    created_at: now,
-  });
+  }).catch(() => null);
+  if (orderTableId) {
+    await createRecord(env, orderTableId, {
+      order_no: orderNo,
+      inquiry_no: quote.inquiryNo,
+      quote_no: quote.quoteNo,
+      customer_id: customerId,
+      vehicle_id: quote.vehicleId,
+      quantity: quote.quantity,
+      final_unit_price: quote.unitPrice,
+      total,
+      currency: quote.currency,
+      payment_terms: quote.paymentTerms,
+      status: "Draft Order",
+      created_at: now,
+    }).catch(() => null);
+  }
 
   return json({ orderNo }, { status: 201 });
 }
@@ -3245,8 +3350,29 @@ async function handlePublicInsights(env: Env) {
   const cached = getCached(cacheKey);
   if (cached) return json(cached);
 
-  const articlesTableId = requireEnv(env, "FEISHU_TABLE_ARTICLES");
-  const records = await searchRecords(env, articlesTableId, { pageSize: 100 });
+  if (env.PORTAL_DB) {
+    try {
+      const rows = await env.PORTAL_DB.prepare(
+        `SELECT slug, title, category, date, read_time as readTime, cover_image as coverImage, overview, sort_order as sortOrder
+         FROM articles WHERE status = 'Published' ORDER BY sort_order ASC, date DESC`
+      ).all();
+      if (rows.results && rows.results.length > 0) {
+        const articles = rows.results.map((r: any) => ({
+          ...r,
+          sortDate: r.date,
+          date: formatDate(r.date),
+        }));
+        setCached(cacheKey, articles, env);
+        return json(articles);
+      }
+    } catch {
+      // Fall through if D1 table empty or missing
+    }
+  }
+
+  const articlesTableId = optionalEnv(env, "FEISHU_TABLE_ARTICLES");
+  if (!articlesTableId) return json([]);
+  const records = await searchRecords(env, articlesTableId, { pageSize: 100 }).catch(() => []);
 
   const published = records.filter(r => asText(r.fields.status) === "Published");
 
@@ -3269,7 +3395,7 @@ async function handlePublicInsights(env: Env) {
     };
   });
 
-  setCached(cacheKey, articles, env);
+  if (articles.length > 0) setCached(cacheKey, articles, env);
   return json(articles);
 }
 
@@ -3278,8 +3404,29 @@ async function handlePublicInsight(slug: string, env: Env) {
   const cached = getCached(cacheKey);
   if (cached) return json(cached);
 
-  const articlesTableId = requireEnv(env, "FEISHU_TABLE_ARTICLES");
-  const records = await searchRecords(env, articlesTableId, { pageSize: 100 });
+  if (env.PORTAL_DB) {
+    try {
+      const row = await env.PORTAL_DB.prepare(
+        `SELECT slug, title, category, date, read_time as readTime, cover_image as coverImage, overview, content
+         FROM articles WHERE slug = ? AND status = 'Published'`
+      ).bind(slug).first<any>();
+      if (row) {
+        const data = {
+          ...row,
+          sortDate: row.date,
+          date: formatDate(row.date),
+        };
+        setCached(cacheKey, data, env);
+        return json(data);
+      }
+    } catch {
+      // Fall through
+    }
+  }
+
+  const articlesTableId = optionalEnv(env, "FEISHU_TABLE_ARTICLES");
+  if (!articlesTableId) return problem(`Insight ${slug} not found`, 404);
+  const records = await searchRecords(env, articlesTableId, { pageSize: 100 }).catch(() => []);
 
   const record = records.find(
     (r) => asText(r.fields.slug) === slug && asText(r.fields.status) === "Published",
@@ -3314,12 +3461,60 @@ async function handlePublicAcademy(env: Env) {
   const cached = getCached(cacheKey);
   if (cached) return json(cached);
 
-  const lessonsTableId = requireEnv(env, "FEISHU_TABLE_ACADEMY_LESSONS");
-  const vaultTableId = requireEnv(env, "FEISHU_TABLE_ACADEMY_VAULT");
+  if (env.PORTAL_DB) {
+    try {
+      const [lessonsRes, vaultRes] = await Promise.all([
+        env.PORTAL_DB.prepare(
+          `SELECT title, tag, slug, description as desc, category, content FROM academy_lessons ORDER BY sort_order ASC`
+        ).all(),
+        env.PORTAL_DB.prepare(
+          `SELECT id as translationId, title, type, description as desc, file_size as size, download_url as downloadLink, category FROM academy_vault ORDER BY sort_order ASC`
+        ).all(),
+      ]);
 
-  const lessonsRecords = await searchRecords(env, lessonsTableId, { pageSize: 100 });
-  await delay(20);
-  const vaultRecords = await searchRecords(env, vaultTableId, { pageSize: 100 });
+      if (lessonsRes.results && lessonsRes.results.length > 0) {
+        const fundamentals: any[] = [];
+        const playbook: any[] = [];
+        const workshop: any[] = [];
+
+        for (const l of lessonsRes.results as any[]) {
+          const cat = (l.category || "").toLowerCase().trim();
+          const lesson = {
+            title: l.title,
+            tag: l.tag,
+            slug: l.slug,
+            desc: l.desc,
+            img: "hero.webp"
+          };
+          if (cat === "fundamentals") fundamentals.push(lesson);
+          else if (cat === "playbook") playbook.push(lesson);
+          else if (cat === "workshop") workshop.push(lesson);
+        }
+
+        const data = {
+          lessons: { fundamentals, playbook, workshop },
+          vault: (vaultRes.results || []).map((v: any) => ({
+            ...v,
+            size: v.size || "2.4 MB",
+            downloadLink: v.downloadLink || "/qr"
+          }))
+        };
+        setCached(cacheKey, data, env);
+        return json(data);
+      }
+    } catch {
+      // Fall through
+    }
+  }
+
+  const lessonsTableId = optionalEnv(env, "FEISHU_TABLE_ACADEMY_LESSONS");
+  const vaultTableId = optionalEnv(env, "FEISHU_TABLE_ACADEMY_VAULT");
+  if (!lessonsTableId || !vaultTableId) {
+    return json({ lessons: { fundamentals: [], playbook: [], workshop: [] }, vault: [] });
+  }
+
+  const lessonsRecords = await searchRecords(env, lessonsTableId, { pageSize: 100 }).catch(() => []);
+  const vaultRecords = await searchRecords(env, vaultTableId, { pageSize: 100 }).catch(() => []);
 
   const publishedLessons = lessonsRecords.filter(r => asText(r.fields.status) === "Published");
 
@@ -3377,10 +3572,27 @@ async function handlePublicAcademyLesson(category: string, slug: string, env: En
   const cached = getCached(cacheKey);
   if (cached) return json(cached);
 
-  const lessonsTableId = requireEnv(env, "FEISHU_TABLE_ACADEMY_LESSONS");
-  const records = await searchRecords(env, lessonsTableId, {
-    pageSize: 100
-  });
+  if (env.PORTAL_DB) {
+    try {
+      const row = await env.PORTAL_DB.prepare(
+        `SELECT title, category, tag, description as desc, content FROM academy_lessons WHERE slug = ?`
+      ).bind(slug).first<any>();
+      if (row) {
+        const data = {
+          ...row,
+          img: "hero.webp"
+        };
+        setCached(cacheKey, data, env);
+        return json(data);
+      }
+    } catch {
+      // Fall through
+    }
+  }
+
+  const lessonsTableId = optionalEnv(env, "FEISHU_TABLE_ACADEMY_LESSONS");
+  if (!lessonsTableId) return problem(`Academy lesson ${slug} in category ${category} not found`, 404);
+  const records = await searchRecords(env, lessonsTableId, { pageSize: 100 }).catch(() => []);
 
   const record = records.find(r =>
     asText(r.fields.slug) === slug
@@ -3401,7 +3613,7 @@ async function handlePublicAcademyLesson(category: string, slug: string, env: En
     content: asText(fields.content)
   };
 
-  setCached(cacheKey, data);
+  setCached(cacheKey, data, env);
   return json(data);
 }
 

@@ -1,5 +1,5 @@
 import type { Env } from "../api/portal";
-import { syncVehicleModelsToDB, syncVehiclesToD1, syncUsersToD1 } from "../api/portal";
+import { syncVehicleModelsToDB, syncVehiclesToD1, syncUsersToD1, syncArticlesToD1, syncAcademyToD1 } from "../api/portal";
 
 /**
  * Scheduled Cron Job — Runs every 10 minutes via Cloudflare Workers.
@@ -11,11 +11,11 @@ import { syncVehicleModelsToDB, syncVehiclesToD1, syncUsersToD1 } from "../api/p
  * This is the ONLY place in the system that calls Feishu.
  * All user-facing API handlers read purely from D1.
  */
-export async function runFeishuScheduledSync(env: Env): Promise<{ models: number; trims: number; vehicles: number; users: number; elapsed: number }> {
+export async function runFeishuScheduledSync(env: Env): Promise<{ models: number; trims: number; vehicles: number; users: number; articles: number; lessons: number; vault: number; elapsed: number }> {
   console.log("[cron:feishu-sync] Starting sync: Feishu → D1...");
   const startTime = Date.now();
 
-  let models = 0, trims = 0, vehicles = 0, users = 0;
+  let models = 0, trims = 0, vehicles = 0, users = 0, articles = 0, lessons = 0, vault = 0;
 
   try {
     const res = await syncVehicleModelsToDB(env);
@@ -42,7 +42,24 @@ export async function runFeishuScheduledSync(env: Env): Promise<{ models: number
     console.error("[cron:feishu-sync] ✗ Users sync failed:", err);
   }
 
+  try {
+    const res = await syncArticlesToD1(env);
+    articles = res.articles;
+    console.log(`[cron:feishu-sync] ✓ Articles: ${articles} records written to D1`);
+  } catch (err) {
+    console.error("[cron:feishu-sync] ✗ Articles sync failed:", err);
+  }
+
+  try {
+    const res = await syncAcademyToD1(env);
+    lessons = res.lessons;
+    vault = res.vault;
+    console.log(`[cron:feishu-sync] ✓ Academy: ${lessons} lessons + ${vault} vault items written to D1`);
+  } catch (err) {
+    console.error("[cron:feishu-sync] ✗ Academy sync failed:", err);
+  }
+
   const elapsed = Date.now() - startTime;
   console.log(`[cron:feishu-sync] Done in ${elapsed}ms`);
-  return { models, trims, vehicles, users, elapsed };
+  return { models, trims, vehicles, users, articles, lessons, vault, elapsed };
 }

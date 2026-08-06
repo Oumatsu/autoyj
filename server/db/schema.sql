@@ -132,7 +132,6 @@ CREATE INDEX IF NOT EXISTS idx_vehicle_models_brand ON vehicle_models(brand);
 CREATE INDEX IF NOT EXISTS idx_vehicle_models_status ON vehicle_models(status);
 CREATE INDEX IF NOT EXISTS idx_vehicle_trims_model_id ON vehicle_trims(model_id);
 CREATE INDEX IF NOT EXISTS idx_vehicles_model_id ON vehicles(model_id);
-CREATE INDEX IF NOT EXISTS idx_vehicles_stage ON vehicles(stage);
 
 -- Inquiry management is transactional portal data. D1 is its system of record.
 CREATE TABLE IF NOT EXISTS inquiries (
@@ -258,4 +257,92 @@ CREATE TABLE IF NOT EXISTS verification (
 CREATE INDEX IF NOT EXISTS idx_user_email ON user(email);
 CREATE INDEX IF NOT EXISTS idx_session_userId ON session(userId);
 CREATE INDEX IF NOT EXISTS idx_account_userId ON account(userId);
+
+-- 1. Articles / Insights Table
+CREATE TABLE IF NOT EXISTS articles (
+  id TEXT PRIMARY KEY,
+  slug TEXT UNIQUE NOT NULL,
+  title TEXT NOT NULL,
+  category TEXT,
+  date TEXT,
+  read_time TEXT,
+  cover_image TEXT,
+  overview TEXT,
+  content TEXT,
+  status TEXT DEFAULT 'Published',
+  sort_order INTEGER DEFAULT 0,
+  synced_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- 2. Academy Lessons Table
+CREATE TABLE IF NOT EXISTS academy_lessons (
+  id TEXT PRIMARY KEY,
+  slug TEXT UNIQUE NOT NULL,
+  title TEXT NOT NULL,
+  category TEXT,
+  tag TEXT,
+  description TEXT,
+  level TEXT,
+  duration TEXT,
+  date TEXT,
+  content TEXT,
+  sort_order INTEGER DEFAULT 0,
+  synced_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- 3. Academy Vault Resources Table
+CREATE TABLE IF NOT EXISTS academy_vault (
+  id TEXT PRIMARY KEY,
+  title TEXT NOT NULL,
+  type TEXT,
+  description TEXT,
+  file_size TEXT,
+  format TEXT,
+  download_url TEXT,
+  category TEXT,
+  sort_order INTEGER DEFAULT 0,
+  synced_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- 4. Quotes Table
+CREATE TABLE IF NOT EXISTS quotes (
+  id TEXT PRIMARY KEY,
+  quote_no TEXT UNIQUE NOT NULL,
+  inquiry_no TEXT NOT NULL,
+  customer_id TEXT NOT NULL,
+  vehicle_id TEXT NOT NULL,
+  price REAL NOT NULL,
+  status TEXT DEFAULT 'Active',
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+
+-- 5. Negotiations Table
+CREATE TABLE IF NOT EXISTS negotiations (
+  id TEXT PRIMARY KEY,
+  inquiry_no TEXT NOT NULL,
+  quote_no TEXT,
+  actor_user_id TEXT NOT NULL,
+  actor_name TEXT,
+  actor_role TEXT,
+  message TEXT NOT NULL,
+  created_at TEXT NOT NULL
+);
+
+-- 6. Orders Table
+CREATE TABLE IF NOT EXISTS orders (
+  id TEXT PRIMARY KEY,
+  order_no TEXT UNIQUE NOT NULL,
+  inquiry_no TEXT NOT NULL,
+  customer_id TEXT NOT NULL,
+  vehicle_id TEXT NOT NULL,
+  quantity INTEGER NOT NULL,
+  status TEXT DEFAULT 'Pending',
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_articles_slug ON articles(slug);
+CREATE INDEX IF NOT EXISTS idx_academy_lessons_slug ON academy_lessons(slug);
+
 
