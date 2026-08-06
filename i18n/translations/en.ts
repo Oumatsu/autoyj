@@ -320,7 +320,7 @@ const en = {
     },
     "pdi": {
       "label": "PDI & Quality Control",
-      "heading": "",
+      "heading": "Rigorous Pre-Delivery Inspection (PDI)",
       "headingAccent1": "50-Point",
       "headingAccent2": "Gold Standard.",
       "description": "Every vehicle we source undergoes a comprehensive pre-delivery inspection at our designated facility before moving to the port. We don't just ship — we verify.",
@@ -434,7 +434,7 @@ const en = {
     },
     "tradeTerms": {
       "label": "Flexible Trade Terms",
-      "heading": "",
+      "heading": "Flexible Payment Terms & CIF/FOB Shipping",
       "headingAccent1": "30 / 70",
       "headingSuffix": "CIF. At Your Pace.",
       "description": "Most suppliers demand 100% T/T upfront. We accept 30% deposit to confirm your order, with the 70% balance payable against shipping documents — most of the payment is due only after your vehicles are already at sea.",
