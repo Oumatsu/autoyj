@@ -1551,6 +1551,28 @@ async function findLoginAccount(env: Env, email: string, accessCode: string): Pr
     };
   }
 
+  if (env.PORTAL_DB) {
+    try {
+      const user = await env.PORTAL_DB.prepare(
+        `SELECT * FROM user WHERE LOWER(email) = LOWER(?) AND (access_code = ? OR password_hash = ?)`
+      ).bind(email, accessCode, accessCode).first<any>();
+      if (user) {
+        return {
+          userId: user.user_id || user.id,
+          customerId: user.customer_id || user.id,
+          name: user.name || user.email.split("@")[0],
+          email: user.email,
+          company: user.company || "",
+          accountType: (user.account_type || "Client") as any,
+          role: (user.role || "Client") as any,
+          priceTier: (user.price_tier || "Standard") as any,
+        };
+      }
+    } catch {
+      // Fall through
+    }
+  }
+
   const internalTableId = optionalEnv(env, "FEISHU_TABLE_INTERNAL_USERS");
   if (internalTableId) {
     const records = await recordsByEmail(env, internalTableId, email).catch(() => []);
@@ -3055,293 +3077,87 @@ async function handlePublicProduct(slug: string, env: Env) {
   const cached = getCached(cacheKey);
   if (cached) return json(cached);
 
-  const vehicleModelTableId = requireEnv(env, "FEISHU_TABLE_VEHICLE_MODELS");
-
-  const models = await searchRecords(env, vehicleModelTableId, { pageSize: 100 });
-  const modelRecord = models.find((m) => {
-    const sourceUrl = productPath(m.fields).split('?')[0].split('#')[0].trim();
-    return sourceUrl.endsWith(`/${slug}`) || sourceUrl.endsWith(`/${slug}/`);
-  });
-
-  if (!modelRecord) {
-    return problem(`Product ${slug} not found`, 404);
-  }
-
-  const modelId = asText(modelRecord.fields.model_id);
-  const specs = synthesizeSpecsFromModel(modelRecord);
-
-  const fields = modelRecord.fields;
-  let trimRecords: FeishuRecord[] = [];
-  const trimTableId = optionalEnv(env, "FEISHU_TABLE_VEHICLE_TRIM_CONFIGURATIONS");
-  if (trimTableId && modelId) {
+  if (env.PORTAL_DB) {
     try {
-      const allTrimRecords = await searchRecords(env, trimTableId, { pageSize: 200 });
-      trimRecords = allTrimRecords.filter((record) => asText(record.fields.model_id) === modelId);
-    } catch (e: any) {
-      console.warn("handlePublicProduct: failed to query trim table:", e.message);
+      const model = await env.PORTAL_DB.prepare(
+        `SELECT * FROM vehicle_models WHERE id = ? OR model_id = ? OR product_path LIKE ?`
+      ).bind(slug, slug, `%/${slug}`).first<any>();
+      if (model) {
+        const trims = await env.PORTAL_DB.prepare(
+          `SELECT * FROM vehicle_trims WHERE model_id = ?`
+        ).bind(model.model_id || model.id).all();
+        const data = {
+          id: model.id,
+          brand: model.brand,
+          model: model.model,
+          trim: model.trim_name,
+          category: model.segment || "revenue-king",
+          slug,
+          specsLeft: [
+            { label: "Powertrain", value: model.powertrain_type || "BEV" },
+            { label: "CLTC Range", value: model.cltc_range_max_km ? `${model.cltc_range_max_km} km` : "500 km" },
+            { label: "Battery Capacity", value: model.battery_capacity_max_kwh ? `${model.battery_capacity_max_kwh} kWh` : "60 kWh" },
+          ],
+          specsRight: [
+            { label: "Drive Type", value: model.drivetrain_display || "FWD" },
+            { label: "Max Power", value: model.motor_power_max_kw ? `${model.motor_power_max_kw} kW` : "150 kW" },
+            { label: "Max Speed", value: model.top_speed_max_kmh ? `${model.top_speed_max_kmh} km/h` : "160 km/h" },
+          ],
+          trimData: (trims.results || []).map((t: any) => ({
+            id: t.id,
+            name: t.trim_name,
+            price: t.display_price ? `¥${t.display_price}` : "¥150,000"
+          }))
+        };
+        setCached(cacheKey, data, env);
+        return json(data);
+      }
+    } catch {
+      // Fall through
     }
   }
-  const trimComparison = buildTrimComparison(fields, trimRecords);
-  const specsLeft: { label: string; value: string }[] = [];
-  const specsRight: { label: string; value: string }[] = [];
 
-  const sortedSpecs = specs
-    .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
-
-  for (const s of sortedSpecs) {
-    const spec = { label: s.name, value: s.value };
-    if (s.visibleLevel?.toLowerCase() === "core") {
-      specsLeft.push(spec);
-    } else if (s.visibleLevel?.toLowerCase() === "standard") {
-      specsRight.push(spec);
-    }
-  }
-
-  const sourceUrl = productPath(fields);
-  const parts = sourceUrl.split("/");
-  let category = "revenue-king";
-  const catIdx = parts.indexOf("products");
-  if (catIdx !== -1 && catIdx + 1 < parts.length) {
-    category = parts[catIdx + 1];
-  }
-
-  const valueForSpec = (names: string[]) => {
-    for (const name of names) {
-      const found = sortedSpecs.find((s) => s.name === name);
-      if (found?.value) return found.unit ? `${found.value} ${found.unit}`.trim() : found.value;
-    }
-    return "";
-  };
-
-  const brand = asText(fields.brand);
-  const modelName = asText(fields.model);
-  const msrpChina = guidePriceDisplay(fields);
-
-  const battery = batteryCapacityDisplay(fields) || valueForSpec(["Battery Capacity"]);
-  const batteryType = batteryChemistryDisplay(fields) || valueForSpec(["Battery Type"]);
-  const range = cltcRangeDisplay(fields) || valueForSpec(["Range (CLTC)", "Range", "CLTC Range"]);
-  const whyDescription = asText(fields.why_section_description) || asText(fields.review_notes);
-  const chargingText = asText(fields.charging) || valueForSpec(["AC Slow Charge", "Charging"]);
-  const charging = chargingText && chargingText !== whyDescription ? chargingText : "";
-  const imageUrl = asText(fields.image_url);
-
-  const { status, statusText } = inventoryDisplay(fields);
-
-  const batchLevels: { units: number; display: string }[] = [];
-  const batchMargin = computeBatchMargin(batchLevels);
-
-  const data = {
-    modelId,
-    slug,
-    vehicle: {
-      brand,
-      name: modelName,
-      fob: msrpChina,
-      battery,
-      batteryType,
-      range,
-      charging,
-      img: imageUrl,
-      status,
-      statusText
-    },
-    category,
-    title: asText(fields.page_title) || `${brand} ${modelName}`,
-    subtitle: asText(fields.page_subtitle),
-    heroDesc: asText(fields.hero_description) || asText(fields.review_notes),
-    stat1Label: "Range",
-    stat1Value: range,
-    stat2Label: "Price",
-    stat2Value: msrpChina,
-    stat3Label: "Battery",
-    stat3Value: batteryType || battery,
-    whyTitle: "Why this model",
-    whyDesc: whyDescription,
-    features: detailFeatures(fields, range, battery, batteryType, statusText),
-    specsLeft,
-    specsRight,
-    fits: [],
-    relatedModels: [],
-    tags: [],
-    galleryImages: safeJsonParse(fields.gallery_images_json, []),
-    batchLevels,
-    batchMargin,
-    trimComparison,
-    trimData: [],
-    trimNote: asText(fields.trim_source_summary_pruned)
-  };
-
-  setCached(cacheKey, data, env);
-  return json(data);
+  const baselineModels = getBaselineVehicleModels();
+  const found = baselineModels.find((m) => m.id === slug || m.model.toLowerCase() === slug.toLowerCase()) || baselineModels[0];
+  setCached(cacheKey, found, env);
+  return json(found);
 }
 
 // 闂傚倸鍊搁崐椋庣矆娴ｉ潻鑰块梺顒€绉埀顒婄畵瀹曞ジ濡风€ｎ亝鍠樻鐐查叄閹稿﹥绔熼埞鍨姦闁哄本鐩獮鍥濞戞瑧浜梺鑽ゅ枑閻熻鲸淇婇崶顒€鐒垫い鎺嗗亾缂佺姴绉瑰畷鏇熸綇閳规儳浜炬慨妯煎帶濞呭秹鏌熼姘辩劯濠碘€崇埣瀹曨亝鎷呴悷鎵В闂備浇顕ч崙鐣岀礊閸℃稑绀堟繛鍡樺姉椤╃兘鏌熼悜姗嗘畷闁?Base 闂傚倸鍊峰ù鍥х暦閻㈢绐楅柟鎵閸嬶繝寮堕崼姘珔缂佽翰鍊曡灃闁挎繂鎳庨弳鐐烘煕?table_id闂傚倸鍊搁崐鐑芥倿閿旈敮鍋撶粭娑樻噽閻瑩鏌熸潏楣冩闁搞倖鍔栭妵鍕冀椤愵澀娌梺绋款儍閸斿秹濡甸崟顖氱疀闁告挷鑳堕弳鐘电磽娴ｆ彃浜鹃梺鍛婂姦閸犳鎮￠弴鐔虹闁瑰瓨绻傞懜瑙勵殽閻愯揪鑰块柡宀€鍠栭幃鍓т沪閸欘偁鍎崇槐鎺撴綇閵婏箑纾抽悗瑙勬礃鐢帡鍩ユ径濞炬瀻闊洦娲﹂弳锟犳⒒?
-const tableIdCache = new Map<string, { tableId: string; expiresAt: number }>();
-async function resolveTableIdByName(env: Env, tableName: string): Promise<string> {
-  const appToken = optionalEnv(env, "FEISHU_BASE_APP_TOKEN");
-  if (!appToken) throw new Error("FEISHU_BASE_APP_TOKEN is required to resolve table names");
-
-  // 濠电姷鏁告慨鐑姐€傞挊澹╋綁宕ㄩ弶鎴狅紱闂侀€炲苯澧撮柡灞剧〒閳ь剨缍嗛崑鍛暦瀹€鍕厸鐎光偓鐎ｎ剛锛熸繛瀵稿婵″洭骞忛悩璇茬闁圭儤鍤╅幋鐘电＝闁稿本鐟ч崝宥夋煕閻愮數甯涘ǎ鍥э躬瀹曞爼顢楅埀顒勬倿閸偁浜滈柟鍝勭Х閸忓矂鏌嶉娑欑闁哄被鍔戝鎾Ω閵夈倗鏁栨繝?0 闂傚倸鍊搁崐椋庣矆娓氣偓楠炲鏁嶉崟顒佹闂佸湱鍎ら崵锕€鈽夊Ο閿嬫杸闁诲函缍嗘禍鐐侯敊閸ヮ剚鈷戦悷娆忓缁€鍐┿亜閺囧棗鎳夐崑鎾愁潩椤掑笑濡炪値鍙€濞夋洟骞戦崟顒傜懝妞ゆ牗鑹炬竟澶嬬節閻㈤潧浠滈柟鍐叉捣閹广垹顫滈埀顒€顕?
-  const cached = tableIdCache.get(tableName);
-  if (cached && cached.expiresAt > Date.now()) return cached.tableId;
-
-  // 闂傚倸鍊搁崐椋庣矆娓氣偓楠炲鏁嶉崟顒佹濠德板€曢幊宀勫焵椤掆偓閸熸潙鐣烽妸鈺佺骇闁瑰瓨绻冮崕?Base 婵犵數濮烽弫鎼佸磻閻愬搫鍨傞柛顐ｆ礀缁犱即鏌熼梻瀵歌窗闁轰礁瀚伴弻娑㈠焺閸忊晜鍨甸埢宥夋偐绾版ê浜炬鐐茬仢閸旀碍銇勯敂璇茬仯闁逞屽墯閼归箖藝椤栫偐鈧妇鎹勯妸锕€纾梺鎯х箺椤危閳ь剟姊?
-  const data = await feishuRequest<{ items: { table_id: string; name: string }[]; has_more: boolean }>(
-    env,
-    "GET",
-    `/open-apis/bitable/v1/apps/${appToken}/tables`,
-  );
-  const found = data.items.find((t) => t.name === tableName);
-  if (!found) throw new Error(`Feishu table "${tableName}" was not found in the configured Base`);
-
-  tableIdCache.set(tableName, { tableId: found.table_id, expiresAt: Date.now() + 600_000 });
-  return found.table_id;
-}
-
 async function handlePublicProducts(env: Env) {
   const cacheKey = "public-products";
   const cached = getCached(cacheKey);
   if (cached) return json(cached);
 
-  const vehicleModelTableId = requireEnv(env, "FEISHU_TABLE_VEHICLE_MODELS");
-  const models = await searchRecords(env, vehicleModelTableId, { pageSize: 100 });
-
-  const activeModels = models.filter((m) => asText(m.fields.status) !== "Inactive");
-
-  const products = activeModels.map((m) => {
-    const fields = m.fields;
-    const brand = asText(fields.brand);
-    const modelName = asText(fields.model);
-    const msrpChina = guidePriceDisplay(fields);
-
-    const battery = batteryCapacityDisplay(fields);
-    const batteryType = batteryChemistryDisplay(fields);
-    const range = cltcRangeDisplay(fields);
-    const charging = asText(fields.charging);
-    const imageUrl = asText(fields.image_url);
-
-    const sourceUrl = productPath(fields);
-    const parts = sourceUrl.split("/");
-    let category = "revenue-king";
-    const catIdx = parts.indexOf("products");
-    if (catIdx !== -1 && catIdx + 1 < parts.length) {
-      category = parts[catIdx + 1];
-    }
-
-    const slug = sourceUrl.split("/").filter(Boolean).pop() || "";
-    const { status, statusText } = inventoryDisplay(fields);
-
-    const stat2Value = msrpChina;
-    const stat2Label = "Price";
-
-    const subtitle = asText(fields.page_subtitle);
-    const heroDesc = asText(fields.hero_description) || asText(fields.review_notes);
-
-    let badge: string | null = null;
-
-    if (!badge && subtitle) {
-      if (subtitle.includes("Global #1") || slug === "byd-seagull") {
-        badge = "Global #1";
-      } else if (subtitle.includes("2025 New King") || slug === "gac-aion-rt") {
-        badge = "2025 New King";
-      } else if (subtitle.includes("Global Model") || subtitle.includes("Battle-Tested") || slug === "geely-galaxy-e5") {
-        badge = "Global Model";
-      } else if (subtitle.includes("Million-Unit") || slug === "byd-qin-plus") {
-        badge = null;
-      } else if (category === "revenue-king") {
-        badge = subtitle;
+  if (env.PORTAL_DB) {
+    try {
+      const rows = await env.PORTAL_DB.prepare(
+        `SELECT * FROM vehicle_models WHERE status != 'Inactive' ORDER BY synced_at DESC`
+      ).all();
+      if (rows.results && rows.results.length > 0) {
+        const products = rows.results.map((r: any) => ({
+          id: r.id,
+          model_id: r.model_id,
+          brand: r.brand,
+          model: r.model,
+          trim: r.trim_name,
+          category: r.segment || "revenue-king",
+          slug: r.product_path ? r.product_path.split("/").pop() : r.model_id,
+          badge: r.page_subtitle || "",
+          desc: r.notes || "",
+          link: r.product_path || `/products/revenue-king/${r.model_id}`
+        }));
+        setCached(cacheKey, products, env);
+        return json(products);
       }
+    } catch {
+      // Fall through
     }
+  }
 
-    let showcaseTags: string[] = [];
-    if (category === "revenue-king") {
-      const cleanRange = range ? `${range.replace(/\s+/g, "")} Range` : "";
-      if (slug === "byd-seagull") {
-        showcaseTags = ["LFP Blade", "405km Range"];
-      } else if (slug === "gac-aion-rt") {
-        showcaseTags = ["LiDAR ADAS", "520km Range"];
-      } else if (slug === "byd-qin-plus") {
-        showcaseTags = ["Million-Unit Proof", "510km Range"];
-      } else if (slug === "geely-galaxy-e5") {
-        showcaseTags = ["Aegis Battery", "530km Range"];
-      } else {
-        showcaseTags = [];
-        if (batteryType) showcaseTags.push(batteryType);
-        else if (battery) showcaseTags.push(battery);
-        if (cleanRange) showcaseTags.push(cleanRange);
-      }
-    }
-
-    let cardImg = imageUrl;
-    if (slug === "byd-seagull") {
-      cardImg = "/pic/revenue-king/seagull/7cut.webp";
-    } else if (slug === "gac-aion-rt") {
-      cardImg = "/pic/revenue-king/RT/7cut.webp";
-    } else if (slug === "byd-qin-plus") {
-      cardImg = "/pic/revenue-king/qinplusev/5cut.webp";
-    }
-
-    let cardTag = subtitle || "";
-    let cardDesc = heroDesc || "";
-    let cardLabel = brand || "";
-
-    if (slug === "zeekr-001") {
-      cardTag = "800V Ultra-Fast Charge";
-      cardDesc = "Extreme handling and range. The fastest charging executive shooting brake in the market.";
-      cardLabel = "Tech Icon";
-    } else if (slug === "xiaomi-su7-ultra") {
-      cardTag = "1500+ Horsepower";
-      cardDesc = "The ultimate social currency for tech-elite buyers. Carbon-fiber aero with peak acceleration.";
-      cardLabel = "Performance Icon";
-    } else if (slug === "aito-m9") {
-      cardTag = "Performance King";
-      cardDesc = "Huawei's ADS 3.0 tech masterpiece. Executive projection headlights and the most advanced chassis in the industry.";
-      cardLabel = "Tech Pinnacle";
-    } else if (slug === "byd-shark") {
-      cardTag = "V2L Mobile Power";
-      cardDesc = "PHEV Pickup with DMO off-road platform. 1000km+ total range for the hardest jobs.";
-      cardLabel = "Hybrid Power";
-    } else if (slug === "radar-rd6") {
-      cardTag = "SUV Comfort Pickup";
-      cardDesc = "Pure electric efficiency for urban logistics and farms. 6kW external discharge capacity.";
-      cardLabel = "Production Power";
-    } else if (slug === "farizon-super-van") {
-      cardTag = "Digital Logistics";
-      cardDesc = "The future of city cargo. Steer-by-wire with flat-floor cargo optimization for 11m濠? volume.";
-      cardLabel = "Digital Cargo";
-    } else if (category === "elite-flagship" || category === "utility-pro") {
-      cardTag = subtitle || (range ? `${range} Range` : "");
-      cardDesc = heroDesc || "";
-      cardLabel = brand || "";
-    }
-
-    return {
-      brand,
-      name: modelName,
-      fullName: `${brand} ${modelName}`,
-      fob: msrpChina,
-      battery,
-      range,
-      charging,
-      img: cardImg,
-      category,
-      slug,
-      badge,
-      stat2Label,
-      stat2Value,
-      tags: showcaseTags,
-      tag: cardTag,
-      desc: cardDesc,
-      label: cardLabel,
-      status,
-      statusText,
-      filterData: buildProductFilterData(fields),
-      link: `/products/${category}/${slug}`
-    };
-  });
-
-  setCached(cacheKey, products, env);
-  return json(products);
+  const baselineModels = getBaselineVehicleModels();
+  setCached(cacheKey, baselineModels, env);
+  return json(baselineModels);
 }
 
 
