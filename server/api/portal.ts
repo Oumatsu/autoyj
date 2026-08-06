@@ -1873,34 +1873,29 @@ async function handleGetVehicles(request: Request, env: Env) {
     const rows = await queryVehicles(env.PORTAL_DB).catch(() => []);
     if (rows.length > 0) {
       const canSeePrice = canSeePortalPrice(session);
-      const vehicles = rows.map((row) => {
-        const stockQty = row.inventory_count ?? 0;
-        return {
-          id: row.id,
-          modelId: row.model_id,
-          brand: row.brand,
-          model: row.model,
-          trim: row.variant,
-          supplier: row.supplier,
-          steering: row.steering,
-          location: row.location,
-          stage: row.stage,
-          price: canSeePrice ? row.display_price_low : null,
-          fobUsd: canSeePrice ? row.display_price_low : null,
-          currency: row.currency || "USD",
-          minOrderQuantity: row.min_order_quantity,
-          stockQuantity: stockQty,
-          colorStockQuantity: stockQty > 0 ? stockQty : null,
-          status: stockQty > 0 ? "In Stock" : "Preorder",
-          waitDays: stockQty > 0 ? 0 : null,
-          powertrain_type: row.powertrain_type,
-          color: row.color,
-          aiConfidence: row.ai_confidence_score,
-          isApproved: true,
-          canSeePrice,
-          syncedAt: row.synced_at,
-        };
-      });
+      const vehicles = rows.map((row) => ({
+        id: row.id,
+        modelId: row.model_id,
+        brand: row.brand,
+        model: row.model,
+        trim: row.variant,
+        supplier: row.supplier,
+        steering: row.steering,
+        location: row.location,
+        stage: row.stage,
+        price: canSeePrice ? row.display_price_low : null,
+        fobUsd: canSeePrice ? row.display_price_low : null,
+        currency: row.currency || "USD",
+        minOrderQuantity: row.min_order_quantity,
+        stockQuantity: row.inventory_count ?? 0,
+        colorStockQuantity: row.inventory_count ?? null,
+        powertrain_type: row.powertrain_type,
+        color: row.color,
+        aiConfidence: row.ai_confidence_score,
+        isApproved: true,
+        canSeePrice,
+        syncedAt: row.synced_at,
+      }));
       return json({ vehicles });
     }
   }
