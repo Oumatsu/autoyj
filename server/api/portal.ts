@@ -1734,6 +1734,7 @@ export async function syncVehiclesToD1(env: Env): Promise<{ synced: number }> {
         asOptionalNumber(f["颜色库存"] ?? f.color_stock_quantity) ??
         asOptionalNumber(f["细分车型库存"] ?? f.trim_stock_quantity) ??
         null,
+      wait_days: asOptionalNumber(f["下单后需要等待天数"] ?? f.wait_days) ?? null,
       powertrain_type: asText(f.powertrain_type) || null,
       color: [asText(f["外饰颜色"] ?? f.exterior_color), asText(f["内饰颜色"] ?? f.interior_color)]
         .filter(Boolean).join(" / ") || null,
@@ -1889,6 +1890,7 @@ async function handleGetVehicles(request: Request, env: Env) {
         minOrderQuantity: row.min_order_quantity,
         stockQuantity: row.inventory_count ?? 0,
         colorStockQuantity: row.inventory_count ?? null,
+        waitDays: row.wait_days ?? null,
         powertrain_type: row.powertrain_type,
         color: row.color,
         aiConfidence: row.ai_confidence_score,

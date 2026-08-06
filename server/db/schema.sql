@@ -88,6 +88,7 @@ CREATE TABLE IF NOT EXISTS vehicles (
   currency TEXT DEFAULT 'USD',
   min_order_quantity INTEGER,
   inventory_count INTEGER,
+  wait_days INTEGER,
   powertrain_type TEXT,
   color TEXT,
   color_code TEXT,

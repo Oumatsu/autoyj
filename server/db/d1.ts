@@ -99,6 +99,7 @@ export interface D1Vehicle {
   currency: string | null;
   min_order_quantity: number | null;
   inventory_count: number | null;
+  wait_days: number | null;
   powertrain_type: string | null;
   color: string | null;
   color_code: string | null;
@@ -227,9 +228,9 @@ export async function upsertVehicles(db: D1Database, rows: D1Vehicle[]): Promise
         INSERT INTO vehicles (
           id, vehicle_id, model_id, brand, model, variant, stage, steering,
           location, supplier, display_price_low, display_price_high, currency,
-          min_order_quantity, inventory_count, powertrain_type, color, color_code,
+          min_order_quantity, inventory_count, wait_days, powertrain_type, color, color_code,
           image_url, gallery_images_json, specs_json, ai_confidence_score, synced_at
-        ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
         ON CONFLICT(id) DO UPDATE SET
           vehicle_id=excluded.vehicle_id, model_id=excluded.model_id,
           brand=excluded.brand, model=excluded.model, variant=excluded.variant,
@@ -237,14 +238,14 @@ export async function upsertVehicles(db: D1Database, rows: D1Vehicle[]): Promise
           supplier=excluded.supplier, display_price_low=excluded.display_price_low,
           display_price_high=excluded.display_price_high, currency=excluded.currency,
           min_order_quantity=excluded.min_order_quantity, inventory_count=excluded.inventory_count,
-          powertrain_type=excluded.powertrain_type, color=excluded.color,
+          wait_days=excluded.wait_days, powertrain_type=excluded.powertrain_type, color=excluded.color,
           color_code=excluded.color_code, image_url=excluded.image_url,
           gallery_images_json=excluded.gallery_images_json, specs_json=excluded.specs_json,
           ai_confidence_score=excluded.ai_confidence_score, synced_at=excluded.synced_at
       `).bind(
         r.id, r.vehicle_id, r.model_id, r.brand, r.model, r.variant, r.stage, r.steering,
         r.location, r.supplier, r.display_price_low, r.display_price_high, r.currency,
-        r.min_order_quantity, r.inventory_count, r.powertrain_type, r.color, r.color_code,
+        r.min_order_quantity, r.inventory_count, r.wait_days, r.powertrain_type, r.color, r.color_code,
         r.image_url, r.gallery_images_json, r.specs_json, r.ai_confidence_score, now,
       )
     );
