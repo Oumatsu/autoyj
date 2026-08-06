@@ -3223,11 +3223,8 @@ export function buildVehicleResourceVariants(vehicles: Vehicle[]): VehicleResour
       variant = {
         key,
         vehicle,
-        status: "Available",
-        stage: "connected",
-        stockQuantity: 12,
-        waitDays: 0,
-        fobPrice: canSeePrice ? 24500 : null,
+        vehicles: [],
+        stockQuantity: 0,
         hasStockQuantity: false,
         colors: [],
       };
