@@ -11,6 +11,7 @@ import { syncVehicleModelsToDB, syncVehiclesToD1, syncUsersToD1, syncArticlesToD
  * This is the ONLY place in the system that calls Feishu.
  * All user-facing API handlers read purely from D1.
  */
+export const FEISHU_API = "https://open.feishu.cn";
 export async function runFeishuScheduledSync(env: Env): Promise<{ models: number; trims: number; vehicles: number; users: number; articles: number; lessons: number; vault: number; elapsed: number }> {
   console.log("[cron:feishu-sync] Starting sync: Feishu → D1...");
   const startTime = Date.now();

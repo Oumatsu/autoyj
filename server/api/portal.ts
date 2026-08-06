@@ -152,7 +152,7 @@ type PortalVehicleModelSpec = {
   confidence: string;
 };
 
-const FEISHU_API = "https://open.feishu.cn";
+import { FEISHU_API } from "../jobs/feishu-sync";
 const SESSION_TTL_SECONDS = 60 * 60 * 12;
 const DEFAULT_COOKIE_NAME = "youguard_portal";
 const TENANT_TOKEN_SAFETY_WINDOW_MS = 60 * 1000;

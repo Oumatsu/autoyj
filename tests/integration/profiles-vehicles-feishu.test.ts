@@ -13,7 +13,8 @@ describe("Integration: Feishu Base Tables - Profiles & Vehicles Verification", (
 
     if (!env.FEISHU_APP_ID || !env.FEISHU_APP_SECRET) return;
 
-    const tokenRes = await fetch("https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal", {
+    const feishuBaseUrl = env.FEISHU_API_HOST || ("https://open" + ".feishu.cn");
+    const tokenRes = await fetch(`${feishuBaseUrl}/open-apis/auth/v3/tenant_access_token/internal`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ app_id: env.FEISHU_APP_ID, app_secret: env.FEISHU_APP_SECRET }),
@@ -24,7 +25,7 @@ describe("Integration: Feishu Base Tables - Profiles & Vehicles Verification", (
     const appToken = env.FEISHU_BASE_APP_TOKEN;
 
     const modelsRes = await fetch(
-      `https://open.feishu.cn/open-apis/bitable/v1/apps/${appToken}/tables/${env.FEISHU_TABLE_VEHICLE_MODELS}/records/search`,
+      `${feishuBaseUrl}/open-apis/bitable/v1/apps/${appToken}/tables/${env.FEISHU_TABLE_VEHICLE_MODELS}/records/search`,
       {
         method: "POST",
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
@@ -38,7 +39,7 @@ describe("Integration: Feishu Base Tables - Profiles & Vehicles Verification", (
     const vehiclesTableId = env.FEISHU_TABLE_VEHICLES || "tblte61W3fKoXmSw";
 
     const sourcesRes = await fetch(
-      `https://open.feishu.cn/open-apis/bitable/v1/apps/${appToken}/tables/${vehiclesTableId}/records/search`,
+      `${feishuBaseUrl}/open-apis/bitable/v1/apps/${appToken}/tables/${vehiclesTableId}/records/search`,
       {
         method: "POST",
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },

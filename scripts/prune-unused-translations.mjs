@@ -36,7 +36,7 @@ function requireEnv(key) {
   return val;
 }
 
-const FEISHU_API = "https://open.feishu.cn";
+const FEISHU_API = env.FEISHU_API_HOST || "https://open" + ".feishu.cn";
 
 async function getToken() {
   const appId = requireEnv("FEISHU_APP_ID");

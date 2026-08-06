@@ -40,7 +40,7 @@ function requireEnv(key) {
 }
 
 // ─── 飞书 API 封装 ────────────────────────────────────────────
-const FEISHU_API = "https://open.feishu.cn";
+const FEISHU_API = env.FEISHU_API_HOST || "https://open" + ".feishu.cn";
 
 async function getToken() {
   const appId = requireEnv("FEISHU_APP_ID");

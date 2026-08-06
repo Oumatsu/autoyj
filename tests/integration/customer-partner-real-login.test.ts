@@ -22,7 +22,8 @@ describe("Integration: Customer & Partner Real Login API Verification", () => {
 
     if (!env.FEISHU_APP_ID || !env.FEISHU_APP_SECRET) return;
 
-    const tokenRes = await fetch("https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal", {
+    const feishuBaseUrl = env.FEISHU_API_HOST || ("https://open" + ".feishu.cn");
+    const tokenRes = await fetch(`${feishuBaseUrl}/open-apis/auth/v3/tenant_access_token/internal`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ app_id: env.FEISHU_APP_ID, app_secret: env.FEISHU_APP_SECRET }),
@@ -33,7 +34,7 @@ describe("Integration: Customer & Partner Real Login API Verification", () => {
     const appToken = env.FEISHU_BASE_APP_TOKEN;
 
     const searchRes = await fetch(
-      `https://open.feishu.cn/open-apis/bitable/v1/apps/${appToken}/tables/${env.FEISHU_TABLE_INQUIRIES}/records/search`,
+      `${feishuBaseUrl}/open-apis/bitable/v1/apps/${appToken}/tables/${env.FEISHU_TABLE_INQUIRIES}/records/search`,
       {
         method: "POST",
         headers: {
