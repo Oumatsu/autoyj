@@ -1870,7 +1870,6 @@ async function handleGetVehicles(request: Request, env: Env) {
 
   // Read from D1 if available (primary source)
   if (env.PORTAL_DB) {
-
     const rows = await queryVehicles(env.PORTAL_DB).catch(() => []);
     if (rows.length > 0) {
       const canSeePrice = canSeePortalPrice(session);
@@ -1902,8 +1901,18 @@ async function handleGetVehicles(request: Request, env: Env) {
     }
   }
 
-  // Fallback: baseline if D1 not populated yet
-  return json({ vehicles: getBaselineVehicles(session) });
+  // Fallback: read directly from Feishu (local dev / D1 not populated)
+  const vehicleSourceTableId = optionalEnv(env, "FEISHU_TABLE_VEHICLES") || "tblte61W3fKoXmSw";
+  if (vehicleSourceTableId && env.FEISHU_APP_ID) {
+    const records = await searchRecords(env, vehicleSourceTableId, { pageSize: 500, maxPages: 10 }).catch(() => []);
+    if (records.length > 0) {
+      const vehicles = records.map((r) => mapVehicleSource(r, session));
+      return json({ vehicles });
+    }
+  }
+
+  // Last resort: empty list (no mock data)
+  return json({ vehicles: [] });
 }
 
 async function handleGetVehicleModels(request: Request, env: Env) {
