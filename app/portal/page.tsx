@@ -508,6 +508,7 @@ let globalBootstrapData: BootstrapData | null = null;
 let globalBootstrapPromise: Promise<BootstrapData | null> | null = null;
 
 export default function PortalPage() {
+  const { t, locale } = useTranslation();
   const [email, setEmail] = useState("");
   const [accessCode, setAccessCode] = useState("");
   const [busy, setBusy] = useState(false);
@@ -686,14 +687,14 @@ export default function PortalPage() {
 
   useEffect(() => {
     if (!data) return;
-    if (data.vehicleModels && data.vehicleModels.length > 0 && !loadedModels) {
+    if (data.vehicleModels && data.vehicleModels.length > 0 && data.vehicleModelSpecs && data.vehicleModelSpecs.length > 0 && !loadedModels) {
       setLoadedModels(true);
     }
     if (data.vehicles && data.vehicles.length > 0 && !loadedVehicles) {
       setLoadedVehicles(true);
     }
     const timer = setTimeout(() => {
-      if (activeAdminModule === "vehicle_models" && !loadedModels && (!data.vehicleModels || data.vehicleModels.length === 0)) {
+      if (activeAdminModule === "vehicle_models" && !loadedModels && (!data.vehicleModelSpecs || data.vehicleModelSpecs.length === 0)) {
         void loadModels();
       } else if ((activeAdminModule === "vehicles" || activeAdminModule === "quotes") && !loadedVehicles && (!data.vehicles || data.vehicles.length === 0)) {
         void loadVehicles();
@@ -1546,7 +1547,7 @@ function ModelFullSpecsCard({ group }: { group: ModelProfileGroup }) {
   const curbWeightVal = safeText(v.curbWeight);
   const trunkCapacityVal = safeText(v.trunkCapacity);
 
-  const seatsStr = seatsVal && seatsVal !== "-" ? `${seatsVal}${locale === "zh" ? "座" : " seats"}` : "";
+  const seatsStr = seatsVal && seatsVal !== "-" ? (seatsVal.toLowerCase().includes("seat") || seatsVal.includes("座") ? seatsVal : `${seatsVal}${locale === "zh" ? "座" : " seats"}`) : "";
   const doorsStr = doorsVal && doorsVal !== "-" ? `${doorsVal}${locale === "zh" ? "门" : " doors"}` : "";
   const seatsDoorsVal = compactJoin([seatsStr, doorsStr]);
 
@@ -1658,7 +1659,7 @@ function ModelFullSpecsCard({ group }: { group: ModelProfileGroup }) {
 }
 
 function AdminProfiles({ data }: { data: BootstrapData }) {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const groups = useMemo(() => buildModelProfileGroups(data), [data]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedKey, setSelectedKey] = useState<string | null>(() => null);
