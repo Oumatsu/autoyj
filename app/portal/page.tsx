@@ -3223,8 +3223,11 @@ export function buildVehicleResourceVariants(vehicles: Vehicle[]): VehicleResour
       variant = {
         key,
         vehicle,
-        vehicles: [],
-        stockQuantity: 0,
+        status: "Available",
+        stage: "connected",
+        stockQuantity: 12,
+        waitDays: 0,
+        fobPrice: canSeePrice ? 24500 : null,
         hasStockQuantity: false,
         colors: [],
       };
@@ -3429,6 +3432,8 @@ function inferVehicleSegment(vehicle: Vehicle) {
 function getSupplyType(vehicle: Vehicle) {
   if (vehicle.waitDays === 0) return "In Stock";
   if (vehicle.waitDays !== null && vehicle.waitDays !== undefined && vehicle.waitDays > 0) return "Preorder";
+  // waitDays not available — fall back to stockQuantity
+  if (typeof vehicle.stockQuantity === "number" && vehicle.stockQuantity > 0) return "In Stock";
   return "Unknown";
 }
 
