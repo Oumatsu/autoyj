@@ -3429,9 +3429,6 @@ function inferVehicleSegment(vehicle: Vehicle) {
 function getSupplyType(vehicle: Vehicle) {
   if (vehicle.waitDays === 0) return "In Stock";
   if (vehicle.waitDays !== null && vehicle.waitDays !== undefined && vehicle.waitDays > 0) return "Preorder";
-  // Fallback for D1-sourced vehicles that have no waitDays but do have a status field
-  if (vehicle.status === "In Stock") return "In Stock";
-  if (vehicle.status === "Preorder") return "Preorder";
   return "Unknown";
 }
 
