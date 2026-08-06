@@ -881,7 +881,7 @@ export default function PortalPage() {
           <form onSubmit={login} className="glass grid gap-5 rounded-[2rem] p-6 sm:p-8">
             <div>
               <h2 className="text-2xl font-black uppercase italic text-white">Sign In</h2>
-              <p className="mt-2 text-xs text-gray-500">Your access level is controlled in Feishu Base.</p>
+              <p className="mt-2 text-xs text-gray-500">Your access level is managed by system administrators.</p>
             </div>
             {(isLocalDev || showPreviewTestLogin) && (
               <div className="grid gap-3 rounded-xl border border-gold/20 bg-gold/[.06] p-3">
@@ -1590,10 +1590,11 @@ function ModelFullSpecsCard({ group }: { group: ModelProfileGroup }) {
             </div>
             <h4 className="mt-2 text-base font-black text-white">{safeText(group.marketPosition) || `${safeText(group.brand)} ${safeText(group.model)} ${t("portal.fullTechSpecs")}`}</h4>
           </div>
-          <div className="flex flex-wrap items-center gap-2 text-[10px]">
-            {v.sourceUrl ? <a href={v.sourceUrl} target="_blank" rel="noreferrer" className="rounded-md border border-[#22b8aa]/25 px-2.5 py-1.5 font-bold text-[#5ee6d8] transition hover:bg-[#22b8aa]/10">{t("portal.feishuSource")}</a> : null}
-            {v.brochureUrl ? <a href={v.brochureUrl} target="_blank" rel="noreferrer" className="rounded-md border border-amber-400/25 px-2.5 py-1.5 font-bold text-amber-300 transition hover:bg-amber-400/10">{t("portal.pdfBrochure")}</a> : null}
-          </div>
+          {v.brochureUrl ? (
+            <div className="flex flex-wrap items-center gap-2 text-[10px]">
+              <a href={v.brochureUrl} target="_blank" rel="noreferrer" className="rounded-md border border-amber-400/25 px-2.5 py-1.5 font-bold text-amber-300 transition hover:bg-amber-400/10">{t("portal.pdfBrochure")}</a>
+            </div>
+          ) : null}
         </div>
       </section>
 
@@ -1682,7 +1683,7 @@ function AdminProfiles({ data }: { data: BootstrapData }) {
             </div>
           </div>
           <a
-            href="https://ecn4k98ibq2i.feishu.cn/share/base/view/shrcndRVOEpCUH8QjhvM151zcDg"
+            href={`/${locale}/vehicles`}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-[#22b8aa] px-4 py-2.5 text-xs font-black text-[#0c1322] transition hover:bg-[#5ee6d8]"
