@@ -958,7 +958,7 @@ export default {
     "allBrands": "All Brands",
     "allColors": "All Colors",
     "allSuppliers": "All Suppliers",
-    "allStatuses": "All Statuses",
+    "allStatuses": "All Stock Statuses",
     "inStock": "In Stock",
     "preorder": "Pre-order",
     "noStock": "Out of Stock",

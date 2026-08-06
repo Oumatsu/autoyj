@@ -958,7 +958,7 @@ export default {
     "allBrands": "全部品牌",
     "allColors": "全部颜色",
     "allSuppliers": "全部供应商",
-    "allStatuses": "全部状态",
+    "allStatuses": "全部库存状态",
     "inStock": "现车资源",
     "preorder": "可订车源",
     "noStock": "暂时缺货",
