@@ -2112,11 +2112,10 @@ function AdminVehicles({ data, onEdit, onRefresh }: { data: BootstrapData; onEdi
                                 ])}
                               </div>
                               <div className="mt-1 text-xs text-slate-400">
-                                {localizeVehicleValue(vehicle.year ? `${vehicle.year} model year` : "Model year pending", locale)}
-                                {" / "}
                                 {compactJoin([
-                                  localizeVehicleValue(vehicle.steering, locale) || "LHD",
-                                  localizeVehicleValue(vehicle.marketVersion, locale) || "China market version",
+                                  localizeVehicleValue(vehicle.year ? `${vehicle.year} model year` : "", locale),
+                                  localizeVehicleValue(vehicle.steering, locale),
+                                  localizeVehicleValue(vehicle.marketVersion, locale),
                                 ])}
                               </div>
                             </div>
@@ -3450,8 +3449,15 @@ function formatSupplySummary(item: SellableModel) {
 }
 
 function formatColorPair(exteriorColor: string, interiorColor: string) {
-  const exterior = exteriorColor || "-";
-  return interiorColor ? `${exterior} / ${interiorColor}` : exterior;
+  const ext = (exteriorColor || "").trim();
+  const int = (interiorColor || "").trim();
+  const validExt = ext && ext !== "-" && ext !== "未指定" ? ext : "";
+  const validInt = int && int !== "-" && int !== "未指定" ? int : "";
+
+  if (validExt && validInt && validExt !== validInt) {
+    return `${validExt} / ${validInt}`;
+  }
+  return validExt || validInt || "-";
 }
 
 function normalizeKey(...values: Array<string | number | null | undefined>) {
@@ -3491,7 +3497,10 @@ function vehicleName(vehicle: Vehicle) {
 }
 
 function compactJoin(values: Array<string | number | null | undefined>) {
-  const text = values.map((value) => String(value ?? "").trim()).filter(Boolean).join(" / ");
+  const text = values
+    .map((value) => String(value ?? "").trim())
+    .filter((val) => val && val !== "-" && val !== "未指定")
+    .join(" / ");
   return text || "-";
 }
 
