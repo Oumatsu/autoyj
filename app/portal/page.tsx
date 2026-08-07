@@ -22,10 +22,8 @@ import { RefreshCw } from "lucide-react";
 import { useTranslation } from "@/i18n/useTranslation";
 import { sanitizeDisplayData } from "@/lib/display-text";
 import { formatPortalRole, formatPortalStatus, localizeVehicleValue, portalRoleLabels } from "@/lib/portal-english";
+import type { AccountType, PortalRole, PriceTier } from "@/lib/users";
 
-type PortalRole = "admin" | "sales" | "sourcing" | "finance" | "partner" | "customer";
-type PriceTier = "hidden" | "partner" | "vip" | "internal";
-type AccountType = "internal" | "external";
 type AdminModule = "dashboard" | "vehicle_models" | "vehicles" | "quotes" | "orders" | "payments" | "logistics" | "customers" | "staff";
 type AdminIconName = "dashboard" | "vehicle_models" | "vehicles" | "quotes" | "orders" | "payments" | "logistics" | "customers" | "staff";
 
@@ -710,12 +708,6 @@ export default function PortalPage() {
 
   useEffect(() => {
     if (!data) return;
-    if (data.vehicleModels && data.vehicleModels.length > 0 && data.vehicleModelSpecs && data.vehicleModelSpecs.length > 0 && !loadedModels) {
-      setLoadedModels(true);
-    }
-    if (data.vehicles && data.vehicles.length > 0 && !loadedVehicles) {
-      setLoadedVehicles(true);
-    }
     const timer = setTimeout(() => {
       if (activeAdminModule === "vehicle_models" && !loadedModels && (!data.vehicleModelSpecs || data.vehicleModelSpecs.length === 0)) {
         void loadModels();
@@ -1545,7 +1537,8 @@ function ModelFullSpecsCard({ group }: { group: ModelProfileGroup }) {
   const { t, locale } = useTranslation();
   const v = group.variants[0] || ({} as VehicleModel);
   const [selectedVariantId, setSelectedVariantId] = useState<string | null>(null);
-  const versionDetails = group.variants.map((variant) => ({
+  const trimVariants = getModelTrimVariants(group);
+  const versionDetails = trimVariants.map((variant) => ({
     variant,
     items: [
       { label: "List Price", value: getModelSpecValue(group.specsByModel, variant.id, ["中国官方指导价"]) || variant.msrpChina || "-" },
@@ -1623,7 +1616,7 @@ function ModelFullSpecsCard({ group }: { group: ModelProfileGroup }) {
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
               <span className="rounded-md bg-[#22b8aa]/10 px-2 py-1 font-mono text-[10px] font-black uppercase tracking-wider text-[#5ee6d8]">{safeText(group.brand)} · {safeText(group.model)}</span>
-              <span className="text-[11px] text-slate-400">{group.variants.length} {t("portal.variantsInStock")}</span>
+              <span className="text-[11px] text-slate-400">{trimVariants.length} {t("portal.variantsInStock")}</span>
             </div>
             <h4 className="mt-2 text-base font-black text-white">{safeText(group.marketPosition) || `${safeText(group.brand)} ${safeText(group.model)} ${t("portal.fullTechSpecs")}`}</h4>
           </div>
@@ -1741,7 +1734,7 @@ function AdminProfiles({ data }: { data: BootstrapData }) {
           </label>
           <div className="flex items-center gap-2 pb-0.5">
             <AdminSummaryChip label="Models" value={`${visibleGroups.length} / ${groups.length}`} tone="accent" />
-            <AdminSummaryChip label="Trims" value={String(visibleGroups.reduce((sum, group) => sum + group.variants.length, 0))} />
+            <AdminSummaryChip label="Trims" value={String(visibleGroups.reduce((sum, group) => sum + getModelTrimVariants(group).length, 0))} />
           </div>
         </div>
 
@@ -1777,7 +1770,7 @@ function AdminProfiles({ data }: { data: BootstrapData }) {
                         {group.brand}
                       </span>
                       <span className="shrink-0 rounded-full bg-white/[.06] px-1.5 py-0.5 text-[9px] font-black text-slate-400">
-                        {group.variants.length} trims
+                        {getModelTrimVariants(group).length} trims
                       </span>
                     </div>
                     <strong className={`mt-0.5 block truncate text-sm ${isSelected ? "text-white" : "text-slate-200"}`}>
@@ -1786,9 +1779,6 @@ function AdminProfiles({ data }: { data: BootstrapData }) {
                     <div className="mt-1 flex flex-wrap items-center gap-1.5">
                       {group.segment ? (
                         <span className="rounded bg-white/[.05] px-1.5 py-0.5 text-[10px] text-slate-400">{group.segment}</span>
-                      ) : null}
-                      {group.energyType ? (
-                        <span className="rounded bg-white/[.05] px-1.5 py-0.5 text-[10px] text-slate-400">{group.energyType}</span>
                       ) : null}
                       {group.rangeSummary ? (
                         <span className="rounded bg-white/[.05] px-1.5 py-0.5 text-[10px] text-slate-400">{group.rangeSummary}</span>
@@ -1834,8 +1824,7 @@ function AdminProfiles({ data }: { data: BootstrapData }) {
                     </div>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
-                    <AdminSummaryChip label="Trims" value={String(selectedGroup.variants.length)} tone="accent" />
-                    {selectedGroup.energyType ? <AdminSummaryChip label="Powertrain" value={selectedGroup.energyType} /> : null}
+                    <AdminSummaryChip label="Trims" value={String(getModelTrimVariants(selectedGroup).length)} tone="accent" />
                     {selectedGroup.guidePriceSummary ? <AdminSummaryChip label="List Price" value={selectedGroup.guidePriceSummary} /> : null}
                   </div>
                 </div>
@@ -2373,6 +2362,8 @@ function AdminQuotesLegacy({ data }: { data: BootstrapData }) {
   const [replyTo, setReplyTo] = useState("");
   const [showDeleted, setShowDeleted] = useState(false);
   const [deletedContent, setDeletedContent] = useState<{ inquiries: Inquiry[]; notes: InquiryNote[] }>({ inquiries: [], notes: [] });
+  // URL query state is read after hydration to avoid a server/client mismatch.
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { const id = new URLSearchParams(window.location.search).get("vehicle"); if (id) { setVehicleId(id); setShowNewInquiry(true); } }, []);
   const selected = data.inquiries.find((item) => item.inquiryNo === selectedNo) || data.inquiries[0];
   const canChangeStatus = data.user.role === "admin" || data.user.role === "sales";
@@ -2972,6 +2963,10 @@ function findCustomer(data: BootstrapData, customerId: string) {
 
 function isInternalUser(user: PortalUser) {
   return user.accountType === "internal" || ["admin", "sales", "sourcing", "finance"].includes(user.role);
+}
+
+function getModelTrimVariants(group: ModelProfileGroup) {
+  return group.variants.filter((variant) => safeText(variant.trim).trim());
 }
 
 function buildModelProfileGroups(data: BootstrapData): ModelProfileGroup[] {

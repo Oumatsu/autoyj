@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Loading from "@/components/Loading";
 import { useTranslation } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
 import { sanitizeDisplayData } from "@/lib/display-text";
@@ -8,12 +9,7 @@ import {
   getAcademyLessonDate,
   translateAcademyLesson,
 } from "@/views/academy/academyTranslations";
-
-const IMGS = [
-  "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=600&q=80",
-  "https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=600&q=80",
-  "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=600&q=80",
-];
+import { resolveLessonImage } from "@/lib/static-assets";
 
 const getReadTime = (slug: string) => {
   if (slug.includes("objections")) return "8 min";
@@ -25,25 +21,35 @@ const getReadTime = (slug: string) => {
 export default function DealerPlaybookPage() {
   const { t } = useTranslation();
   const [articles, setArticles] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const localizedArticles = articles.map((article) =>
     translateAcademyLesson(
-      { ...article, date: getAcademyLessonDate(article.slug) },
+      { ...article, date: article.date || getAcademyLessonDate(article.slug) },
       t,
     ),
   );
 
   useEffect(() => {
+    let isMounted = true;
     fetch("/api/portal/public/academy")
       .then((res) => {
         if (!res.ok) throw new Error();
         return res.json().then(sanitizeDisplayData);
       })
       .then((data: any) => {
-        if (data?.lessons?.playbook) {
-          setArticles(data.lessons.playbook);
-        }
+        if (!Array.isArray(data?.lessons?.playbook)) throw new Error();
+        if (isMounted) setArticles(data.lessons.playbook);
       })
-      .catch((err) => console.error("Failed to fetch Dealer Playbook:", err));
+      .catch(() => {
+        if (isMounted) setError(true);
+      })
+      .finally(() => {
+        if (isMounted) setLoading(false);
+      });
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   return (
@@ -75,9 +81,28 @@ export default function DealerPlaybookPage() {
       <main className="py-16 bg-bg min-h-screen">
         <div className="container mx-auto px-6 md:px-12">
           <div className="max-w-3xl mx-auto space-y-6">
-            {localizedArticles.map((a, i) => (
+            {loading ? (
+              <Loading
+                fullscreen={false}
+                text={t("academyDealerPlaybook.loading", "Loading lessons...")}
+              />
+            ) : error ? (
+              <p role="alert" className="py-12 text-center text-gray-400">
+                {t(
+                  "academyDealerPlaybook.loadError",
+                  "Academy lessons are temporarily unavailable. Please try again.",
+                )}
+              </p>
+            ) : localizedArticles.length === 0 ? (
+              <p role="status" className="py-12 text-center text-gray-400">
+                {t(
+                  "academyDealerPlaybook.empty",
+                  "No lessons are currently available.",
+                )}
+              </p>
+            ) : localizedArticles.map((a, i) => (
               <LocaleLink key={a.slug} href={`/academy/dealer-playbook/${a.slug}`} className="glass rounded-[1.5rem] p-8 block hover:border-gold/30 transition-all duration-300 group relative overflow-hidden">
-                <img src={a.img || IMGS[i % IMGS.length]} className="absolute inset-0 w-full h-full object-cover z-0 transition-transform duration-500 group-hover:scale-105" style={{ filter: "brightness(0.35)" }} alt="" />
+                <img src={resolveLessonImage("playbook", a.slug, a.img)} className="absolute inset-0 w-full h-full object-cover z-0 transition-transform duration-500 group-hover:scale-105" style={{ filter: "brightness(0.35)" }} alt="" />
                 <div className="absolute inset-0 bg-gradient-to-t from-bg via-bg/60 to-transparent z-[1]" />
                 <div className="relative z-10">
                   <div className="flex items-center gap-3 mb-3">

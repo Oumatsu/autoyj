@@ -2,9 +2,13 @@
 
 import { useTranslation } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
+import { useState, type FormEvent } from "react";
 
 export default function RequestQuotePage() {
   const { t, tArray } = useTranslation();
+  const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
   const serviceTiers = (t("solutionsRequestQuote.tiers") as any) || {};
   const whatsIncludedItems = tArray("solutionsRequestQuote.included.items");
@@ -146,11 +150,32 @@ export default function RequestQuotePage() {
 
                 <form
                   className="space-y-6"
-                  onSubmit={(e) => {
+                  onSubmit={async (e: FormEvent<HTMLFormElement>) => {
                     e.preventDefault();
-                    alert(
-                      "Quote request submitted. Our infrastructure team will respond within 48 hours."
-                    );
+                    setSubmitting(true);
+                    setSubmitted(false);
+                    setError("");
+                    const form = e.currentTarget;
+                    const data = new FormData(form);
+                    try {
+                      const response = await fetch("/api/portal/public/contact", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                          name: data.get("name"),
+                          company: data.get("company"),
+                          email: data.get("email"),
+                          message: data.get("message"),
+                        }),
+                      });
+                      if (!response.ok) throw new Error("contact submission failed");
+                      setSubmitted(true);
+                      form.reset();
+                    } catch {
+                      setError(t("solutionsRequestQuote.form.submissionError"));
+                    } finally {
+                      setSubmitting(false);
+                    }
                   }}
                 >
                   {/* Service Tier */}
@@ -331,6 +356,7 @@ export default function RequestQuotePage() {
                         <input
                           type="text"
                           required
+                          name="name"
                           className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-gold outline-none transition-colors"
                           placeholder="John Doe"
                         />
@@ -342,6 +368,7 @@ export default function RequestQuotePage() {
                         <input
                           type="text"
                           required
+                          name="company"
                           className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-gold outline-none transition-colors"
                           placeholder="Autos Africa Ltd."
                         />
@@ -352,6 +379,7 @@ export default function RequestQuotePage() {
                         </label>
                         <select
                           required
+                          name="country"
                           className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-gold outline-none transition-colors"
                           defaultValue=""
                         >
@@ -375,6 +403,7 @@ export default function RequestQuotePage() {
                         <input
                           type="email"
                           required
+                          name="email"
                           className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-gold outline-none transition-colors"
                           placeholder="john@company.com"
                         />
@@ -389,6 +418,7 @@ export default function RequestQuotePage() {
                     </label>
                     <textarea
                       rows={3}
+                      name="message"
                       className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-gold outline-none transition-colors resize-none"
                       placeholder={t("solutionsRequestQuote.form.additionalRequirementsPlaceholder") as string}
                     />
@@ -396,13 +426,24 @@ export default function RequestQuotePage() {
 
                   <button
                     type="submit"
+                    disabled={submitting}
                     className="w-full btn-primary py-5 rounded-xl text-sm font-black tracking-widest uppercase italic"
                     style={{
                       boxShadow: "0 0 40px -10px rgba(197,160,89,0.5)",
                     }}
                   >
-                    {t("solutionsRequestQuote.form.submitButton")}
+                    {submitting ? t("solutionsRequestQuote.form.submitting") : t("solutionsRequestQuote.form.submitButton")}
                   </button>
+                  {submitted && (
+                    <p role="status" className="text-center text-sm text-green">
+                      {t("solutionsRequestQuote.form.submissionSuccess")}
+                    </p>
+                  )}
+                  {error && (
+                    <p role="alert" className="text-center text-sm text-red-400">
+                      {error}
+                    </p>
+                  )}
                   <p className="text-center text-[9px] font-black uppercase tracking-widest text-gray-600 mt-3">
                     {t("solutionsRequestQuote.form.submitNote")}
                   </p>
@@ -417,7 +458,7 @@ export default function RequestQuotePage() {
       <section className="py-16 relative overflow-hidden">
         <div className="absolute inset-0">
           <img
-            src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=2000&q=80"
+            src="/pic/hero/photo-1521791136064-7986c2920216.webp"
             className="w-full h-full object-cover"
             style={{ filter: "brightness(.28) grayscale(20%)" }}
             alt="Workshop"

@@ -8,6 +8,7 @@ import MarkdownRenderer from "@/components/MarkdownRenderer";
 import { sanitizeDisplayData } from "@/lib/display-text";
 import { asStringArray } from "@/i18n/translationFallback";
 import { translateInsightArticle } from "@/views/insights/articleTranslations";
+import { resolveInsightImage } from "@/lib/static-assets";
 import { getInsightImage } from "./insightImages";
 
 interface ArticleData {
@@ -21,6 +22,8 @@ interface ArticleData {
   overview: string;
   content: string;
 }
+
+type ArticleError = "not-found" | "load" | null;
 
 function getTagStyle(category: string): { bg: string; color: string; border: string } {
   const cat = category.toLowerCase().trim();
@@ -88,25 +91,67 @@ export default function DynamicInsightPage({ params }: any) {
   const resolvedParams: any = params && typeof params.then === "function" ? use(params) : params;
   const { slug } = resolvedParams || {};
   const [article, setArticle] = useState<ArticleData | null>(null);
-  const [error, setError] = useState(false);
+  const [error, setError] = useState<ArticleError>(null);
+  const [loadedSlug, setLoadedSlug] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!slug) return;
-    fetch(`/api/portal/public/insights/${slug}`)
+    /* eslint-disable react-hooks/set-state-in-effect */
+    setArticle(null);
+    setError(null);
+    setLoadedSlug(null);
+    /* eslint-enable react-hooks/set-state-in-effect */
+    if (!slug) {
+      setError("not-found");
+      return;
+    }
+    let isMounted = true;
+    fetch(`/api/portal/public/insights/${encodeURIComponent(slug)}`)
       .then((res) => {
-        if (!res.ok) throw new Error();
+        if (!res.ok) {
+          const fetchError = new Error();
+          fetchError.name = res.status === 404 ? "NotFound" : "LoadError";
+          throw fetchError;
+        }
         return res.json().then(sanitizeDisplayData);
       })
-      .then((data: any) => setArticle(data))
-      .catch(() => setError(true));
+      .then((data: any) => {
+        if (isMounted) {
+          setArticle(data);
+          setLoadedSlug(slug);
+        }
+      })
+      .catch((fetchError) => {
+        if (isMounted) {
+          setError(
+            fetchError instanceof Error && fetchError.name === "NotFound"
+              ? "not-found"
+              : "load",
+          );
+        }
+      });
+    return () => {
+      isMounted = false;
+    };
   }, [slug]);
 
   if (error) {
+    const notFound = error === "not-found";
     return (
       <main className="pt-32 pb-24 relative z-10 bg-a min-h-screen flex items-center justify-center">
         <div className="text-center py-20 text-gray-500">
-          <h1 className="text-2xl font-bold mb-4 text-white">{t("insightsDetail.articleNotFound")}</h1>
-          <p className="mb-8">{t("insightsDetail.articleNotFoundDesc")}</p>
+          <h1 className="text-2xl font-bold mb-4 text-white">
+            {notFound
+              ? t("insightsDetail.articleNotFound")
+              : t("insightsDetail.loadError", "Unable to load this insight")}
+          </h1>
+          <p className="mb-8">
+            {notFound
+              ? t("insightsDetail.articleNotFoundDesc")
+              : t(
+                  "insightsDetail.loadErrorDesc",
+                  "Please try again later or return to Insights.",
+                )}
+          </p>
           <LocaleLink href="/insights" className="btn-primary px-6 py-2.5 rounded text-[10px] font-black tracking-widest uppercase">
             {t("insightsDetail.backToInsights")}
           </LocaleLink>
@@ -115,7 +160,7 @@ export default function DynamicInsightPage({ params }: any) {
     );
   }
 
-  if (!article) {
+  if (!article || loadedSlug !== slug) {
     return <Loading text={t("insightsDetail.loading")} />;
   }
 
@@ -182,7 +227,10 @@ export default function DynamicInsightPage({ params }: any) {
               </div>
 
               <article className="article-body max-w-3xl">
-                <MarkdownRenderer content={localizedArticle.content} imageBasePath={`/insights/images/${localizedArticle.slug}`} />
+                <MarkdownRenderer
+                  content={localizedArticle.content}
+                  imageFallback={coverImageUrl}
+                />
               </article>
 
               <div className="mt-16 pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-6">
@@ -221,7 +269,7 @@ export default function DynamicInsightPage({ params }: any) {
                 </div>
                 <div className="glass rounded-[2rem] p-8 bg-mid/50 border-white/5 hover:border-green/30 transition-all duration-300 group">
                   <div className="flex items-center gap-4 mb-6">
-                    <img src="/pic/academy/photo-1560250097-0b93528c311a.webp" alt="Consultant" className="w-12 h-12 rounded-full border-2 border-green/50 object-cover group-hover:border-green transition-colors" />
+                    <img src={resolveInsightImage("consultant", "/pic/academy/photo-1560250097-0b93528c311a.webp")} alt={t("insightsDetail.sidebar.speakToExpert")} className="w-12 h-12 rounded-full border-2 border-green/50 object-cover group-hover:border-green transition-colors" />
                     <div>
                       <div className="text-sm font-bold text-white group-hover:text-green transition-colors">{t("insightsDetail.sidebar.speakToExpert")}</div>
                       <div className="text-[10px] text-green flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-green animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]"></span> {t("insightsDetail.sidebar.availableNow")}</div>

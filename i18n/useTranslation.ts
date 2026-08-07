@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useTranslate } from "@tolgee/react";
 import { Locale } from "./config";
 import { getLocaleFromPath } from "./utils";
-import { resolveTranslationValue } from "./translationFallback";
+import { resolveTranslationValue, resolveTranslationValueBlockEnFallback } from "./translationFallback";
 import { translations as staticTranslations } from "./translations";
 import { specsData } from "./data/specsData";
 
@@ -32,7 +32,7 @@ export function useTranslation() {
         // Strip Tolgee DevTools zero-width metadata markers to test if key was untranslated
         const cleanVal = val.replace(/[\u200B-\u200D\uFEFF]/g, "");
         if (cleanVal === key) {
-          const staticVal = resolveTranslationValue(
+          const staticVal = resolveTranslationValueBlockEnFallback(
             key,
             [
               staticTranslations[locale] as Record<string, unknown>,

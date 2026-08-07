@@ -1,6 +1,6 @@
-import { redirect } from "next/navigation";
+import { redirectToDefaultLocale } from "@/lib/locale-redirect";
 
 export default async function ProductRedirectPage({ params }: { params: Promise<{ category: string; slug: string }> }) {
   const { category, slug } = await params;
-  redirect(`/zh/products/${category}/${slug}`);
+  redirectToDefaultLocale(`/products/${category}/${slug}`);
 }

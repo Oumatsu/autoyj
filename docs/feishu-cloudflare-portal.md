@@ -3,55 +3,53 @@
 This branch wires the project into the target split:
 
 - Frontend: Cloudflare Pages/Workers through the existing Vinext app.
-- Middle layer: `/api/portal/*` in `worker/portal.ts`, running inside Cloudflare Worker.
-- Backend: Feishu Base / Lark Base as the business database and internal operating console.
+- Middle layer: `/api/portal/*` in `server/api/portal.ts`, running inside the Cloudflare Worker.
+- Backend: Cloudflare D1 is the request-time system of record; Feishu Base / Lark Base is read only by the Cron sync job in `server/jobs/feishu-sync.ts`.
 
 ## First-Phase Flow
 
-1. User signs in at `/portal` with an email and access code stored in Feishu Base.
-2. Worker checks `Internal Users` first, then `External Accounts`, and sets an HTTP-only portal session cookie.
-3. Portal reads model specs from `Vehicle Models` and live supply from `Vehicles`.
+1. User signs in at `/portal` with an email and access code stored in D1 after Feishu synchronization.
+2. Worker checks D1 user/account rows and sets an HTTP-only portal session cookie.
+3. Portal reads model specs from D1 tables populated by the scheduled Feishu sync.
    - External users first see a model-level list: brand, model, segment, in-stock quantity, preorder availability, and FOB price range.
    - Clicking a model opens merged source rows by year, trim, external color, interior color, configuration, supply type, lead time, location, and FOB price.
 4. Price visibility is enforced in Worker:
    - `hidden`: stock only, no price returned.
    - `partner`: partner cooperation price returned.
    - `vip`: VIP/customer price returned when present.
-5. Customer creates an inquiry. Worker writes:
+5. Customer creates an inquiry. Worker writes the inquiry and participant records directly to D1:
    - one row in `Inquiries`
-   - one row in `Negotiations`
-6. Staff works inside Feishu Base and creates quote rows in `Quotes`.
-7. Customer can counter or accept a quote from `/portal`.
-8. Accepting a quote creates a draft row in `Orders`.
+6. Portal users read and update inquiry, negotiation, quote, and order records in D1.
+7. Accepting a quote creates a draft order in D1.
 
-## Required Feishu Tables
+## Feishu Source Tables
 
-The setup script creates these tables:
+The scheduled sync reads these Feishu tables and replaces their corresponding D1 snapshots:
 
-- `Internal Users`: company staff accounts, roles, permissions, and commission rates.
-- `External Accounts`: partner/customer accounts, company details, and price permissions.
-- `Vehicle Models`: model/version master table. It stores model identity, guide price, status, image/source metadata, and review notes.
-- `Vehicle Model Specs`: full parameter detail table. It stores category/spec/value rows for complete Dongchedi-style configuration data.
-- `Vehicles`: supply/inventory resources. It describes whether that model has stock, colors, supplier, price, and lead time.
-- `Inquiries`
-- `Quotes`
-- `Negotiations`
-- `Orders`
+- `Vehicle Models`: model identity and metadata.
+- `Vehicle Trim Configurations`: complete trim/configuration rows.
+- `Vehicles`: supplier inventory and pricing.
+- `Articles`: Insights content.
+- `Academy Lessons`: Academy lesson content.
+- `Academy Vault`: downloadable Academy resources.
 
-Field names are intentionally stable English API names, for example `User ID`, `Account ID`, `Model ID`, `Vehicle ID`, `Partner Price`, and `Quote No`. Staff can create Chinese views in Feishu without changing API field names.
+The portal never fetches Feishu at request time. Empty or malformed source snapshots fail the
+relevant sync and preserve the existing D1 data.
 
-The localhost quick-login buttons remain for development only. They simulate real account sessions:
+The localhost quick-login buttons remain for development only. They use the same D1-backed session
+endpoint as production:
 
-- `Admin` and `Sales` simulate `Internal Users`.
-- `Partner` and `Customer` simulate `External Accounts`.
+- `Admin` and `Sales` are internal users.
+- `Partner` and `Customer` are external users.
 
 In production, users do not choose a role. The role and permissions come from the account row after login.
 
-`Vehicle Models` and `Vehicles` are deliberately separated:
+`Vehicle Models`, `Vehicle Trim Configurations`, and `Vehicles` are deliberately separated:
 
 - `Vehicle Models` stores stable model identity and metadata: brand, model, year, version, China guide price, source, image, status, and review notes.
-- `Vehicle Model Specs` stores full configuration facts as rows: model ID, category, spec name, spec value, unit, visibility level, sort order, confidence, source, and notes. This lets AI add new parameters as data rows instead of changing table schema.
+- `Vehicle Trim Configurations` stores complete trim facts as rows and keeps every source field available to the D1 portal.
 - `Vehicles` stores supply facts: resource ID, model ID, external display color, supplier original color, configuration, supplier, recorder, location, stock quantity, preorder lead time, FOB prices, cost, price validity, and listing status.
+- The admin model profile uses verified trim rows when available; otherwise it derives distinct trims from `Vehicles.细分型号`. The `Vehicle Models.version` marketing label is never presented as a trim.
 
 External color and internal color are separate:
 
@@ -64,61 +62,50 @@ External supply rows are merged for readability. If these customer-visible field
 
 `Brand + Model + Year + Trim + Exterior Color + Interior Color + Configuration + Supply Type + Lead Time + Location + FOB Price`
 
-Internal Feishu rows remain separate so staff can still trace supplier, recorder, cost, files, and private notes.
+Internal D1 rows remain separate so staff can still trace supplier, recorder, cost, files, and private notes.
 
 The portal is backward-compatible while migrating. If `FEISHU_TABLE_VEHICLE_MODELS` is not configured, Worker derives a basic model library from `Vehicles` so the UI still works.
 
-## Create The Feishu Base
+## Configure Feishu Sync
 
-The local machine needs `lark-cli` signed in.
+The local machine needs `lark-cli` signed in when creating or inspecting the Feishu Base.
 
 ```bash
-npm run setup:feishu
+bun run setup:feishu
 ```
 
-The script writes `.dev.vars.feishu.example` with the generated Base token, table IDs, and a new `PORTAL_SESSION_SECRET`.
-
-Copy those values into `.dev.vars`, then fill:
-
-```env
-FEISHU_APP_ID=
-FEISHU_APP_SECRET=
-```
+The setup script writes an ignored local env file with the generated Base token and table IDs.
 
 If `lark-cli` is already configured locally, the app id, Base ids, and `PORTAL_SESSION_SECRET` can be prepared automatically:
 
 ```bash
-npm run sync:feishu-env
+bun run sync:feishu-env
 ```
 
 By default this writes `.dev.vars.local`, which is ignored by Git. For the current Vinext/Cloudflare local dev flow, write the values into `.dev.vars` explicitly:
 
 ```bash
-npm run sync:feishu-env -- --target .dev.vars
+bun run sync:feishu-env -- --target .dev.vars
 ```
 
 `lark-cli config show` masks `appSecret`, so the sync script will not invent or copy `****` into the env file. Add the real `FEISHU_APP_SECRET` once from Feishu Developer Console, or re-run `lark-cli config init --app-id <id> --app-secret-stdin` if you want to re-bind the local CLI. `PORTAL_SESSION_SECRET` is not a Feishu value; it is generated locally and used only to sign the portal session cookie.
 
-For Cloudflare deployment, set the same values as Worker vars/secrets.
+For Cloudflare deployment, configure the Feishu values used by the scheduled Worker and store
+`FEISHU_APP_SECRET` and `PORTAL_SESSION_SECRET` as secrets.
 
 ## Cloudflare Variables
 
-Required:
+Required for the scheduled sync:
 
 ```env
 FEISHU_APP_ID=
 FEISHU_APP_SECRET=
 FEISHU_BASE_APP_TOKEN=
-FEISHU_TABLE_INTERNAL_USERS=
-FEISHU_TABLE_EXTERNAL_ACCOUNTS=
-FEISHU_TABLE_CUSTOMERS=
 FEISHU_TABLE_VEHICLE_MODELS=
-FEISHU_TABLE_VEHICLE_MODEL_SPECS=
+FEISHU_VIEW_PROFILES=
+FEISHU_TABLE_VEHICLE_TRIM_CONFIGURATIONS=
+FEISHU_VIEW_VEHICLE_TRIM_CONFIGURATIONS=
 FEISHU_TABLE_VEHICLES=
-FEISHU_TABLE_INQUIRIES=
-FEISHU_TABLE_QUOTES=
-FEISHU_TABLE_NEGOTIATIONS=
-FEISHU_TABLE_ORDERS=
 FEISHU_TABLE_ARTICLES=
 FEISHU_TABLE_ACADEMY_LESSONS=
 FEISHU_TABLE_ACADEMY_VAULT=
@@ -126,7 +113,8 @@ PORTAL_SESSION_SECRET=
 PORTAL_COOKIE_NAME=youguard_portal
 ```
 
-`FEISHU_APP_SECRET` and `PORTAL_SESSION_SECRET` should be stored as secrets in Cloudflare.
+`PORTAL_DB` is a D1 binding. `FEISHU_APP_SECRET` and `PORTAL_SESSION_SECRET` should be stored as
+Cloudflare secrets rather than committed vars.
 
 ## Portal Endpoints
 
@@ -134,8 +122,17 @@ PORTAL_COOKIE_NAME=youguard_portal
 - `DELETE /api/portal/session`
 - `POST /api/portal/dev-session` local development only
 - `GET /api/portal/bootstrap`
+- `GET /api/portal/catalog`
+- `GET /api/portal/vehicles`
+- `GET /api/portal/vehicle-models`
 - `POST /api/portal/inquiries`
+- `POST /api/portal/inquiries/:inquiryNo/notes`
+- `PATCH /api/portal/inquiries/:inquiryNo/status`
 - `POST /api/portal/quotes/:quoteNo/counter`
 - `POST /api/portal/quotes/:quoteNo/accept`
+- `GET /api/portal/public/products`
+- `GET /api/portal/public/insights`
+- `GET /api/portal/public/academy`
 
-The browser never calls Feishu directly. It always calls Cloudflare Worker first, and Worker filters fields before returning data.
+The browser never calls Feishu directly. It always calls the Cloudflare Worker, which reads and
+writes D1 and filters fields before returning data.

@@ -221,11 +221,15 @@ describe("Unit: Tolgee BP-8 — resolveTranslationValue Fallback Chain", () => {
     expect(result).toBe("MY_DEFAULT");
   });
 
-  test("Skips empty-string values in sources and tries next source", () => {
+  test("Returns empty string '' when primary source has key set to '' (no fallthrough)", () => {
+    // FIXED BEHAVIOR: if zh.ts has heading: "" it means "intentionally blank"
+    // (Chinese pages don't use the "The ... Matrix" English wrapper words).
+    // The old code skipped "" and fell through to en, producing "The 网约创收利器车型矩阵 Matrix".
+    // After the fix, the empty string is respected: the function returns "" and stops.
     const withEmpty = { home: { hero: { badge: "" } } } as unknown as LocaleDict;
     const result = resolveTranslationValue("home.hero.badge", [withEmpty, en as LocaleDict]);
-    // Should skip the empty string in withEmpty and fall to en
-    expect(result).toBe("Africa EV Export Partner");
+    // "" is now respected; does NOT fall through to "Africa EV Export Partner"
+    expect(result).toBe("");
   });
 });
 

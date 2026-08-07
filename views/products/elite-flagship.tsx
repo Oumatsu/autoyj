@@ -85,16 +85,24 @@ export default function EliteFlagshipPage() {
         return res.json().then(sanitizeDisplayData);
       })
       .then((data: any) => {
-        const filtered = data.filter((p: any) => p.category === "elite-flagship");
+        const filtered = data.filter((p: any) => {
+          if (p.category === "elite-flagship") return true;
+          const linkCat = p.link?.split("/")[2];
+          return linkCat === "elite-flagship";
+        });
         const mapped = filtered.map((p: any) => {
-          const fallback = vehicles.find((v) => v.name.toLowerCase() === p.name.toLowerCase() || p.slug.includes(v.name.toLowerCase()));
+          const name = p.name || p.model || "";
+          const fallback = vehicles.find((v) =>
+            v.name.toLowerCase() === name.toLowerCase() ||
+            (p.slug && p.slug.includes(v.name.toLowerCase()))
+          );
           return {
             brand: p.brand,
-            name: p.name,
+            name: name,
             slug: p.slug,
             fob: p.fob || (fallback ? fallback.fob : ""),
             battery: p.battery || (fallback ? fallback.battery : ""),
-            batteryType: p.tags?.find((t: string) => t.includes("LFP") || t.includes("NCM")) || (fallback ? fallback.batteryType : ""),
+            batteryType: p.batteryType || p.tags?.find((t: string) => t.includes("LFP") || t.includes("NCM")) || (fallback ? fallback.batteryType : ""),
             range: p.range || (fallback ? fallback.range : ""),
             charging: p.charging || p.desc || (fallback ? fallback.charging : ""),
             img: getVehicleModelImage(p.slug || fallback?.link?.split("/").pop() || "", p.img || fallback?.img),

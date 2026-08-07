@@ -1,13 +1,34 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useTranslation, T } from "@/i18n/useTranslation";
+import { useTranslation } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
 import { vehicles as fallbackRevenue } from "../app/products/revenue-king/data";
 import { vehicles as fallbackElite } from "../app/products/elite-flagship/data";
 import { vehicles as fallbackUtility } from "../app/products/utility-pro/data";
-import { translateOverviewCard } from "./products/productsOverviewTranslations.ts";
+import { mergeOverviewCard, translateOverviewCard } from "./products/productsOverviewTranslations.ts";
 import { sanitizeDisplayData } from "@/lib/display-text";
+
+function renderHeroHeading(value: string) {
+  const parts = value.split(/(<accent1>|<\/accent1>|<accent2>|<\/accent2>|<br><\/br>)/g);
+  let accent: "accent1" | "accent2" | null = null;
+
+  return parts.map((part, index) => {
+    if (part === "<accent1>" || part === "<accent2>") {
+      accent = part.slice(1, -1) as "accent1" | "accent2";
+      return null;
+    }
+    if (part === "</accent1>" || part === "</accent2>") {
+      accent = null;
+      return null;
+    }
+    if (part === "<br></br>") return <br key={index} />;
+    if (!part) return null;
+    if (accent === "accent1") return <span key={index} className="text-theme">{part}</span>;
+    if (accent === "accent2") return <span key={index} className="text-accent">{part}</span>;
+    return <span key={index}>{part}</span>;
+  });
+}
 
 function getBadgeCls(slug: string, badge: string | null): string {
   if (!badge) return "";
@@ -51,13 +72,24 @@ export default function ProductsPage() {
         if (!res.ok) throw new Error();
         return res.json();
       })
-      .then((data: any) => setProducts(sanitizeDisplayData(data)))
+      .then((data: any) => {
+        const normalized = sanitizeDisplayData(data);
+        setProducts(Array.isArray(normalized) && normalized.length > 0 ? normalized : null);
+      })
       .catch(() => {});
   }, []);
 
   const revenueSlugs = ["byd-seagull", "gac-aion-rt", "byd-qin-plus", "geely-galaxy-e5"];
+  const fallbackBySlug = new Map(
+    [...fallbackRevenue, ...fallbackElite, ...fallbackUtility].map((vehicle) => [
+      vehicle.link.split("/").pop(),
+      vehicle,
+    ]),
+  );
+  const mergeCatalogCard = (card: any) =>
+    mergeOverviewCard(card, fallbackBySlug.get(card?.slug || card?.link?.split("/").pop()));
   const revenueKingList = products
-    ? revenueSlugs.map(slug => products.find(p => p.slug === slug)).filter(Boolean)
+    ? revenueSlugs.map(slug => products.find(p => p.slug === slug)).filter(Boolean).map(mergeCatalogCard)
     : [
         {
           name: "BYD Seagull",
@@ -98,7 +130,7 @@ export default function ProductsPage() {
       ];
 
   const aitoM9 = products
-    ? products.find(p => p.slug === "aito-m9")
+    ? mergeCatalogCard(products.find(p => p.slug === "aito-m9") || fallbackBySlug.get("aito-m9"))
     : {
         name: "AITO M9",
         tag: t("products.eliteFlagship.performanceKing"),
@@ -109,7 +141,7 @@ export default function ProductsPage() {
       };
 
   const eliteSmallList = products
-    ? ["zeekr-001", "xiaomi-su7-ultra"].map(slug => products.find(p => p.slug === slug)).filter(Boolean)
+    ? ["zeekr-001", "xiaomi-su7-ultra"].map(slug => products.find(p => p.slug === slug)).filter(Boolean).map(mergeCatalogCard)
     : [
         {
           name: "Zeekr 001",
@@ -130,7 +162,7 @@ export default function ProductsPage() {
       ];
 
   const utilityList = products
-    ? ["byd-shark", "radar-rd6", "farizon-xingxiang-v"].map(slug => products.find(p => p.slug === slug)).filter(Boolean)
+    ? ["byd-shark", "radar-rd6", "farizon-xingxiang-v"].map(slug => products.find(p => p.slug === slug)).filter(Boolean).map(mergeCatalogCard)
     : [
         {
           name: "BYD Shark",
@@ -244,14 +276,7 @@ export default function ProductsPage() {
             className="sh mb-4 sm:mb-6"
             style={{ fontSize: "clamp(2rem, 8vw, 6.5rem)" }}
           >
-            <T
-              keyName="products.hero.heading"
-              params={{
-                accent1: (chunks: any) => <span className="text-theme">{chunks}</span>,
-                accent2: (chunks: any) => <span className="text-accent">{chunks}</span>,
-                br: () => <br />,
-              }}
-            />
+            {renderHeroHeading(t("products.hero.heading"))}
           </h1>
           <p className="hidden min-[392px]:block text-gray-300 text-sm sm:text-lg font-light italic max-w-2xl mx-auto leading-relaxed px-2">
             {t("products.hero.subtitle")}

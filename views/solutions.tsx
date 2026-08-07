@@ -313,7 +313,7 @@ export default function SolutionsPage() {
       <section id="marketing" className="py-16 sm:py-20 md:py-28 relative overflow-hidden scroll-mt-24">
         <div className="absolute inset-0">
           <img
-            src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=2000&q=80"
+            src="/pic/hero/photo-1521791136064-7986c2920216.webp"
             className="w-full h-full object-cover"
             style={{ filter: "brightness(.28) grayscale(20%)" }}
             alt="Dealer Support"

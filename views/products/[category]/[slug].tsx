@@ -5,6 +5,7 @@ import { useTranslation } from "@/i18n/useTranslation";
 import VehicleDetail from "../../../app/products/_VehicleDetail";
 import Loading from "@/components/Loading";
 import { sanitizeDisplayData } from "@/lib/display-text";
+import { normalizeProductCategory } from "@/lib/content-normalizers";
 
 export default function DynamicVehiclePage({ params }: any) {
   const { t } = useTranslation();
@@ -18,13 +19,22 @@ export default function DynamicVehiclePage({ params }: any) {
     fetch(`/api/portal/public/products/${slug}`)
       .then((res) => {
         if (!res.ok) throw new Error();
-        return res.json().then(sanitizeDisplayData);
+        return res.json().then((payload) => {
+          const normalized = sanitizeDisplayData(payload);
+          if (!normalized || typeof normalized !== "object") throw new Error();
+          const expectedCategory = normalizeProductCategory(category);
+          const productCategory = normalizeProductCategory((normalized as any).category);
+          if (!expectedCategory || productCategory !== expectedCategory) {
+            throw new Error();
+          }
+          return normalized;
+        });
       })
       .then(setData)
       .catch(() => setError(true));
-  }, [slug]);
+  }, [category, slug]);
 
-  if (error) return <div className="text-center py-20 text-gray-500">{t("productsDetail.modelNotFound")}</div>;
+  if (error) return <div role="alert" data-not-found="true" className="text-center py-20 text-gray-500">{t("productsDetail.modelNotFound")}</div>;
   if (!data) return <Loading text={t("productsDetail.loading")} />;
 
   return <VehicleDetail data={data} />;

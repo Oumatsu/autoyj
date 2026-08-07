@@ -139,6 +139,7 @@ describe("Unit: proxy.ts — static file / passthrough path rules", () => {
    */
   function shouldSkip(pathname: string): boolean {
     return (
+      pathname === "/__scheduled" ||
       pathname.startsWith("/_next") ||
       pathname.startsWith("/api") ||
       pathname.startsWith("/favicon") ||
@@ -159,6 +160,10 @@ describe("Unit: proxy.ts — static file / passthrough path rules", () => {
   test("API routes are skipped", () => {
     expect(shouldSkip("/api/portal/session")).toBe(true);
     expect(shouldSkip("/api/auth/sign-in")).toBe(true);
+  });
+
+  test("Wrangler scheduled test route is skipped", () => {
+    expect(shouldSkip("/__scheduled")).toBe(true);
   });
 
   test("portal paths remain locale candidates", () => {

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useMemo } from "react";
+import { resolveMarkdownImage } from "@/lib/static-assets";
 
 // ── Markdown line-by-line parser ──
 
@@ -66,7 +67,11 @@ function parseInlineMd(text: string): React.ReactNode {
   return parts.length === 1 ? parts[0] : <>{parts}</>;
 }
 
-function parseMarkdown(md: string, imageBasePath?: string): React.ReactNode[] {
+function parseMarkdown(
+  md: string,
+  imageBasePath?: string,
+  imageFallback?: string,
+): React.ReactNode[] {
   mdKey = 0;
   const lines = md.trim().split("\n");
   const elements: React.ReactNode[] = [];
@@ -130,12 +135,10 @@ function parseMarkdown(md: string, imageBasePath?: string): React.ReactNode[] {
     if (imgMatch) {
       const alt = imgMatch[1];
       let src = imgMatch[2];
-      if (!/^https?:\/\//i.test(src)) {
-        src = src.replace(/\.(jpg|jpeg|png)$/i, ".webp");
-        if (imageBasePath && !src.startsWith("/")) {
-          src = `${imageBasePath}/${src}`;
-        }
+      if (imageBasePath && imageBasePath.startsWith("/pic/") && !src.startsWith("/")) {
+        src = `${imageBasePath}/${src}`;
       }
+      src = resolveMarkdownImage(src, imageFallback);
       let caption = "";
       const nextLine = i + 1 < lines.length ? lines[i + 1].trim() : "";
       const isCaptionLine =
@@ -153,6 +156,12 @@ function parseMarkdown(md: string, imageBasePath?: string): React.ReactNode[] {
             alt={alt}
             className="w-full h-auto object-cover"
             style={{ maxHeight: "450px" }}
+            onError={(event) => {
+              const fallback = resolveMarkdownImage(null, imageFallback);
+              if (!event.currentTarget.src.endsWith(fallback)) {
+                event.currentTarget.src = fallback;
+              }
+            }}
           />
           {caption && (
             <div className="px-6 py-4 bg-white/[0.02] border-t border-white/5">
@@ -295,16 +304,18 @@ function parseMarkdown(md: string, imageBasePath?: string): React.ReactNode[] {
 interface MarkdownRendererProps {
   content: string;
   imageBasePath?: string;
+  imageFallback?: string;
 }
 
 function MarkdownRenderer({
   content,
   imageBasePath,
+  imageFallback,
 }: MarkdownRendererProps) {
   const rendered = useMemo(() => {
     if (!content) return null;
-    return parseMarkdown(content, imageBasePath);
-  }, [content, imageBasePath]);
+    return parseMarkdown(content, imageBasePath, imageFallback);
+  }, [content, imageBasePath, imageFallback]);
 
   return <>{rendered}</>;
 }

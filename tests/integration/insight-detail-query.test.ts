@@ -12,8 +12,8 @@ describe("Integration: Insight Detail Query Handler", () => {
     const handler = match![0];
 
     expect(handler).not.toMatch(/searchRecords/);
-    expect(handler).toMatch(/PORTAL_DB/);
-    expect(handler).toMatch(/FROM articles WHERE slug = \?/);
-    expect(handler).toMatch(/getBaselineArticles\(\)/);
+    expect(handler).toMatch(/readPublicContent\(request, env/);
+    expect(handler).toMatch(/getPublicInsight/);
+    expect(handler).not.toMatch(/getBaselineArticles\(\)/);
   });
 });

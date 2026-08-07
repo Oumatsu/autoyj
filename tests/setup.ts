@@ -27,6 +27,7 @@ mock.module("@tolgee/react", () => {
         on: () => ({ unsubscribe: () => {} }),
       };
     },
+    T: ({ children }: any) => children ?? null,
     TolgeeProvider: ({ children }: any) => children,
     getProviderInstance: () => {
       const React = require("react");

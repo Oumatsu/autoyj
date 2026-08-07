@@ -2,8 +2,8 @@
 
 Youguard 汽车出口 B2B 门户平台。
 
-**技术栈**：Next.js 16 (`vinext` 1.0+) + React 19 + Better Auth + Cloudflare Workers + Feishu Base  
-**代码质量**：ESLint v9 Flat Config + Knip + Bun Test (160/160 PASS) + Playwright E2E  
+**技术栈**：Next.js 16 (`vinext` 1.0+) + React 19 + Better Auth + Cloudflare Workers + D1/Miniflare + Feishu Cron Sync
+**代码质量**：ESLint v9 Flat Config + Knip + Bun Test + Playwright E2E
 **线上预览**：[https://autoyj.haipee.workers.dev](https://autoyj.haipee.workers.dev)
 
 ---
@@ -18,11 +18,37 @@ bun install
 cp .dev.vars.example .dev.vars
 # 填入飞书 App ID / App Secret / App Token 等配置
 
-# 3. 启动本地开发服务
+# 3. 启动本地开发服务（使用持久化 Miniflare D1）
 bun run dev
+
+# 需要时把云端 D1 数据同步到本地 Miniflare
+bun run db:local:sync
 ```
 
 打开浏览器访问 `http://localhost:3000/portal` 即可加载门户登录与管理系统。
+
+本地请求只读取 `.wrangler/state` 中的 Miniflare `PORTAL_DB`，生产请求只读取 Cloudflare D1。
+`bun run dev` 会先幂等初始化 `server/db/schema.sql`；`db:local:sync` 需要 Wrangler 已登录，
+它导出云端 D1 的 schema 和数据快照，替换本地 Miniflare 中同名表（保留仅本地表），不会调用飞书。
+
+### Tolgee 翻译发布
+
+Tolgee 是翻译编辑源，但 Worker 运行时不访问 Tolgee；生产构建使用仓库中的
+`i18n/translations/zh.ts`、`en.ts` 和 `am.ts` 静态 bundle。当前本地流程如下：
+
+```bash
+# 在 localhost:8085 的 Tolgee UI 中编辑并保存
+bun run tolgee:pull
+git diff -- i18n/translations
+# 检查翻译 diff 后再提交和部署
+bun run build
+bun run deploy
+```
+
+`tolgee:pull` 从 `.dev.vars` 的 `TOLGEE_API_URL`、`TOLGEE_API_KEY` 和
+`TOLGEE_PROJECT_ID` 导出三种语言，并在校验失败时保持原文件不变。只有确认删除
+Tolgee key 时才使用 `bun run tolgee:pull -- --allow-key-removal`。将来把 Tolgee 部署到
+云服务器时，只需替换 API URL 和 key，不需要修改网站运行时代码。
 
 ---
 
@@ -75,7 +101,7 @@ Better Auth 托管安全引擎 ──(闭环)──> 本地/预设凭证仓 (loc
 ## 🛠️ 代码质量与测试命令
 
 ```bash
-# 运行单元测试、组件测试与集成契约测试 (160/160 PASS)
+# 运行单元测试、组件测试与集成契约测试
 bun test
 
 # 运行 ESLint 代码质量规范检查 (ESLint v9 Flat Config)
@@ -98,11 +124,24 @@ bun run deploy
 
 ```
 ├── app/                  # Next.js App Router 页面路由
+│   ├── [locale]/         # 带语言前缀的正式页面路由
 │   ├── portal/page.tsx   # 门户后台管理单页应用 (SPA)
+│   ├── products/*/data.ts # 产品目录的静态兜底数据
 │   ├── layout.tsx        # 根布局与全局样式定义
 │   └── page.tsx          # 官网首页
-├── worker/
-│   └── portal.ts         # Cloudflare Workers 后端逻辑（API 路由与飞书 Base 数据对接）
+├── server/
+│   ├── index.ts          # Cloudflare Worker 入口与 Cron 触发器
+│   ├── types.ts          # Worker/D1 环境绑定契约
+│   ├── api/portal.ts     # D1-only 门户 API 与同步映射
+│   ├── db/               # D1 schema、迁移与查询层
+│   └── jobs/             # Feishu → D1 定时同步任务
+├── views/                # 页面展示与产品/Academy/Insights 内容视图
+├── scripts/
+│   ├── d1/               # 本地 Miniflare D1 快照同步
+│   ├── feishu/           # Feishu/Lark Base 管理与数据导入
+│   ├── i18n/             # 产品详情翻译数据
+│   ├── tolgee/           # Tolgee push/pull 工具
+│   └── assets/           # 图片处理工具
 ├── lib/
 │   ├── auth.ts           # Better Auth 服务端官方配置 (disableSignUp: true)
 │   ├── users.ts          # 预设用户身份与权限凭证仓
@@ -118,11 +157,16 @@ bun run deploy
 └── knip.json             # Knip 死代码/无用导出扫描配置
 ```
 
+`.next/`、`.vinext/`、`dist/`、`.wrangler/`、`scratch/` 和 `.superpowers/` 仅用于本机
+构建、Miniflare 数据或开发过程，均不属于业务源代码；`.agents/` 是仓库内保留的
+project-scope 技能资产。
+
 ---
 
-## 📊 飞书 Base 多维表格数据映射
+## 📊 D1 与飞书同步架构
 
-后端的车辆数据与信息查询对接飞书 Base 表格：
+网站请求不访问飞书。生产环境读取 Cloudflare D1，本地环境读取持久化 Miniflare D1；
+Worker Cron 任务才会访问以下飞书 Base 表格并把数据同步到 D1：
 
 | 表用途 | 飞书 Table ID / View ID | 场景应用 |
 |--------|------------------------|----------|

@@ -63,6 +63,14 @@ export interface D1VehicleModel {
   inventory_status: string | null;
   version: string | null;
   synced_at: string;
+  airbags?: number | null;
+  charging?: string | null;
+  household_charging?: string | null;
+  model_year?: number | null;
+  brochure_cover?: string | null;
+  why_section_description?: string | null;
+  guide_price_min_usd_auto?: number | null;
+  guide_price_max_usd_auto?: number | null;
 }
 
 export interface D1VehicleTrim {
@@ -81,6 +89,19 @@ export interface D1VehicleTrim {
   zero_to_100_sec: number | null;
   specs_json: string | null;
   synced_at: string;
+  trim_config_id?: string | null;
+  battery_chemistry?: string | null;
+  dc_fast_charge_supported?: number | null;
+  dc_fast_charge_time_hours?: number | null;
+  dc_fast_charge_min_percent?: number | null;
+  dc_fast_charge_max_percent?: number | null;
+  motor_torque_n_m?: number | null;
+  drivetrain_display?: string | null;
+  trim_order?: number | null;
+  recommended?: number | null;
+  added_features_json?: string | null;
+  upgraded_features_json?: string | null;
+  base_spec_summary_json?: string | null;
 }
 
 export interface D1Vehicle {
@@ -96,6 +117,10 @@ export interface D1Vehicle {
   supplier: string | null;
   display_price_low: number | null;
   display_price_high: number | null;
+  exw_usd: number | null;
+  fca_usd: number | null;
+  fob_usd: number | null;
+  guide_price_cny: number | null;
   currency: string | null;
   min_order_quantity: number | null;
   inventory_count: number | null;
@@ -228,15 +253,18 @@ export async function upsertVehicles(db: D1Database, rows: D1Vehicle[]): Promise
         INSERT INTO vehicles (
           id, vehicle_id, model_id, brand, model, variant, stage, steering,
           location, supplier, display_price_low, display_price_high, currency,
+          exw_usd, fca_usd, fob_usd, guide_price_cny,
           min_order_quantity, inventory_count, wait_days, powertrain_type, color, color_code,
           image_url, gallery_images_json, specs_json, ai_confidence_score, synced_at
-        ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
         ON CONFLICT(id) DO UPDATE SET
           vehicle_id=excluded.vehicle_id, model_id=excluded.model_id,
           brand=excluded.brand, model=excluded.model, variant=excluded.variant,
           stage=excluded.stage, steering=excluded.steering, location=excluded.location,
           supplier=excluded.supplier, display_price_low=excluded.display_price_low,
           display_price_high=excluded.display_price_high, currency=excluded.currency,
+          exw_usd=excluded.exw_usd, fca_usd=excluded.fca_usd, fob_usd=excluded.fob_usd,
+          guide_price_cny=excluded.guide_price_cny,
           min_order_quantity=excluded.min_order_quantity, inventory_count=excluded.inventory_count,
           wait_days=excluded.wait_days, powertrain_type=excluded.powertrain_type, color=excluded.color,
           color_code=excluded.color_code, image_url=excluded.image_url,
@@ -245,6 +273,7 @@ export async function upsertVehicles(db: D1Database, rows: D1Vehicle[]): Promise
       `).bind(
         r.id, r.vehicle_id, r.model_id, r.brand, r.model, r.variant, r.stage, r.steering,
         r.location, r.supplier, r.display_price_low, r.display_price_high, r.currency,
+        r.exw_usd, r.fca_usd, r.fob_usd, r.guide_price_cny,
         r.min_order_quantity, r.inventory_count, r.wait_days, r.powertrain_type, r.color, r.color_code,
         r.image_url, r.gallery_images_json, r.specs_json, r.ai_confidence_score, now,
       )
@@ -270,7 +299,7 @@ async function withD1Retry<T>(fn: () => Promise<T>): Promise<T> {
 export async function queryVehicleModels(db: D1Database): Promise<D1VehicleModel[]> {
   return withD1Retry(async () => {
     const result = await db.prepare(
-      `SELECT * FROM vehicle_models WHERE status IS NULL OR status NOT IN ('archived','draft','disabled','下架','停售') ORDER BY brand, model`
+      `SELECT * FROM vehicle_models WHERE status IS NULL OR status NOT IN ('archived','draft','disabled','下架','停售') ORDER BY brand`
     ).all<D1VehicleModel>();
     return result.results;
   });
@@ -280,20 +309,18 @@ export async function queryVehicleTrims(db: D1Database, modelId?: string): Promi
   return withD1Retry(async () => {
     if (modelId) {
       const result = await db.prepare(
-        `SELECT * FROM vehicle_trims WHERE model_id = ? ORDER BY trim_name`
+        `SELECT * FROM vehicle_trims WHERE model_id = ?`
       ).bind(modelId).all<D1VehicleTrim>();
       return result.results;
     }
-    const result = await db.prepare(`SELECT * FROM vehicle_trims ORDER BY model_id, trim_name`).all<D1VehicleTrim>();
+    const result = await db.prepare(`SELECT * FROM vehicle_trims`).all<D1VehicleTrim>();
     return result.results;
   });
 }
 
 export async function queryVehicles(db: D1Database): Promise<D1Vehicle[]> {
   return withD1Retry(async () => {
-    const result = await db.prepare(
-      `SELECT * FROM vehicles WHERE stage = 'connected' ORDER BY brand, model`
-    ).all<D1Vehicle>();
+    const result = await db.prepare(`SELECT * FROM vehicles`).all<D1Vehicle>();
     return result.results;
   });
 }
@@ -379,10 +406,5 @@ export async function upsertUsersToD1(db: D1Database, users: D1AuthUserRecord[])
       )
     );
 
-  const BATCH_SIZE = 50;
-  const allStmts = [...userStmts, ...accountStmts];
-  for (let i = 0; i < allStmts.length; i += BATCH_SIZE) {
-    await db.batch(allStmts.slice(i, i + BATCH_SIZE));
-  }
+  await db.batch([...userStmts, ...accountStmts]);
 }
-

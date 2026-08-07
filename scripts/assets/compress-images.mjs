@@ -1,12 +1,15 @@
 import sharp from "sharp";
 import { promises as fs } from "fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
-const INPUT = "elite-flagship/E-HS9/6cut.jpeg";
-const OUTPUT = INPUT.replace(/\.jpe?g$/i, ".webp");
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
+const inputPath = path.join(root, "public", "pic", "elite-flagship", "E-HS9", "6cut.jpeg");
+const outputPath = inputPath.replace(/\.jpe?g$/i, ".webp");
 const TARGET_BYTES = 500 * 1024;
 
 async function convert() {
-  const originalBuffer = await fs.readFile(INPUT);
+  const originalBuffer = await fs.readFile(inputPath);
   const metadata = await sharp(originalBuffer).metadata();
   console.log(`原始大小: ${(originalBuffer.length / 1024).toFixed(1)}KB`);
   console.log(`尺寸: ${metadata.width}x${metadata.height}`);
@@ -36,8 +39,8 @@ async function convert() {
     .webp({ quality: bestQuality })
     .toBuffer();
 
-  await fs.writeFile(OUTPUT, finalBuf);
-  console.log(`输出: ${OUTPUT}`);
+  await fs.writeFile(outputPath, finalBuf);
+  console.log(`输出: ${outputPath}`);
   console.log(`最终大小: ${(finalBuf.length / 1024).toFixed(1)}KB`);
   console.log("原文件已保留，转换完成！");
 }

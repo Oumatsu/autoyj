@@ -757,6 +757,8 @@ const zh = {
       "specificRequirements": "具体需求或车型",
       "requirementsPlaceholder": "例如：对 BYD Seagull 左舵版感兴趣，需含家用充电器...",
       "submitButton": "提交经销商申请",
+      "submitting": "提交中…",
+      "success": "感谢您的提交，我们已收到您的申请。",
       "privacyNote": "您的数据安全有保障。我们绝不分享经销商数据。"
     }
   },
@@ -799,6 +801,7 @@ const zh = {
     "cancel": "取消",
     "send": "发送",
     "loading": "加载中...",
+    "unavailable": "车型数据暂时不可用，请刷新后重试。",
     "readMore": "阅读更多",
     "viewDetails": "查看详情",
     "contactSales": "联系销售",
@@ -1204,6 +1207,9 @@ const zh = {
       "specialRequirements": "特殊需求",
       "specialRequirementsPlaceholder": "例如：需要右舵刹车片、特定轮胎品牌...",
       "submitButton": "提交套件配置 →",
+      "submitting": "提交中...",
+      "submissionSuccess": "套件配置已提交，我们将在 24 小时内联系您。",
+      "submissionError": "提交失败，请重试。",
       "submitNote": "您将在 24 小时内收到详细报价。"
     },
     "cta": {
@@ -1354,6 +1360,9 @@ const zh = {
       "additionalRequirements": "额外需求",
       "additionalRequirementsPlaceholder": "例如：需要喷涂房、特定品牌偏好、时间限制...",
       "submitButton": "请求安装报价 →",
+      "submitting": "提交中...",
+      "submissionSuccess": "报价请求已提交，我们将在 48 小时内联系您。",
+      "submissionError": "提交失败，请重试。",
       "submitNote": "您将在 48 小时内收到详细的设备清单和 CIF 报价。"
     },
     "cta": {
@@ -1976,7 +1985,10 @@ const zh = {
     "heading": "EV",
     "headingAccent": "基础知识",
     "description": "掌握核心技术：LFP vs NMC 电池、电机类型、充电标准，以及非洲条件如何影响电动车性能。",
-    "tag": "电动车基础"
+    "tag": "电动车基础",
+    "loading": "正在加载课程...",
+    "loadError": "学院课程暂时不可用，请重试。",
+    "empty": "当前没有可用课程。"
   },
   "academyDealerPlaybook": {
     "breadcrumb": {
@@ -1987,7 +1999,10 @@ const zh = {
     "heading": "经销商",
     "headingAccent": "实战手册",
     "description": "实用的销售技巧、异议处理和对话框架，帮助经销商成交更多电动车订单。",
-    "tag": "经销商实战手册"
+    "tag": "经销商实战手册",
+    "loading": "正在加载课程...",
+    "loadError": "学院课程暂时不可用，请重试。",
+    "empty": "当前没有可用课程。"
   },
   "academyTechnicalWorkshop": {
     "breadcrumb": {
@@ -1999,11 +2014,16 @@ const zh = {
     "headingAccent": "工坊",
     "description": "面向电动车技师的操作指南——安全、诊断、充电，以及非洲运营条件下的常见故障。",
     "tag": "技术工坊",
-    "date": "2026-05-16"
+    "date": "2026-05-16",
+    "loading": "正在加载课程...",
+    "loadError": "学院课程暂时不可用，请重试。",
+    "empty": "当前没有可用课程。"
   },
   "academyDetail": {
     "lessonNotFound": "课程未找到",
     "lessonNotFoundDesc": "无法加载所请求的学院课程。它可能已被移动或取消发布。",
+    "loadError": "课程加载失败",
+    "loadErrorDesc": "学院服务暂时不可用，请重试。",
     "returnToAcademy": "返回学院",
     "loadingLesson": "正在加载课程...",
     "breadcrumb": {
@@ -2022,6 +2042,7 @@ const zh = {
       "moreCurriculums": "更多销售课程",
       "moreWorkshops": "更多技术工坊",
       "moreDefault": "更多 {category}",
+      "siblingsUnavailable": "更多课程暂时不可用。",
       "speakToExpert": "与专家对话",
       "needParts": "需要零件？",
       "availableNow": "在线",
@@ -2058,6 +2079,7 @@ const zh = {
       "subscribeButton": "立即订阅"
     },
     "emptyFeed": "没有更多文章展示。以上已显示所有结果。",
+    "empty": "当前没有可用的洞察文章。",
     "noMatchFilter": "没有匹配当前筛选条件的文章。",
     "prev": "上一页",
     "next": "下一页",
@@ -2247,6 +2269,8 @@ const zh = {
   "insightsDetail": {
     "articleNotFound": "文章未找到",
     "articleNotFoundDesc": "无法加载所请求的洞察文章。",
+    "loadError": "洞察文章加载失败",
+    "loadErrorDesc": "洞察服务暂时不可用，请重试。",
     "backToInsights": "返回洞察",
     "loading": "正在加载文章...",
     "breadcrumb": {
