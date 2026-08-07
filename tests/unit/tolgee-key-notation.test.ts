@@ -2,7 +2,7 @@
  * Unit: Tolgee Key Notation Consistency
  *
  * Verifies that the tolgee-sync flattenToDot() function produces
- * dot-notation keys that exactly match what resolveTranslationValue() expects.
+ * dot-notation keys that exactly match the static Tolgee bundle shape.
  *
  * Root-cause test for the bracket-notation bug where Tolgee stored
  * keys as "home.process.steps[3].title" instead of "home.process.steps.3.title".
@@ -11,7 +11,7 @@ import { describe, expect, test } from "bun:test";
 import zh from "../../i18n/translations/zh";
 import en from "../../i18n/translations/en";
 import am from "../../i18n/translations/am";
-import { resolveTranslationValue } from "../../i18n/translationFallback";
+import { getNestedValue } from "../../i18n/utils";
 
 // Replicate the flattenToDot logic from scripts/tolgee/sync.ts
 function flattenToDot(
@@ -80,7 +80,7 @@ describe("Unit: Tolgee Key Notation — No Bracket Notation", () => {
   });
 });
 
-describe("Unit: Tolgee Key → resolveTranslationValue Round-Trip", () => {
+describe("Unit: Tolgee Key → static bundle round-trip", () => {
   // Critical process steps (these were the ones showing as "key doesn't exist" in Tolgee UI)
   const processStepKeys = [
     "home.process.steps.0.title",
@@ -98,8 +98,8 @@ describe("Unit: Tolgee Key → resolveTranslationValue Round-Trip", () => {
   ];
 
   for (const key of processStepKeys) {
-    test(`[zh] resolveTranslationValue("${key}") returns non-empty string`, () => {
-      const val = resolveTranslationValue(key, [zh as Record<string, unknown>], undefined);
+    test(`[zh] static bundle "${key}" returns non-empty string`, () => {
+      const val = getNestedValue(zh as Record<string, unknown>, key);
       expect(typeof val).toBe("string");
       expect(val).not.toBe("");
       expect(val).not.toBe(key); // Must not return the key itself
@@ -109,7 +109,7 @@ describe("Unit: Tolgee Key → resolveTranslationValue Round-Trip", () => {
   test("[zh] All process steps have title, desc and badge resolved", () => {
     const missingKeys: string[] = [];
     for (const key of processStepKeys) {
-      const val = resolveTranslationValue(key, [zh as Record<string, unknown>], undefined);
+      const val = getNestedValue(zh as Record<string, unknown>, key);
       if (!val || val === key) {
         missingKeys.push(key);
       }
@@ -132,7 +132,7 @@ describe("Unit: Tolgee Key → resolveTranslationValue Round-Trip", () => {
   test("[zh] All process stats resolve with dot-notation", () => {
     const missingKeys: string[] = [];
     for (const key of processStatKeys) {
-      const val = resolveTranslationValue(key, [zh as Record<string, unknown>], undefined);
+      const val = getNestedValue(zh as Record<string, unknown>, key);
       if (!val || val === key) {
         missingKeys.push(key);
       }
@@ -140,15 +140,15 @@ describe("Unit: Tolgee Key → resolveTranslationValue Round-Trip", () => {
     expect(missingKeys).toEqual([]);
   });
 
-  test("flattenToDot keys always resolvable via resolveTranslationValue", () => {
+  test("flattenToDot keys always resolvable via static bundle access", () => {
     // Every key that flattenToDot produces from zh should be resolvable.
     // Note: boolean values (e.g. home.tco.benefits.2.accent = true) are stored
-    // as strings in Tolgee but returned as native booleans by resolveTranslationValue.
+    // as strings in Tolgee but retained as native booleans in the static bundle.
     // We normalize both sides to string for comparison.
     const unresolvable: string[] = [];
     for (const [key, flatVal] of Object.entries(zhFlat)) {
       if (flatVal === "") continue; // empty string fields are intentionally blank
-      const resolved = resolveTranslationValue(key, [zh as Record<string, unknown>], undefined);
+      const resolved = getNestedValue(zh as Record<string, unknown>, key);
       if (String(resolved) !== String(flatVal)) {
         unresolvable.push(`${key}: expected "${flatVal}", got "${String(resolved)}"`);
       }

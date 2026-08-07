@@ -2,11 +2,12 @@ import fs from "node:fs";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
+import { locales } from "../../i18n/routing";
 import zh from "../../i18n/translations/zh";
 import en from "../../i18n/translations/en";
 import am from "../../i18n/translations/am";
 
-export const translationLocales = ["zh", "en", "am"] as const;
+export const translationLocales = locales;
 export type TranslationLocale = (typeof translationLocales)[number];
 
 export const translationFiles: Record<TranslationLocale, string> = {
@@ -65,7 +66,7 @@ function isRecord(value: unknown): value is TranslationObject {
 /**
  * Flatten a nested object to dot-notation key-value pairs.
  * Arrays are treated as objects with numeric string keys (0, 1, 2…),
- * which matches the resolveTranslationValue() logic in translationFallback.ts.
+ * which matches the dot-notation shape consumed by Tolgee's static bundles.
  */
 export function flattenToDot(
   obj: TranslationObject,

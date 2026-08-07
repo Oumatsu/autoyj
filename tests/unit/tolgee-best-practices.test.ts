@@ -3,22 +3,21 @@
  *
  * Enforces all Tolgee best-practice invariants across the codebase:
  *
- * 1. Static fallback covers ALL keys used by t() (no runtime missing keys)
+ * 1. Static bundles cover ALL keys used by t() (no runtime missing keys)
  * 2. Zero Chinese characters leak into EN or AM dictionaries
  * 3. No translation value is identical to its key (raw key leak guard)
  * 4. All required home page keys are non-empty strings in all 3 locales
  * 5. Hero slides have exactly 5 entries in all 3 locales
  * 6. Optional slide fields (line2, line3) never equal their key string
  * 7. No slide field value contains the "home." substring (raw key guard)
- * 8. resolveTranslationValue fallback chain: locale → en → empty string
- * 9. tArray fields return actual arrays, not raw key strings
- * 10. Translation value character count sanity (suspiciously long = copied key)
+ * 8. tArray fields return actual arrays, not raw key strings
+ * 9. Translation value character count sanity (suspiciously long = copied key)
  */
 import { describe, expect, test } from "bun:test";
 import zh from "../../i18n/translations/zh";
 import en from "../../i18n/translations/en";
 import am from "../../i18n/translations/am";
-import { resolveTranslationValue, asStringArray } from "../../i18n/translationFallback";
+import { getNestedValue } from "../../i18n/utils";
 
 type LocaleDict = Record<string, unknown>;
 
@@ -137,7 +136,7 @@ describe("Unit: Tolgee BP-4 — All Required Home Page Keys Are Non-Empty", () =
     test(`[${name}] All ${REQUIRED_HOME_KEYS.length} required home keys resolve non-empty`, () => {
       const failures: string[] = [];
       for (const key of REQUIRED_HOME_KEYS) {
-        const val = resolveTranslationValue(key, [dict], undefined);
+        const val = getNestedValue(dict, key);
         if (!val || val === "" || (typeof val === "string" && val === key)) {
           failures.push(key);
         }
@@ -168,7 +167,7 @@ describe("Unit: Tolgee BP-6 — Optional Slide Fields Never Equal Their Key", ()
       for (let i = 0; i < SLIDE_COUNT; i++) {
         for (const field of SLIDE_OPTIONAL) {
           const key = `home.hero.slides.s${i}.${field}`;
-          const val = resolveTranslationValue(key, [dict], undefined);
+          const val = getNestedValue(dict, key);
           if (typeof val === "string" && val !== "" && val === key) {
             leaked.push(key);
           }
@@ -197,46 +196,10 @@ describe("Unit: Tolgee BP-7 — No Slide Field Value Contains 'home.' Substring"
   }
 });
 
-// ── 8. resolveTranslationValue fallback chain ─────────────────────────────
-describe("Unit: Tolgee BP-8 — resolveTranslationValue Fallback Chain", () => {
-  test("Returns locale value when present", () => {
-    const result = resolveTranslationValue("home.hero.badge", [zh as LocaleDict]);
-    expect(result).toBe("非洲最值得信赖的电动汽车采购伙伴");
-  });
-
-  test("Falls through to second source when first is undefined", () => {
-    const primaryWithMissing = {} as LocaleDict;
-    const fallback = en as LocaleDict;
-    const result = resolveTranslationValue("home.hero.badge", [primaryWithMissing, fallback]);
-    expect(result).toBe("Africa EV Export Partner");
-  });
-
-  test("Returns empty string when all sources miss", () => {
-    const result = resolveTranslationValue("does.not.exist", [{} as LocaleDict]);
-    expect(result).toBe("");
-  });
-
-  test("Returns defaultValue override when specified and all sources miss", () => {
-    const result = resolveTranslationValue("does.not.exist", [{} as LocaleDict], "MY_DEFAULT");
-    expect(result).toBe("MY_DEFAULT");
-  });
-
-  test("Returns empty string '' when primary source has key set to '' (no fallthrough)", () => {
-    // FIXED BEHAVIOR: if zh.ts has heading: "" it means "intentionally blank"
-    // (Chinese pages don't use the "The ... Matrix" English wrapper words).
-    // The old code skipped "" and fell through to en, producing "The 网约创收利器车型矩阵 Matrix".
-    // After the fix, the empty string is respected: the function returns "" and stops.
-    const withEmpty = { home: { hero: { badge: "" } } } as unknown as LocaleDict;
-    const result = resolveTranslationValue("home.hero.badge", [withEmpty, en as LocaleDict]);
-    // "" is now respected; does NOT fall through to "Africa EV Export Partner"
-    expect(result).toBe("");
-  });
-});
-
-// ── 9. tArray fields return real arrays ───────────────────────────────────
-describe("Unit: Tolgee BP-9 — tArray Fields Return Real Arrays", () => {
+// ── 8. tArray fields return real arrays ───────────────────────────────────
+describe("Unit: Tolgee BP-8 — tArray Fields Return Real Arrays", () => {
   test("[zh] home.trustBar.partners is an object/array resolvable", () => {
-    const val = resolveTranslationValue("home.trustBar.partners", [zh as LocaleDict]);
+    const val = getNestedValue(zh as LocaleDict, "home.trustBar.partners");
     // In zh, partners is stored as an object with numeric keys
     expect(val).not.toBeNull();
     expect(typeof val).toBe("object");
@@ -285,8 +248,8 @@ describe("Unit: Tolgee BP-9 — tArray Fields Return Real Arrays", () => {
   });
 });
 
-// ── 10. No suspiciously long key-like values ──────────────────────────────
-describe("Unit: Tolgee BP-10 — No Translation Value Looks Like a Concatenated Key Path", () => {
+// ── 9. No suspiciously long key-like values ──────────────────────────────
+describe("Unit: Tolgee BP-9 — No Translation Value Looks Like a Concatenated Key Path", () => {
   for (const { name } of dicts) {
     test(`[${name}] No string value looks like a key path (contains 3+ dots in sequence)`, () => {
       const map = name === "zh" ? zhMap : name === "en" ? enMap : amMap;

@@ -1,24 +1,19 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { Locale, localeLabels, locales } from "./config";
-import { COOKIE_TTL_1Y, LOCALE_COOKIE_NAME } from "@/lib/constants";
+import { localizeHref } from "./LocaleLink";
 import { getLocaleFromPath } from "./utils";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 
-function setLocaleCookie(locale: Locale) {
-  document.cookie = `${LOCALE_COOKIE_NAME}=${locale}; max-age=${COOKIE_TTL_1Y}; path=/; samesite=lax`;
-}
-
 export function LocaleSwitcher() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [open, setOpen] = useState(false);
-  const [, startTransition] = useTransition();
 
   const currentLocale = getLocaleFromPath(pathname);
   const current = localeLabels[currentLocale];
@@ -29,19 +24,16 @@ export function LocaleSwitcher() {
    * 2. 完整保留当前选中的所有 searchParams (如 ?tab=vehicle_models)
    */
   const getLocalizedHref = (targetLocale: Locale) => {
-    const segments = pathname.split("/").filter(Boolean);
+    const segments = (pathname ?? "/").split("/").filter(Boolean);
     if (locales.includes(segments[0] as Locale)) {
-      segments[0] = targetLocale;
-    } else {
-      segments.unshift(targetLocale);
+      segments.shift();
     }
-    const basePath = "/" + segments.join("/");
+    const basePath = `/${segments.join("/")}` || "/";
     const query = searchParams ? searchParams.toString() : "";
-    return query ? `${basePath}?${query}` : basePath;
+    return localizeHref(query ? `${basePath}?${query}` : basePath, targetLocale);
   };
 
-  const handleLocaleSelect = (targetLocale: Locale) => {
-    setLocaleCookie(targetLocale);
+  const handleLocaleSelect = () => {
     setOpen(false);
   };
 
@@ -79,11 +71,7 @@ export function LocaleSwitcher() {
               href={targetHref}
               hrefLang={locale}
               rel="alternate"
-              onClick={() => {
-                startTransition(() => {
-                  handleLocaleSelect(locale);
-                });
-              }}
+              onClick={handleLocaleSelect}
               className={cn(
                 "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs font-bold transition-colors cursor-pointer select-none outline-none",
                 isActive
@@ -103,4 +91,3 @@ export function LocaleSwitcher() {
     </DropdownMenu>
   );
 }
-

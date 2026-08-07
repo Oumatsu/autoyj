@@ -4,13 +4,80 @@ import { useCallback } from "react";
 import { usePathname } from "next/navigation";
 import { useTranslate } from "@tolgee/react";
 import { Locale } from "./config";
-import { getLocaleFromPath } from "./utils";
-import { resolveTranslationValue, resolveTranslationValueBlockEnFallback } from "./translationFallback";
-import { translations as staticTranslations } from "./translations";
-import { specsData } from "./data/specsData";
+import { getLocaleFromPath, getNestedValue } from "./utils";
+import { messages } from "./messages";
 
 export { useTranslate, useTolgee, T } from "@tolgee/react";
 export type { TFnType } from "@tolgee/react";
+
+type MessageTree = typeof messages.en;
+
+type PathValue<Tree, Path extends string> = Path extends `${infer Head}.${infer Tail}`
+  ? Head extends keyof Tree
+    ? PathValue<Tree[Head], Tail>
+    : unknown
+  : Path extends keyof Tree
+    ? Tree[Path]
+    : unknown;
+
+type NumericKey<Value> = Extract<keyof Value, `${number}`>;
+
+type OptionalObjectUnion<Value> = {
+  [Key in Value extends unknown ? keyof Value : never]?: Value extends Record<
+    Key,
+    infer Item
+  >
+    ? Item
+    : never;
+};
+
+type NormalizeMessageValue<Value> = Value extends readonly (infer Item)[]
+  ? NormalizeMessageValue<Item>[]
+  : Value extends object
+    ? Exclude<Extract<keyof Value, string>, `${number}`> extends never
+      ? NumericKey<Value> extends never
+        ? Value
+        : NormalizeNumericObject<Value>
+      : {
+          [Key in keyof Value]: NormalizeMessageValue<Value[Key]>;
+        }
+    : Value;
+
+type NormalizeNumericObject<Value> = NormalizeMessageValue<
+  Value[NumericKey<Value>]
+> extends infer Item
+  ? [Item] extends [object]
+    ? OptionalObjectUnion<Item>[]
+    : Item[]
+  : never;
+
+type ArrayItem<Value> = Value extends readonly (infer Item)[] ? Item : never;
+
+type TranslationArray<Path extends string> = Array<
+  ArrayItem<NormalizeMessageValue<PathValue<MessageTree, Path>>>
+>;
+
+type OptionalTranslationObject<Value> = Value extends object
+  ? Value extends readonly unknown[]
+    ? Value
+    : {
+        [Key in keyof Value]?: OptionalTranslationObject<Value[Key]>;
+      }
+  : Value;
+
+type TranslationObject<Path extends string> = Partial<
+  Record<string, unknown>
+> & {
+  [Key in keyof Extract<
+    NormalizeMessageValue<PathValue<MessageTree, Path>>,
+    object
+  >]?: OptionalTranslationObject<
+    Extract<
+      NormalizeMessageValue<PathValue<MessageTree, Path>>,
+      object
+    >[Key]
+  >;
+};
 
 export function useLocale(): Locale {
   const pathname = usePathname();
@@ -27,75 +94,104 @@ export function useTranslation() {
 
   const t = useCallback(
     (key: string, defaultValue?: string): string => {
-      const val = tolgeeT(key, { defaultValue });
-      if (typeof val === "string") {
-        // Strip Tolgee DevTools zero-width metadata markers to test if key was untranslated
-        const cleanVal = val.replace(/[\u200B-\u200D\uFEFF]/g, "");
-        if (cleanVal === key) {
-          const staticVal = resolveTranslationValueBlockEnFallback(
-            key,
-            [
-              staticTranslations[locale] as Record<string, unknown>,
-              (specsData[locale] || {}) as Record<string, unknown>,
-              staticTranslations.en as Record<string, unknown>,
-            ],
-            defaultValue
-          );
-          if (typeof staticVal === "string") {
-            return staticVal;
-          }
-        }
-      }
-      return val;
+      const staticValue = getNestedValue(messages[locale], key);
+      const resolvedDefault =
+        typeof staticValue === "string" ? staticValue : defaultValue;
+      return tolgeeT(key, { defaultValue: resolvedDefault });
     },
-    [tolgeeT, locale]
+    [locale, tolgeeT]
   );
 
   const tArray = useCallback(
-    (key: string, fallback: any[] = []): any[] => {
-      const val = resolveTranslationValue(
-        key,
-        [
-          staticTranslations[locale] as Record<string, unknown>,
-          (specsData[locale] || {}) as Record<string, unknown>,
-        ],
-        undefined
+    <Path extends string>(
+      key: Path,
+      fallback: TranslationArray<Path> = []
+    ): TranslationArray<Path> => {
+      const source = getNestedValue(messages[locale], key);
+      if (source === undefined || source === null) return fallback;
+
+      const value = normalizeStructuredArrays(
+        localizeStructuredValue(source, key, tolgeeT)
       );
-      if (val === undefined || val === null) {
-        return fallback;
-      }
-      const arrayVal = deepEnsureArray(val);
-      return Array.isArray(arrayVal) ? arrayVal : fallback;
+      return isTranslationArray<Path>(value) ? value : fallback;
     },
-    [locale]
+    [locale, tolgeeT]
   );
 
-  return { t, tArray, locale };
+  const tObject = useCallback(
+    <Path extends string>(key: Path): TranslationObject<Path> => {
+      const source = getNestedValue(messages[locale], key);
+      if (!source || typeof source !== "object" || Array.isArray(source)) return {};
+      const value = normalizeStructuredArrays(
+        localizeStructuredValue(source, key, tolgeeT)
+      );
+      return isTranslationObject<Path>(value) ? value : {};
+    },
+    [locale, tolgeeT]
+  );
+
+  return { t, tArray, tObject, locale };
 }
 
-function deepEnsureArray(val: unknown): unknown {
-  if (val === null || val === undefined) {
-    return val;
+function isTranslationArray<Path extends string>(
+  value: unknown
+): value is TranslationArray<Path> {
+  return Array.isArray(value);
+}
+
+function isTranslationObject<Path extends string>(
+  value: unknown
+): value is TranslationObject<Path> {
+  return Boolean(value && typeof value === "object" && !Array.isArray(value));
+}
+
+export function localizeStructuredValue(
+  value: unknown,
+  key: string,
+  translate: (key: string, options?: { defaultValue?: string }) => string
+): unknown {
+  if (typeof value === "string") {
+    return translate(key, { defaultValue: value });
   }
-  if (Array.isArray(val)) {
-    return val.map(deepEnsureArray);
+  if (Array.isArray(value)) {
+    return value.map((item, index) =>
+      localizeStructuredValue(item, `${key}.${index}`, translate)
+    );
   }
-  if (typeof val === "object") {
-    const keys = Object.keys(val);
-    const isNumeric = keys.length > 0 && keys.every((k) => !isNaN(Number(k)));
-    if (isNumeric) {
-      const arr: any[] = [];
-      for (const [k, v] of Object.entries(val)) {
-        arr[Number(k)] = deepEnsureArray(v);
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value).map(([childKey, childValue]) => [
+        childKey,
+        localizeStructuredValue(childValue, `${key}.${childKey}`, translate),
+      ])
+    );
+  }
+  return value;
+}
+
+export function normalizeStructuredArrays(value: unknown): unknown {
+  if (Array.isArray(value)) {
+    return value.map(normalizeStructuredArrays);
+  }
+
+  if (value && typeof value === "object") {
+    const entries = Object.entries(value).map(([key, childValue]) => [
+      key,
+      normalizeStructuredArrays(childValue),
+    ] as const);
+    const isNumericKeyedObject =
+      entries.length > 0 && entries.every(([key]) => /^\d+$/.test(key));
+
+    if (isNumericKeyedObject) {
+      const array: unknown[] = [];
+      for (const [key, childValue] of entries) {
+        array[Number(key)] = childValue;
       }
-      return arr;
-    } else {
-      const res: Record<string, unknown> = {};
-      for (const [k, v] of Object.entries(val)) {
-        res[k] = deepEnsureArray(v);
-      }
-      return res;
+      return array;
     }
+
+    return Object.fromEntries(entries);
   }
-  return val;
+
+  return value;
 }

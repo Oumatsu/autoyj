@@ -27,7 +27,6 @@
     "components/ui/**": ["exports", "types"],
     "lib/auth.ts": ["exports", "types"],
     "lib/users.ts": ["exports", "types"],
-    "i18n/data/specsData.ts": ["exports"],
     "i18n/translations/index.ts": ["types"],
     "i18n/useTranslation.ts": ["exports", "types"],
     "server/db/d1.ts": ["exports", "types"],

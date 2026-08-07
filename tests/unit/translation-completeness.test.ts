@@ -2,10 +2,9 @@ import { describe, expect, test } from "bun:test";
 import am from "../../i18n/translations/am";
 import en from "../../i18n/translations/en";
 import zh from "../../i18n/translations/zh";
-import { specsData } from "../../i18n/data/specsData";
 
-function getDeepKeyPaths(obj: Record<string, any>, prefix = ""): Map<string, any> {
-  let keys = new Map<string, any>();
+function getDeepKeyPaths(obj: object, prefix = ""): Map<string, unknown> {
+  const keys = new Map<string, unknown>();
   for (const [key, value] of Object.entries(obj)) {
     const currentPath = prefix ? `${prefix}.${key}` : key;
     if (value && typeof value === "object" && !Array.isArray(value)) {
@@ -31,23 +30,23 @@ describe("Unit: i18n Translation Completeness & Key Symmetry", () => {
   const enMap = getDeepKeyPaths(en);
   const amMap = getDeepKeyPaths(am);
 
-  const zhSpecsMap = getDeepKeyPaths(specsData.zh);
-  const enSpecsMap = getDeepKeyPaths(specsData.en);
-  const amSpecsMap = getDeepKeyPaths(specsData.am);
+  const zhProductsMap = getDeepKeyPaths(zh.productsDetail);
+  const enProductsMap = getDeepKeyPaths(en.productsDetail);
+  const amProductsMap = getDeepKeyPaths(am.productsDetail);
 
-  test("Tolgee Core UI translation key count is streamlined and separated from productsDetail specs data", () => {
-    expect(zhMap.size).toBeLessThan(2000);
-    expect(zhSpecsMap.size).toBeGreaterThan(1000);
+  test("the single Tolgee bundle contains the vehicle-detail translation tree", () => {
+    expect(zhMap.size).toBeGreaterThan(3000);
+    expect(zhProductsMap.size).toBeGreaterThan(1000);
   });
 
-  test("ZH, EN, AM dictionaries have 100% identical translation key count for UI keys", () => {
+  test("ZH, EN, AM dictionaries have 100% identical translation key count", () => {
     expect(zhMap.size).toBe(enMap.size);
     expect(zhMap.size).toBe(amMap.size);
   });
 
-  test("ZH, EN, AM specsData dictionaries have 100% identical translation key count for vehicle specs", () => {
-    expect(zhSpecsMap.size).toBe(enSpecsMap.size);
-    expect(zhSpecsMap.size).toBe(amSpecsMap.size);
+  test("vehicle-detail keys remain symmetric inside the single bundle", () => {
+    expect(zhProductsMap.size).toBe(enProductsMap.size);
+    expect(zhProductsMap.size).toBe(amProductsMap.size);
   });
 
   test("English dictionary contains no missing keys compared to Chinese", () => {
