@@ -30,7 +30,6 @@ describe("Integration: Worker API Contracts & Feishu Base Schema Rules", () => {
       "inventory_status",
       "trim_config_id",
       "variant",
-      "access_code",
       "user_id",
       "account_id",
       "inquiry_no",
@@ -41,6 +40,9 @@ describe("Integration: Worker API Contracts & Feishu Base Schema Rules", () => {
     ]) {
       expect(source).toMatch(new RegExp(`fields\\.${newField}|fields\\[\\"${newField}\\"\\]`));
     }
+    expect(source).toMatch(/JOIN account/);
+    expect(source).toMatch(/account\.password/);
+    expect(source).not.toMatch(/access_code|password_hash/);
   });
 
   test("translations rely exclusively on static local dictionaries with zero runtime endpoint dependencies", async () => {

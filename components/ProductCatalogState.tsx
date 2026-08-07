@@ -1,13 +1,15 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import Loading from "@/components/Loading";
+import { useTranslation } from "@/i18n/useTranslation";
 
 export function ProductCatalogSkeleton() {
+  const { t } = useTranslation();
+
   return (
     <div
       className="grid md:grid-cols-2 gap-8 mb-0"
       role="status"
-      aria-label="Loading vehicle inventory"
+      aria-label={t("common.loading")}
     >
       {Array.from({ length: 4 }, (_, index) => (
         <div
@@ -44,10 +46,12 @@ export function ProductCatalogSkeleton() {
 }
 
 export function ProductCatalogUnavailable() {
+  const { t } = useTranslation();
+
   return (
     <Alert variant="default" className="min-h-[200px] flex items-center justify-center text-center my-6">
       <AlertDescription className="text-slate-400">
-        Vehicle data is temporarily unavailable. Please refresh and try again.
+        {t("common.unavailable")}
       </AlertDescription>
     </Alert>
   );

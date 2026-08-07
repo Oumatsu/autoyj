@@ -20,9 +20,9 @@ const mediaSlots = [
     title: "China Office",
     label: "Office Photo Album",
     images: [
-      "/pic/company/China Office/0.webp",
-      "/pic/company/China Office/2.webp",
-      "/pic/company/China Office/1.webp",
+      "/pic/company/Company Activity/0.webp",
+      "/pic/company/Company Activity/1.webp",
+      "/pic/company/Company Activity/2.webp",
     ],
   },
   {
@@ -30,8 +30,8 @@ const mediaSlots = [
     label: "Team Member Album",
     images: [
       "/pic/company/Core Team/0.webp",
-      "/pic/company/Core Team/1.webp",
       "/pic/company/Core Team/2.webp",
+      "/pic/company/Core Team/3.webp",
     ],
   },
   {

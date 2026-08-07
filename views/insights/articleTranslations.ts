@@ -1,6 +1,6 @@
 export type InsightTranslationFn = (key: string, fallback?: string) => unknown;
 
-export type TranslatableInsightArticle = Record<string, unknown> & {
+export type TranslatableInsightArticle = {
   slug?: string;
   title?: string;
   overview?: string;

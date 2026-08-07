@@ -12,55 +12,78 @@ import { syncVehicleModelsToDB, syncVehiclesToD1, syncUsersToD1, syncArticlesToD
  * All user-facing API handlers read purely from D1.
  */
 export const FEISHU_API = "https://open.feishu.cn";
-export async function runFeishuScheduledSync(env: Env): Promise<{ models: number; trims: number; vehicles: number; users: number; articles: number; lessons: number; vault: number; elapsed: number }> {
+export type FeishuSyncResult = {
+  models: number;
+  trims: number;
+  vehicles: number;
+  users: number;
+  articles: number;
+  lessons: number;
+  vault: number;
+  elapsed: number;
+};
+
+export class FeishuSyncRunError extends Error {
+  readonly errors: Array<{ table: string; message: string }>;
+  readonly elapsed: number;
+
+  constructor(errors: Array<{ table: string; message: string }>, elapsed: number) {
+    super(`Feishu sync failed for ${errors.map((error) => error.table).join(", ")}`);
+    this.name = "FeishuSyncRunError";
+    this.errors = errors;
+    this.elapsed = elapsed;
+  }
+}
+
+export async function runFeishuScheduledSync(env: Env): Promise<FeishuSyncResult> {
   console.log("[cron:feishu-sync] Starting sync: Feishu → D1...");
   const startTime = Date.now();
 
   let models = 0, trims = 0, vehicles = 0, users = 0, articles = 0, lessons = 0, vault = 0;
+  const errors: Array<{ table: string; message: string }> = [];
 
-  try {
-    const res = await syncVehicleModelsToDB(env);
+  const run = async <T>(table: string, sync: () => Promise<T>, onSuccess: (result: T) => void) => {
+    try {
+      const result = await sync();
+      onSuccess(result);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unknown sync failure";
+      errors.push({ table, message });
+      console.error(`[cron:feishu-sync] ✗ ${table} sync failed: ${message}`);
+    }
+  };
+
+  await run("vehicle models/trims", () => syncVehicleModelsToDB(env), (res) => {
     models = res.models;
     trims = res.trims;
     console.log(`[cron:feishu-sync] ✓ Vehicle models: ${models} models + ${trims} trims written to D1`);
-  } catch (err) {
-    console.error("[cron:feishu-sync] ✗ Vehicle models sync failed:", err);
-  }
+  });
 
-  try {
-    const res = await syncVehiclesToD1(env);
+  await run("vehicles", () => syncVehiclesToD1(env), (res) => {
     vehicles = res.synced;
     console.log(`[cron:feishu-sync] ✓ Vehicles: ${vehicles} records written to D1`);
-  } catch (err) {
-    console.error("[cron:feishu-sync] ✗ Vehicles sync failed:", err);
-  }
+  });
 
-  try {
-    const res = await syncUsersToD1(env);
+  await run("users", () => syncUsersToD1(env), (res) => {
     users = res.users;
     console.log(`[cron:feishu-sync] ✓ Users: ${users} records written to D1`);
-  } catch (err) {
-    console.error("[cron:feishu-sync] ✗ Users sync failed:", err);
-  }
+  });
 
-  try {
-    const res = await syncArticlesToD1(env);
+  await run("articles", () => syncArticlesToD1(env), (res) => {
     articles = res.articles;
     console.log(`[cron:feishu-sync] ✓ Articles: ${articles} records written to D1`);
-  } catch (err) {
-    console.error("[cron:feishu-sync] ✗ Articles sync failed:", err);
-  }
+  });
 
-  try {
-    const res = await syncAcademyToD1(env);
+  await run("academy lessons/vault", () => syncAcademyToD1(env), (res) => {
     lessons = res.lessons;
     vault = res.vault;
     console.log(`[cron:feishu-sync] ✓ Academy: ${lessons} lessons + ${vault} vault items written to D1`);
-  } catch (err) {
-    console.error("[cron:feishu-sync] ✗ Academy sync failed:", err);
-  }
+  });
 
   const elapsed = Date.now() - startTime;
+  if (errors.length) {
+    throw new FeishuSyncRunError(errors, elapsed);
+  }
   console.log(`[cron:feishu-sync] Done in ${elapsed}ms`);
   return { models, trims, vehicles, users, articles, lessons, vault, elapsed };
 }

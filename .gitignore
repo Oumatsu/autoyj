@@ -1,56 +1,48 @@
-node_modules
-.next
-.vinext
-.wrangler
-dist
-package-lock.json
-.env
-.env.local
-*.log
-history
-.lark-tmp
-.dev.vars.local
-.dev.vars
-build-log.txt
-_tmp_fix_hero.py
-**/.DS_Store
-
-# 翻译备份文件（由 sync:i18n 自动生成）
-i18n/translations/*.backup-*.ts
-
-# 临时脚本和工具
-parse_zh.py
-remove_english.py
-remove_english_extended.py
-remove_english_final.py
-update_translations.py
-
-# 授权二维码图片
-feishu_auth_qr.png
-
-# tsbuildinfo（构建缓存）
-tsconfig.tsbuildinfo
-
-# Next.js 遗留
+# Dependencies and build output
+node_modules/
+.next/
+.vinext/
+dist/
+coverage/
+playwright-report/
+test-results/
 next-env.d.ts
+*.tsbuildinfo
 
-# 测试结果产物
-# Tolgee standalone binary
-tolgee.jar
+# Cloudflare and local runtime state
+.wrangler/
+.lark-tmp/
 
-# 本地/导出 SQLite 数据库
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+.dev.vars
+.dev.vars.*
+!.dev.vars.example
+
+# Local databases, logs, and temporary files
 *.sqlite
 *.sqlite3
 *.db
+*.log
+*.tmp
+*.sql.tmp
+build-log.txt
+scratch/
 
-# 临时排查截图与产物
+# Local tools and binaries
+tolgee.jar
+
+# Generated translation backups
+i18n/translations/*.backup-*.ts
+
+# Temporary screenshots and diagnostics
 *_screenshot.png
 *_preview.png
 *_final.png
 *_chinese.png
-*.sql.tmp
-scratch/
+feishu_auth_qr.png
 
-
-
-
+# Operating-system metadata
+.DS_Store

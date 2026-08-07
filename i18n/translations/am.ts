@@ -757,6 +757,8 @@ const am = {
       "specificRequirements": "የተወሰኑ መስፈርቶች ወይም ሞዴሎች",
       "requirementsPlaceholder": "ለምሳሌ. የBYD ሲጋል ኤልኤችዲ ፍላጎት ያለው፣ ከቤት ቻርጅ ጋር ተካትቷል...",
       "submitButton": "የሻጭ ማመልከቻ ያስገቡ",
+      "submitting": "በመላክ ላይ…",
+      "success": "እናመሰግናለን — ጥያቄዎ ደርሶናል።",
       "privacyNote": "የእርስዎ ውሂብ ደህንነቱ የተጠበቀ ነው። የአከፋፋይ ውሂብን በጭራሽ አናጋራም።"
     }
   },
@@ -799,6 +801,7 @@ const am = {
     "cancel": "ሰረዝ",
     "send": "ላክ",
     "loading": "በመጫን ላይ...",
+    "unavailable": "የተሽከርካሪ መረጃ ለጊዜው አይገኝም። እባክዎ ያድሱና እንደገና ይሞክሩ።",
     "readMore": "ተጨማሪ ያንብቡ",
     "viewDetails": "ዝርዝሮችን ይመልከቱ",
     "contactSales": "ሽያጮችን ያግኙ",
@@ -1204,6 +1207,9 @@ const am = {
       "specialRequirements": "ልዩ መስፈርቶች",
       "specialRequirementsPlaceholder": "ለምሳሌ. RHD ብሬክ ፓድስ፣ የተወሰኑ የጎማ ብራንዶች ያስፈልጉታል...",
       "submitButton": "የኪት ውቅረት አስገባ →",
+      "submitting": "በመላክ ላይ...",
+      "submissionSuccess": "የኪት ውቅረት ተልኳል። ቡድናችን በ24 ሰዓታት ውስጥ ያነጋግርዎታል።",
+      "submissionError": "ጥያቄዎን መላክ አልተቻለም። እባክዎ እንደገና ይሞክሩ።",
       "submitNote": "በ24 ሰዓታት ውስጥ ዝርዝር ጥቅስ ይደርስዎታል።"
     },
     "cta": {
@@ -1354,6 +1360,9 @@ const am = {
       "additionalRequirements": "ተጨማሪ መስፈርቶች",
       "additionalRequirementsPlaceholder": "ለምሳሌ. የቀለም ዳስ፣ የተለየ የምርት ስም ምርጫ፣ የጊዜ ገደብ ገደቦች ያስፈልጋቸዋል...",
       "submitButton": "የማዋቀር ጥያቄ →",
+      "submitting": "በመላክ ላይ...",
+      "submissionSuccess": "የጥቅስ ጥያቄ ተልኳል። ቡድናችን በ48 ሰዓታት ውስጥ ያነጋግርዎታል።",
+      "submissionError": "ጥያቄዎን መላክ አልተቻለም። እባክዎ እንደገና ይሞክሩ።",
       "submitNote": "በ48 ሰአታት ውስጥ ዝርዝር የመሳሪያ ዝርዝር እና የ CIF ጥቅስ ይደርስዎታል።"
     },
     "cta": {
@@ -1976,7 +1985,10 @@ const am = {
     "heading": "ኢ.ቪ",
     "headingAccent": "መሠረታዊ ትምህርት",
     "description": "ዋናውን ቴክኖሎጂ ማስተር፡ LFP vs NMC ባትሪዎች፣ የሞተር አይነቶች፣ የኃይል መሙያ ደረጃዎች፣ እና የአፍሪካ ሁኔታዎች የኢቪ አፈጻጸምን እንዴት እንደሚነኩ።",
-    "tag": "የኤሌክትሪክ መኪና መሠረታዊ ትምህርት"
+    "tag": "የኤሌክትሪክ መኪና መሠረታዊ ትምህርት",
+    "loading": "ትምህርቶችን በመጫን ላይ...",
+    "loadError": "የአካዳሚ ትምህርቶች ለጊዜው አይገኙም። እባክዎ እንደገና ይሞክሩ።",
+    "empty": "በአሁኑ ጊዜ ምንም ትምህርቶች የሉም።"
   },
   "academyDealerPlaybook": {
     "breadcrumb": {
@@ -1987,7 +1999,10 @@ const am = {
     "heading": "አከፋፋይ",
     "headingAccent": "ተግባራዊ መመሪያ",
     "description": "ተግባራዊ የሽያጭ ቴክኒኮች፣ የተቃውሞ አያያዝ እና የውይይት ማዕቀፎች አዘዋዋሪዎች ተጨማሪ የኢቪ ቅናሾችን እንዲዘጉ ለመርዳት።",
-    "tag": "የአከፋፋይ ተግባራዊ መመሪያ"
+    "tag": "የአከፋፋይ ተግባራዊ መመሪያ",
+    "loading": "ትምህርቶችን በመጫን ላይ...",
+    "loadError": "የአካዳሚ ትምህርቶች ለጊዜው አይገኙም። እባክዎ እንደገና ይሞክሩ።",
+    "empty": "በአሁኑ ጊዜ ምንም ትምህርቶች የሉም።"
   },
   "academyTechnicalWorkshop": {
     "breadcrumb": {
@@ -1999,11 +2014,16 @@ const am = {
     "headingAccent": "ወርክሾፕ",
     "description": "ለኢቪ ቴክኒሻኖች የአሠራር መመሪያዎች - ደህንነት፣ ምርመራ፣ ክፍያ እና በአፍሪካ የስራ ሁኔታዎች ውስጥ ያሉ የተለመዱ ስህተቶች።",
     "tag": "የቴክኒክ አውደ ጥናት",
-    "date": "2026-05-16"
+    "date": "2026-05-16",
+    "loading": "ትምህርቶችን በመጫን ላይ...",
+    "loadError": "የአካዳሚ ትምህርቶች ለጊዜው አይገኙም። እባክዎ እንደገና ይሞክሩ።",
+    "empty": "በአሁኑ ጊዜ ምንም ትምህርቶች የሉም።"
   },
   "academyDetail": {
     "lessonNotFound": "ትምህርት አልተገኘም።",
     "lessonNotFoundDesc": "የተጠየቀው የአካዳሚ ትምህርት ሊጫን አልቻለም። ተንቀሳቅሷል ወይም ያልታተመ ሊሆን ይችላል።",
+    "loadError": "ትምህርቱን መጫን አልተቻለም",
+    "loadErrorDesc": "የአካዳሚ አገልግሎት ለጊዜው አይገኝም። እባክዎ እንደገና ይሞክሩ።",
     "returnToAcademy": "ወደ አካዳሚ ተመለስ",
     "loadingLesson": "ትምህርትን በመጫን ላይ...",
     "breadcrumb": {
@@ -2022,6 +2042,7 @@ const am = {
       "moreCurriculums": "ተጨማሪ የሽያጭ ሥርዓተ ትምህርት",
       "moreWorkshops": "ተጨማሪ የቴክኒክ አውደ ጥናቶች",
       "moreDefault": "ተጨማሪ {category}",
+      "siblingsUnavailable": "ተጨማሪ ትምህርቶች ለጊዜው አይገኙም።",
       "speakToExpert": "አንድ ባለሙያ ያነጋግሩ",
       "needParts": "ክፍሎች ይፈልጋሉ?",
       "availableNow": "በመስመር ላይ",
@@ -2058,6 +2079,7 @@ const am = {
       "subscribeButton": "አሁን ይመዝገቡ"
     },
     "emptyFeed": "ከእንግዲህ የሚታዩ ጽሑፎች የሉም። ሁሉም ውጤቶች ከላይ ይታያሉ።",
+    "empty": "በአሁኑ ጊዜ ምንም የግንዛቤ ጽሑፎች የሉም።",
     "noMatchFilter": "ከአሁኑ ማጣሪያ ጋር የሚዛመዱ ጽሑፎች የሉም።",
     "prev": "ቀዳሚ",
     "next": "ቀጥሎ",
@@ -2247,6 +2269,8 @@ const am = {
   "insightsDetail": {
     "articleNotFound": "መጣጥፍ አልተገኘም።",
     "articleNotFoundDesc": "የተጠየቀው ግንዛቤ መጣጥፍ ሊጫን አልቻለም።",
+    "loadError": "ይህን ግንዛቤ መጫን አልተቻለም",
+    "loadErrorDesc": "የግንዛቤ አገልግሎቱ ለጊዜው አይገኝም። እባክዎ እንደገና ይሞክሩ።",
     "backToInsights": "ወደ ግንዛቤዎች ተመለስ",
     "loading": "ጽሑፍን በመጫን ላይ...",
     "breadcrumb": {

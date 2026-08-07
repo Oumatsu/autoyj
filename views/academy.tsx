@@ -1,21 +1,19 @@
 "use client";
 
 import { useEffect, useState, useRef, useCallback } from "react";
+import Loading from "@/components/Loading";
 import { useTranslation } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
 import { sanitizeDisplayData } from "@/lib/display-text";
+import {
+  resolveLessonImage,
+} from "@/lib/static-assets";
 import {
   translateAcademyLesson,
   translateAcademyVaultItem,
 } from "@/views/academy/academyTranslations";
 
 const tabSectionIds = ["hero", "fundamentals", "playbook", "workshop", "vault"];
-
-function resolveLessonImg(img?: string): string {
-  if (!img || img === "hero.webp") return "/pic/hero/photo-1593941707882-a5bba14938c7.webp";
-  if (img.startsWith("/") || (img.startsWith("http") && !img.includes("feishu"))) return img;
-  return `/pic/academy/${img}`;
-}
 
 export default function AcademyPage() {
   const { t } = useTranslation();
@@ -27,6 +25,8 @@ export default function AcademyPage() {
   const [playbookArticles, setPlaybookArticles] = useState<any[]>([]);
   const [workshopArticles, setWorkshopArticles] = useState<any[]>([]);
   const [vaultItems, setVaultItems] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   const localizedFundamentals = fundamentalsArticles.map((lesson) =>
     translateAcademyLesson(lesson, t),
@@ -49,24 +49,37 @@ export default function AcademyPage() {
   }, []);
 
   useEffect(() => {
+    let isMounted = true;
     fetch("/api/portal/public/academy")
       .then((res) => {
         if (!res.ok) throw new Error("Failed to load");
         return res.json().then(sanitizeDisplayData);
       })
       .then((data: any) => {
-        if (data?.lessons) {
-          setFundamentalsArticles(data.lessons.fundamentals || []);
-          setPlaybookArticles(data.lessons.playbook || []);
-          setWorkshopArticles(data.lessons.workshop || []);
+        if (
+          !Array.isArray(data?.lessons?.fundamentals) ||
+          !Array.isArray(data?.lessons?.playbook) ||
+          !Array.isArray(data?.lessons?.workshop) ||
+          !Array.isArray(data?.vault)
+        ) {
+          throw new Error("Invalid academy response");
         }
-        if (data?.vault) {
-          setVaultItems(data.vault || []);
+        if (isMounted) {
+          setFundamentalsArticles(data.lessons.fundamentals);
+          setPlaybookArticles(data.lessons.playbook);
+          setWorkshopArticles(data.lessons.workshop);
+          setVaultItems(data.vault);
         }
       })
-      .catch((err) => {
-        console.error("Error loading academy Bitable data:", err);
+      .catch(() => {
+        if (isMounted) setError(true);
+      })
+      .finally(() => {
+        if (isMounted) setLoading(false);
       });
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   useEffect(() => {
@@ -146,7 +159,7 @@ export default function AcademyPage() {
       >
         <div className="absolute inset-0">
           <img
-            src="/pic/hero/photo-1593941707882-a5bba14938c7.webp"
+            src={resolveLessonImage("fundamentals", "academy-hero", "/pic/hero/photo-1593941707882-a5bba14938c7.webp")}
             className="w-full h-full object-cover"
             style={{ filter: "grayscale(40%)" }}
             alt="EV Tech"
@@ -184,6 +197,21 @@ export default function AcademyPage() {
         </div>
       </section>
 
+      {loading && (
+        <Loading
+          fullscreen={false}
+          text={t("academy.loading", "Loading academy content...")}
+        />
+      )}
+      {error && (
+        <p role="alert" className="py-8 text-center text-gray-400 bg-mid">
+          {t(
+            "academy.loadError",
+            "Academy content is temporarily unavailable. Please try again.",
+          )}
+        </p>
+      )}
+
       {/* EV Fundamentals */}
       <section id="fundamentals" className="py-16 sm:py-24 bg-a scroll-mt-24">
         <div className="container mx-auto px-4 sm:px-6 md:px-12">
@@ -201,14 +229,19 @@ export default function AcademyPage() {
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            {localizedFundamentals.map((lesson, i) => (
+            {localizedFundamentals.length > 0 ? (
+              localizedFundamentals.map((lesson, i) => (
               <LocaleLink
                 key={lesson.slug}
                 href={`/academy/ev-fundamentals/${lesson.slug}`}
                 className="article-card block"
               >
                 <div className="article-img-wrap">
-                  <img src={resolveLessonImg(lesson.img)} className="article-img" alt={lesson.title} />
+                  <img
+                    src={resolveLessonImage(lesson.category, lesson.slug, lesson.img)}
+                    className="article-img"
+                    alt={lesson.title}
+                  />
                 </div>
                 <div className="article-content">
                   <span className="tag tag-basics">{lesson.tag}</span>
@@ -219,7 +252,12 @@ export default function AcademyPage() {
                   </div>
                 </div>
               </LocaleLink>
-            ))}
+              ))
+            ) : !loading && !error ? (
+              <p role="status" className="md:col-span-3 py-8 text-center text-gray-500">
+                {t("academy.fundamentals.empty", "No lessons are currently available.")}
+              </p>
+            ) : null}
           </div>
 
           <div className="flex justify-center mt-12">
@@ -254,7 +292,8 @@ export default function AcademyPage() {
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            {localizedPlaybook.map((lesson) => (
+            {localizedPlaybook.length > 0 ? (
+              localizedPlaybook.map((lesson) => (
               <LocaleLink
                 key={lesson.slug}
                 href={`/academy/dealer-playbook/${lesson.slug}`}
@@ -269,7 +308,12 @@ export default function AcademyPage() {
                   </div>
                 </div>
               </LocaleLink>
-            ))}
+              ))
+            ) : !loading && !error ? (
+              <p role="status" className="md:col-span-3 py-8 text-center text-gray-500">
+                {t("academy.playbook.empty", "No lessons are currently available.")}
+              </p>
+            ) : null}
           </div>
 
           <div className="flex justify-center mt-12">
@@ -304,14 +348,19 @@ export default function AcademyPage() {
           </div>
 
           <div className="grid md:grid-cols-2 gap-8">
-            {localizedWorkshop.slice(0, 2).map((lesson) => (
+            {localizedWorkshop.length > 0 ? (
+              localizedWorkshop.slice(0, 2).map((lesson) => (
               <LocaleLink
                 key={lesson.slug}
                 href={`/academy/technical-workshop/${lesson.slug}`}
                 className="article-card flex md:flex-row block"
               >
                 <div className="article-img-wrap md:w-2/5 md:aspect-auto">
-                  <img src={resolveLessonImg(lesson.img)} className="article-img" alt={lesson.title} />
+                  <img
+                    src={resolveLessonImage(lesson.category, lesson.slug, lesson.img)}
+                    className="article-img"
+                    alt={lesson.title}
+                  />
                 </div>
                 <div className="article-content md:w-3/5">
                   <span className="tag tag-maintenance">{lesson.tag}</span>
@@ -322,7 +371,12 @@ export default function AcademyPage() {
                   </div>
                 </div>
               </LocaleLink>
-            ))}
+              ))
+            ) : !loading && !error ? (
+              <p role="status" className="md:col-span-2 py-8 text-center text-gray-500">
+                {t("academy.workshop.empty", "No lessons are currently available.")}
+              </p>
+            ) : null}
           </div>
 
           <div className="flex justify-center mt-12">
@@ -347,7 +401,7 @@ export default function AcademyPage() {
       >
         <div className="absolute inset-0 z-0">
           <img
-            src="/pic/page/photo-1555215695-3004980ad54e.webp"
+            src={resolveLessonImage("fundamentals", "academy-vault", "/pic/page/photo-1555215695-3004980ad54e.webp")}
             className="w-full h-full object-cover"
             style={{ filter: "brightness(.2) contrast(1.1) grayscale(40%)" }}
             alt="Vault"
@@ -376,7 +430,8 @@ export default function AcademyPage() {
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {localizedVault.map((vaultItem) => (
+            {localizedVault.length > 0 ? (
+              localizedVault.map((vaultItem) => (
               <div key={vaultItem.translationId} className="vault-card group">
                 <div className="vault-lock">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -396,7 +451,12 @@ export default function AcademyPage() {
                   {t("academy.vault.requestViaWhatsApp")} <span className="text-lg">→</span>
                 </LocaleLink>
               </div>
-            ))}
+              ))
+            ) : !loading && !error ? (
+              <p role="status" className="md:col-span-2 lg:col-span-3 py-8 text-center text-gray-400">
+                {t("academy.vault.empty", "No resources are currently available.")}
+              </p>
+            ) : null}
           </div>
         </div>
       </section>

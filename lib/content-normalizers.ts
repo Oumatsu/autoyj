@@ -106,6 +106,9 @@ export function normalizeAssetUrl(value: string | null | undefined): string | nu
     if (picPath && hasUnsafePathTraversal(picPath)) {
       return null;
     }
+    if (picPath.toLowerCase().endsWith("/hero.webp") || picPath.toLowerCase() === "hero.webp") {
+      return null;
+    }
     return clean;
   }
 

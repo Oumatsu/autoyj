@@ -12,8 +12,8 @@ describe("Integration: Academy Detail Query & Feishu Handler", () => {
     const handler = match![0];
 
     expect(handler).not.toMatch(/searchRecords/);
-    expect(handler).toMatch(/PORTAL_DB/);
-    expect(handler).toMatch(/FROM academy_lessons WHERE slug = \?/);
-    expect(handler).toMatch(/getBaselineAcademy\(\)/);
+    expect(handler).toMatch(/readPublicContent\(request, env/);
+    expect(handler).toMatch(/getPublicAcademyLesson/);
+    expect(handler).not.toMatch(/getBaselineAcademy\(\)/);
   });
 });

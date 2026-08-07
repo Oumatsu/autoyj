@@ -154,12 +154,6 @@ interface DetailData {
   trimNote?: string;
 }
 
-const DEFAULT_GALLERY: GalleryImage[] = [
-  { src: "/pic/hero/photo-1593941707882-a5bba14938c7.webp", cat: "Exterior", label: "Front View" },
-  { src: "https://images.unsplash.com/photo-1620800615569-42b781a62dcb?auto=format&fit=crop&w=1200&q=80", cat: "Exterior", label: "Side Profile" },
-  { src: "/pic/page/photo-1555215695-3004980ad54e.webp", cat: "Interior", label: "Dashboard" },
-];
-
 const DEFAULT_BATCH_LEVELS = [
   { units: 10, display: "$45K – $65K" },
   { units: 20, display: "$90K – $130K" },
@@ -626,7 +620,7 @@ export default function VehicleDetail({ data: rawData }: { data: DetailData }) {
   }, [t]);
 
   const v = data.vehicle;
-  const gallery: GalleryImage[] = data.galleryImages?.length ? data.galleryImages : getVehicleGalleryImages(rawData.slug, v.heroImage);
+  const gallery: GalleryImage[] = data.galleryImages?.length ? data.galleryImages : getVehicleGalleryImages(rawData.slug, v.img);
   const batchLevels = data.batchLevels?.length ? data.batchLevels : DEFAULT_BATCH_LEVELS;
   const batchMargin = data.batchMargin || DEFAULT_BATCH_MARGIN;
   const [galIdx, setGalIdx] = useState(0);

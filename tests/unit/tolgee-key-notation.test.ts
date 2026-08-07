@@ -13,7 +13,7 @@ import en from "../../i18n/translations/en";
 import am from "../../i18n/translations/am";
 import { resolveTranslationValue } from "../../i18n/translationFallback";
 
-// Replicate the flattenToDot logic from scripts/tolgee-sync.ts
+// Replicate the flattenToDot logic from scripts/tolgee/sync.ts
 function flattenToDot(
   obj: Record<string, unknown>,
   prefix = ""

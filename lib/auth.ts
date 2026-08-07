@@ -1,6 +1,5 @@
 import { betterAuth } from "better-auth";
 import { customSession } from "better-auth/plugins";
-import { findLocalUser, localUserStore } from "./users.ts";
 import { SESSION_TTL_7D, SESSION_UPDATE_AGE_1D } from "./constants";
 
 export type PortalRole = "admin" | "sales" | "sourcing" | "finance" | "partner" | "customer";
@@ -55,13 +54,15 @@ export function createFeishuAuth(env: Record<string, unknown> = {}) {
     emailAndPassword: {
       enabled: true,
       disableSignUp: true, // 🚫 关闭公开注册入口（后台统一预存账号）
-      async password({ hash, password }) {
-        if (hash.length !== password.length) return false;
-        let mismatch = 0;
-        for (let i = 0; i < hash.length; i++) {
-          mismatch |= hash.charCodeAt(i) ^ password.charCodeAt(i);
-        }
-        return mismatch === 0;
+      password: {
+        async verify({ hash, password }) {
+          if (hash.length !== password.length) return false;
+          let mismatch = 0;
+          for (let i = 0; i < hash.length; i++) {
+            mismatch |= hash.charCodeAt(i) ^ password.charCodeAt(i);
+          }
+          return mismatch === 0;
+        },
       },
     },
     session: {
@@ -70,17 +71,17 @@ export function createFeishuAuth(env: Record<string, unknown> = {}) {
     },
     plugins: [
       customSession(async ({ user, session }) => {
-        const local = localUserStore.find((u) => u.email.toLowerCase() === user.email.toLowerCase()) || findLocalUser(user.email, "");
-        const rawRole = (user as unknown as Record<string, unknown>).role || local?.role || "customer";
-        const rawPriceTier = (user as unknown as Record<string, unknown>).price_tier || local?.priceTier || "vip";
-        const rawAccountType = (user as unknown as Record<string, unknown>).account_type || local?.accountType || "external";
+        const fields = user as unknown as Record<string, unknown>;
+        const rawRole = fields.role || "customer";
+        const rawPriceTier = fields.price_tier || "vip";
+        const rawAccountType = fields.account_type || "external";
         return {
           session,
           user: {
             ...user,
-            userId: (user as unknown as Record<string, unknown>).user_id as string || local?.userId || user.id,
-            customerId: (user as unknown as Record<string, unknown>).customer_id as string || local?.customerId || user.id,
-            company: (user as unknown as Record<string, unknown>).company as string || local?.company || "Youguard",
+            userId: fields.user_id as string || user.id,
+            customerId: fields.customer_id as string || user.id,
+            company: fields.company as string || "Youguard",
             accountType: rawAccountType as AccountType,
             role: rawRole as PortalRole,
             priceTier: rawPriceTier as PriceTier,
@@ -90,5 +91,3 @@ export function createFeishuAuth(env: Record<string, unknown> = {}) {
     ],
   });
 }
-
-export const auth = createFeishuAuth();

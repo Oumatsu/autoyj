@@ -72,19 +72,15 @@ export default {
       return handlePortalRequest(request, env);
     }
 
-    // Manual cron trigger for testing (protected by secret header)
-    if (url.pathname === "/api/admin/sync-now" && request.headers.get("x-admin-key") === (env.PORTAL_SESSION_SECRET || "")) {
-      try {
-        const result = await runFeishuScheduledSync(env);
-        return new Response(JSON.stringify({ ok: true, ...result }), {
-          headers: { "Content-Type": "application/json" },
-        });
-      } catch (e) {
-        return new Response(JSON.stringify({ ok: false, error: String(e) }), {
-          status: 500,
-          headers: { "Content-Type": "application/json" },
-        });
-      }
+    // Feishu sync is cron-only; request-time manual triggers are intentionally disabled.
+    if (url.pathname === "/api/admin/sync-now") {
+      return new Response(JSON.stringify({
+        ok: false,
+        error: "Manual sync is disabled; scheduled cron only",
+      }), {
+        status: 410,
+        headers: { "Content-Type": "application/json" },
+      });
     }
 
     return handler.fetch(request, env, ctx);

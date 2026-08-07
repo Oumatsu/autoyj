@@ -414,6 +414,51 @@ const GALLERY_SLOTS = [
   { cat: "Details", label: "Charging & Cargo" },
 ] as const;
 
+const VERIFIED_PUBLIC_IMAGES = new Set<string>([
+  VEHICLE_FALLBACK_IMAGE,
+  ACADEMY_FALLBACK_IMAGE,
+  INSIGHT_FALLBACK_IMAGE,
+  ...Object.values(VEHICLE_IMAGE_MAP),
+  ...Object.values(LESSON_IMAGE_MAP),
+  ...Object.values(INSIGHT_IMAGE_MAP),
+  ...Object.values(VEHICLE_GALLERY_MANIFEST).flat(),
+  "/pic/academy/photo-1560250097-0b93528c311a.webp",
+  "/pic/hero/photo-1593941707882-a5bba14938c7.webp",
+  "/pic/page/photo-1555215695-3004980ad54e.webp",
+]);
+
+function verifiedLocalImage(
+  rawImage: string | null | undefined,
+  fallback: string,
+): string {
+  const normalizedImage = normalizeAssetUrl(rawImage);
+  return normalizedImage && VERIFIED_PUBLIC_IMAGES.has(normalizedImage)
+    ? normalizedImage
+    : fallback;
+}
+
+function verifiedMarkdownAsset(rawImage: string | null | undefined): string | null {
+  const clean = rawImage?.trim().split(/[?#]/, 1)[0] ?? "";
+  if (!clean || /^([a-z]+:)?\/\//i.test(clean)) {
+    return null;
+  }
+
+  const basename = clean.split("/").filter(Boolean).pop() ?? "";
+  const webpName = basename.replace(/\.(jpe?g|png)$/i, ".webp");
+  if (!webpName || webpName === basename && !/\.(webp|avif)$/i.test(basename)) {
+    return null;
+  }
+
+  return [...VERIFIED_PUBLIC_IMAGES].find((asset) => asset.endsWith(`/${webpName}`)) ?? null;
+}
+
+export function resolveVerifiedPublicImage(rawImage?: string | null): string | null {
+  const normalizedImage = normalizeAssetUrl(rawImage);
+  if (!normalizedImage) return null;
+  if (normalizedImage.startsWith("https://images.unsplash.com/")) return normalizedImage;
+  return VERIFIED_PUBLIC_IMAGES.has(normalizedImage) ? normalizedImage : null;
+}
+
 function buildVehicleGallery(paths: string[]): GalleryImage[] {
   return paths.slice(0, GALLERY_SLOTS.length).map((src, index) => ({
     src,
@@ -441,21 +486,26 @@ export function resolveLessonImage(
   slug: string,
   rawImage?: string | null,
 ): string {
-  const normalizedImage = normalizeAssetUrl(rawImage);
-  if (normalizedImage) {
-    return normalizedImage;
-  }
-
-  return LESSON_IMAGE_MAP[`${normalizeLessonCategory(category)}/${slug}`] ?? ACADEMY_FALLBACK_IMAGE;
+  const fallback =
+    LESSON_IMAGE_MAP[`${normalizeLessonCategory(category)}/${slug}`] ??
+    ACADEMY_FALLBACK_IMAGE;
+  return verifiedLocalImage(rawImage, fallback);
 }
 
 export function resolveInsightImage(slug: string, rawImage?: string | null): string {
-  const normalizedImage = normalizeAssetUrl(rawImage);
-  if (normalizedImage) {
-    return normalizedImage;
-  }
+  return verifiedLocalImage(rawImage, INSIGHT_IMAGE_MAP[slug] ?? INSIGHT_FALLBACK_IMAGE);
+}
 
-  return INSIGHT_IMAGE_MAP[slug] ?? INSIGHT_FALLBACK_IMAGE;
+export function resolveMarkdownImage(
+  rawImage: string | null | undefined,
+  fallbackImage?: string | null,
+): string {
+  const fallback = verifiedLocalImage(fallbackImage, INSIGHT_FALLBACK_IMAGE);
+  return (
+    verifiedLocalImage(rawImage, "") ||
+    verifiedMarkdownAsset(rawImage) ||
+    fallback
+  );
 }
 
 export function getVehicleModelImage(slug: string, rawImageUrl?: string | null): string {
@@ -463,7 +513,7 @@ export function getVehicleModelImage(slug: string, rawImageUrl?: string | null):
     return VEHICLE_IMAGE_MAP[slug];
   }
 
-  return normalizeAssetUrl(rawImageUrl) ?? VEHICLE_FALLBACK_IMAGE;
+  return verifiedLocalImage(rawImageUrl, VEHICLE_FALLBACK_IMAGE);
 }
 
 export function getVehicleGalleryImages(

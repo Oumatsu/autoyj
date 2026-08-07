@@ -31,19 +31,35 @@ function normalizeTags(tags: unknown): string[] {
     : [];
 }
 
+export function mergeOverviewCard<T extends OverviewCard>(
+  card: T,
+  fallback?: OverviewCard,
+): T {
+  const merged = { ...fallback, ...card } as T;
+  return {
+    ...merged,
+    name: merged.name || fallback?.name || "",
+    desc: merged.desc || merged.charging || fallback?.desc || fallback?.charging || "",
+    img: merged.img || fallback?.img || "",
+    link: merged.link || fallback?.link,
+    tags: normalizeTags(merged.tags).length ? merged.tags : normalizeTags(fallback?.tags),
+  };
+}
+
 export function translateOverviewCard<T extends OverviewCard>(
   card: T,
   t: TranslationFn,
 ): T {
   const slug = String(card.slug || card.link?.split("/").filter(Boolean).pop() || "");
+  const tags = normalizeTags(card.tags);
 
   return {
     ...card,
     name: translatedText(t, catalogModelKey(slug, "displayName"), card.name),
     desc: translatedText(t, catalogModelKey(slug, "cardHighlight"), card.desc),
-    tag: translatedText(t, catalogModelKey(slug, "cardTag"), card.tag),
-    label: translatedText(t, catalogModelKey(slug, "cardLabel"), card.label),
-    tags: normalizeTags(card.tags).map((tag) =>
+    tag: translatedText(t, catalogModelKey(slug, "cardTag"), card.tag || tags[0]),
+    label: translatedText(t, catalogModelKey(slug, "cardLabel"), card.label || tags[1]),
+    tags: tags.map((tag) =>
       translatedText(t, catalogCardValueKey(tag), tag),
     ),
   };

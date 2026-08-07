@@ -45,6 +45,7 @@ export function proxy(request: NextRequest) {
 
   // --- 1. Skip paths that must not be redirected ---
   if (
+    pathname === "/__scheduled" ||
     pathname.startsWith("/_next") ||
     pathname.startsWith("/api") ||
     pathname.startsWith("/favicon") ||

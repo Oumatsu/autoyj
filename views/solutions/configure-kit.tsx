@@ -2,9 +2,13 @@
 
 import { useTranslation } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
+import { useState, type FormEvent } from "react";
 
 export default function ConfigureKitPage() {
   const { t, tArray } = useTranslation();
+  const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
   const previewItems = tArray("solutionsConfigureKit.preview.items");
   const partsList = tArray("solutionsConfigureKit.form.parts");
@@ -119,11 +123,33 @@ export default function ConfigureKitPage() {
 
                 <form
                   className="space-y-6"
-                  onSubmit={(e) => {
+                  onSubmit={async (e: FormEvent<HTMLFormElement>) => {
                     e.preventDefault();
-                    alert(
-                      "Kit configuration submitted. Our team will reach out within 24 hours."
-                    );
+                    setSubmitting(true);
+                    setSubmitted(false);
+                    setError("");
+                    const form = e.currentTarget;
+                    const data = new FormData(form);
+                    try {
+                      const response = await fetch("/api/portal/public/contact", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                          name: data.get("name"),
+                          company: data.get("company"),
+                          email: data.get("email"),
+                          phone: data.get("phone"),
+                          message: data.get("message"),
+                        }),
+                      });
+                      if (!response.ok) throw new Error("contact submission failed");
+                      setSubmitted(true);
+                      form.reset();
+                    } catch {
+                      setError(t("solutionsConfigureKit.form.submissionError"));
+                    } finally {
+                      setSubmitting(false);
+                    }
                   }}
                 >
                   {/* Vehicle Selection */}
@@ -263,6 +289,7 @@ export default function ConfigureKitPage() {
                         <input
                           type="text"
                           required
+                          name="name"
                           className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-gold outline-none transition-colors"
                           placeholder="John Doe"
                         />
@@ -274,6 +301,7 @@ export default function ConfigureKitPage() {
                         <input
                           type="text"
                           required
+                          name="company"
                           className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-gold outline-none transition-colors"
                           placeholder="Autos Africa Ltd."
                         />
@@ -285,6 +313,7 @@ export default function ConfigureKitPage() {
                         <input
                           type="email"
                           required
+                          name="email"
                           className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-gold outline-none transition-colors"
                           placeholder="john@company.com"
                         />
@@ -296,6 +325,7 @@ export default function ConfigureKitPage() {
                         <input
                           type="tel"
                           required
+                          name="phone"
                           className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-gold outline-none transition-colors"
                           placeholder="+254 700 000 000"
                         />
@@ -310,6 +340,7 @@ export default function ConfigureKitPage() {
                     </label>
                     <textarea
                       rows={3}
+                      name="message"
                       className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-gold outline-none transition-colors resize-none"
                       placeholder={t("solutionsConfigureKit.form.specialRequirementsPlaceholder") as string}
                     />
@@ -317,13 +348,24 @@ export default function ConfigureKitPage() {
 
                   <button
                     type="submit"
+                    disabled={submitting}
                     className="w-full btn-primary py-5 rounded-xl text-sm font-black tracking-widest uppercase italic"
                     style={{
                       boxShadow: "0 0 40px -10px rgba(197,160,89,0.5)",
                     }}
                   >
-                    {t("solutionsConfigureKit.form.submitButton")}
+                    {submitting ? t("solutionsConfigureKit.form.submitting") : t("solutionsConfigureKit.form.submitButton")}
                   </button>
+                  {submitted && (
+                    <p role="status" className="text-center text-sm text-green">
+                      {t("solutionsConfigureKit.form.submissionSuccess")}
+                    </p>
+                  )}
+                  {error && (
+                    <p role="alert" className="text-center text-sm text-red-400">
+                      {error}
+                    </p>
+                  )}
                   <p className="text-center text-[9px] font-black uppercase tracking-widest text-gray-600 mt-3">
                     {t("solutionsConfigureKit.form.submitNote")}
                   </p>

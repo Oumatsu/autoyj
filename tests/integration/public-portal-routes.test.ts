@@ -81,6 +81,57 @@ describe("public portal routes", () => {
     }
   });
 
+  test("localhost public pages require the Miniflare D1 binding", async () => {
+    const localEnv = {} as Parameters<typeof handlePortalRequest>[1];
+    const products = await handlePortalRequest(
+      new Request("http://localhost/api/portal/public/products"),
+      localEnv,
+    );
+    const academy = await handlePortalRequest(
+      new Request("http://localhost/api/portal/public/academy"),
+      localEnv,
+    );
+    const insights = await handlePortalRequest(
+      new Request("http://localhost/api/portal/public/insights"),
+      localEnv,
+    );
+    const productDetail = await handlePortalRequest(
+      new Request("http://localhost/api/portal/public/products/byd-seagull"),
+      localEnv,
+    );
+
+    expect(products.status).toBe(503);
+    expect(academy.status).toBe(503);
+    expect(insights.status).toBe(503);
+    expect(productDetail.status).toBe(503);
+  });
+
+  test("localhost public pages surface an uninitialized Miniflare schema", async () => {
+    const missingSchemaDb = {
+      prepare() {
+        throw new Error("D1_ERROR: no such table: vehicle_models: SQLITE_ERROR");
+      },
+    } as unknown as D1Database;
+
+    const response = await handlePortalRequest(
+      new Request("http://localhost/api/portal/public/products"),
+      env(missingSchemaDb),
+    );
+
+    expect(response.status).toBe(500);
+    expect((await response.json()).error).toMatch(/no such table/i);
+  });
+
+  test("non-local public pages still fail clearly when D1 is not configured", async () => {
+    const response = await handlePortalRequest(
+      new Request("https://portal.example/api/portal/public/products"),
+      {} as Parameters<typeof handlePortalRequest>[1],
+    );
+
+    expect(response.status).toBe(503);
+    expect(await response.json()).toEqual({ error: "Public content database is not configured" });
+  });
+
   test("unknown public details return explicit 404 responses", async () => {
     const db = fakeD1({
       vehicle_models: [],

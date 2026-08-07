@@ -13,7 +13,7 @@ import {
   sharedDetailTranslations,
   translateAutomotivePhrase,
   translateTrimName,
-} from "../../scripts/product-detail-i18n-data.mjs";
+} from "../../scripts/i18n/product-detail-data.mjs";
 
 describe("Unit: Product Detail Translation Identifiers & Phrase Grammar", () => {
   test("detail translation keys use stable normalized vehicle identifiers", () => {

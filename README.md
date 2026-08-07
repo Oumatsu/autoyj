@@ -2,8 +2,8 @@
 
 Youguard 汽车出口 B2B 门户平台。
 
-**技术栈**：Next.js 16 (`vinext` 1.0+) + React 19 + Better Auth + Cloudflare Workers + Feishu Base  
-**代码质量**：ESLint v9 Flat Config + Knip + Bun Test (160/160 PASS) + Playwright E2E  
+**技术栈**：Next.js 16 (`vinext` 1.0+) + React 19 + Better Auth + Cloudflare Workers + D1/Miniflare + Feishu Cron Sync
+**代码质量**：ESLint v9 Flat Config + Knip + Bun Test + Playwright E2E
 **线上预览**：[https://autoyj.haipee.workers.dev](https://autoyj.haipee.workers.dev)
 
 ---
@@ -18,11 +18,18 @@ bun install
 cp .dev.vars.example .dev.vars
 # 填入飞书 App ID / App Secret / App Token 等配置
 
-# 3. 启动本地开发服务
+# 3. 启动本地开发服务（使用持久化 Miniflare D1）
 bun run dev
+
+# 需要时把云端 D1 数据同步到本地 Miniflare
+bun run db:local:sync
 ```
 
 打开浏览器访问 `http://localhost:3000/portal` 即可加载门户登录与管理系统。
+
+本地请求只读取 `.wrangler/state` 中的 Miniflare `PORTAL_DB`，生产请求只读取 Cloudflare D1。
+`bun run dev` 会先幂等初始化 `server/db/schema.sql`；`db:local:sync` 需要 Wrangler 已登录，
+它导出云端 D1 的 schema 和数据快照，替换本地 Miniflare 中同名表（保留仅本地表），不会调用飞书。
 
 ---
 
@@ -75,7 +82,7 @@ Better Auth 托管安全引擎 ──(闭环)──> 本地/预设凭证仓 (loc
 ## 🛠️ 代码质量与测试命令
 
 ```bash
-# 运行单元测试、组件测试与集成契约测试 (160/160 PASS)
+# 运行单元测试、组件测试与集成契约测试
 bun test
 
 # 运行 ESLint 代码质量规范检查 (ESLint v9 Flat Config)
@@ -101,8 +108,18 @@ bun run deploy
 │   ├── portal/page.tsx   # 门户后台管理单页应用 (SPA)
 │   ├── layout.tsx        # 根布局与全局样式定义
 │   └── page.tsx          # 官网首页
-├── worker/
-│   └── portal.ts         # Cloudflare Workers 后端逻辑（API 路由与飞书 Base 数据对接）
+├── server/
+│   ├── index.ts          # Cloudflare Worker 入口与 Cron 触发器
+│   ├── api/portal.ts     # D1-only 门户 API 与同步映射
+│   ├── db/               # D1 schema、迁移与查询层
+│   └── jobs/             # Feishu → D1 定时同步任务
+├── views/                # 页面展示与产品/Academy/Insights 内容视图
+├── scripts/
+│   ├── d1/               # 本地 Miniflare D1 快照同步
+│   ├── feishu/           # Feishu/Lark Base 管理与数据导入
+│   ├── i18n/             # 产品详情翻译数据
+│   ├── tolgee/           # Tolgee push/pull 工具
+│   └── assets/           # 图片处理工具
 ├── lib/
 │   ├── auth.ts           # Better Auth 服务端官方配置 (disableSignUp: true)
 │   ├── users.ts          # 预设用户身份与权限凭证仓
@@ -120,9 +137,10 @@ bun run deploy
 
 ---
 
-## 📊 飞书 Base 多维表格数据映射
+## 📊 D1 与飞书同步架构
 
-后端的车辆数据与信息查询对接飞书 Base 表格：
+网站请求不访问飞书。生产环境读取 Cloudflare D1，本地环境读取持久化 Miniflare D1；
+Worker Cron 任务才会访问以下飞书 Base 表格并把数据同步到 D1：
 
 | 表用途 | 飞书 Table ID / View ID | 场景应用 |
 |--------|------------------------|----------|

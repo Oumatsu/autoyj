@@ -4,6 +4,7 @@ import { join } from "node:path";
 import {
   getVehicleGalleryImages,
   getVehicleModelImage,
+  resolveMarkdownImage,
   resolveLessonImage,
   resolveInsightImage,
 } from "../../lib/static-assets";
@@ -26,6 +27,17 @@ describe("verified public assets", () => {
       .toMatch(/^\/pic\//);
     expect(getVehicleModelImage("unknown-model", "hero.webp"))
       .toBe("/pic/hero/0.webp");
+  });
+
+  test("academy and insight resolvers reject remote and unverified image sources", () => {
+    expect(resolveLessonImage("playbook", "ev-test-drive-guide", "https://evil.example/image.webp"))
+      .toBe("/pic/academy/photo-1559136555-9303baea8ebd.webp");
+    expect(resolveInsightImage("ethiopia-ev-tax-policy-2026", "/pic/not-a-real-image.webp"))
+      .toBe("/pic/academy/photo-1473341304170-971dccb5ac1e.webp");
+    expect(resolveMarkdownImage("photo-1518770660439-4636190af475.jpg"))
+      .toBe("/pic/academy/photo-1518770660439-4636190af475.webp");
+    expect(resolveMarkdownImage("article-image.webp", "/pic/hero/photo-1593941707882-a5bba14938c7.webp"))
+      .toBe("/pic/hero/photo-1593941707882-a5bba14938c7.webp");
   });
 
   test("unknown vehicle gallery slugs return only the verified cover slide", () => {

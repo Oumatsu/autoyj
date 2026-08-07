@@ -1,11 +1,11 @@
 import {
   normalizeProductCategory,
   normalizeProductSlug,
-  normalizeAssetUrl,
 } from "../../lib/content-normalizers";
 import {
   getVehicleGalleryImages,
   getVehicleModelImage,
+  resolveVerifiedPublicImage,
   resolveInsightImage,
   resolveLessonImage,
 } from "../../lib/static-assets";
@@ -32,6 +32,19 @@ export interface PublicProductCard {
   link: string;
   tags: string[];
   sortOrder: number;
+  filterData: {
+    vehicleClasses: string[];
+    batteryChemistries: string[];
+    rangeKm: { min: number; max: number } | null;
+    priceUsd: { min: number; max: number } | null;
+    steeringSetups: string[];
+    powertrainTypes: string[];
+    inventoryStatuses: string[];
+    voltagePlatforms: string[];
+    v2lAvailability: string[];
+    drivetrains: string[];
+    groundClearanceMm: { min: number; max: number } | null;
+  };
 }
 
 export interface PublicProductDetail {
@@ -106,7 +119,7 @@ export interface PublicAcademyPayload {
   vault: PublicAcademyVaultItem[];
 }
 
-type StaticProduct = Omit<PublicProductCard, "category" | "sortOrder"> & {
+type StaticProduct = Omit<PublicProductCard, "category" | "sortOrder" | "filterData"> & {
   category: PublicProductCategory;
   sortOrder: number;
 };
@@ -138,6 +151,112 @@ const staticProducts: StaticProduct[] = [
     batteryType: item.batteryType,
   })),
 ];
+
+type FilterInterval = { min: number; max: number };
+type ProductFilterData = PublicProductCard["filterData"];
+
+function rowValue(row: D1VehicleModel, ...keys: string[]): unknown {
+  const source = row as unknown as Record<string, unknown>;
+  for (const key of keys) {
+    if (source[key] !== null && source[key] !== undefined && source[key] !== "") {
+      return source[key];
+    }
+  }
+  return null;
+}
+
+function textValues(value: unknown): string[] {
+  const parsed = Array.isArray(value) ? value : parseJson(value);
+  const values = Array.isArray(parsed) ? parsed : [value];
+  return [...new Set(values.flatMap((item) => {
+    if (item === null || item === undefined) return [];
+    if (typeof item === "object") {
+      const record = item as Record<string, unknown>;
+      return textValues(record.text ?? record.name ?? record.value ?? record.title);
+    }
+    const text = String(item).trim();
+    return text ? [text] : [];
+  }))];
+}
+
+function atomicValues(value: unknown): string[] {
+  return [...new Set(textValues(value).flatMap((item) =>
+    item.split(/\s*(?:\/|\+)\s*/).map((part) => part.trim()).filter(Boolean),
+  ))];
+}
+
+function canonicalBatteryChemistry(value: string): string {
+  if (/\bLFP\b/i.test(value)) return "LFP";
+  if (/\bNCM\b|ternary lithium/i.test(value)) return "NCM";
+  if (/semi[- ]solid/i.test(value)) return "Semi-solid-state";
+  return value;
+}
+
+function intervalFrom(minValue: unknown, maxValue: unknown): FilterInterval | null {
+  const min = number(minValue);
+  const max = number(maxValue);
+  if (min === null && max === null) return null;
+  const first = min ?? max!;
+  const second = max ?? min!;
+  return { min: Math.min(first, second), max: Math.max(first, second) };
+}
+
+function numericRangeFromText(value: string): FilterInterval | null {
+  const values = value
+    .match(/[0-9][0-9,]*(?:\.[0-9]+)?/g)
+    ?.map((item) => Number(item.replaceAll(",", "")))
+    .filter(Number.isFinite) ?? [];
+  if (!values.length) return null;
+  return { min: Math.min(...values), max: Math.max(...values) };
+}
+
+function filterDataFor(row: D1VehicleModel | null, card: PublicProductCard): ProductFilterData {
+  const tags = card.tags;
+  const explicitVehicleClasses = textValues(rowValue(row ?? ({} as D1VehicleModel), "vehicle_class"));
+  const vehicleClasses = explicitVehicleClasses.length
+    ? explicitVehicleClasses
+    : row
+      ? textValues(row.segment)
+      : [];
+  const fallbackClass = tags[0] ? [tags[0]] : [];
+  const batteryChemistries = atomicValues(rowValue(row ?? ({} as D1VehicleModel), "battery_chemistry", "battery_chemistry_auto", "battery_technology"));
+  const fallbackChemistry = atomicValues(card.batteryType).map(canonicalBatteryChemistry);
+  const rangeKm = intervalFrom(
+    rowValue(row ?? ({} as D1VehicleModel), "cltc_range_min_km", "cltc_range_min_km_auto"),
+    rowValue(row ?? ({} as D1VehicleModel), "cltc_range_max_km", "cltc_range_max_km_auto"),
+  ) ?? numericRangeFromText(card.range);
+  const priceUsd = intervalFrom(
+    rowValue(row ?? ({} as D1VehicleModel), "display_price_low"),
+    rowValue(row ?? ({} as D1VehicleModel), "display_price_high"),
+  ) ?? intervalFrom(
+    rowValue(row ?? ({} as D1VehicleModel), "guide_price_min_usd_auto"),
+    rowValue(row ?? ({} as D1VehicleModel), "guide_price_max_usd_auto"),
+  ) ?? numericRangeFromText(card.fob);
+  const steeringSetups = textValues(rowValue(row ?? ({} as D1VehicleModel), "steering_setup"));
+  const powertrainTypes = textValues(rowValue(row ?? ({} as D1VehicleModel), "powertrain_type"));
+  const inventoryStatuses = textValues(rowValue(row ?? ({} as D1VehicleModel), "inventory_status", "status"));
+  const voltagePlatforms = textValues(rowValue(row ?? ({} as D1VehicleModel), "voltage_platform_v"))
+    .map((value) => `${number(value.replace(/v$/i, "")) ?? value.replace(/v$/i, "")}V`);
+  const v2lAvailability = textValues(rowValue(row ?? ({} as D1VehicleModel), "v2l_availability"));
+  const drivetrains = atomicValues(rowValue(row ?? ({} as D1VehicleModel), "drivetrain_display", "drivetrain_display_auto"));
+  const groundClearanceMm = intervalFrom(rowValue(row ?? ({} as D1VehicleModel), "ground_clearance_mm"));
+
+  return {
+    vehicleClasses: vehicleClasses.length ? [...new Set(vehicleClasses)] : fallbackClass,
+    batteryChemistries: batteryChemistries.length ? batteryChemistries : fallbackChemistry,
+    rangeKm,
+    priceUsd,
+    steeringSetups: steeringSetups.length
+      ? steeringSetups
+      : tags.flatMap((tag) => /\bLHD\b/i.test(tag) ? ["LHD"] : /\bRHD\b/i.test(tag) ? ["RHD"] : []),
+    powertrainTypes: powertrainTypes.length ? powertrainTypes : atomicValues(tags.filter((tag) => /\b(?:BEV|HEV|PHEV|EREV)\b/i.test(tag))),
+    inventoryStatuses: inventoryStatuses.length ? inventoryStatuses : [card.statusText].filter(Boolean),
+    voltagePlatforms: voltagePlatforms.length ? voltagePlatforms : tags.filter((tag) => /\b\d{3,4}V\b/i.test(tag)).map((tag) => tag.match(/\b\d{3,4}V\b/i)?.[0] ?? tag),
+    v2lAvailability: v2lAvailability.length ? v2lAvailability : tags.filter((tag) => /V2L/i.test(tag)),
+    drivetrains: drivetrains.length ? drivetrains : atomicValues(tags.filter((tag) => /(?:AWD|4WD|FWD|RWD)/i.test(tag))),
+    groundClearanceMm: groundClearanceMm ?? (tags.some((tag) => /200mm\+/i.test(tag)) ? { min: 200, max: Number.POSITIVE_INFINITY } : null),
+  };
+}
 
 const BASELINE_INSIGHTS: PublicInsightArticle[] = [
   {
@@ -251,8 +370,8 @@ function range(min: unknown, max: unknown, unit: string): string {
 }
 
 function price(row: D1VehicleModel): string {
-  const low = number(row.display_price_low);
-  const high = number(row.display_price_high);
+  const low = number(rowValue(row, "display_price_low", "guide_price_min_usd_auto"));
+  const high = number(rowValue(row, "display_price_high", "guide_price_max_usd_auto"));
   if (low === null && high === null) return "";
   const format = (value: number) => `$${Math.round(value).toLocaleString("en-US")}`;
   if (low !== null && high !== null && low !== high) return `${format(low)} - ${format(high)}`;
@@ -282,15 +401,17 @@ function objectArray(value: unknown): Record<string, unknown>[] {
 }
 
 function galleryImages(row: D1VehicleModel, slug: string): Array<{ src: string; cat: string; label: string }> {
-  const baseline = getVehicleGalleryImages(slug, row.image_url);
-  const parsed = parseJson(row.gallery_images_json);
+  const baseline = getVehicleGalleryImages(slug, rowValue(row, "image_url") as string | null);
+  const parsed = parseJson(rowValue(row, "gallery_images_json", "gallery_images_json_pruned"));
   const entries = Array.isArray(parsed) ? parsed : [];
   const extra = entries
     .map((entry, index) => {
-      const source = typeof entry === "string" ? entry : entry && typeof entry === "object" ? (entry as Record<string, unknown>).src : null;
-      const src = normalizeAssetUrl(typeof source === "string" ? source : null);
-      if (!src) return null;
       const fields = typeof entry === "object" && entry !== null ? entry as Record<string, unknown> : {};
+      const source = typeof entry === "string"
+        ? entry
+        : fields.src ?? fields.image ?? fields.url ?? fields.image_url;
+      const src = resolveVerifiedPublicImage(typeof source === "string" ? source : null);
+      if (!src) return null;
       return {
         src,
         cat: firstText(fields.cat, fields.category, "Exterior"),
@@ -315,38 +436,64 @@ function mapStatus(row: D1VehicleModel, fallback: PublicProductCard): Pick<Publi
   return { status: "tbc", statusText: raw };
 }
 
+function rowSlug(row: D1VehicleModel, fallback = ""): string {
+  const productPath = firstText(rowValue(row, "product_path"));
+  if (normalizeProductCategory(undefined, productPath)) {
+    return normalizeProductSlug(productPath);
+  }
+  return normalizeProductSlug(firstText(
+    rowValue(row, "model_id"),
+    rowValue(row, "model", "MODEL"),
+    fallback,
+  ));
+}
+
+function localProductLink(category: PublicProductCategory, slug: string): string {
+  return `/products/${category}/${slug}`;
+}
+
 function cardFromStatic(item: StaticProduct): PublicProductCard {
-  return { ...item, img: getVehicleModelImage(item.slug, item.img) };
+  const card = { ...item, img: getVehicleModelImage(item.slug, item.img) } as PublicProductCard;
+  return { ...card, filterData: filterDataFor(null, card) };
 }
 
 function mergeCard(baseline: PublicProductCard, row: D1VehicleModel): PublicProductCard {
-  const slug = normalizeProductSlug(firstText(row.product_path, row.model_id, baseline.slug));
+  const slug = rowSlug(row, baseline.slug);
   const status = mapStatus(row, baseline);
-  const category = normalizeProductCategory(row.segment, row.product_path) ?? baseline.category;
-  return {
+  const category = normalizeProductCategory(
+    text(rowValue(row, "segment")),
+    text(rowValue(row, "product_path")),
+  ) ?? baseline.category;
+  const card = {
     ...baseline,
     slug,
     category,
-    brand: firstText(row.brand, baseline.brand),
-    name: firstText(row.model, baseline.name),
+    brand: firstText(rowValue(row, "brand"), baseline.brand),
+    name: firstText(rowValue(row, "model", "MODEL"), baseline.name),
     fob: price(row) || baseline.fob,
-    battery: range(row.battery_capacity_min_kwh, row.battery_capacity_max_kwh, "kWh") || baseline.battery,
-    batteryType: firstText(row.battery_chemistry, row.battery_technology, baseline.batteryType),
-    range: range(row.cltc_range_min_km, row.cltc_range_max_km, "km") || baseline.range,
-    charging: firstText(row.charging, row.household_charging, baseline.charging),
-    img: getVehicleModelImage(slug, row.image_url),
+    battery: range(rowValue(row, "battery_capacity_min_kwh", "battery_capacity_min_kwh_auto"), rowValue(row, "battery_capacity_max_kwh", "battery_capacity_max_kwh_auto"), "kWh") || baseline.battery,
+    batteryType: firstText(rowValue(row, "battery_chemistry", "battery_chemistry_auto"), rowValue(row, "battery_technology"), baseline.batteryType),
+    range: range(rowValue(row, "cltc_range_min_km", "cltc_range_min_km_auto"), rowValue(row, "cltc_range_max_km", "cltc_range_max_km_auto"), "km") || baseline.range,
+    charging: firstText(rowValue(row, "charging", "household_charging"), baseline.charging),
+    img: getVehicleModelImage(slug, rowValue(row, "image_url") as string | null),
     ...status,
-    link: firstText(row.product_path, baseline.link),
-    tags: stringArray(row.common_features_json).length ? stringArray(row.common_features_json) : baseline.tags,
+    link: localProductLink(category, slug),
+    tags: stringArray(rowValue(row, "common_features_json", "common_features_json_pruned")).length
+      ? stringArray(rowValue(row, "common_features_json", "common_features_json_pruned"))
+      : baseline.tags,
   };
+  return { ...card, filterData: filterDataFor(row, card) };
 }
 
 function d1OnlyCard(row: D1VehicleModel, sortOrder: number): PublicProductCard | null {
-  const slug = normalizeProductSlug(firstText(row.product_path, row.model_id, row.model));
-  const brand = firstText(row.brand);
-  const name = firstText(row.model);
-  const category = normalizeProductCategory(row.segment, row.product_path);
-  if (!slug || !brand || !name || !category || !row.product_path) return null;
+  const slug = rowSlug(row);
+  const brand = firstText(rowValue(row, "brand"));
+  const name = firstText(rowValue(row, "model", "MODEL"));
+  const category = normalizeProductCategory(
+    text(rowValue(row, "segment")),
+    text(rowValue(row, "product_path")),
+  );
+  if (!slug || !brand || !name || !category) return null;
   const fallback: PublicProductCard = {
     slug,
     category,
@@ -357,26 +504,48 @@ function d1OnlyCard(row: D1VehicleModel, sortOrder: number): PublicProductCard |
     batteryType: "TBC",
     range: "TBC",
     charging: "Source-backed specifications pending",
-    img: getVehicleModelImage(slug, row.image_url),
+    img: getVehicleModelImage(slug, rowValue(row, "image_url") as string | null),
     status: "tbc",
     statusText: "TBC",
-    link: row.product_path,
+    link: localProductLink(category, slug),
     tags: [],
     sortOrder,
+    filterData: filterDataFor(null, {
+      slug,
+      category,
+      brand,
+      name,
+      fob: "TBC",
+      battery: "TBC",
+      batteryType: "TBC",
+      range: "TBC",
+      charging: "Source-backed specifications pending",
+      img: getVehicleModelImage(slug, rowValue(row, "image_url") as string | null),
+      status: "tbc",
+      statusText: "TBC",
+      link: localProductLink(category, slug),
+      tags: [],
+      sortOrder,
+    }),
   };
   return mergeCard(fallback, row);
 }
 
-export async function listPublicProducts(db: D1Database): Promise<PublicProductCard[]> {
-  const rows = await queryVehicleModels(db);
+/**
+ * API handlers pass either the production D1 binding or the persisted local
+ * Miniflare D1 binding. The nullable type keeps the static baseline useful
+ * for repository-level tests without making it a request-time data source.
+ */
+export async function listPublicProducts(db: D1Database | null): Promise<PublicProductCard[]> {
+  const rows = db ? await queryVehicleModels(db) : [];
   const cards = staticProducts.map((item) => {
     const baseline = cardFromStatic(item);
-    const row = rows.find((candidate) => normalizeProductSlug(candidate.product_path ?? candidate.model_id ?? candidate.model) === baseline.slug);
+    const row = rows.find((candidate) => rowSlug(candidate) === baseline.slug);
     return row ? mergeCard(baseline, row) : baseline;
   });
   const existing = new Set(cards.map((card) => card.slug));
   for (const row of rows) {
-    const slug = normalizeProductSlug(row.product_path ?? row.model_id ?? row.model);
+    const slug = rowSlug(row);
     if (slug && !existing.has(slug)) {
       const card = d1OnlyCard(row, cards.length);
       if (card) {
@@ -389,7 +558,7 @@ export async function listPublicProducts(db: D1Database): Promise<PublicProductC
 }
 
 function featureItems(row: D1VehicleModel, card: PublicProductCard): Array<{ icon: string; title: string; desc: string }> {
-  const parsed = objectArray(row.common_features_json);
+  const parsed = objectArray(rowValue(row, "common_features_json", "common_features_json_pruned"));
   const features = parsed
     .map((item, index) => ({
       icon: firstText(item.icon, String(index + 1).padStart(2, "0")),
@@ -405,48 +574,176 @@ function featureItems(row: D1VehicleModel, card: PublicProductCard): Array<{ ico
   ];
 }
 
+function fitItems(card: PublicProductCard): Array<{ icon: string; title: string; desc: string; accent: string }> {
+  const labels = card.tags.slice(0, 2);
+  if (!labels.length && card.charging) labels.push(card.charging);
+  return labels.map((label, index) => ({
+    icon: String(index + 1).padStart(2, "0"),
+    title: label,
+    desc: card.charging,
+    accent: label,
+  }));
+}
+
+function formatDimensions(row: D1VehicleModel): string {
+  const values = [
+    rowValue(row, "length_mm"),
+    rowValue(row, "width_mm"),
+    rowValue(row, "height_mm"),
+  ].map(number);
+  return values.every((value) => value !== null)
+    ? `${values[0]} × ${values[1]} × ${values[2]} mm`
+    : "";
+}
+
+function formatSeats(row: D1VehicleModel): string {
+  return range(rowValue(row, "seats_min"), rowValue(row, "seats_max"), "seats");
+}
+
+function formatWarranty(row: D1VehicleModel): string {
+  const years = number(rowValue(row, "battery_warranty_years"));
+  const distance = number(rowValue(row, "battery_warranty_distance_km"));
+  if (years === null && distance === null) return "";
+  if (years !== null && distance !== null) return `${years} years / ${distance} km`;
+  if (years !== null) return `${years} years`;
+  return `${distance} km`;
+}
+
 function specs(row: D1VehicleModel, card: PublicProductCard): Array<{ label: string; value: string; green?: boolean; gold?: boolean }> {
+  const zeroTo100 = rowValue(row, "zero_to_100_sec", "0_100_km_h_sec");
+  const voltage = rowValue(row, "voltage_platform_v");
+  const wheelbase = rowValue(row, "wheelbase_mm");
+  const groundClearance = rowValue(row, "ground_clearance_mm");
+  const bootVolume = rowValue(row, "boot_volume_l");
   return [
     { label: "Battery", value: card.battery, green: true },
     { label: "Battery Type", value: card.batteryType },
     { label: "Range", value: card.range, gold: true },
-    { label: "Drivetrain", value: firstText(row.drivetrain_display) },
-    { label: "Motor Power", value: range(row.motor_power_min_kw, row.motor_power_max_kw, "kW") },
-    { label: "Top Speed", value: range(row.top_speed_min_kmh, row.top_speed_max_kmh, "km/h") },
+    { label: "Powertrain", value: firstText(rowValue(row, "powertrain_type")) },
+    { label: "Drivetrain", value: firstText(rowValue(row, "drivetrain_display", "drivetrain_display_auto")) },
+    {
+      label: "Motor Power",
+      value: range(
+        rowValue(row, "motor_power_min_kw", "motor_power_min_kw_auto"),
+        rowValue(row, "motor_power_max_kw", "motor_power_max_kw_auto"),
+        "kW",
+      ),
+    },
+    {
+      label: "Top Speed",
+      value: range(
+        rowValue(row, "top_speed_min_kmh", "top_speed_min_kmh_auto"),
+        rowValue(row, "top_speed_max_kmh", "top_speed_max_kmh_auto"),
+        "km/h",
+      ),
+    },
+    { label: "0-100 km/h", value: zeroTo100 !== null && zeroTo100 !== undefined ? `${number(zeroTo100)} s` : "" },
+    { label: "Voltage Platform", value: voltage !== null && voltage !== undefined ? `${number(voltage)}V` : "" },
+    { label: "Dimensions", value: formatDimensions(row) },
+    { label: "Seating", value: formatSeats(row) },
+    { label: "Wheelbase", value: wheelbase !== null && wheelbase !== undefined ? `${number(wheelbase)} mm` : "" },
+    { label: "Ground Clearance", value: groundClearance !== null && groundClearance !== undefined ? `${number(groundClearance)} mm` : "" },
+    { label: "Boot Volume", value: bootVolume !== null && bootVolume !== undefined ? `${number(bootVolume)} L` : "" },
+    { label: "Charging", value: firstText(rowValue(row, "charging", "household_charging")) },
+    {
+      label: "V2L",
+      value: [
+        firstText(rowValue(row, "v2l_availability")),
+        rowValue(row, "v2l_output_power_kw") != null ? `${number(rowValue(row, "v2l_output_power_kw"))} kW` : "",
+      ].filter(Boolean).join(" · "),
+    },
+    { label: "Battery Warranty", value: formatWarranty(row) },
   ].filter((item) => item.value);
 }
 
-function trimComparison(trims: D1VehicleTrim[]): Record<string, unknown> {
+function booleanValue(value: unknown): boolean {
+  if (typeof value === "boolean") return value;
+  if (typeof value === "number") return value !== 0;
+  return /^(?:1|true|yes|recommended)$/i.test(text(value));
+}
+
+function trimPrice(trim: D1VehicleTrim): string {
+  return price({
+    display_price_low: trim.display_price_low,
+    display_price_high: trim.display_price_high,
+  } as D1VehicleModel);
+}
+
+function trimBatteryDisplay(trim: D1VehicleTrim): string {
+  const capacity = number(trim.battery_capacity_kwh);
+  const chemistry = firstText(trim.battery_chemistry);
+  if (capacity !== null && chemistry) return `${capacity} kWh ${chemistry} battery`;
+  if (capacity !== null) return `${capacity} kWh battery`;
+  return chemistry ? `${chemistry} battery` : "";
+}
+
+function trimMotorDisplay(trim: D1VehicleTrim): string {
+  const power = number(trim.motor_power_kw);
+  const torque = number(trim.motor_torque_n_m);
+  if (power !== null && torque !== null) return `${power} kW / ${torque} N-m`;
+  if (power !== null) return `${power} kW`;
+  if (torque !== null) return `${torque} N-m`;
+  return "";
+}
+
+function trimChargingDisplay(trim: D1VehicleTrim): string {
+  if (!booleanValue(trim.dc_fast_charge_supported)) return "";
+  const time = number(trim.dc_fast_charge_time_hours);
+  const min = number(trim.dc_fast_charge_min_percent);
+  const max = number(trim.dc_fast_charge_max_percent);
+  const window = min !== null && max !== null ? `${min}-${max}%` : "DC fast charge";
+  return time !== null ? `${window} in ${time} h` : window;
+}
+
+function trimComparison(row: D1VehicleModel | null, trims: D1VehicleTrim[]): Record<string, unknown> {
+  const commonFeatures = row
+    ? objectArray(rowValue(row, "common_features_json", "common_features_json_pruned"))
+      .map((item) => ({
+        category: firstText(item.category, item.title, "Shared Features"),
+        items: stringArray(item.items),
+      }))
+      .filter((group) => group.items.length > 0)
+    : [];
   return {
     status: trims.length ? "Verified" : "TBC",
     trims: trims.map((trim) => ({
       trimConfigId: firstText(trim.trim_config_id, trim.id),
       name: firstText(trim.trim_name, "Standard"),
+      order: number(trim.trim_order) ?? undefined,
+      priceDisplay: trimPrice(trim),
       rangeKm: number(trim.cltc_range_km) ?? undefined,
       rangeDisplay: range(trim.cltc_range_km, trim.cltc_range_km, "km"),
       batteryCapacityKwh: number(trim.battery_capacity_kwh) ?? undefined,
       batteryChemistry: firstText(trim.battery_chemistry),
+      batteryDisplay: trimBatteryDisplay(trim),
       motorPowerKw: number(trim.motor_power_kw) ?? undefined,
       motorTorqueNm: number(trim.motor_torque_n_m) ?? undefined,
+      motorDisplay: trimMotorDisplay(trim),
       drivetrainDisplay: firstText(trim.drivetrain_display),
+      dcFastChargeSupported: booleanValue(trim.dc_fast_charge_supported),
+      dcFastChargeTimeHours: number(trim.dc_fast_charge_time_hours) ?? undefined,
+      dcFastChargeMinPercent: number(trim.dc_fast_charge_min_percent) ?? undefined,
+      dcFastChargeMaxPercent: number(trim.dc_fast_charge_max_percent) ?? undefined,
+      chargingDisplay: trimChargingDisplay(trim),
       baseFeatures: stringArray(trim.base_spec_summary_json),
       addedFeatures: stringArray(trim.added_features_json),
       upgradedFeatures: stringArray(trim.upgraded_features_json),
-      recommended: Boolean(trim.recommended),
+      recommended: booleanValue(trim.recommended),
+      sourceStatus: firstText(trim.status, "TBC"),
     })),
-    commonFeatures: [],
-    sourceSummary: "",
-    lastVerifiedAt: "",
+    commonFeatures,
+    sourceSummary: firstText(row?.why_section_description),
+    lastVerifiedAt: firstText(row?.synced_at),
   };
 }
 
-export async function getPublicProduct(db: D1Database, slug: string): Promise<PublicProductDetail | null> {
+export async function getPublicProduct(db: D1Database | null, slug: string): Promise<PublicProductDetail | null> {
   const normalizedSlug = normalizeProductSlug(slug);
   const products = await listPublicProducts(db);
   const vehicle = products.find((item) => item.slug === normalizedSlug);
   if (!vehicle) return null;
-  const rows = await queryVehicleModels(db);
-  const row = rows.find((candidate) => normalizeProductSlug(candidate.product_path ?? candidate.model_id ?? candidate.model) === normalizedSlug);
+  const rows = db ? await queryVehicleModels(db) : [];
+  const row = rows.find((candidate) => rowSlug(candidate) === normalizedSlug);
   if (!row) {
     return {
       modelId: normalizedSlug,
@@ -467,11 +764,11 @@ export async function getPublicProduct(db: D1Database, slug: string): Promise<Pu
       features: featureItems({} as D1VehicleModel, vehicle),
       specsLeft: [{ label: "Battery", value: vehicle.battery, green: true }, { label: "Battery Type", value: vehicle.batteryType }],
       specsRight: [{ label: "Range", value: vehicle.range, gold: true }, { label: "FOB", value: vehicle.fob }],
-      fits: [],
+      fits: fitItems(vehicle),
       relatedModels: products.filter((item) => item.slug !== vehicle.slug).slice(0, 3).map((item) => ({ name: `${item.brand} ${item.name}`, href: item.link })),
       tags: vehicle.tags,
       galleryImages: galleryImages({} as D1VehicleModel, vehicle.slug),
-      trimComparison: trimComparison([]),
+      trimComparison: trimComparison(null, []),
     };
   }
   const trims = await queryVehicleTrims(db, firstText(row.model_id, row.id));
@@ -499,14 +796,11 @@ export async function getPublicProduct(db: D1Database, slug: string): Promise<Pu
     features: featureItems(row, vehicle),
     specsLeft: modelSpecs.slice(0, Math.ceil(modelSpecs.length / 2)),
     specsRight: modelSpecs.slice(Math.ceil(modelSpecs.length / 2)),
-    fits: [
-      { icon: "01", title: "Fleet Operations", desc: "Built for practical operating economics.", accent: "green" },
-      { icon: "02", title: "African Conditions", desc: "Source-backed specifications for local decisions.", accent: "gold" },
-    ],
+    fits: fitItems(vehicle),
     relatedModels: products.filter((item) => item.slug !== vehicle.slug && item.category === vehicle.category).slice(0, 3).map((item) => ({ name: `${item.brand} ${item.name}`, href: item.link })),
     tags: vehicle.tags,
     galleryImages: galleryImages(row, normalizedSlug),
-    trimComparison: trimComparison(trims),
+    trimComparison: trimComparison(row, trims),
   };
 }
 
@@ -527,8 +821,10 @@ function insightSummary(row: RawInsight, baseline?: PublicInsightArticle): Publi
   };
 }
 
-export async function listPublicInsights(db: D1Database): Promise<PublicInsightSummary[]> {
-  const rows = (await queryRows<RawInsight>(db, "SELECT slug, title, category, date, read_time as readTime, cover_image as coverImage, overview, sort_order as sortOrder, status FROM articles WHERE status = 'Published'"))
+export async function listPublicInsights(db: D1Database | null): Promise<PublicInsightSummary[]> {
+  const rows = (db
+    ? await queryRows<RawInsight>(db, "SELECT slug, title, category, date, read_time as readTime, cover_image as coverImage, overview, sort_order as sortOrder, status FROM articles WHERE status = 'Published'")
+    : [])
     .filter((row) => {
       const status = firstText(row.status).toLowerCase();
       return !status || status === "published";
@@ -546,14 +842,16 @@ export async function listPublicInsights(db: D1Database): Promise<PublicInsightS
   return result.sort((a, b) => a.sortOrder - b.sortOrder);
 }
 
-export async function getPublicInsight(db: D1Database, slug: string): Promise<PublicInsightArticle | null> {
+export async function getPublicInsight(db: D1Database | null, slug: string): Promise<PublicInsightArticle | null> {
   const normalizedSlug = normalizeProductSlug(slug);
-  const rows = (await queryRows<RawInsight>(db, "SELECT slug, title, category, date, read_time as readTime, cover_image as coverImage, overview, content, status FROM articles WHERE slug = ? AND status = 'Published'", [slug]))
+  const rows = (db
+    ? await queryRows<RawInsight>(db, "SELECT slug, title, category, date, read_time as readTime, cover_image as coverImage, overview, content, status FROM articles WHERE status = 'Published'")
+    : [])
     .filter((item) => {
       const status = firstText(item.status).toLowerCase();
       return !status || status === "published";
     });
-  const row = rows.find((item) => firstText(item.slug) === slug || normalizeProductSlug(firstText(item.slug)) === normalizedSlug);
+  const row = rows.find((item) => normalizeProductSlug(firstText(item.slug)) === normalizedSlug);
   const baseline = BASELINE_INSIGHTS.find((item) => item.slug === normalizedSlug);
   if (!row && !baseline) return null;
   const summary = insightSummary(row ?? {}, baseline);
@@ -585,11 +883,13 @@ function academyLesson(row: RawAcademyLesson, category: AcademyLessonCategory, b
   };
 }
 
-export async function listPublicAcademy(db: D1Database): Promise<PublicAcademyPayload> {
-  const [lessonRows, vaultRows] = await Promise.all([
-    queryRows<RawAcademyLesson>(db, "SELECT title, tag, slug, description as desc, category, content FROM academy_lessons"),
-    queryRows<RawVaultItem>(db, "SELECT id as translationId, title, type, description as desc, file_size as size, download_url as downloadLink, category FROM academy_vault"),
-  ]);
+export async function listPublicAcademy(db: D1Database | null): Promise<PublicAcademyPayload> {
+  const [lessonRows, vaultRows] = db
+    ? await Promise.all([
+      queryRows<RawAcademyLesson>(db, "SELECT title, tag, slug, description as desc, category, content FROM academy_lessons"),
+      queryRows<RawVaultItem>(db, "SELECT id as translationId, title, type, description as desc, file_size as size, download_url as downloadLink, category FROM academy_vault"),
+    ])
+    : [[], []] as [RawAcademyLesson[], RawVaultItem[]];
   const lessons: PublicAcademyPayload["lessons"] = {
     fundamentals: [...BASELINE_ACADEMY.lessons.fundamentals],
     playbook: [...BASELINE_ACADEMY.lessons.playbook],
@@ -625,11 +925,14 @@ export async function listPublicAcademy(db: D1Database): Promise<PublicAcademyPa
   return { lessons, vault };
 }
 
-export async function getPublicAcademyLesson(db: D1Database, category: string, slug: string): Promise<PublicAcademyLesson | null> {
+export async function getPublicAcademyLesson(db: D1Database | null, category: string, slug: string): Promise<PublicAcademyLesson | null> {
   const normalizedCategory = normalizeAcademyCategory(category);
   if (!normalizedCategory) return null;
   const academy = await listPublicAcademy(db);
-  return academy.lessons[normalizedCategory].find((lesson) => lesson.slug === slug) ?? null;
+  const normalizedSlug = normalizeProductSlug(slug);
+  return academy.lessons[normalizedCategory].find(
+    (lesson) => normalizeProductSlug(lesson.slug) === normalizedSlug,
+  ) ?? null;
 }
 
 async function queryRows<T>(db: D1Database, sql: string, values: unknown[] = []): Promise<T[]> {

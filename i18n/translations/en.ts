@@ -801,6 +801,7 @@ const en = {
     "cancel": "Cancel",
     "send": "Send",
     "loading": "Loading...",
+    "unavailable": "Vehicle data is temporarily unavailable. Please refresh and try again.",
     "readMore": "Read More",
     "viewDetails": "View Details",
     "contactSales": "Contact Sales",
@@ -1206,6 +1207,9 @@ const en = {
       "specialRequirements": "Special Requirements",
       "specialRequirementsPlaceholder": "e.g. Need RHD brake pads, specific tire brands...",
       "submitButton": "Submit Kit Configuration →",
+      "submitting": "Submitting...",
+      "submissionSuccess": "Kit configuration submitted. Our team will contact you within 24 hours.",
+      "submissionError": "We couldn't submit your request. Please try again.",
       "submitNote": "You'll receive a detailed quotation within 24 hours."
     },
     "cta": {
@@ -1356,6 +1360,9 @@ const en = {
       "additionalRequirements": "Additional Requirements",
       "additionalRequirementsPlaceholder": "e.g. Need paint booth, specific brand preference, timeline constraints...",
       "submitButton": "Request Setup Quote →",
+      "submitting": "Submitting...",
+      "submissionSuccess": "Quote request submitted. Our team will contact you within 48 hours.",
+      "submissionError": "We couldn't submit your request. Please try again.",
       "submitNote": "You'll receive a detailed equipment list and CIF quotation within 48 hours."
     },
     "cta": {
@@ -1978,7 +1985,10 @@ const en = {
     "heading": "EV",
     "headingAccent": "Fundamentals",
     "description": "Master the core technology: LFP vs NMC batteries, motor types, charging standards, and how African conditions affect EV performance.",
-    "tag": "EV Fundamentals"
+    "tag": "EV Fundamentals",
+    "loading": "Loading lessons...",
+    "loadError": "Academy lessons are temporarily unavailable. Please try again.",
+    "empty": "No lessons are currently available."
   },
   "academyDealerPlaybook": {
     "breadcrumb": {
@@ -1989,7 +1999,10 @@ const en = {
     "heading": "Dealer",
     "headingAccent": "Playbook",
     "description": "Practical sales techniques, objection handling, and conversation frameworks to help dealers close more EV deals.",
-    "tag": "Dealer Playbook"
+    "tag": "Dealer Playbook",
+    "loading": "Loading lessons...",
+    "loadError": "Academy lessons are temporarily unavailable. Please try again.",
+    "empty": "No lessons are currently available."
   },
   "academyTechnicalWorkshop": {
     "breadcrumb": {
@@ -2001,11 +2014,16 @@ const en = {
     "headingAccent": "Workshop",
     "description": "Operational guides for EV technicians — safety, diagnostics, charging, and common faults under African operating conditions.",
     "tag": "Technical Workshop",
-    "date": "2026-05-16"
+    "date": "2026-05-16",
+    "loading": "Loading lessons...",
+    "loadError": "Academy lessons are temporarily unavailable. Please try again.",
+    "empty": "No lessons are currently available."
   },
   "academyDetail": {
     "lessonNotFound": "Lesson not found",
     "lessonNotFoundDesc": "The requested academy lesson could not be loaded. It may have been moved or unpublished.",
+    "loadError": "Unable to load this lesson",
+    "loadErrorDesc": "The academy service is temporarily unavailable. Please try again.",
     "returnToAcademy": "Return to Academy",
     "loadingLesson": "Loading lesson...",
     "breadcrumb": {
@@ -2024,6 +2042,7 @@ const en = {
       "moreCurriculums": "More Sales Curriculum",
       "moreWorkshops": "More Technical Workshops",
       "moreDefault": "More {category}",
+      "siblingsUnavailable": "More lessons are temporarily unavailable.",
       "speakToExpert": "Speak to an Expert",
       "needParts": "Need Parts?",
       "availableNow": "Online",
@@ -2060,6 +2079,7 @@ const en = {
       "subscribeButton": "Subscribe Now"
     },
     "emptyFeed": "No more articles to display. All results shown above.",
+    "empty": "No insights are currently available.",
     "noMatchFilter": "No articles match the current filter.",
     "prev": "Previous",
     "next": "Next",
@@ -2249,6 +2269,8 @@ const en = {
   "insightsDetail": {
     "articleNotFound": "Article not found",
     "articleNotFoundDesc": "The requested insight article could not be loaded.",
+    "loadError": "Unable to load this insight",
+    "loadErrorDesc": "The insights service is temporarily unavailable. Please try again.",
     "backToInsights": "Back to Insights",
     "loading": "Loading article...",
     "breadcrumb": {

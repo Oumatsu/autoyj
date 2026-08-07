@@ -9,23 +9,29 @@
   ],
   "project": [
     "app/**/*.{ts,tsx}",
+    "app/**/*.css",
     "components/**/*.{ts,tsx}",
+    "i18n/**/*.{ts,tsx}",
     "lib/**/*.{ts,tsx}",
-    "worker/**/*.{ts,tsx}",
+    "server/**/*.{ts,tsx}",
     "views/**/*.{ts,tsx}"
   ],
   "ignoreDependencies": [
-    "tailwindcss",
     "@testing-library/jest-dom",
     "@testing-library/react",
     "eslint-config-next"
   ],
+  "ignoreBinaries": ["mise"],
   "ignoreExportsUsedInFile": true,
   "ignoreIssues": {
     "components/ui/**": ["exports", "types"],
     "lib/auth.ts": ["exports", "types"],
     "lib/users.ts": ["exports", "types"],
+    "i18n/data/specsData.ts": ["exports"],
+    "i18n/translations/index.ts": ["types"],
+    "i18n/useTranslation.ts": ["exports", "types"],
+    "server/db/d1.ts": ["exports", "types"],
     "views/products/catalogFilters.ts": ["types"],
-    "worker/productFilters.ts": ["types"]
+    "server/api/productFilters.ts": ["types"]
   }
 }

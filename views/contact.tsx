@@ -5,14 +5,14 @@ import { LocaleLink } from "@/i18n/LocaleLink";
 import { FormEvent, useState } from "react";
 
 export default function ContactPage() {
-  const { t } = useTranslation();
+  const { t, tArray } = useTranslation();
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const marketOptions = (t("contact.form.marketOptions") as string[]) || [];
-  const volumeOptions = (t("contact.form.volumeOptions") as string[]) || [];
-  const interestOptions = (t("contact.form.interestOptions") as string[]) || [];
+  const marketOptions = tArray("contact.form.marketOptions").map(String);
+  const volumeOptions = tArray("contact.form.volumeOptions").map(String);
+  const interestOptions = tArray("contact.form.interestOptions").map(String);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -21,12 +21,22 @@ export default function ContactPage() {
     setError("");
 
     const formData = new FormData(e.currentTarget);
+    const value = (key: string) => String(formData.get(key) ?? "").trim();
+    const requirements = value("message");
+    const structuredDetails = [
+      `Target market: ${value("targetMarket")}`,
+      `Estimated monthly volume: ${value("monthlyVolume")}`,
+      `Primary interest: ${value("primaryInterest")}`,
+    ].join("\n");
     const body = {
-      name: formData.get("name"),
-      company: formData.get("company"),
-      email: formData.get("email"),
-      phone: formData.get("phone"),
-      message: formData.get("message"),
+      name: value("name"),
+      company: value("company"),
+      email: value("email"),
+      phone: value("phone"),
+      targetMarket: value("targetMarket"),
+      monthlyVolume: value("monthlyVolume"),
+      primaryInterest: value("primaryInterest"),
+      message: [requirements, structuredDetails].filter(Boolean).join("\n\n"),
     };
 
     try {
@@ -36,14 +46,11 @@ export default function ContactPage() {
         body: JSON.stringify(body),
       });
 
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || "Failed to submit enquiry");
-      }
+      if (!res.ok) throw new Error("contact submission failed");
 
       setSubmitted(true);
-    } catch (err: any) {
-      setError(err.message || "Something went wrong. Please try again.");
+    } catch {
+      setError(String(t("contact.form.error", "Unable to submit your request. Please try again.")));
     } finally {
       setLoading(false);
     }
@@ -206,7 +213,7 @@ export default function ContactPage() {
                       required
                       name="name"
                       className="form-input w-full"
-                      placeholder="John Doe"
+                      placeholder={t("contact.form.namePlaceholder", "John Doe") as string}
                     />
                   </div>
                   <div>
@@ -218,7 +225,7 @@ export default function ContactPage() {
                       required
                       name="company"
                       className="form-input w-full"
-                      placeholder="Autos Africa Ltd."
+                      placeholder={t("contact.form.companyPlaceholder", "Autos Africa Ltd.") as string}
                     />
                   </div>
                 </div>
@@ -230,9 +237,10 @@ export default function ContactPage() {
                     </label>
                     <input
                       type="tel"
+                      required
                       name="phone"
                       className="form-input w-full"
-                      placeholder="+254 700 000 000"
+                      placeholder={t("contact.form.phonePlaceholder", "+254 700 000 000") as string}
                     />
                   </div>
                   <div>
@@ -244,7 +252,7 @@ export default function ContactPage() {
                       required
                       name="email"
                       className="form-input w-full"
-                      placeholder="john@company.com"
+                      placeholder={t("contact.form.emailPlaceholder", "john@company.com") as string}
                     />
                   </div>
                 </div>
@@ -256,7 +264,7 @@ export default function ContactPage() {
                     <label className="block text-[10px] font-black uppercase tracking-widest text-gold mb-2 ml-1">
                       {t("contact.form.targetMarket")}
                     </label>
-                    <select required className="form-input w-full">
+                    <select required name="targetMarket" className="form-input w-full">
                       <option value="" disabled defaultValue="">
                         {t("contact.form.marketPlaceholder")}
                       </option>
@@ -269,9 +277,9 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <label className="block text-[10px] font-black uppercase tracking-widest text-gold mb-2 ml-1">
-                      {t("contact.form.estimatedMonthlyVolume")}
+                      {t("contact.form.monthlyVolume")}
                     </label>
-                    <select required className="form-input w-full">
+                    <select required name="monthlyVolume" className="form-input w-full">
                       <option value="" disabled defaultValue="">
                         {t("contact.form.volumePlaceholder")}
                       </option>
@@ -287,7 +295,7 @@ export default function ContactPage() {
                   <label className="block text-[10px] font-black uppercase tracking-widest text-gold mb-2 ml-1">
                     {t("contact.form.primaryInterest")}
                   </label>
-                  <select required className="form-input w-full">
+                  <select required name="primaryInterest" className="form-input w-full">
                     <option value="" disabled defaultValue="">
                       {t("contact.form.interestPlaceholder")}
                     </option>
@@ -315,6 +323,7 @@ export default function ContactPage() {
                   <button
                     type="submit"
                     disabled={loading}
+                    aria-busy={loading}
                     className="w-full btn-primary py-5 rounded-xl text-sm font-black tracking-widest uppercase italic"
                     style={{
                       boxShadow: "0 0 40px -10px rgba(197,160,89,0.5)",

@@ -58,6 +58,7 @@ export default function InsightsPage() {
   const { t } = useTranslation();
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [filterCat, setFilterCat] = useState<Category | null>(null);
   const [sortBy, setSortBy] = useState<SortMode>("recommended");
   const [page, setPage] = useState(0);
@@ -67,19 +68,25 @@ export default function InsightsPage() {
   }, []);
 
   useEffect(() => {
+    let isMounted = true;
     fetch("/api/portal/public/insights")
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch insights");
         return res.json().then(sanitizeDisplayData);
       })
       .then((data: any) => {
-        setArticles(data || []);
-        setLoading(false);
+        if (!Array.isArray(data)) throw new Error("Invalid insights response");
+        if (isMounted) setArticles(data);
       })
-      .catch((err) => {
-        console.error(err);
-        setLoading(false);
+      .catch(() => {
+        if (isMounted) setError(true);
+      })
+      .finally(() => {
+        if (isMounted) setLoading(false);
       });
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   useEffect(() => {
@@ -147,6 +154,17 @@ export default function InsightsPage() {
         <div className="container mx-auto px-4 sm:px-6 md:px-12">
           {loading ? (
             <Loading text={t("insights.loading")} />
+          ) : error ? (
+            <p role="alert" className="py-20 text-center text-gray-400">
+              {t(
+                "insights.loadError",
+                "Insights are temporarily unavailable. Please try again.",
+              )}
+            </p>
+          ) : articles.length === 0 ? (
+            <p role="status" className="py-20 text-center text-gray-400">
+              {t("insights.empty", "No insights are currently available.")}
+            </p>
           ) : (
             <>
               {heroArticle && (

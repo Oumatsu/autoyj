@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { readFile } from "node:fs/promises";
 import am from "../../i18n/translations/am";
 import zh from "../../i18n/translations/zh";
-import { translateAutomotivePhrase } from "../../scripts/product-detail-i18n-data.mjs";
+import { translateAutomotivePhrase } from "../../scripts/i18n/product-detail-data.mjs";
 
 const requiredSpecLabels: Record<string, [string, string]> = {
   "Guide Price": ["参考价格", "መመሪያ ዋጋ"],

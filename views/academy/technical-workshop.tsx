@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Loading from "@/components/Loading";
 import { useTranslation } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
 import { sanitizeDisplayData } from "@/lib/display-text";
@@ -8,15 +9,7 @@ import {
   getAcademyLessonDate,
   translateAcademyLesson,
 } from "@/views/academy/academyTranslations";
-
-const IMGS = [
-  "/pic/academy/photo-1581092160562-40aa08e78837.webp",
-  "/pic/academy/photo-1486312338219-ce68d2c6f44d.webp",
-  "/pic/academy/0.webp",
-  "/pic/academy/photo-1473341304170-971dccb5ac1e.webp",
-  "/pic/academy/photo-1504328345606-18bbc8c9d7d1.webp",
-  "/pic/academy/photo-1581092160562-40aa08e78837.webp",
-];
+import { resolveLessonImage } from "@/lib/static-assets";
 
 const getReadTime = (slug: string) => {
   if (slug.includes("safety")) return "10 min";
@@ -31,25 +24,35 @@ const getReadTime = (slug: string) => {
 export default function TechnicalWorkshopPage() {
   const { t } = useTranslation();
   const [articles, setArticles] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const localizedArticles = articles.map((article) =>
     translateAcademyLesson(
-      { ...article, date: getAcademyLessonDate(article.slug) },
+      { ...article, date: article.date || getAcademyLessonDate(article.slug) },
       t,
     ),
   );
 
   useEffect(() => {
+    let isMounted = true;
     fetch("/api/portal/public/academy")
       .then((res) => {
         if (!res.ok) throw new Error();
         return res.json().then(sanitizeDisplayData);
       })
       .then((data: any) => {
-        if (data?.lessons?.workshop) {
-          setArticles(data.lessons.workshop);
-        }
+        if (!Array.isArray(data?.lessons?.workshop)) throw new Error();
+        if (isMounted) setArticles(data.lessons.workshop);
       })
-      .catch((err) => console.error("Failed to fetch Technical Workshop:", err));
+      .catch(() => {
+        if (isMounted) setError(true);
+      })
+      .finally(() => {
+        if (isMounted) setLoading(false);
+      });
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   return (
@@ -81,9 +84,28 @@ export default function TechnicalWorkshopPage() {
       <main className="py-16 bg-bg min-h-screen">
         <div className="container mx-auto px-6 md:px-12">
           <div className="max-w-3xl mx-auto space-y-6">
-            {localizedArticles.map((a, i) => (
+            {loading ? (
+              <Loading
+                fullscreen={false}
+                text={t("academyTechnicalWorkshop.loading", "Loading lessons...")}
+              />
+            ) : error ? (
+              <p role="alert" className="py-12 text-center text-gray-400">
+                {t(
+                  "academyTechnicalWorkshop.loadError",
+                  "Academy lessons are temporarily unavailable. Please try again.",
+                )}
+              </p>
+            ) : localizedArticles.length === 0 ? (
+              <p role="status" className="py-12 text-center text-gray-400">
+                {t(
+                  "academyTechnicalWorkshop.empty",
+                  "No lessons are currently available.",
+                )}
+              </p>
+            ) : localizedArticles.map((a, i) => (
               <LocaleLink key={a.slug} href={`/academy/technical-workshop/${a.slug}`} className="glass rounded-[1.5rem] p-8 block hover:border-accent/30 transition-all duration-300 group relative overflow-hidden">
-                <img src={a.img || IMGS[i % IMGS.length]} className="absolute inset-0 w-full h-full object-cover z-0 transition-transform duration-500 group-hover:scale-105" style={{ filter: "brightness(0.35)" }} alt="" />
+                <img src={resolveLessonImage("workshop", a.slug, a.img)} className="absolute inset-0 w-full h-full object-cover z-0 transition-transform duration-500 group-hover:scale-105" style={{ filter: "brightness(0.35)" }} alt="" />
                 <div className="absolute inset-0 bg-gradient-to-t from-bg via-bg/60 to-transparent z-[1]" />
                 <div className="relative z-10">
                   <div className="flex items-center gap-3 mb-3">

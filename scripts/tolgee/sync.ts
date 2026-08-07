@@ -1,8 +1,8 @@
 import fs from "node:fs";
 import path from "node:path";
-import zh from "../i18n/translations/zh";
-import en from "../i18n/translations/en";
-import am from "../i18n/translations/am";
+import zh from "../../i18n/translations/zh";
+import en from "../../i18n/translations/en";
+import am from "../../i18n/translations/am";
 
 // Load .dev.vars if process.env values are missing
 if (!process.env.TOLGEE_API_KEY && fs.existsSync(".dev.vars")) {

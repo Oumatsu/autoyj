@@ -10,6 +10,7 @@ import {
   getAcademyLessonDate,
   translateAcademyLesson,
 } from "@/views/academy/academyTranslations";
+import { resolveLessonImage } from "@/lib/static-assets";
 
 interface Lesson {
   title: string;
@@ -18,6 +19,7 @@ interface Lesson {
   desc: string;
   img: string;
   content: string;
+  date?: string;
 }
 
 interface SiblingLesson {
@@ -28,6 +30,8 @@ interface SiblingLesson {
   img: string;
 }
 
+type LessonError = "not-found" | "load" | null;
+
 export default function DynamicLessonPage({ params }: any) {
   const { t } = useTranslation();
   const resolvedParams: any = params && typeof params.then === "function" ? use(params) : params;
@@ -36,32 +40,49 @@ export default function DynamicLessonPage({ params }: any) {
   const [lesson, setLesson] = useState<Lesson | null>(null);
   const [siblings, setSiblings] = useState<SiblingLesson[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
-
-  const [prevKey, setPrevKey] = useState(`${category}/${slug}`);
-  const currentKey = `${category}/${slug}`;
-  if (prevKey !== currentKey) {
-    setPrevKey(currentKey);
-    setLoading(true);
-    setError(false);
-  }
+  const [error, setError] = useState<LessonError>(null);
+  const [siblingError, setSiblingError] = useState(false);
 
   useEffect(() => {
-    if (!category || !slug) return;
+    /* eslint-disable react-hooks/set-state-in-effect */
+    setLesson(null);
+    setSiblings([]);
+    setLoading(true);
+    setError(null);
+    setSiblingError(false);
+    /* eslint-enable react-hooks/set-state-in-effect */
+    if (!category || !slug) {
+      setError("not-found");
+      setLoading(false);
+      return;
+    }
     let isMounted = true;
 
     // Fetch the specific lesson
-    fetch(`/api/portal/public/academy/${category}/${slug}`)
+    fetch(
+      `/api/portal/public/academy/${encodeURIComponent(category)}/${encodeURIComponent(slug)}`,
+    )
       .then((res) => {
-        if (!res.ok) throw new Error("Lesson not found");
+        if (!res.ok) {
+          const fetchError = new Error();
+          fetchError.name = res.status === 404 ? "NotFound" : "LoadError";
+          throw fetchError;
+        }
         return res.json().then(sanitizeDisplayData);
       })
       .then((data: any) => {
-        if (isMounted) setLesson(data);
-      })
-      .catch(() => {
         if (isMounted) {
-          setError(true);
+          setLesson(data);
+          setLoading(false);
+        }
+      })
+      .catch((fetchError) => {
+        if (isMounted) {
+          setError(
+            fetchError instanceof Error && fetchError.name === "NotFound"
+              ? "not-found"
+              : "load",
+          );
           setLoading(false);
         }
       });
@@ -72,39 +93,56 @@ export default function DynamicLessonPage({ params }: any) {
   }, [category, slug]);
 
   useEffect(() => {
-    if (!category) return;
+    if (!category || !slug) return;
+    let isMounted = true;
     
     // Fetch all lessons to find siblings in the same category
+    const categoryMeta = getCategoryMeta(category, t);
+    if (!["fundamentals", "playbook", "workshop"].includes(categoryMeta.key)) {
+      return;
+    }
     fetch("/api/portal/public/academy")
       .then((res) => {
         if (!res.ok) throw new Error();
         return res.json().then(sanitizeDisplayData);
       })
       .then((data: any) => {
-        const meta = getCategoryMeta(category, t);
-        const categoryKey = meta.key; // e.g. "fundamentals", "playbook", "workshop"
+        const categoryKey = categoryMeta.key;
         
         if (data?.lessons && data.lessons[categoryKey]) {
           const filtered = data.lessons[categoryKey].filter(
             (item: any) => item.slug !== slug
           );
-          setSiblings(filtered);
+          if (isMounted) setSiblings(filtered);
+        } else {
+          throw new Error("Invalid academy response");
         }
       })
       .catch(() => {
-        // Silently ignore sibling fetch errors to avoid breaking the page
+        if (isMounted) setSiblingError(true);
       })
-      .finally(() => {
-        setLoading(false);
-      });
+
+    return () => {
+      isMounted = false;
+    };
   }, [category, slug, t]);
 
   if (error) {
+    const notFound = error === "not-found";
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center text-center p-8 bg-a">
-        <h2 className="text-2xl font-black italic text-white uppercase mb-4">{t("academyDetail.lessonNotFound")}</h2>
+        <h2 className="text-2xl font-black italic text-white uppercase mb-4">
+          {notFound
+            ? t("academyDetail.lessonNotFound")
+            : t("academyDetail.loadError", "Unable to load this lesson")}
+        </h2>
         <p className="text-gray-400 text-sm max-w-md mb-8">
-          {t("academyDetail.lessonNotFoundDesc")}
+          {notFound
+            ? t("academyDetail.lessonNotFoundDesc")
+            : t(
+                "academyDetail.loadErrorDesc",
+                "Please try again later or return to the Academy.",
+              )}
         </p>
         <LocaleLink href="/academy" className="btn-primary px-8 py-3 rounded-full text-xs font-black uppercase tracking-wider">
           {t("academyDetail.returnToAcademy")}
@@ -119,7 +157,7 @@ export default function DynamicLessonPage({ params }: any) {
 
   const meta = getCategoryMeta(category, t);
   const localizedLesson = translateAcademyLesson(
-    { ...lesson, slug, date: getAcademyLessonDate(slug) },
+    { ...lesson, slug, date: lesson.date || getAcademyLessonDate(slug) },
     t,
   );
   const localizedSiblings = siblings.map((sibling) =>
@@ -191,14 +229,21 @@ export default function DynamicLessonPage({ params }: any) {
               {/* Cover Image */}
               {localizedLesson.img && (
                 <div className="w-full aspect-[21/9] rounded-[2rem] overflow-hidden mb-16 relative bg-mid">
-                  <img src={localizedLesson.img} alt={localizedLesson.title} className="w-full h-full object-cover" />
+                  <img
+                    src={resolveLessonImage(category, slug, localizedLesson.img)}
+                    alt={localizedLesson.title}
+                    className="w-full h-full object-cover"
+                  />
                   <div className="absolute inset-0 border border-white/10 rounded-[2rem] pointer-events-none" />
                 </div>
               )}
 
               {/* Article Body */}
               <article className="article-body max-w-3xl">
-                <MarkdownRenderer content={localizedLesson.content} />
+                <MarkdownRenderer
+                  content={localizedLesson.content}
+                  imageFallback={resolveLessonImage(category, slug, localizedLesson.img)}
+                />
               </article>
 
               {/* Footer tags */}
@@ -253,12 +298,20 @@ export default function DynamicLessonPage({ params }: any) {
                     </div>
                   </div>
                 )}
+                {siblingError && (
+                  <p role="status" className="text-xs text-gray-500">
+                    {t(
+                      "academyDetail.sidebar.siblingsUnavailable",
+                      "Related lessons are temporarily unavailable.",
+                    )}
+                  </p>
+                )}
 
                 {/* Consult Expert / Parts Widget */}
                 <div className="glass rounded-[2rem] p-8 bg-mid/50 border-white/5 hover:border-green/30 transition-all duration-300 group">
                   <div className="flex items-center gap-4 mb-6">
                     <img
-                      src="/pic/academy/photo-1560250097-0b93528c311a.webp"
+                      src={resolveLessonImage("playbook", "ev-objections-african-dealers", "/pic/academy/photo-1560250097-0b93528c311a.webp")}
                       className="w-12 h-12 rounded-full border-2 border-green/50 object-cover"
                       alt=""
                     />

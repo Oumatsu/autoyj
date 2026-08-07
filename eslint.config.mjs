@@ -9,6 +9,7 @@ export default [
       ".vinext/**",
       "dist/**",
       "node_modules/**",
+      ".agents/**",
       "coverage/**",
       "test-results/**",
       "public/**",

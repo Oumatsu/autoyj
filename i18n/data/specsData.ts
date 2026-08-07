@@ -6787,5 +6787,3 @@ export const specsData: Record<string, any> = {
   }
 } },
 };
-
-export default specsData;
