@@ -1,6 +1,9 @@
 import { defineRouting } from "next-intl/routing";
 import { COOKIE_TTL_1Y, LOCALE_COOKIE_NAME } from "@/lib/constants";
-import { defaultLocale, locales } from "./config";
+
+export const locales = ["zh", "en", "am"] as const;
+export type Locale = (typeof locales)[number];
+export const defaultLocale: Locale = "en";
 
 export const routing = defineRouting({
   locales,

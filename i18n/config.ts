@@ -1,7 +1,8 @@
-export const locales = ["zh", "en", "am"] as const;
-export type Locale = (typeof locales)[number];
+import { defaultLocale, locales, type Locale } from "./routing";
 
-export const defaultLocale: Locale = "en";
+export { defaultLocale, locales };
+export type { Locale };
+
 export const fallbackLocale: Locale = "en";
 
 export function isLocale(value: string | undefined): value is Locale {

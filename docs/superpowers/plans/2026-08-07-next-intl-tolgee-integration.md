@@ -884,3 +884,12 @@ git commit -m "docs: document next-intl and Tolgee boundaries"
   translation bundle publishing path.
 - [ ] No production request calls Tolgee.
 - [ ] `bun run test`, `bun run lint`, `bun run knip`, and `bun run build` pass.
+
+## Post-implementation audit
+
+- [x] English is the framework default and `next-intl` locale detection follows the
+  explicit-prefix, cookie, `Accept-Language`, then default precedence.
+- [x] `i18n/routing.ts` is the single production source for locale codes and default locale.
+- [x] Tolgee numeric-key exports are normalized back to arrays before structured UI rendering.
+- [x] Move `productsDetail` vehicle translations into the same Tolgee pull/publish contract as
+  the UI translations; there is no separate vehicle translation bundle.

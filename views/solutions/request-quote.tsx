@@ -10,7 +10,7 @@ export default function RequestQuotePage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
-  const serviceTiers = tObject("solutionsRequestQuote.tiers") as any;
+  const serviceTiers = tObject("solutionsRequestQuote.tiers");
   const whatsIncludedItems = tArray("solutionsRequestQuote.included.items");
   const tierOptions = tArray("solutionsRequestQuote.form.tierOptions");
   const sizeOptions = tArray("solutionsRequestQuote.form.sizeOptions");

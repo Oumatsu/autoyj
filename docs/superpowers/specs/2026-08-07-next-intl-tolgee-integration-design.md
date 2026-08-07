@@ -91,8 +91,8 @@ Tolgee remains the only UI translation adapter:
 
 `next-intl` may load the same static bundles through its server request configuration only for
 metadata helpers and request-locale context. No page component will call both Tolgee and
-`next-intl` to resolve the same visible string. `i18n/data/specsData.ts` remains the existing
-specialized fallback until a separate translation-source migration is approved.
+`next-intl` to resolve the same visible string. Vehicle-detail translations live under the
+`productsDetail` namespace in the same bundles and follow the same Tolgee pull/publish contract.
 
 ### 4. Localized metadata and SEO
 

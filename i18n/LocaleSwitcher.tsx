@@ -24,7 +24,7 @@ export function LocaleSwitcher() {
    * 2. 完整保留当前选中的所有 searchParams (如 ?tab=vehicle_models)
    */
   const getLocalizedHref = (targetLocale: Locale) => {
-    const segments = pathname.split("/").filter(Boolean);
+    const segments = (pathname ?? "/").split("/").filter(Boolean);
     if (locales.includes(segments[0] as Locale)) {
       segments.shift();
     }

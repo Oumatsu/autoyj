@@ -1,7 +1,12 @@
 import { describe, expect, test } from "bun:test";
 import { TolgeeCore } from "@tolgee/core";
 import { fallbackLocale } from "../../i18n/config";
-import { tolgeeStaticData } from "../../i18n/messages";
+import { messages, tolgeeStaticData } from "../../i18n/messages";
+import {
+  localizeStructuredValue,
+  normalizeStructuredArrays,
+} from "../../i18n/useTranslation";
+import { getNestedValue } from "../../i18n/utils";
 
 describe("Tolgee framework fallback", () => {
   test("uses English when the active locale does not define a key", () => {
@@ -43,5 +48,23 @@ describe("Tolgee framework fallback", () => {
 
     expect(tolgee.t("productsDetail.ui.model")).toBe("款");
     expect(tolgee.t("home.hero.badge")).toBeTruthy();
+  });
+
+  test("normalizes Tolgee numeric-key objects back into translated arrays", () => {
+    const source = getNestedValue(messages.en, "home.trustBar.partners");
+    const localized = localizeStructuredValue(
+      source,
+      "home.trustBar.partners",
+      (_key, options) => options?.defaultValue ?? ""
+    );
+
+    expect(normalizeStructuredArrays(localized)).toEqual([
+      "COSCO",
+      "Maersk",
+      "SGS",
+      "TÜV Rheinland",
+      "Lloyd's Register",
+      "Bureau Veritas",
+    ]);
   });
 });

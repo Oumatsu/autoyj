@@ -8,6 +8,7 @@ describe("Component: Real Home Page View & Trust Bar", () => {
     const html = renderToString(React.createElement(HomePage));
 
     expect(html).toMatch(/Explore Our Process/i);
+    expect(html).toContain("COSCO");
     expect(html.includes("[object Object]")).toBe(false);
   });
 });

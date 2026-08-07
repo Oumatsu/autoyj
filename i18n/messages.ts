@@ -1,23 +1,40 @@
-import type { TolgeeStaticDataProp } from "@tolgee/core";
 import type { Locale } from "./config";
 import am from "./translations/am";
 import en from "./translations/en";
 import zh from "./translations/zh";
-import { specsData } from "./data/specsData";
 
 export type TranslationMessages = Record<string, unknown>;
 
 /**
- * Tolgee owns both the UI bundle and the generated vehicle-detail copy.
- * Keeping the merge here gives Tolgee one static source with framework-managed
- * language fallback instead of a second resolver in every component.
+ * These are the only checked-in translation bundles. Tolgee pulls and publishes
+ * the complete UI and vehicle-detail key tree from these modules.
  */
-export const messages: Record<Locale, TranslationMessages> = {
-  zh: { ...zh, ...specsData.zh },
-  en: { ...en, ...specsData.en },
-  am: { ...am, ...specsData.am },
+export const messages = { zh, en, am } satisfies Record<Locale, TranslationMessages>;
+
+type TolgeeStaticTree = {
+  [key: string]: string | TolgeeStaticTree;
 };
 
-// Generated bundles contain structured arrays/booleans that Tolgee flattens at
-// runtime, while its public type only describes the flattened string tree.
-export const tolgeeStaticData = messages as unknown as TolgeeStaticDataProp;
+function toTolgeeValue(value: unknown): string | TolgeeStaticTree {
+  if (value && typeof value === "object") {
+    return toTolgeeTree(value);
+  }
+  return value === null || value === undefined ? "" : String(value);
+}
+
+function toTolgeeTree(value: object): TolgeeStaticTree {
+  return Object.fromEntries(
+    Object.entries(value).map(([key, childValue]) => [
+      key,
+      toTolgeeValue(childValue),
+    ])
+  );
+}
+
+// Tolgee's static-data contract is a string tree. Keep the source messages
+// structured for React consumers and normalize only the Tolgee adapter input.
+export const tolgeeStaticData: Record<Locale, TolgeeStaticTree> = {
+  zh: toTolgeeTree(messages.zh),
+  en: toTolgeeTree(messages.en),
+  am: toTolgeeTree(messages.am),
+};

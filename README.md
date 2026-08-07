@@ -33,8 +33,9 @@ bun run db:local:sync
 
 ### Tolgee 翻译发布
 
-Tolgee 是翻译编辑源，但 Worker 运行时不访问 Tolgee；生产构建使用仓库中的
-`i18n/translations/zh.ts`、`en.ts` 和 `am.ts` 静态 bundle。当前本地流程如下：
+Tolgee 是翻译编辑源，但 Worker 运行时不访问 Tolgee；生产构建只使用仓库中的三份静态
+bundle：`i18n/translations/zh.ts`、`en.ts` 和 `am.ts`。每份 bundle 同时包含 UI 与
+`productsDetail` 车型详情翻译，不再维护第二套车型翻译文件。当前本地流程如下：
 
 ```bash
 # 在 localhost:8085 的 Tolgee UI 中编辑并保存
@@ -49,6 +50,9 @@ bun run deploy
 `TOLGEE_PROJECT_ID` 导出三种语言，并在校验失败时保持原文件不变。只有确认删除
 Tolgee key 时才使用 `bun run tolgee:pull -- --allow-key-removal`。将来把 Tolgee 部署到
 云服务器时，只需替换 API URL 和 key，不需要修改网站运行时代码。
+
+如果是首次把车型详情合并进 Tolgee 项目，先执行 `bun run tolgee:push` 将完整三语言
+bundle 上传到当前项目，再用 Tolgee UI 编辑；之后使用 `tolgee:pull` 发布修改。
 
 ### Locale 路由与 SEO
 
@@ -153,7 +157,7 @@ bun run deploy
 ├── scripts/
 │   ├── d1/               # 本地 Miniflare D1 快照同步
 │   ├── feishu/           # Feishu/Lark Base 管理与数据导入
-│   ├── i18n/             # 产品详情翻译数据
+│   ├── i18n/             # 车型短语翻译辅助与测试工具
 │   ├── tolgee/           # Tolgee push/pull 工具
 │   └── assets/           # 图片处理工具
 ├── lib/
