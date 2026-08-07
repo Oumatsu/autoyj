@@ -13,7 +13,8 @@ const expectedChineseKitItems = [
 
 describe("Component: Solutions Parts Kit Component Contract", () => {
   test("Chinese solutions parts kit matches the rendered name/qty contract", () => {
-    expect(zh.solutions.partsKit.kitItems).toEqual(expectedChineseKitItems);
+    const kitItemsArray = Object.values(zh.solutions.partsKit.kitItems);
+    expect(kitItemsArray).toEqual(expectedChineseKitItems);
   });
 
   test("solutions page normalizes parts kit translations as an array", async () => {

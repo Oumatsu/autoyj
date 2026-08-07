@@ -1,6 +1,7 @@
 /// <reference types="@cloudflare/workers-types" />
 
 import { buildProductFilterData } from "./productFilters";
+import { getVehicleModelImage } from "../../lib/static-assets";
 import { createFeishuAuth } from "../../lib/auth";
 import { findLocalUser } from "../../lib/users";
 import {
@@ -160,7 +161,7 @@ type PortalVehicleModelSpec = {
   confidence: string;
 };
 
-const FEISHU_API = "https://open.feishu.cn";
+import { FEISHU_API } from "../jobs/feishu-sync";
 const SESSION_TTL_SECONDS = 60 * 60 * 12;
 const DEFAULT_COOKIE_NAME = "youguard_portal";
 const TENANT_TOKEN_SAFETY_WINDOW_MS = 60 * 1000;
@@ -1003,15 +1004,22 @@ function mapVehicleModel(record: FeishuRecord): PortalVehicleModel {
 
 function linkedRecordIds(value: unknown): string[] {
   if (!Array.isArray(value)) return [];
-  return value
-    .map((item) => {
-      if (item && typeof item === "object") {
-        const record = item as Record<string, unknown>;
-        return asText(record.id ?? record.record_id);
+  const ids: string[] = [];
+  for (const item of value) {
+    if (item && typeof item === "object") {
+      const record = item as Record<string, unknown>;
+      if (Array.isArray(record.record_ids)) {
+        ids.push(...record.record_ids.map(String));
+      } else if (record.id) {
+        ids.push(String(record.id));
+      } else if (record.record_id) {
+        ids.push(String(record.record_id));
       }
-      return asText(item);
-    })
-    .filter(Boolean);
+    } else if (item) {
+      ids.push(String(item));
+    }
+  }
+  return ids.filter(Boolean);
 }
 
 function mapVehicleVariant(
@@ -1558,6 +1566,28 @@ async function findLoginAccount(env: Env, email: string, accessCode: string): Pr
     };
   }
 
+  if (env.PORTAL_DB) {
+    try {
+      const user = await env.PORTAL_DB.prepare(
+        `SELECT * FROM user WHERE LOWER(email) = LOWER(?) AND (access_code = ? OR password_hash = ?)`
+      ).bind(email, accessCode, accessCode).first<any>();
+      if (user) {
+        return {
+          userId: user.user_id || user.id,
+          customerId: user.customer_id || user.id,
+          name: user.name || user.email.split("@")[0],
+          email: user.email,
+          company: user.company || "",
+          accountType: (user.account_type || "Client") as any,
+          role: (user.role || "Client") as any,
+          priceTier: (user.price_tier || "Standard") as any,
+        };
+      }
+    } catch {
+      // Fall through
+    }
+  }
+
   const internalTableId = optionalEnv(env, "FEISHU_TABLE_INTERNAL_USERS");
   if (internalTableId) {
     const records = await recordsByEmail(env, internalTableId, email).catch(() => []);
@@ -1725,6 +1755,231 @@ async function handleGetCatalog(request: Request, env: Env) {
 
 // ─── Cron-only: fetch Feishu and write to D1 ────────────────────────────────
 
+// ─── Cron-only: fetch Feishu and write to D1 ────────────────────────────────
+
+interface ColumnInfo {
+  name: string;
+  type: string;
+  pk: number;
+}
+
+function getFeishuFieldValue(f: Record<string, any>, columnName: string) {
+  // 1. Try exact match
+  if (columnName in f) return f[columnName];
+  
+  // 2. Try formula/auto fields mapping
+  if (`${columnName}_auto` in f) return f[`${columnName}_auto`];
+  
+  // 3. Try standard suffix / prefix conversions
+  if (columnName === "display_price_low") return f.display_price_low ?? f.trim_price_display ?? f.display_price_low_auto;
+  if (columnName === "display_price_high") return f.display_price_high ?? f.trim_price_display ?? f.display_price_high_auto;
+  if (columnName === "cltc_range_km") return f.cltc_range_km ?? f.range_display ?? f.cltc_range_max_km_auto;
+  if (columnName === "status") return f.status ?? f.source_status;
+  if (columnName === "zero_to_100_sec" && "0_100_km_h_sec" in f) return f["0_100_km_h_sec"];
+  if (columnName === "cltc_range_min_km" && "cltc_range_min_km_auto" in f) return f.cltc_range_min_km_auto;
+  if (columnName === "cltc_range_max_km" && "cltc_range_max_km_auto" in f) return f.cltc_range_max_km_auto;
+  if (columnName === "battery_capacity_min_kwh" && "battery_capacity_min_kwh_auto" in f) return f.battery_capacity_min_kwh_auto;
+  if (columnName === "battery_capacity_max_kwh" && "battery_capacity_max_kwh_auto" in f) return f.battery_capacity_max_kwh_auto;
+  if (columnName === "battery_capacity_kwh" && "battery_capacity_max_kwh_auto" in f) return f.battery_capacity_max_kwh_auto;
+  if (columnName === "motor_power_min_kw" && "motor_power_min_kw_auto" in f) return f.motor_power_min_kw_auto;
+  if (columnName === "motor_power_max_kw" && "motor_power_max_kw_auto" in f) return f.motor_power_max_kw_auto;
+  if (columnName === "motor_power_kw" && "motor_power_max_kw_auto" in f) return f.motor_power_max_kw_auto;
+  if (columnName === "top_speed_min_kmh" && "top_speed_min_kmh" in f) return f.top_speed_min_kmh;
+  if (columnName === "top_speed_max_kmh" && "top_speed_max_kmh" in f) return f.top_speed_max_kmh;
+  if (columnName === "top_speed_kmh" && "top_speed_max_kmh" in f) return f.top_speed_max_kmh;
+  if (columnName === "drivetrain_display" && "drivetrain_display_auto" in f) return f.drivetrain_display_auto;
+  if (columnName === "battery_chemistry" && "battery_chemistry_auto" in f) return f.battery_chemistry_auto;
+  if (columnName === "trim_name" && "variant" in f) return f.variant;
+  if (columnName === "specs_json") return f;
+  if (columnName === "common_features_json" && "common_features_json_pruned" in f) return f.common_features_json_pruned;
+  if (columnName === "i18n_translations" && "i18n_translations" in f) return f.i18n_translations;
+  if (columnName === "brand" && "品牌" in f) return f["品牌"];
+  if (columnName === "model" && "型号" in f) return f["型号"];
+  if (columnName === "variant" && "细分型号" in f) return f["细分型号"];
+  if (columnName === "steering" && "左右舵" in f) return f["左右舵"];
+  if (columnName === "location") return f["批发地点"] ?? f["车源地点"];
+  if (columnName === "supplier" && "供应商" in f) return f["供应商"];
+  if (columnName === "min_order_quantity" && "起订数量" in f) return f["起订数量"];
+  if (columnName === "inventory_count") return f["颜色库存"] ?? f["细分车型库存"] ?? f.color_stock_quantity ?? f.trim_stock_quantity;
+  if (columnName === "wait_days" && "下单后需要等待天数" in f) return f["下单后需要等待天数"];
+  if (columnName === "exw_usd") return f["EXW美金价"] ?? f.exw_usd;
+  if (columnName === "fca_usd") return f["FCA美金价"] ?? f.fca_usd;
+  if (columnName === "fob_usd") return f["FOB美金价"] ?? f.fob_usd;
+  if (columnName === "guide_price_cny") return f["人民币指导价"] ?? f.guide_price_cny;
+  if (columnName === "production_year") return f["生产年份"] ?? f.production_year;
+  if (columnName === "production_month") return f["生产月份"] ?? f.production_month;
+  if (columnName === "exterior_color") return f["外饰颜色"] ?? f.exterior_color;
+  if (columnName === "interior_color") return f["内饰颜色"] ?? f.interior_color;
+  if (columnName === "ai_confidence_score") return f["AI置信度"] ?? f.ai_confidence_score;
+  if (columnName === "color") {
+    return [asText(f["外饰颜色"] ?? f.exterior_color), asText(f["内饰颜色"] ?? f.interior_color)]
+      .filter(Boolean)
+      .join(" / ") || null;
+  }
+
+  return undefined;
+}
+
+function cleanFeishuFieldValue(val: any): any {
+  if (val === null || val === undefined) return null;
+
+  // If primitive string, number, boolean
+  if (typeof val === "number" || typeof val === "boolean") return val;
+  if (typeof val === "string") return val;
+
+  // If array
+  if (Array.isArray(val)) {
+    if (val.length === 0) return null;
+    const extracted = val.map((item) => cleanFeishuFieldValue(item)).filter((v) => v !== null && v !== undefined && v !== "" && v !== "[object Object]");
+    if (extracted.length === 0) return null;
+    if (extracted.length === 1) return extracted[0];
+    return extracted.join(", ");
+  }
+
+  // If object wrapper (Feishu link, lookup, person, or select object)
+  if (typeof val === "object") {
+    // 1. Check text_arr
+    if (Array.isArray(val.text_arr) && val.text_arr.length > 0) {
+      const arr = val.text_arr.filter(Boolean);
+      if (arr.length === 1) return String(arr[0]);
+      if (arr.length > 1) return arr.join(", ");
+    }
+    // 2. Check text
+    if (val.text) {
+      return String(val.text);
+    }
+    // 3. Check name (for Person/User fields)
+    if (val.name) {
+      return String(val.name);
+    }
+    // 4. Check label
+    if (val.label) {
+      return String(val.label);
+    }
+    // 5. Check value
+    if (val.value) {
+      return String(val.value);
+    }
+    // 6. Check record_ids
+    if (Array.isArray(val.record_ids) && val.record_ids.length > 0) {
+      const rids = val.record_ids.filter(Boolean);
+      if (rids.length > 0) return rids.join(", ");
+    }
+    return null;
+  }
+
+  return String(val);
+}
+
+async function dynamicUpsert(
+  db: D1Database,
+  tableName: string,
+  records: FeishuRecord[],
+  mapRecord: (record: FeishuRecord) => Record<string, any>
+) {
+  if (!records.length) return;
+
+  // 1. Discover all raw field keys in Feishu records
+  const allFeishuKeys = new Set<string>();
+  for (const r of records) {
+    if (r.fields) {
+      for (const k of Object.keys(r.fields)) {
+        if (k && k !== "specs_json") {
+          allFeishuKeys.add(k);
+        }
+      }
+    }
+  }
+
+  // 2. Fetch existing database columns
+  let info = await db.prepare(`PRAGMA table_info("${tableName}")`).all<ColumnInfo>();
+  const existingCols = new Set(info.results.map(col => col.name));
+
+  // 3. Dynamically add missing columns to SQLite table
+  for (const key of allFeishuKeys) {
+    if (!existingCols.has(key)) {
+      try {
+        await db.prepare(`ALTER TABLE "${tableName}" ADD COLUMN "${key}" TEXT`).run();
+        existingCols.add(key);
+      } catch (err) {
+        // Column may already exist or handle duplicate column error
+      }
+    }
+  }
+
+  // Refresh column list after additions
+  info = await db.prepare(`PRAGMA table_info("${tableName}")`).all<ColumnInfo>();
+  const columns = info.results.map(col => ({ name: col.name, type: col.type, isPk: col.pk > 0 }));
+  const pkCol = columns.find(c => c.isPk)?.name || "id";
+
+  // 4. Build rows
+  const now = new Date().toISOString();
+  const rows = records.map((record) => {
+    const customFields = mapRecord(record);
+    const f = record.fields || {};
+    const row: Record<string, any> = {};
+
+    for (const col of columns) {
+      if (col.name === "synced_at") {
+        row.synced_at = now;
+        continue;
+      }
+      if (col.name === "specs_json") {
+        row.specs_json = null;
+        continue;
+      }
+
+      let val = customFields[col.name];
+      if (val === undefined) {
+        if (col.name in f) {
+          val = f[col.name];
+        } else {
+          val = getFeishuFieldValue(f, col.name);
+        }
+      }
+
+      val = cleanFeishuFieldValue(val);
+
+      if (val === undefined || val === null) {
+        row[col.name] = null;
+      } else if (col.type === "INTEGER") {
+        if (typeof val === "boolean") {
+          row[col.name] = val ? 1 : 0;
+        } else {
+          const num = asOptionalNumber(val);
+          row[col.name] = num === null ? null : Math.round(num);
+        }
+      } else if (col.type === "REAL") {
+        row[col.name] = asOptionalNumber(val);
+      } else {
+        row[col.name] = val;
+      }
+    }
+    return row;
+  });
+
+  // 5. Batch execute SQL Upserts
+  const BATCH_SIZE = 50;
+  const colNames = columns.map(c => `"${c.name}"`);
+  const placeholders = columns.map(() => "?").join(",");
+  const updateClauses = columns.filter(c => !c.isPk).map(c => `"${c.name}"=excluded."${c.name}"`).join(",");
+
+  const sql = `
+    INSERT INTO "${tableName}" (${colNames.join(",")})
+    VALUES (${placeholders})
+    ON CONFLICT("${pkCol}") DO UPDATE SET ${updateClauses}
+  `;
+
+  for (let i = 0; i < rows.length; i += BATCH_SIZE) {
+    const batch = rows.slice(i, i + BATCH_SIZE);
+    const statements = batch.map((row) => {
+      const values = columns.map(c => row[c.name]);
+      return db.prepare(sql).bind(...values);
+    });
+    await db.batch(statements);
+  }
+}
+
 export async function syncVehiclesToD1(env: Env): Promise<{ synced: number }> {
   if (!env.PORTAL_DB) return { synced: 0 };
 
@@ -1733,8 +1988,9 @@ export async function syncVehiclesToD1(env: Env): Promise<{ synced: number }> {
     ? await searchRecords(env, vehicleSourceTableId, { pageSize: 500, maxPages: 50 }).catch(() => [])
     : [];
 
-  const now = new Date().toISOString();
-  const rows = rawRecords.map((record) => {
+  await env.PORTAL_DB.prepare("DELETE FROM vehicles").run();
+
+  await dynamicUpsert(env.PORTAL_DB, "vehicles", rawRecords, (record) => {
     const f = record.fields;
     const stage = parseSourceStage(f);
     const fobUsd =
@@ -1744,38 +2000,126 @@ export async function syncVehiclesToD1(env: Env): Promise<{ synced: number }> {
       asOptionalNumber(f.display_price_low);
     return {
       id: record.record_id,
-      vehicle_id: asText(f.vehicle_id) || null,
-      model_id: asText(f.model_id) || null,
-      brand: asText(f["品牌"] ?? f.brand) || null,
-      model: asText(f["型号"] ?? f.model) || null,
-      variant: asText(f["细分型号"] ?? f.variant) || null,
-      stage,
-      steering: asText(f["左右舵"] ?? f.steering) || null,
-      location: asText(f["批发地点"] ?? f["车源地点"] ?? f.location) || null,
-      supplier: asText(f["供应商"] ?? f.supplier) || null,
       display_price_low: fobUsd ?? null,
       display_price_high: fobUsd ?? null,
       currency: "USD",
-      min_order_quantity: asOptionalNumber(f["起订数量"] ?? f.min_order_quantity) ?? null,
-      inventory_count:
-        asOptionalNumber(f["颜色库存"] ?? f.color_stock_quantity) ??
-        asOptionalNumber(f["细分车型库存"] ?? f.trim_stock_quantity) ??
-        null,
-      wait_days: asOptionalNumber(f["下单后需要等待天数"] ?? f.wait_days) ?? null,
-      powertrain_type: asText(f.powertrain_type) || null,
-      color: [asText(f["外饰颜色"] ?? f.exterior_color), asText(f["内饰颜色"] ?? f.interior_color)]
-        .filter(Boolean).join(" / ") || null,
-      color_code: null,
-      image_url: null,
-      gallery_images_json: null,
-      specs_json: null,
-      ai_confidence_score: asOptionalNumber(f["AI置信度"]) ?? computeAiConfidenceScore(f),
-      synced_at: now,
+      stage,
     };
   });
+  return { synced: rawRecords.length };
+}
 
-  await upsertVehicles(env.PORTAL_DB, rows);
-  return { synced: rows.length };
+export async function syncUsersToD1(env: Env): Promise<{ users: number }> {
+  if (!env.PORTAL_DB) return { users: 0 };
+  const { localUserStore } = await import("../../lib/users");
+  const { upsertUsersToD1 } = await import("../db/d1");
+
+  const userRecords = localUserStore.map((u) => ({
+    id: u.userId,
+    name: u.name,
+    email: u.email,
+    emailVerified: 1,
+    image: null,
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
+    user_id: u.userId,
+    customer_id: u.customerId,
+    company: u.company,
+    account_type: u.accountType,
+    role: u.role,
+    price_tier: u.priceTier,
+    status: u.status,
+    accessCode: u.accessCode,
+  }));
+
+  await upsertUsersToD1(env.PORTAL_DB, userRecords);
+  return { users: userRecords.length };
+}
+
+export async function syncArticlesToD1(env: Env): Promise<{ articles: number }> {
+  if (!env.PORTAL_DB) return { articles: 0 };
+  const articlesTableId = optionalEnv(env, "FEISHU_TABLE_ARTICLES") || "tblYIGaUMC5yX5sj";
+  const records = await searchRecords(env, articlesTableId, { pageSize: 100, maxPages: 50 }).catch(() => []);
+  if (records.length === 0) return { articles: 0 };
+
+  await env.PORTAL_DB.prepare("DELETE FROM articles").run();
+  let count = 0;
+  await dynamicUpsert(env.PORTAL_DB, "articles", records, (record, index) => {
+    const f = record.fields;
+    const coverImageFullPath = asText(f.cover_image);
+    const coverImage = coverImageFullPath.split("/").pop() || "hero.webp";
+    count++;
+    return {
+      id: record.record_id,
+      slug: asText(f.slug) || record.record_id,
+      title: asText(f.title),
+      category: asText(f.category),
+      date: asText(f.publish_date) || asText(f.date),
+      read_time: asText(f.read_time),
+      cover_image: coverImage,
+      overview: asText(f.overview),
+      content: asText(f.content),
+      status: asText(f.status) || "Published",
+      sort_order: index + 1,
+    };
+  });
+  return { articles: count };
+}
+
+export async function syncAcademyToD1(env: Env): Promise<{ lessons: number; vault: number }> {
+  if (!env.PORTAL_DB) return { lessons: 0, vault: 0 };
+  const lessonsTableId = optionalEnv(env, "FEISHU_TABLE_ACADEMY_LESSONS") || "tbl4wwtdHP8sLUsO";
+  const vaultTableId = optionalEnv(env, "FEISHU_TABLE_ACADEMY_VAULT") || "tblnMopstEUqjMhu";
+
+  const [lessonsRecords, vaultRecords] = await Promise.all([
+    lessonsTableId ? searchRecords(env, lessonsTableId, { pageSize: 100 }).catch(() => []) : Promise.resolve([]),
+    vaultTableId ? searchRecords(env, vaultTableId, { pageSize: 100 }).catch(() => []) : Promise.resolve([]),
+  ]);
+
+  await Promise.all([
+    env.PORTAL_DB.prepare("DELETE FROM academy_lessons").run(),
+    env.PORTAL_DB.prepare("DELETE FROM academy_vault").run(),
+  ]);
+
+  let lessonsCount = 0;
+  let vaultCount = 0;
+
+  await Promise.all([
+    dynamicUpsert(env.PORTAL_DB, "academy_lessons", lessonsRecords, (record, index) => {
+      const f = record.fields;
+      lessonsCount++;
+      return {
+        id: record.record_id,
+        slug: asText(f.slug) || record.record_id,
+        title: asText(f.title),
+        category: asText(f.category),
+        tag: asText(f.tag),
+        description: asText(f.description),
+        level: asText(f.level),
+        duration: asText(f.duration),
+        date: asText(f.date),
+        content: asText(f.content),
+        sort_order: index + 1,
+      };
+    }),
+    dynamicUpsert(env.PORTAL_DB, "academy_vault", vaultRecords, (record, index) => {
+      const f = record.fields;
+      vaultCount++;
+      return {
+        id: record.record_id,
+        title: asText(f.title),
+        type: asText(f.type),
+        description: asText(f.description),
+        file_size: asText(f.file_size),
+        format: asText(f.format),
+        download_url: asText(f.download_url),
+        category: asText(f.category),
+        sort_order: index + 1,
+      };
+    }),
+  ]);
+
+  return { lessons: lessonsCount, vault: vaultCount };
 }
 
 export async function syncVehicleModelsToDB(env: Env): Promise<{ models: number; trims: number }> {
@@ -1793,101 +2137,50 @@ export async function syncVehicleModelsToDB(env: Env): Promise<{ models: number;
       : Promise.resolve([]),
   ]);
 
-  const now = new Date().toISOString();
-
-  const modelRows = modelRecords.map((record) => {
-    const f = record.fields;
-    return {
-      id: asText(f.model_id) || record.record_id,
-      model_id: asText(f.model_id) || null,
-      brand: asText(f.brand) || null,
-      model: asText(f.model) || null,
-      status: asText(f.status) || null,
-      powertrain_type: asText(f.powertrain_type) || null,
-      segment: asText(f.segment) || null,
-      vehicle_class: asText(f.vehicle_class) || null,
-      display_price_low: asOptionalNumber(f.display_price_low) ?? null,
-      display_price_high: asOptionalNumber(f.display_price_high) ?? null,
-      image_url: asText(f.image_url) || null,
-      hero_description: asText(f.hero_description) || null,
-      page_title: asText(f.page_title) || null,
-      page_subtitle: asText(f.page_subtitle) || null,
-      product_path: productPath(f),
-      cltc_range_min_km: asOptionalNumber(f.cltc_range_min_km_auto) ?? null,
-      cltc_range_max_km: asOptionalNumber(f.cltc_range_max_km_auto) ?? null,
-      battery_capacity_min_kwh: asOptionalNumber(f.battery_capacity_min_kwh_auto) ?? null,
-      battery_capacity_max_kwh: asOptionalNumber(f.battery_capacity_max_kwh_auto) ?? null,
-      motor_power_min_kw: asOptionalNumber(f.motor_power_min_kw_auto) ?? null,
-      motor_power_max_kw: asOptionalNumber(f.motor_power_max_kw_auto) ?? null,
-      top_speed_min_kmh: asOptionalNumber(f.top_speed_min_kmh) ?? null,
-      top_speed_max_kmh: asOptionalNumber(f.top_speed_max_kmh) ?? null,
-      zero_to_100_sec: asOptionalNumber(f["0_100_km_h_sec"]) ?? null,
-      wheelbase_mm: asOptionalNumber(f.wheelbase_mm) ?? null,
-      length_mm: asOptionalNumber(f.length_mm) ?? null,
-      width_mm: asOptionalNumber(f.width_mm) ?? null,
-      height_mm: asOptionalNumber(f.height_mm) ?? null,
-      seats_min: asOptionalNumber(f.seats_min) ?? null,
-      seats_max: asOptionalNumber(f.seats_max) ?? null,
-      voltage_platform_v: asOptionalNumber(f.voltage_platform_v) ?? null,
-      ground_clearance_mm: asOptionalNumber(f.ground_clearance_mm) ?? null,
-      boot_volume_l: asOptionalNumber(f.boot_volume_l) ?? null,
-      drivetrain_display: asText(f.drivetrain_display_auto) || null,
-      battery_chemistry: asText(f.battery_chemistry_auto) || null,
-      battery_technology: asText(f.battery_technology) || null,
-      steering_setup: asText(f.steering_setup) || null,
-      sunroof_availability: asText(f.sunroof_availability) || null,
-      v2l_availability: asText(f.v2l_availability) || null,
-      v2l_output_power_kw: asOptionalNumber(f.v2l_output_power_kw) ?? null,
-      ac_slow_charge_supported: asText(f.ac_slow_charge_supported) === "Yes" ? 1 : 0,
-      ac_slow_charge_full_time_hours: asOptionalNumber(f.ac_slow_charge_full_time_hours) ?? null,
-      battery_warranty_years: asOptionalNumber(f.battery_warranty_years) ?? null,
-      battery_warranty_distance_km: asOptionalNumber(f.battery_warranty_distance_km) ?? null,
-      gallery_images_json: JSON.stringify(f.gallery_images_json ?? null),
-      common_features_json: typeof f.common_features_json_pruned === "string" ? f.common_features_json_pruned : JSON.stringify(f.common_features_json_pruned ?? null),
-      i18n_translations: typeof f.i18n_translations === "string" ? f.i18n_translations : JSON.stringify(f.i18n_translations ?? null),
-      inventory_status: asText(f.inventory_status) || null,
-      version: asText(f.version) || null,
-      synced_at: now,
-    };
-  });
-
   const modelIdByRecordId = new Map<string, string>();
+  const modelRecordsByRecordId = new Map<string, FeishuRecord>();
   for (const record of modelRecords) {
     const modelId = asText(record.fields.model_id);
     if (modelId) modelIdByRecordId.set(record.record_id, modelId);
+    modelRecordsByRecordId.set(record.record_id, record);
   }
 
-  const trimRows = trimRecords.map((record) => {
-    const f = record.fields;
-    const linkedModelId = linkedRecordIds(f.vehicle_model_pruned)
-      .map((rid) => modelIdByRecordId.get(rid))
-      .find(Boolean);
-    const modelId = asText(f.model_id) || linkedModelId || "";
-    return {
-      id: record.record_id,
-      model_id: modelId,
-      parent_model_record_id: linkedRecordIds(f.vehicle_model_pruned)[0] ?? null,
-      trim_name: asText(f.MODEL ?? f.model) || null,
-      status: asText(f.status) || null,
-      display_price_low: asOptionalNumber(f.display_price_low) ?? null,
-      display_price_high: asOptionalNumber(f.display_price_high) ?? null,
-      powertrain_type: asText(f.powertrain_type) || null,
-      cltc_range_km: asOptionalNumber(f.cltc_range_km ?? f.cltc_range_max_km_auto) ?? null,
-      battery_capacity_kwh: asOptionalNumber(f.battery_capacity_kwh ?? f.battery_capacity_max_kwh_auto) ?? null,
-      motor_power_kw: asOptionalNumber(f.motor_power_kw ?? f.motor_power_max_kw_auto) ?? null,
-      top_speed_kmh: asOptionalNumber(f.top_speed_kmh ?? f.top_speed_max_kmh) ?? null,
-      zero_to_100_sec: asOptionalNumber(f["0_100_km_h_sec"]) ?? null,
-      specs_json: typeof f.trim_configurations_pruned === "string" ? f.trim_configurations_pruned : JSON.stringify(f.trim_configurations_pruned ?? null),
-      synced_at: now,
-    };
-  });
-
   await Promise.all([
-    upsertVehicleModels(env.PORTAL_DB, modelRows),
-    upsertVehicleTrims(env.PORTAL_DB, trimRows),
+    env.PORTAL_DB.prepare("DELETE FROM vehicle_models").run(),
+    env.PORTAL_DB.prepare("DELETE FROM vehicle_trims").run(),
   ]);
 
-  return { models: modelRows.length, trims: trimRows.length };
+  await Promise.all([
+    dynamicUpsert(env.PORTAL_DB, "vehicle_models", modelRecords, (record) => {
+      const f = record.fields;
+      return {
+        id: asText(f.model_id) || record.record_id,
+        model_id: asText(f.model_id) || null,
+        product_path: productPath(f),
+      };
+    }),
+    dynamicUpsert(env.PORTAL_DB, "vehicle_trims", trimRecords, (record) => {
+      const f = record.fields;
+      const linkedModelId = linkedRecordIds(f.vehicle_model_pruned)
+        .map((rid) => modelIdByRecordId.get(rid))
+        .find(Boolean);
+      const modelId = asText(f.model_id) || linkedModelId || "";
+      const trimId = asText(f.trim_config_id) || record.record_id;
+      const parentRecordId = linkedRecordIds(f.vehicle_model_pruned)[0];
+      const parentModel = parentRecordId ? modelRecordsByRecordId.get(parentRecordId) : null;
+      const p = parentModel?.fields || {};
+      return {
+        id: trimId,
+        model_id: modelId,
+        parent_model_record_id: parentRecordId ?? null,
+        powertrain_type: asText(f.powertrain_type) || asText(p.powertrain_type) || null,
+        top_speed_kmh: asOptionalNumber(f.top_speed_kmh ?? f.top_speed_max_kmh) ?? asOptionalNumber(p.top_speed_max_kmh) ?? null,
+        zero_to_100_sec: asOptionalNumber(f["0_100_km_h_sec"]) ?? asOptionalNumber(p["0_100_km_h_sec"]) ?? null,
+      };
+    }),
+  ]);
+
+  return { models: modelRecords.length, trims: trimRecords.length };
 }
 
 // ─── API handlers: read ONLY from D1, zero Feishu calls ─────────────────────
@@ -2698,100 +2991,119 @@ async function handleCounterOffer(request: Request, env: Env, quoteNo: string) {
   const message = asText(body?.message).trim();
   if (!offeredPrice && !message) return problem("Counteroffer price or message is required");
 
-  const quoteRecords = await searchRecords(env, requireEnv(env, "FEISHU_TABLE_QUOTES"), {
+  const quoteTableId = optionalEnv(env, "FEISHU_TABLE_QUOTES");
+  const inquiryTableId = optionalEnv(env, "FEISHU_TABLE_INQUIRIES");
+  const negotiationTableId = optionalEnv(env, "FEISHU_TABLE_NEGOTIATIONS");
+
+  if (!quoteTableId || !inquiryTableId) return json({ ok: true });
+
+  const quoteRecords = await searchRecords(env, quoteTableId, {
     filter: equalsFilter("quote_no", quoteNo),
     pageSize: 5,
-  });
+  }).catch(() => []);
   const quoteRecord = quoteRecords[0];
   if (!quoteRecord) return problem("Quote not found", 404);
   const quote = mapQuote(quoteRecord);
 
-  const inquiryRecords = await searchRecords(env, requireEnv(env, "FEISHU_TABLE_INQUIRIES"), {
+  const inquiryRecords = await searchRecords(env, inquiryTableId, {
     filter: equalsFilter("inquiry_no", quote.inquiryNo),
     pageSize: 5,
-  });
+  }).catch(() => []);
   const inquiryRecord = inquiryRecords[0];
   if (!inquiryRecord || (!isInternalSession(session) && asText(inquiryRecord.fields.customer_id) !== session.customerId)) {
     return problem("Quote not found", 404);
   }
 
   const now = nowText();
-  await createRecord(env, requireEnv(env, "FEISHU_TABLE_NEGOTIATIONS"), {
-    log_no: nextId("LOG"),
-    inquiry_no: quote.inquiryNo,
-    quote_no: quote.quoteNo,
-    actor: isInternalSession(session) ? "Youguard" : "Customer",
-    action: "Counteroffer",
-    offered_price: offeredPrice,
-    quantity: quote.quantity,
-    message,
-    created_at: now,
-  });
-  await updateRecord(env, requireEnv(env, "FEISHU_TABLE_QUOTES"), quoteRecord.record_id, {
+  if (negotiationTableId) {
+    await createRecord(env, negotiationTableId, {
+      log_no: nextId("LOG"),
+      inquiry_no: quote.inquiryNo,
+      quote_no: quote.quoteNo,
+      actor: isInternalSession(session) ? "Youguard" : "Customer",
+      action: "Counteroffer",
+      offered_price: offeredPrice,
+      quantity: quote.quantity,
+      message,
+      created_at: now,
+    }).catch(() => null);
+  }
+  await updateRecord(env, quoteTableId, quoteRecord.record_id, {
     status: "Counteroffer Received",
-  });
-  await updateRecord(env, requireEnv(env, "FEISHU_TABLE_INQUIRIES"), inquiryRecord.record_id, {
+  }).catch(() => null);
+  await updateRecord(env, inquiryTableId, inquiryRecord.record_id, {
     status: "Negotiating",
     updated_at: now,
-  });
+  }).catch(() => null);
   return json({ ok: true });
 }
 
 async function handleAcceptQuote(request: Request, env: Env, quoteNo: string) {
   const session = await requireSession(request, env);
-  const quoteRecords = await searchRecords(env, requireEnv(env, "FEISHU_TABLE_QUOTES"), {
+  const quoteTableId = optionalEnv(env, "FEISHU_TABLE_QUOTES");
+  const inquiryTableId = optionalEnv(env, "FEISHU_TABLE_INQUIRIES");
+  const negotiationTableId = optionalEnv(env, "FEISHU_TABLE_NEGOTIATIONS");
+  const orderTableId = optionalEnv(env, "FEISHU_TABLE_ORDERS");
+
+  const orderNo = nextId("ORD");
+  if (!quoteTableId || !inquiryTableId) return json({ orderNo }, { status: 201 });
+
+  const quoteRecords = await searchRecords(env, quoteTableId, {
     filter: equalsFilter("quote_no", quoteNo),
     pageSize: 5,
-  });
+  }).catch(() => []);
   const quoteRecord = quoteRecords[0];
   if (!quoteRecord) return problem("Quote not found", 404);
   const quote = mapQuote(quoteRecord);
 
-  const inquiryRecords = await searchRecords(env, requireEnv(env, "FEISHU_TABLE_INQUIRIES"), {
+  const inquiryRecords = await searchRecords(env, inquiryTableId, {
     filter: equalsFilter("inquiry_no", quote.inquiryNo),
     pageSize: 5,
-  });
+  }).catch(() => []);
   const inquiryRecord = inquiryRecords[0];
   if (!inquiryRecord || (!isInternalSession(session) && asText(inquiryRecord.fields.customer_id) !== session.customerId)) {
     return problem("Quote not found", 404);
   }
 
   const now = nowText();
-  const orderNo = nextId("ORD");
   const total = quote.unitPrice * quote.quantity;
   const customerId = asText(inquiryRecord.fields.customer_id) || session.customerId;
-  await createRecord(env, requireEnv(env, "FEISHU_TABLE_NEGOTIATIONS"), {
-    log_no: nextId("LOG"),
-    inquiry_no: quote.inquiryNo,
-    quote_no: quote.quoteNo,
-    actor: isInternalSession(session) ? "Youguard" : "Customer",
-    action: "Quote Accepted",
-    offered_price: quote.unitPrice,
-    quantity: quote.quantity,
-    message: isInternalSession(session) ? "Youguard accepted quote in portal." : "Customer accepted quote in portal.",
-    created_at: now,
-  });
-  await updateRecord(env, requireEnv(env, "FEISHU_TABLE_QUOTES"), quoteRecord.record_id, {
+  if (negotiationTableId) {
+    await createRecord(env, negotiationTableId, {
+      log_no: nextId("LOG"),
+      inquiry_no: quote.inquiryNo,
+      quote_no: quote.quoteNo,
+      actor: isInternalSession(session) ? "Youguard" : "Customer",
+      action: "Quote Accepted",
+      offered_price: quote.unitPrice,
+      quantity: quote.quantity,
+      message: isInternalSession(session) ? "Youguard accepted quote in portal." : "Customer accepted quote in portal.",
+      created_at: now,
+    }).catch(() => null);
+  }
+  await updateRecord(env, quoteTableId, quoteRecord.record_id, {
     status: "Accepted",
-  });
-  await updateRecord(env, requireEnv(env, "FEISHU_TABLE_INQUIRIES"), inquiryRecord.record_id, {
+  }).catch(() => null);
+  await updateRecord(env, inquiryTableId, inquiryRecord.record_id, {
     status: "Accepted",
     updated_at: now,
-  });
-  await createRecord(env, requireEnv(env, "FEISHU_TABLE_ORDERS"), {
-    order_no: orderNo,
-    inquiry_no: quote.inquiryNo,
-    quote_no: quote.quoteNo,
-    customer_id: customerId,
-    vehicle_id: quote.vehicleId,
-    quantity: quote.quantity,
-    final_unit_price: quote.unitPrice,
-    total,
-    currency: quote.currency,
-    payment_terms: quote.paymentTerms,
-    status: "Draft Order",
-    created_at: now,
-  });
+  }).catch(() => null);
+  if (orderTableId) {
+    await createRecord(env, orderTableId, {
+      order_no: orderNo,
+      inquiry_no: quote.inquiryNo,
+      quote_no: quote.quoteNo,
+      customer_id: customerId,
+      vehicle_id: quote.vehicleId,
+      quantity: quote.quantity,
+      final_unit_price: quote.unitPrice,
+      total,
+      currency: quote.currency,
+      payment_terms: quote.paymentTerms,
+      status: "Draft Order",
+      created_at: now,
+    }).catch(() => null);
+  }
 
   return json({ orderNo }, { status: 201 });
 }
@@ -2839,147 +3151,55 @@ async function handlePublicProduct(slug: string, env: Env) {
   const cached = getCached(cacheKey);
   if (cached) return json(cached);
 
-  const vehicleModelTableId = requireEnv(env, "FEISHU_TABLE_VEHICLE_MODELS");
-
-  const models = await searchRecords(env, vehicleModelTableId, { pageSize: 100 });
-  const modelRecord = models.find((m) => {
-    const sourceUrl = productPath(m.fields).split('?')[0].split('#')[0].trim();
-    return sourceUrl.endsWith(`/${slug}`) || sourceUrl.endsWith(`/${slug}/`);
-  });
-
-  if (!modelRecord) {
-    return problem(`Product ${slug} not found`, 404);
-  }
-
-  const modelId = asText(modelRecord.fields.model_id);
-  const specs = synthesizeSpecsFromModel(modelRecord);
-
-  const fields = modelRecord.fields;
-  let trimRecords: FeishuRecord[] = [];
-  const trimTableId = optionalEnv(env, "FEISHU_TABLE_VEHICLE_TRIM_CONFIGURATIONS");
-  if (trimTableId && modelId) {
+  if (env.PORTAL_DB) {
     try {
-      const allTrimRecords = await searchRecords(env, trimTableId, { pageSize: 200 });
-      trimRecords = allTrimRecords.filter((record) => asText(record.fields.model_id) === modelId);
-    } catch (e: any) {
-      console.warn("handlePublicProduct: failed to query trim table:", e.message);
+      const model = await env.PORTAL_DB.prepare(
+        `SELECT * FROM vehicle_models WHERE id = ? OR model_id = ? OR product_path LIKE ?`
+      ).bind(slug, slug, `%/${slug}`).first<any>();
+      if (model) {
+        const trims = await env.PORTAL_DB.prepare(
+          `SELECT * FROM vehicle_trims WHERE model_id = ?`
+        ).bind(model.model_id || model.id).all();
+        const data = {
+          id: model.id,
+          brand: model.brand,
+          model: model.model,
+          trim: model.trim_name,
+          category: model.segment || "revenue-king",
+          slug,
+          specsLeft: [
+            { label: "Powertrain", value: model.powertrain_type || "BEV" },
+            { label: "CLTC Range", value: model.cltc_range_max_km ? `${model.cltc_range_max_km} km` : "500 km" },
+            { label: "Battery Capacity", value: model.battery_capacity_max_kwh ? `${model.battery_capacity_max_kwh} kWh` : "60 kWh" },
+          ],
+          specsRight: [
+            { label: "Drive Type", value: model.drivetrain_display || "FWD" },
+            { label: "Max Power", value: model.motor_power_max_kw ? `${model.motor_power_max_kw} kW` : "150 kW" },
+            { label: "Max Speed", value: model.top_speed_max_kmh ? `${model.top_speed_max_kmh} km/h` : "160 km/h" },
+          ],
+          trimData: (trims.results || []).map((t: any) => ({
+            id: t.id,
+            name: t.trim_name,
+            price: t.display_price ? `¥${t.display_price}` : "¥150,000"
+          }))
+        };
+        setCached(cacheKey, data, env);
+        return json(data);
+      }
+    } catch {
+      // Fall through
     }
   }
-  const trimComparison = buildTrimComparison(fields, trimRecords);
-  const specsLeft: { label: string; value: string }[] = [];
-  const specsRight: { label: string; value: string }[] = [];
 
-  const sortedSpecs = specs
-    .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
-
-  for (const s of sortedSpecs) {
-    const spec = { label: s.name, value: s.value };
-    if (s.visibleLevel?.toLowerCase() === "core") {
-      specsLeft.push(spec);
-    } else if (s.visibleLevel?.toLowerCase() === "standard") {
-      specsRight.push(spec);
-    }
-  }
-
-  const sourceUrl = productPath(fields);
-  const parts = sourceUrl.split("/");
-  let category = "revenue-king";
-  const catIdx = parts.indexOf("products");
-  if (catIdx !== -1 && catIdx + 1 < parts.length) {
-    category = parts[catIdx + 1];
-  }
-
-  const valueForSpec = (names: string[]) => {
-    for (const name of names) {
-      const found = sortedSpecs.find((s) => s.name === name);
-      if (found?.value) return found.unit ? `${found.value} ${found.unit}`.trim() : found.value;
-    }
-    return "";
-  };
-
-  const brand = asText(fields.brand);
-  const modelName = asText(fields.model);
-  const msrpChina = guidePriceDisplay(fields);
-
-  const battery = batteryCapacityDisplay(fields) || valueForSpec(["Battery Capacity"]);
-  const batteryType = batteryChemistryDisplay(fields) || valueForSpec(["Battery Type"]);
-  const range = cltcRangeDisplay(fields) || valueForSpec(["Range (CLTC)", "Range", "CLTC Range"]);
-  const whyDescription = asText(fields.why_section_description) || asText(fields.review_notes);
-  const chargingText = asText(fields.charging) || valueForSpec(["AC Slow Charge", "Charging"]);
-  const charging = chargingText && chargingText !== whyDescription ? chargingText : "";
-  const imageUrl = asText(fields.image_url);
-
-  const { status, statusText } = inventoryDisplay(fields);
-
-  const batchLevels: { units: number; display: string }[] = [];
-  const batchMargin = computeBatchMargin(batchLevels);
-
-  const data = {
-    modelId,
-    slug,
-    vehicle: {
-      brand,
-      name: modelName,
-      fob: msrpChina,
-      battery,
-      batteryType,
-      range,
-      charging,
-      img: imageUrl,
-      status,
-      statusText
-    },
-    category,
-    title: asText(fields.page_title) || `${brand} ${modelName}`,
-    subtitle: asText(fields.page_subtitle),
-    heroDesc: asText(fields.hero_description) || asText(fields.review_notes),
-    stat1Label: "Range",
-    stat1Value: range,
-    stat2Label: "Price",
-    stat2Value: msrpChina,
-    stat3Label: "Battery",
-    stat3Value: batteryType || battery,
-    whyTitle: "Why this model",
-    whyDesc: whyDescription,
-    features: detailFeatures(fields, range, battery, batteryType, statusText),
-    specsLeft,
-    specsRight,
-    fits: [],
-    relatedModels: [],
-    tags: [],
-    galleryImages: safeJsonParse(fields.gallery_images_json, []),
-    batchLevels,
-    batchMargin,
-    trimComparison,
-    trimData: [],
-    trimNote: asText(fields.trim_source_summary_pruned)
-  };
-
-  setCached(cacheKey, data, env);
-  return json(data);
+  const baselineModels = getBaselineVehicleModels();
+  const found = baselineModels.find((m) => m.id === slug || m.model.toLowerCase() === slug.toLowerCase()) || baselineModels[0];
+  setCached(cacheKey, found, env);
+  return json(found);
 }
 
 // 闂傚倸鍊搁崐椋庣矆娴ｉ潻鑰块梺顒€绉埀顒婄畵瀹曞ジ濡风€ｎ亝鍠樻鐐查叄閹稿﹥绔熼埞鍨姦闁哄本鐩獮鍥濞戞瑧浜梺鑽ゅ枑閻熻鲸淇婇崶顒€鐒垫い鎺嗗亾缂佺姴绉瑰畷鏇熸綇閳规儳浜炬慨妯煎帶濞呭秹鏌熼姘辩劯濠碘€崇埣瀹曨亝鎷呴悷鎵В闂備浇顕ч崙鐣岀礊閸℃稑绀堟繛鍡樺姉椤╃兘鏌熼悜姗嗘畷闁?Base 闂傚倸鍊峰ù鍥х暦閻㈢绐楅柟鎵閸嬶繝寮堕崼姘珔缂佽翰鍊曡灃闁挎繂鎳庨弳鐐烘煕?table_id闂傚倸鍊搁崐鐑芥倿閿旈敮鍋撶粭娑樻噽閻瑩鏌熸潏楣冩闁搞倖鍔栭妵鍕冀椤愵澀娌梺绋款儍閸斿秹濡甸崟顖氱疀闁告挷鑳堕弳鐘电磽娴ｆ彃浜鹃梺鍛婂姦閸犳鎮￠弴鐔虹闁瑰瓨绻傞懜瑙勵殽閻愯揪鑰块柡宀€鍠栭幃鍓т沪閸欘偁鍎崇槐鎺撴綇閵婏箑纾抽悗瑙勬礃鐢帡鍩ユ径濞炬瀻闊洦娲﹂弳锟犳⒒?
-const tableIdCache = new Map<string, { tableId: string; expiresAt: number }>();
-async function resolveTableIdByName(env: Env, tableName: string): Promise<string> {
-  const appToken = optionalEnv(env, "FEISHU_BASE_APP_TOKEN");
-  if (!appToken) throw new Error("FEISHU_BASE_APP_TOKEN is required to resolve table names");
-
-  // 濠电姷鏁告慨鐑姐€傞挊澹╋綁宕ㄩ弶鎴狅紱闂侀€炲苯澧撮柡灞剧〒閳ь剨缍嗛崑鍛暦瀹€鍕厸鐎光偓鐎ｎ剛锛熸繛瀵稿婵″洭骞忛悩璇茬闁圭儤鍤╅幋鐘电＝闁稿本鐟ч崝宥夋煕閻愮數甯涘ǎ鍥э躬瀹曞爼顢楅埀顒勬倿閸偁浜滈柟鍝勭Х閸忓矂鏌嶉娑欑闁哄被鍔戝鎾Ω閵夈倗鏁栨繝?0 闂傚倸鍊搁崐椋庣矆娓氣偓楠炲鏁嶉崟顒佹闂佸湱鍎ら崵锕€鈽夊Ο閿嬫杸闁诲函缍嗘禍鐐侯敊閸ヮ剚鈷戦悷娆忓缁€鍐┿亜閺囧棗鎳夐崑鎾愁潩椤掑笑濡炪値鍙€濞夋洟骞戦崟顒傜懝妞ゆ牗鑹炬竟澶嬬節閻㈤潧浠滈柟鍐叉捣閹广垹顫滈埀顒€顕?
-  const cached = tableIdCache.get(tableName);
-  if (cached && cached.expiresAt > Date.now()) return cached.tableId;
-
-  // 闂傚倸鍊搁崐椋庣矆娓氣偓楠炲鏁嶉崟顒佹濠德板€曢幊宀勫焵椤掆偓閸熸潙鐣烽妸鈺佺骇闁瑰瓨绻冮崕?Base 婵犵數濮烽弫鎼佸磻閻愬搫鍨傞柛顐ｆ礀缁犱即鏌熼梻瀵歌窗闁轰礁瀚伴弻娑㈠焺閸忊晜鍨甸埢宥夋偐绾版ê浜炬鐐茬仢閸旀碍銇勯敂璇茬仯闁逞屽墯閼归箖藝椤栫偐鈧妇鎹勯妸锕€纾梺鎯х箺椤危閳ь剟姊?
-  const data = await feishuRequest<{ items: { table_id: string; name: string }[]; has_more: boolean }>(
-    env,
-    "GET",
-    `/open-apis/bitable/v1/apps/${appToken}/tables`,
-  );
-  const found = data.items.find((t) => t.name === tableName);
-  if (!found) throw new Error(`Feishu table "${tableName}" was not found in the configured Base`);
-
-  tableIdCache.set(tableName, { tableId: found.table_id, expiresAt: Date.now() + 600_000 });
-  return found.table_id;
+function getProductFallbackImage(slug: string, rawImageUrl?: string): string {
+  return getVehicleModelImage(slug, rawImageUrl);
 }
 
 async function handlePublicProducts(env: Env) {
@@ -2987,179 +3207,111 @@ async function handlePublicProducts(env: Env) {
   const cached = getCached(cacheKey);
   if (cached) return json(cached);
 
-  const vehicleModelTableId = requireEnv(env, "FEISHU_TABLE_VEHICLE_MODELS");
-  const models = await searchRecords(env, vehicleModelTableId, { pageSize: 100 });
-
-  const activeModels = models.filter((m) => asText(m.fields.status) !== "Inactive");
-
-  const products = activeModels.map((m) => {
-    const fields = m.fields;
-    const brand = asText(fields.brand);
-    const modelName = asText(fields.model);
-    const msrpChina = guidePriceDisplay(fields);
-
-    const battery = batteryCapacityDisplay(fields);
-    const batteryType = batteryChemistryDisplay(fields);
-    const range = cltcRangeDisplay(fields);
-    const charging = asText(fields.charging);
-    const imageUrl = asText(fields.image_url);
-
-    const sourceUrl = productPath(fields);
-    const parts = sourceUrl.split("/");
-    let category = "revenue-king";
-    const catIdx = parts.indexOf("products");
-    if (catIdx !== -1 && catIdx + 1 < parts.length) {
-      category = parts[catIdx + 1];
-    }
-
-    const slug = sourceUrl.split("/").filter(Boolean).pop() || "";
-    const { status, statusText } = inventoryDisplay(fields);
-
-    const stat2Value = msrpChina;
-    const stat2Label = "Price";
-
-    const subtitle = asText(fields.page_subtitle);
-    const heroDesc = asText(fields.hero_description) || asText(fields.review_notes);
-
-    let badge: string | null = null;
-
-    if (!badge && subtitle) {
-      if (subtitle.includes("Global #1") || slug === "byd-seagull") {
-        badge = "Global #1";
-      } else if (subtitle.includes("2025 New King") || slug === "gac-aion-rt") {
-        badge = "2025 New King";
-      } else if (subtitle.includes("Global Model") || subtitle.includes("Battle-Tested") || slug === "geely-galaxy-e5") {
-        badge = "Global Model";
-      } else if (subtitle.includes("Million-Unit") || slug === "byd-qin-plus") {
-        badge = null;
-      } else if (category === "revenue-king") {
-        badge = subtitle;
+  if (env.PORTAL_DB) {
+    try {
+      const rows = await env.PORTAL_DB.prepare(
+        `SELECT * FROM vehicle_models WHERE status != 'Inactive' ORDER BY synced_at DESC`
+      ).all();
+      if (rows.results && rows.results.length > 0) {
+        const products = rows.results.map((r: any) => {
+          const slug = r.product_path ? r.product_path.split("/").pop() : r.model_id;
+          return {
+            id: r.id,
+            model_id: r.model_id,
+            brand: r.brand,
+            model: r.model,
+            trim: r.trim_name,
+            category: r.segment || "revenue-king",
+            slug,
+            badge: r.page_subtitle || "",
+            desc: r.notes || "",
+            img: getProductFallbackImage(slug, r.image_url),
+            link: r.product_path || `/products/revenue-king/${r.model_id}`
+          };
+        });
+        setCached(cacheKey, products, env);
+        return json(products);
       }
+    } catch {
+      // Fall through
     }
+  }
 
-    let showcaseTags: string[] = [];
-    if (category === "revenue-king") {
-      const cleanRange = range ? `${range.replace(/\s+/g, "")} Range` : "";
-      if (slug === "byd-seagull") {
-        showcaseTags = ["LFP Blade", "405km Range"];
-      } else if (slug === "gac-aion-rt") {
-        showcaseTags = ["LiDAR ADAS", "520km Range"];
-      } else if (slug === "byd-qin-plus") {
-        showcaseTags = ["Million-Unit Proof", "510km Range"];
-      } else if (slug === "geely-galaxy-e5") {
-        showcaseTags = ["Aegis Battery", "530km Range"];
-      } else {
-        showcaseTags = [];
-        if (batteryType) showcaseTags.push(batteryType);
-        else if (battery) showcaseTags.push(battery);
-        if (cleanRange) showcaseTags.push(cleanRange);
-      }
-    }
-
-    let cardImg = imageUrl;
-    if (slug === "byd-seagull") {
-      cardImg = "/pic/revenue-king/seagull/7cut.webp";
-    } else if (slug === "gac-aion-rt") {
-      cardImg = "/pic/revenue-king/RT/7cut.webp";
-    } else if (slug === "byd-qin-plus") {
-      cardImg = "/pic/revenue-king/qinplusev/5cut.webp";
-    }
-
-    let cardTag = subtitle || "";
-    let cardDesc = heroDesc || "";
-    let cardLabel = brand || "";
-
-    if (slug === "zeekr-001") {
-      cardTag = "800V Ultra-Fast Charge";
-      cardDesc = "Extreme handling and range. The fastest charging executive shooting brake in the market.";
-      cardLabel = "Tech Icon";
-    } else if (slug === "xiaomi-su7-ultra") {
-      cardTag = "1500+ Horsepower";
-      cardDesc = "The ultimate social currency for tech-elite buyers. Carbon-fiber aero with peak acceleration.";
-      cardLabel = "Performance Icon";
-    } else if (slug === "aito-m9") {
-      cardTag = "Performance King";
-      cardDesc = "Huawei's ADS 3.0 tech masterpiece. Executive projection headlights and the most advanced chassis in the industry.";
-      cardLabel = "Tech Pinnacle";
-    } else if (slug === "byd-shark") {
-      cardTag = "V2L Mobile Power";
-      cardDesc = "PHEV Pickup with DMO off-road platform. 1000km+ total range for the hardest jobs.";
-      cardLabel = "Hybrid Power";
-    } else if (slug === "radar-rd6") {
-      cardTag = "SUV Comfort Pickup";
-      cardDesc = "Pure electric efficiency for urban logistics and farms. 6kW external discharge capacity.";
-      cardLabel = "Production Power";
-    } else if (slug === "farizon-super-van") {
-      cardTag = "Digital Logistics";
-      cardDesc = "The future of city cargo. Steer-by-wire with flat-floor cargo optimization for 11m濠? volume.";
-      cardLabel = "Digital Cargo";
-    } else if (category === "elite-flagship" || category === "utility-pro") {
-      cardTag = subtitle || (range ? `${range} Range` : "");
-      cardDesc = heroDesc || "";
-      cardLabel = brand || "";
-    }
-
-    return {
-      brand,
-      name: modelName,
-      fullName: `${brand} ${modelName}`,
-      fob: msrpChina,
-      battery,
-      range,
-      charging,
-      img: cardImg,
-      category,
-      slug,
-      badge,
-      stat2Label,
-      stat2Value,
-      tags: showcaseTags,
-      tag: cardTag,
-      desc: cardDesc,
-      label: cardLabel,
-      status,
-      statusText,
-      filterData: buildProductFilterData(fields),
-      link: `/products/${category}/${slug}`
-    };
-  });
-
-  setCached(cacheKey, products, env);
-  return json(products);
+  const baselineModels = getBaselineVehicleModels();
+  setCached(cacheKey, baselineModels, env);
+  return json(baselineModels);
 }
 
+
+function getBaselineArticles() {
+  return [
+    {
+      slug: "ethiopia-ev-tax-policy-2026",
+      title: "Ethiopia EV Tax Policy 2026: Complete Exemption Guide",
+      category: "Policy & Tariffs",
+      date: "2026-02-20",
+      sortDate: "2026-02-20",
+      readTime: "5 min read",
+      coverImage: "hero.webp",
+      sortOrder: 1,
+      overview: "Comprehensive analysis of Ethiopia's 0% EV import tariff policy, VAT exemptions, and excise tax structure for commercial and passenger fleets.",
+      content: "Ethiopia has implemented landmark zero-tariff policies for fully electric vehicles (BEVs) to accelerate energy transition and reduce foreign currency expenditure on imported fossil fuels.\n\nKey policy pillars:\n1. 0% Customs Import Duty for Completely Built-Up (CBU) EVs.\n2. Exemption from Value Added Tax (VAT) and Excise Tax for electric public transport and commercial fleets.\n3. Dedicated foreign exchange allocation priorities for authorized green vehicle importers.\n\nFor fleet operators and commercial buyers, these tax incentives lower the total cost of ownership (TCO) by up to 55% compared to internal combustion engine (ICE) equivalents over a 5-year operating cycle."
+    },
+    {
+      slug: "sourcing-byd-evs-for-east-africa",
+      title: "Strategic EV Sourcing: BYD Fleet Operations in East Africa",
+      category: "Sourcing Intelligence",
+      date: "2026-02-15",
+      sortDate: "2026-02-15",
+      readTime: "7 min read",
+      coverImage: "hero.webp",
+      sortOrder: 2,
+      overview: "Step-by-step sourcing playbook for fleet operators importing BYD EVs into East African markets.",
+      content: "BYD has emerged as the leading EV brand across East Africa due to its Blade Battery technology, thermal durability in tropical climates, and competitive FOB pricing."
+    },
+    {
+      slug: "ev-charging-infrastructure-addis-ababa",
+      title: "Addis Ababa Charging Infrastructure Roadmap",
+      category: "Market Analysis",
+      date: "2026-01-28",
+      sortDate: "2026-01-28",
+      readTime: "6 min read",
+      coverImage: "hero.webp",
+      sortOrder: 3,
+      overview: "Mapping fast-charging stations, grid capacity, and depot charging solutions across urban transport routes.",
+      content: "Urban charging infrastructure is rapidly expanding in Addis Ababa, supported by joint government initiatives and private depot installations."
+    }
+  ];
+}
 
 async function handlePublicInsights(env: Env) {
   const cacheKey = "insights";
   const cached = getCached(cacheKey);
   if (cached) return json(cached);
 
-  const articlesTableId = requireEnv(env, "FEISHU_TABLE_ARTICLES");
-  const records = await searchRecords(env, articlesTableId, { pageSize: 100 });
+  if (env.PORTAL_DB) {
+    try {
+      const rows = await env.PORTAL_DB.prepare(
+        `SELECT slug, title, category, date, read_time as readTime, cover_image as coverImage, overview, sort_order as sortOrder
+         FROM articles WHERE status = 'Published' ORDER BY sort_order ASC, date DESC`
+      ).all();
+      if (rows.results && rows.results.length > 0) {
+        const articles = rows.results.map((r: any) => ({
+          ...r,
+          sortDate: r.date,
+          date: formatDate(r.date),
+        }));
+        setCached(cacheKey, articles, env);
+        return json(articles);
+      }
+    } catch {
+      // Fall through if D1 table empty or missing
+    }
+  }
 
-  const published = records.filter(r => asText(r.fields.status) === "Published");
-
-  const articles = published.map((r, index) => {
-    const fields = r.fields;
-    const coverImageFullPath = asText(fields.cover_image);
-    const coverImage = coverImageFullPath.split("/").pop() || "hero.webp";
-    const publishDate = asText(fields.publish_date);
-
-    return {
-      title: asText(fields.title),
-      category: asText(fields.category),
-      date: formatDate(publishDate),
-      sortDate: publishDate,
-      readTime: asText(fields.read_time),
-      slug: asText(fields.slug),
-      coverImage,
-      sortOrder: index + 1,
-      overview: asText(fields.overview)
-    };
-  });
-
-  setCached(cacheKey, articles, env);
-  return json(articles);
+  const baseline = getBaselineArticles();
+  setCached(cacheKey, baseline, env);
+  return json(baseline);
 }
 
 async function handlePublicInsight(slug: string, env: Env) {
@@ -3167,35 +3319,182 @@ async function handlePublicInsight(slug: string, env: Env) {
   const cached = getCached(cacheKey);
   if (cached) return json(cached);
 
-  const articlesTableId = requireEnv(env, "FEISHU_TABLE_ARTICLES");
-  const records = await searchRecords(env, articlesTableId, { pageSize: 100 });
-
-  const record = records.find(
-    (r) => asText(r.fields.slug) === slug && asText(r.fields.status) === "Published",
-  );
-  if (!record) {
-    return problem(`Insight ${slug} not found`, 404);
+  if (env.PORTAL_DB) {
+    try {
+      const row = await env.PORTAL_DB.prepare(
+        `SELECT slug, title, category, date, read_time as readTime, cover_image as coverImage, overview, content
+         FROM articles WHERE slug = ? AND status = 'Published'`
+      ).bind(slug).first<any>();
+      if (row) {
+        const data = {
+          ...row,
+          sortDate: row.date,
+          date: formatDate(row.date),
+        };
+        setCached(cacheKey, data, env);
+        return json(data);
+      }
+    } catch {
+      // Fall through
+    }
   }
 
-  const fields = record.fields;
-  const coverImageFullPath = asText(fields.cover_image);
-  const coverImage = coverImageFullPath.split("/").pop() || "hero.webp";
-  const publishDate = asText(fields.publish_date);
+  const baseline = getBaselineArticles();
+  const found = baseline.find((a) => a.slug === slug) || baseline[0];
+  setCached(cacheKey, found, env);
+  return json(found);
+}
 
-  const data = {
-    title: asText(fields.title),
-    category: asText(fields.category),
-    date: formatDate(publishDate),
-    sortDate: publishDate,
-    readTime: asText(fields.read_time),
-    slug: asText(fields.slug),
-    coverImage,
-    overview: asText(fields.overview),
-    content: asText(fields.content)
+function getBaselineAcademy() {
+  return {
+    lessons: {
+      fundamentals: [
+        {
+          title: "High Altitude and Dust in Ethiopia: How They Affect Your EV",
+          tag: "Battery Tech",
+          slug: "high-altitude-dust-ethiopia-ev",
+          desc: "Understanding how high altitude and dust affect EVs in Ethiopia is essential knowledge for any dealer or technician.",
+          img: "/pic/academy/photo-1593941707882-a5bba14938c7.webp"
+        },
+        {
+          title: "EV Range Explained: Why the Spec Sheet Number Doesn't Apply in Africa",
+          tag: "Infrastructure",
+          slug: "ev-range-explained-africa",
+          desc: "The range number on a Chinese EV spec sheet is not what your customer will get in Africa.",
+          img: "/pic/academy/photo-1504328345606-18bbc8c9d7d1.webp"
+        },
+        {
+          title: "How EV Batteries Degrade: What African Dealers Need to Understand and Tell Customers",
+          tag: "TCO Analysis",
+          slug: "how-ev-batteries-degrade",
+          desc: "Battery degradation is the most common customer question and the most misunderstood topic for dealers.",
+          img: "/pic/academy/photo-1518770660439-4636190af475.webp"
+        },
+        {
+          title: "EV Market Entry & Compliance Guide",
+          tag: "Market Entry",
+          slug: "ev-market-entry-compliance",
+          desc: "Key regulatory, tariff, and licensing requirements for importing electric vehicles into African markets.",
+          img: "/pic/academy/photo-1473341304170-971dccb5ac1e.webp"
+        }
+      ],
+      playbook: [
+        {
+          title: "The 5 EV Objections Every African Dealer Will Face — And How to Answer Them",
+          tag: "Objections",
+          slug: "ev-objections-african-dealers",
+          desc: "Battery life, charging, spare parts, resale value, and price — these 5 objections stall most EV deals.",
+          img: "/pic/academy/photo-1560250097-0b93528c311a.webp"
+        },
+        {
+          title: "The TCO Conversation Guide: How to Win EV Sales on Total Cost, Not Sticker Price",
+          tag: "Fleet Sales",
+          slug: "tco-conversation-guide",
+          desc: "The TCO conversation is the single most powerful sales tool for African EV dealers.",
+          img: "/pic/academy/photo-1527853787696-f7be74f2e39a.webp"
+        },
+        {
+          title: "How to Run an EV Test Drive That Closes Deals",
+          tag: "Showroom Standard",
+          slug: "ev-test-drive-guide",
+          desc: "A structured 20-minute test drive converts hesitant customers far better than endless objection handling.",
+          img: "/pic/academy/photo-1559136555-9303baea8ebd.webp"
+        },
+        {
+          title: "Fleet Operations & Total Cost Analysis",
+          tag: "Fleet Mgmt",
+          slug: "fleet-operations-tco-analysis",
+          desc: "Comparative financial modeling for commercial fleets replacing diesel vehicles with BEVs.",
+          img: "/pic/academy/photo-1486312338219-ce68d2c6f44d.webp"
+        }
+      ],
+      workshop: [
+        {
+          title: "High Voltage Safety Rules for EV Technicians",
+          tag: "Safety Protocols",
+          slug: "high-voltage-safety-ev-technicians",
+          desc: "What you must know before opening the bonnet of a 400V or 800V electric vehicle.",
+          img: "/pic/academy/photo-1581092160562-40aa08e78837.webp"
+        },
+        {
+          title: "Chinese EV Diagnostic Tools: What Actually Works in an African Workshop",
+          tag: "Diagnostics",
+          slug: "chinese-ev-diagnostic-tools",
+          desc: "Navigating OBD protocols, manufacturer software, and multi-brand scanners for Chinese EVs.",
+          img: "/pic/academy/photo-1581092160562-40aa08e78837.webp"
+        },
+        {
+          title: "The 12V Auxiliary Battery in Chinese EVs: Why It Fails, How to Test It",
+          tag: "Auxiliary Battery",
+          slug: "12v-auxiliary-battery-ev",
+          desc: "Why the 12V system is the leading cause of non-start complaints in modern electric vehicles.",
+          img: "/pic/academy/photo-1581092160562-40aa08e78837.webp"
+        },
+        {
+          title: "EV Won't Charge: A Step-by-Step Troubleshooting Guide for Technicians",
+          tag: "Charging Systems",
+          slug: "ev-wont-charge-troubleshooting",
+          desc: "Diagnosing AC and DC charging handshake failures, port lock faults, and BMS interlocks.",
+          img: "/pic/academy/photo-1581092160562-40aa08e78837.webp"
+        },
+        {
+          title: "Common Fault Patterns in Chinese EVs Operating in Ethiopia: A Field Reference",
+          tag: "Field Diagnostics",
+          slug: "common-fault-patterns-ethiopia",
+          desc: "Real-world field observations on thermal limits, dust ingress, and suspension wear.",
+          img: "/pic/academy/photo-1581092160562-40aa08e78837.webp"
+        },
+        {
+          title: "Voltage Fluctuation and EV Charging in Ethiopia: What Every Technician Must Know",
+          tag: "Grid Infrastructure",
+          slug: "voltage-fluctuation-ev-charger-ethiopia",
+          desc: "Protecting chargers and vehicle OBCs against grid surges and undervoltage drops.",
+          img: "/pic/academy/photo-1581092160562-40aa08e78837.webp"
+        },
+        {
+          title: "Battery Maintenance & High Voltage Safety",
+          tag: "Technical",
+          slug: "battery-maintenance-hv-safety",
+          desc: "Practical workshop on LFP battery diagnostics, thermal management, and safety protocols for technicians.",
+          img: "/pic/academy/photo-1581092160562-40aa08e78837.webp"
+        }
+      ]
+    },
+    vault: [
+      {
+        translationId: "v1",
+        title: "Ethiopia EV Customs Regulation & Tax Exemption Circular (2026)",
+        type: "PDF Policy Brief",
+        desc: "Official Ministry of Finance directive detailing tariff codes, VAT exemption procedures, and port clearance checklists.",
+        size: "2.4 MB",
+        downloadLink: "/qr"
+      },
+      {
+        translationId: "recvnRyGHzWgf8",
+        title: "2026 Fleet ROI Calculator",
+        type: "Excel Model",
+        desc: "Plug in local electricity rates and petrol prices to instantly generate a 5-year cost comparison for your commercial clients.",
+        size: "1.8 MB",
+        downloadLink: "/qr"
+      },
+      {
+        translationId: "recvnRyGHzd9uS",
+        title: "The 50-Point Factory PDI",
+        type: "PDF Guide",
+        desc: "The exact Pre-Delivery Inspection checklist our engineers use in Shanghai before loading your vehicles into the container.",
+        size: "3.1 MB",
+        downloadLink: "/qr"
+      },
+      {
+        translationId: "recvnRyGHzNocG",
+        title: "Africa RHD Import Guide",
+        type: "PDF Guide",
+        desc: "A comprehensive breakdown of which Chinese factories are producing true Right-Hand Drive models and their export availability.",
+        size: "4.5 MB",
+        downloadLink: "/qr"
+      }
+    ]
   };
-
-  setCached(cacheKey, data, env);
-  return json(data);
 }
 
 async function handlePublicAcademy(env: Env) {
@@ -3203,94 +3502,97 @@ async function handlePublicAcademy(env: Env) {
   const cached = getCached(cacheKey);
   if (cached) return json(cached);
 
-  const lessonsTableId = requireEnv(env, "FEISHU_TABLE_ACADEMY_LESSONS");
-  const vaultTableId = requireEnv(env, "FEISHU_TABLE_ACADEMY_VAULT");
+  if (env.PORTAL_DB) {
+    try {
+      const [lessonsRes, vaultRes] = await Promise.all([
+        env.PORTAL_DB.prepare(
+          `SELECT title, tag, slug, description as desc, category, content FROM academy_lessons ORDER BY sort_order ASC`
+        ).all(),
+        env.PORTAL_DB.prepare(
+          `SELECT id as translationId, title, type, description as desc, file_size as size, download_url as downloadLink, category FROM academy_vault ORDER BY sort_order ASC`
+        ).all(),
+      ]);
 
-  const lessonsRecords = await searchRecords(env, lessonsTableId, { pageSize: 100 });
-  await delay(20);
-  const vaultRecords = await searchRecords(env, vaultTableId, { pageSize: 100 });
+      if (lessonsRes.results && lessonsRes.results.length > 0) {
+        const fundamentals: any[] = [];
+        const playbook: any[] = [];
+        const workshop: any[] = [];
 
-  const publishedLessons = lessonsRecords.filter(r => asText(r.fields.status) === "Published");
+        for (const l of lessonsRes.results as any[]) {
+          const cat = (l.category || "").toLowerCase().trim();
+          const lesson = {
+            title: l.title,
+            tag: l.tag,
+            slug: l.slug,
+            desc: l.desc,
+            img: "hero.webp"
+          };
+          if (cat === "fundamentals") fundamentals.push(lesson);
+          else if (cat === "playbook") playbook.push(lesson);
+          else if (cat === "workshop") workshop.push(lesson);
+        }
 
-  const fundamentals: any[] = [];
-  const playbook: any[] = [];
-  const workshop: any[] = [];
-
-  for (const r of publishedLessons) {
-    const fields = r.fields;
-    const cat = asText(fields.category).toLowerCase().trim();
-    const lesson = {
-      title: asText(fields.title),
-      tag: asText(fields.tag),
-      slug: asText(fields.slug),
-      desc: asText(fields.description),
-      img: asText(fields.cover_image)
-    };
-
-    if (cat === "fundamentals") {
-      fundamentals.push(lesson);
-    } else if (cat === "playbook") {
-      playbook.push(lesson);
-    } else if (cat === "workshop") {
-      workshop.push(lesson);
+        const data = {
+          lessons: { fundamentals, playbook, workshop },
+          vault: (vaultRes.results || []).map((v: any) => ({
+            ...v,
+            size: v.size || "2.4 MB",
+            downloadLink: v.downloadLink || "/qr"
+          }))
+        };
+        setCached(cacheKey, data, env);
+        return json(data);
+      }
+    } catch {
+      // Fall through
     }
   }
 
-  const vault = vaultRecords.map(r => {
-    const fields = r.fields;
-    return {
-      translationId: r.record_id,
-      title: asText(fields.title),
-      type: asText(fields.type),
-      desc: asText(fields.description),
-      size: asText(fields.size) || "2.4 MB",
-      downloadLink: asText(fields.download_link) || "/qr"
-    };
-  });
-
-  const data = {
-    lessons: {
-      fundamentals,
-      playbook,
-      workshop
-    },
-    vault
-  };
-
-  setCached(cacheKey, data, env);
-  return json(data);
+  const baseline = getBaselineAcademy();
+  setCached(cacheKey, baseline, env);
+  return json(baseline);
 }
+
 
 async function handlePublicAcademyLesson(category: string, slug: string, env: Env) {
   const cacheKey = `academy:${category}:${slug}`;
   const cached = getCached(cacheKey);
   if (cached) return json(cached);
 
-  const lessonsTableId = requireEnv(env, "FEISHU_TABLE_ACADEMY_LESSONS");
-  const records = await searchRecords(env, lessonsTableId, {
-    pageSize: 100
-  });
-
-  const record = records.find(r =>
-    asText(r.fields.slug) === slug
-    && normalizeAcademyCategory(asText(r.fields.category)) === normalizeAcademyCategory(category)
-    && asText(r.fields.status) === "Published"
-  );
-  if (!record) {
-    return problem(`Academy lesson ${slug} in category ${category} not found`, 404);
+  if (env.PORTAL_DB) {
+    try {
+      const row = await env.PORTAL_DB.prepare(
+        `SELECT title, category, tag, description as desc, content FROM academy_lessons WHERE slug = ?`
+      ).bind(slug).first<any>();
+      if (row) {
+        const data = {
+          ...row,
+          img: "hero.webp"
+        };
+        setCached(cacheKey, data, env);
+        return json(data);
+      }
+    } catch {
+      // Fall through
+    }
   }
 
-  const fields = record.fields;
+  const baseline = getBaselineAcademy();
+  const allLessons = [
+    ...baseline.lessons.fundamentals,
+    ...baseline.lessons.playbook,
+    ...baseline.lessons.workshop
+  ];
+  const found = allLessons.find((l) => l.slug === slug) || allLessons[0];
   const data = {
-    title: asText(fields.title),
-    category: asText(fields.category),
-    tag: asText(fields.tag),
-    desc: asText(fields.description),
-    img: asText(fields.cover_image),
-    content: asText(fields.content)
+    title: found.title,
+    category,
+    tag: found.tag,
+    desc: found.desc,
+    img: "hero.webp",
+    content: found.desc
   };
-
-  setCached(cacheKey, data);
+  setCached(cacheKey, data, env);
   return json(data);
 }
 
@@ -3353,6 +3655,20 @@ export async function handlePortalRequest(request: Request, env: Env) {
     if (path === "/api/portal/webhook/sync" && request.method === "POST") {
       cacheMap.clear();
       return json({ ok: true, cleared: true });
+    }
+    if (path === "/api/portal/webhook/sync-d1" && request.method === "POST") {
+      const adminKey = request.headers.get("x-admin-key");
+      if (!adminKey || adminKey !== (env.PORTAL_SESSION_SECRET || "")) {
+        return problem("Unauthorized", 401);
+      }
+      try {
+        const { runFeishuScheduledSync } = await import("../jobs/feishu-sync");
+        const result = await runFeishuScheduledSync(env);
+        cacheMap.clear();
+        return json({ ok: true, ...result });
+      } catch (e) {
+        return problem(`Sync failed: ${String(e)}`, 500);
+      }
     }
 
     if (path.startsWith("/api/auth/")) {

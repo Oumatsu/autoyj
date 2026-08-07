@@ -542,6 +542,18 @@ export default function PortalPage() {
   });
   const [activeAdminModule, setActiveAdminModule] = useState<AdminModule>(() => {
     if (typeof window !== "undefined") {
+      const pathname = window.location.pathname.toLowerCase();
+      const segments = pathname.split("/").filter(Boolean);
+      const lastSegment = (segments[segments.length - 1] || "").replaceAll("-", "_") as AdminModule;
+      if (lastSegment === "vehicle_models" || lastSegment === "profiles") return "vehicle_models";
+      if (lastSegment === "vehicles") return "vehicles";
+      if (lastSegment === "quotes" || lastSegment === "inquiries") return "quotes";
+      if (lastSegment === "orders") return "orders";
+      if (lastSegment === "payments") return "payments";
+      if (lastSegment === "logistics") return "logistics";
+      if (lastSegment === "customers") return "customers";
+      if (lastSegment === "staff") return "staff";
+
       const params = new URLSearchParams(window.location.search);
       const queryTab = (params.get("tab") || params.get("module") || "").toLowerCase().replaceAll("-", "_");
       if (queryTab === "vehicle_models" || queryTab === "profiles") return "vehicle_models";
@@ -717,8 +729,16 @@ export default function PortalPage() {
   const handleModuleChange = (module: AdminModule) => {
     setActiveAdminModule(module);
     if (typeof window !== "undefined") {
+      const segments = window.location.pathname.split("/").filter(Boolean);
+      const currentLocale = (segments[0] === "zh" || segments[0] === "am" || segments[0] === "en") ? segments[0] : "en";
+      const targetPath = module === "dashboard" ? `/${currentLocale}/dashboard` : `/${currentLocale}/dashboard/${module}`;
+      
+      // Clear legacy ?tab= query parameter if present when navigating
       const url = new URL(window.location.href);
-      url.searchParams.set("tab", module);
+      url.pathname = targetPath;
+      url.searchParams.delete("tab");
+      url.searchParams.delete("module");
+      
       window.history.pushState({ module }, "", url.toString());
     }
   };
@@ -1329,7 +1349,7 @@ function AdminPortal({
                 return (
                   <a
                     key={item.key}
-                    href={`/dashboard?tab=${item.key}`}
+                    href={item.key === "dashboard" ? `/${locale}/dashboard` : `/${locale}/dashboard/${item.key}`}
                     onClick={(e) => {
                       e.preventDefault();
                       onModuleChange(item.key);
@@ -1909,7 +1929,7 @@ function AdminVehicles({ data, onEdit, onRefresh }: { data: BootstrapData; onEdi
         modelMatches,
       };
     })
-    .filter((item) => item.offers.length > 0 || item.rawVehicles.length > 0 || isAllDefault);
+    .filter((item) => (isAllDefault ? (item.offers.length > 0 || item.rawVehicles.length > 0) : (item.rawVehicles.length > 0 || item.offers.length > 0)));
 
   function toggleModel(key: string) {
     setExpandedModels((current) => {
@@ -2163,7 +2183,7 @@ function AdminVehicles({ data, onEdit, onRefresh }: { data: BootstrapData; onEdi
                                   ...(canSeeSupplier ? [localizeVehicleValue("Supplier", locale)] : []),
                                   ...(canSeeLocation ? [localizeVehicleValue("Location", locale)] : []),
                                   localizeVehicleValue("USD Price", locale),
-                                  localizeVehicleValue("Fulfilment", locale),
+                                  localizeVehicleValue("Wait Days", locale),
                                   localizeVehicleValue("Inquiry", locale),
                                 ]}
                                 rows={variant.colors.map((color) => {
@@ -3585,9 +3605,10 @@ function formatInventoryQuantity(vehicle: Vehicle) {
 }
 
 function formatFulfillmentStatus(vehicle: Vehicle) {
-  if (vehicle.waitDays === 0) return "In Stock";
-  if (vehicle.waitDays !== null && vehicle.waitDays !== undefined && vehicle.waitDays > 0) return `Pre-order: ${vehicle.waitDays} days`;
-  return "Lead time pending";
+  if (vehicle.waitDays !== null && vehicle.waitDays !== undefined) {
+    return `${vehicle.waitDays} days`;
+  }
+  return "-";
 }
 
 function formatFobRange(prices: number[]) {

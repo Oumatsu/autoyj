@@ -1,14 +1,14 @@
 "use client";
 
-import { useTranslation } from "@/i18n/useTranslation";
+import { useTranslation, T } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
 
 export default function SolutionsPage() {
   const { t, tArray } = useTranslation();
 
-  const pdiChecklist = (t("solutions.pdi.checklist") as any[]) || [];
+  const pdiChecklist = tArray("solutions.pdi.checklist");
   const kitItems = tArray("solutions.partsKit.kitItems");
-  const serviceCentreItems = (t("solutions.serviceCentre.items") as any[]) || [];
+  const serviceCentreItems = tArray("solutions.serviceCentre.items");
 
   return (
     <>
@@ -18,8 +18,8 @@ export default function SolutionsPage() {
         <img
           src="/pic/hero/0.webp"
           className="absolute inset-0 h-full w-full object-cover"
-          style={{ filter: "brightness(.95)" }}
-          alt="Export Logistics"
+          style={{ filter: "brightness(.28) grayscale(20%)" }}
+          alt="Solutions Hero"
         />
         <div
           className="absolute inset-0"
@@ -41,11 +41,14 @@ export default function SolutionsPage() {
             className="sh mb-4 sm:mb-6"
             style={{ fontSize: "clamp(2rem, 8vw, 6.5rem)" }}
           >
-            {t("solutions.hero.heading1")}{" "}
-            <span className="text-accent">{t("solutions.hero.headingAccent1")}</span>
-            <br />
-            {t("solutions.hero.heading2")}{" "}
-            <span className="text-theme">{t("solutions.hero.headingAccent2")}</span>
+            <T
+              keyName="solutions.hero.heading"
+              params={{
+                accent1: (chunks: any) => <span className="text-accent">{chunks}</span>,
+                accent2: (chunks: any) => <span className="text-theme">{chunks}</span>,
+                br: () => <br />,
+              }}
+            />
           </h1>
           <p className="hidden min-[392px]:block text-gray-300 text-sm sm:text-lg font-light italic max-w-2xl mx-auto leading-relaxed px-2">
             {t("solutions.hero.subtitle")}
@@ -60,10 +63,14 @@ export default function SolutionsPage() {
             <div>
               <div className="label mb-6">{t("solutions.pdi.label")}</div>
               <h2 className="sh mb-8">
-                {t("solutions.pdi.heading")}{" "}
-                <span className="text-theme">{t("solutions.pdi.headingAccent1")}</span>
-                <br />
-                {t("solutions.pdi.headingAccent2")}
+                <T
+                  keyName="solutions.pdi.heading"
+                  params={{
+                    accent1: (chunks: any) => <span className="text-theme">{chunks}</span>,
+                    accent2: (chunks: any) => <span className="text-accent">{chunks}</span>,
+                    br: () => <br />,
+                  }}
+                />
               </h2>
               <p className="text-gray-500 text-lg font-light leading-relaxed mb-10">
                 {t("solutions.pdi.description")}
@@ -142,9 +149,13 @@ export default function SolutionsPage() {
               {t("solutions.loading.badge")}
             </div>
             <h2 className="sh mb-8">
-              {t("solutions.loading.heading")}
-              <br />
-              <span className="text-theme">{t("solutions.loading.headingAccent")}</span>
+              <T
+                keyName="solutions.loading.heading"
+                params={{
+                  accent: (chunks: any) => <span className="text-theme">{chunks}</span>,
+                  br: () => <br />,
+                }}
+              />
             </h2>
             <p className="text-gray-400 text-lg font-light italic leading-relaxed mb-12">
               {t("solutions.loading.description")}
@@ -205,9 +216,13 @@ export default function SolutionsPage() {
             <div className="order-1 lg:order-2">
               <div className="label mb-6">{t("solutions.partsKit.label")}</div>
               <h2 className="sh mb-8">
-                {t("solutions.partsKit.heading")}{" "}
-                <span className="text-accent">{t("solutions.partsKit.headingAccent")}</span>{" "}
-                {t("solutions.partsKit.headingSuffix")}
+                <T
+                  keyName="solutions.partsKit.heading"
+                  params={{
+                    accent: (chunks: any) => <span className="text-accent">{chunks}</span>,
+                    br: () => <br />,
+                  }}
+                />
               </h2>
               <p className="text-gray-500 text-lg font-light leading-relaxed mb-8">
                 {t("solutions.partsKit.description")}
@@ -240,8 +255,13 @@ export default function SolutionsPage() {
                 {t("solutions.serviceCentre.label")}
               </div>
               <h2 className="sh mb-8">
-                {t("solutions.serviceCentre.heading")}{" "}
-                <span className="text-theme">{t("solutions.serviceCentre.headingAccent")}</span>
+                <T
+                  keyName="solutions.serviceCentre.heading"
+                  params={{
+                    accent: (chunks: any) => <span className="text-theme">{chunks}</span>,
+                    br: () => <br />,
+                  }}
+                />
               </h2>
               <p className="text-gray-500 text-lg font-light leading-relaxed mb-8">
                 {t("solutions.serviceCentre.description")}
@@ -316,8 +336,13 @@ export default function SolutionsPage() {
               {t("solutions.marketing.badge")}
             </div>
             <h2 className="sh mb-8">
-              {t("solutions.marketing.heading")}{" "}
-              <span className="text-theme">{t("solutions.marketing.headingAccent")}</span>
+              <T
+                keyName="solutions.marketing.heading"
+                params={{
+                  accent: (chunks: any) => <span className="text-theme">{chunks}</span>,
+                  br: () => <br />,
+                }}
+              />
             </h2>
             <p className="text-gray-400 text-lg font-light italic leading-relaxed mb-12">
               {t("solutions.marketing.description")}
@@ -368,8 +393,14 @@ export default function SolutionsPage() {
             <div>
               <div className="label mb-6">{t("solutions.tradeTerms.label")}</div>
               <h2 className="sh mb-8">
-                <span className="text-theme">{t("solutions.tradeTerms.headingAccent1")}</span>{" "}
-                {t("solutions.tradeTerms.headingSuffix")}
+                <T
+                  keyName="solutions.tradeTerms.heading"
+                  params={{
+                    accent1: (chunks: any) => <span className="text-theme">{chunks}</span>,
+                    accent2: (chunks: any) => <span className="text-accent">{chunks}</span>,
+                    br: () => <br />,
+                  }}
+                />
               </h2>
               <p className="text-gray-500 text-lg font-light leading-relaxed mb-8">
                 {t("solutions.tradeTerms.description")}

@@ -25,8 +25,8 @@ export type FeishuAuthUser = {
  * 2. 集成本地凭证仓 (<5ms 瞬间无缝极速登录)
  * 3. 挂载 customSession 实时解析 4 种角色 (admin / sales / partner / customer)
  */
-export function createFeishuAuth(env: Record<string, string | undefined> = {}) {
-  const secret = env.PORTAL_SESSION_SECRET;
+export function createFeishuAuth(env: Record<string, unknown> = {}) {
+  const secret = (env.PORTAL_SESSION_SECRET as string | undefined);
   const resolvedSecret = secret && secret.length >= 32
     ? secret
     : "autoyj-portal-session-secret-fallback-key-32chars";
@@ -34,20 +34,28 @@ export function createFeishuAuth(env: Record<string, string | undefined> = {}) {
     console.warn("[auth] PORTAL_SESSION_SECRET not set or too short — using default fallback key");
   }
 
-  // PORTAL_BASE_URL defaults to localhost only for local development
-  const baseURL = env.PORTAL_BASE_URL || "http://localhost:3000";
-
+  const baseURL = (env.PORTAL_BASE_URL as string | undefined) || "http://localhost:3000";
+  const database = env.PORTAL_DB as D1Database | undefined;
 
   return betterAuth({
     baseURL,
     secret: resolvedSecret,
+    ...(database ? { database } : {}),
+    user: {
+      additionalFields: {
+        user_id: { type: "string", required: false },
+        customer_id: { type: "string", required: false },
+        company: { type: "string", required: false },
+        account_type: { type: "string", required: false, defaultValue: "external" },
+        role: { type: "string", required: false, defaultValue: "customer" },
+        price_tier: { type: "string", required: false, defaultValue: "vip" },
+        status: { type: "string", required: false, defaultValue: "Active" },
+      },
+    },
     emailAndPassword: {
       enabled: true,
-      disableSignUp: true, // 🚫 彻底关闭公开注册入口
+      disableSignUp: true, // 🚫 关闭公开注册入口（后台统一预存账号）
       async password({ hash, password }) {
-        // Access codes are pre-shared fixed strings, not personal passwords.
-        // We store and compare them as-is (no bcrypt hash needed).
-        // Use constant-time comparison to prevent timing attacks.
         if (hash.length !== password.length) return false;
         let mismatch = 0;
         for (let i = 0; i < hash.length; i++) {
@@ -63,16 +71,19 @@ export function createFeishuAuth(env: Record<string, string | undefined> = {}) {
     plugins: [
       customSession(async ({ user, session }) => {
         const local = localUserStore.find((u) => u.email.toLowerCase() === user.email.toLowerCase()) || findLocalUser(user.email, "");
+        const rawRole = (user as unknown as Record<string, unknown>).role || local?.role || "customer";
+        const rawPriceTier = (user as unknown as Record<string, unknown>).price_tier || local?.priceTier || "vip";
+        const rawAccountType = (user as unknown as Record<string, unknown>).account_type || local?.accountType || "external";
         return {
           session,
           user: {
             ...user,
-            userId: local?.userId || user.id,
-            customerId: local?.customerId || user.id,
-            company: local?.company || "Youguard",
-            accountType: local?.accountType || "internal",
-            role: (local?.role as PortalRole) || "customer",
-            priceTier: (local?.priceTier as PriceTier) || "vip",
+            userId: (user as unknown as Record<string, unknown>).user_id as string || local?.userId || user.id,
+            customerId: (user as unknown as Record<string, unknown>).customer_id as string || local?.customerId || user.id,
+            company: (user as unknown as Record<string, unknown>).company as string || local?.company || "Youguard",
+            accountType: rawAccountType as AccountType,
+            role: rawRole as PortalRole,
+            priceTier: rawPriceTier as PriceTier,
           },
         };
       }),

@@ -11,6 +11,12 @@ import {
 
 const tabSectionIds = ["hero", "fundamentals", "playbook", "workshop", "vault"];
 
+function resolveLessonImg(img?: string): string {
+  if (!img || img === "hero.webp") return "/pic/hero/photo-1593941707882-a5bba14938c7.webp";
+  if (img.startsWith("/") || (img.startsWith("http") && !img.includes("feishu"))) return img;
+  return `/pic/academy/${img}`;
+}
+
 export default function AcademyPage() {
   const { t } = useTranslation();
   const tabBarRef = useRef<HTMLDivElement>(null);
@@ -202,7 +208,7 @@ export default function AcademyPage() {
                 className="article-card block"
               >
                 <div className="article-img-wrap">
-                  <img src={lesson.img} className="article-img" alt={lesson.title} />
+                  <img src={resolveLessonImg(lesson.img)} className="article-img" alt={lesson.title} />
                 </div>
                 <div className="article-content">
                   <span className="tag tag-basics">{lesson.tag}</span>
@@ -305,7 +311,7 @@ export default function AcademyPage() {
                 className="article-card flex md:flex-row block"
               >
                 <div className="article-img-wrap md:w-2/5 md:aspect-auto">
-                  <img src={lesson.img} className="article-img" alt={lesson.title} />
+                  <img src={resolveLessonImg(lesson.img)} className="article-img" alt={lesson.title} />
                 </div>
                 <div className="article-content md:w-3/5">
                   <span className="tag tag-maintenance">{lesson.tag}</span>

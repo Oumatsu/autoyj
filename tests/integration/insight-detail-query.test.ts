@@ -2,19 +2,18 @@ import { describe, expect, test } from "bun:test";
 import { readFile } from "node:fs/promises";
 
 describe("Integration: Insight Detail Query Handler", () => {
-  test("Insight detail reads Feishu records without the invalid list-records filter", async () => {
+  test("Insight detail queries D1 database without runtime Feishu calls", async () => {
     const source = await readFile(new URL("../../server/api/portal.ts", import.meta.url), "utf8");
     const match = source.match(
-      /async function handlePublicInsight\([\s\S]*?(?=async function handlePublicAcademy\()/
+      /async function handlePublicInsight\([\s\S]*?(?=function getBaselineAcademy\()/
     );
 
     expect(match).toBeTruthy();
     const handler = match![0];
 
-    expect(handler).not.toMatch(/equalsFilter\("slug", slug\)/);
-    expect(handler).toMatch(/searchRecords\(env, articlesTableId, \{\s*pageSize: 100\s*\}\)/);
-    expect(handler).toMatch(/records\.find/);
-    expect(handler).toMatch(/asText\(r\.fields\.slug\) === slug/);
-    expect(handler).toMatch(/asText\(r\.fields\.status\) === "Published"/);
+    expect(handler).not.toMatch(/searchRecords/);
+    expect(handler).toMatch(/PORTAL_DB/);
+    expect(handler).toMatch(/FROM articles WHERE slug = \?/);
+    expect(handler).toMatch(/getBaselineArticles\(\)/);
   });
 });

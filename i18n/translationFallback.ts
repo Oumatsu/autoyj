@@ -17,9 +17,9 @@ export function resolveTranslationValue(
   for (const source of sources) {
     if (!source) continue;
     const value = nestedValue(source, key);
-    if (value !== undefined) return value;
+    if (value !== undefined && value !== "") return value;
   }
-  return fallback ?? key;
+  return fallback ?? "";
 }
 
 export function asStringArray(value: unknown, fallback: string[]): string[] {

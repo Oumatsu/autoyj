@@ -120,7 +120,7 @@ test.describe("Tier 4: E2E Real Portal Login & Logout Interactive Journey", () =
     await page.locator("#login-access-code").fill("admin-demo-2026");
     await page.locator("form button[type='submit'], form button", { hasText: /Sign In/i }).click();
 
-    await page.locator("a[href='/dashboard?tab=vehicles']").click();
+    await page.locator("a[href*='/dashboard/vehicles']").click();
     await expect(page.locator("[role='status']")).toHaveCount(0, { timeout: 15000 });
 
     const resetButton = page.getByRole("button", { name: /Reset|重置/i });
@@ -158,11 +158,11 @@ test.describe("Tier 4: E2E Real Portal Login & Logout Interactive Journey", () =
     await page.locator("#login-access-code").fill("customer-demo-2026");
     await page.locator("form button[type='submit'], form button", { hasText: /Sign In/i }).click();
 
-    const vehiclesLink = page.locator("a[href='/dashboard?tab=vehicles']");
+    const vehiclesLink = page.locator("a[href*='/dashboard/vehicles']");
     await expect(vehiclesLink).toBeVisible();
     await vehiclesLink.click();
 
-    await expect(page).toHaveURL(/\?tab=vehicles/);
+    await expect(page).toHaveURL(/\/dashboard\/vehicles/);
     await expect(page.getByRole("heading", { name: /Vehicle Resources|车辆资源/i })).toBeVisible();
   });
 
@@ -172,7 +172,7 @@ test.describe("Tier 4: E2E Real Portal Login & Logout Interactive Journey", () =
     await page.locator("#login-email").fill("admin@local.test");
     await page.locator("#login-access-code").fill("admin-demo-2026");
     await page.locator("form button[type='submit'], form button", { hasText: /Sign In/i }).click();
-    await page.locator("a[href='/dashboard?tab=vehicles']").click();
+    await page.locator("a[href*='/dashboard/vehicles']").click();
     await expect(page.locator("[role='status']")).toHaveCount(0, { timeout: 15000 });
 
     await expect(page.locator("select")).toHaveCount(3);
@@ -185,7 +185,7 @@ test.describe("Tier 4: E2E Real Portal Login & Logout Interactive Journey", () =
     await page.locator("#login-access-code").fill("admin-demo-2026");
     await page.locator("form button[type='submit'], form button", { hasText: /Sign In/i }).click();
 
-    await page.locator("a[href='/dashboard?tab=vehicles']").click();
+    await page.locator("a[href*='/dashboard/vehicles']").click();
     await page.getByRole("button", { name: /View trims|查看版本|Trims/i }).first().click();
 
     await page.getByRole("button", { name: /View colors|查看颜色|Colors/i }).first().click();

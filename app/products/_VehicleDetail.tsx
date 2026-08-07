@@ -4,6 +4,7 @@ import { useState, useCallback, useMemo } from "react";
 import { LocaleLink } from "@/i18n/LocaleLink";
 
 import { useTranslation } from "@/i18n/useTranslation";
+import { getVehicleGalleryImages } from "@/lib/static-assets";
 import {
   detailModelKey,
   detailVariantKey,
@@ -625,7 +626,7 @@ export default function VehicleDetail({ data: rawData }: { data: DetailData }) {
   }, [t]);
 
   const v = data.vehicle;
-  const gallery: GalleryImage[] = data.galleryImages?.length ? data.galleryImages : DEFAULT_GALLERY;
+  const gallery: GalleryImage[] = data.galleryImages?.length ? data.galleryImages : getVehicleGalleryImages(rawData.slug, v.heroImage);
   const batchLevels = data.batchLevels?.length ? data.batchLevels : DEFAULT_BATCH_LEVELS;
   const batchMargin = data.batchMargin || DEFAULT_BATCH_MARGIN;
   const [galIdx, setGalIdx] = useState(0);

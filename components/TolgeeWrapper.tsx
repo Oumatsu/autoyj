@@ -15,7 +15,7 @@ export function TolgeeWrapper({
   const tolgee = useMemo(() => createTolgee(locale || defaultLocale), [locale]);
 
   return (
-    <TolgeeProvider tolgee={tolgee} fallback={<div className="animate-pulse">{children}</div>}>
+    <TolgeeProvider tolgee={tolgee}>
       {children}
     </TolgeeProvider>
   );

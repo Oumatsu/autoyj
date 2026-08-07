@@ -4,11 +4,11 @@ import { useTranslation } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
 
 export default function ConfigureKitPage() {
-  const { t } = useTranslation();
+  const { t, tArray } = useTranslation();
 
-  const previewItems = (t("solutionsConfigureKit.preview.items") as any[]) || [];
-  const partsList = (t("solutionsConfigureKit.form.parts") as any[]) || [];
-  const addOnsList = (t("solutionsConfigureKit.form.addOns") as any[]) || [];
+  const previewItems = tArray("solutionsConfigureKit.preview.items");
+  const partsList = tArray("solutionsConfigureKit.form.parts");
+  const addOnsList = tArray("solutionsConfigureKit.form.addOns");
 
   return (
     <>

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { QrDropdown } from "./QrDropdown";
-import { useTranslation } from "@/i18n/useTranslation";
+import { useTranslation, T } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
 import { Button } from "@/components/ui/button";
 
@@ -66,15 +66,29 @@ export function Footer() {
           <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-3 sm:gap-4">
             <LocaleLink
               href="/qr"
-              className="sm:hidden btn-primary px-8 py-4 rounded text-xs font-black tracking-widest uppercase italic shadow-lg w-full text-center"
+              className="sm:hidden btn-primary inline-flex items-center justify-center gap-2 px-8 py-4 rounded text-xs font-black tracking-widest uppercase italic shadow-lg w-full text-center"
             >
+              <svg viewBox="0 0 32 32" width="18" height="18" fill="none" aria-hidden="true">
+                <circle cx="16" cy="16" r="16" fill="currentColor" fillOpacity="0.18" />
+                <path
+                  d="M16 6C10.477 6 6 10.477 6 16c0 1.9.53 3.677 1.45 5.19L6 26l4.93-1.43A9.94 9.94 0 0 0 16 26c5.523 0 10-4.477 10-10S21.523 6 16 6Zm5.6 13.6c-.24.66-1.38 1.28-1.9 1.34-.5.06-1 .24-3.38-.72-2.86-1.18-4.68-4.06-4.82-4.26-.14-.2-1.14-1.52-1.14-2.9 0-1.38.72-2.06 1-2.34.26-.28.58-.34.78-.34h.56c.18 0 .42-.06.66.5.24.56.82 2 .9 2.14.08.14.12.3.02.48-.1.18-.14.3-.28.46-.14.16-.3.36-.42.48-.14.14-.3.3-.12.58.18.28.8 1.32 1.72 2.14 1.18 1.04 2.18 1.38 2.46 1.52.28.14.46.12.62-.06.18-.18.76-.88.96-1.18.2-.3.4-.24.66-.14.26.1 1.64.78 1.92.92.28.14.46.2.52.32.06.12.06.68-.18 1.34Z"
+                  fill="currentColor"
+                />
+              </svg>
               {t("footer.whatsapp")}
             </LocaleLink>
             <QrDropdown>
               <LocaleLink
                 href="/qr"
-                className="hidden sm:inline-flex btn-primary px-8 sm:px-12 py-4 sm:py-5 rounded text-xs sm:text-sm font-black tracking-widest uppercase italic shadow-lg"
+                className="hidden sm:inline-flex btn-primary items-center gap-2 px-8 sm:px-12 py-4 sm:py-5 rounded text-xs sm:text-sm font-black tracking-widest uppercase italic shadow-lg"
               >
+                <svg viewBox="0 0 32 32" width="18" height="18" fill="none" aria-hidden="true">
+                  <circle cx="16" cy="16" r="16" fill="currentColor" fillOpacity="0.18" />
+                  <path
+                    d="M16 6C10.477 6 6 10.477 6 16c0 1.9.53 3.677 1.45 5.19L6 26l4.93-1.43A9.94 9.94 0 0 0 16 26c5.523 0 10-4.477 10-10S21.523 6 16 6Zm5.6 13.6c-.24.66-1.38 1.28-1.9 1.34-.5.06-1 .24-3.38-.72-2.86-1.18-4.68-4.06-4.82-4.26-.14-.2-1.14-1.52-1.14-2.9 0-1.38.72-2.06 1-2.34.26-.28.58-.34.78-.34h.56c.18 0 .42-.06.66.5.24.56.82 2 .9 2.14.08.14.12.3.02.48-.1.18-.14.3-.28.46-.14.16-.3.36-.42.48-.14.14-.3.3-.12.58.18.28.8 1.32 1.72 2.14 1.18 1.04 2.18 1.38 2.46 1.52.28.14.46.12.62-.06.18-.18.76-.88.96-1.18.2-.3.4-.24.66-.14.26.1 1.64.78 1.92.92.28.14.46.2.52.32.06.12.06.68-.18 1.34Z"
+                    fill="currentColor"
+                  />
+                </svg>
                 {t("footer.whatsapp")}
               </LocaleLink>
             </QrDropdown>

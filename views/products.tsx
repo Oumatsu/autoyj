@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useTranslation } from "@/i18n/useTranslation";
+import { useTranslation, T } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
 import { vehicles as fallbackRevenue } from "../app/products/revenue-king/data";
 import { vehicles as fallbackElite } from "../app/products/elite-flagship/data";
@@ -244,10 +244,14 @@ export default function ProductsPage() {
             className="sh mb-4 sm:mb-6"
             style={{ fontSize: "clamp(2rem, 8vw, 6.5rem)" }}
           >
-            {t("products.hero.heading1")}{" "}
-            <span className="text-theme">{t("products.hero.headingAccent1")}</span>
-            <br />
-            <span className="text-accent">{t("products.hero.headingAccent2")}</span>
+            <T
+              keyName="products.hero.heading"
+              params={{
+                accent1: (chunks: any) => <span className="text-theme">{chunks}</span>,
+                accent2: (chunks: any) => <span className="text-accent">{chunks}</span>,
+                br: () => <br />,
+              }}
+            />
           </h1>
           <p className="hidden min-[392px]:block text-gray-300 text-sm sm:text-lg font-light italic max-w-2xl mx-auto leading-relaxed px-2">
             {t("products.hero.subtitle")}

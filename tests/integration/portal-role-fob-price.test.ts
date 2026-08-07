@@ -73,17 +73,17 @@ describe("Integration: Portal price terms by account role", () => {
       ]);
 
       expect(adminCatalog.vehicles[0]).toMatchObject({
-        fobPrice: 24500,
+        price: 23000,
         brand: "BYD",
         model: "Seal",
       });
       expect(partnerCatalog.vehicles[0]).toMatchObject({
-        fobPrice: 24500,
+        price: 24600,
         brand: "BYD",
         model: "Seal",
       });
       expect(customerCatalog.vehicles[0]).toMatchObject({
-        fobPrice: 24500,
+        price: 24600,
         brand: "BYD",
         model: "Seal",
       });

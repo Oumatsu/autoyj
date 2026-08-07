@@ -32,8 +32,8 @@ export function translateAcademyLesson<T extends Record<string, any>>(
 export function getAcademyLessonDate(slug: unknown): string {
   const normalizedSlug = typeof slug === "string" ? slug : "";
   return normalizedSlug === "ev-range-explained-africa" || normalizedSlug === "ev-test-drive-guide"
-    ? "May 17, 2026"
-    : "May 16, 2026";
+    ? "2026-05-17"
+    : "2026-05-16";
 }
 
 export function translateAcademyVaultItem<T extends Record<string, any>>(

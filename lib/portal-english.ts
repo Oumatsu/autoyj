@@ -375,7 +375,7 @@ const vehicleAmharicTerms: Array<[string, string]> = [
   ["Total stock:", "ጠቅላላ ክምችት:"],
   ["Total Stock", "ጠቅላላ ክምችት"],
   ["USD Price", "የUSD ዋጋ"],
-  ["Fulfilment", "ማሟላት"],
+  ["Wait Days", "下单后需要等待天数"],
   ["Supplier", "አቅራቢ"],
   ["Location", "ቦታ"],
   ["Supply", "አቅርቦት"],

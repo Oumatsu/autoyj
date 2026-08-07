@@ -27,6 +27,7 @@
     "knip": "knip"
   },
   "dependencies": {
+    "@tolgee/format-icu": "^7.1.3",
     "@tolgee/react": "^7.1.3",
     "better-auth": "^1.6.25",
     "clsx": "^2.1.1",

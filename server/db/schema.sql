@@ -51,11 +51,20 @@ CREATE TABLE IF NOT EXISTS vehicle_models (
   i18n_translations TEXT,
   inventory_status TEXT,
   version TEXT,
+  airbags INTEGER,
+  charging TEXT,
+  household_charging TEXT,
+  model_year INTEGER,
+  brochure_cover TEXT,
+  why_section_description TEXT,
+  guide_price_min_usd_auto REAL,
+  guide_price_max_usd_auto REAL,
   synced_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
 CREATE TABLE IF NOT EXISTS vehicle_trims (
   id TEXT PRIMARY KEY,
+  trim_config_id TEXT,
   model_id TEXT NOT NULL,
   parent_model_record_id TEXT,
   trim_name TEXT,
@@ -68,6 +77,18 @@ CREATE TABLE IF NOT EXISTS vehicle_trims (
   motor_power_kw REAL,
   top_speed_kmh INTEGER,
   zero_to_100_sec REAL,
+  battery_chemistry TEXT,
+  dc_fast_charge_supported INTEGER,
+  dc_fast_charge_time_hours REAL,
+  dc_fast_charge_min_percent REAL,
+  dc_fast_charge_max_percent REAL,
+  motor_torque_n_m REAL,
+  drivetrain_display TEXT,
+  trim_order INTEGER,
+  recommended INTEGER,
+  added_features_json TEXT,
+  upgraded_features_json TEXT,
+  base_spec_summary_json TEXT,
   specs_json TEXT,
   synced_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
@@ -96,6 +117,14 @@ CREATE TABLE IF NOT EXISTS vehicles (
   gallery_images_json TEXT,
   specs_json TEXT,
   ai_confidence_score REAL,
+  exw_usd REAL,
+  fca_usd REAL,
+  fob_usd REAL,
+  guide_price_cny REAL,
+  production_year INTEGER,
+  production_month INTEGER,
+  exterior_color TEXT,
+  interior_color TEXT,
   synced_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
@@ -103,7 +132,6 @@ CREATE INDEX IF NOT EXISTS idx_vehicle_models_brand ON vehicle_models(brand);
 CREATE INDEX IF NOT EXISTS idx_vehicle_models_status ON vehicle_models(status);
 CREATE INDEX IF NOT EXISTS idx_vehicle_trims_model_id ON vehicle_trims(model_id);
 CREATE INDEX IF NOT EXISTS idx_vehicles_model_id ON vehicles(model_id);
-CREATE INDEX IF NOT EXISTS idx_vehicles_stage ON vehicles(stage);
 
 -- Inquiry management is transactional portal data. D1 is its system of record.
 CREATE TABLE IF NOT EXISTS inquiries (
@@ -183,3 +211,149 @@ CREATE INDEX IF NOT EXISTS idx_inquiry_reads_user ON inquiry_reads(user_id, inqu
 CREATE INDEX IF NOT EXISTS idx_inquiry_status_history_inquiry_created ON inquiry_status_history(inquiry_no, created_at);
 CREATE INDEX IF NOT EXISTS idx_inquiries_deleted_at ON inquiries(deleted_at);
 CREATE INDEX IF NOT EXISTS idx_inquiry_notes_deleted_at ON inquiry_notes(deleted_at);
+
+-- Better Auth Standard Tables for Cloudflare D1
+CREATE TABLE IF NOT EXISTS user (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  email TEXT NOT NULL UNIQUE,
+  emailVerified INTEGER NOT NULL DEFAULT 0,
+  image TEXT,
+  createdAt INTEGER NOT NULL,
+  updatedAt INTEGER NOT NULL,
+  user_id TEXT,
+  customer_id TEXT,
+  company TEXT,
+  account_type TEXT DEFAULT 'external',
+  role TEXT DEFAULT 'customer',
+  price_tier TEXT DEFAULT 'vip',
+  status TEXT DEFAULT 'Active'
+);
+
+CREATE TABLE IF NOT EXISTS session (
+  id TEXT PRIMARY KEY,
+  userId TEXT NOT NULL REFERENCES user(id) ON DELETE CASCADE,
+  token TEXT NOT NULL UNIQUE,
+  expiresAt INTEGER NOT NULL,
+  ipAddress TEXT,
+  userAgent TEXT,
+  createdAt INTEGER NOT NULL,
+  updatedAt INTEGER NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS account (
+  id TEXT PRIMARY KEY,
+  userId TEXT NOT NULL REFERENCES user(id) ON DELETE CASCADE,
+  accountId TEXT NOT NULL,
+  providerId TEXT NOT NULL,
+  accessToken TEXT,
+  refreshToken TEXT,
+  accessTokenExpiresAt INTEGER,
+  refreshTokenExpiresAt INTEGER,
+  scope TEXT,
+  password TEXT,
+  createdAt INTEGER NOT NULL,
+  updatedAt INTEGER NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS verification (
+  id TEXT PRIMARY KEY,
+  identifier TEXT NOT NULL,
+  value TEXT NOT NULL,
+  expiresAt INTEGER NOT NULL,
+  createdAt INTEGER,
+  updatedAt INTEGER
+);
+
+CREATE INDEX IF NOT EXISTS idx_user_email ON user(email);
+CREATE INDEX IF NOT EXISTS idx_session_userId ON session(userId);
+CREATE INDEX IF NOT EXISTS idx_account_userId ON account(userId);
+
+-- 1. Articles / Insights Table
+CREATE TABLE IF NOT EXISTS articles (
+  id TEXT PRIMARY KEY,
+  slug TEXT UNIQUE NOT NULL,
+  title TEXT NOT NULL,
+  category TEXT,
+  date TEXT,
+  read_time TEXT,
+  cover_image TEXT,
+  overview TEXT,
+  content TEXT,
+  status TEXT DEFAULT 'Published',
+  sort_order INTEGER DEFAULT 0,
+  synced_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- 2. Academy Lessons Table
+CREATE TABLE IF NOT EXISTS academy_lessons (
+  id TEXT PRIMARY KEY,
+  slug TEXT UNIQUE NOT NULL,
+  title TEXT NOT NULL,
+  category TEXT,
+  tag TEXT,
+  description TEXT,
+  level TEXT,
+  duration TEXT,
+  date TEXT,
+  content TEXT,
+  sort_order INTEGER DEFAULT 0,
+  synced_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- 3. Academy Vault Resources Table
+CREATE TABLE IF NOT EXISTS academy_vault (
+  id TEXT PRIMARY KEY,
+  title TEXT NOT NULL,
+  type TEXT,
+  description TEXT,
+  file_size TEXT,
+  format TEXT,
+  download_url TEXT,
+  category TEXT,
+  sort_order INTEGER DEFAULT 0,
+  synced_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- 4. Quotes Table
+CREATE TABLE IF NOT EXISTS quotes (
+  id TEXT PRIMARY KEY,
+  quote_no TEXT UNIQUE NOT NULL,
+  inquiry_no TEXT NOT NULL,
+  customer_id TEXT NOT NULL,
+  vehicle_id TEXT NOT NULL,
+  price REAL NOT NULL,
+  status TEXT DEFAULT 'Active',
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+
+-- 5. Negotiations Table
+CREATE TABLE IF NOT EXISTS negotiations (
+  id TEXT PRIMARY KEY,
+  inquiry_no TEXT NOT NULL,
+  quote_no TEXT,
+  actor_user_id TEXT NOT NULL,
+  actor_name TEXT,
+  actor_role TEXT,
+  message TEXT NOT NULL,
+  created_at TEXT NOT NULL
+);
+
+-- 6. Orders Table
+CREATE TABLE IF NOT EXISTS orders (
+  id TEXT PRIMARY KEY,
+  order_no TEXT UNIQUE NOT NULL,
+  inquiry_no TEXT NOT NULL,
+  customer_id TEXT NOT NULL,
+  vehicle_id TEXT NOT NULL,
+  quantity INTEGER NOT NULL,
+  status TEXT DEFAULT 'Pending',
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_articles_slug ON articles(slug);
+CREATE INDEX IF NOT EXISTS idx_academy_lessons_slug ON academy_lessons(slug);
+
+
