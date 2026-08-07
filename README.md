@@ -31,6 +31,25 @@ bun run db:local:sync
 `bun run dev` 会先幂等初始化 `server/db/schema.sql`；`db:local:sync` 需要 Wrangler 已登录，
 它导出云端 D1 的 schema 和数据快照，替换本地 Miniflare 中同名表（保留仅本地表），不会调用飞书。
 
+### Tolgee 翻译发布
+
+Tolgee 是翻译编辑源，但 Worker 运行时不访问 Tolgee；生产构建使用仓库中的
+`i18n/translations/zh.ts`、`en.ts` 和 `am.ts` 静态 bundle。当前本地流程如下：
+
+```bash
+# 在 localhost:8085 的 Tolgee UI 中编辑并保存
+bun run tolgee:pull
+git diff -- i18n/translations
+# 检查翻译 diff 后再提交和部署
+bun run build
+bun run deploy
+```
+
+`tolgee:pull` 从 `.dev.vars` 的 `TOLGEE_API_URL`、`TOLGEE_API_KEY` 和
+`TOLGEE_PROJECT_ID` 导出三种语言，并在校验失败时保持原文件不变。只有确认删除
+Tolgee key 时才使用 `bun run tolgee:pull -- --allow-key-removal`。将来把 Tolgee 部署到
+云服务器时，只需替换 API URL 和 key，不需要修改网站运行时代码。
+
 ---
 
 ## 🔑 4 种身份预置账号

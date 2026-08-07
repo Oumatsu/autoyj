@@ -34,8 +34,9 @@ WECHAT_APP_ID=
 WECHAT_APP_SECRET=
 
 # Tolgee i18n (在线翻译编辑 / DevTools).
-# 前往 https://app.tolgee.io → Project → API Keys 创建 Personal Access Token.
-# 仅开发环境需要。生产环境使用静态翻译文件，无需此 key。
+# 本地先启动自托管 Tolgee（默认 http://localhost:8085）并填写项目 API key。
+# 将来迁移到云服务器时，只需把 TOLGEE_API_URL 改为该自托管实例的 HTTPS 地址。
+# Worker 生产运行时只使用 Git 中的静态翻译 bundle，不需要访问 Tolgee。
 TOLGEE_API_KEY=
-TOLGEE_API_URL=https://app.tolgee.io
-TOLGEE_PROJECT_ID=33857
+TOLGEE_API_URL=http://localhost:8085
+TOLGEE_PROJECT_ID=
