@@ -108,7 +108,7 @@ describe("Unit: Tolgee BP-3 — No Raw Key Leak in Any Locale", () => {
 
 // ── 4. All required home page keys are non-empty ──────────────────────────
 const SLIDE_COUNT = 5;
-const SLIDE_REQUIRED = ["label", "line1", "sub", "cta"];
+const SLIDE_REQUIRED = ["label", "heading", "sub", "cta"];
 const PROCESS_STEPS = 4;
 
 const REQUIRED_HOME_KEYS = [
@@ -159,7 +159,7 @@ describe("Unit: Tolgee BP-5 — Hero Slides Have Exactly 5 Entries", () => {
 });
 
 // ── 6. Optional slide fields don't return their key ───────────────────────
-const SLIDE_OPTIONAL = ["line2", "line2Accent", "line2Theme", "line3"];
+const SLIDE_OPTIONAL: string[] = [];
 
 describe("Unit: Tolgee BP-6 — Optional Slide Fields Never Equal Their Key", () => {
   for (const { name, dict } of dicts) {

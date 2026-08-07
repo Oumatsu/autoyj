@@ -24,51 +24,31 @@ const en = {
       "slides": {
         "s0": {
           "label": "Expert Buyer Network",
-          "line1": "Your Dedicated",
-          "line2": "",
-          "line2Accent": "",
-          "line2Theme": "EV Sourcing",
-          "line3": "Expert",
+          "heading": "Your Dedicated<br></br><theme>EV Sourcing</theme> Expert",
           "sub": "Data-driven selection and rigorous quality checks tailored for the African market",
           "cta": "View Selection"
         },
         "s1": {
           "label": "Seamless Port Logistics",
-          "line1": "China to Your Port",
-          "line2": " Delivered",
-          "line2Accent": "",
-          "line2Theme": "Seamlessly",
-          "line3": "",
+          "heading": "China to Your Port<br></br>Delivered <theme>Seamlessly</theme>",
           "sub": "We handle complex shipping, customs documentation, and secure container loading",
           "cta": "Explore Our Process"
         },
         "s2": {
           "label": "Built for African Roads",
-          "line1": "Selected for",
-          "line2": "",
-          "line2Accent": "Ecosystem",
-          "line2Theme": " Profitability",
-          "line3": "",
+          "heading": "Selected for<br></br><accent>Ecosystem</accent> <theme>Profitability</theme>",
           "sub": "High ground clearance, durable EVs built to thrive in local road conditions and climates",
           "cta": "Explore Utility Vehicles"
         },
         "s3": {
           "label": "Peace-of-Mind Aftersales",
-          "line1": "Full Support for",
-          "line2": "",
-          "line2Accent": "Every Single",
-          "line2Theme": " Shipment",
-          "line3": "",
+          "heading": "Full Support for<br></br><accent>Every Single</accent> <theme>Shipment</theme>",
           "sub": "Includes Starter Parts Kit, digital maintenance manuals, and remote tech support",
           "cta": "Explore Dealer Support"
         },
         "s4": {
           "label": "Ecosystem Partners",
-          "line1": "More Than Just",
-          "line2": "",
-          "line2Accent": "",
-          "line2Theme": "Selling EVs",
-          "line3": "",
+          "heading": "More Than Just<br></br><theme>Selling EVs</theme>",
           "sub": "We build dealership capability — from marketing collateral to showroom strategies",
           "cta": "Become a Partner"
         }
@@ -278,11 +258,8 @@ const en = {
     }
   },
   "footer": {
-    "cta": "Start a Conversation",
-    "headingLine1": "",
-    "headingAccent1": "Green",
-    "headingAccent2": "Empire",
-    "headingLine2": "starts here.",
+    "cta": "START A CONVERSATION",
+    "heading": "Build Your <accent1>Green</accent1> <accent2>Empire</accent2><br></br>Right Here.",
     "response": "Response within 2 hours. No commitment.",
     "whatsapp": "WhatsApp Us Now",
     "enquiry": "Send an Enquiry",
@@ -312,17 +289,12 @@ const en = {
   "solutions": {
     "hero": {
       "badge": "Precision Export Solutions",
-      "heading1": "Quality",
-      "headingAccent1": "Verified",
-      "heading2": "Delivery",
-      "headingAccent2": "Fully Transparent",
+      "heading": "Quality <accent1>Verified</accent1><br></br>Delivery <accent2>Fully Transparent</accent2>",
       "subtitle": "Eliminate uncertainty in China-to-Africa EV exports with rigorous 50-point PDI and end-to-end visual tracking."
     },
     "pdi": {
       "label": "PDI & Quality Control",
-      "heading": "Rigorous Pre-Delivery Inspection (PDI)",
-      "headingAccent1": "50-Point",
-      "headingAccent2": "Gold Standard.",
+      "heading": "Rigorous Pre-Delivery Inspection (PDI) <accent1>50-Point</accent1><br></br><accent2>Gold Standard.</accent2>",
       "description": "Every vehicle we source undergoes a comprehensive pre-delivery inspection at our designated facility before moving to the port. We don't just ship — we verify.",
       "inspectionRate": "Inspection Rate",
       "digitalReports": "Digital PDI Reports",
@@ -356,17 +328,14 @@ const en = {
     },
     "loading": {
       "badge": "Zero Surprises",
-      "heading": "Every Load.",
-      "headingAccent": "HD Video Recorded.",
+      "heading": "Every Load.<br></br><accent>HD Video Recorded.</accent>",
       "description": "We provide HD real-shot video of your entire container loading process. See each vehicle's condition, securing method, and final seal — before the vessel leaves China.",
       "walkthrough": "Walkthrough",
       "sealVerification": "Seal Verification"
     },
     "partsKit": {
       "label": "Operational Uptime",
-      "heading": "Starter",
-      "headingAccent": "Parts Kit",
-      "headingSuffix": "Suite.",
+      "heading": "Shipped with OEM Original<br></br><accent>Starter Parts Kit</accent>",
       "description": "Don't let a missing air filter or worn brake pad stall your sales. We supply pre-packaged maintenance kits tailored to your specific fleet models, loaded alongside vehicles to maximize logistics efficiency.",
       "kitInventory": "Typical 'Category A' Kit Inventory",
       "kitDisclaimer": "Customized by model (BYD, GAC, Geely) and market requirements.",
@@ -401,8 +370,7 @@ const en = {
     },
     "serviceCentre": {
       "label": "After-Sales Infrastructure",
-      "heading": "Build Your",
-      "headingAccent": "Service Centre.",
+      "heading": "Build Your Local Joint<br></br><accent>Service Centre.</accent>",
       "description": "We represent China's leading automotive maintenance equipment brands. When your dealership is ready to offer in-house EV servicing, we supply complete equipment configurations — from diagnostics to high-voltage safety tools.",
       "items": {
         "0": {
@@ -422,8 +390,7 @@ const en = {
     },
     "marketing": {
       "badge": "Dealer Empowerment",
-      "heading": "Sales-Ready",
-      "headingAccent": "From Day One.",
+      "heading": "Sales-Ready<br></br><accent>From Day One.</accent>",
       "description": "We equip every partner with a high-definition marketing asset pack: studio-grade photos, Facebook ad templates, and technical selling points for your showroom team.",
       "visuals": "Visual Assets",
       "visualsDesc": "4K unbranded images & video walkthroughs",
@@ -434,9 +401,7 @@ const en = {
     },
     "tradeTerms": {
       "label": "Flexible Trade Terms",
-      "heading": "Flexible Payment Terms & CIF/FOB Shipping",
-      "headingAccent1": "30 / 70",
-      "headingSuffix": "CIF. At Your Pace.",
+      "heading": "Flexible Payment Terms & CIF/FOB Shipping <accent1>30 / 70</accent1> <accent2>CIF. At Your Pace.</accent2>",
       "description": "Most suppliers demand 100% T/T upfront. We accept 30% deposit to confirm your order, with the 70% balance payable against shipping documents — most of the payment is due only after your vehicles are already at sea.",
       "paymentLabel": "Payment & FX Support",
       "paymentDesc": "We support Letter of Credit (LC), Cash Against Documents (CAD), and TT advance payments, and coordinate franco-valuta structures where needed.",
@@ -733,11 +698,9 @@ const en = {
     }
   },
   "contact": {
-    "badge": "Start a Partnership",
-    "heading": "The",
-    "headingAccent1": "Deal",
-    "headingAccent2": "Room",
-    "description": "Connect directly with our Shanghai procurement center. Submit your fleet requirements for a curated wholesale pricing matrix, or reach us immediately via priority channels.",
+    "badge": "Contact Us",
+    "heading": "Build Your <accent1>African EV Dealership</accent1> <accent2>Today</accent2>",
+    "description": "Whether you need bulk fleet sourcing, dealership partnership options, or technical after-sales support, our team is ready to respond within 2 hours.",
     "whatsapp": {
       "label": "Priority Channel",
       "title": "WhatsApp Business",
@@ -1086,9 +1049,7 @@ const en = {
   "products": {
     "hero": {
       "badge": "Expertly Curated",
-      "heading1": "Proven",
-      "headingAccent1": "Market",
-      "headingAccent2": "Champions",
+      "heading": "Affordable <accent1>Fleet Matrix</accent1><br></br>Durable <accent2>Revenue Engine</accent2>",
       "subtitle": "The world's best-selling EVs, handpicked by expert buyers for their reliability, durability, and proven performance on African roads.",
       "imageAlt": "Curated vehicle selection"
     },
@@ -1897,9 +1858,29 @@ const en = {
         "title": "Africa RHD Import Guide",
         "type": "PDF Guide",
         "description": "A comprehensive breakdown of which Chinese factories are producing true Right-Hand Drive models and their export availability."
+      },
+      "v1": {
+        "title": "Ethiopia EV Customs Regulation & Tax Exemption Circular (2026)",
+        "type": "PDF Policy Brief",
+        "description": "Official Ministry of Finance directive detailing tariff codes, VAT exemption procedures, and port clearance checklists."
       }
     },
     "lessons": {
+      "ev-market-entry-compliance": {
+        "title": "EV Market Entry & Compliance Guide",
+        "tag": "Market Entry",
+        "description": "Key regulatory, tariff, and licensing requirements for importing electric vehicles into African markets."
+      },
+      "fleet-operations-tco-analysis": {
+        "title": "Fleet Operations & Total Cost Analysis",
+        "tag": "Fleet Mgmt",
+        "description": "Comparative financial modeling for commercial fleets replacing diesel vehicles with BEVs."
+      },
+      "battery-maintenance-hv-safety": {
+        "title": "Battery Maintenance & High Voltage Safety",
+        "tag": "Technical",
+        "description": "Practical workshop on LFP battery diagnostics, thermal management, and safety protocols for technicians."
+      },
       "high-altitude-dust-ethiopia-ev": {
         "title": "High Altitude and Dust in Ethiopia: How They Affect Your EV",
         "tag": "Battery Tech",
@@ -2052,9 +2033,7 @@ const en = {
   "insights": {
     "badge": "Market",
     "badgeAccent": "Intelligence",
-    "heading": "The",
-    "headingAccent1": "Insights",
-    "headingAccent2": "Desk",
+    "heading": "Market Intelligence & <accent1>EV Industry</accent1> <accent2>Insights</accent2>",
     "description": "Real-time policy updates, tariff analysis, and export logistics tracking for the African EV industry.",
     "loading": "Loading intelligence insights...",
     "authorLabel": "Youguard Intelligence",

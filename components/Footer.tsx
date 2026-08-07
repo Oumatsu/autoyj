@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { QrDropdown } from "./QrDropdown";
-import { useTranslation } from "@/i18n/useTranslation";
+import { useTranslation, T } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
 import { Button } from "@/components/ui/button";
 

@@ -1,6 +1,7 @@
 /// <reference types="@cloudflare/workers-types" />
 
 import { buildProductFilterData } from "./productFilters";
+import { getVehicleModelImage } from "../../lib/static-assets";
 import { createFeishuAuth } from "../../lib/auth";
 import { findLocalUser } from "../../lib/users";
 import {
@@ -3124,6 +3125,10 @@ async function handlePublicProduct(slug: string, env: Env) {
 }
 
 // 闂傚倸鍊搁崐椋庣矆娴ｉ潻鑰块梺顒€绉埀顒婄畵瀹曞ジ濡风€ｎ亝鍠樻鐐查叄閹稿﹥绔熼埞鍨姦闁哄本鐩獮鍥濞戞瑧浜梺鑽ゅ枑閻熻鲸淇婇崶顒€鐒垫い鎺嗗亾缂佺姴绉瑰畷鏇熸綇閳规儳浜炬慨妯煎帶濞呭秹鏌熼姘辩劯濠碘€崇埣瀹曨亝鎷呴悷鎵В闂備浇顕ч崙鐣岀礊閸℃稑绀堟繛鍡樺姉椤╃兘鏌熼悜姗嗘畷闁?Base 闂傚倸鍊峰ù鍥х暦閻㈢绐楅柟鎵閸嬶繝寮堕崼姘珔缂佽翰鍊曡灃闁挎繂鎳庨弳鐐烘煕?table_id闂傚倸鍊搁崐鐑芥倿閿旈敮鍋撶粭娑樻噽閻瑩鏌熸潏楣冩闁搞倖鍔栭妵鍕冀椤愵澀娌梺绋款儍閸斿秹濡甸崟顖氱疀闁告挷鑳堕弳鐘电磽娴ｆ彃浜鹃梺鍛婂姦閸犳鎮￠弴鐔虹闁瑰瓨绻傞懜瑙勵殽閻愯揪鑰块柡宀€鍠栭幃鍓т沪閸欘偁鍎崇槐鎺撴綇閵婏箑纾抽悗瑙勬礃鐢帡鍩ユ径濞炬瀻闊洦娲﹂弳锟犳⒒?
+function getProductFallbackImage(slug: string, rawImageUrl?: string): string {
+  return getVehicleModelImage(slug, rawImageUrl);
+}
+
 async function handlePublicProducts(env: Env) {
   const cacheKey = "public-products";
   const cached = getCached(cacheKey);
@@ -3135,18 +3140,22 @@ async function handlePublicProducts(env: Env) {
         `SELECT * FROM vehicle_models WHERE status != 'Inactive' ORDER BY synced_at DESC`
       ).all();
       if (rows.results && rows.results.length > 0) {
-        const products = rows.results.map((r: any) => ({
-          id: r.id,
-          model_id: r.model_id,
-          brand: r.brand,
-          model: r.model,
-          trim: r.trim_name,
-          category: r.segment || "revenue-king",
-          slug: r.product_path ? r.product_path.split("/").pop() : r.model_id,
-          badge: r.page_subtitle || "",
-          desc: r.notes || "",
-          link: r.product_path || `/products/revenue-king/${r.model_id}`
-        }));
+        const products = rows.results.map((r: any) => {
+          const slug = r.product_path ? r.product_path.split("/").pop() : r.model_id;
+          return {
+            id: r.id,
+            model_id: r.model_id,
+            brand: r.brand,
+            model: r.model,
+            trim: r.trim_name,
+            category: r.segment || "revenue-king",
+            slug,
+            badge: r.page_subtitle || "",
+            desc: r.notes || "",
+            img: getProductFallbackImage(slug, r.image_url),
+            link: r.product_path || `/products/revenue-king/${r.model_id}`
+          };
+        });
         setCached(cacheKey, products, env);
         return json(products);
       }
@@ -3268,29 +3277,113 @@ function getBaselineAcademy() {
     lessons: {
       fundamentals: [
         {
+          title: "High Altitude and Dust in Ethiopia: How They Affect Your EV",
+          tag: "Battery Tech",
+          slug: "high-altitude-dust-ethiopia-ev",
+          desc: "Understanding how high altitude and dust affect EVs in Ethiopia is essential knowledge for any dealer or technician.",
+          img: "/pic/academy/photo-1593941707882-a5bba14938c7.webp"
+        },
+        {
+          title: "EV Range Explained: Why the Spec Sheet Number Doesn't Apply in Africa",
+          tag: "Infrastructure",
+          slug: "ev-range-explained-africa",
+          desc: "The range number on a Chinese EV spec sheet is not what your customer will get in Africa.",
+          img: "/pic/academy/photo-1504328345606-18bbc8c9d7d1.webp"
+        },
+        {
+          title: "How EV Batteries Degrade: What African Dealers Need to Understand and Tell Customers",
+          tag: "TCO Analysis",
+          slug: "how-ev-batteries-degrade",
+          desc: "Battery degradation is the most common customer question and the most misunderstood topic for dealers.",
+          img: "/pic/academy/photo-1518770660439-4636190af475.webp"
+        },
+        {
           title: "EV Market Entry & Compliance Guide",
           tag: "Market Entry",
           slug: "ev-market-entry-compliance",
           desc: "Key regulatory, tariff, and licensing requirements for importing electric vehicles into African markets.",
-          img: "hero.webp"
+          img: "/pic/academy/photo-1473341304170-971dccb5ac1e.webp"
         }
       ],
       playbook: [
+        {
+          title: "The 5 EV Objections Every African Dealer Will Face — And How to Answer Them",
+          tag: "Objections",
+          slug: "ev-objections-african-dealers",
+          desc: "Battery life, charging, spare parts, resale value, and price — these 5 objections stall most EV deals.",
+          img: "/pic/academy/photo-1560250097-0b93528c311a.webp"
+        },
+        {
+          title: "The TCO Conversation Guide: How to Win EV Sales on Total Cost, Not Sticker Price",
+          tag: "Fleet Sales",
+          slug: "tco-conversation-guide",
+          desc: "The TCO conversation is the single most powerful sales tool for African EV dealers.",
+          img: "/pic/academy/photo-1527853787696-f7be74f2e39a.webp"
+        },
+        {
+          title: "How to Run an EV Test Drive That Closes Deals",
+          tag: "Showroom Standard",
+          slug: "ev-test-drive-guide",
+          desc: "A structured 20-minute test drive converts hesitant customers far better than endless objection handling.",
+          img: "/pic/academy/photo-1559136555-9303baea8ebd.webp"
+        },
         {
           title: "Fleet Operations & Total Cost Analysis",
           tag: "Fleet Mgmt",
           slug: "fleet-operations-tco-analysis",
           desc: "Comparative financial modeling for commercial fleets replacing diesel vehicles with BEVs.",
-          img: "hero.webp"
+          img: "/pic/academy/photo-1486312338219-ce68d2c6f44d.webp"
         }
       ],
       workshop: [
+        {
+          title: "High Voltage Safety Rules for EV Technicians",
+          tag: "Safety Protocols",
+          slug: "high-voltage-safety-ev-technicians",
+          desc: "What you must know before opening the bonnet of a 400V or 800V electric vehicle.",
+          img: "/pic/academy/photo-1581092160562-40aa08e78837.webp"
+        },
+        {
+          title: "Chinese EV Diagnostic Tools: What Actually Works in an African Workshop",
+          tag: "Diagnostics",
+          slug: "chinese-ev-diagnostic-tools",
+          desc: "Navigating OBD protocols, manufacturer software, and multi-brand scanners for Chinese EVs.",
+          img: "/pic/academy/photo-1581092160562-40aa08e78837.webp"
+        },
+        {
+          title: "The 12V Auxiliary Battery in Chinese EVs: Why It Fails, How to Test It",
+          tag: "Auxiliary Battery",
+          slug: "12v-auxiliary-battery-ev",
+          desc: "Why the 12V system is the leading cause of non-start complaints in modern electric vehicles.",
+          img: "/pic/academy/photo-1581092160562-40aa08e78837.webp"
+        },
+        {
+          title: "EV Won't Charge: A Step-by-Step Troubleshooting Guide for Technicians",
+          tag: "Charging Systems",
+          slug: "ev-wont-charge-troubleshooting",
+          desc: "Diagnosing AC and DC charging handshake failures, port lock faults, and BMS interlocks.",
+          img: "/pic/academy/photo-1581092160562-40aa08e78837.webp"
+        },
+        {
+          title: "Common Fault Patterns in Chinese EVs Operating in Ethiopia: A Field Reference",
+          tag: "Field Diagnostics",
+          slug: "common-fault-patterns-ethiopia",
+          desc: "Real-world field observations on thermal limits, dust ingress, and suspension wear.",
+          img: "/pic/academy/photo-1581092160562-40aa08e78837.webp"
+        },
+        {
+          title: "Voltage Fluctuation and EV Charging in Ethiopia: What Every Technician Must Know",
+          tag: "Grid Infrastructure",
+          slug: "voltage-fluctuation-ev-charger-ethiopia",
+          desc: "Protecting chargers and vehicle OBCs against grid surges and undervoltage drops.",
+          img: "/pic/academy/photo-1581092160562-40aa08e78837.webp"
+        },
         {
           title: "Battery Maintenance & High Voltage Safety",
           tag: "Technical",
           slug: "battery-maintenance-hv-safety",
           desc: "Practical workshop on LFP battery diagnostics, thermal management, and safety protocols for technicians.",
-          img: "hero.webp"
+          img: "/pic/academy/photo-1581092160562-40aa08e78837.webp"
         }
       ]
     },
@@ -3301,6 +3394,30 @@ function getBaselineAcademy() {
         type: "PDF Policy Brief",
         desc: "Official Ministry of Finance directive detailing tariff codes, VAT exemption procedures, and port clearance checklists.",
         size: "2.4 MB",
+        downloadLink: "/qr"
+      },
+      {
+        translationId: "recvnRyGHzWgf8",
+        title: "2026 Fleet ROI Calculator",
+        type: "Excel Model",
+        desc: "Plug in local electricity rates and petrol prices to instantly generate a 5-year cost comparison for your commercial clients.",
+        size: "1.8 MB",
+        downloadLink: "/qr"
+      },
+      {
+        translationId: "recvnRyGHzd9uS",
+        title: "The 50-Point Factory PDI",
+        type: "PDF Guide",
+        desc: "The exact Pre-Delivery Inspection checklist our engineers use in Shanghai before loading your vehicles into the container.",
+        size: "3.1 MB",
+        downloadLink: "/qr"
+      },
+      {
+        translationId: "recvnRyGHzNocG",
+        title: "Africa RHD Import Guide",
+        type: "PDF Guide",
+        desc: "A comprehensive breakdown of which Chinese factories are producing true Right-Hand Drive models and their export availability.",
+        size: "4.5 MB",
         downloadLink: "/qr"
       }
     ]

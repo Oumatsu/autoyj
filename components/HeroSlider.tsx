@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useCallback } from "react";
-import { useTranslation } from "@/i18n/useTranslation";
+import { useTranslation, T } from "@/i18n/useTranslation";
 import { toStaticAssetUrl } from "@/lib/static-asset-url";
 
 const SLIDE_IMAGES = [
@@ -197,19 +197,18 @@ export function HeroSlider() {
                     {t(`${base}.label`)}
                   </span>
                 </div>
-
-                {/* Main heading — all t() calls inline for Tolgee DOM tagging */}
                 <h1
                   ref={(node) => { h1Refs.current[slideIndex] = node; }}
                   className="sh mb-3 lg:mb-8"
                   style={{ fontSize: "calc(clamp(1.8rem, 7vw, 6.5rem) * 1)" }}
                 >
-                  <SlideHeading
-                    line1={t(`${base}.line1`)}
-                    line2={t(`${base}.line2`)}
-                    line2Accent={t(`${base}.line2Accent`)}
-                    line2Theme={t(`${base}.line2Theme`)}
-                    line3={t(`${base}.line3`)}
+                  <T
+                    keyName={`${base}.heading`}
+                    params={{
+                      accent: (chunks: any) => <span className="text-accent">{chunks}</span>,
+                      theme: (chunks: any) => <span className="text-theme">{chunks}</span>,
+                      br: () => <br />,
+                    }}
                   />
                 </h1>
 
@@ -274,38 +273,4 @@ export function HeroSlider() {
   );
 }
 
-/**
- * SlideHeading renders the multi-line heading segments.
- * Lines with no content are skipped cleanly.
- */
-function SlideHeading({
-  line1,
-  line2,
-  line2Accent,
-  line2Theme,
-  line3,
-}: {
-  line1: string;
-  line2: string;
-  line2Accent: string;
-  line2Theme: string;
-  line3: string;
-}) {
-  const hasLine2 = line2 || line2Accent || line2Theme;
 
-  return (
-    <>
-      {line1 && <span>{line1}</span>}
-      {line1 && hasLine2 && <br />}
-      {hasLine2 && (
-        <>
-          {line2 && <span>{line2}</span>}
-          {line2Accent && <span className="text-accent">{line2Accent}</span>}
-          {line2Theme && <span className="text-theme">{line2Theme}</span>}
-        </>
-      )}
-      {hasLine2 && line3 && <br />}
-      {line3 && <span>{line3}</span>}
-    </>
-  );
-}

@@ -1,4 +1,6 @@
-import { Tolgee, DevTools, FormatSimple } from "@tolgee/react";
+import { TolgeeCore } from "@tolgee/core";
+import { Tolgee, DevTools } from "@tolgee/web";
+import { FormatIcu } from "@tolgee/format-icu";
 import { defaultLocale, locales } from "@/i18n/config";
 import { TOLGEE_PROJECT_ID_FALLBACK, TOLGEE_API_URL_DEFAULT } from "@/lib/constants";
 import zh from "@/i18n/translations/zh";
@@ -35,16 +37,20 @@ export function createTolgee(initialLocale: string = defaultLanguage) {
   const parsedProjectId = projectIdRaw ? Number(projectIdRaw) : TOLGEE_PROJECT_ID_FALLBACK;
   const projectId = Number.isNaN(parsedProjectId) ? TOLGEE_PROJECT_ID_FALLBACK : parsedProjectId;
 
-  return Tolgee()
-    .use(DevTools())
-    .use(FormatSimple())
-    .init({
-      language,
-      defaultLanguage,
-      fallbackLanguage: defaultLanguage,
-      apiUrl,
-      apiKey,
-      projectId,
-      staticData,
-    });
+  const isBrowser = typeof window !== "undefined";
+  const instance = (isBrowser ? Tolgee() : TolgeeCore()).use(FormatIcu());
+  if (isBrowser) {
+    instance.use(DevTools());
+  }
+
+  return instance.init({
+    language,
+    defaultLanguage,
+    fallbackLanguage: defaultLanguage,
+    observerType: "none",
+    apiUrl,
+    apiKey,
+    projectId,
+    staticData,
+  });
 }

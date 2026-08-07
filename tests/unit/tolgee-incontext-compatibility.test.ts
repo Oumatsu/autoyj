@@ -45,8 +45,8 @@ function assertKey(key: string): void {
 
 // ── HeroSlider component keys ──────────────────────────────────────────────
 const HERO_SLIDE_COUNT = 5;
-const heroSlideRequiredFields = ["label", "line1", "sub", "cta"];
-const heroSlideOptionalFields = ["line2", "line2Accent", "line2Theme", "line3"];
+const heroSlideRequiredFields = ["label", "heading", "sub", "cta"];
+const heroSlideOptionalFields: string[] = [];
 
 describe("Unit: Tolgee InContext — HeroSlider keys resolve in all locales", () => {
   test("home.hero.process resolves in all locales", () => {

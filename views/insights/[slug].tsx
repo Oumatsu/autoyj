@@ -8,6 +8,7 @@ import MarkdownRenderer from "@/components/MarkdownRenderer";
 import { sanitizeDisplayData } from "@/lib/display-text";
 import { asStringArray } from "@/i18n/translationFallback";
 import { translateInsightArticle } from "@/views/insights/articleTranslations";
+import { getInsightImage } from "./insightImages";
 
 interface ArticleData {
   title: string;
@@ -121,7 +122,7 @@ export default function DynamicInsightPage({ params }: any) {
   const localizedArticle = translateInsightArticle(article, t);
   const subcategory = getSubcategory(localizedArticle.category, t);
   const tags = getTagsForCategory(localizedArticle.category, t);
-  const coverImageUrl = `/insights/images/${localizedArticle.slug}/${localizedArticle.coverImage}`;
+  const coverImageUrl = getInsightImage(localizedArticle.slug, localizedArticle.coverImage);
 
   return (
     <>

@@ -49,6 +49,7 @@ tolgee.jar
 *_final.png
 *_chinese.png
 *.sql.tmp
+scratch/
 
 
 

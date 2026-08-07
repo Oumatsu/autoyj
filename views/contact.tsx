@@ -1,17 +1,55 @@
 "use client";
 
-import { useTranslation } from "@/i18n/useTranslation";
+import { useTranslation, T } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
+import { FormEvent, useState } from "react";
 
 export default function ContactPage() {
   const { t } = useTranslation();
+  const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const marketOptions = (t("contact.form.marketOptions") as string[]) || [];
   const volumeOptions = (t("contact.form.volumeOptions") as string[]) || [];
   const interestOptions = (t("contact.form.interestOptions") as string[]) || [];
 
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+
+    const formData = new FormData(e.currentTarget);
+    const body = {
+      name: formData.get("name"),
+      company: formData.get("company"),
+      email: formData.get("email"),
+      phone: formData.get("phone"),
+      message: formData.get("message"),
+    };
+
+    try {
+      const res = await fetch("/api/portal/public/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Failed to submit enquiry");
+      }
+
+      setSubmitted(true);
+    } catch (err: any) {
+      setError(err.message || "Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <main className="pt-32 pb-24 relative z-10 min-h-screen flex items-center bg-a">
+    <section className="py-16 sm:py-24 md:py-32 bg-a relative min-h-screen flex items-center">
       <div className="container mx-auto px-6 md:px-12">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24 items-start">
           {/* Left Column */}
@@ -19,9 +57,14 @@ export default function ContactPage() {
             <div>
               <div className="label label-gold mb-6">{t("contact.badge")}</div>
               <h1 className="sh mb-6 leading-tight">
-                {t("contact.heading")}{" "}
-                <span className="text-theme">{t("contact.headingAccent1")}</span>{" "}
-                <span className="text-accent">{t("contact.headingAccent2")}</span>
+                <T
+                  keyName="contact.heading"
+                  params={{
+                    accent1: (chunks: any) => <span className="text-theme">{chunks}</span>,
+                    accent2: (chunks: any) => <span className="text-accent">{chunks}</span>,
+                    br: () => <br />,
+                  }}
+                />
               </h1>
               <p
                 className="text-gray-400 text-lg font-light leading-relaxed mb-12 border-l-2 border-theme/30 pl-5"
@@ -280,6 +323,6 @@ export default function ContactPage() {
           </div>
         </div>
       </div>
-    </main>
+    </section>
   );
 }

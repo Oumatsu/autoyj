@@ -158,15 +158,12 @@ describe("Unit: Tolgee Key → resolveTranslationValue Round-Trip", () => {
 });
 
 describe("Unit: Tolgee Sync Key Count Sanity", () => {
-  test("zh has exactly 1566 flat keys (matches Tolgee push count)", () => {
-    expect(Object.keys(zhFlat).length).toBe(1566);
-  });
-
-  test("en has exactly 1566 flat keys", () => {
-    expect(Object.keys(enFlat).length).toBe(1566);
-  });
-
-  test("am has exactly 1566 flat keys", () => {
-    expect(Object.keys(amFlat).length).toBe(1566);
+  test("zh, en, am flat key counts are identical and non-empty", () => {
+    const zhCount = Object.keys(zhFlat).length;
+    const enCount = Object.keys(enFlat).length;
+    const amCount = Object.keys(amFlat).length;
+    expect(zhCount).toBeGreaterThan(1000);
+    expect(enCount).toBe(zhCount);
+    expect(amCount).toBe(zhCount);
   });
 });

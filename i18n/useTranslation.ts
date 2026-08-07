@@ -9,7 +9,7 @@ import { resolveTranslationValue } from "./translationFallback";
 import { translations as staticTranslations } from "./translations";
 import { specsData } from "./data/specsData";
 
-export { useTranslate, useTolgee } from "@tolgee/react";
+export { useTranslate, useTolgee, T } from "@tolgee/react";
 export type { TFnType } from "@tolgee/react";
 
 export function useLocale(): Locale {

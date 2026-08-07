@@ -1,9 +1,27 @@
+import fs from "node:fs";
+import path from "node:path";
 import zh from "../i18n/translations/zh";
 import en from "../i18n/translations/en";
 import am from "../i18n/translations/am";
 
-const apiUrl = process.env.TOLGEE_API_URL || "https://app.tolgee.io";
-const apiKey = process.env.TOLGEE_API_KEY;
+// Load .dev.vars if process.env values are missing
+if (!process.env.TOLGEE_API_KEY && fs.existsSync(".dev.vars")) {
+  const devVars = fs.readFileSync(".dev.vars", "utf-8");
+  for (const line of devVars.split("\n")) {
+    const trimmed = line.trim();
+    if (trimmed && !trimmed.startsWith("#")) {
+      const idx = trimmed.indexOf("=");
+      if (idx > 0) {
+        const k = trimmed.slice(0, idx).trim();
+        const v = trimmed.slice(idx + 1).trim();
+        if (!process.env[k]) process.env[k] = v;
+      }
+    }
+  }
+}
+
+const apiUrl = process.env.TOLGEE_API_URL || process.env.NEXT_PUBLIC_TOLGEE_API_URL || "http://localhost:8085";
+const apiKey = process.env.TOLGEE_API_KEY || process.env.NEXT_PUBLIC_TOLGEE_API_KEY;
 
 /**
  * Flatten a nested object to dot-notation key-value pairs.

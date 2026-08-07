@@ -24,51 +24,31 @@ const zh = {
       "slides": {
         "s0": {
           "label": "专业买家网络",
-          "line1": "您专属的",
-          "line2": "",
-          "line2Accent": "",
-          "line2Theme": "电动汽车采购",
-          "line3": "专家",
+          "heading": "您专属的<br></br><theme>电动汽车采购</theme> 专家",
           "sub": "针对非洲市场的数据驱动选型和严格质量把控",
           "cta": "查看精选"
         },
         "s1": {
           "label": "无缝港口物流",
-          "line1": "从中国到您的港口",
-          "line2": "交付",
-          "line2Accent": "",
-          "line2Theme": "无缝",
-          "line3": "",
+          "heading": "从中国到您的港口<br></br>交付 <theme>无缝</theme>",
           "sub": "我们处理复杂的航运、报关文件和安全的集装箱装载",
           "cta": "了解我们的流程"
         },
         "s2": {
           "label": "为非洲道路而生",
-          "line1": "专为您的",
-          "line2": "",
-          "line2Accent": "生态",
-          "line2Theme": "盈利",
-          "line3": "",
+          "heading": "专为您的<br></br><accent>生态</accent><theme>盈利</theme>",
           "sub": "高离地间隙、耐用的电动汽车，完美适配非洲道路和气候",
           "cta": "探索实用之选"
         },
         "s3": {
           "label": "无忧售后",
-          "line1": "每一批货物",
-          "line2": "",
-          "line2Accent": "全程",
-          "line2Theme": "支持",
-          "line3": "",
+          "heading": "每一批货物<br></br><accent>全程</accent><theme>支持</theme>",
           "sub": "包含Starter Parts Kit、数字维修手册和远程技术支持",
           "cta": "了解经销商支持"
         },
         "s4": {
           "label": "生态合作伙伴",
-          "line1": "不止于",
-          "line2": "卖",
-          "line2Accent": "",
-          "line2Theme": "车",
-          "line3": "",
+          "heading": "不止于<br></br>卖<theme>车</theme>",
           "sub": "我们打造经销商体系，从营销素材到展厅策略的一站式解决方案",
           "cta": "成为合作伙伴"
         }
@@ -279,10 +259,7 @@ const zh = {
   },
   "footer": {
     "cta": "开始对话",
-    "headingLine1": "",
-    "headingAccent1": "绿色",
-    "headingAccent2": "帝国",
-    "headingLine2": "从这里启航。",
+    "heading": "<accent1>绿色</accent1> <accent2>帝国</accent2><br></br>从这里启航。",
     "response": "2小时内即刻回复，无任何采购承诺绑定。",
     "whatsapp": "立即通过 WhatsApp 联系我们",
     "enquiry": "发送询盘",
@@ -312,17 +289,12 @@ const zh = {
   "solutions": {
     "hero": {
       "badge": "一站式整车出海生态",
-      "heading1": "超越采购的",
-      "headingAccent1": "一站式经销商赋能体系",
-      "heading2": "交付",
-      "headingAccent2": "全透明",
+      "heading": "超越采购的 <accent1>一站式经销商赋能体系</accent1><br></br>交付 <accent2>全透明</accent2>",
       "subtitle": "为了帮助您在非洲本土市场取得成功，我们不仅为您代采高品质车辆，更为您输出全套售后维保技术、Starter Parts Kit 易损配件备货方案、专业的展厅销售话术和 SOP，助您的新能源汽车业务无缝起步。"
     },
     "pdi": {
       "label": "PDI 与质量控制",
-      "heading": "严格的出港前品控检测流程 (PDI)",
-      "headingAccent1": "50 项",
-      "headingAccent2": "金标准。",
+      "heading": "严格的出港前品控检测流程 (PDI) <accent1>50 项</accent1><br></br><accent2>金标准。</accent2>",
       "description": "我们采购的每一辆车在运往港口前，都会在指定场地接受全面的交付前检验。我们不只是发运，更会严格核验。",
       "inspectionRate": "检验率",
       "digitalReports": "数字 PDI 报告",
@@ -356,17 +328,14 @@ const zh = {
     },
     "loading": {
       "badge": "零意外",
-      "heading": "每一次装载。",
-      "headingAccent": "高清视频记录。",
+      "heading": "每辆车运抵离岸前<br></br><accent>HD 视频发货前打卡</accent>",
       "description": "我们提供您集装箱装载全程的高清实拍视频。您可以看到每辆车的状况、固定方式以及最终封条——在货轮离开中国之前。",
       "walkthrough": "巡检",
       "sealVerification": "封条验证"
     },
     "partsKit": {
       "label": "运营在线率",
-      "heading": "Starter Parts Kit —— 首保与易损件备货方案",
-      "headingAccent": "配件包",
-      "headingSuffix": "套装。",
+      "heading": "随车提供生产厂原厂<br></br><accent>易损 Starter Parts Kit</accent>",
       "description": "不要让缺少空气滤芯或刹车片磨损影响您的销售。我们根据您的具体车队车型提供预包装保养套件，并与车辆一同装运，以最大限度提升物流效率。",
       "kitInventory": "典型「A 类」套件清单",
       "kitDisclaimer": "按车型（BYD、GAC、Geely）和市场需求定制。",
@@ -401,8 +370,7 @@ const zh = {
     },
     "serviceCentre": {
       "label": "售后基础设施",
-      "heading": "建立您的",
-      "headingAccent": "服务中心。",
+      "heading": "在埃塞本地建立<br></br><accent>联合售后服务中心。</accent>",
       "description": "我们代理中国领先的汽车维护设备品牌。当您的经销商准备提供内部电动车维修服务时，我们提供完整的设备配置——从诊断到高压安全工具。",
       "items": {
         "0": {
@@ -422,8 +390,7 @@ const zh = {
     },
     "marketing": {
       "badge": "经销商赋能",
-      "heading": "从第一天起",
-      "headingAccent": "即可开展销售。",
+      "heading": "从第一天起<br></br><accent>即可开展销售。</accent>",
       "description": "我们为每位合作伙伴提供高清营销素材包，包括影棚级照片、Facebook 广告模板，以及供展厅团队使用的技术卖点资料。",
       "visuals": "视觉素材",
       "visualsDesc": "4K 无品牌图片与车辆视频讲解",
@@ -434,9 +401,7 @@ const zh = {
     },
     "tradeTerms": {
       "label": "灵活的贸易条款",
-      "heading": "灵活的付款方式与 CIF/FOB 交付条款",
-      "headingAccent1": "30 / 70",
-      "headingSuffix": "CIF。按您的节奏。",
+      "heading": "灵活的付款方式与 CIF/FOB 交付条款 <accent1>30 / 70</accent1> <accent2>CIF。按您的节奏。</accent2>",
       "description": "为了保障合作安全和资金效率，我们为您提供清晰透明的贸易条款与灵活的付款计划，全面对接您的资金排期。",
       "paymentLabel": "支付与外汇支持",
       "paymentDesc": "支持信用证 (L/C)、电汇 (T/T) 等多种国际贸易主流支付结算方式。",
@@ -734,9 +699,7 @@ const zh = {
   },
   "contact": {
     "badge": "联系我们",
-    "heading": "建立您在非洲的",
-    "headingAccent1": "新能源汽车事业",
-    "headingAccent2": "",
+    "heading": "建立您在非洲的 <accent1>新能源汽车事业</accent1>",
     "description": "无论是大宗车队采购、经销商代理加盟，还是售后技术支持咨询，我们的一站式团队都已准备就绪，为您提供 2 小时内的即刻回复与全程跟进服务。",
     "whatsapp": {
       "label": "优先渠道",
@@ -1086,9 +1049,7 @@ const zh = {
   "products": {
     "hero": {
       "badge": "为盈利而精选的车型矩阵",
-      "heading1": "专为非洲路况与",
-      "headingAccent1": "商业盈利而生",
-      "headingAccent2": "冠军",
+      "heading": "买得起的 <accent1>车王矩阵</accent1><br></br>开得住的 <accent2>真正盈利工具</accent2>",
       "subtitle": "我们摒弃繁复冗余的车型，仅为您精选了通过非洲本土高温、防尘、全路况恶劣环境实测的三大核心车型系列。无论是低成本网约车运营、高档商务接待还是长途物流运输，都能为您提供最优盈利解。",
       "imageAlt": "精选车型展示"
     },
@@ -1897,9 +1858,29 @@ const zh = {
         "title": "非洲右舵车型进口指南",
         "type": "PDF 指南",
         "description": "全面说明哪些中国工厂正在生产真正的右舵车型，以及这些车型的出口供应情况。"
+      },
+      "v1": {
+        "title": "2026 埃塞俄比亚电动车海关监管与免税政策通告",
+        "type": "PDF 政策简报",
+        "description": "财政部关于关税税号、增值税免除流程及港口清关清单的官方指令。"
       }
     },
     "lessons": {
+      "ev-market-entry-compliance": {
+        "title": "电动车市场准入与合规指南",
+        "tag": "市场准入",
+        "description": "进口电动汽车至非洲市场的关键监管、关税及许可要点。"
+      },
+      "fleet-operations-tco-analysis": {
+        "title": "车队运营与总拥有成本 (TCO) 分析",
+        "tag": "车队管理",
+        "description": "商用车队使用纯电动车替代柴油车的对比财务模型。"
+      },
+      "battery-maintenance-hv-safety": {
+        "title": "电池维护与高压安全实操",
+        "tag": "技术支持",
+        "description": "针对技术人员的磷酸铁锂电池诊断、热管理及安全规程实操工坊。"
+      },
       "high-altitude-dust-ethiopia-ev": {
         "title": "埃塞俄比亚的高海拔与沙尘：它们如何影响您的电动汽车",
         "tag": "电池技术",
@@ -2052,9 +2033,7 @@ const zh = {
   "insights": {
     "badge": "非洲新能源市场洞察",
     "badgeAccent": "Intelligence",
-    "heading": "为您提供深入浅出的",
-    "headingAccent1": "非洲电动车智库支持",
-    "headingAccent2": "",
+    "heading": "为您提供深入浅出的 <accent1>非洲电动车智库支持</accent1>",
     "description": "我们扎根中非新能源贸易一线，为您提供第一手关税政策变动解析、热销车型投资回报率（ROI）评测以及出海避坑指南，助您在红利期抢占市场先机。",
     "loading": "正在加载情报洞察...",
     "authorLabel": "Youguard Intelligence",

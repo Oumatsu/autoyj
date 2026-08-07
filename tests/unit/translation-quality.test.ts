@@ -31,7 +31,7 @@ describe("Unit: Translation Quality & Zero Chinese Leakage Guard", () => {
   });
 
   test("Solutions headings match localized copy without formatting errors", () => {
-    expect(zh.solutions.hero.headingAccent1).toBe("一站式经销商赋能体系");
-    expect(en.solutions.hero.headingAccent1).toBe("Verified");
+    expect(zh.solutions.hero.heading).toContain("一站式经销商赋能体系");
+    expect(en.solutions.hero.heading).toContain("Verified");
   });
 });

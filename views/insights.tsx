@@ -2,7 +2,7 @@
 
 import Loading from "../components/Loading";
 import { useState, useEffect } from "react";
-import { useTranslation } from "@/i18n/useTranslation";
+import { useTranslation, T } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
 import { sanitizeDisplayData } from "@/lib/display-text";
 import { translateInsightArticle } from "@/views/insights/articleTranslations";
@@ -35,8 +35,10 @@ function getTagClass(category: string): string {
   return "bg-accent/10 text-accent border border-accent/30";
 }
 
+import { getInsightImage } from "./insights/insightImages";
+
 const PER_PAGE = 8;
-const imgPath = (a: { slug: string; coverImage: string }) => `/insights/images/${a.slug}/${a.coverImage}`;
+const imgPath = (a: { slug: string; coverImage: string }) => getInsightImage(a.slug, a.coverImage);
 
 const ALL_CATEGORIES = ["Market Analysis", "Policy & Tariffs", "Sourcing Intelligence", "Operator Hub", "Product Watch", "Pricing & Trade"] as const;
 type Category = (typeof ALL_CATEGORIES)[number];
@@ -126,9 +128,14 @@ export default function InsightsPage() {
             </span>
           </div>
           <h1 className="text-5xl md:text-6xl font-black italic text-white uppercase tracking-tighter mb-4">
-            {t("insights.heading")}{" "}
-            <span className="text-theme">{t("insights.headingAccent1")}</span>{" "}
-            <span className="text-accent">{t("insights.headingAccent2")}</span>
+            <T
+              keyName="insights.heading"
+              params={{
+                accent1: (chunks: any) => <span className="text-theme">{chunks}</span>,
+                accent2: (chunks: any) => <span className="text-accent">{chunks}</span>,
+                br: () => <br />,
+              }}
+            />
           </h1>
           <p className="text-gray-400 text-lg font-light max-w-2xl">
             {t("insights.description")}

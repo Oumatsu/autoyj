@@ -13,9 +13,9 @@ import en from "../../i18n/translations/en";
 import am from "../../i18n/translations/am";
 import { resolveTranslationValue } from "../../i18n/translationFallback";
 
-// All fields in each hero slide — split into required (must be non-empty) and optional (may be "")
-const SLIDE_REQUIRED_FIELDS = ["label", "line1", "sub", "cta"];
-const SLIDE_OPTIONAL_FIELDS = ["line2", "line2Accent", "line2Theme", "line3"];
+// All fields in each hero slide — required (must be non-empty)
+const SLIDE_REQUIRED_FIELDS = ["label", "heading", "sub", "cta"];
+const SLIDE_OPTIONAL_FIELDS: string[] = [];
 const SLIDE_COUNT = 5;
 
 // Build full list of required home page keys (non-slide)

@@ -7,6 +7,7 @@ import { LocaleLink } from "@/i18n/LocaleLink";
 import { ProductCatalogSkeleton, ProductCatalogUnavailable } from "@/components/ProductCatalogState";
 import { buildCatalogFilterGroups, filterCatalogProducts } from "./catalogFilters";
 import { catalogFilterKey, catalogModelKey } from "./catalogTranslations.ts";
+import { getVehicleModelImage } from "@/lib/static-assets";
 import { vehicles } from "../../app/products/elite-flagship/data";
 
 const ITEMS_PER_PAGE = 6;
@@ -96,7 +97,7 @@ export default function EliteFlagshipPage() {
             batteryType: p.tags?.find((t: string) => t.includes("LFP") || t.includes("NCM")) || (fallback ? fallback.batteryType : ""),
             range: p.range || (fallback ? fallback.range : ""),
             charging: p.charging || p.desc || (fallback ? fallback.charging : ""),
-            img: p.img || (fallback ? fallback.img : ""),
+            img: getVehicleModelImage(p.slug || fallback?.link?.split("/").pop() || "", p.img || fallback?.img),
             status: p.status || (fallback ? fallback.status : "tbc"),
             statusText: p.statusText || (fallback ? fallback.statusText : "TBC"),
             link: p.link || (fallback ? fallback.link : `/products/elite-flagship/${p.slug}`),
