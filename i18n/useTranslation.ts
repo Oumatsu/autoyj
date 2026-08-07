@@ -4,10 +4,8 @@ import { useCallback } from "react";
 import { usePathname } from "next/navigation";
 import { useTranslate } from "@tolgee/react";
 import { Locale } from "./config";
-import { getLocaleFromPath } from "./utils";
-import { resolveTranslationValue, resolveTranslationValueBlockEnFallback } from "./translationFallback";
-import { translations as staticTranslations } from "./translations";
-import { specsData } from "./data/specsData";
+import { getLocaleFromPath, getNestedValue } from "./utils";
+import { messages } from "./messages";
 
 export { useTranslate, useTolgee, T } from "@tolgee/react";
 export type { TFnType } from "@tolgee/react";
@@ -27,75 +25,60 @@ export function useTranslation() {
 
   const t = useCallback(
     (key: string, defaultValue?: string): string => {
-      const val = tolgeeT(key, { defaultValue });
-      if (typeof val === "string") {
-        // Strip Tolgee DevTools zero-width metadata markers to test if key was untranslated
-        const cleanVal = val.replace(/[\u200B-\u200D\uFEFF]/g, "");
-        if (cleanVal === key) {
-          const staticVal = resolveTranslationValueBlockEnFallback(
-            key,
-            [
-              staticTranslations[locale] as Record<string, unknown>,
-              (specsData[locale] || {}) as Record<string, unknown>,
-              staticTranslations.en as Record<string, unknown>,
-            ],
-            defaultValue
-          );
-          if (typeof staticVal === "string") {
-            return staticVal;
-          }
-        }
-      }
-      return val;
+      const staticValue = getNestedValue(messages[locale], key);
+      const resolvedDefault =
+        typeof staticValue === "string" ? staticValue : defaultValue;
+      return tolgeeT(key, { defaultValue: resolvedDefault });
     },
-    [tolgeeT, locale]
+    [locale, tolgeeT]
   );
 
   const tArray = useCallback(
     (key: string, fallback: any[] = []): any[] => {
-      const val = resolveTranslationValue(
-        key,
-        [
-          staticTranslations[locale] as Record<string, unknown>,
-          (specsData[locale] || {}) as Record<string, unknown>,
-        ],
-        undefined
-      );
-      if (val === undefined || val === null) {
-        return fallback;
-      }
-      const arrayVal = deepEnsureArray(val);
-      return Array.isArray(arrayVal) ? arrayVal : fallback;
+      const source = getNestedValue(messages[locale], key);
+      if (source === undefined || source === null) return fallback;
+
+      const value = localizeStructuredValue(source, key, tolgeeT);
+      return Array.isArray(value) ? value : fallback;
     },
-    [locale]
+    [locale, tolgeeT]
   );
 
-  return { t, tArray, locale };
+  const tObject = useCallback(
+    (key: string): Record<string, unknown> => {
+      const source = getNestedValue(messages[locale], key);
+      if (!source || typeof source !== "object" || Array.isArray(source)) return {};
+      const value = localizeStructuredValue(source, key, tolgeeT);
+      return value && typeof value === "object" && !Array.isArray(value)
+        ? (value as Record<string, unknown>)
+        : {};
+    },
+    [locale, tolgeeT]
+  );
+
+  return { t, tArray, tObject, locale };
 }
 
-function deepEnsureArray(val: unknown): unknown {
-  if (val === null || val === undefined) {
-    return val;
+export function localizeStructuredValue(
+  value: unknown,
+  key: string,
+  translate: (key: string, options?: { defaultValue?: string }) => string
+): unknown {
+  if (typeof value === "string") {
+    return translate(key, { defaultValue: value });
   }
-  if (Array.isArray(val)) {
-    return val.map(deepEnsureArray);
+  if (Array.isArray(value)) {
+    return value.map((item, index) =>
+      localizeStructuredValue(item, `${key}.${index}`, translate)
+    );
   }
-  if (typeof val === "object") {
-    const keys = Object.keys(val);
-    const isNumeric = keys.length > 0 && keys.every((k) => !isNaN(Number(k)));
-    if (isNumeric) {
-      const arr: any[] = [];
-      for (const [k, v] of Object.entries(val)) {
-        arr[Number(k)] = deepEnsureArray(v);
-      }
-      return arr;
-    } else {
-      const res: Record<string, unknown> = {};
-      for (const [k, v] of Object.entries(val)) {
-        res[k] = deepEnsureArray(v);
-      }
-      return res;
-    }
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value).map(([childKey, childValue]) => [
+        childKey,
+        localizeStructuredValue(childValue, `${key}.${childKey}`, translate),
+      ])
+    );
   }
-  return val;
+  return value;
 }

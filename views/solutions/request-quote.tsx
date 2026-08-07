@@ -5,12 +5,12 @@ import { LocaleLink } from "@/i18n/LocaleLink";
 import { useState, type FormEvent } from "react";
 
 export default function RequestQuotePage() {
-  const { t, tArray } = useTranslation();
+  const { t, tArray, tObject } = useTranslation();
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
-  const serviceTiers = (t("solutionsRequestQuote.tiers") as any) || {};
+  const serviceTiers = tObject("solutionsRequestQuote.tiers") as any;
   const whatsIncludedItems = tArray("solutionsRequestQuote.included.items");
   const tierOptions = tArray("solutionsRequestQuote.form.tierOptions");
   const sizeOptions = tArray("solutionsRequestQuote.form.sizeOptions");

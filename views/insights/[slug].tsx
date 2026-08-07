@@ -6,7 +6,6 @@ import { useTranslation } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
 import MarkdownRenderer from "@/components/MarkdownRenderer";
 import { sanitizeDisplayData } from "@/lib/display-text";
-import { asStringArray } from "@/i18n/translationFallback";
 import { translateInsightArticle } from "@/views/insights/articleTranslations";
 import { resolveInsightImage } from "@/lib/static-assets";
 import { getInsightImage } from "./insightImages";
@@ -64,15 +63,16 @@ function getSubcategory(category: string, t: any): string {
   return t("insightsDetail.subcategories.default") || "Insight";
 }
 
-function getTagsForCategory(category: string, t: any): string[] {
+function getTagsForCategory(category: string, tArray: (key: string) => any[]): string[] {
   const cat = category?.toLowerCase().trim() || "";
-  if (cat.includes("market")) return asStringArray(t("insightsDetail.tags.market"), ["Market Analysis", "Africa EV Market", "Industry Report"]);
-  if (cat.includes("policy")) return asStringArray(t("insightsDetail.tags.policy"), ["China Export Policy", "Import Compliance", "Africa Market"]);
-  if (cat.includes("sourcing")) return asStringArray(t("insightsDetail.tags.sourcing"), ["Sourcing Intelligence", "Supplier Vetting", "China Export"]);
-  if (cat.includes("operator")) return asStringArray(t("insightsDetail.tags.operator"), ["Operator Hub", "Charging Solutions", "Local Infrastructure"]);
-  if (cat.includes("product")) return asStringArray(t("insightsDetail.tags.product"), ["Product Watch", "Chinese EV Brands", "Battery Technology"]);
-  if (cat.includes("pricing") || cat.includes("trade")) return asStringArray(t("insightsDetail.tags.pricing"), ["Pricing & Trade", "Exchange Rates", "Freight Costs"]);
-  return asStringArray(t("insightsDetail.tags.default"), ["EV Export", "Africa EV Sourcing"]);
+  let key = "insightsDetail.tags.default";
+  if (cat.includes("market")) key = "insightsDetail.tags.market";
+  else if (cat.includes("policy")) key = "insightsDetail.tags.policy";
+  else if (cat.includes("sourcing")) key = "insightsDetail.tags.sourcing";
+  else if (cat.includes("operator")) key = "insightsDetail.tags.operator";
+  else if (cat.includes("product")) key = "insightsDetail.tags.product";
+  else if (cat.includes("pricing") || cat.includes("trade")) key = "insightsDetail.tags.pricing";
+  return tArray(key).map(String);
 }
 
 function getCategoryLabel(category: string, t: any): string {
@@ -87,7 +87,7 @@ function getCategoryLabel(category: string, t: any): string {
 }
 
 export default function DynamicInsightPage({ params }: any) {
-  const { t } = useTranslation();
+  const { t, tArray } = useTranslation();
   const resolvedParams: any = params && typeof params.then === "function" ? use(params) : params;
   const { slug } = resolvedParams || {};
   const [article, setArticle] = useState<ArticleData | null>(null);
@@ -166,7 +166,7 @@ export default function DynamicInsightPage({ params }: any) {
 
   const localizedArticle = translateInsightArticle(article, t);
   const subcategory = getSubcategory(localizedArticle.category, t);
-  const tags = getTagsForCategory(localizedArticle.category, t);
+  const tags = getTagsForCategory(localizedArticle.category, tArray);
   const coverImageUrl = getInsightImage(localizedArticle.slug, localizedArticle.coverImage);
 
   return (

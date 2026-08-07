@@ -17,7 +17,7 @@ import { describe, expect, test } from "bun:test";
 import zh from "../../i18n/translations/zh";
 import en from "../../i18n/translations/en";
 import am from "../../i18n/translations/am";
-import { resolveTranslationValue } from "../../i18n/translationFallback";
+import { getNestedValue } from "../../i18n/utils";
 
 type LocaleDict = Record<string, unknown>;
 
@@ -28,7 +28,7 @@ const dicts: Record<string, LocaleDict> = {
 };
 
 function resolve(key: string, locale: string): unknown {
-  return resolveTranslationValue(key, [dicts[locale]], undefined);
+  return getNestedValue(dicts[locale], key);
 }
 
 function assertKey(key: string): void {

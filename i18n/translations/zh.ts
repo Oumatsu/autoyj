@@ -2333,6 +2333,66 @@ const zh = {
       "pricing": "定价",
       "default": "洞察"
     }
+  },
+  "seo": {
+    "site": {
+      "title": "Youguard — 非洲电动汽车采购专家",
+      "description": "从中国采购高品质电动汽车，享受透明定价、专业 PDI、可靠物流与经销商支持。"
+    },
+    "pages": {
+      "home": {
+        "title": "非洲电动汽车采购 | Youguard",
+        "description": "面向非洲经销商的一站式电动汽车采购、质量检测、物流与业务赋能服务。"
+      },
+      "about": {
+        "title": "关于 Youguard",
+        "description": "了解 Youguard 如何为非洲经销商提供高回报车型、售后工具、培训与市场支持。"
+      },
+      "company": {
+        "title": "Youguard 公司",
+        "description": "连接中国汽车制造能力与非洲市场的专业电动汽车出口伙伴。"
+      },
+      "contact": {
+        "title": "联系 Youguard",
+        "description": "联系 Youguard，获取车队采购、经销商合作与售后技术支持方案。"
+      },
+      "academy": {
+        "title": "新能源增长学院 | Youguard",
+        "description": "用电动车基础、电池安全、销售话术与运营知识提升经销商团队能力。"
+      },
+      "insights": {
+        "title": "非洲电动车洞察 | Youguard",
+        "description": "获取非洲电动车市场、关税政策、车型回报率与出口运营的实用分析。"
+      },
+      "products": {
+        "title": "电动汽车车型目录 | Youguard",
+        "description": "探索为非洲道路与商业场景精选的高回报电动汽车车型。"
+      },
+      "solutions": {
+        "title": "经销商赋能解决方案 | Youguard",
+        "description": "从 PDI、配件与售后到展厅和销售流程，帮助经销商快速启动电动车业务。"
+      },
+      "markets": {
+        "title": "埃塞俄比亚电动车市场 | Youguard",
+        "description": "了解埃塞俄比亚电动车进口政策、市场机会、车型选择与物流方案。"
+      },
+      "privacy": {
+        "title": "隐私政策 | Youguard",
+        "description": "了解 Youguard 如何收集、使用和保护您的个人信息。"
+      },
+      "terms": {
+        "title": "服务条款 | Youguard",
+        "description": "使用 Youguard 电动汽车采购、出口物流与经销商支持服务的条款。"
+      },
+      "qr": {
+        "title": "联系 Youguard | WhatsApp",
+        "description": "通过 WhatsApp 联系 Youguard，获取电动汽车采购与出口支持。"
+      },
+      "portal": {
+        "title": "Youguard 门户",
+        "description": "Youguard 经销商与客户门户，管理车型、车源、询价与订单。"
+      }
+    }
   }
 };
 

@@ -1,18 +1,13 @@
 import { TolgeeCore } from "@tolgee/core";
 import { Tolgee, DevTools } from "@tolgee/web";
 import { FormatIcu } from "@tolgee/format-icu";
-import { defaultLocale, locales } from "@/i18n/config";
+import { defaultLocale, fallbackLocale, locales } from "@/i18n/config";
 import { TOLGEE_PROJECT_ID_FALLBACK, TOLGEE_API_URL_DEFAULT } from "@/lib/constants";
-import zh from "@/i18n/translations/zh";
-import en from "@/i18n/translations/en";
-import am from "@/i18n/translations/am";
+import { tolgeeStaticData } from "@/i18n/messages";
 
 // Re-export from config so callers that imported from here still work
 const defaultLanguage = defaultLocale;
 const availableLanguages = locales;
-
-// Map of locale → static translation bundle (update here when adding a language)
-const staticData: Record<string, unknown> = { zh, en, am };
 
 function getEnvVar(key: string): string | undefined {
   if (typeof process !== "undefined" && process.env && process.env[key]) {
@@ -46,11 +41,11 @@ export function createTolgee(initialLocale: string = defaultLanguage) {
   return instance.init({
     language,
     defaultLanguage,
-    fallbackLanguage: defaultLanguage,
-    observerType: "none",
+    fallbackLanguage: fallbackLocale,
+    observerType: "invisible",
     apiUrl,
     apiKey,
     projectId,
-    staticData,
+    staticData: tolgeeStaticData,
   });
 }

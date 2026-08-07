@@ -50,6 +50,18 @@ bun run deploy
 Tolgee key 时才使用 `bun run tolgee:pull -- --allow-key-removal`。将来把 Tolgee 部署到
 云服务器时，只需替换 API URL 和 key，不需要修改网站运行时代码。
 
+### Locale 路由与 SEO
+
+`next-intl` 只负责框架层的 locale routing：`i18n/routing.ts` 是语言列表和默认语言的
+唯一来源，`proxy.ts` 负责 `Accept-Language`、`NEXT_LOCALE` 与 URL 前缀，
+`i18n/LocaleLink.tsx` 负责 locale-aware 导航，`app/[locale]/layout.tsx` 校验非法语言。
+Tolgee 仍是唯一的 UI 翻译运行时；页面不使用 `next-intl` 的 `useTranslations`，避免两套
+翻译运行时重叠。
+
+每个带 locale 的页面通过 `i18n/metadata.ts` 生成本地化 title、description、canonical
+和 `zh`/`en`/`am`/`x-default` alternate 链接。metadata 与 UI 共用 Tolgee 生成的静态
+bundle，Worker 运行时不访问 Tolgee。
+
 ---
 
 ## 🔑 4 种身份预置账号

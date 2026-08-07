@@ -65,7 +65,7 @@ function isRecord(value: unknown): value is TranslationObject {
 /**
  * Flatten a nested object to dot-notation key-value pairs.
  * Arrays are treated as objects with numeric string keys (0, 1, 2…),
- * which matches the resolveTranslationValue() logic in translationFallback.ts.
+ * which matches the dot-notation shape consumed by Tolgee's static bundles.
  */
 export function flattenToDot(
   obj: TranslationObject,

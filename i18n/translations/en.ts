@@ -2333,6 +2333,66 @@ const en = {
       "pricing": "Pricing",
       "default": "Insights"
     }
+  },
+  "seo": {
+    "site": {
+      "title": "Youguard — Your Dedicated EV Sourcing Expert for Africa",
+      "description": "Source quality electric vehicles from China with transparent pricing, certified PDI, reliable logistics, and dealer-ready support."
+    },
+    "pages": {
+      "home": {
+        "title": "EV Sourcing for Africa | Youguard",
+        "description": "End-to-end electric vehicle sourcing, quality inspection, logistics, and dealer enablement for African markets."
+      },
+      "about": {
+        "title": "About Youguard",
+        "description": "Learn how Youguard helps African dealers grow with high-return vehicles, aftersales tools, training, and market support."
+      },
+      "company": {
+        "title": "Youguard Company",
+        "description": "A dedicated EV export partner connecting China's vehicle manufacturing expertise with African markets."
+      },
+      "contact": {
+        "title": "Contact Youguard",
+        "description": "Talk to Youguard about fleet sourcing, dealer partnerships, and aftersales technical support."
+      },
+      "academy": {
+        "title": "EV Growth Academy | Youguard",
+        "description": "Build dealer team expertise with practical EV fundamentals, battery safety, sales, and operations training."
+      },
+      "insights": {
+        "title": "Africa EV Insights | Youguard",
+        "description": "Practical analysis of African EV markets, policy, vehicle returns, and export operations."
+      },
+      "products": {
+        "title": "Electric Vehicle Catalog | Youguard",
+        "description": "Explore high-return electric vehicles selected for African roads and commercial applications."
+      },
+      "solutions": {
+        "title": "Dealer Enablement Solutions | Youguard",
+        "description": "Launch your EV business with PDI, parts, aftersales, showroom, and sales-process support."
+      },
+      "markets": {
+        "title": "Ethiopia EV Market | Youguard",
+        "description": "Explore Ethiopia's EV import policy, market opportunity, vehicle selection, and logistics."
+      },
+      "privacy": {
+        "title": "Privacy Policy | Youguard",
+        "description": "Learn how Youguard collects, uses, and protects your personal information."
+      },
+      "terms": {
+        "title": "Terms of Service | Youguard",
+        "description": "Terms for using Youguard electric vehicle sourcing, export logistics, and dealer support services."
+      },
+      "qr": {
+        "title": "Contact Youguard | WhatsApp",
+        "description": "Connect with Youguard on WhatsApp for electric vehicle sourcing and export support."
+      },
+      "portal": {
+        "title": "Youguard Portal",
+        "description": "The Youguard dealer and customer portal for models, vehicle resources, inquiries, and orders."
+      }
+    }
   }
 };
 

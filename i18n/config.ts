@@ -2,6 +2,11 @@ export const locales = ["zh", "en", "am"] as const;
 export type Locale = (typeof locales)[number];
 
 export const defaultLocale: Locale = "zh";
+export const fallbackLocale: Locale = "en";
+
+export function isLocale(value: string | undefined): value is Locale {
+  return value ? locales.includes(value as Locale) : false;
+}
 
 export const localeLabels: Record<
   Locale,

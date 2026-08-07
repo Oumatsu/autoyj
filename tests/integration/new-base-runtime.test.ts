@@ -47,7 +47,7 @@ describe("Integration: Worker API Contracts & Feishu Base Schema Rules", () => {
 
   test("translations rely exclusively on static local dictionaries with zero runtime endpoint dependencies", async () => {
     const source = await readFile(new URL("i18n/useTranslation.ts", root), "utf8");
-    expect(source).toMatch(/staticTranslations/);
+    expect(source).toMatch(/messages/);
     expect(source).not.toMatch(/fetch\(\"\/api\/portal\/public\/translations\"\)/);
   });
 

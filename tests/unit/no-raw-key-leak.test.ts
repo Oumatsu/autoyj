@@ -11,7 +11,7 @@ import { describe, expect, test } from "bun:test";
 import zh from "../../i18n/translations/zh";
 import en from "../../i18n/translations/en";
 import am from "../../i18n/translations/am";
-import { resolveTranslationValue } from "../../i18n/translationFallback";
+import { getNestedValue } from "../../i18n/utils";
 
 // All fields in each hero slide — required (must be non-empty)
 const SLIDE_REQUIRED_FIELDS = ["label", "heading", "sub", "cta"];
@@ -38,7 +38,7 @@ const HOME_PAGE_REQUIRED_KEYS = [
 ];
 
 function resolveKey(key: string, dict: Record<string, unknown>): unknown {
-  return resolveTranslationValue(key, [dict], undefined);
+  return getNestedValue(dict, key);
 }
 
 describe("Unit: Home page must never display raw i18n keys", () => {
@@ -119,8 +119,8 @@ describe("Unit: Home page must never display raw i18n keys", () => {
     });
   }
 
-  // ── 5. resolveTranslationValue must never return the key itself for any required key ──
-  test("[zh] resolveTranslationValue never returns the key itself for required home.* keys", () => {
+  // ── 5. Static dictionary values must never equal the key itself ──
+  test("[zh] static dictionary never returns the key itself for required home.* keys", () => {
     const leakedKeys: string[] = [];
 
     for (const key of HOME_PAGE_REQUIRED_KEYS) {
@@ -133,7 +133,7 @@ describe("Unit: Home page must never display raw i18n keys", () => {
     expect(leakedKeys).toEqual([]);
   });
 
-  // ── 6. Smoke test: static resolve logic must not emit keys ──
+  // ── 6. Smoke test: static dictionary access must not emit keys ──
   test("[zh] Static resolve logic: non-empty dict values must not equal their key", () => {
     const allKeys = [
       ...HOME_PAGE_REQUIRED_KEYS,
