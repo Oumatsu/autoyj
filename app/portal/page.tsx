@@ -22,10 +22,8 @@ import { RefreshCw } from "lucide-react";
 import { useTranslation } from "@/i18n/useTranslation";
 import { sanitizeDisplayData } from "@/lib/display-text";
 import { formatPortalRole, formatPortalStatus, localizeVehicleValue, portalRoleLabels } from "@/lib/portal-english";
+import type { AccountType, PortalRole, PriceTier } from "@/lib/users";
 
-type PortalRole = "admin" | "sales" | "sourcing" | "finance" | "partner" | "customer";
-type PriceTier = "hidden" | "partner" | "vip" | "internal";
-type AccountType = "internal" | "external";
 type AdminModule = "dashboard" | "vehicle_models" | "vehicles" | "quotes" | "orders" | "payments" | "logistics" | "customers" | "staff";
 type AdminIconName = "dashboard" | "vehicle_models" | "vehicles" | "quotes" | "orders" | "payments" | "logistics" | "customers" | "staff";
 

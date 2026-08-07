@@ -1,6 +1,6 @@
-import { redirect } from "next/navigation";
+import { redirectToDefaultLocale } from "@/lib/locale-redirect";
 
 export default async function AcademyLessonRedirectPage({ params }: { params: Promise<{ category: string; slug: string }> }) {
   const { category, slug } = await params;
-  redirect(`/zh/academy/${category}/${slug}`);
+  redirectToDefaultLocale(`/academy/${category}/${slug}`);
 }

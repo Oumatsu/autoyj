@@ -2,9 +2,8 @@ import { betterAuth } from "better-auth";
 import { customSession } from "better-auth/plugins";
 import { SESSION_TTL_7D, SESSION_UPDATE_AGE_1D } from "./constants";
 
-export type PortalRole = "admin" | "sales" | "sourcing" | "finance" | "partner" | "customer";
-export type PriceTier = "hidden" | "partner" | "vip" | "internal";
-export type AccountType = "internal" | "external";
+import type { AccountType, PortalRole, PriceTier } from "./users";
+export type { AccountType, PortalRole, PriceTier } from "./users";
 
 export type FeishuAuthUser = {
   id: string;

@@ -1,51 +1,11 @@
-/// <reference types="@cloudflare/workers-types" />
-
 import { handleImageOptimization, DEFAULT_DEVICE_SIZES, DEFAULT_IMAGE_SIZES } from "vinext/server/image-optimization";
 import handler from "vinext/server/app-router-entry";
 import { handlePortalRequest } from "./api/portal";
 import { runFeishuScheduledSync } from "./jobs/feishu-sync";
-
-interface Env {
-  ASSETS: Fetcher;
-  IMAGES: {
-    input(stream: ReadableStream): {
-      transform(options: Record<string, unknown>): {
-        output(options: { format: string; quality: number }): Promise<{ response(): Response }>;
-      };
-    };
-  };
-  FEISHU_API_URL?: string;
-  FEISHU_APP_ID?: string;
-  FEISHU_APP_SECRET?: string;
-  FEISHU_BASE_APP_TOKEN?: string;
-  FEISHU_TABLE_INTERNAL_USERS?: string;
-  FEISHU_TABLE_CUSTOMERS?: string;
-  FEISHU_TABLE_VEHICLE_MODELS?: string;
-  FEISHU_TABLE_I18N?: string;
-  FEISHU_TABLE_INQUIRIES?: string;
-  FEISHU_TABLE_QUOTES?: string;
-  FEISHU_TABLE_NEGOTIATIONS?: string;
-  FEISHU_TABLE_INQUIRY_NOTES?: string;
-  FEISHU_TABLE_INQUIRY_PARTICIPANTS?: string;
-  FEISHU_TABLE_INQUIRY_STATUS_HISTORY?: string;
-  FEISHU_TABLE_ORDERS?: string;
-  PORTAL_SESSION_SECRET?: string;
-  PORTAL_COOKIE_NAME?: string;
-  FEISHU_TABLE_ARTICLES?: string;
-  FEISHU_TABLE_ACADEMY_LESSONS?: string;
-  FEISHU_TABLE_ACADEMY_VAULT?: string;
-  FEISHU_TABLE_VEHICLE_TRIM_CONFIGURATIONS?: string;
-  FEISHU_TABLE_INSIGHTS?: string;
-  PORTAL_DB?: D1Database;
-}
-
-interface ExecutionContext {
-  waitUntil(promise: Promise<unknown>): void;
-  passThroughOnException(): void;
-}
+import type { ExecutionContext, WorkerEnv } from "./types";
 
 export default {
-  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+  async fetch(request: Request, env: WorkerEnv, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
 
     const upgradeHeader = request.headers.get("Upgrade");
@@ -85,7 +45,7 @@ export default {
 
     return handler.fetch(request, env, ctx);
   },
-  async scheduled(_event: { cron: string }, env: Env, ctx: ExecutionContext): Promise<void> {
+  async scheduled(_event: { cron: string }, env: WorkerEnv, ctx: ExecutionContext): Promise<void> {
     ctx.waitUntil(runFeishuScheduledSync(env));
   },
 };

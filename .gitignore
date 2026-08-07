@@ -30,6 +30,7 @@ next-env.d.ts
 *.sql.tmp
 build-log.txt
 scratch/
+.superpowers/
 
 # Local tools and binaries
 tolgee.jar

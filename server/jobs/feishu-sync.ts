@@ -1,4 +1,4 @@
-import type { Env } from "../api/portal";
+import type { PortalEnv as Env } from "../types";
 import { syncVehicleModelsToDB, syncVehiclesToD1, syncUsersToD1, syncArticlesToD1, syncAcademyToD1 } from "../api/portal";
 
 /**

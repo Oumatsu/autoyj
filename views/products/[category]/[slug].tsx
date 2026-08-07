@@ -5,14 +5,7 @@ import { useTranslation } from "@/i18n/useTranslation";
 import VehicleDetail from "../../../app/products/_VehicleDetail";
 import Loading from "@/components/Loading";
 import { sanitizeDisplayData } from "@/lib/display-text";
-
-function normalizeCategory(value: unknown): string {
-  const normalized = String(value || "").trim().toLowerCase();
-  if (normalized === "revenue" || normalized === "ride-hailing") return "revenue-king";
-  if (normalized === "flagship" || normalized === "luxury") return "elite-flagship";
-  if (normalized === "utility" || normalized === "commercial") return "utility-pro";
-  return normalized;
-}
+import { normalizeProductCategory } from "@/lib/content-normalizers";
 
 export default function DynamicVehiclePage({ params }: any) {
   const { t } = useTranslation();
@@ -29,7 +22,9 @@ export default function DynamicVehiclePage({ params }: any) {
         return res.json().then((payload) => {
           const normalized = sanitizeDisplayData(payload);
           if (!normalized || typeof normalized !== "object") throw new Error();
-          if (normalizeCategory((normalized as any).category) !== normalizeCategory(category)) {
+          const expectedCategory = normalizeProductCategory(category);
+          const productCategory = normalizeProductCategory((normalized as any).category);
+          if (!expectedCategory || productCategory !== expectedCategory) {
             throw new Error();
           }
           return normalized;

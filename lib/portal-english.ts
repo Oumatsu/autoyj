@@ -1,3 +1,5 @@
+import type { Locale } from "@/i18n/config";
+
 export const portalRoleLabels = {
   admin: "Administrator",
   sales: "Sales",
@@ -16,12 +18,12 @@ const portalRoleLabelsAmharic: Record<keyof typeof portalRoleLabels, string> = {
   customer: "ደንበኛ",
 };
 
-export function formatPortalRole(role: keyof typeof portalRoleLabels, locale: PortalLocale): string {
+export function formatPortalRole(role: keyof typeof portalRoleLabels, locale: Locale): string {
   if (locale === "zh") return portalRoleLabels[role];
   return locale === "am" ? portalRoleLabelsAmharic[role] : portalRoleLabels[role];
 }
 
-export function formatPortalStatus(status: string | null | undefined, locale: PortalLocale = "en"): string {
+export function formatPortalStatus(status: string | null | undefined, locale: Locale = "en"): string {
   const normalized = String(status || "").trim();
   if (!normalized) return "-";
   if (locale === "zh") return normalized;
@@ -47,8 +49,6 @@ export function formatPortalStatus(status: string | null | undefined, locale: Po
   const english = translations[normalized] || normalized;
   return locale === "am" ? localizeVehicleValue(english, locale) : english;
 }
-type PortalLocale = "zh" | "en" | "am";
-
 const vehicleEnglishTerms: Array<[string, string]> = [
   ["2026款", "2026 MY"],
   ["2025款", "2025 MY"],
@@ -449,7 +449,7 @@ const vehicleAmharicTerms: Array<[string, string]> = [
   ["Beige", "ቤዥ"],
 ];
 
-export function localizeVehicleValue(value: string | null | undefined, locale: PortalLocale): string {
+export function localizeVehicleValue(value: string | null | undefined, locale: Locale): string {
   const source = String(value || "").trim();
   if (!source || locale === "zh") return source || "-";
 
@@ -468,4 +468,3 @@ export function localizeVehicleValue(value: string | null | undefined, locale: P
   // Avoid presenting a partially translated value when a new source value has no complete local coverage.
   return /[\u3400-\u9fff]/.test(translated) ? source : translated;
 }
-

@@ -124,11 +124,14 @@ bun run deploy
 
 ```
 ├── app/                  # Next.js App Router 页面路由
+│   ├── [locale]/         # 带语言前缀的正式页面路由
 │   ├── portal/page.tsx   # 门户后台管理单页应用 (SPA)
+│   ├── products/*/data.ts # 产品目录的静态兜底数据
 │   ├── layout.tsx        # 根布局与全局样式定义
 │   └── page.tsx          # 官网首页
 ├── server/
 │   ├── index.ts          # Cloudflare Worker 入口与 Cron 触发器
+│   ├── types.ts          # Worker/D1 环境绑定契约
 │   ├── api/portal.ts     # D1-only 门户 API 与同步映射
 │   ├── db/               # D1 schema、迁移与查询层
 │   └── jobs/             # Feishu → D1 定时同步任务
@@ -153,6 +156,10 @@ bun run deploy
 ├── eslint.config.mjs     # ESLint v9 Flat Config 规范配置
 └── knip.json             # Knip 死代码/无用导出扫描配置
 ```
+
+`.next/`、`.vinext/`、`dist/`、`.wrangler/`、`scratch/` 和 `.superpowers/` 仅用于本机
+构建、Miniflare 数据或开发过程，均不属于业务源代码；`.agents/` 是仓库内保留的
+project-scope 技能资产。
 
 ---
 
