@@ -30,6 +30,31 @@ function stripRouteAffixes(value: string): string {
   return value.trim().replace(/[?#].*$/, "").replace(/^\/+|\/+$/g, "");
 }
 
+function hasUnsafePathTraversal(pathname: string): boolean {
+  for (const segment of pathname.split("/")) {
+    if (!segment) {
+      continue;
+    }
+
+    let decodedSegment: string;
+    try {
+      decodedSegment = decodeURIComponent(segment);
+    } catch {
+      return true;
+    }
+
+    if (decodedSegment === "." || decodedSegment === "..") {
+      return true;
+    }
+
+    if (decodedSegment.includes("/") || decodedSegment.includes("\\")) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 function extractProductCategoryFromPath(value: string): PublicProductCategory | null {
   const normalizedPath = stripRouteAffixes(value);
   const match = normalizedPath.match(/^products\/(revenue-king|elite-flagship|utility-pro)(?:\/|$)/i);
@@ -75,7 +100,12 @@ export function normalizeAssetUrl(value: string | null | undefined): string | nu
     return null;
   }
 
-  if (clean.startsWith("/pic/")) {
+  const pathOnly = clean.split(/[?#]/, 1)[0];
+  if (pathOnly.startsWith("/pic/")) {
+    const picPath = pathOnly.slice("/pic/".length);
+    if (picPath && hasUnsafePathTraversal(picPath)) {
+      return null;
+    }
     return clean;
   }
 

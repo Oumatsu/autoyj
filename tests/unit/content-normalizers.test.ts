@@ -27,6 +27,12 @@ describe("content normalizers", () => {
     expect(normalizeAssetUrl("/pic/hero/0.webp")).toBe("/pic/hero/0.webp");
   });
 
+  test("rejects traversal attempts in public pic asset paths", () => {
+    expect(normalizeAssetUrl("/pic/../api/secret")).toBeNull();
+    expect(normalizeAssetUrl("/pic/%2e%2e/api/secret")).toBeNull();
+    expect(normalizeAssetUrl("/pic/assets/hero.webp")).toBe("/pic/assets/hero.webp");
+  });
+
   test("returns a typed empty value for malformed JSON", () => {
     expect(parseJsonArray("{bad json}")).toEqual([]);
     expect(parseJsonArray('["one", 2]')).toEqual(["one"]);
