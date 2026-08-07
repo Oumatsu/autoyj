@@ -63,6 +63,14 @@ export interface D1VehicleModel {
   inventory_status: string | null;
   version: string | null;
   synced_at: string;
+  airbags?: number | null;
+  charging?: string | null;
+  household_charging?: string | null;
+  model_year?: number | null;
+  brochure_cover?: string | null;
+  why_section_description?: string | null;
+  guide_price_min_usd_auto?: number | null;
+  guide_price_max_usd_auto?: number | null;
 }
 
 export interface D1VehicleTrim {
@@ -81,6 +89,19 @@ export interface D1VehicleTrim {
   zero_to_100_sec: number | null;
   specs_json: string | null;
   synced_at: string;
+  trim_config_id?: string | null;
+  battery_chemistry?: string | null;
+  dc_fast_charge_supported?: number | null;
+  dc_fast_charge_time_hours?: number | null;
+  dc_fast_charge_min_percent?: number | null;
+  dc_fast_charge_max_percent?: number | null;
+  motor_torque_n_m?: number | null;
+  drivetrain_display?: string | null;
+  trim_order?: number | null;
+  recommended?: number | null;
+  added_features_json?: string | null;
+  upgraded_features_json?: string | null;
+  base_spec_summary_json?: string | null;
 }
 
 export interface D1Vehicle {
@@ -385,4 +406,3 @@ export async function upsertUsersToD1(db: D1Database, users: D1AuthUserRecord[])
     await db.batch(allStmts.slice(i, i + BATCH_SIZE));
   }
 }
-
