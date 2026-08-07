@@ -757,6 +757,8 @@ const en = {
       "specificRequirements": "Specific Requirements or Models",
       "requirementsPlaceholder": "e.g. Interested in BYD Seagull LHD, with home charger included...",
       "submitButton": "Submit Dealer Application",
+      "submitting": "Submitting…",
+      "success": "Thanks — your request has been received.",
       "privacyNote": "Your data is secure. We never share dealer data."
     }
   },

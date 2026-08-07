@@ -345,4 +345,14 @@ CREATE TABLE IF NOT EXISTS orders (
 CREATE INDEX IF NOT EXISTS idx_articles_slug ON articles(slug);
 CREATE INDEX IF NOT EXISTS idx_academy_lessons_slug ON academy_lessons(slug);
 
+CREATE TABLE IF NOT EXISTS public_contact_submissions (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  company TEXT NOT NULL,
+  email TEXT NOT NULL,
+  phone TEXT NOT NULL DEFAULT '',
+  message TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'new'
+);
 

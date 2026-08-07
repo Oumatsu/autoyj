@@ -17,6 +17,7 @@ export default function ContactPage() {
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
+    setSubmitted(false);
     setError("");
 
     const formData = new FormData(e.currentTarget);
@@ -182,17 +183,19 @@ export default function ContactPage() {
                 <p className="text-gray-400 text-xs font-light">
                   {t("contact.form.description")}
                 </p>
+                {submitted && (
+                  <p role="status" className="mt-4 text-sm text-green">
+                    {t("contact.form.success", "Thanks — your request has been received.")}
+                  </p>
+                )}
+                {error && (
+                  <p role="alert" className="mt-4 text-sm text-red-400">
+                    {error}
+                  </p>
+                )}
               </div>
 
-              <form
-                className="space-y-6 relative z-10"
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  alert(
-                    "Form submission simulation. In production, this connects to your backend/CRM."
-                  );
-                }}
-              >
+              <form className="space-y-6 relative z-10" onSubmit={handleSubmit}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2 ml-1">
@@ -201,6 +204,7 @@ export default function ContactPage() {
                     <input
                       type="text"
                       required
+                      name="name"
                       className="form-input w-full"
                       placeholder="John Doe"
                     />
@@ -212,6 +216,7 @@ export default function ContactPage() {
                     <input
                       type="text"
                       required
+                      name="company"
                       className="form-input w-full"
                       placeholder="Autos Africa Ltd."
                     />
@@ -225,7 +230,7 @@ export default function ContactPage() {
                     </label>
                     <input
                       type="tel"
-                      required
+                      name="phone"
                       className="form-input w-full"
                       placeholder="+254 700 000 000"
                     />
@@ -237,6 +242,7 @@ export default function ContactPage() {
                     <input
                       type="email"
                       required
+                      name="email"
                       className="form-input w-full"
                       placeholder="john@company.com"
                     />
@@ -299,6 +305,7 @@ export default function ContactPage() {
                   </label>
                   <textarea
                     rows={4}
+                    name="message"
                     className="form-input w-full resize-none"
                     placeholder={t("contact.form.requirementsPlaceholder") as string}
                   />
@@ -307,12 +314,15 @@ export default function ContactPage() {
                 <div className="pt-4">
                   <button
                     type="submit"
+                    disabled={loading}
                     className="w-full btn-primary py-5 rounded-xl text-sm font-black tracking-widest uppercase italic"
                     style={{
                       boxShadow: "0 0 40px -10px rgba(197,160,89,0.5)",
                     }}
                   >
-                    {t("contact.form.submitButton")}
+                    {loading
+                      ? t("contact.form.submitting", "Submitting…")
+                      : t("contact.form.submitButton")}
                   </button>
                   <p className="text-center text-[9px] font-black uppercase tracking-widest text-gray-600 mt-4">
                     {t("contact.form.privacyNote")}

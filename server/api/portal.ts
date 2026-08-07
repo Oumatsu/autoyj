@@ -1,7 +1,6 @@
 /// <reference types="@cloudflare/workers-types" />
 
 import { buildProductFilterData } from "./productFilters";
-import { getVehicleModelImage } from "../../lib/static-assets";
 import { createFeishuAuth } from "../../lib/auth";
 import { findLocalUser } from "../../lib/users";
 import {
@@ -12,6 +11,14 @@ import {
   queryVehicleTrims,
   queryVehicles,
 } from "../db/d1";
+import {
+  getPublicAcademyLesson,
+  getPublicInsight,
+  getPublicProduct,
+  listPublicAcademy,
+  listPublicInsights,
+  listPublicProducts,
+} from "../db/public-content";
 
 export type Env = {
   FEISHU_API_URL?: string;
@@ -2847,6 +2854,55 @@ async function handleCreateInquiry(request: Request, env: Env) {
 function canManageInquiryStatus(session: PortalSession) { return session.role === "admin" || session.role === "sales"; }
 
 function requirePortalDb(env: Env) { if (!env.PORTAL_DB) throw problem("Inquiry database is unavailable", 503); return env.PORTAL_DB; }
+function requirePublicDb(env: Env) { if (!env.PORTAL_DB) throw problem("Public content database is unavailable", 503); return env.PORTAL_DB; }
+
+export type PublicContactRequest = {
+  name: string;
+  company: string;
+  email: string;
+  phone: string;
+  message: string;
+};
+
+function contactText(value: unknown, maxLength: number, required = false): string | null {
+  if (value === undefined || value === null) return required ? null : "";
+  if (typeof value !== "string") return null;
+  const result = value.trim().slice(0, maxLength);
+  return required && !result ? null : result;
+}
+
+export function validatePublicContactPayload(input: unknown): PublicContactRequest | null {
+  if (!input || typeof input !== "object" || Array.isArray(input)) return null;
+  const body = input as Record<string, unknown>;
+  const name = contactText(body.name, 200, true);
+  const company = contactText(body.company, 200, true);
+  const email = contactText(body.email, 320, true);
+  const phone = contactText(body.phone, 200);
+  const message = contactText(body.message, 4000);
+  if (name === null || company === null || email === null || phone === null || message === null) return null;
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return null;
+  return { name, company, email, phone, message };
+}
+
+export async function handlePublicContact(request: Request, env: Env) {
+  const body = await request.json().catch(() => null);
+  const contact = validatePublicContactPayload(body);
+  if (!contact) return problem("Invalid contact request", 400);
+  const db = requirePublicDb(env);
+  await db.prepare(
+    "INSERT INTO public_contact_submissions (id, name, company, email, phone, message, created_at, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+  ).bind(
+    crypto.randomUUID(),
+    contact.name,
+    contact.company,
+    contact.email,
+    contact.phone,
+    contact.message,
+    nowText(),
+    "new",
+  ).run();
+  return json({ ok: true });
+}
 function mapD1Inquiry(row: any) { return { id: row.id, inquiryNo: row.inquiry_no, customerId: row.customer_id, vehicleId: row.vehicle_id, vehicleModel: row.vehicle_model, quantity: Number(row.quantity || 0), destinationPort: row.destination_port || "", tradeTerm: row.trade_term || "", targetPrice: Number(row.target_price || 0), notes: row.initial_note || "", status: row.status || "New Inquiry", createdAt: row.created_at, updatedAt: row.updated_at, deletedAt: row.deleted_at || "" }; }
 function mapD1Note(row: any) { return { id: row.id, noteId: row.note_id, inquiryNo: row.inquiry_no, parentNoteId: row.parent_note_id || "", authorUserId: row.author_user_id, authorName: row.author_name, authorRole: row.author_role, body: row.body, createdAt: row.created_at, deletedAt: row.deleted_at || "" }; }
 function mapD1History(row: any) { return { id: row.id, historyId: row.history_id, inquiryNo: row.inquiry_no, fromStatus: row.from_status || "", toStatus: row.to_status, actorName: row.actor_name, actorRole: row.actor_role, createdAt: row.created_at }; }
@@ -3074,99 +3130,13 @@ function computeBatchMargin(batchLevels: { units: number; display: string }[]) {
 }
 
 async function handlePublicProduct(slug: string, env: Env) {
-  const cacheKey = `product:${slug}`;
-  const cached = getCached(cacheKey);
-  if (cached) return json(cached);
-
-  if (env.PORTAL_DB) {
-    try {
-      const model = await env.PORTAL_DB.prepare(
-        `SELECT * FROM vehicle_models WHERE id = ? OR model_id = ? OR product_path LIKE ?`
-      ).bind(slug, slug, `%/${slug}`).first<any>();
-      if (model) {
-        const trims = await env.PORTAL_DB.prepare(
-          `SELECT * FROM vehicle_trims WHERE model_id = ?`
-        ).bind(model.model_id || model.id).all();
-        const data = {
-          id: model.id,
-          brand: model.brand,
-          model: model.model,
-          trim: model.trim_name,
-          category: model.segment || "revenue-king",
-          slug,
-          specsLeft: [
-            { label: "Powertrain", value: model.powertrain_type || "BEV" },
-            { label: "CLTC Range", value: model.cltc_range_max_km ? `${model.cltc_range_max_km} km` : "500 km" },
-            { label: "Battery Capacity", value: model.battery_capacity_max_kwh ? `${model.battery_capacity_max_kwh} kWh` : "60 kWh" },
-          ],
-          specsRight: [
-            { label: "Drive Type", value: model.drivetrain_display || "FWD" },
-            { label: "Max Power", value: model.motor_power_max_kw ? `${model.motor_power_max_kw} kW` : "150 kW" },
-            { label: "Max Speed", value: model.top_speed_max_kmh ? `${model.top_speed_max_kmh} km/h` : "160 km/h" },
-          ],
-          trimData: (trims.results || []).map((t: any) => ({
-            id: t.id,
-            name: t.trim_name,
-            price: t.display_price ? `¥${t.display_price}` : "¥150,000"
-          }))
-        };
-        setCached(cacheKey, data, env);
-        return json(data);
-      }
-    } catch {
-      // Fall through
-    }
-  }
-
-  const baselineModels = getBaselineVehicleModels();
-  const found = baselineModels.find((m) => m.id === slug || m.model.toLowerCase() === slug.toLowerCase()) || baselineModels[0];
-  setCached(cacheKey, found, env);
-  return json(found);
+  const product = await getPublicProduct(requirePublicDb(env), slug);
+  return product ? json(product) : problem("Not found", 404);
 }
 
 // 闂傚倸鍊搁崐椋庣矆娴ｉ潻鑰块梺顒€绉埀顒婄畵瀹曞ジ濡风€ｎ亝鍠樻鐐查叄閹稿﹥绔熼埞鍨姦闁哄本鐩獮鍥濞戞瑧浜梺鑽ゅ枑閻熻鲸淇婇崶顒€鐒垫い鎺嗗亾缂佺姴绉瑰畷鏇熸綇閳规儳浜炬慨妯煎帶濞呭秹鏌熼姘辩劯濠碘€崇埣瀹曨亝鎷呴悷鎵В闂備浇顕ч崙鐣岀礊閸℃稑绀堟繛鍡樺姉椤╃兘鏌熼悜姗嗘畷闁?Base 闂傚倸鍊峰ù鍥х暦閻㈢绐楅柟鎵閸嬶繝寮堕崼姘珔缂佽翰鍊曡灃闁挎繂鎳庨弳鐐烘煕?table_id闂傚倸鍊搁崐鐑芥倿閿旈敮鍋撶粭娑樻噽閻瑩鏌熸潏楣冩闁搞倖鍔栭妵鍕冀椤愵澀娌梺绋款儍閸斿秹濡甸崟顖氱疀闁告挷鑳堕弳鐘电磽娴ｆ彃浜鹃梺鍛婂姦閸犳鎮￠弴鐔虹闁瑰瓨绻傞懜瑙勵殽閻愯揪鑰块柡宀€鍠栭幃鍓т沪閸欘偁鍎崇槐鎺撴綇閵婏箑纾抽悗瑙勬礃鐢帡鍩ユ径濞炬瀻闊洦娲﹂弳锟犳⒒?
-function getProductFallbackImage(slug: string, rawImageUrl?: string): string {
-  return getVehicleModelImage(slug, rawImageUrl);
-}
-
 async function handlePublicProducts(env: Env) {
-  const cacheKey = "public-products";
-  const cached = getCached(cacheKey);
-  if (cached) return json(cached);
-
-  if (env.PORTAL_DB) {
-    try {
-      const rows = await env.PORTAL_DB.prepare(
-        `SELECT * FROM vehicle_models WHERE status != 'Inactive' ORDER BY synced_at DESC`
-      ).all();
-      if (rows.results && rows.results.length > 0) {
-        const products = rows.results.map((r: any) => {
-          const slug = r.product_path ? r.product_path.split("/").pop() : r.model_id;
-          return {
-            id: r.id,
-            model_id: r.model_id,
-            brand: r.brand,
-            model: r.model,
-            trim: r.trim_name,
-            category: r.segment || "revenue-king",
-            slug,
-            badge: r.page_subtitle || "",
-            desc: r.notes || "",
-            img: getProductFallbackImage(slug, r.image_url),
-            link: r.product_path || `/products/revenue-king/${r.model_id}`
-          };
-        });
-        setCached(cacheKey, products, env);
-        return json(products);
-      }
-    } catch {
-      // Fall through
-    }
-  }
-
-  const baselineModels = getBaselineVehicleModels();
-  setCached(cacheKey, baselineModels, env);
-  return json(baselineModels);
+  return json(await listPublicProducts(requirePublicDb(env)));
 }
 
 
@@ -3212,64 +3182,12 @@ function getBaselineArticles() {
 }
 
 async function handlePublicInsights(env: Env) {
-  const cacheKey = "insights";
-  const cached = getCached(cacheKey);
-  if (cached) return json(cached);
-
-  if (env.PORTAL_DB) {
-    try {
-      const rows = await env.PORTAL_DB.prepare(
-        `SELECT slug, title, category, date, read_time as readTime, cover_image as coverImage, overview, sort_order as sortOrder
-         FROM articles WHERE status = 'Published' ORDER BY sort_order ASC, date DESC`
-      ).all();
-      if (rows.results && rows.results.length > 0) {
-        const articles = rows.results.map((r: any) => ({
-          ...r,
-          sortDate: r.date,
-          date: formatDate(r.date),
-        }));
-        setCached(cacheKey, articles, env);
-        return json(articles);
-      }
-    } catch {
-      // Fall through if D1 table empty or missing
-    }
-  }
-
-  const baseline = getBaselineArticles();
-  setCached(cacheKey, baseline, env);
-  return json(baseline);
+  return json(await listPublicInsights(requirePublicDb(env)));
 }
 
 async function handlePublicInsight(slug: string, env: Env) {
-  const cacheKey = `insight:${slug}`;
-  const cached = getCached(cacheKey);
-  if (cached) return json(cached);
-
-  if (env.PORTAL_DB) {
-    try {
-      const row = await env.PORTAL_DB.prepare(
-        `SELECT slug, title, category, date, read_time as readTime, cover_image as coverImage, overview, content
-         FROM articles WHERE slug = ? AND status = 'Published'`
-      ).bind(slug).first<any>();
-      if (row) {
-        const data = {
-          ...row,
-          sortDate: row.date,
-          date: formatDate(row.date),
-        };
-        setCached(cacheKey, data, env);
-        return json(data);
-      }
-    } catch {
-      // Fall through
-    }
-  }
-
-  const baseline = getBaselineArticles();
-  const found = baseline.find((a) => a.slug === slug) || baseline[0];
-  setCached(cacheKey, found, env);
-  return json(found);
+  const insight = await getPublicInsight(requirePublicDb(env), slug);
+  return insight ? json(insight) : problem("Not found", 404);
 }
 
 function getBaselineAcademy() {
@@ -3425,102 +3343,13 @@ function getBaselineAcademy() {
 }
 
 async function handlePublicAcademy(env: Env) {
-  const cacheKey = "academy";
-  const cached = getCached(cacheKey);
-  if (cached) return json(cached);
-
-  if (env.PORTAL_DB) {
-    try {
-      const [lessonsRes, vaultRes] = await Promise.all([
-        env.PORTAL_DB.prepare(
-          `SELECT title, tag, slug, description as desc, category, content FROM academy_lessons ORDER BY sort_order ASC`
-        ).all(),
-        env.PORTAL_DB.prepare(
-          `SELECT id as translationId, title, type, description as desc, file_size as size, download_url as downloadLink, category FROM academy_vault ORDER BY sort_order ASC`
-        ).all(),
-      ]);
-
-      if (lessonsRes.results && lessonsRes.results.length > 0) {
-        const fundamentals: any[] = [];
-        const playbook: any[] = [];
-        const workshop: any[] = [];
-
-        for (const l of lessonsRes.results as any[]) {
-          const cat = (l.category || "").toLowerCase().trim();
-          const lesson = {
-            title: l.title,
-            tag: l.tag,
-            slug: l.slug,
-            desc: l.desc,
-            img: "hero.webp"
-          };
-          if (cat === "fundamentals") fundamentals.push(lesson);
-          else if (cat === "playbook") playbook.push(lesson);
-          else if (cat === "workshop") workshop.push(lesson);
-        }
-
-        const data = {
-          lessons: { fundamentals, playbook, workshop },
-          vault: (vaultRes.results || []).map((v: any) => ({
-            ...v,
-            size: v.size || "2.4 MB",
-            downloadLink: v.downloadLink || "/qr"
-          }))
-        };
-        setCached(cacheKey, data, env);
-        return json(data);
-      }
-    } catch {
-      // Fall through
-    }
-  }
-
-  const baseline = getBaselineAcademy();
-  setCached(cacheKey, baseline, env);
-  return json(baseline);
+  return json(await listPublicAcademy(requirePublicDb(env)));
 }
 
 
 async function handlePublicAcademyLesson(category: string, slug: string, env: Env) {
-  const cacheKey = `academy:${category}:${slug}`;
-  const cached = getCached(cacheKey);
-  if (cached) return json(cached);
-
-  if (env.PORTAL_DB) {
-    try {
-      const row = await env.PORTAL_DB.prepare(
-        `SELECT title, category, tag, description as desc, content FROM academy_lessons WHERE slug = ?`
-      ).bind(slug).first<any>();
-      if (row) {
-        const data = {
-          ...row,
-          img: "hero.webp"
-        };
-        setCached(cacheKey, data, env);
-        return json(data);
-      }
-    } catch {
-      // Fall through
-    }
-  }
-
-  const baseline = getBaselineAcademy();
-  const allLessons = [
-    ...baseline.lessons.fundamentals,
-    ...baseline.lessons.playbook,
-    ...baseline.lessons.workshop
-  ];
-  const found = allLessons.find((l) => l.slug === slug) || allLessons[0];
-  const data = {
-    title: found.title,
-    category,
-    tag: found.tag,
-    desc: found.desc,
-    img: "hero.webp",
-    content: found.desc
-  };
-  setCached(cacheKey, data, env);
-  return json(data);
+  const lesson = await getPublicAcademyLesson(requirePublicDb(env), category, slug);
+  return lesson ? json(lesson) : problem("Not found", 404);
 }
 
 export async function handleScheduledSync(env: Env): Promise<void> {
@@ -3553,6 +3382,9 @@ export async function handlePortalRequest(request: Request, env: Env) {
 
   try {
     if (path.startsWith("/api/portal/public/")) {
+      if (path === "/api/portal/public/contact" && request.method === "POST") {
+        return await handlePublicContact(request, env);
+      }
       if (path === "/api/portal/public/insights" && request.method === "GET") {
         return await handlePublicInsights(env);
       }
