@@ -69,9 +69,9 @@ import { describe, expect, test } from "bun:test";
 import { defaultLocale, locales, routing } from "../../i18n/routing";
 
 describe("i18n routing contract", () => {
-  test("uses the three public locales and Chinese as the default", () => {
+  test("uses the three public locales and English as the default", () => {
     expect(routing.locales).toEqual(["zh", "en", "am"]);
-    expect(routing.defaultLocale).toBe("zh");
+    expect(routing.defaultLocale).toBe("en");
     expect(locales).toEqual(routing.locales);
     expect(defaultLocale).toBe(routing.defaultLocale);
   });
@@ -101,7 +101,7 @@ import { defineRouting } from "next-intl/routing";
 
 export const routing = defineRouting({
   locales: ["zh", "en", "am"],
-  defaultLocale: "zh",
+  defaultLocale: "en",
   localePrefix: "always",
 });
 
@@ -449,14 +449,14 @@ describe("localized metadata", () => {
       zh: "/zh/about",
       en: "/en/about",
       am: "/am/about",
-      "x-default": "/zh/about",
+      "x-default": "/en/about",
     });
   });
 
   test("uses the default locale for x-default", async () => {
     const metadata = await buildLocalizedMetadata("am", "contact", "/contact");
-    expect(metadata.alternates?.languages?.["x-default"]).toBe(`/zh/contact`);
-    expect(defaultLocale).toBe("zh");
+    expect(metadata.alternates?.languages?.["x-default"]).toBe(`/en/contact`);
+    expect(defaultLocale).toBe("en");
   });
 });
 ```

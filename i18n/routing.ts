@@ -6,6 +6,7 @@ export const routing = defineRouting({
   locales,
   defaultLocale,
   localePrefix: "always",
+  localeDetection: true,
   localeCookie: {
     name: LOCALE_COOKIE_NAME,
     maxAge: COOKIE_TTL_1Y,

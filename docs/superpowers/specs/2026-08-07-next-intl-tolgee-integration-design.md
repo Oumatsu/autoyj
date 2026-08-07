@@ -57,8 +57,10 @@ same static bundles used by `i18n/useTranslation.ts`. The migration must preserv
 ### 1. Canonical routing configuration
 
 Create a single `next-intl` routing definition containing `zh`, `en`, `am`, and default locale
-`zh`. Refactor `i18n/config.ts` to expose the same values/types rather than maintaining a second
-literal locale array. The routing configuration uses always-prefixed public URLs.
+`en`. Locale detection remains enabled: an explicit URL prefix wins, followed by the
+`NEXT_LOCALE` cookie, the browser `Accept-Language` header, and finally English. Refactor
+`i18n/config.ts` to expose the same values/types rather than maintaining a second literal locale
+array. The routing configuration uses always-prefixed public URLs.
 
 The existing `proxy.ts` remains the Worker/Next entry point. It keeps the current static/API
 passthrough rules and the portal/dashboard English override, then delegates ordinary locale

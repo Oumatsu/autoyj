@@ -53,7 +53,9 @@ Tolgee key 时才使用 `bun run tolgee:pull -- --allow-key-removal`。将来把
 ### Locale 路由与 SEO
 
 `next-intl` 只负责框架层的 locale routing：`i18n/routing.ts` 是语言列表和默认语言的
-唯一来源，`proxy.ts` 负责 `Accept-Language`、`NEXT_LOCALE` 与 URL 前缀，
+唯一来源，默认语言是英语（`en`）。它默认启用 locale detection，`proxy.ts` 通过
+`NEXT_LOCALE` cookie 和浏览器 `Accept-Language` 自动选择语言，再生成 URL 前缀；未匹配时
+回退到英语。已有的显式 locale 前缀优先于 cookie 和系统语言；
 `i18n/LocaleLink.tsx` 负责 locale-aware 导航，`app/[locale]/layout.tsx` 校验非法语言。
 Tolgee 仍是唯一的 UI 翻译运行时；页面不使用 `next-intl` 的 `useTranslations`，避免两套
 翻译运行时重叠。

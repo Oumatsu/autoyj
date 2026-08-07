@@ -11,6 +11,8 @@ describe("next-intl locale routing configuration", () => {
     expect(routing.locales).toEqual(["zh", "en", "am"]);
     expect(routing.defaultLocale).toBe(defaultLocale);
     expect(routing.localePrefix).toBe("always");
+    expect(routing.localeDetection).toBe(true);
+    expect(defaultLocale).toBe("en");
     expect(fallbackLocale).toBe("en");
   });
 

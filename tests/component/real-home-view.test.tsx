@@ -7,7 +7,7 @@ describe("Component: Real Home Page View & Trust Bar", () => {
   test("HomePage component renders HeroSlider, Trust Bar, and product sections cleanly", () => {
     const html = renderToString(React.createElement(HomePage));
 
-    expect(html).toMatch(/电动汽车|Youguard/i);
+    expect(html).toMatch(/Explore Our Process/i);
     expect(html.includes("[object Object]")).toBe(false);
   });
 });

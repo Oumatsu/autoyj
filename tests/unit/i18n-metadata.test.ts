@@ -27,13 +27,14 @@ describe("Localized metadata", () => {
       zh: "/zh/about",
       en: "/en/about",
       am: "/am/about",
-      "x-default": "/zh/about",
+      "x-default": "/en/about",
     });
   });
 
   test("uses the configured default locale for x-default", () => {
     const metadata = buildLocalizedMetadata("am", "contact", "/contact");
 
+    expect(defaultLocale).toBe("en");
     expect(metadata.alternates?.languages?.["x-default"]).toBe(
       `/${defaultLocale}/contact`
     );

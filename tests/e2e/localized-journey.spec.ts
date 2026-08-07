@@ -29,11 +29,11 @@ test.describe("proxy.ts — root redirect & Accept-Language resolution", () => {
     await context.close();
   });
 
-  test("GET / with unsupported Accept-Language (fr-FR) falls back to defaultLocale /zh", async ({ browser }) => {
+  test("GET / with unsupported Accept-Language (fr-FR) falls back to defaultLocale /en", async ({ browser }) => {
     const context = await browser.newContext({ locale: "fr-FR" });
     const page = await context.newPage();
     await page.goto("/", { waitUntil: "networkidle" });
-    await expect(page).toHaveURL(/\/zh(\/|$)/);
+    await expect(page).toHaveURL(/\/en(\/|$)/);
     await context.close();
   });
 
@@ -106,10 +106,10 @@ test.describe("proxy.ts — all locale prefixes serve content", () => {
 // 4. Static assets are NOT intercepted by proxy
 // ---------------------------------------------------------------------------
 test.describe("proxy.ts — static passthrough (no redirect loop)", () => {
-  test("favicon.ico serves without redirect to /zh/favicon.ico", async ({ page }) => {
+  test("favicon.ico serves without redirect to /en/favicon.ico", async ({ page }) => {
     const response = await page.goto("/favicon.ico");
-    // Should serve the file or 404, NOT redirect to /zh/...
-    expect(response?.url()).not.toMatch(/\/zh\/favicon\.ico/);
+    // Should serve the file or 404, NOT redirect to /en/...
+    expect(response?.url()).not.toMatch(/\/en\/favicon\.ico/);
     expect(response?.status()).not.toBe(307);
   });
 
@@ -117,8 +117,8 @@ test.describe("proxy.ts — static passthrough (no redirect loop)", () => {
     // Just check the URL pattern doesn't get caught; actual chunks vary by build
     // We verify proxy config by confirming API routes pass through
     const res = await request.get("/api/portal/session");
-    // Should be 401/403 (auth required) NOT a redirect to /zh/api/...
-    expect(res.url()).not.toMatch(/\/zh\/api\//);
+    // Should be 401/403 (auth required) NOT a redirect to /en/api/...
+    expect(res.url()).not.toMatch(/\/en\/api\//);
     expect([200, 401, 403, 405]).toContain(res.status());
   });
 });

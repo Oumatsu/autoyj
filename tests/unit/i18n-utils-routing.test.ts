@@ -9,9 +9,9 @@ describe("Unit: i18n Path Parsing & Nested Value Navigation", () => {
   });
 
   test("getLocaleFromPath falls back to default locale for invalid or empty path", () => {
-    expect(getLocaleFromPath("/fr/products")).toBe("zh");
-    expect(getLocaleFromPath("/")).toBe("zh");
-    expect(getLocaleFromPath(null)).toBe("zh");
+    expect(getLocaleFromPath("/fr/products")).toBe("en");
+    expect(getLocaleFromPath("/")).toBe("en");
+    expect(getLocaleFromPath(null)).toBe("en");
   });
 
   test("getNestedValue safely navigates deeply nested objects and arrays", () => {
