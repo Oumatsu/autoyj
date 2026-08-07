@@ -414,11 +414,6 @@ const GALLERY_SLOTS = [
   { cat: "Details", label: "Charging & Cargo" },
 ] as const;
 
-const GENERIC_VEHICLE_GALLERY_FALLBACKS: GalleryImage[] = [
-  { src: "/pic/hero/photo-1593941707882-a5bba14938c7.webp", cat: "Charging", label: "Depot Charger" },
-  { src: "/pic/hero/photo-1486262715619-67b85e0b08d3.webp", cat: "Interior", label: "Cockpit View" },
-];
-
 function buildVehicleGallery(paths: string[]): GalleryImage[] {
   return paths.slice(0, GALLERY_SLOTS.length).map((src, index) => ({
     src,
@@ -485,8 +480,5 @@ export function getVehicleGalleryImages(
     ]);
   }
 
-  return dedupeGallery([
-    { src: coverImage, cat: "Exterior", label: "Main Profile" },
-    ...GENERIC_VEHICLE_GALLERY_FALLBACKS,
-  ]);
+  return [{ src: coverImage, cat: "Exterior", label: "Main Profile" }];
 }

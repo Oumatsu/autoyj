@@ -27,4 +27,10 @@ describe("verified public assets", () => {
     expect(getVehicleModelImage("unknown-model", "hero.webp"))
       .toBe("/pic/hero/0.webp");
   });
+
+  test("unknown vehicle gallery slugs return only the verified cover slide", () => {
+    expect(getVehicleGalleryImages("unknown-model", "hero.webp")).toEqual([
+      { src: "/pic/hero/0.webp", cat: "Exterior", label: "Main Profile" },
+    ]);
+  });
 });
