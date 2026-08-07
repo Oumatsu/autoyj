@@ -13,6 +13,7 @@ import { TolgeeWrapper } from "./TolgeeWrapper";
 export function SiteChrome({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const isPortal = pathname?.startsWith("/portal");
+  const isDashboard = /\/dashboard(?:\/|$)/.test(pathname || "");
   const locale = getLocaleFromPath(pathname);
 
   useEffect(() => {
@@ -36,7 +37,7 @@ export function SiteChrome({ children }: { children: ReactNode }) {
     <TolgeeWrapper locale={locale}>
       {!isPortal && <Navbar />}
       {children}
-      {!isPortal && <Footer />}
+      {!isPortal && !isDashboard && <Footer />}
     </TolgeeWrapper>
   );
 }
