@@ -61,9 +61,10 @@ follows:
    root objects, and malformed values.
 6. Flatten the parsed objects with the same dot-notation rules used by `push` and compare the
    three key sets. Pull fails if the locale key sets differ.
-7. Reject empty values in the default `zh` locale. Empty translations in `en` or `am` remain
-   visible in the generated file, but the existing runtime fallback behavior remains responsible
-   for displaying a fallback when appropriate.
+7. Preserve explicit empty strings in every locale. The current bundles intentionally use empty
+   strings for composition fields whose visible text is assembled from neighboring translation
+   keys; missing keys are caught by the key-set validation instead of being converted into empty
+   values.
 8. Compare the remote key set with the current local key set. If any existing key would be
    removed, fail with the removed keys listed unless `--allow-key-removal` was provided.
 9. Render all three files in a deterministic format:
