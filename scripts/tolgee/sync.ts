@@ -22,6 +22,7 @@ type FetchLike = typeof fetch;
 export interface ParsedArgs {
   action: "push" | "pull" | "verify";
   allowKeyRemoval: boolean;
+  mergeMissingKeys: boolean;
 }
 
 export interface PullOptions {
@@ -33,6 +34,8 @@ export interface PullOptions {
   fetchImpl?: FetchLike;
   getDirtyFiles?: (cwd: string) => string[];
   currentKeys?: Set<string>;
+  currentTranslations?: Record<TranslationLocale, TranslationObject>;
+  mergeMissingKeys?: boolean;
   fileSystem?: PullFileSystem;
 }
 
@@ -115,7 +118,7 @@ export function parseArgs(args: string[] = process.argv.slice(2)): ParsedArgs {
   }
 
   const flags = args.slice(1);
-  const unknownFlag = flags.find((flag) => flag !== "--allow-key-removal");
+  const unknownFlag = flags.find((flag) => flag !== "--allow-key-removal" && flag !== "--merge-missing-keys");
   if (unknownFlag) {
     throw new Error(`Unknown Tolgee sync option "${unknownFlag}".`);
   }
@@ -123,7 +126,54 @@ export function parseArgs(args: string[] = process.argv.slice(2)): ParsedArgs {
   return {
     action,
     allowKeyRemoval: flags.includes("--allow-key-removal"),
+    mergeMissingKeys: flags.includes("--merge-missing-keys"),
   };
+}
+
+function setDotValue(target: TranslationObject, key: string, value: string): void {
+  const parts = key.split(".");
+  let cursor: Record<string, unknown> = target;
+  for (let index = 0; index < parts.length - 1; index += 1) {
+    const part = parts[index];
+    const next = cursor[part];
+    if (!isRecord(next) && !Array.isArray(next)) {
+      cursor[part] = {};
+    }
+    cursor = cursor[part] as Record<string, unknown>;
+  }
+  cursor[parts.at(-1)!] = value;
+}
+
+function getDotValue(source: TranslationObject, key: string): unknown {
+  return key.split(".").reduce<unknown>((value, part) => {
+    if (value === null || value === undefined || typeof value !== "object") {
+      return undefined;
+    }
+    return (value as Record<string, unknown>)[part];
+  }, source);
+}
+
+/**
+ * Preserve prior Tolgee values for keys still present in the static catalog.
+ * New static keys are retained as a baseline and removed remote keys are omitted.
+ */
+export function mergePulledTranslations(
+  exported: Record<TranslationLocale, TranslationObject>,
+  current: Record<TranslationLocale, TranslationObject>,
+): Record<TranslationLocale, TranslationObject> {
+  const merged = {} as Record<TranslationLocale, TranslationObject>;
+  for (const locale of translationLocales) {
+    const currentFlat = flattenToDot(current[locale]);
+    const exportedFlat = flattenToDot(exported[locale]);
+    const next = JSON.parse(JSON.stringify(current[locale])) as TranslationObject;
+    for (const key of Object.keys(currentFlat)) {
+      if (typeof getDotValue(current[locale], key) === "string" && Object.hasOwn(exportedFlat, key)) {
+        setDotValue(next, key, exportedFlat[key]);
+      }
+    }
+    merged[locale] = next;
+  }
+  return merged;
 }
 
 export function compareKeySets(
@@ -296,6 +346,10 @@ function getCurrentTranslationKeys(): Set<string> {
   );
 }
 
+function getCurrentTranslations(): Record<TranslationLocale, TranslationObject> {
+  return { zh, en, am };
+}
+
 function makeTemporaryPath(filePath: string, suffix: string): string {
   return `${filePath}.tolgee-${process.pid}-${Date.now()}-${suffix}.tmp`;
 }
@@ -401,15 +455,22 @@ export async function runPull(options: PullOptions = {}): Promise<PullResult> {
     am: flattenToDot(exported.am),
   };
 
-  compareKeySets(
-    flattened,
-    options.currentKeys || getCurrentTranslationKeys(),
-    options.allowKeyRemoval === true
-  );
+  const currentTranslations = options.currentTranslations || getCurrentTranslations();
+  const output = options.mergeMissingKeys
+    ? mergePulledTranslations(exported, currentTranslations)
+    : exported;
+
+  if (!options.mergeMissingKeys) {
+    compareKeySets(
+      flattened,
+      options.currentKeys || getCurrentTranslationKeys(),
+      options.allowKeyRemoval === true
+    );
+  }
 
   const renderedFiles = translationLocales.map((locale) => ({
     relativePath: translationFiles[locale],
-    contents: renderTranslationModule(locale, exported[locale]),
+    contents: renderTranslationModule(locale, output[locale]),
   }));
   await replaceFilesAtomically(
     renderedFiles,
@@ -419,7 +480,7 @@ export async function runPull(options: PullOptions = {}): Promise<PullResult> {
 
   return {
     changedFiles: renderedFiles.map(({ relativePath }) => relativePath),
-    keyCount: Object.keys(flattened.zh).length,
+    keyCount: Object.keys(flattenToDot(output.zh)).length,
   };
 }
 
@@ -556,7 +617,7 @@ async function runVerify(apiUrl: string, apiKey: string): Promise<void> {
 }
 
 export async function main(args: string[] = process.argv.slice(2)): Promise<void> {
-  const { action, allowKeyRemoval } = parseArgs(args);
+  const { action, allowKeyRemoval, mergeMissingKeys } = parseArgs(args);
   const config = getConfig();
   const apiKey = requireApiKey(config.apiKey);
 
@@ -568,6 +629,7 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<void
       ...config,
       apiKey,
       allowKeyRemoval,
+      mergeMissingKeys,
     });
     console.log(
       `\n✅ Pulled ${result.keyCount} keys for ${translationLocales.length} locales into ${result.changedFiles.join(", ")}.`

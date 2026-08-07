@@ -3,6 +3,7 @@ import path from "node:path";
 import {
   compareKeySets,
   flattenToDot,
+  mergePulledTranslations,
   parseArgs,
   renderTranslationModule,
   runPull,
@@ -100,8 +101,44 @@ describe("Tolgee sync helpers", () => {
     expect(parseArgs(["pull", "--allow-key-removal"])).toEqual({
       action: "pull",
       allowKeyRemoval: true,
+      mergeMissingKeys: false,
+    });
+    expect(parseArgs(["pull", "--merge-missing-keys"])).toEqual({
+      action: "pull",
+      allowKeyRemoval: false,
+      mergeMissingKeys: true,
     });
     expect(() => parseArgs(["pull", "--unknown"])).toThrow("Unknown Tolgee sync option");
+  });
+
+  test("merges a prior Tolgee export into the current static key set", () => {
+    const merged = mergePulledTranslations(
+      {
+        zh: { nav: { home: "Local home" }, stale: "ignore", accent: "true" },
+        en: { nav: { home: "Local Home" } },
+        am: { nav: { home: "Local Amharic home" }, greeting: "Local greeting" },
+      },
+      {
+        ...exportFixtures,
+        zh: { ...exportFixtures.zh, accent: true },
+      },
+    );
+
+    expect(merged.zh).toEqual({
+      nav: { home: "Local home" },
+      home: exportFixtures.zh.home,
+      greeting: exportFixtures.zh.greeting,
+      accent: true,
+    });
+    expect(merged.en).toEqual({
+      ...exportFixtures.en,
+      nav: { home: "Local Home" },
+    });
+    expect(merged.am).toEqual({
+      nav: { home: "Local Amharic home" },
+      home: exportFixtures.am.home,
+      greeting: "Local greeting",
+    });
   });
 
   test("allows explicit empty composition strings", () => {
