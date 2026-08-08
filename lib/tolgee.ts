@@ -9,6 +9,10 @@ import { tolgeeStaticData } from "@/i18n/messages";
 const defaultLanguage = defaultLocale;
 const availableLanguages = locales;
 
+type TolgeeOptions = {
+  remote?: boolean;
+};
+
 function getEnvVar(key: string): string | undefined {
   if (typeof process !== "undefined" && process.env && process.env[key]) {
     return process.env[key];
@@ -20,21 +24,56 @@ function getEnvVar(key: string): string | undefined {
   }
 }
 
-export function createTolgee(initialLocale: string = defaultLanguage) {
+function getTolgeeConfig() {
+  const apiKey = getEnvVar("NEXT_PUBLIC_TOLGEE_API_KEY");
+  const apiUrl = getEnvVar("NEXT_PUBLIC_TOLGEE_API_URL") || TOLGEE_API_URL_DEFAULT;
+  const projectIdRaw = getEnvVar("NEXT_PUBLIC_TOLGEE_PROJECT_ID");
+  const parsedProjectId = projectIdRaw ? Number(projectIdRaw) : TOLGEE_PROJECT_ID_FALLBACK;
+
+  return {
+    apiKey,
+    apiUrl,
+    projectId: Number.isNaN(parsedProjectId) ? TOLGEE_PROJECT_ID_FALLBACK : parsedProjectId,
+  };
+}
+
+let tolgeeReachability: Promise<boolean> | null = null;
+
+/**
+ * Keep the static bundle usable when the optional local Tolgee editor is stopped.
+ * no-cors avoids a second preflight just to check whether the local server exists.
+ */
+export function probeTolgee(): Promise<boolean> {
+  if (tolgeeReachability) return tolgeeReachability;
+
+  const { apiKey, apiUrl } = getTolgeeConfig();
+  if (!apiKey || typeof window === "undefined") return Promise.resolve(false);
+
+  const controller = new AbortController();
+  const timeoutId = window.setTimeout(() => controller.abort(), 800);
+  tolgeeReachability = fetch(apiUrl, {
+    cache: "no-store",
+    mode: "no-cors",
+    signal: controller.signal,
+  })
+    .then(() => true)
+    .catch(() => false)
+    .finally(() => window.clearTimeout(timeoutId));
+
+  return tolgeeReachability;
+}
+
+export function createTolgee(initialLocale: string = defaultLanguage, options: TolgeeOptions = {}) {
   const language = (availableLanguages as readonly string[]).includes(initialLocale)
     ? initialLocale
     : defaultLanguage;
 
-  const apiKey = getEnvVar("NEXT_PUBLIC_TOLGEE_API_KEY");
-  const apiUrl = getEnvVar("NEXT_PUBLIC_TOLGEE_API_URL") || TOLGEE_API_URL_DEFAULT;
-  const projectIdRaw = getEnvVar("NEXT_PUBLIC_TOLGEE_PROJECT_ID");
-
-  const parsedProjectId = projectIdRaw ? Number(projectIdRaw) : TOLGEE_PROJECT_ID_FALLBACK;
-  const projectId = Number.isNaN(parsedProjectId) ? TOLGEE_PROJECT_ID_FALLBACK : parsedProjectId;
+  const { apiKey, apiUrl, projectId } = getTolgeeConfig();
+  const remoteEnabled = options.remote !== false && Boolean(apiKey);
 
   const isBrowser = typeof window !== "undefined";
   const instance = (isBrowser ? Tolgee() : TolgeeCore()).use(FormatIcu());
-  if (isBrowser) {
+  if (isBrowser && remoteEnabled) {
     instance.use(DevTools());
   }
 
@@ -43,9 +82,7 @@ export function createTolgee(initialLocale: string = defaultLanguage) {
     defaultLanguage,
     fallbackLanguage: fallbackLocale,
     observerType: "invisible",
-    apiUrl,
-    apiKey,
-    projectId,
+    ...(remoteEnabled ? { apiUrl, apiKey, projectId } : {}),
     staticData: tolgeeStaticData,
   });
 }

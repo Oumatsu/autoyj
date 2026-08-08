@@ -89,7 +89,7 @@ test.describe("Tier 4: E2E Real Portal Login & Logout Interactive Journey", () =
     expect(adminText).not.toMatch(/Sign In/i);
     expect(adminText.length).toBeGreaterThan(50);
     // Ensure catalog metrics/data are actually loaded and rendered (not empty)
-    expect(adminText).toMatch(/库存台数|待处理询价|车型库/i);
+    expect(adminText).toMatch(/库存台数|待处理询价|车型库|STOCK UNITS|OPEN INQUIRIES|VEHICLE MODELS/i);
 
     // 2nd Logout
     await performLogout();
@@ -111,6 +111,32 @@ test.describe("Tier 4: E2E Real Portal Login & Logout Interactive Journey", () =
 
     await page.goto("/en/dashboard/quotes");
     await expect(page).toHaveURL(/\/en\/dashboard\/quotes/);
+  });
+
+  test("Vehicle model catalogue renders a corresponding image for each visible model list", async ({ page }) => {
+    await page.goto("/portal");
+
+    await page.locator("#login-email").fill("admin@local.test");
+    await page.locator("#login-access-code").fill("admin-demo-2026");
+    await page.locator("form button[type='submit'], form button", { hasText: /Sign In/i }).click();
+
+    await page.locator("a[href*='/dashboard/vehicle_models']").click();
+    await expect(page.getByRole("heading", { name: /车型库|Vehicle Models/i, level: 1 })).toBeVisible();
+
+    const modelImages = page.locator("main img[alt]");
+    await expect(modelImages.first()).toBeVisible();
+    expect(await modelImages.count()).toBeGreaterThan(0);
+    expect(await modelImages.first().getAttribute("src")).toMatch(/^\/pic\//);
+
+    const search = page.getByPlaceholder(/Brand, model, year|品牌、车型、年份/i);
+    await search.fill("BYD Seagull");
+    const gallery = page.locator('main section[aria-label*="image gallery"]').first();
+    await expect(gallery).toBeVisible();
+    const nextImage = gallery.getByRole("button", { name: "Next vehicle image" });
+    await expect(nextImage).toBeVisible();
+    const firstGalleryImage = await gallery.locator("img").getAttribute("src");
+    await nextImage.click();
+    await expect.poll(() => gallery.locator("img").getAttribute("src")).not.toBe(firstGalleryImage);
   });
 
   test("Vehicle filters separate reset from list refresh", async ({ page }) => {

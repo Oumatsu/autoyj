@@ -9,7 +9,7 @@ import { LocaleLink } from "@/i18n/LocaleLink";
 import { LocaleSwitcher } from "@/i18n/LocaleSwitcher";
 import { Sheet, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { sanitizeDisplayData } from "@/lib/display-text";
+import { getPortalSession, invalidatePortalSession } from "@/lib/portal-session-client";
 
 export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -17,7 +17,7 @@ export function Navbar() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pathname = usePathname();
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const openDropdown = useCallback(() => {
     if (closeTimerRef.current) {
       clearTimeout(closeTimerRef.current);
@@ -79,14 +79,14 @@ export function Navbar() {
   }, []);
 
   const [user, setUser] = useState<{ role: string; name?: string } | null>(null);
+  const [signingOut, setSigningOut] = useState(false);
+  const [signOutError, setSignOutError] = useState("");
 
   const refreshSession = useCallback(() => {
-    fetch("/api/portal/session")
-      .then((res) => res.json())
+    getPortalSession()
       .then((data) => {
-        const displayData = sanitizeDisplayData(data);
-        if (displayData && displayData.user) {
-          setUser(displayData.user);
+        if (data.user) {
+          setUser(data.user);
         } else {
           setUser(null);
         }
@@ -102,6 +102,23 @@ export function Navbar() {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // 只在 mount 时执行一次；session 变化通过 youguard-session-changed 事件推送
+
+  const handleSignOut = useCallback(async () => {
+    setSigningOut(true);
+    setSignOutError("");
+    try {
+      const response = await fetch("/api/portal/session", { method: "DELETE" });
+      if (!response.ok) {
+        throw new Error(`Sign out failed (${response.status})`);
+      }
+      invalidatePortalSession();
+      window.dispatchEvent(new Event("youguard-session-changed"));
+      window.location.assign(`/${locale}/dashboard`);
+    } catch (error) {
+      setSignOutError(error instanceof Error ? error.message : "Sign out failed");
+      setSigningOut(false);
+    }
+  }, [locale]);
 
   return (
     <>
@@ -188,16 +205,32 @@ export function Navbar() {
 
         <div className="hidden lg:flex items-center gap-3">
           <LocaleSwitcher />
+          {user ? (
+          <>
+            <LocaleLink
+              href="/dashboard"
+              className="px-6 py-2.5 rounded-full text-xs font-black tracking-widest uppercase transition border border-accent/40 bg-accent/10 text-accent hover:bg-accent hover:text-black"
+            >
+              {t("portal.navDashboard")}
+            </LocaleLink>
+            <button
+              type="button"
+              onClick={() => void handleSignOut()}
+              disabled={signingOut}
+              className="px-6 py-2.5 rounded-full text-xs font-black tracking-widest uppercase transition border border-white/20 text-gray-300 hover:text-white hover:border-white/40 disabled:cursor-wait disabled:opacity-60"
+            >
+              {signingOut ? "..." : t("portal.navSignOut")}
+            </button>
+          </>
+          ) : (
           <a
             href="/dashboard"
-            className={`px-6 py-2.5 rounded-full text-xs font-black tracking-widest uppercase transition border ${
-              user
-                ? "border-accent/40 bg-accent/10 text-accent hover:bg-accent hover:text-black"
-                : "border-white/20 text-gray-300 hover:text-white hover:border-white/40"
-            }`}
+            className="px-6 py-2.5 rounded-full text-xs font-black tracking-widest uppercase transition border border-white/20 text-gray-300 hover:text-white hover:border-white/40"
           >
-            {user ? `${user.role.toUpperCase()}` : t("nav.signIn")}
+            {t("nav.signIn")}
           </a>
+          )}
+          {signOutError ? <span role="alert" className="max-w-40 text-right text-[10px] font-bold text-red-300">{signOutError}</span> : null}
           <QrDropdown>
             <LocaleLink
               href="/#contact"
@@ -317,9 +350,29 @@ export function Navbar() {
             {t("nav.about")}
           </LocaleLink>
 
-          <a href="/dashboard" onClick={closeMobile} className="text-[#5ee6d8] hover:text-white transition">
-            {user ? user.role.toUpperCase() : t("nav.signIn")}
-          </a>
+          {user ? (
+            <>
+              <LocaleLink href="/dashboard" onClick={closeMobile} className="text-[#5ee6d8] hover:text-white transition">
+                {t("portal.navDashboard")}
+              </LocaleLink>
+              <button
+                type="button"
+                onClick={() => {
+                  closeMobile();
+                  void handleSignOut();
+                }}
+                disabled={signingOut}
+                className="text-left text-white transition hover:text-[#5ee6d8] disabled:cursor-wait disabled:opacity-60"
+              >
+                {signingOut ? "..." : t("portal.navSignOut")}
+              </button>
+            </>
+          ) : (
+            <a href="/dashboard" onClick={closeMobile} className="text-[#5ee6d8] hover:text-white transition">
+              {t("nav.signIn")}
+            </a>
+          )}
+          {signOutError ? <span role="alert" className="text-xs font-bold text-red-300">{signOutError}</span> : null}
 
           <LocaleLink href="/about#verification" onClick={closeMobile} className="text-slate-400 hover:text-white transition text-xs">
             {t("footer.companyVerification")}

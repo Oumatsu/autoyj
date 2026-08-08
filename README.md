@@ -46,6 +46,10 @@ bun run build
 bun run deploy
 ```
 
+本地网站会先探测 `localhost:8085`；Tolgee 未启动时自动只使用静态 bundle，不会让页面反复
+发起失败的翻译请求。启动 `bun run tolgee:server` 后刷新网站即可启用 Alt/Option
+In-context Editor。
+
 `tolgee:pull` 从 `.dev.vars` 的 `TOLGEE_API_URL`、`TOLGEE_API_KEY` 和
 `TOLGEE_PROJECT_ID` 导出三种语言，并在校验失败时保持原文件不变。只有确认删除
 Tolgee key 时才使用 `bun run tolgee:pull -- --allow-key-removal`。将来把 Tolgee 部署到

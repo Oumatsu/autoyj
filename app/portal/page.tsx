@@ -5,7 +5,7 @@ import Loading from "../../components/Loading";
 import type { ReactNode } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Select } from "@/components/ui/select";
@@ -21,6 +21,7 @@ import { Progress } from "@/components/ui/progress";
 import { RefreshCw } from "lucide-react";
 import { useTranslation } from "@/i18n/useTranslation";
 import { sanitizeDisplayData } from "@/lib/display-text";
+import { getPortalSession, invalidatePortalSession } from "@/lib/portal-session-client";
 import { formatPortalRole, formatPortalStatus, localizeVehicleValue, portalRoleLabels } from "@/lib/portal-english";
 import type { AccountType, PortalRole, PriceTier } from "@/lib/users";
 
@@ -66,6 +67,12 @@ type Customer = {
   owner: string;
 };
 
+type VehicleGalleryImage = {
+  src: string;
+  cat?: string;
+  label?: string;
+};
+
 type VehicleModel = {
   id: string;
   brand: string;
@@ -98,6 +105,7 @@ type VehicleModel = {
   marketPosition: string;
   exportNotes: string;
   imageUrl: string;
+  galleryImages?: VehicleGalleryImage[];
   brochureUrl: string;
   sourceUrl: string;
   sourceName: string;
@@ -192,6 +200,8 @@ type ModelProfileGroup = {
   model: string;
   years: string[];
   variants: VehicleModel[];
+  imageUrl: string;
+  galleryImages: VehicleGalleryImage[];
   specsByModel: Map<string, VehicleModelSpec[]>;
   segment: string;
   energyType: string;
@@ -577,6 +587,7 @@ export default function PortalPage() {
     if (force) {
       globalBootstrapData = null;
       globalBootstrapPromise = null;
+      invalidatePortalSession();
     }
 
     if (!force && globalBootstrapPromise) {
@@ -593,7 +604,7 @@ export default function PortalPage() {
     const promise = (async () => {
       setError("");
       try {
-        const sessionRes = await api<{ user: PortalUser | null }>("/api/portal/session");
+        const sessionRes = await getPortalSession();
         if (!sessionRes.user) {
           globalBootstrapData = null;
           globalBootstrapPromise = null;
@@ -649,7 +660,7 @@ export default function PortalPage() {
       window.removeEventListener("popstate", syncFromUrl);
       clearTimeout(timer);
     };
-  }, []);
+  }, [checkSessionAndLoad]);
 
   const [loadedModels, setLoadedModels] = useState(false);
   const [loadedVehicles, setLoadedVehicles] = useState(false);
@@ -796,6 +807,7 @@ export default function PortalPage() {
 
   async function logout() {
     await api("/api/portal/session", { method: "DELETE" });
+    invalidatePortalSession();
     globalBootstrapData = null;
     globalBootstrapPromise = null;
     setData(null);
@@ -957,8 +969,8 @@ export default function PortalPage() {
       data={data}
       error={error}
       isModuleLoading={moduleLoading}
-      onLogout={logout}
       onModuleChange={handleModuleChange}
+      onLogout={logout}
       onReload={checkSessionAndLoad}
       onRefreshVehicles={refreshVehicles}
     />
@@ -1011,10 +1023,10 @@ export default function PortalPage() {
                 <div className="grid gap-4 p-5">
                   <div>
                     <p className="text-[10px] font-black uppercase tracking-widest text-accent">{item.segment || "EV"}</p>
-                    <h3 className="mt-2 text-xl font-black uppercase italic text-white">{item.brand} {item.model} {formatModelYear(item.year)}</h3>
+                    <h3 className="mt-2 text-xl font-black uppercase italic text-white">{item.brand} {item.model} {item.year ? t("portal.modelYear", { year: item.year }) : t("portal.modelYearPending")}</h3>
                   </div>
                   <div className="flex flex-wrap items-center gap-2 text-xs">
-                    <PortalInventoryPill label="Stock" value={`${item.stockQuantity} units`} />
+                    <PortalInventoryPill label="Stock" value={t("portal.unitCount", { count: item.stockQuantity })} />
                     <PortalInventoryPill label="Supply" value={formatSupplySummary(item)} />
                     {item.priceTermsSummary.length > 0 ? (
                       item.priceTermsSummary.map((pt) => (
@@ -1050,7 +1062,7 @@ export default function PortalPage() {
                       <div>
                         <p className="text-[10px] font-black uppercase tracking-widest text-accent">{inquiry.status}</p>
                         <h3 className="mt-1 font-black text-white">{inquiry.inquiryNo}</h3>
-                        <p className="mt-1 text-xs text-gray-500">{inquiry.vehicleModel} / {inquiry.quantity} units / {inquiry.tradeTerm} / {inquiry.destinationPort}</p>
+                        <p className="mt-1 text-xs text-gray-500">{inquiry.vehicleModel} / {t("portal.unitCount", { count: inquiry.quantity })} / {inquiry.tradeTerm} / {inquiry.destinationPort}</p>
                       </div>
                       <span className="text-xs text-gray-600">{formatDate(inquiry.updatedAt || inquiry.createdAt)}</span>
                     </div>
@@ -1093,7 +1105,7 @@ export default function PortalPage() {
                   <h3 className="mt-1 font-black text-white">{order.orderNo}</h3>
                   <div className="mt-3 grid grid-cols-2 gap-3 text-xs">
                     <Info label="Quote" value={order.quoteNo} />
-                    <Info label="Quantity" value={`${order.quantity} units`} />
+                    <Info label="Quantity" value={t("portal.unitCount", { count: order.quantity })} />
                     <Info label="Unit Price" value={formatUsd(order.finalUnitPrice)} highlight />
                     <Info label="Total" value={formatUsd(order.total)} highlight />
                   </div>
@@ -1125,11 +1137,11 @@ export default function PortalPage() {
       </section>
 
       {selectedSellableModel && (
-        <Modal title={`${selectedSellableModel.brand} ${selectedSellableModel.model} ${formatModelYear(selectedSellableModel.year)} / Sources`} onClose={() => setSelectedSellableModel(null)}>
+        <Modal title={`${selectedSellableModel.brand} ${selectedSellableModel.model} ${selectedSellableModel.year ? t("portal.modelYear", { year: selectedSellableModel.year }) : t("portal.modelYearPending")} / Sources`} onClose={() => setSelectedSellableModel(null)}>
           <div className="grid gap-4">
             <div className="grid gap-3 sm:grid-cols-3">
               <Info label="Segment" value={selectedSellableModel.segment || "EV"} />
-              <Info label="In-stock Qty" value={`${selectedSellableModel.stockQuantity} units`} />
+              <Info label="In-stock Qty" value={t("portal.unitCount", { count: selectedSellableModel.stockQuantity })} />
               <Info label="FOB Range" value={selectedSellableModel.fobPriceRange} highlight />
             </div>
             <div className="max-w-full overflow-x-auto">
@@ -1281,21 +1293,15 @@ function AdminPortal({
   const visibleNav = adminNavItems.filter((item) => item.roles.includes(data.user.role));
   const normalizedActiveModule = visibleNav.some((item) => item.key === activeModule) ? activeModule : "dashboard";
   const activeItem = visibleNav.find((item) => item.key === normalizedActiveModule) || visibleNav[0];
-  // 按车型去重取最大库存（同车型不同颜色共享库存池，不能累加）
-  const stockByModel = new Map<string, number>();
-  for (const v of data.vehicles) {
-    const mk = `${v.brand}|${v.model}|${v.year}`;
-    stockByModel.set(mk, Math.max(stockByModel.get(mk) || 0, v.stockQuantity));
-  }
-  const totalStock = Array.from(stockByModel.values()).reduce((s, q) => s + q, 0);
-  const openInquiries = data.inquiries.filter((item) => !["accepted", "closed", "cancelled"].includes(item.status.toLowerCase())).length;
+  const totalStock = data.vehicles.reduce((sum, vehicle) => sum + getVehicleStockQuantity(vehicle), 0);
+  const openInquiries = data.inquiries.filter((item) => !["accepted", "closed", "cancelled"].includes(item.status.trim().toLowerCase())).length;
   const orderTotal = data.orders.reduce((sum, order) => sum + order.total, 0);
 
   return (
-    <main className="min-h-screen overflow-x-hidden bg-[#0c1322] pt-[var(--navbar-h,56px)] text-slate-100 lg:pt-0">
-      <div className={`grid min-h-screen min-w-0 transition-[grid-template-columns] duration-200 ${sidebarCollapsed ? "lg:grid-cols-[88px_minmax(0,1fr)]" : "lg:grid-cols-[300px_minmax(0,1fr)]"}`}>
-        <aside className={`border-b border-white/10 bg-[#101827] px-4 py-5 transition-[padding] duration-200 lg:sticky lg:h-[calc(100vh-var(--navbar-h,56px))] lg:border-b-0 lg:border-r ${sidebarCollapsed ? "lg:px-3" : "lg:px-5"} flex flex-col justify-between`} style={{ top: "var(--navbar-h, 56px)" }}>
-          <div>
+    <main className="min-h-screen bg-[#0c1322] pt-[var(--navbar-h,56px)] text-slate-100">
+      <div className={`grid min-h-[calc(100vh-var(--navbar-h,56px))] min-w-0 transition-[grid-template-columns] duration-200 ${sidebarCollapsed ? "lg:grid-cols-[88px_minmax(0,1fr)]" : "lg:grid-cols-[300px_minmax(0,1fr)]"}`}>
+        <aside className={`flex min-h-[calc(100vh-var(--navbar-h,56px))] flex-col border-b border-white/10 bg-[#101827] px-4 py-5 transition-[padding] duration-200 lg:sticky lg:h-[calc(100vh-var(--navbar-h,56px))] lg:self-start lg:border-b-0 lg:border-r ${sidebarCollapsed ? "lg:px-3" : "lg:px-5"}`} style={{ top: "var(--navbar-h, 56px)" }}>
+          <div className="min-h-0 flex-1">
             <div className={`flex items-center gap-3 border-b border-white/10 pb-6 ${sidebarCollapsed ? "lg:flex-col lg:justify-center lg:gap-2 lg:pb-4" : ""}`}>
               <div className={`grid shrink-0 place-items-center rounded-2xl bg-[#22b8aa] font-black text-[#0c1322] transition-all duration-200 ${sidebarCollapsed ? "lg:h-12 lg:w-12 lg:text-base" : "h-14 w-14 text-xl"}`}>
                 EV
@@ -1352,8 +1358,11 @@ function AdminPortal({
             </nav>
           </div>
 
-          <div className={`mt-6 rounded-2xl border border-white/10 bg-white/[.04] p-4 ${sidebarCollapsed ? "lg:p-2.5" : ""}`}>
-            <div className={`flex items-center gap-3 ${sidebarCollapsed ? "lg:justify-center" : ""}`}>
+          <div className={`mt-auto shrink-0 rounded-2xl border border-white/10 bg-white/[.04] p-4 ${sidebarCollapsed ? "lg:p-2.5" : ""}`}>
+            <div
+              className={`flex items-center gap-3 ${sidebarCollapsed ? "lg:justify-center" : ""}`}
+              title={sidebarCollapsed ? `${data.user.name || data.user.email} · ${formatPortalRole(data.user.role, locale)}` : undefined}
+            >
               <Avatar className="h-10 w-10">
                 <AvatarFallback>
                   {(data.user.name || data.user.email || "U").slice(0, 2).toUpperCase()}
@@ -1364,18 +1373,10 @@ function AdminPortal({
                 <p className="truncate text-[10px] text-slate-400">{formatPortalRole(data.user.role, locale)} · {data.user.accountType}</p>
               </div>
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => void onLogout()}
-              className={`mt-3 w-full ${sidebarCollapsed ? "lg:h-9 lg:px-0 lg:text-[0px] lg:after:content-['鈫?] lg:after:text-xs" : ""}`}
-            >
-              {t("portal.navSignOut")}
-            </Button>
           </div>
         </aside>
 
-        <section className="min-w-0 overflow-hidden px-4 py-5 sm:px-6 lg:px-8 lg:pb-8 lg:pt-[calc(var(--navbar-h,56px)+2rem)]">
+        <section className="min-w-0 px-4 py-5 sm:px-6 lg:px-8 lg:pb-8 lg:pt-8">
           <header className="mb-6 flex flex-col gap-4 border-b border-white/10 pb-5 xl:flex-row xl:items-end xl:justify-between">
             <div>
               <p className="text-[10px] font-black uppercase tracking-[.24em] text-[#22b8aa]">
@@ -1383,10 +1384,19 @@ function AdminPortal({
               </p>
               <h1 className="mt-2 text-3xl font-black tracking-tight text-white sm:text-4xl">{activeItem ? t(activeItem.labelKey) : t("portal.navDashboard")}</h1>
             </div>
-            <div className="grid w-full min-w-0 gap-2 text-xs text-slate-400 sm:grid-cols-3 xl:max-w-[520px]">
-              <AdminTopMetric label={t("portal.stockUnits")} value={String(totalStock)} />
-              <AdminTopMetric label={t("portal.openInquiries")} value={String(openInquiries)} />
-              <AdminTopMetric label={t("portal.orderValue")} value={formatUsdStrict(orderTotal)} />
+            <div className="flex w-full min-w-0 flex-col gap-3 xl:max-w-[560px]">
+              <div className="grid min-w-0 gap-2 text-xs text-slate-400 sm:grid-cols-3">
+                <AdminTopMetric label={t("portal.stockUnits")} value={String(totalStock)} />
+                <AdminTopMetric label={t("portal.openInquiries")} value={String(openInquiries)} />
+                <AdminTopMetric label={t("portal.orderValue")} value={formatUsdStrict(orderTotal)} />
+              </div>
+              <button
+                type="button"
+                onClick={() => void onLogout()}
+                className="w-fit self-end rounded-full border border-white/15 px-5 py-2 text-[10px] font-black uppercase tracking-widest text-gray-400 transition hover:border-white/40 hover:text-white"
+              >
+                {t("portal.navSignOut")}
+              </button>
             </div>
           </header>
 
@@ -1462,10 +1472,7 @@ function AdminModuleContent({ activeModule, data, isModuleLoading, onEditVehicle
 function AdminDashboard({ data }: { data: BootstrapData }) {
   const { t } = useTranslation();
   // 汇总所有颜色与细分车型的实际库存数量（全量累加）
-  const totalStock = data.vehicles.reduce((sum, v) => {
-    const qty = v.colorStockQuantity ?? (typeof v.stockQuantity === "number" && v.stockQuantity > 0 ? v.stockQuantity : 0);
-    return sum + qty;
-  }, 0);
+  const totalStock = data.vehicles.reduce((sum, vehicle) => sum + getVehicleStockQuantity(vehicle), 0);
   const modelCount = (data.vehicleModels || []).length;
   const quoteValue = data.quotes.reduce((sum, quote) => sum + quote.unitPrice * Math.max(quote.quantity, 1), 0);
   const latestInquiries = [...data.inquiries]
@@ -1476,7 +1483,7 @@ function AdminDashboard({ data }: { data: BootstrapData }) {
   return (
     <div className="grid min-w-0 gap-5">
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <AdminStat label={t("portal.modelRepo")} value={String(modelCount)} note={`${data.vehicles.length} records / ${totalStock} units`} />
+        <AdminStat label={t("portal.modelRepo")} value={String(modelCount)} note={t("portal.recordStockSummary", { records: data.vehicles.length, count: totalStock })} />
         <AdminStat label={t("portal.inquiries")} value={String(data.inquiries.length)} note={`${latestInquiries.length} recent updates`} />
         <AdminStat label={t("portal.quoteVersions")} value={String(data.quotes.length)} note={formatUsdStrict(quoteValue)} />
         <AdminStat label={t("portal.orders")} value={String(data.orders.length)} note={formatUsdStrict(data.orders.reduce((sum, order) => sum + order.total, 0))} />
@@ -1491,7 +1498,7 @@ function AdminDashboard({ data }: { data: BootstrapData }) {
               return [
                 inquiry.inquiryNo,
                 inquiry.vehicleModel || inquiry.vehicleId,
-                `${inquiry.quantity} units`,
+                t("portal.unitCount", { count: inquiry.quantity }),
                 <AdminStatusBadge key="status" status={inquiry.status || "Pending"} />,
                 quote ? `${quote.quoteNo} / ${formatUsdStrict(quote.unitPrice)}` : "Awaiting quote",
               ];
@@ -1505,7 +1512,7 @@ function AdminDashboard({ data }: { data: BootstrapData }) {
             headers={[t("portal.vehicle"), t("portal.stockQuantity"), t("portal.location"), t("portal.supplyType")]}
             rows={lowStock.map((vehicle) => [
               vehicleName(vehicle),
-              `${vehicle.stockQuantity} units`,
+              t("portal.unitCount", { count: vehicle.stockQuantity }),
               vehicle.location || "-",
               <AdminStatusBadge key="status" status={getSupplyType(vehicle)} />,
             ])}
@@ -1520,7 +1527,6 @@ function AdminDashboard({ data }: { data: BootstrapData }) {
 function ModelFullSpecsCard({ group }: { group: ModelProfileGroup }) {
   const { t, locale } = useTranslation();
   const v = group.variants[0] || ({} as VehicleModel);
-  const [selectedVariantId, setSelectedVariantId] = useState<string | null>(null);
   const trimVariants = getModelTrimVariants(group);
   const versionDetails = trimVariants.map((variant) => ({
     variant,
@@ -1536,8 +1542,6 @@ function ModelFullSpecsCard({ group }: { group: ModelProfileGroup }) {
       { label: "Verification", value: getModelSpecValue(group.specsByModel, variant.id, ["版本核验状态"]) || "-" },
     ],
   }));
-  const selectedVersion = versionDetails.find(({ variant }) => variant.id === selectedVariantId) ?? versionDetails[0];
-
   const batteryVal = safeText(v.battery) || getModelSpecValue(group.specsByModel, v.id, ["电池容量"]) || "-";
   const batteryTypeVal = safeText(v.batteryType) || getModelSpecValue(group.specsByModel, v.id, ["电池类型"]) || "-";
   const batteryMakerVal = safeText(v.batteryMaker) || "-";
@@ -1600,7 +1604,7 @@ function ModelFullSpecsCard({ group }: { group: ModelProfileGroup }) {
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
               <span className="rounded-md bg-[#22b8aa]/10 px-2 py-1 font-mono text-[10px] font-black uppercase tracking-wider text-[#5ee6d8]">{safeText(group.brand)} · {safeText(group.model)}</span>
-              <span className="text-[11px] text-slate-400">{trimVariants.length} {t("portal.variantsInStock")}</span>
+              <span className="text-[11px] text-slate-400">{t("portal.variantStockSummary", { count: trimVariants.length })}</span>
             </div>
             <h4 className="mt-2 text-base font-black text-white">{safeText(group.marketPosition) || `${safeText(group.brand)} ${safeText(group.model)} ${t("portal.fullTechSpecs")}`}</h4>
           </div>
@@ -1617,7 +1621,7 @@ function ModelFullSpecsCard({ group }: { group: ModelProfileGroup }) {
           <p className="text-[10px] font-black uppercase tracking-[.18em] text-slate-400">MODEL OVERVIEW</p>
           <h5 className="mt-0.5 text-sm font-black text-white">{t("portal.fullTechSpecs")}</h5>
         </div>
-        <div className="grid gap-3.5 grid-cols-1 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-3.5">
           {overviewSections.map((section) => (
             <div key={section.title} className="rounded-xl border border-white/10 bg-[#0c1424] p-4 text-xs transition">
               <strong className="block border-b border-white/10 pb-2 text-xs font-bold uppercase tracking-wide text-[#5ee6d8]">{section.title}</strong>
@@ -1638,36 +1642,122 @@ function ModelFullSpecsCard({ group }: { group: ModelProfileGroup }) {
         <section className="border-t border-white/10 pt-6">
           <div className="mb-4">
             <p className="text-[10px] font-black uppercase tracking-[.18em] text-slate-400">CONFIGURATIONS</p>
-            <h5 className="mt-0.5 text-base font-black text-white">{locale === "zh" ? `配置版本 (${versionDetails.length})` : `Configuration Trims (${versionDetails.length})`}</h5>
+            <h5 className="mt-0.5 text-base font-black text-white">{t("portal.trimCount", { count: versionDetails.length })}</h5>
           </div>
-          <div className="grid min-h-[420px] overflow-hidden rounded-xl border border-white/10 bg-[#070e1b] lg:grid-cols-[minmax(210px,.7fr)_minmax(0,1.7fr)]">
-            <div className="max-h-[320px] overflow-y-auto border-b border-white/10 bg-[#080f1c] lg:max-h-[620px] lg:border-b-0 lg:border-r">
-              {versionDetails.map(({ variant, items }) => {
-                const isSelected = selectedVersion?.variant.id === variant.id;
-                return (
-                  <button key={variant.id} type="button" onClick={() => setSelectedVariantId(variant.id)} className={`w-full border-b border-white/[.07] px-4 py-4 text-left transition last:border-b-0 ${isSelected ? "bg-[#22b8aa]/[.09] shadow-[inset_3px_0_0_#22b8aa]" : "hover:bg-white/[.035]"}`}>
-                    <span className="flex items-start justify-between gap-3"><strong className="min-w-0 break-words text-sm font-black text-white">{localizeVehicleValue(variant.trim || variant.id, locale)}</strong><span className={`shrink-0 rounded-full border px-2 py-1 text-[10px] font-black ${items[8]?.value === "Verified" ? "border-[#22b8aa]/35 bg-[#22b8aa]/10 text-[#5ee6d8]" : "border-amber-400/35 bg-amber-400/10 text-amber-300"}`}>{localizeVehicleValue(items[8]?.value, locale)}</span></span>
-                    <span className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2"><span><span className="block text-[10px] text-slate-500">{items[0]?.label}</span><span className="mt-1 block break-words text-[11px] font-black leading-4 text-amber-300">{items[0]?.value}</span></span><span><span className="block text-[10px] text-slate-500">{items[1]?.label}</span><span className="mt-1 block break-words text-[11px] font-medium leading-4 text-slate-300">{items[1]?.value}</span></span></span>
-                  </button>
-                );
-              })}
-            </div>
-
-            <div className="min-w-0 bg-[#0a1120]">
-              {selectedVersion ? (
-                <div className="h-full">
-                  <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 px-4 py-4"><div><p className="text-[10px] font-black uppercase tracking-[.18em] text-[#5ee6d8]">SELECTED CONFIGURATION</p><strong className="mt-1 block text-sm font-black text-white">{localizeVehicleValue(selectedVersion.variant.trim || selectedVersion.variant.id, locale)}</strong></div><span className="rounded-full border border-white/10 px-2 py-1 text-[10px] font-bold text-slate-300">{localizeVehicleValue(selectedVersion.items[8]?.value, locale)}</span></div>
-                  <div className="grid gap-px bg-white/10 lg:grid-cols-2">
-                    <dl className="grid gap-x-6 gap-y-4 bg-[#0a1120] p-4 sm:grid-cols-2">{selectedVersion.items.slice(0, 6).map((item) => <div key={item.label}><dt className="text-[10px] text-slate-400">{item.label}</dt><dd className="mt-1 break-words text-[12px] leading-5 text-slate-100">{item.value}</dd></div>)}</dl>
-                    <dl className="grid gap-4 bg-[#0a1120] p-4">{selectedVersion.items.slice(6).map((item) => <div key={item.label}><dt className="text-[10px] text-slate-400">{item.label}</dt><dd className="mt-1 break-words text-[12px] leading-5 text-slate-100">{item.value}</dd></div>)}</dl>
+          <div className="grid gap-3">
+            {versionDetails.map(({ variant, items }) => (
+              <article key={variant.id} className="overflow-hidden rounded-xl border border-white/10 bg-[#0a1120]">
+                <header className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 bg-[#080f1c] px-4 py-4">
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-[.18em] text-[#5ee6d8]">CONFIGURATION</p>
+                    <strong className="mt-1 block text-sm font-black text-white">
+                      {localizeVehicleValue(variant.trim || variant.id, locale)}
+                    </strong>
                   </div>
-                </div>
-              ) : null}
-            </div>
+                  <span className={`rounded-full border px-2 py-1 text-[10px] font-black ${items[8]?.value === "Verified" ? "border-[#22b8aa]/35 bg-[#22b8aa]/10 text-[#5ee6d8]" : "border-amber-400/35 bg-amber-400/10 text-amber-300"}`}>
+                    {localizeVehicleValue(items[8]?.value, locale)}
+                  </span>
+                </header>
+                <dl className="grid gap-x-6 gap-y-4 p-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {items.map((item) => (
+                    <div key={item.label} className="min-w-0">
+                      <dt className="text-[10px] text-slate-400">{item.label}</dt>
+                      <dd className="mt-1 break-words text-[12px] leading-5 text-slate-100">{item.value}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </article>
+            ))}
           </div>
         </section>
       ) : null}
     </div>
+  );
+}
+
+function ModelGalleryCarousel({
+  brand,
+  model,
+  images,
+}: {
+  brand: string;
+  model: string;
+  images: VehicleGalleryImage[];
+}) {
+  const usableImages = images.filter((image) => Boolean(image.src));
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  useEffect(() => {
+    if (usableImages.length < 2) return;
+    const timer = window.setInterval(() => {
+      setActiveIndex((current) => (current + 1) % usableImages.length);
+    }, 5000);
+    return () => window.clearInterval(timer);
+  }, [usableImages.length]);
+
+  if (usableImages.length === 0) return null;
+
+  const currentIndex = Math.min(activeIndex, usableImages.length - 1);
+  const currentImage = usableImages[currentIndex];
+  const move = (offset: number) => {
+    setActiveIndex((current) => (current + offset + usableImages.length) % usableImages.length);
+  };
+
+  return (
+    <section
+      aria-label={`${brand} ${model} image gallery`}
+      className="overflow-hidden rounded-xl border border-white/10 bg-[#070e1b]"
+    >
+      <div className="relative aspect-[16/7] min-h-56 overflow-hidden sm:min-h-64">
+        <img
+          key={currentImage.src}
+          src={currentImage.src}
+          alt={`${brand} ${model}${currentImage.label ? ` — ${currentImage.label}` : ""}`}
+          className="h-full w-full object-cover"
+          decoding="async"
+        />
+        {usableImages.length > 1 ? (
+          <>
+            <button
+              type="button"
+              onClick={() => move(-1)}
+              aria-label="Previous vehicle image"
+              className="absolute left-3 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-full border border-white/20 bg-black/50 text-lg text-white backdrop-blur transition hover:bg-black/75"
+            >
+              ‹
+            </button>
+            <button
+              type="button"
+              onClick={() => move(1)}
+              aria-label="Next vehicle image"
+              className="absolute right-3 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-full border border-white/20 bg-black/50 text-lg text-white backdrop-blur transition hover:bg-black/75"
+            >
+              ›
+            </button>
+          </>
+        ) : null}
+        <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-3 bg-gradient-to-t from-black/80 to-transparent px-4 pb-3 pt-8 text-[10px] font-black uppercase tracking-widest text-white">
+          <span>{currentImage.label || currentImage.cat || "Vehicle image"}</span>
+          <span>{currentIndex + 1} / {usableImages.length}</span>
+        </div>
+      </div>
+      {usableImages.length > 1 ? (
+        <div className="flex items-center justify-center gap-1.5 border-t border-white/10 px-4 py-3">
+          {usableImages.map((image, index) => (
+            <button
+              key={`${image.src}-${index}`}
+              type="button"
+              onClick={() => setActiveIndex(index)}
+              aria-label={`Show vehicle image ${index + 1}`}
+              aria-current={index === currentIndex ? "true" : undefined}
+              className={`h-1.5 rounded-full transition-all ${
+                index === currentIndex ? "w-8 bg-[#5ee6d8]" : "w-2 bg-white/25 hover:bg-white/50"
+              }`}
+            />
+          ))}
+        </div>
+      ) : null}
+    </section>
   );
 }
 
@@ -1687,25 +1777,6 @@ function AdminProfiles({ data }: { data: BootstrapData }) {
   return (
     <div className="grid gap-5">
       <AdminPanel title={t("portal.titleModels")} subtitle="Complete vehicle model data, including battery, motor, dimensions, driving assistance, and export fields.">
-        {/* Model catalogue banner */}
-        <div className="mb-5 flex flex-col gap-3 rounded-2xl border border-[#22b8aa]/30 bg-[#22b8aa]/10 p-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-3">
-            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#22b8aa]/20 text-lg">{"\u{1F5BC}\uFE0F"}</div>
-            <div>
-              <strong className="block text-sm font-bold text-white">Live vehicle model catalogue</strong>
-              <p className="mt-0.5 text-xs text-slate-300">Includes image galleries, configuration details, and current inventory pricing for public viewing.</p>
-            </div>
-          </div>
-          <a
-            href={`/${locale}/vehicles`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-[#22b8aa] px-4 py-2.5 text-xs font-black text-[#0c1322] transition hover:bg-[#5ee6d8]"
-          >
-            <span>Open catalogue →</span>
-          </a>
-        </div>
-
         {/* Search bar + summary */}
         <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end">
           <label className="grid flex-1 gap-2 text-xs font-black uppercase tracking-widest text-slate-500">
@@ -1717,16 +1788,16 @@ function AdminProfiles({ data }: { data: BootstrapData }) {
             />
           </label>
           <div className="flex items-center gap-2 pb-0.5">
-            <AdminSummaryChip label="Models" value={`${visibleGroups.length} / ${groups.length}`} tone="accent" />
-            <AdminSummaryChip label="Trims" value={String(visibleGroups.reduce((sum, group) => sum + getModelTrimVariants(group).length, 0))} />
+            <AdminSummaryChip label={t("portal.modelsLabel")} value={`${visibleGroups.length} / ${groups.length}`} tone="accent" />
+            <AdminSummaryChip label={t("portal.trimsLabel")} value={String(visibleGroups.reduce((sum, group) => sum + getModelTrimVariants(group).length, 0))} />
           </div>
         </div>
 
         {/* Master-detail layout with explicit height */}
-        <div className="flex h-[calc(100vh-280px)] min-h-[550px] max-h-[850px] gap-0 overflow-hidden rounded-xl border border-white/10">
+        <div className="flex min-h-[550px] gap-0 overflow-hidden rounded-xl border border-white/10">
           {/* LEFT: model list */}
           <div
-            className={`flex w-full shrink-0 flex-col overflow-y-auto border-r border-white/10 bg-[#070e1b] lg:w-80 xl:w-96 ${
+            className={`flex w-full shrink-0 flex-col border-r border-white/10 bg-[#070e1b] lg:w-80 xl:w-96 ${
               selectedGroup ? "hidden lg:flex" : "flex"
             }`}
           >
@@ -1748,13 +1819,26 @@ function AdminProfiles({ data }: { data: BootstrapData }) {
                       : "hover:bg-white/[.03]"
                   }`}
                 >
+                  <div className="h-14 w-20 shrink-0 overflow-hidden rounded-lg border border-white/10 bg-[#0c1424]">
+                    {group.imageUrl ? (
+                      <img
+                        src={group.imageUrl}
+                        alt={`${group.brand} ${group.model}`}
+                        className="h-full w-full object-cover"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    ) : (
+                      <div className="grid h-full place-items-center text-[9px] font-black uppercase tracking-widest text-slate-600">No image</div>
+                    )}
+                  </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-2">
                       <span className={`text-[10px] font-black uppercase tracking-widest ${isSelected ? "text-[#22b8aa]" : "text-slate-500"}`}>
                         {group.brand}
                       </span>
                       <span className="shrink-0 rounded-full bg-white/[.06] px-1.5 py-0.5 text-[9px] font-black text-slate-400">
-                        {getModelTrimVariants(group).length} trims
+                        {t("portal.trimCount", { count: getModelTrimVariants(group).length })}
                       </span>
                     </div>
                     <strong className={`mt-0.5 block truncate text-sm ${isSelected ? "text-white" : "text-slate-200"}`}>
@@ -1767,6 +1851,11 @@ function AdminProfiles({ data }: { data: BootstrapData }) {
                       {group.rangeSummary ? (
                         <span className="rounded bg-white/[.05] px-1.5 py-0.5 text-[10px] text-slate-400">{group.rangeSummary}</span>
                       ) : null}
+                      {group.galleryImages.length > 1 ? (
+                        <span className="rounded bg-[#22b8aa]/10 px-1.5 py-0.5 text-[10px] text-[#5ee6d8]">
+                          {group.galleryImages.length} photos
+                        </span>
+                      ) : null}
                     </div>
                   </div>
                 </button>
@@ -1775,7 +1864,7 @@ function AdminProfiles({ data }: { data: BootstrapData }) {
           </div>
 
           {/* RIGHT: detail panel */}
-          <div className={`flex-1 overflow-y-auto bg-[#0a1120] ${selectedGroup ? "flex flex-col" : "hidden lg:flex"}`}>
+          <div className={`flex-1 bg-[#0a1120] ${selectedGroup ? "flex flex-col" : "hidden lg:flex"}`}>
             {!selectedGroup ? (
               <div className="flex flex-1 items-center justify-center px-8 py-16 text-center">
                 <div>
@@ -1797,6 +1886,18 @@ function AdminProfiles({ data }: { data: BootstrapData }) {
                     >
                       ←
                     </button>
+                    <div className="h-14 w-20 shrink-0 overflow-hidden rounded-lg border border-white/10 bg-[#0c1424]">
+                      {selectedGroup.imageUrl ? (
+                        <img
+                          src={selectedGroup.imageUrl}
+                          alt={`${selectedGroup.brand} ${selectedGroup.model}`}
+                          className="h-full w-full object-cover"
+                          decoding="async"
+                        />
+                      ) : (
+                        <div className="grid h-full place-items-center text-[9px] font-black uppercase tracking-widest text-slate-600">No image</div>
+                      )}
+                    </div>
                     <div>
                       <div className="flex items-center gap-2">
                         <span className="text-[10px] font-black uppercase tracking-widest text-[#22b8aa]">{selectedGroup.brand}</span>
@@ -1808,10 +1909,21 @@ function AdminProfiles({ data }: { data: BootstrapData }) {
                     </div>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
-                    <AdminSummaryChip label="Trims" value={String(getModelTrimVariants(selectedGroup).length)} tone="accent" />
+                    <AdminSummaryChip label={t("portal.trimsLabel")} value={String(getModelTrimVariants(selectedGroup).length)} tone="accent" />
                     {selectedGroup.guidePriceSummary ? <AdminSummaryChip label="List Price" value={selectedGroup.guidePriceSummary} /> : null}
                   </div>
                 </div>
+
+                {selectedGroup.galleryImages.some((image) => Boolean(image.src)) ? (
+                  <div className="px-4 pt-4 sm:px-5">
+                    <ModelGalleryCarousel
+                      key={selectedGroup.key}
+                      brand={selectedGroup.brand}
+                      model={selectedGroup.model}
+                      images={selectedGroup.galleryImages}
+                    />
+                  </div>
+                ) : null}
 
                 {/* Market position */}
                 {selectedGroup.marketPosition ? (
@@ -2023,10 +2135,10 @@ function AdminVehicles({ data, onEdit, onRefresh }: { data: BootstrapData; onEdi
       {/* 缁撴灉缁熻 Summary Bar (鐜拌溅鎬诲彴鏁版牴鎹姹傞殣钘? */}
       <div className="flex flex-wrap items-center justify-between gap-3 px-1 text-xs font-bold text-slate-400">
         <div>
-          Found <span className="font-mono font-bold text-[#5ee6d8]">{visibleModels.length}</span> vehicle models and
-          <span className="font-mono font-bold text-[#5ee6d8]">
-            {visibleModels.reduce((acc, m) => acc + (m.offers?.length || 0), 0)}
-          </span> trims
+          {t("portal.vehicleTrimSummary", {
+            models: visibleModels.length,
+            count: visibleModels.reduce((acc, m) => acc + (m.offers?.length || 0), 0),
+          })}
         </div>
       </div>
 
@@ -2061,9 +2173,9 @@ function AdminVehicles({ data, onEdit, onRefresh }: { data: BootstrapData; onEdi
                           {localizeVehicleValue(item.brand, locale)} {localizeVehicleValue(item.model, locale)}
                       </h2>
                       <p className="mt-0.5 text-xs font-medium text-slate-400">
-                        {variants.length > 0 ? localizeVehicleValue(`${variants.length} trims`, locale) : ""}
+                        {variants.length > 0 ? t("portal.trimCount", { count: variants.length }) : ""}
                         {variants.length > 0 && item.hasStockQuantity ? " / " : ""}
-                        {localizeVehicleValue(item.hasStockQuantity ? `Total stock: ${item.stockQuantity} units` : "Stock pending confirmation", locale)}
+                        {item.hasStockQuantity ? t("portal.totalStock", { count: item.stockQuantity }) : localizeVehicleValue("Stock pending confirmation", locale)}
                       </p>
                     </div>
                   </div>
@@ -2072,7 +2184,7 @@ function AdminVehicles({ data, onEdit, onRefresh }: { data: BootstrapData; onEdi
                     <div className="text-right">
                       <span className="block text-[10px] uppercase tracking-wider text-slate-500">{localizeVehicleValue("Total Stock", locale)}</span>
                       <span className="font-mono font-black text-white text-sm">
-                        {item.hasStockQuantity ? localizeVehicleValue(`${item.stockQuantity} units`, locale) : "-"}
+                        {item.hasStockQuantity ? t("portal.unitCount", { count: item.stockQuantity }) : "-"}
                       </span>
                     </div>
                     <div className="text-right">
@@ -2104,7 +2216,7 @@ function AdminVehicles({ data, onEdit, onRefresh }: { data: BootstrapData; onEdi
                       type="button"
                       className="ml-2 rounded-lg border border-white/10 bg-white/[.04] px-3.5 py-1.5 text-xs font-bold text-[#5ee6d8] transition hover:bg-[#22b8aa] hover:text-[#07111f]"
                     >
-                      {localizeVehicleValue(isExpanded ? "Hide trims" : "View trims", locale)}
+                      {t(isExpanded ? "portal.hideTrims" : "portal.viewTrims")}
                     </button>
                   </div>
                 </header>
@@ -2132,18 +2244,18 @@ function AdminVehicles({ data, onEdit, onRefresh }: { data: BootstrapData; onEdi
                               </div>
                               <div className="mt-1 text-xs text-slate-400">
                                 {compactJoin([
-                                  localizeVehicleValue(vehicle.year ? `${vehicle.year} model year` : "", locale),
+                                  vehicle.year ? t("portal.modelYear", { year: vehicle.year }) : "",
                                   localizeVehicleValue(vehicle.steering, locale),
                                   localizeVehicleValue(vehicle.marketVersion, locale),
                                 ])}
                               </div>
                             </div>
                             <div className="flex items-center gap-4 text-xs">
-                              <span className="text-slate-400">{localizeVehicleValue(`${variant.colors.length} colors`, locale)}</span>
+                              <span className="text-slate-400">{t("portal.colorCount", { count: variant.colors.length })}</span>
                               <span className="font-mono font-black text-white">
-                                {variant.hasStockQuantity ? localizeVehicleValue(`${variant.stockQuantity} units`, locale) : "-"}
+                                {variant.hasStockQuantity ? t("portal.unitCount", { count: variant.stockQuantity }) : "-"}
                               </span>
-                              <span className="text-[#5ee6d8]">{localizeVehicleValue(variantExpanded ? "Hide colors" : "View colors", locale)}</span>
+                              <span className="text-[#5ee6d8]">{t(variantExpanded ? "portal.hideColors" : "portal.viewColors")}</span>
                             </div>
                           </button>
 
@@ -2171,7 +2283,7 @@ function AdminVehicles({ data, onEdit, onRefresh }: { data: BootstrapData; onEdi
                                       )}
                                     </span>,
                                     <span key="stock" className="font-mono text-xs font-bold text-white">
-                                      {color.hasStockQuantity ? localizeVehicleValue(`${color.quantity} units`, locale) : "-"}
+                                      {color.hasStockQuantity ? t("portal.unitCount", { count: color.quantity }) : "-"}
                                     </span>,
                                     ...(canSeeSupplier
                                       ? [<span key="supplier" className="text-xs text-slate-300">{suppliers.length ? suppliers.map((supplier) => localizeVehicleValue(supplier, locale)).join(" / ") : "-"}</span>]
@@ -2190,7 +2302,7 @@ function AdminVehicles({ data, onEdit, onRefresh }: { data: BootstrapData; onEdi
                                         </span>
                                       ) : "-"}
                                     </div>,
-                                    <span key="fulfillment" className="text-xs text-slate-300">{localizeVehicleValue(formatFulfillmentStatus(colorVehicle), locale)}</span>,
+                                    <span key="fulfillment" className="text-xs text-slate-300">{formatFulfillmentStatus(colorVehicle, (count) => t("portal.dayCount", { count }))}</span>,
                                     <button key="inquiry" type="button" onClick={() => setInquiryVehicleId((current) => current === colorVehicle.id ? "" : colorVehicle.id)} className="text-xs font-black text-theme">{localizeVehicleValue(inquiryVehicleId === colorVehicle.id ? "Hide inquiry" : "Inquiry discussion", locale)}</button>,
                                   ];
                                 })}
@@ -2223,6 +2335,7 @@ function VehicleInquiryPanel({ vehicle, data }: { vehicle: Vehicle; data: Bootst
 }
 
 function AdminQuotes({ data }: { data: BootstrapData }) {
+  const { t } = useTranslation();
   const [selectedNo, setSelectedNo] = useState(data.inquiries[0]?.inquiryNo || "");
   const [note, setNote] = useState("");
   const [status, setStatus] = useState("");
@@ -2254,7 +2367,7 @@ function AdminQuotes({ data }: { data: BootstrapData }) {
     {data.inquiries.length === 0 ? <Empty text="Start an inquiry to open a shared discussion." /> : <div className="grid gap-4 xl:grid-cols-[19rem_minmax(0,1fr)]">
       <aside className="grid max-h-[70vh] gap-2 overflow-y-auto pr-1">{data.inquiries.map((inquiry) => <button key={inquiry.inquiryNo} type="button" onClick={() => { setSelectedNo(inquiry.inquiryNo); setStatus(""); }} className={`rounded-lg border p-3 text-left ${selected?.inquiryNo === inquiry.inquiryNo ? "border-theme bg-theme/10" : "border-white/10 bg-white/[.03]"}`}><p className="text-xs font-black text-white">{inquiry.inquiryNo}</p><p className="mt-1 line-clamp-2 text-xs text-gray-400">{inquiry.vehicleModel || inquiry.vehicleId}</p><p className="mt-2 text-[10px] font-black uppercase tracking-widest text-theme">{inquiry.status}</p></button>)}</aside>
       {selected && <section className="min-w-0">
-        <div className="grid gap-3 rounded-lg border border-white/10 bg-white/[.03] p-4 md:grid-cols-[1fr_auto]"><div><p className="text-[10px] font-black uppercase tracking-widest text-theme">Inquiry request</p><h3 className="mt-1 font-black text-white">{selected.vehicleModel || selected.vehicleId}</h3><p className="mt-1 text-xs text-gray-400">{selected.quantity} units / {selected.tradeTerm || "-"} / {selected.destinationPort || "-"}</p><p className="mt-1 whitespace-pre-wrap text-sm text-slate-300">{selected.notes}</p></div><div className="flex items-start gap-2"><AdminStatusBadge status={selected.status || "New Inquiry"} />{data.user.role === "admin" && <button type="button" onClick={() => removeContent("inquiry", selected.inquiryNo)} className="text-[10px] font-black uppercase text-red-300">Remove</button>}{canChangeStatus && <><select aria-label="Inquiry status" value={status} onChange={(e) => setStatus(e.target.value)} className="rounded border border-white/15 bg-black/20 px-2 py-1 text-xs text-white"><option value="">Change status</option>{["New Inquiry", "Quoted", "Negotiating", "Accepted", "Closed"].map((item) => <option key={item}>{item}</option>)}</select><button type="button" disabled={!status || busy} onClick={updateStatus} className="btn-primary rounded px-3 py-1 text-[10px] font-black uppercase">Save</button></>}</div></div>
+        <div className="grid gap-3 rounded-lg border border-white/10 bg-white/[.03] p-4 md:grid-cols-[1fr_auto]"><div><p className="text-[10px] font-black uppercase tracking-widest text-theme">Inquiry request</p><h3 className="mt-1 font-black text-white">{selected.vehicleModel || selected.vehicleId}</h3><p className="mt-1 text-xs text-gray-400">{t("portal.unitCount", { count: selected.quantity })} / {selected.tradeTerm || "-"} / {selected.destinationPort || "-"}</p><p className="mt-1 whitespace-pre-wrap text-sm text-slate-300">{selected.notes}</p></div><div className="flex items-start gap-2"><AdminStatusBadge status={selected.status || "New Inquiry"} />{data.user.role === "admin" && <button type="button" onClick={() => removeContent("inquiry", selected.inquiryNo)} className="text-[10px] font-black uppercase text-red-300">Remove</button>}{canChangeStatus && <><select aria-label="Inquiry status" value={status} onChange={(e) => setStatus(e.target.value)} className="rounded border border-white/15 bg-black/20 px-2 py-1 text-xs text-white"><option value="">Change status</option>{["New Inquiry", "Quoted", "Negotiating", "Accepted", "Closed"].map((item) => <option key={item}>{item}</option>)}</select><button type="button" disabled={!status || busy} onClick={updateStatus} className="btn-primary rounded px-3 py-1 text-[10px] font-black uppercase">Save</button></>}</div></div>
         <div className="mt-4 grid gap-3">{history.map((item) => <p key={item.id} className="text-xs text-gray-500">{item.actorName || item.actorRole} updated the inquiry status to {item.toStatus} / {formatDate(item.createdAt)}</p>)}{notes.map((item) => <article key={item.id} className={`rounded-lg border border-white/10 bg-white/[.03] p-4 ${item.parentNoteId ? "ml-6 border-l-2 border-l-theme" : ""}`}><div className="flex justify-between gap-3"><p className="text-xs font-black text-white">{item.authorName || item.authorRole}</p><p className="text-[10px] text-gray-500">{formatDate(item.createdAt)}</p></div><p className="mt-2 whitespace-pre-wrap text-sm text-gray-300">{item.body}</p><div className="mt-3 flex gap-3"><button type="button" onClick={() => setReplyTo(item.noteId)} className="text-[10px] font-black uppercase text-theme">Follow up</button>{(data.user.role === "admin" || item.authorUserId === data.user.userId) && <button type="button" onClick={() => removeContent("note", item.noteId)} className="text-[10px] font-black uppercase text-red-300">Remove</button>}</div></article>)}</div>
         <form onSubmit={submitNote} className="mt-4 grid gap-2">{replyTo && <div className="flex justify-between text-xs text-theme">Following up on an earlier response <button type="button" onClick={() => setReplyTo("")}>Cancel</button></div>}<textarea value={note} onChange={(e) => setNote(e.target.value)} maxLength={4000} placeholder={replyTo ? "Write a follow-up response" : "Write an inquiry follow-up"} className="min-h-24 rounded-lg border border-white/10 bg-white/[.03] p-3 text-sm text-white" /><div className="flex items-center justify-between gap-3">{error ? <p className="text-xs text-red-300">{error}</p> : <span /> }<button disabled={busy || !note.trim()} className="btn-primary rounded px-4 py-2 text-[10px] font-black uppercase">{busy ? "Saving..." : "Post follow-up"}</button></div></form>
       </section>}
@@ -2264,6 +2377,7 @@ function AdminQuotes({ data }: { data: BootstrapData }) {
 }
 
 function AdminOrders({ data }: { data: BootstrapData }) {
+  const { t } = useTranslation();
   return (
     <AdminPanel title="Order Management" subtitle="Orders created from accepted quotes">
       <AdminTable
@@ -2275,7 +2389,7 @@ function AdminOrders({ data }: { data: BootstrapData }) {
             customer?.company || order.customerId || "-",
             order.quoteNo || "-",
             order.vehicleId,
-            `${order.quantity} units`,
+            t("portal.unitCount", { count: order.quantity }),
             formatUsdStrict(order.total),
             <AdminStatusBadge key="status" status={order.status || "Draft"} />,
             formatDate(order.createdAt),
@@ -2288,6 +2402,7 @@ function AdminOrders({ data }: { data: BootstrapData }) {
 }
 
 function AdminPayments({ data }: { data: BootstrapData }) {
+  const { t } = useTranslation();
   const total = data.orders.reduce((sum, order) => sum + order.total, 0);
   const paid = data.orders
     .filter((order) => order.status.toLowerCase().includes("paid"))
@@ -2296,7 +2411,7 @@ function AdminPayments({ data }: { data: BootstrapData }) {
   return (
     <div className="grid gap-5">
       <section className="grid gap-4 md:grid-cols-3">
-        <AdminStat label="Order Receivables" value={formatUsdStrict(total)} note={`${data.orders.length} orders`} />
+        <AdminStat label="Order Receivables" value={formatUsdStrict(total)} note={t("portal.orderCount", { count: data.orders.length })} />
         <AdminStat label="Received" value={formatUsdStrict(paid)} note="Based on order status" />
         <AdminStat label="Outstanding" value={formatUsdStrict(Math.max(total - paid, 0))} note="Payment detail view pending" />
       </section>
@@ -2321,6 +2436,7 @@ function AdminPayments({ data }: { data: BootstrapData }) {
 }
 
 function AdminLogistics({ data }: { data: BootstrapData }) {
+  const { t } = useTranslation();
   const shippedCount = data.orders.filter((order) => /ship|shipped|shipping|装船|发运/i.test(order.status)).length;
   const customsCount = data.orders.filter((order) => /custom|clearance|清关/i.test(order.status)).length;
   const steps = [
@@ -2348,7 +2464,7 @@ function AdminLogistics({ data }: { data: BootstrapData }) {
               order.orderNo,
               customer?.company || order.customerId || "-",
               order.vehicleId,
-              `${order.quantity} units`,
+              t("portal.unitCount", { count: order.quantity }),
               <AdminStatusBadge key="status" status={order.status || "Draft"} />,
               formatDate(order.createdAt),
             ];
@@ -2639,13 +2755,13 @@ function VehicleEditModal({ vehicle, onClose, onSaved }: { vehicle: Vehicle; onC
 function AdminPanel({ title, subtitle, children }: { title: string; subtitle: string; children: ReactNode }) {
   const { locale } = useTranslation();
   return (
-    <Card className="min-w-0 overflow-hidden shadow-2xl shadow-black/10">
-      <CardHeader className="pb-3">
-        <CardTitle className="text-lg font-black text-white">{localizeVehicleValue(title, locale)}</CardTitle>
-        {subtitle ? <CardDescription className="text-xs text-slate-400">{localizeVehicleValue(subtitle, locale)}</CardDescription> : null}
-      </CardHeader>
-      <CardContent>{children}</CardContent>
-    </Card>
+    <section className="min-w-0">
+      <header className="mb-5 border-b border-white/10 pb-4">
+        <h2 className="text-lg font-black text-white">{localizeVehicleValue(title, locale)}</h2>
+        {subtitle ? <p className="mt-1 text-xs text-slate-400">{localizeVehicleValue(subtitle, locale)}</p> : null}
+      </header>
+      {children}
+    </section>
   );
 }
 
@@ -2842,7 +2958,35 @@ function getModelTrimVariants(group: ModelProfileGroup) {
   return group.variants.filter((variant) => safeText(variant.trim).trim());
 }
 
-function buildModelProfileGroups(data: BootstrapData): ModelProfileGroup[] {
+function mergeModelGalleryImages(
+  existing: VehicleGalleryImage[],
+  incoming: VehicleGalleryImage[],
+): VehicleGalleryImage[] {
+  const seen = new Set<string>();
+  return [...existing, ...incoming].filter((image) => {
+    if (!image.src || seen.has(image.src)) return false;
+    seen.add(image.src);
+    return true;
+  });
+}
+
+function modelGalleryImages(model: VehicleModel): VehicleGalleryImage[] {
+  const images = (Array.isArray(model.galleryImages) ? model.galleryImages : [])
+    .filter((image) => image && typeof image.src === "string" && image.src.trim() && image.src !== "/pic/hero/0.webp")
+    .map((image) => ({
+      src: image.src,
+      cat: image.cat || "Exterior",
+      label: image.label || "Vehicle image",
+    }));
+  const coverImage = model.imageUrl !== "/pic/hero/0.webp" ? model.imageUrl : "";
+  return images.length > 0
+    ? images
+    : coverImage
+      ? [{ src: coverImage, cat: "Exterior", label: "Main Profile" }]
+      : [];
+}
+
+export function buildModelProfileGroups(data: BootstrapData): ModelProfileGroup[] {
   const specsByModel = new Map<string, VehicleModelSpec[]>();
   for (const spec of data.vehicleModelSpecs || []) {
     if (!spec.modelId) continue;
@@ -2860,6 +3004,8 @@ function buildModelProfileGroups(data: BootstrapData): ModelProfileGroup[] {
   const models = activeModels.length ? activeModels : data.vehicleModels || [];
   const grouped = new Map<string, ModelProfileGroup>();
   for (const model of models) {
+    const modelGallery = modelGalleryImages(model);
+    const modelImage = modelGallery[0]?.src || "";
     const key = normalizeKey(model.brand, model.model);
     if (!grouped.has(key)) {
       grouped.set(key, {
@@ -2868,6 +3014,8 @@ function buildModelProfileGroups(data: BootstrapData): ModelProfileGroup[] {
         model: model.model,
         years: [],
         variants: [],
+        imageUrl: modelImage,
+        galleryImages: modelGallery,
         specsByModel,
         segment: "",
         energyType: "",
@@ -2878,6 +3026,11 @@ function buildModelProfileGroups(data: BootstrapData): ModelProfileGroup[] {
     }
     const group = grouped.get(key)!;
     group.variants.push(model);
+    group.galleryImages = mergeModelGalleryImages(group.galleryImages, modelGallery);
+    const specificImage = group.galleryImages.find((image) => image.src !== "/pic/hero/0.webp")?.src;
+    if ((!group.imageUrl || group.imageUrl === "/pic/hero/0.webp") && (specificImage || modelImage)) {
+      group.imageUrl = specificImage || modelImage;
+    }
     if (model.year && !group.years.includes(model.year)) group.years.push(model.year);
   }
 
@@ -3449,14 +3602,9 @@ function getSupplyType(vehicle: Vehicle) {
   return "Unknown";
 }
 
-function formatInventoryQuantity(vehicle: Vehicle) {
-  const quantity = vehicle.colorStockQuantity ?? (typeof vehicle.stockQuantity === "number" && vehicle.stockQuantity > 0 ? vehicle.stockQuantity : null);
-  return quantity !== null && quantity !== undefined ? `${quantity} units` : "-";
-}
-
-function formatFulfillmentStatus(vehicle: Vehicle) {
+function formatFulfillmentStatus(vehicle: Vehicle, formatDays: (count: number) => string) {
   if (vehicle.waitDays !== null && vehicle.waitDays !== undefined) {
-    return `${vehicle.waitDays} days`;
+    return formatDays(vehicle.waitDays);
   }
   return "-";
 }
@@ -3466,10 +3614,6 @@ function formatFobRange(prices: number[]) {
   const min = Math.min(...prices);
   const max = Math.max(...prices);
   return `FOB ${formatUsdStrict(min)} - ${formatUsdStrict(max)}`;
-}
-
-function formatModelYear(year: string) {
-  return year ? `${year} model year` : "Model year pending";
 }
 
 function formatSupplySummary(item: SellableModel) {
@@ -3522,6 +3666,10 @@ function modelResourceKey(brand: string, model: string) {
 
 function vehicleName(vehicle: Vehicle) {
   return `${vehicle.brand} ${vehicle.model} ${vehicle.trim}`.trim() || vehicle.id;
+}
+
+function getVehicleStockQuantity(vehicle: Pick<Vehicle, "stockQuantity" | "colorStockQuantity">) {
+  return vehicle.colorStockQuantity ?? (typeof vehicle.stockQuantity === "number" && vehicle.stockQuantity > 0 ? vehicle.stockQuantity : 0);
 }
 
 function compactJoin(values: Array<string | number | null | undefined>) {

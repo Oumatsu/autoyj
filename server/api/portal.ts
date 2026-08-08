@@ -16,7 +16,10 @@ import {
   listPublicProducts,
 } from "../db/public-content";
 import { normalizeProductSlug } from "../../lib/content-normalizers";
-import { getVehicleModelImage } from "../../lib/static-assets";
+import {
+  getVehicleGalleryImages,
+  resolveSyncedGalleryImage,
+} from "../../lib/static-assets";
 import type { PortalEnv } from "../types";
 
 export type Env = PortalEnv;
@@ -79,6 +82,7 @@ type PortalCustomer = {
 
 type PortalVehicleModel = {
   id: string;
+  model_id?: string;
   brand: string;
   model: string;
   trim: string;
@@ -109,12 +113,19 @@ type PortalVehicleModel = {
   marketPosition: string;
   exportNotes: string;
   imageUrl: string;
+  galleryImages?: PortalGalleryImage[];
   brochureUrl: string;
   sourceUrl: string;
   sourceName: string;
   lastSyncedAt: string;
   fullSpecsJson: string;
   status: string;
+};
+
+type PortalGalleryImage = {
+  src: string;
+  cat: string;
+  label: string;
 };
 
 type PortalVehicleModelSpec = {
@@ -223,6 +234,20 @@ function cleanUrl(value: unknown): string {
   const mdMatch = text.match(/\[.*?\]\((.*?)\)/);
   if (mdMatch) return mdMatch[1].trim();
   return text.trim();
+}
+
+function normalizeBrochureUrl(value: unknown): string {
+  const text = cleanUrl(value);
+  if (!text || /[,;\r\n]/.test(text)) return "";
+
+  try {
+    const url = new URL(text);
+    if (url.protocol !== "http:" && url.protocol !== "https:") return "";
+    if (!url.pathname.toLowerCase().endsWith(".pdf")) return "";
+    return url.toString();
+  } catch {
+    return "";
+  }
 }
 
 function productPath(fields: Record<string, unknown>) {
@@ -1759,6 +1784,7 @@ function getFeishuFieldValue(f: Record<string, any>, columnName: string) {
   if (columnName === "trim_name") return f.trim_name ?? f.variant ?? f.trim ?? f["细分型号"];
   if (columnName === "specs_json") return f;
   if (columnName === "common_features_json" && "common_features_json_pruned" in f) return f.common_features_json_pruned;
+  if (columnName === "gallery_images_json") return f.gallery_images_json ?? f.gallery_images_json_pruned;
   if (columnName === "i18n_translations" && "i18n_translations" in f) return f.i18n_translations;
   if (columnName === "brand" && "品牌" in f) return f["品牌"];
   if (columnName === "model" && "型号" in f) return f["型号"];
@@ -1787,8 +1813,13 @@ function getFeishuFieldValue(f: Record<string, any>, columnName: string) {
   return undefined;
 }
 
-function cleanFeishuFieldValue(val: any): any {
+function cleanFeishuFieldValue(val: any, fieldName?: string): any {
   if (val === null || val === undefined) return null;
+
+  if (fieldName === "gallery_images_json" || fieldName === "gallery_images_json_pruned") {
+    if (typeof val === "string") return val;
+    if (Array.isArray(val) || typeof val === "object") return JSON.stringify(val);
+  }
 
   // If primitive string, number, boolean
   if (typeof val === "number" || typeof val === "boolean") return val;
@@ -1919,7 +1950,7 @@ async function prepareDynamicUpserts(
         }
       }
 
-      val = cleanFeishuFieldValue(val);
+      val = cleanFeishuFieldValue(val, col.name);
 
       if (val === undefined || val === null) {
         row[col.name] = null;
@@ -2248,6 +2279,10 @@ export async function syncVehicleModelsToDB(env: Env): Promise<{ models: number;
         id: modelId,
         model_id: modelId,
         product_path: productPath(f),
+        gallery_images_json: cleanFeishuFieldValue(
+          f.gallery_images_json ?? f.gallery_images_json_pruned,
+          "gallery_images_json",
+        ),
       };
     }),
     prepareDynamicUpserts(db, "vehicle_trims", trimRecords, (record) => {
@@ -2396,8 +2431,75 @@ function mapD1VehicleTrimVariant(
     msrpChina: guidePrice !== null ? `¥${formatNumber(guidePrice)}` : parent.msrpChina,
     sourceName,
     lastSyncedAt: asText(rowField(row, "synced_at", "last_verified_at")) || parent.lastSyncedAt,
-    fullSpecsJson: JSON.stringify(row),
+    fullSpecsJson: "",
   };
+}
+
+type VehicleModelLookup = {
+  exact: Map<string, PortalVehicleModel>;
+  normalized: Map<string, PortalVehicleModel>;
+};
+
+function normalizeModelRelation(value: unknown): string {
+  return asText(value).trim().toLocaleLowerCase().replace(/[^a-z0-9]+/g, "");
+}
+
+function addModelLookupKey(lookup: VehicleModelLookup, value: unknown, model: PortalVehicleModel) {
+  const exactKey = asText(value).trim();
+  if (!exactKey) return;
+  if (!lookup.exact.has(exactKey)) lookup.exact.set(exactKey, model);
+
+  const normalizedKey = normalizeModelRelation(exactKey);
+  if (normalizedKey && !lookup.normalized.has(normalizedKey)) {
+    lookup.normalized.set(normalizedKey, model);
+  }
+}
+
+function buildVehicleModelLookup(models: PortalVehicleModel[]): VehicleModelLookup {
+  const lookup: VehicleModelLookup = {
+    exact: new Map(),
+    normalized: new Map(),
+  };
+
+  for (const model of models) {
+    const fields = model as unknown as Record<string, unknown>;
+    addModelLookupKey(lookup, model.id, model);
+    addModelLookupKey(lookup, fields.model_id, model);
+    addModelLookupKey(lookup, fields.record_id, model);
+    addModelLookupKey(lookup, [model.brand, model.model].filter(Boolean).join(" "), model);
+  }
+
+  return lookup;
+}
+
+function resolveVehicleModel(
+  lookup: VehicleModelLookup,
+  row: Record<string, unknown>,
+): PortalVehicleModel | null {
+  const relationValues = [
+    rowField(row, "model_id"),
+    rowField(row, "parent_model_record_id"),
+    rowField(row, "record_id"),
+    [rowField(row, "brand", "品牌"), rowField(row, "model", "MODEL", "型号")].filter(Boolean).join(" "),
+  ];
+
+  for (const value of relationValues) {
+    const exactKey = asText(value).trim();
+    if (exactKey) {
+      const exactModel = lookup.exact.get(exactKey);
+      if (exactModel) return exactModel;
+    }
+  }
+
+  for (const value of relationValues) {
+    const normalizedKey = normalizeModelRelation(value);
+    if (normalizedKey) {
+      const normalizedModel = lookup.normalized.get(normalizedKey);
+      if (normalizedModel) return normalizedModel;
+    }
+  }
+
+  return null;
 }
 
 function buildInventoryTrimVariants(
@@ -2418,6 +2520,48 @@ function buildInventoryTrimVariants(
   return variants;
 }
 
+function syncedGalleryImages(rawGallery: unknown): PortalGalleryImage[] {
+  const parsed = typeof rawGallery === "string" ? safeJsonParse(rawGallery, []) : rawGallery;
+  if (!Array.isArray(parsed)) return [];
+
+  return parsed.flatMap((entry, index) => {
+    const fields = typeof entry === "object" && entry !== null ? entry as Record<string, unknown> : {};
+    const source = typeof entry === "string"
+      ? entry
+      : fields.src ?? fields.image ?? fields.url ?? fields.image_url;
+    const image = resolveSyncedGalleryImage(typeof source === "string" ? source : null);
+    if (!image) return [];
+
+    return [{
+      src: image,
+      cat: asText(fields.cat ?? fields.category) || "Exterior",
+      label: asText(fields.label) || `Gallery ${index + 1}`,
+    }];
+  });
+}
+
+function dashboardVehicleModelGallery(row: Record<string, unknown>, slug: string): PortalGalleryImage[] {
+  const directImage = resolveSyncedGalleryImage(asText(row.image_url));
+  const baseline = getVehicleGalleryImages(slug, directImage);
+  const synced = syncedGalleryImages(rowField(row, "gallery_images_json", "gallery_images_json_pruned"));
+  const seen = new Set<string>();
+  const gallery = [...baseline, ...synced].filter((image) => {
+    if (seen.has(image.src)) return false;
+    seen.add(image.src);
+    return true;
+  });
+
+  const hasSpecificImage = gallery.some((image) => image.src !== "/pic/hero/0.webp");
+  return hasSpecificImage
+    ? gallery.filter((image) => image.src !== "/pic/hero/0.webp")
+    : [];
+}
+
+function dashboardVehicleModelImage(row: Record<string, unknown>, slug: string): string {
+  return dashboardVehicleModelGallery(row, slug)[0]?.src
+    ?? "";
+}
+
 async function handleGetVehicleModels(request: Request, env: Env) {
   const session = await requireSession(request, env);
   const [modelRows, trimRows, vehicleRows] = await Promise.all([
@@ -2426,8 +2570,8 @@ async function handleGetVehicleModels(request: Request, env: Env) {
     queryVehicles(requirePortalDb(env)),
   ]);
   const baseModels: PortalVehicleModel[] = modelRows.map((row) => ({
-    ...(row as unknown as Record<string, unknown>),
     id: row.id,
+    model_id: row.model_id ?? "",
     brand: asText(rowField(row as unknown as Record<string, unknown>, "brand", "品牌")),
     model: asText(rowField(row as unknown as Record<string, unknown>, "model", "MODEL", "型号")),
     trim: "",
@@ -2468,33 +2612,36 @@ async function handleGetVehicleModels(request: Request, env: Env) {
     adas: "",
     marketPosition: asText(row.page_subtitle) || asText(row.version),
     exportNotes: "",
-    imageUrl: getVehicleModelImage(
+    galleryImages: dashboardVehicleModelGallery(
+      row as unknown as Record<string, unknown>,
       normalizeProductSlug(
         row.product_path ||
         row.model_id ||
         [row.brand, row.model || (row as unknown as Record<string, unknown>).MODEL].filter(Boolean).join("-"),
       ),
-      row.image_url,
     ),
-    brochureUrl: row.brochure_cover ?? "",
+    imageUrl: dashboardVehicleModelImage(
+      row as unknown as Record<string, unknown>,
+      normalizeProductSlug(
+        row.product_path ||
+        row.model_id ||
+        [row.brand, row.model || (row as unknown as Record<string, unknown>).MODEL].filter(Boolean).join("-"),
+      ),
+    ),
+    brochureUrl: normalizeBrochureUrl(row.brochure_cover),
     sourceUrl: row.product_path ?? "",
     sourceName: "",
     lastSyncedAt: asText(row.synced_at || (row as unknown as Record<string, unknown>).last_synced_at),
-    fullSpecsJson: row.i18n_translations ?? "",
+    fullSpecsJson: "",
     status: row.status ?? "Active",
   }));
 
-  const modelById = new Map<string, PortalVehicleModel>();
-  for (const model of baseModels) {
-    modelById.set(model.id, model);
-    const modelId = asText((model as unknown as Record<string, unknown>).model_id);
-    if (modelId) modelById.set(modelId, model);
-  }
+  const modelLookup = buildVehicleModelLookup(baseModels);
 
   const trimVariantsByModelId = new Map<string, PortalVehicleModel[]>();
   for (const trim of trimRows) {
     const fields = trim as unknown as Record<string, unknown>;
-    const parent = modelById.get(asText(rowField(fields, "model_id")));
+    const parent = resolveVehicleModel(modelLookup, fields);
     if (!parent) continue;
     const variant = mapD1VehicleTrimVariant(parent, fields, trim.id, "D1 · vehicle_trims");
     if (!variant) continue;
@@ -2506,7 +2653,7 @@ async function handleGetVehicleModels(request: Request, env: Env) {
   const inventoryRowsByModelId = new Map<string, Record<string, unknown>[]>();
   for (const row of vehicleRows) {
     const fields = row as unknown as Record<string, unknown>;
-    const parent = modelById.get(asText(rowField(fields, "model_id")));
+    const parent = resolveVehicleModel(modelLookup, fields);
     if (!parent) continue;
     const rows = inventoryRowsByModelId.get(parent.id) || [];
     rows.push(fields);
@@ -2528,7 +2675,7 @@ async function handleGetVehicleModels(request: Request, env: Env) {
 
   for (const trim of trimRows) {
     const fields = trim as unknown as Record<string, unknown>;
-    const parent = modelById.get(asText(rowField(fields, "model_id")));
+    const parent = resolveVehicleModel(modelLookup, fields);
     const name = normalizeTrimName(rowField(fields, "trim_name", "variant", "trim"));
     if (!parent || !name) continue;
     const variantId = trim.id;
@@ -2545,7 +2692,6 @@ async function handleGetVehicleModels(request: Request, env: Env) {
       motorPowerKw: trim.motor_power_kw ?? undefined,
       topSpeedKmh: trim.top_speed_kmh ?? undefined,
       zeroTo100Sec: trim.zero_to_100_sec ?? undefined,
-      specsJson: trim.specs_json ?? undefined,
     });
   }
 

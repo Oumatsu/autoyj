@@ -1,7 +1,56 @@
 import { describe, expect, test } from "bun:test";
-import { buildSellableModels, buildVehicleResourceVariants, vehiclesForSellableModel } from "../../app/portal/page";
+import {
+  buildModelProfileGroups,
+  buildSellableModels,
+  buildVehicleResourceVariants,
+  vehiclesForSellableModel,
+} from "../../app/portal/page";
 
 describe("Portal vehicle resource grouping", () => {
+  test("keeps a corresponding image when grouping dashboard model variants", () => {
+    const groups = buildModelProfileGroups({
+      vehicleModels: [
+        { id: "seagull-1", brand: "BYD", model: "Seagull", trim: "", imageUrl: "", galleryImages: [] },
+        {
+          id: "seagull-2",
+          brand: "BYD",
+          model: "Seagull",
+          trim: "",
+          imageUrl: "/pic/revenue-king/seagull/7.webp",
+          galleryImages: [
+            { src: "/pic/revenue-king/seagull/7.webp", cat: "Exterior", label: "Cover" },
+            { src: "/pic/revenue-king/seagull/0.webp", cat: "Exterior", label: "Front" },
+          ],
+        },
+      ],
+      vehicleModelSpecs: [],
+    } as any);
+
+    expect(groups).toHaveLength(1);
+    expect(groups[0].imageUrl).toBe("/pic/revenue-king/seagull/7.webp");
+    expect(groups[0].galleryImages.map((image) => image.src)).toEqual([
+      "/pic/revenue-king/seagull/7.webp",
+      "/pic/revenue-king/seagull/0.webp",
+    ]);
+  });
+
+  test("does not turn an unavailable model image into the generic hero", () => {
+    const groups = buildModelProfileGroups({
+      vehicleModels: [{
+        id: "avatr-06",
+        brand: "Avatr",
+        model: "Avatr 06",
+        trim: "",
+        imageUrl: "/pic/hero/0.webp",
+        galleryImages: [{ src: "/pic/hero/0.webp" }],
+      }],
+      vehicleModelSpecs: [],
+    } as any);
+
+    expect(groups[0].imageUrl).toBe("");
+    expect(groups[0].galleryImages).toEqual([]);
+  });
+
   test("groups matching vehicles across years and keeps supplier resources in the detail rows", () => {
     const vehicles = [
       {

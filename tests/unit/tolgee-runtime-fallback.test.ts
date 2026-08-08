@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { TolgeeCore } from "@tolgee/core";
+import { FormatIcu } from "@tolgee/format-icu";
 import { fallbackLocale } from "../../i18n/config";
 import { messages, tolgeeStaticData } from "../../i18n/messages";
 import {
@@ -66,5 +67,22 @@ describe("Tolgee framework fallback", () => {
       "Lloyd's Register",
       "Bureau Veritas",
     ]);
+  });
+
+  test("formats portal quantity messages with ICU plural rules", () => {
+    const tolgee = TolgeeCore().use(FormatIcu()).init({
+      language: "en",
+      defaultLanguage: "en",
+      fallbackLanguage: fallbackLocale,
+      staticData: tolgeeStaticData,
+    });
+
+    expect(tolgee.t("portal.trimCount", { count: 1 })).toBe("1 trim");
+    expect(tolgee.t("portal.trimCount", { count: 2 })).toBe("2 trims");
+    expect(tolgee.t("portal.colorCount", { count: 1 })).toBe("1 color");
+    expect(tolgee.t("portal.unitCount", { count: 1 })).toBe("1 unit");
+    expect(tolgee.t("portal.dayCount", { count: 2 })).toBe("2 days");
+    expect(tolgee.t("productsDetail.ui.unitsCount", { count: 1 })).toBe("1 unit");
+    expect(tolgee.t("productsDetail.ui.unitsCount", { count: 2 })).toBe("2 units");
   });
 });

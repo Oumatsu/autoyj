@@ -11,6 +11,11 @@ export { useTranslate, useTolgee, T } from "@tolgee/react";
 export type { TFnType } from "@tolgee/react";
 
 type MessageTree = typeof messages.en;
+type TranslationOptionValue = string | number | bigint | Date;
+type TranslationOptions = {
+  defaultValue?: string;
+  [key: string]: TranslationOptionValue | undefined;
+};
 
 type PathValue<Tree, Path extends string> = Path extends `${infer Head}.${infer Tail}`
   ? Head extends keyof Tree
@@ -93,11 +98,26 @@ export function useTranslation() {
   const locale = useLocale();
 
   const t = useCallback(
-    (key: string, defaultValue?: string): string => {
+    (
+      key: string,
+      defaultValueOrOptions?: string | TranslationOptions,
+      extraOptions?: TranslationOptions,
+    ): string => {
       const staticValue = getNestedValue(messages[locale], key);
+      const explicitDefault =
+        typeof defaultValueOrOptions === "string"
+          ? defaultValueOrOptions
+          : defaultValueOrOptions?.defaultValue;
       const resolvedDefault =
-        typeof staticValue === "string" ? staticValue : defaultValue;
-      return tolgeeT(key, { defaultValue: resolvedDefault });
+        typeof staticValue === "string" ? staticValue : explicitDefault;
+      const options =
+        typeof defaultValueOrOptions === "object"
+          ? defaultValueOrOptions
+          : extraOptions;
+      return tolgeeT(key, {
+        ...options,
+        defaultValue: resolvedDefault,
+      });
     },
     [locale, tolgeeT]
   );

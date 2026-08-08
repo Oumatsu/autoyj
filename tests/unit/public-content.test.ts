@@ -243,6 +243,8 @@ describe("typed public D1 content", () => {
           product_path: "/products/revenue-king/byd-seagull",
           gallery_images_json: JSON.stringify([
             { src: "/pic/revenue-king/seagull/hero.webp", cat: "Exterior", label: "Bad" },
+            { src: "/pic/../secret.webp", cat: "Exterior", label: "Traversal" },
+            { src: "https://example.com/remote.webp", cat: "Exterior", label: "Remote" },
             { src: "/pic/page/photo-1555215695-3004980ad54e.webp", cat: "Interior", label: "Good" },
           ]),
         },
@@ -252,11 +254,42 @@ describe("typed public D1 content", () => {
 
     const detail = await getPublicProduct(db, "byd-seagull");
     expect(detail?.galleryImages.some((image) => image.src.includes("hero.webp"))).toBe(false);
+    expect(detail?.galleryImages.some((image) => image.label === "Traversal")).toBe(false);
+    expect(detail?.galleryImages.some((image) => image.label === "Remote")).toBe(false);
     expect(detail?.galleryImages).toContainEqual({
       src: "/pic/page/photo-1555215695-3004980ad54e.webp",
       cat: "Interior",
       label: "Good",
     });
+  });
+
+  test("D1 gallery JSON keeps every synced local image", async () => {
+    const db = fakeD1({
+      vehicle_models: [
+        {
+          id: "model-1",
+          model_id: "MDL-002",
+          brand: "BYD",
+          model: "Seagull",
+          segment: "hatchback",
+          product_path: "/products/revenue-king/byd-seagull",
+          gallery_images_json: JSON.stringify(
+            Array.from({ length: 15 }, (_, index) => ({
+              src: `/pic/revenue-king/seagull/${index}.webp`,
+              cat: index < 4 ? "Exterior" : "Interior",
+              label: `Gallery ${index + 1}`,
+            })),
+          ),
+        },
+      ],
+      vehicle_trims: [],
+    });
+
+    const detail = await getPublicProduct(db, "byd-seagull");
+    expect(detail?.galleryImages).toHaveLength(15);
+    expect(detail?.galleryImages.map((image) => image.src)).toEqual(expect.arrayContaining(
+      Array.from({ length: 15 }, (_, index) => `/pic/revenue-king/seagull/${index}.webp`),
+    ));
   });
 
   test("baseline detail keeps every consumer section populated", async () => {

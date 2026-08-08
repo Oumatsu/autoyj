@@ -459,6 +459,18 @@ export function resolveVerifiedPublicImage(rawImage?: string | null): string | n
   return VERIFIED_PUBLIC_IMAGES.has(normalizedImage) ? normalizedImage : null;
 }
 
+/**
+ * Gallery paths are maintained in the Feishu source table and synced to D1.
+ * Keep the existing allowlist for arbitrary remote content, but allow safe
+ * local /pic/ assets so a synced gallery can contain every published frame.
+ */
+export function resolveSyncedGalleryImage(rawImage?: string | null): string | null {
+  const normalizedImage = normalizeAssetUrl(rawImage);
+  if (!normalizedImage) return null;
+  if (normalizedImage.startsWith("/pic/")) return normalizedImage;
+  return resolveVerifiedPublicImage(normalizedImage);
+}
+
 function buildVehicleGallery(paths: string[]): GalleryImage[] {
   return paths.slice(0, GALLERY_SLOTS.length).map((src, index) => ({
     src,

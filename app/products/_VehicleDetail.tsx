@@ -318,7 +318,10 @@ function legacyTrimComparison(data: DetailData, v: DetailData["vehicle"]): TrimC
   };
 }
 
-type Translate = (key: string, fallback?: string) => unknown;
+type Translate = (
+  key: string,
+  fallbackOrOptions?: string | Record<string, string | number>,
+) => unknown;
 
 function TrimPoster({ data, v, t }: { data: DetailData; v: DetailData["vehicle"]; t: Translate }) {
   const comparison = data.trimComparison || legacyTrimComparison(data, v);
@@ -830,7 +833,7 @@ export default function VehicleDetail({ data: rawData }: { data: DetailData }) {
             <div className="glass rounded-[2.5rem] p-8 md:p-10" style={{ background: "rgba(0,0,0,.48)" }}>
               <div className="text-[9px] font-black tracking-widest uppercase text-gray-600 mb-8">{t("productsDetail.ui.batchProfitEstimator", "Batch Profit Estimator")}</div>
               <div className="mb-8">
-                <div className="flex justify-between mb-4"><span className="text-xs font-black uppercase tracking-wider text-white">{t("productsDetail.ui.unitsOrdered", "Units Ordered")}</span><span className="text-xs font-black text-theme">{batch.units} {t("productsDetail.ui.unitsLower", "units")}</span></div>
+                <div className="flex justify-between mb-4"><span className="text-xs font-black uppercase tracking-wider text-white">{t("productsDetail.ui.unitsOrdered", "Units Ordered")}</span><span className="text-xs font-black text-theme">{t("productsDetail.ui.unitsCount", { count: batch.units })}</span></div>
                 <div className="flex gap-2">{batchLevels.map((lvl, i) => (<button key={i} onClick={() => setBatchIdx(i)} className="flex-1 py-2.5 rounded-xl text-xs font-black tracking-wider transition" style={i === batchIdx ? { background: "var(--color-gold)", color: "#000" } : { background: "rgba(255,255,255,.06)", color: "#6B7280" }}>{lvl.units}</button>))}</div>
               </div>
               <div className="rounded-2xl p-6 text-center mb-6" style={{ background: "rgba(197,160,89,.08)", border: "1px solid rgba(197,160,89,.25)" }}>
