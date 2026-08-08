@@ -152,4 +152,20 @@ describe("Unit: Home page must never display raw i18n keys", () => {
 
     expect(leaked).toEqual([]);
   });
+
+  // ── 7. Products Detail Values Guard ──
+  test("productsDetail.values string is strictly forbidden in resolution outputs", () => {
+    const checkValue = (val: unknown): void => {
+      if (typeof val === "string") {
+        expect(val).not.toContain("productsDetail.values");
+      } else if (Array.isArray(val)) {
+        val.forEach(checkValue);
+      } else if (val && typeof val === "object") {
+        Object.values(val).forEach(checkValue);
+      }
+    };
+    checkValue(zh);
+    checkValue(en);
+    checkValue(am);
+  });
 });

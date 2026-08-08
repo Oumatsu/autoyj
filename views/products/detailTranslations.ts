@@ -30,8 +30,18 @@ export function translatedDetailValue(
   source: string,
 ): string {
   if (!source) return source;
-  const value = translate(detailValueKey(source), source);
-  return typeof value === "string" && value ? value : source;
+  const key = detailValueKey(source);
+  const value = translate(key, source);
+  if (
+    typeof value === "string" &&
+    value &&
+    value !== key &&
+    !value.startsWith("productsDetail.") &&
+    !value.includes("productsDetail.values")
+  ) {
+    return value;
+  }
+  return source;
 }
 
 export function translatedDetailValues(
@@ -47,7 +57,16 @@ export function translatedDetailString(
   fallback: string,
 ): string {
   const value = translate(key, fallback);
-  return typeof value === "string" && value ? value : fallback;
+  if (
+    typeof value === "string" &&
+    value &&
+    value !== key &&
+    !value.startsWith("productsDetail.") &&
+    !value.includes("productsDetail.values")
+  ) {
+    return value;
+  }
+  return fallback;
 }
 
 export function translatedDetailArray<T>(

@@ -144,6 +144,7 @@ describe("Component: 102 Route-Locale Render Traversal & Console Interception", 
             const html = renderToString(React.createElement(item.component as any, props));
             expect(typeof html === "string" && html.length > 0).toBe(true);
             expect(html.includes("[object Object]")).toBe(false);
+            expect(html.includes("productsDetail.values")).toBe(false);
           } catch (err: any) {
             const isNextRedirect = err && (err.message === "NEXT_REDIRECT" || String(err).includes("NEXT_REDIRECT"));
             if (!isNextRedirect) {

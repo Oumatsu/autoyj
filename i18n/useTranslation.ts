@@ -114,10 +114,17 @@ export function useTranslation() {
         typeof defaultValueOrOptions === "object"
           ? defaultValueOrOptions
           : extraOptions;
-      return tolgeeT(key, {
+      const val = tolgeeT(key, {
         ...options,
         defaultValue: resolvedDefault,
       });
+      if (
+        (val === key || (typeof val === "string" && (val.startsWith("productsDetail.") || val.includes("productsDetail.values")))) &&
+        explicitDefault
+      ) {
+        return explicitDefault;
+      }
+      return val;
     },
     [locale, tolgeeT]
   );
