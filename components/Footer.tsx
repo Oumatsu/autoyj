@@ -53,12 +53,12 @@ export function Footer() {
             className="sh mb-4 sm:mb-6"
             style={{ fontSize: "clamp(1.8rem,8vw,5.5rem)" }}
           >
-            {t("footer.headingLine1")}
-            {t("footer.headingLine1") ? " " : ""}
-            <span className="text-accent">{t("footer.headingAccent1")}</span>{" "}
-            <span className="text-theme">{t("footer.headingAccent2")}</span>
+            {t("footer.headingLine1", "Build Your")}
+            {t("footer.headingLine1", "Build Your") ? " " : ""}
+            <span className="text-accent">{t("footer.headingAccent1", "Green")}</span>{" "}
+            <span className="text-theme">{t("footer.headingAccent2", "Empire")}</span>
             <br />
-            {t("footer.headingLine2")}
+            {t("footer.headingLine2", "Right Here.")}
           </h2>
           <p className="text-gray-500 text-sm sm:text-lg font-light italic mb-8 sm:mb-10 max-w-lg mx-auto">
             {t("footer.response")}

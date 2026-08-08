@@ -260,6 +260,10 @@ const en = {
   "footer": {
     "cta": "START A CONVERSATION",
     "heading": "Build Your <accent1>Green</accent1> <accent2>Empire</accent2><br></br>Right Here.",
+    "headingLine1": "Build Your",
+    "headingAccent1": "Green",
+    "headingAccent2": "Empire",
+    "headingLine2": "Right Here.",
     "response": "Response within 2 hours. No commitment.",
     "whatsapp": "WhatsApp Us Now",
     "enquiry": "Send an Enquiry",

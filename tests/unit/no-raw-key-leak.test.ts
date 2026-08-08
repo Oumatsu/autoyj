@@ -153,11 +153,15 @@ describe("Unit: Home page must never display raw i18n keys", () => {
     expect(leaked).toEqual([]);
   });
 
-  // ── 7. Products Detail Values Guard ──
-  test("productsDetail.values string is strictly forbidden in resolution outputs", () => {
+  // ── 7. Products Detail & Footer Key Leak Guard ──
+  test("productsDetail.values and footer.headingLine1 string are strictly forbidden in resolution outputs", () => {
     const checkValue = (val: unknown): void => {
       if (typeof val === "string") {
         expect(val).not.toContain("productsDetail.values");
+        expect(val).not.toContain("footer.headingLine1");
+        expect(val).not.toContain("footer.headingAccent1");
+        expect(val).not.toContain("footer.headingAccent2");
+        expect(val).not.toContain("footer.headingLine2");
       } else if (Array.isArray(val)) {
         val.forEach(checkValue);
       } else if (val && typeof val === "object") {
@@ -167,5 +171,23 @@ describe("Unit: Home page must never display raw i18n keys", () => {
     checkValue(zh);
     checkValue(en);
     checkValue(am);
+  });
+
+  // ── 8. Footer Heading Keys Must Resolve to Non-Empty Text ──
+  test("All footer heading keys resolve to non-empty translations in all 3 locales", () => {
+    const footerKeys = [
+      "footer.headingLine1",
+      "footer.headingAccent1",
+      "footer.headingAccent2",
+      "footer.headingLine2",
+    ];
+
+    for (const localeDict of [zh, en, am]) {
+      for (const key of footerKeys) {
+        const val = getNestedValue(localeDict as Record<string, unknown>, key);
+        expect(typeof val === "string" && val.length > 0).toBe(true);
+        expect(val).not.toBe(key);
+      }
+    }
   });
 });

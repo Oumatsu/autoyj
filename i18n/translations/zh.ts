@@ -260,6 +260,10 @@ const zh = {
   "footer": {
     "cta": "开始对话",
     "heading": "<accent1>绿色</accent1> <accent2>帝国</accent2><br></br>从这里启航。",
+    "headingLine1": "构建您的",
+    "headingAccent1": "绿色",
+    "headingAccent2": "帝国",
+    "headingLine2": "从这里启航。",
     "response": "2小时内即刻回复，无任何采购承诺绑定。",
     "whatsapp": "立即通过 WhatsApp 联系我们",
     "enquiry": "发送询盘",

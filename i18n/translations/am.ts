@@ -260,6 +260,10 @@ const am = {
   "footer": {
     "cta": "ውይይት ጀምር",
     "heading": "የእርስዎን <accent1>አረንጓዴ</accent1> <accent2>ግዛት</accent2><br></br>እዚህ ይገንቡ።",
+    "headingLine1": "የእርስዎን",
+    "headingAccent1": "አረንጓዴ",
+    "headingAccent2": "ግዛት",
+    "headingLine2": "እዚህ ይገንቡ።",
     "response": "በ2 ሰዓታት ውስጥ ምላሽ። ምንም ግዴታ የለም።",
     "whatsapp": "አሁን WhatsApp ያግኙን",
     "enquiry": "ጥያቄ ይላኩ",
