@@ -56,10 +56,7 @@ function formatSaving(value: string | undefined, t: any): string {
     .replace(/^Save\s*/i, "")
     .replace(/\s*\/\s*mo(?:nth)?$/i, "")
     .trim();
-  const template = t("products.savePerMonthTemplate", "Save {amount}/month");
-  return typeof template === "string"
-    ? template.replace("{amount}", amount)
-    : `Save ${amount}/month`;
+  return t("products.savePerMonthTemplate", { amount, defaultValue: `Save ${amount}/month` });
 }
 
 export default function ProductsPage() {
@@ -135,7 +132,7 @@ export default function ProductsPage() {
         name: "AITO M9",
         tag: t("products.eliteFlagship.performanceKing"),
         desc: t("products.eliteFlagship.description"),
-        label: t("products.eliteFlagship.techPinnacle").replace("{label}", t("products.eliteFlagship.performanceKing")),
+        label: t("products.eliteFlagship.techPinnacle", { label: t("products.eliteFlagship.performanceKing") }),
         img: "/pic/hero/M9 display.webp",
         link: "/products/elite-flagship/aito-m9",
       };
@@ -377,7 +374,7 @@ export default function ProductsPage() {
                 className="group flex items-center gap-3 sm:gap-4 px-6 sm:px-10 py-3 sm:py-4 rounded-full border border-white/10 hover:border-accent/40 transition-all"
               >
                 <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] text-gray-500 group-hover:text-white">
-                  {t("products.revenueKing.discoverMore").replace("{count}", String(revenueCount))}
+                  {t("products.revenueKing.discoverMore", { count: revenueCount })}
                 </span>
                 <span className="w-4 sm:w-6 h-px bg-white/10 group-hover:bg-accent/50 transition-all" />
                 <span className="text-accent group-hover:translate-x-1 transition-transform">
@@ -531,7 +528,7 @@ export default function ProductsPage() {
                 className="group flex items-center gap-3 sm:gap-4 px-6 sm:px-10 py-3 sm:py-4 rounded-full border border-white/10 hover:border-theme/40 transition-all"
               >
                 <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] text-gray-500 group-hover:text-white">
-                  {t("products.eliteFlagship.discoverMore").replace("{count}", String(eliteCount))}
+                  {t("products.eliteFlagship.discoverMore", { count: eliteCount })}
                 </span>
                 <span className="w-4 sm:w-6 h-px bg-white/10 group-hover:bg-theme/50 transition-all" />
                 <span className="text-theme group-hover:translate-x-1 transition-transform">
@@ -615,7 +612,7 @@ export default function ProductsPage() {
                 className="group flex items-center gap-3 sm:gap-4 px-6 sm:px-10 py-3 sm:py-4 rounded-full border border-white/10 hover:border-accent/40 transition-all"
               >
                 <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] text-gray-500 group-hover:text-white">
-                  {t("products.utilityPro.discoverMore").replace("{count}", String(utilityCount))}
+                  {t("products.utilityPro.discoverMore", { count: utilityCount })}
                 </span>
                 <span className="w-4 sm:w-6 h-px bg-white/10 group-hover:bg-accent/50 transition-all" />
                 <span className="text-accent group-hover:translate-x-1 transition-transform">

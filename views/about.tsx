@@ -369,7 +369,7 @@ export default function AboutPage() {
                     type="button"
                     onClick={() => setLightbox({ albumIndex, imageIndex: 0 })}
                     className="group block w-full flex-1 min-h-0 text-left"
-                    aria-label={t("about.gallery.lightbox.openAlbum").replace("{title}", title) as string}
+                    aria-label={t("about.gallery.lightbox.openAlbum", { title }) as string}
                   >
                     <div className="aspect-[4/3] lg:aspect-auto lg:h-full relative overflow-hidden">
                       <img
@@ -403,7 +403,7 @@ export default function AboutPage() {
                         type="button"
                         onClick={() => setLightbox({ albumIndex, imageIndex })}
                         className="aspect-[4/3] overflow-hidden rounded-lg border border-white/5 hover:border-gold transition-colors"
-                        aria-label={t("about.gallery.lightbox.viewPhoto").replace("{index}", String(imageIndex + 1)) as string}
+                        aria-label={t("about.gallery.lightbox.viewPhoto", { index: imageIndex + 1 }) as string}
                       >
                         <img
                           src={image}
@@ -541,9 +541,10 @@ export default function AboutPage() {
             </div>
 
             <div className="mt-4 text-center text-xs text-gray-500">
-              {(t("about.gallery.lightbox.photoCounter") as string)
-                .replace("{current}", String(lightbox.imageIndex + 1))
-                .replace("{total}", String(activeAlbum.images.length))}
+              {t("about.gallery.lightbox.photoCounter", {
+                current: lightbox.imageIndex + 1,
+                total: activeAlbum.images.length,
+              }) as string}
             </div>
           </div>
         </div>

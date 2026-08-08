@@ -300,10 +300,11 @@ export default function UtilityProPage() {
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 border-b border-white/5 pb-6">
                 {loadState === "ready" ? (
                   <div className="text-[10px] font-black tracking-widest uppercase text-gray-500">
-                    {t("productsUtilityPro.showing")
-                      .replace("{start}", String(showingStart))
-                      .replace("{end}", String(showingEnd))
-                      .replace("{total}", String(filteredVehicles.length))}
+                    {t("productsUtilityPro.showing", {
+                      start: showingStart,
+                      end: showingEnd,
+                      total: filteredVehicles.length,
+                    })}
                   </div>
                 ) : (
                   <div className="h-2.5 w-32 animate-pulse rounded-full bg-white/[0.08]" aria-hidden="true" />

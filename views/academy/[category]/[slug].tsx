@@ -328,7 +328,7 @@ export default function DynamicLessonPage({ params }: any) {
                   <p className="text-gray-400 text-xs font-light leading-relaxed mb-6">
                     {meta.key === "workshop"
                       ? t("academyDetail.sidebar.workshopDesc")
-                      : (t("academyDetail.sidebar.expertDesc") || "").replace("{category}", meta.label.toLowerCase())}
+                      : t("academyDetail.sidebar.expertDesc", { category: meta.label.toLowerCase() })}
                   </p>
                   <LocaleLink
                     href="/qr"
@@ -382,7 +382,7 @@ function getCategoryMeta(category: string, t: any) {
     label: category,
     key: category,
     path: category,
-    sidebarTitle: (t("academyDetail.sidebar.moreDefault") || "More {category}").replace("{category}", category),
+    sidebarTitle: t("academyDetail.sidebar.moreDefault", { category, defaultValue: `More ${category}` }),
     colorClass: "text-white",
     style: { background: "rgba(255,255,255,.1)", color: "#ffffff", borderColor: "rgba(255,255,255,.3)" }
   };
