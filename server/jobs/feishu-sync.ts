@@ -1,5 +1,5 @@
 import type { PortalEnv as Env } from "../types";
-import { syncVehicleModelsToDB, syncVehiclesToD1, syncUsersToD1, syncArticlesToD1, syncAcademyToD1 } from "../api/portal";
+import { syncVehicleModelsToDB, syncVehiclesToD1, syncUsersToD1, syncArticlesToD1, syncAcademyToD1, syncI18nToD1 } from "../api/portal";
 
 /**
  * Scheduled Cron Job — Runs every 10 minutes via Cloudflare Workers.
@@ -20,6 +20,7 @@ export type FeishuSyncResult = {
   articles: number;
   lessons: number;
   vault: number;
+  strings: number;
   elapsed: number;
 };
 
@@ -39,7 +40,7 @@ export async function runFeishuScheduledSync(env: Env): Promise<FeishuSyncResult
   console.log("[cron:feishu-sync] Starting sync: Feishu → D1...");
   const startTime = Date.now();
 
-  let models = 0, trims = 0, vehicles = 0, users = 0, articles = 0, lessons = 0, vault = 0;
+  let models = 0, trims = 0, vehicles = 0, users = 0, articles = 0, lessons = 0, vault = 0, strings = 0;
   const errors: Array<{ table: string; message: string }> = [];
 
   const run = async <T>(table: string, sync: () => Promise<T>, onSuccess: (result: T) => void) => {
@@ -80,10 +81,15 @@ export async function runFeishuScheduledSync(env: Env): Promise<FeishuSyncResult
     console.log(`[cron:feishu-sync] ✓ Academy: ${lessons} lessons + ${vault} vault items written to D1`);
   });
 
+  await run("i18n strings", () => syncI18nToD1(env), (res) => {
+    strings = res.strings;
+    console.log(`[cron:feishu-sync] ✓ I18n: ${strings} translation strings written to D1`);
+  });
+
   const elapsed = Date.now() - startTime;
   if (errors.length) {
     throw new FeishuSyncRunError(errors, elapsed);
   }
   console.log(`[cron:feishu-sync] Done in ${elapsed}ms`);
-  return { models, trims, vehicles, users, articles, lessons, vault, elapsed };
+  return { models, trims, vehicles, users, articles, lessons, vault, strings, elapsed };
 }

@@ -11,6 +11,7 @@ const availableLanguages = locales;
 
 type TolgeeOptions = {
   remote?: boolean;
+  extraData?: Record<string, any> | null;
 };
 
 function getEnvVar(key: string): string | undefined {
@@ -83,6 +84,6 @@ export function createTolgee(initialLocale: string = defaultLanguage, options: T
     fallbackLanguage: fallbackLocale,
     observerType: "invisible",
     ...(remoteEnabled ? { apiUrl, apiKey, projectId } : {}),
-    staticData: tolgeeStaticData,
+    staticData: options.extraData || tolgeeStaticData,
   });
 }

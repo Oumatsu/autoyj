@@ -2220,6 +2220,88 @@ export async function syncAcademyToD1(env: Env): Promise<{ lessons: number; vaul
   return { lessons: lessonsCount, vault: vaultCount };
 }
 
+export async function syncI18nToD1(env: Env): Promise<{ strings: number }> {
+  const db = env.PORTAL_DB;
+  if (!db) throw new Error("Missing PORTAL_DB for i18n sync");
+  const i18nTableId = asText(env.FEISHU_TABLE_I18N).trim();
+  if (!i18nTableId) throw new Error("Missing FEISHU_TABLE_I18N for i18n sync");
+
+  const records = await searchRecords(env, i18nTableId, { pageSize: 500, maxPages: 20, requireConfig: true });
+
+  if (!records.length) {
+    console.warn("[i18n-sync] No records returned — skipping to preserve existing strings");
+    return { strings: 0 };
+  }
+
+  // Build upsert statements in batches of 100 (D1 batch limit)
+  const BATCH = 100;
+  const upserts: D1PreparedStatement[] = [];
+  let count = 0;
+
+  for (const record of records) {
+    const f = record.fields;
+    const key = asText(f.key).trim();
+    if (!key) continue;
+    const zh = asText(f.zh).trim() || null;
+    const en = asText(f.en).trim() || null;
+    const am = asText(f.am).trim() || null;
+    const module = asText(f.module).trim() || null;
+    upserts.push(
+      db
+        .prepare(
+          `INSERT INTO i18n_strings (key, zh, en, am, module, synced_at)
+           VALUES (?1, ?2, ?3, ?4, ?5, datetime('now'))
+           ON CONFLICT(key) DO UPDATE SET
+             zh = excluded.zh,
+             en = excluded.en,
+             am = excluded.am,
+             module = excluded.module,
+             synced_at = excluded.synced_at`,
+        )
+        .bind(key, zh, en, am, module),
+    );
+    count++;
+  }
+
+  // Execute in batches
+  for (let i = 0; i < upserts.length; i += BATCH) {
+    await db.batch(upserts.slice(i, i + BATCH));
+  }
+
+  return { strings: count };
+}
+
+async function handlePublicI18n(request: Request, env: Env) {
+  const db = env.PORTAL_DB;
+  if (!db) return json({ zh: {}, en: {}, am: {} });
+
+  const url = new URL(request.url);
+  const locale = url.searchParams.get("locale");
+
+  // Build flat key→value maps per locale from D1
+  interface I18nRow { key: string; zh: string | null; en: string | null; am: string | null }
+  const { results } = await db.prepare("SELECT key, zh, en, am FROM i18n_strings").all<I18nRow>();
+
+  if (locale && (locale === "zh" || locale === "en" || locale === "am")) {
+    // Return just one locale as flat {key: value}
+    const out: Record<string, string> = {};
+    for (const row of results) {
+      const val = row[locale];
+      if (val) out[row.key] = val;
+    }
+    return json(out, { headers: { "cache-control": "public, max-age=300, stale-while-revalidate=3600" } });
+  }
+
+  // Return all locales as {zh: {}, en: {}, am: {}}
+  const out: Record<string, Record<string, string>> = { zh: {}, en: {}, am: {} };
+  for (const row of results) {
+    if (row.zh) out.zh[row.key] = row.zh;
+    if (row.en) out.en[row.key] = row.en;
+    if (row.am) out.am[row.key] = row.am;
+  }
+  return json(out, { headers: { "cache-control": "public, max-age=300, stale-while-revalidate=3600" } });
+}
+
 export async function syncVehicleModelsToDB(env: Env): Promise<{ models: number; trims: number }> {
   const db = env.PORTAL_DB;
   if (!db) throw new Error("Missing PORTAL_DB for vehicle models sync");
@@ -3862,6 +3944,9 @@ export async function handlePortalRequest(request: Request, env: Env) {
       const productMatch = path.match(/^\/api\/portal\/public\/products\/([^/]+)$/);
       if (productMatch && request.method === "GET") {
         return await handlePublicProduct(request, decodeURIComponent(productMatch[1]), env);
+      }
+      if (path === "/api/portal/public/i18n" && request.method === "GET") {
+        return await handlePublicI18n(request, env);
       }
       if (path === "/api/portal/public/academy" && request.method === "GET") {
         return await handlePublicAcademy(request, env);
