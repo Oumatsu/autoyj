@@ -10,9 +10,9 @@
  */
 import { describe, expect, test, beforeAll } from "bun:test";
 import { createTolgee } from "../../lib/tolgee";
-import zh from "../../i18n/translations/zh";
-import en from "../../i18n/translations/en";
-import am from "../../i18n/translations/am";
+import zh from "../../i18n/translations/zh.json";
+import en from "../../i18n/translations/en.json";
+import am from "../../i18n/translations/am.json";
 import {
   translateAcademyLesson,
   translateAcademyVaultItem,

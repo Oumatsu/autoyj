@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslation } from "@/i18n/useTranslation";
+import { T } from "@tolgee/react";
 
 export default function PrivacyPage() {
   const { t, tArray } = useTranslation();
@@ -11,8 +12,7 @@ export default function PrivacyPage() {
       <div className="container mx-auto px-6 md:px-12 max-w-3xl">
         <div className="label label-gold mb-6">{t("privacy.badge")}</div>
         <h1 className="sh mb-4">
-          {t("privacy.title")}{" "}
-          <span className="text-theme">{t("privacy.titleAccent")}</span>
+          <T keyName="privacy.title" params={{ theme: <span className="text-theme" /> }} />
         </h1>
         <p className="text-gray-500 text-sm font-light mb-12">
           {t("privacy.lastUpdated")}

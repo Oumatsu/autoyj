@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { readFile } from "node:fs/promises";
-import zh from "../../i18n/translations/zh";
+import zh from "../../i18n/translations/zh.json";
 
 const expectedChineseKitItems = [
   { name: "刹车片（整套）", qty: "× 2" },

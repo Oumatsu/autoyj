@@ -2,7 +2,7 @@
 
 Youguard 汽车出口 B2B 门户平台。
 
-**技术栈**：Next.js 16 (`vinext` 1.0+) + React 19 + Better Auth + Cloudflare Workers + D1/Miniflare + Feishu Cron Sync
+**技术栈**：Next.js 16 (`vinext` 1.0+) + React 19 + Better Auth + Cloudflare Workers + D1/Miniflare + Feishu Cron Sync + next-intl + Tolgee
 **代码质量**：ESLint v9 Flat Config + Knip + Bun Test + Playwright E2E
 **线上预览**：[https://autoyj.haipee.workers.dev](https://autoyj.haipee.workers.dev)
 
@@ -16,7 +16,7 @@ bun install
 
 # 2. 配置环境变量（复制示例文件）
 cp .dev.vars.example .dev.vars
-# 填入飞书 App ID / App Secret / App Token 等配置
+# 填入飞书 App ID / App Secret / App Token 等配置（翻译不再经过飞书，已由 Tolgee 本地静态 bundle 管理）
 
 # 3. 启动本地开发服务（使用持久化 Miniflare D1）
 bun run dev
@@ -195,3 +195,8 @@ Worker Cron 任务才会访问以下飞书 Base 表格并把数据同步到 D1�
 | **后台车型库** | `tblxVNjP9dnJ7b3o` (View: `vewppBx2ht`) | 品牌/车系规格 |
 | **车型配置表** | `tbl8YzkZkMxvHRoT` (View: `vew1Se8rpJ`) | 详细参数与差异配置 |
 | **车辆资源表** | `tblte61W3fKoXmSw` (View: `vewCyPzSbJ`) | 供应商库存与报价资源 |
+
+> **翻译（i18n）统一托管在 Tolgee 平台**。三语言静态 bundle 存储在
+> `i18n/translations/{zh,en,am}.json`。
+> - **常规/自动化同步**：通过 `bun run tolgee:pull` 从 Tolgee 拉取最新翻译存入本地 JSON 文件。
+> - **手动初始化/反向覆盖**：`bun run tolgee:push` **仅用于开发者手动批量初次推送**，严禁加入任何自动化脚本或 Dev Watcher，防止误覆盖线上在线编辑的最新文案。

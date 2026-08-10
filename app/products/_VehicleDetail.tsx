@@ -542,12 +542,14 @@ function TrimPoster({ data, v, t }: { data: DetailData; v: DetailData["vehicle"]
 export default function VehicleDetail({ data: rawData }: { data: DetailData }) {
   const { t } = useTranslation();
   const data = useMemo<DetailData>(() => {
+    if (!rawData || typeof rawData !== "object") return rawData;
+
     const modelText = (field: string, fallback: string) =>
       translatedDetailString(t, detailModelKey(rawData.slug, field), fallback);
     const valueText = (fallback: string) => translatedDetailValue(t, fallback);
     const valueArray = (fallback: string[]) => translatedDetailValues(t, fallback);
     const localizeTrim = (trim: TrimComparisonTrim): TrimComparisonTrim => {
-      if (!trim.trimConfigId) return trim;
+      if (!trim || !trim.trimConfigId) return trim;
       const variantText = (field: string, fallback: string) =>
         translatedDetailString(t, detailVariantKey(trim.trimConfigId!, field), fallback);
       return {
@@ -562,8 +564,8 @@ export default function VehicleDetail({ data: rawData }: { data: DetailData }) {
         addedFeatures: valueArray(trim.addedFeatures || []),
         upgradedFeatures: valueArray(trim.upgradedFeatures || []),
         keySpecs: trim.keySpecs?.map((spec) => ({
-          label: valueText(spec.label),
-          value: valueText(spec.value),
+          label: valueText(spec.label || ""),
+          value: valueText(spec.value || ""),
         })),
       };
     };
@@ -573,45 +575,55 @@ export default function VehicleDetail({ data: rawData }: { data: DetailData }) {
       const value = rawData[field];
       if (typeof value === "string") (localized as unknown as Record<string, unknown>)[field] = modelText(field, value);
     });
-    localized.subtitle = valueText(rawData.subtitle);
-    localized.stat1Value = valueText(rawData.stat1Value);
-    localized.stat2Value = valueText(rawData.stat2Value);
-    localized.stat3Value = valueText(rawData.stat3Value);
-    localized.vehicle = {
-      ...rawData.vehicle,
-      brand: modelText("vehicle.brand", rawData.vehicle.brand),
-      name: modelText("vehicle.name", rawData.vehicle.name),
-      charging: valueText(rawData.vehicle.charging),
-      statusText: valueText(rawData.vehicle.statusText),
-    };
-    localized.tags = valueArray(rawData.tags);
-    localized.features = rawData.features.map((feature) => ({
-      ...feature,
-      title: valueText(feature.title),
-      desc: valueText(feature.desc),
-    }));
-    localized.specsLeft = rawData.specsLeft.map((spec) => ({
-      ...spec,
-      value: valueText(spec.value),
-    }));
-    localized.specsRight = rawData.specsRight.map((spec) => ({
-      ...spec,
-      value: valueText(spec.value),
-    }));
-    localized.fits = rawData.fits.map((fit) => ({
-      ...fit,
-      title: valueText(fit.title),
-      desc: valueText(fit.desc),
-      accent: valueText(fit.accent),
-    }));
+    if (rawData.subtitle) localized.subtitle = valueText(rawData.subtitle);
+    if (rawData.stat1Value) localized.stat1Value = valueText(rawData.stat1Value);
+    if (rawData.stat2Value) localized.stat2Value = valueText(rawData.stat2Value);
+    if (rawData.stat3Value) localized.stat3Value = valueText(rawData.stat3Value);
+    if (rawData.vehicle) {
+      localized.vehicle = {
+        ...rawData.vehicle,
+        brand: modelText("vehicle.brand", rawData.vehicle.brand || ""),
+        name: modelText("vehicle.name", rawData.vehicle.name || ""),
+        charging: valueText(rawData.vehicle.charging || ""),
+        statusText: valueText(rawData.vehicle.statusText || ""),
+      };
+    }
+    if (Array.isArray(rawData.tags)) localized.tags = valueArray(rawData.tags);
+    if (Array.isArray(rawData.features)) {
+      localized.features = rawData.features.map((feature) => ({
+        ...feature,
+        title: valueText(feature.title || ""),
+        desc: valueText(feature.desc || ""),
+      }));
+    }
+    if (Array.isArray(rawData.specsLeft)) {
+      localized.specsLeft = rawData.specsLeft.map((spec) => ({
+        ...spec,
+        value: valueText(spec.value || ""),
+      }));
+    }
+    if (Array.isArray(rawData.specsRight)) {
+      localized.specsRight = rawData.specsRight.map((spec) => ({
+        ...spec,
+        value: valueText(spec.value || ""),
+      }));
+    }
+    if (Array.isArray(rawData.fits)) {
+      localized.fits = rawData.fits.map((fit) => ({
+        ...fit,
+        title: valueText(fit.title || ""),
+        desc: valueText(fit.desc || ""),
+        accent: valueText(fit.accent || ""),
+      }));
+    }
     if (rawData.trimComparison) {
       localized.trimComparison = {
         ...rawData.trimComparison,
         status: valueText(rawData.trimComparison.status || ""),
-        trims: rawData.trimComparison.trims.map(localizeTrim),
+        trims: Array.isArray(rawData.trimComparison.trims) ? rawData.trimComparison.trims.map(localizeTrim) : [],
         commonFeatures: rawData.trimComparison.commonFeatures?.map((group) => ({
-          category: valueText(group.category),
-          items: valueArray(group.items),
+          category: valueText(group.category || ""),
+          items: valueArray(group.items || []),
         })),
       };
     }

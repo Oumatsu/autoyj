@@ -18,7 +18,7 @@ if (typeof globalThis.document === "undefined") {
 
 import { describe, expect, test, beforeAll } from "bun:test";
 import { createTolgee } from "../../lib/tolgee";
-import en from "../../i18n/translations/en";
+import en from "../../i18n/translations/en.json";
 
 function flattenKeys(obj: Record<string, any>, prefix = ""): string[] {
   const keys: string[] = [];

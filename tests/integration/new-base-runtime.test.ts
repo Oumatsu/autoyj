@@ -72,7 +72,6 @@ describe("Integration: Worker API Contracts & Feishu Base Schema Rules", () => {
       FEISHU_TABLE_ARTICLES: "tblYIGaUMC5yX5sj",
       FEISHU_TABLE_ACADEMY_LESSONS: "tbl4wwtdHP8sLUsO",
       FEISHU_TABLE_ACADEMY_VAULT: "tblnMopstEUqjMhu",
-      FEISHU_TABLE_I18N: "tblv6UYxgYKSd8y5",
       FEISHU_TABLE_VEHICLE_TRIM_CONFIGURATIONS: "tbl8YzkZkMxvHRoT",
     };
     for (const [key, value] of Object.entries(expected)) {

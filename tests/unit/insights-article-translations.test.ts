@@ -29,7 +29,7 @@ describe("Unit: Insights Article Translation Resolvers", () => {
     });
   });
 
-  test("insight article translations fall back safely for malformed values", () => {
+  test("insight article translations throw strict error on missing or malformed values", () => {
     const article = {
       slug: "article",
       title: "Title",
@@ -38,7 +38,7 @@ describe("Unit: Insights Article Translation Resolvers", () => {
       content: "Content",
     };
 
-    expect(translateInsightArticle(article, () => [] as any)).toEqual(article);
+    expect(() => translateInsightArticle(article, () => [] as any)).toThrow("[Strict i18n Error]");
   });
 
   test("both insight pages render localized article values", async () => {

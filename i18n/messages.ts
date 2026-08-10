@@ -1,7 +1,7 @@
 import type { Locale } from "./config";
-import am from "./translations/am";
-import en from "./translations/en";
-import zh from "./translations/zh";
+import am from "./translations/am.json";
+import en from "./translations/en.json";
+import zh from "./translations/zh.json";
 
 export type TranslationMessages = Record<string, unknown>;
 

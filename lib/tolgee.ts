@@ -64,26 +64,44 @@ export function probeTolgee(): Promise<boolean> {
   return tolgeeReachability;
 }
 
+const instanceLanguageMap = new WeakMap<object, string>();
+let lastCreatedLanguage: string = defaultLanguage;
+
+export function getLastCreatedTolgeeLanguage(): string {
+  return lastCreatedLanguage;
+}
+
+export function getTolgeeTargetLanguage(tolgee: object | null | undefined): string | undefined {
+  if (!tolgee) return undefined;
+  return instanceLanguageMap.get(tolgee);
+}
+
 export function createTolgee(initialLocale: string = defaultLanguage, options: TolgeeOptions = {}) {
   const language = (availableLanguages as readonly string[]).includes(initialLocale)
     ? initialLocale
     : defaultLanguage;
 
+  lastCreatedLanguage = language;
+
   const { apiKey, apiUrl, projectId } = getTolgeeConfig();
   const remoteEnabled = options.remote !== false && Boolean(apiKey);
 
   const isBrowser = typeof window !== "undefined";
-  const instance = (isBrowser ? Tolgee() : TolgeeCore()).use(FormatIcu());
+  const instance = (isBrowser ? Tolgee({ defaultLanguage: language }) : TolgeeCore({ defaultLanguage: language })).use(FormatIcu());
   if (isBrowser && remoteEnabled) {
     instance.use(DevTools());
   }
 
-  return instance.init({
+  instanceLanguageMap.set(instance, language);
+  const res = instance.init({
     language,
     defaultLanguage,
     fallbackLanguage: fallbackLocale,
     observerType: "invisible",
     ...(remoteEnabled ? { apiUrl, apiKey, projectId } : {}),
-    staticData: options.extraData || tolgeeStaticData,
+    staticData: JSON.parse(JSON.stringify(options.extraData || tolgeeStaticData)),
   });
+  instanceLanguageMap.set(res, language);
+  void res.run();
+  return res;
 }

@@ -2,6 +2,7 @@
 
 import { useTranslation } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
+import { T } from "@tolgee/react";
 import { useState, type FormEvent } from "react";
 
 export default function ConfigureKitPage() {
@@ -42,8 +43,7 @@ export default function ConfigureKitPage() {
               className="sh mb-6"
               style={{ fontSize: "clamp(2.5rem, 6vw, 4.5rem)" }}
             >
-              {t("solutionsConfigureKit.heading")}{" "}
-              <span className="text-accent">{t("solutionsConfigureKit.headingAccent")}</span>
+              <T keyName="solutionsConfigureKit.heading" params={{ theme: <span className="text-theme" />, accent: <span className="text-accent" /> }} />
             </h1>
             <p className="text-xl text-gray-400 font-light italic border-l-2 border-accent/30 pl-6 leading-relaxed max-w-2xl">
               {t("solutionsConfigureKit.description")}

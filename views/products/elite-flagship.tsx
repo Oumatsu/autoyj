@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { useTranslation } from "@/i18n/useTranslation";
+import { T } from "@tolgee/react";
 import { sanitizeDisplayData } from "@/lib/display-text";
 import { LocaleLink } from "@/i18n/LocaleLink";
 import { ProductCatalogSkeleton, ProductCatalogUnavailable } from "@/components/ProductCatalogState";
@@ -237,10 +238,10 @@ export default function EliteFlagshipPage() {
               className="sh mb-6"
               style={{ fontSize: "clamp(3.5rem, 8vw, 6rem)" }}
             >
-              {t("productsEliteFlagship.heading")}{" "}
-              <span className="text-theme">{t("productsEliteFlagship.headingAccent1")}</span>{" "}
-              <span style={{ color: "var(--color-gold)" }}>{t("productsEliteFlagship.headingAccent2")}</span>{" "}
-              {t("productsEliteFlagship.headingSuffix")}
+              <T keyName="productsEliteFlagship.heading" params={{
+                theme: <span className="text-theme" />,
+                accent: <span className="text-accent" />,
+              }} />
             </h1>
             <p className="text-xl text-gray-400 font-light italic border-l-2 border-theme/30 pl-6 leading-relaxed max-w-2xl">
               {t("productsEliteFlagship.description")}

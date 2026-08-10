@@ -67,11 +67,7 @@ export default function ContactPage() {
               <h1 className="sh mb-6 leading-tight">
                 <T
                   keyName="contact.heading"
-                  params={{
-                    accent1: (chunks: any) => <span className="text-theme">{chunks}</span>,
-                    accent2: (chunks: any) => <span className="text-accent">{chunks}</span>,
-                    br: () => <br />,
-                  }}
+                  params={{ theme: <span className="text-theme" />, accent: <span className="text-accent" />, br: <br /> }}
                 />
               </h1>
               <p

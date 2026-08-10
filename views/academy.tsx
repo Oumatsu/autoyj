@@ -2,12 +2,10 @@
 
 import { useEffect, useState, useRef, useCallback } from "react";
 import Loading from "@/components/Loading";
-import { useTranslation } from "@/i18n/useTranslation";
+import { useTranslation, T } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
 import { sanitizeDisplayData } from "@/lib/display-text";
-import {
-  resolveLessonImage,
-} from "@/lib/static-assets";
+import { resolveLessonImage } from "@/lib/static-assets";
 import {
   translateAcademyLesson,
   translateAcademyVaultItem,
@@ -180,8 +178,10 @@ export default function AcademyPage() {
             className="sh mb-8"
             style={{ fontSize: "clamp(3rem, 7vw, 6rem)" }}
           >
-            {t("academy.hero.heading")}{" "}
-            <span className="text-accent">{t("academy.hero.headingAccent")}</span>
+            <T
+              keyName="academy.hero.heading"
+              params={{ theme: <span className="text-theme" />, accent: <span className="text-accent" />, br: <br /> }}
+            />
           </h1>
           <p className="text-xl text-gray-400 font-light italic leading-relaxed max-w-2xl mx-auto mb-10">
             {t("academy.hero.description")}
@@ -219,8 +219,10 @@ export default function AcademyPage() {
             <div>
               <div className="label mb-3">{t("academy.fundamentals.badge")}</div>
               <h2 className="text-4xl font-black italic text-white uppercase tracking-tighter">
-                {t("academy.fundamentals.heading")}{" "}
-                <span className="text-theme">{t("academy.fundamentals.headingAccent")}</span>
+                <T
+                  keyName="academy.fundamentals.heading"
+                  params={{ theme: <span className="text-theme" />, accent: <span className="text-accent" />, br: <br /> }}
+                />
               </h2>
             </div>
             <p className="text-gray-500 text-sm max-w-sm font-light italic text-right hidden md:block">
@@ -282,8 +284,10 @@ export default function AcademyPage() {
             <div>
               <div className="label label-gold mb-3">{t("academy.playbook.badge")}</div>
               <h2 className="text-4xl font-black italic text-white uppercase tracking-tighter">
-                {t("academy.playbook.heading")}{" "}
-                <span className="text-theme">{t("academy.playbook.headingAccent")}</span>
+                <T
+                  keyName="academy.playbook.heading"
+                  params={{ theme: <span className="text-theme" />, accent: <span className="text-accent" />, br: <br /> }}
+                />
               </h2>
             </div>
             <p className="text-gray-500 text-sm max-w-sm font-light italic text-right hidden md:block">
@@ -338,8 +342,10 @@ export default function AcademyPage() {
             <div>
               <div className="label mb-3" style={{ color: "var(--color-green)" }}>{t("academy.workshop.badge")}</div>
               <h2 className="text-4xl font-black italic text-white uppercase tracking-tighter">
-                {t("academy.workshop.heading")}{" "}
-                <span className="text-accent">{t("academy.workshop.headingAccent")}</span>
+                <T
+                  keyName="academy.workshop.heading"
+                  params={{ theme: <span className="text-theme" />, accent: <span className="text-accent" />, br: <br /> }}
+                />
               </h2>
             </div>
             <p className="text-gray-500 text-sm max-w-sm font-light italic text-right hidden md:block">
@@ -420,9 +426,10 @@ export default function AcademyPage() {
           <div className="text-center mb-16">
             <div className="label justify-center mb-4 label-gold">{t("academy.vault.badge")}</div>
             <h2 className="sh mb-6">
-              {t("academy.vault.heading")}{" "}
-              <span className="text-theme">{t("academy.vault.headingAccent")}</span>{" "}
-              {t("academy.vault.headingSuffix")}
+              <T
+                keyName="academy.vault.heading"
+                params={{ theme: <span className="text-theme" />, accent: <span className="text-accent" />, br: <br /> }}
+              />
             </h2>
             <p className="text-gray-400 text-lg font-light italic max-w-2xl mx-auto">
               {t("academy.vault.description")}

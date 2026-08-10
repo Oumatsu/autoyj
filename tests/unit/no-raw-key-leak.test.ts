@@ -8,9 +8,9 @@
  * such as "home.hero.slides.0.label" to the user.
  */
 import { describe, expect, test } from "bun:test";
-import zh from "../../i18n/translations/zh";
-import en from "../../i18n/translations/en";
-import am from "../../i18n/translations/am";
+import zh from "../../i18n/translations/zh.json";
+import en from "../../i18n/translations/en.json";
+import am from "../../i18n/translations/am.json";
 import { getNestedValue } from "../../i18n/utils";
 
 // All fields in each hero slide — required (must be non-empty)

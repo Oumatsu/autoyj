@@ -9,6 +9,7 @@
     "start": "vinext start",
     "deploy": "vinext-cloudflare deploy",
     "check": "vinext check",
+    "check:i18n": "bun run scripts/check-i18n.ts",
     "lint": "vinext lint",
     "test": "bun test tests/unit tests/component tests/integration",
     "test:unit": "bun test tests/unit",

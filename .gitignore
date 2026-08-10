@@ -36,7 +36,7 @@ scratch/
 tolgee.jar
 
 # Generated translation backups
-i18n/translations/*.backup-*.ts
+i18n/translations/*.backup-*
 
 # Temporary screenshots and diagnostics
 *_screenshot.png
@@ -47,3 +47,4 @@ feishu_auth_qr.png
 
 # Operating-system metadata
 .DS_Store
+response.txt

@@ -94,4 +94,66 @@ describe("Component: Geely Geome Vehicle Detail Page (http://localhost:3000/zh/p
       expect(html).not.toContain("productsDetail.");
     }
   });
+
+  test("renders BYD Yuan UP vehicle detail page (http://localhost:3000/zh/products/revenue-king/byd-yuan-up) with full translation and zero untranslated English sentences in Chinese locale", () => {
+    const mockBydYuanUpData = {
+      modelId: "bm-byd-yuan-up-2025",
+      slug: "byd-yuan-up",
+      category: "revenue-king" as const,
+      title: "BYD Yuan UP",
+      subtitle: "A 30-80% DC top-up takes about 30 minutes, with household charging support making overnight energy easy and economical.",
+      heroDesc: "A 30-80% DC top-up takes about 30 minutes, with household charging support making overnight energy easy and economical.",
+      vehicle: {
+        brand: "BYD",
+        name: "Yuan UP",
+        fob: "$11,500 - $16,900",
+        battery: "45.12 kWh",
+        batteryType: "LFP Blade",
+        range: "401 km",
+        charging: "A 30-80% DC top-up takes about 30 minutes, with household charging support making overnight energy easy and economical.",
+        img: "/pic/revenue-king/yuanup/5.webp",
+        status: "in-stock",
+        statusText: "In Stock: Shenzhen",
+      },
+      stat1Label: "Battery",
+      stat1Value: "45.12 kWh",
+      stat2Label: "Range",
+      stat2Value: "401 km",
+      stat3Label: "FOB",
+      stat3Value: "$11,500 - $16,900",
+      whyTitle: "Why Yuan UP",
+      whyDesc: "A 30-80% DC top-up takes about 30 minutes, with household charging support making overnight energy easy and economical.",
+      features: [
+        { icon: "01", title: "Powertrain Snapshot", desc: "45.12 kWh · 401 km · LFP Blade" },
+      ],
+      specsLeft: [
+        { label: "Battery", value: "45.12 kWh" },
+        { label: "Battery Type", value: "LFP Blade" },
+        { label: "Front Suspension", value: "MacPherson" },
+      ],
+      specsRight: [
+        { label: "Range", value: "401 km" },
+        { label: "Rear Suspension", value: "Torsion Beam" },
+      ],
+      fits: [
+        { icon: "01", title: "Compact SUV", desc: "A 30-80% DC top-up takes about 30 minutes, with household charging support making overnight energy easy and economical.", accent: "Compact SUV" },
+      ],
+      relatedModels: [],
+      tags: ["Compact SUV"],
+    };
+
+    const html = renderToString(
+      React.createElement(
+        TolgeeWrapper,
+        { locale: "zh" },
+        React.createElement(VehicleDetail, { data: mockBydYuanUpData as any })
+      )
+    );
+
+    expect(html).not.toContain("productsDetail.values");
+    expect(html).not.toContain("productsDetail.");
+
+    expect(html).toContain("直流快充 30-80% 约需 30 分钟");
+    expect(html).toContain("磷酸铁锂刀片电池");
+  });
 });

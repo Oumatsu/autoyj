@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
+import { T } from "@tolgee/react";
 import { vehicles as fallbackRevenue } from "../app/products/revenue-king/data";
 import { vehicles as fallbackElite } from "../app/products/elite-flagship/data";
 import { vehicles as fallbackUtility } from "../app/products/utility-pro/data";
@@ -293,8 +294,7 @@ export default function ProductsPage() {
                   className="sh mb-4"
                   style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)" }}
                 >
-                  {t("products.revenueKing.heading")}{" "}
-                  <span className="text-accent">{t("products.revenueKing.headingAccent")}</span>.
+                  <T keyName="products.revenueKing.heading" params={{ theme: <span className="text-theme" />, accent: <span className="text-accent" /> }} />
                 </h2>
                 <p className="text-gray-500 text-sm font-light italic leading-relaxed">
                   {t("products.revenueKing.description")}
@@ -393,8 +393,7 @@ export default function ProductsPage() {
                   className="sh mb-4"
                   style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)" }}
                 >
-                  {t("products.eliteFlagship.heading")}{" "}
-                  <span className="text-theme">{t("products.eliteFlagship.headingAccent")}</span>.
+                  <T keyName="products.eliteFlagship.heading" params={{ theme: <span className="text-theme" />, accent: <span className="text-accent" /> }} />
                 </h2>
                 <p className="text-gray-500 text-sm font-light italic leading-relaxed">
                   {t("products.eliteFlagship.description")}
@@ -547,8 +546,7 @@ export default function ProductsPage() {
                   className="sh mb-4"
                   style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)" }}
                 >
-                  {t("products.utilityPro.heading")}{" "}
-                  <span className="text-accent">{t("products.utilityPro.headingAccent")}</span>.
+                  <T keyName="products.utilityPro.heading" params={{ theme: <span className="text-theme" />, accent: <span className="text-accent" /> }} />
                 </h2>
                 <p className="text-gray-500 text-sm font-light italic leading-relaxed">
                   {t("products.utilityPro.description")}

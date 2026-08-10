@@ -1,13 +1,14 @@
-export type AcademyTranslationFn = (key: string, fallback?: string) => unknown;
+export type AcademyTranslationFn = (key: string) => unknown;
 
-function translatedText(
+function requireTranslation(
   t: AcademyTranslationFn,
   key: string,
-  fallback: unknown,
 ): string {
-  const source = typeof fallback === "string" ? fallback : "";
-  const translated = t(key, source);
-  return typeof translated === "string" ? translated : source;
+  const translated = t(key);
+  if (typeof translated !== "string" || !translated || translated === key) {
+    throw new Error(`[Strict i18n Error] Missing required translation key in dictionary: "${key}"`);
+  }
+  return translated;
 }
 
 export function translateAcademyLesson<T extends Record<string, any>>(
@@ -17,14 +18,14 @@ export function translateAcademyLesson<T extends Record<string, any>>(
   const prefix = `academy.lessons.${String(lesson.slug || "")}`;
   return {
     ...lesson,
-    title: translatedText(t, `${prefix}.title`, lesson.title),
-    tag: translatedText(t, `${prefix}.tag`, lesson.tag),
-    desc: translatedText(t, `${prefix}.description`, lesson.desc),
+    title: requireTranslation(t, `${prefix}.title`),
+    tag: requireTranslation(t, `${prefix}.tag`),
+    desc: requireTranslation(t, `${prefix}.description`),
     ...(Object.prototype.hasOwnProperty.call(lesson, "date")
-      ? { date: translatedText(t, `${prefix}.date`, lesson.date) }
+      ? { date: requireTranslation(t, `${prefix}.date`) }
       : {}),
     ...(Object.prototype.hasOwnProperty.call(lesson, "content")
-      ? { content: translatedText(t, `${prefix}.content`, lesson.content) }
+      ? { content: requireTranslation(t, `${prefix}.content`) }
       : {}),
   };
 }
@@ -43,8 +44,8 @@ export function translateAcademyVaultItem<T extends Record<string, any>>(
   const prefix = `academy.vault.${String(item.translationId || "")}`;
   return {
     ...item,
-    title: translatedText(t, `${prefix}.title`, item.title),
-    type: translatedText(t, `${prefix}.type`, item.type),
-    desc: translatedText(t, `${prefix}.description`, item.desc),
+    title: requireTranslation(t, `${prefix}.title`),
+    type: requireTranslation(t, `${prefix}.type`),
+    desc: requireTranslation(t, `${prefix}.description`),
   };
 }
