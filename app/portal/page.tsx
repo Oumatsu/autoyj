@@ -22,7 +22,7 @@ import { RefreshCw } from "lucide-react";
 import { useTranslation } from "@/i18n/useTranslation";
 import { sanitizeDisplayData } from "@/lib/display-text";
 import { getPortalSession, invalidatePortalSession } from "@/lib/portal-session-client";
-import { formatPortalRole, formatPortalStatus, localizeVehicleValue, portalRoleLabels } from "@/lib/portal-english";
+import { formatPortalHeader, formatPortalRole, formatPortalStatus, localizeVehicleValue, portalRoleLabels } from "@/lib/portal-english";
 import type { AccountType, PortalRole, PriceTier } from "@/lib/users";
 
 type AdminModule = "dashboard" | "vehicle_models" | "vehicles" | "quotes" | "orders" | "payments" | "logistics" | "customers" | "staff";
@@ -1970,6 +1970,7 @@ function AdminVehicles({ data, onEdit, onRefresh }: { data: BootstrapData; onEdi
   const sellableModels = buildSellableModels(data);
   const [expandedModels, setExpandedModels] = useState<Set<string>>(() => new Set());
   const [inquiryVehicleId, setInquiryVehicleId] = useState("");
+  const [expandedDetailVehicleId, setExpandedDetailVehicleId] = useState<string>("");
   const [expandedVariants, setExpandedVariants] = useState<Set<string>>(() => new Set());
   const [searchQuery, setSearchQuery] = useState("");
   const [supplyFilter, setSupplyFilter] = useState("all");
@@ -2286,23 +2287,28 @@ function AdminVehicles({ data, onEdit, onRefresh }: { data: BootstrapData; onEdi
                                 <>
                                   <AdminTable
                                     headers={[
-                                      localizeVehicleValue("Exterior / Interior Color", locale),
-                                      localizeVehicleValue("供应商", locale),
-                                      localizeVehicleValue("供应商报价批次年月", locale),
-                                      localizeVehicleValue("生产日期批次年月", locale),
-                                      localizeVehicleValue("Location", locale),
-                                      localizeVehicleValue("Stock", locale),
-                                      localizeVehicleValue("Min Order", locale),
-                                      localizeVehicleValue("FOB", locale),
-                                      localizeVehicleValue("FCA", locale),
-                                      localizeVehicleValue("EXW", locale),
-                                      localizeVehicleValue("Guide CNY", locale),
-                                      localizeVehicleValue("Wait Days", locale),
-                                      localizeVehicleValue("Steering", locale),
-                                      localizeVehicleValue("Market", locale),
-                                      localizeVehicleValue("Stage", locale),
-                                      localizeVehicleValue("AI Score", locale),
-                                      localizeVehicleValue("Inquiry", locale),
+                                      formatPortalHeader("外饰 / 内饰颜色", locale),
+                                      formatPortalHeader("供应商", locale),
+                                      formatPortalHeader("供应商报价批次年月", locale),
+                                      formatPortalHeader("生产日期批次年月", locale),
+                                      formatPortalHeader("车源地点", locale),
+                                      formatPortalHeader("颜色库存", locale),
+                                      formatPortalHeader("起订数量", locale),
+                                      formatPortalHeader("满订数量", locale),
+                                      formatPortalHeader("FOB美金价", locale),
+                                      formatPortalHeader("FCA美金价", locale),
+                                      formatPortalHeader("EXW美金价", locale),
+                                      formatPortalHeader("人民币指导价", locale),
+                                      formatPortalHeader("人民币成本价", locale),
+                                      formatPortalHeader("下单后需要等待天数", locale),
+                                      formatPortalHeader("左右舵", locale),
+                                      formatPortalHeader("国际国内版本", locale),
+                                      formatPortalHeader("审核状态", locale),
+                                      formatPortalHeader("AI置信度", locale),
+                                      formatPortalHeader("审核人", locale),
+                                      formatPortalHeader("开发者", locale),
+                                      formatPortalHeader("详情", locale),
+                                      formatPortalHeader("询盘", locale),
                                     ]}
                                     rows={variant.colors.flatMap((color) =>
                                       color.vehicles.map((v) => [
@@ -2318,20 +2324,47 @@ function AdminVehicles({ data, onEdit, onRefresh }: { data: BootstrapData; onEdi
                                         <span key="location" className="text-xs text-slate-300">{localizeVehicleValue(v.location, locale) || "-"}</span>,
                                         <span key="stock" className="font-mono text-xs font-bold text-white">{v.colorStockQuantity != null ? t("portal.unitCount", { count: v.colorStockQuantity }) : "-"}</span>,
                                         <span key="moq" className="font-mono text-xs text-slate-300">{v.minOrderQuantity != null ? String(v.minOrderQuantity) : "-"}</span>,
+                                        <span key="foq" className="font-mono text-xs text-slate-300">{v.fullOrderQuantity != null ? String(v.fullOrderQuantity) : "-"}</span>,
                                         <span key="fob" className="font-mono text-xs font-bold text-amber-400">{v.fobUsd != null ? formatUsdStrict(v.fobUsd) : "-"}</span>,
                                         <span key="fca" className="font-mono text-xs text-cyan-300">{v.fcaUsd != null ? formatUsdStrict(v.fcaUsd) : "-"}</span>,
                                         <span key="exw" className="font-mono text-xs text-emerald-300">{v.exwUsd != null ? formatUsdStrict(v.exwUsd) : "-"}</span>,
                                         <span key="cny" className="font-mono text-xs text-slate-300">{v.guidePriceCny != null ? `¥${v.guidePriceCny.toLocaleString()}` : "-"}</span>,
+                                        <span key="cost" className="font-mono text-xs text-slate-300">{v.cost != null ? `¥${v.cost.toLocaleString()}` : "-"}</span>,
                                         <span key="wait" className="text-xs text-slate-300">{v.waitDays != null ? t("portal.dayCount", { count: v.waitDays }) : "-"}</span>,
                                         <span key="steering" className="text-xs text-slate-300">{localizeVehicleValue(v.steering, locale) || "-"}</span>,
                                         <span key="market" className="text-xs text-slate-300">{localizeVehicleValue(v.marketVersion, locale) || "-"}</span>,
                                         <span key="stage" className={`rounded px-1.5 py-0.5 text-[10px] font-bold uppercase ${v.sourceStage === "connected" ? "bg-emerald-500/20 text-emerald-300" : "bg-yellow-500/20 text-yellow-300"}`}>{v.sourceStage || "-"}</span>,
                                         <span key="ai" className="font-mono text-xs text-slate-400">{v.aiConfidence != null ? `${Math.round(Number(v.aiConfidence) * 100)}%` : "-"}</span>,
-                                        <button key="inquiry" type="button" onClick={() => setInquiryVehicleId((current) => current === v.id ? "" : v.id)} className="text-xs font-black text-theme">{localizeVehicleValue(inquiryVehicleId === v.id ? "Hide inquiry" : "Inquiry", locale)}</button>,
+                                        <span key="reviewer" className="text-xs text-slate-300">{v.reviewer || "-"}</span>,
+                                        <span key="developer" className="text-xs text-slate-300">{v.developer || "-"}</span>,
+                                        <button key="detail" type="button" onClick={() => setExpandedDetailVehicleId((current) => current === v.id ? "" : v.id)} className="text-xs font-semibold text-cyan-400 hover:underline">{formatPortalHeader(expandedDetailVehicleId === v.id ? "收起详情" : "详情", locale)}</button>,
+                                        <button key="inquiry" type="button" onClick={() => setInquiryVehicleId((current) => current === v.id ? "" : v.id)} className="text-xs font-black text-theme">{formatPortalHeader(inquiryVehicleId === v.id ? "隐藏询盘" : "询盘", locale)}</button>,
                                       ])
                                     )}
-                                    emptyText={localizeVehicleValue("No inventory records", locale)}
+                                    emptyText={formatPortalHeader("无库存记录", locale)}
                                   />
+                                  {expandedDetailVehicleId && variant.colors.some((color) => color.vehicles.some((vehicle) => vehicle.id === expandedDetailVehicleId)) && (() => {
+                                    const v = data.vehicles.find((vehicle) => vehicle.id === expandedDetailVehicleId);
+                                    if (!v) return null;
+                                    return (
+                                      <div className="mt-3 rounded-lg border border-cyan-500/30 bg-cyan-950/20 p-3 text-xs text-slate-300">
+                                        <div className="mb-2 flex items-center justify-between font-bold text-cyan-300">
+                                          <span>{formatPortalHeader("行详情", locale)}: {v.brand} {v.model} {v.trim || ""} ({v.id})</span>
+                                          <button type="button" onClick={() => setExpandedDetailVehicleId("")} className="text-slate-400 hover:text-white">&times;</button>
+                                        </div>
+                                        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
+                                          <div><span className="text-slate-500">{formatPortalHeader("素材源文件路径", locale)}:</span> <span className="font-mono text-slate-200 break-all">{v.mediaSourcePath || "-"}</span></div>
+                                          <div><span className="text-slate-500">{formatPortalHeader("经验", locale)}:</span> <span className="text-slate-200">{v.experienceNotes || "-"}</span></div>
+                                          <div><span className="text-slate-500">{formatPortalHeader("单行自动纠错", locale)}:</span> <span className="text-slate-200">{v.autoCorrectionNotes || "-"}</span></div>
+                                          <div><span className="text-slate-500">{formatPortalHeader("重复数据检查", locale)}:</span> <span className="text-slate-200">{v.duplicateCheck || "-"}</span></div>
+                                          <div><span className="text-slate-500">{formatPortalHeader("网站推荐位", locale)}:</span> <span className="text-slate-200">{v.recommendationSlot || "-"}</span></div>
+                                          <div><span className="text-slate-500">{formatPortalHeader("同步批次", locale)}:</span> <span className="font-mono text-slate-200">{v.syncBatchId || "-"}</span></div>
+                                          <div><span className="text-slate-500">{formatPortalHeader("同步时间", locale)}:</span> <span className="font-mono text-slate-200">{v.syncedAt || "-"}</span></div>
+                                          <div><span className="text-slate-500">{formatPortalHeader("备注", locale)}:</span> <span className="text-slate-200">{v.publicNotes || "-"}</span></div>
+                                        </div>
+                                      </div>
+                                    );
+                                  })()}
                                   {inquiryVehicleId && variant.colors.some((color) => color.vehicles.some((vehicle) => vehicle.id === inquiryVehicleId)) && <VehicleInquiryPanel vehicle={data.vehicles.find((vehicle) => vehicle.id === inquiryVehicleId)!} data={data} />}
                                 </>
                               ) : (
@@ -2339,12 +2372,12 @@ function AdminVehicles({ data, onEdit, onRefresh }: { data: BootstrapData; onEdi
                                 <>
                                   <AdminTable
                                     headers={[
-                                      localizeVehicleValue("Exterior / Interior Color", locale),
-                                      localizeVehicleValue("Stock", locale),
-                                      ...(canSeeLocation ? [localizeVehicleValue("Location", locale)] : []),
-                                      localizeVehicleValue("USD Price", locale),
-                                      localizeVehicleValue("Wait Days", locale),
-                                      localizeVehicleValue("Inquiry", locale),
+                                      formatPortalHeader("外饰 / 内饰颜色", locale),
+                                      formatPortalHeader("颜色库存", locale),
+                                      ...(canSeeLocation ? [formatPortalHeader("车源地点", locale)] : []),
+                                      formatPortalHeader("美金报价", locale),
+                                      formatPortalHeader("下单后需要等待天数", locale),
+                                      formatPortalHeader("询盘", locale),
                                     ]}
                                     rows={variant.colors.map((color) => {
                                       const colorVehicle = color.vehicles[0];
@@ -2374,10 +2407,10 @@ function AdminVehicles({ data, onEdit, onRefresh }: { data: BootstrapData; onEdi
                                           ) : "-"}
                                         </div>,
                                         <span key="fulfillment" className="text-xs text-slate-300">{formatFulfillmentStatus(colorVehicle, (count) => t("portal.dayCount", { count }))}</span>,
-                                        <button key="inquiry" type="button" onClick={() => setInquiryVehicleId((current) => current === colorVehicle.id ? "" : colorVehicle.id)} className="text-xs font-black text-theme">{localizeVehicleValue(inquiryVehicleId === colorVehicle.id ? "Hide inquiry" : "Inquiry discussion", locale)}</button>,
+                                        <button key="inquiry" type="button" onClick={() => setInquiryVehicleId((current) => current === colorVehicle.id ? "" : colorVehicle.id)} className="text-xs font-black text-theme">{formatPortalHeader(inquiryVehicleId === colorVehicle.id ? "隐藏询盘" : "询盘", locale)}</button>,
                                       ];
                                     })}
-                                    emptyText={localizeVehicleValue("No color-level inventory", locale)}
+                                    emptyText={formatPortalHeader("无库存记录", locale)}
                                   />
                                   {inquiryVehicleId && variant.colors.some((color) => color.vehicles.some((vehicle) => vehicle.id === inquiryVehicleId)) && <VehicleInquiryPanel vehicle={data.vehicles.find((vehicle) => vehicle.id === inquiryVehicleId)!} data={data} />}
                                 </>
@@ -3709,6 +3742,15 @@ function formatYearMonth(year?: string | number | null, month?: string | number 
   if (!year && !month) return "-";
   const y = year ? String(year).trim() : "";
   let m = month ? String(month).trim() : "";
+
+  // Handle combined strings in year field (e.g. "2025-08", "2025/8", "2025.08", "2025年8月")
+  if (y && !m) {
+    const match = y.match(/^(\d{4})[-/.\u5e74](\d{1,2})[\u6708]?$/);
+    if (match) {
+      return `${match[1]}-${match[2].padStart(2, "0")}`;
+    }
+  }
+
   if (m) {
     m = m.replace(/月/g, "").trim();
     if (/^\d+$/.test(m)) {
