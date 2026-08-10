@@ -144,6 +144,10 @@ type Vehicle = {
   colorConfirmed: boolean;
   configuration: string;
   supplier: string;
+  supplierQuoteYear?: string | null;
+  supplierQuoteMonth?: string | null;
+  productionYear?: string | null;
+  productionMonth?: string | null;
   recorder: string;
   location: string;
   steering?: string;
@@ -173,6 +177,22 @@ type Vehicle = {
   isListed: boolean;
   editableFields: string[];
   priceLabel: string;
+  // Extended internal fields (admin/sales only)
+  guidePriceCny?: number | null;
+  currency?: string | null;
+  syncBatchId?: string | null;
+  syncedAt?: string | null;
+  minOrderQuantity?: number | null;
+  fullOrderQuantity?: number | null;
+  sourceStage?: string | null;
+  inventoryStatus?: string | null;
+  reviewer?: string | null;
+  developer?: string | null;
+  mediaSourcePath?: string | null;
+  experienceNotes?: string | null;
+  autoCorrectionNotes?: string | null;
+  duplicateCheck?: string | null;
+  recommendationSlot?: string | null;
 };
 
 type PriceTerm = { term: string; amount: number };
@@ -2261,54 +2281,107 @@ function AdminVehicles({ data, onEdit, onRefresh }: { data: BootstrapData; onEdi
 
                           {variantExpanded && (
                             <div className="border-t border-white/10 p-3 sm:p-4">
-                              <AdminTable
-                                headers={[
-                                  localizeVehicleValue("Exterior / Interior Color", locale),
-                                  localizeVehicleValue("Stock", locale),
-                                  ...(canSeeSupplier ? [localizeVehicleValue("Supplier", locale)] : []),
-                                  ...(canSeeLocation ? [localizeVehicleValue("Location", locale)] : []),
-                                  localizeVehicleValue("USD Price", locale),
-                                  localizeVehicleValue("Wait Days", locale),
-                                  localizeVehicleValue("Inquiry", locale),
-                                ]}
-                                rows={variant.colors.map((color) => {
-                                  const colorVehicle = color.vehicles[0];
-                                  const suppliers = Array.from(new Set(color.vehicles.map((item) => item.supplier).filter(Boolean)));
-                                  const locations = Array.from(new Set(color.vehicles.map((item) => item.location).filter(Boolean)));
-                                  return [
-                                    <span key="color" className="text-xs text-slate-300">
-                                      {formatColorPair(
-                                        localizeVehicleValue(color.exteriorColor, locale),
-                                        localizeVehicleValue(color.interiorColor, locale),
-                                      )}
-                                    </span>,
-                                    <span key="stock" className="font-mono text-xs font-bold text-white">
-                                      {color.hasStockQuantity ? t("portal.unitCount", { count: color.quantity }) : "-"}
-                                    </span>,
-                                    ...(canSeeSupplier
-                                      ? [<span key="supplier" className="text-xs text-slate-300">{suppliers.length ? suppliers.map((supplier) => localizeVehicleValue(supplier, locale)).join(" / ") : "-"}</span>]
-                                      : []),
-                                    ...(canSeeLocation
-                                      ? [<span key="location" className="text-xs text-slate-300">{locations.length ? locations.map((location) => localizeVehicleValue(location, locale)).join(" / ") : "-"}</span>]
-                                      : []),
-                                    <div key="price" className="flex flex-wrap gap-1">
-                                      {color.priceTerms.length > 0 ? color.priceTerms.map((price) => (
-                                        <span key={`${price.term}-${price.amount}`} className="rounded border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 font-mono text-xs font-bold text-amber-400">
-                                          {price.term} {formatUsdStrict(price.amount)}
-                                        </span>
-                                      )) : colorVehicle.price ? (
-                                        <span className="rounded border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 font-mono text-xs font-bold text-amber-400">
-                                          {colorVehicle.priceTerm || "FOB"} {formatUsdStrict(colorVehicle.price)}
-                                        </span>
-                                      ) : "-"}
-                                    </div>,
-                                    <span key="fulfillment" className="text-xs text-slate-300">{formatFulfillmentStatus(colorVehicle, (count) => t("portal.dayCount", { count }))}</span>,
-                                    <button key="inquiry" type="button" onClick={() => setInquiryVehicleId((current) => current === colorVehicle.id ? "" : colorVehicle.id)} className="text-xs font-black text-theme">{localizeVehicleValue(inquiryVehicleId === colorVehicle.id ? "Hide inquiry" : "Inquiry discussion", locale)}</button>,
-                                  ];
-                                })}
-                                emptyText={localizeVehicleValue("No color-level inventory", locale)}
-                              />
-                              {inquiryVehicleId && variant.colors.some((color) => color.vehicles.some((vehicle) => vehicle.id === inquiryVehicleId)) && <VehicleInquiryPanel vehicle={data.vehicles.find((vehicle) => vehicle.id === inquiryVehicleId)!} data={data} />}
+                              {canSeeSupplier ? (
+                                // Admin/Sales: one row per DB vehicle row with all fields
+                                <>
+                                  <AdminTable
+                                    headers={[
+                                      localizeVehicleValue("Exterior / Interior Color", locale),
+                                      localizeVehicleValue("供应商", locale),
+                                      localizeVehicleValue("供应商报价批次年月", locale),
+                                      localizeVehicleValue("生产日期批次年月", locale),
+                                      localizeVehicleValue("Location", locale),
+                                      localizeVehicleValue("Stock", locale),
+                                      localizeVehicleValue("Min Order", locale),
+                                      localizeVehicleValue("FOB", locale),
+                                      localizeVehicleValue("FCA", locale),
+                                      localizeVehicleValue("EXW", locale),
+                                      localizeVehicleValue("Guide CNY", locale),
+                                      localizeVehicleValue("Wait Days", locale),
+                                      localizeVehicleValue("Steering", locale),
+                                      localizeVehicleValue("Market", locale),
+                                      localizeVehicleValue("Stage", locale),
+                                      localizeVehicleValue("AI Score", locale),
+                                      localizeVehicleValue("Inquiry", locale),
+                                    ]}
+                                    rows={variant.colors.flatMap((color) =>
+                                      color.vehicles.map((v) => [
+                                        <span key="color" className="text-xs text-slate-300">
+                                          {formatColorPair(
+                                            localizeVehicleValue(v.exteriorColor || v.color, locale),
+                                            localizeVehicleValue(v.interiorColor, locale),
+                                          )}
+                                        </span>,
+                                        <span key="supplier" className="text-xs text-slate-300">{v.supplier || "-"}</span>,
+                                        <span key="quoteBatch" className="font-mono text-xs text-slate-300">{formatYearMonth(v.supplierQuoteYear, v.supplierQuoteMonth)}</span>,
+                                        <span key="prodBatch" className="font-mono text-xs text-slate-300">{formatYearMonth(v.productionYear, v.productionMonth)}</span>,
+                                        <span key="location" className="text-xs text-slate-300">{localizeVehicleValue(v.location, locale) || "-"}</span>,
+                                        <span key="stock" className="font-mono text-xs font-bold text-white">{v.colorStockQuantity != null ? t("portal.unitCount", { count: v.colorStockQuantity }) : "-"}</span>,
+                                        <span key="moq" className="font-mono text-xs text-slate-300">{v.minOrderQuantity != null ? String(v.minOrderQuantity) : "-"}</span>,
+                                        <span key="fob" className="font-mono text-xs font-bold text-amber-400">{v.fobUsd != null ? formatUsdStrict(v.fobUsd) : "-"}</span>,
+                                        <span key="fca" className="font-mono text-xs text-cyan-300">{v.fcaUsd != null ? formatUsdStrict(v.fcaUsd) : "-"}</span>,
+                                        <span key="exw" className="font-mono text-xs text-emerald-300">{v.exwUsd != null ? formatUsdStrict(v.exwUsd) : "-"}</span>,
+                                        <span key="cny" className="font-mono text-xs text-slate-300">{v.guidePriceCny != null ? `¥${v.guidePriceCny.toLocaleString()}` : "-"}</span>,
+                                        <span key="wait" className="text-xs text-slate-300">{v.waitDays != null ? t("portal.dayCount", { count: v.waitDays }) : "-"}</span>,
+                                        <span key="steering" className="text-xs text-slate-300">{localizeVehicleValue(v.steering, locale) || "-"}</span>,
+                                        <span key="market" className="text-xs text-slate-300">{localizeVehicleValue(v.marketVersion, locale) || "-"}</span>,
+                                        <span key="stage" className={`rounded px-1.5 py-0.5 text-[10px] font-bold uppercase ${v.sourceStage === "connected" ? "bg-emerald-500/20 text-emerald-300" : "bg-yellow-500/20 text-yellow-300"}`}>{v.sourceStage || "-"}</span>,
+                                        <span key="ai" className="font-mono text-xs text-slate-400">{v.aiConfidence != null ? `${Math.round(Number(v.aiConfidence) * 100)}%` : "-"}</span>,
+                                        <button key="inquiry" type="button" onClick={() => setInquiryVehicleId((current) => current === v.id ? "" : v.id)} className="text-xs font-black text-theme">{localizeVehicleValue(inquiryVehicleId === v.id ? "Hide inquiry" : "Inquiry", locale)}</button>,
+                                      ])
+                                    )}
+                                    emptyText={localizeVehicleValue("No inventory records", locale)}
+                                  />
+                                  {inquiryVehicleId && variant.colors.some((color) => color.vehicles.some((vehicle) => vehicle.id === inquiryVehicleId)) && <VehicleInquiryPanel vehicle={data.vehicles.find((vehicle) => vehicle.id === inquiryVehicleId)!} data={data} />}
+                                </>
+                              ) : (
+                                // External users: color-grouped view
+                                <>
+                                  <AdminTable
+                                    headers={[
+                                      localizeVehicleValue("Exterior / Interior Color", locale),
+                                      localizeVehicleValue("Stock", locale),
+                                      ...(canSeeLocation ? [localizeVehicleValue("Location", locale)] : []),
+                                      localizeVehicleValue("USD Price", locale),
+                                      localizeVehicleValue("Wait Days", locale),
+                                      localizeVehicleValue("Inquiry", locale),
+                                    ]}
+                                    rows={variant.colors.map((color) => {
+                                      const colorVehicle = color.vehicles[0];
+                                      const locations = Array.from(new Set(color.vehicles.map((item) => item.location).filter(Boolean)));
+                                      return [
+                                        <span key="color" className="text-xs text-slate-300">
+                                          {formatColorPair(
+                                            localizeVehicleValue(color.exteriorColor, locale),
+                                            localizeVehicleValue(color.interiorColor, locale),
+                                          )}
+                                        </span>,
+                                        <span key="stock" className="font-mono text-xs font-bold text-white">
+                                          {color.hasStockQuantity ? t("portal.unitCount", { count: color.quantity }) : "-"}
+                                        </span>,
+                                        ...(canSeeLocation
+                                          ? [<span key="location" className="text-xs text-slate-300">{locations.length ? locations.map((location) => localizeVehicleValue(location, locale)).join(" / ") : "-"}</span>]
+                                          : []),
+                                        <div key="price" className="flex flex-wrap gap-1">
+                                          {color.priceTerms.length > 0 ? color.priceTerms.map((price) => (
+                                            <span key={`${price.term}-${price.amount}`} className="rounded border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 font-mono text-xs font-bold text-amber-400">
+                                              {price.term} {formatUsdStrict(price.amount)}
+                                            </span>
+                                          )) : colorVehicle.price ? (
+                                            <span className="rounded border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 font-mono text-xs font-bold text-amber-400">
+                                              {colorVehicle.priceTerm || "FOB"} {formatUsdStrict(colorVehicle.price)}
+                                            </span>
+                                          ) : "-"}
+                                        </div>,
+                                        <span key="fulfillment" className="text-xs text-slate-300">{formatFulfillmentStatus(colorVehicle, (count) => t("portal.dayCount", { count }))}</span>,
+                                        <button key="inquiry" type="button" onClick={() => setInquiryVehicleId((current) => current === colorVehicle.id ? "" : colorVehicle.id)} className="text-xs font-black text-theme">{localizeVehicleValue(inquiryVehicleId === colorVehicle.id ? "Hide inquiry" : "Inquiry discussion", locale)}</button>,
+                                      ];
+                                    })}
+                                    emptyText={localizeVehicleValue("No color-level inventory", locale)}
+                                  />
+                                  {inquiryVehicleId && variant.colors.some((color) => color.vehicles.some((vehicle) => vehicle.id === inquiryVehicleId)) && <VehicleInquiryPanel vehicle={data.vehicles.find((vehicle) => vehicle.id === inquiryVehicleId)!} data={data} />}
+                                </>
+                              )}
                             </div>
                           )}
                         </section>
@@ -3630,6 +3703,22 @@ function formatColorPair(exteriorColor: string, interiorColor: string) {
     return `${validExt} / ${validInt}`;
   }
   return validExt || validInt || "-";
+}
+
+function formatYearMonth(year?: string | number | null, month?: string | number | null): string {
+  if (!year && !month) return "-";
+  const y = year ? String(year).trim() : "";
+  let m = month ? String(month).trim() : "";
+  if (m) {
+    m = m.replace(/月/g, "").trim();
+    if (/^\d+$/.test(m)) {
+      m = m.padStart(2, "0");
+    }
+  }
+  if (y && m) return `${y}-${m}`;
+  if (y) return y;
+  if (m) return m;
+  return "-";
 }
 
 function normalizeKey(...values: Array<string | number | null | undefined>) {

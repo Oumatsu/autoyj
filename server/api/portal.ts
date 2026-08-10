@@ -1273,7 +1273,11 @@ function mapVehicleSource(record: FeishuRecord, session: PortalSession): Record<
     id: asText(fields.record_id) || record.record_id,
     modelId: asText(fields.model_id),
     variantId: asText(fields.variant_id),
-    supplier: asText(fields["供应商"] ?? fields.supplier) || "合作车商/未归类",
+    supplier: isInternalSession(session) ? (asText(fields["供应商"] ?? fields.supplier) || "合作车商/未归类") : null,
+    supplierQuoteYear: isInternalSession(session) ? asText(fields["供应商报价年份"] ?? fields.supplier_quote_year) : null,
+    supplierQuoteMonth: isInternalSession(session) ? asText(fields["供应商报价月份"] ?? fields.supplier_quote_month) : null,
+    productionYear: isInternalSession(session) ? asText(fields["生产年份"] ?? fields.production_year) : null,
+    productionMonth: isInternalSession(session) ? asText(fields["生产月份"] ?? fields.production_month) : null,
     reviewer: asText(fields["审核人"] ?? fields.reviewer),
     developer: asText(fields["开发者"] ?? fields.developer),
     brand: asText(fields["品牌"] ?? fields.brand),
@@ -2367,12 +2371,16 @@ async function handleGetVehicles(request: Request, env: Env) {
   const session = await requireSession(request, env);
   const rows = await queryVehicles(requirePortalDb(env));
   const canSeePrice = canSeePortalPrice(session);
+  const internalSession = isInternalSession(session);
+
   const vehicles = rows.map((row) => {
     const fields = row as unknown as Record<string, unknown>;
     const externalAccount = session.role === "partner" || session.role === "customer";
     const internalFobUsd = asOptionalNumber(rowField(fields, "fob_usd", "FOB美金价"));
     const customerFobUsd = asOptionalNumber(rowField(fields, "customer_fob_usd", "customerFOB美金报价（自动计算）")) ??
       asOptionalNumber(fields["customerFOB美金报价（自动计算）"]);
+    const partnerFobUsd = asOptionalNumber(rowField(fields, "partner_fob_usd", "partnerFOB美金报价（自动计算）")) ??
+      asOptionalNumber(fields["partnerFOB美金报价（自动计算）"]);
     const displayPriceLow = asOptionalNumber(rowField(fields, "display_price_low"));
     const fobUsd = externalAccount ? customerFobUsd ?? displayPriceLow : internalFobUsd ?? displayPriceLow;
     const exwUsd = externalAccount ? null : asOptionalNumber(rowField(fields, "exw_usd", "EXW美金价"));
@@ -2381,34 +2389,56 @@ async function handleGetVehicles(request: Request, env: Env) {
     if (canSeePrice && fobUsd != null) priceTermsList.push({ term: "FOB", amount: fobUsd });
     if (canSeePrice && !externalAccount && exwUsd != null) priceTermsList.push({ term: "EXW", amount: exwUsd });
     if (canSeePrice && !externalAccount && fcaUsd != null) priceTermsList.push({ term: "FCA", amount: fcaUsd });
+
     return {
       id: row.id,
       modelId: asText(rowField(fields, "model_id")),
+      variantId: asText(rowField(fields, "variant_id", "trim_id")),
+      syncBatchId: internalSession ? asText(rowField(fields, "sync_batch_id")) : null,
       brand: asText(rowField(fields, "brand", "品牌")),
       model: asText(rowField(fields, "model", "型号")),
       trim: asText(rowField(fields, "variant", "细分型号")),
-      supplier: isInternalSession(session) ? asText(rowField(fields, "supplier", "供应商")) : null,
+      supplier: internalSession ? asText(rowField(fields, "supplier", "供应商")) : null,
+      supplierQuoteYear: internalSession ? asText(rowField(fields, "supplier_quote_year", "供应商报价年份")) : null,
+      supplierQuoteMonth: internalSession ? asText(rowField(fields, "supplier_quote_month", "供应商报价月份")) : null,
+      productionYear: internalSession ? asText(rowField(fields, "production_year", "生产年份")) : null,
+      productionMonth: internalSession ? asText(rowField(fields, "production_month", "生产月份")) : null,
       steering: asText(rowField(fields, "steering", "左右舵")),
+      marketVersion: asText(rowField(fields, "market_version", "国际国内版本（多选）")),
       location: asText(rowField(fields, "location", "批发地点", "车源地点")),
       stage: asText(rowField(fields, "stage", "审核api用字段")),
       price: canSeePrice ? fobUsd : null,
-      partnerPrice: customerFobUsd,
+      partnerPrice: partnerFobUsd ?? customerFobUsd,
       customerPrice: customerFobUsd,
+      cost: internalSession ? asOptionalNumber(rowField(fields, "supplier_price_cny", "人民币成本价")) : null,
+      guidePriceCny: asOptionalNumber(rowField(fields, "guide_price_cny", "人民币指导价")),
       exwUsd: canSeePrice ? exwUsd : null,
       fcaUsd: canSeePrice ? fcaUsd : null,
       fobUsd: canSeePrice ? fobUsd : null,
       currency: asText(rowField(fields, "currency")) || "USD",
       minOrderQuantity: asOptionalNumber(rowField(fields, "min_order_quantity", "起订数量")),
+      fullOrderQuantity: asOptionalNumber(rowField(fields, "full_order_quantity", "满订数量")),
       stockQuantity: asOptionalNumber(rowField(fields, "inventory_count", "颜色库存")) ?? 0,
       colorStockQuantity: asOptionalNumber(rowField(fields, "inventory_count", "颜色库存")),
       waitDays: asOptionalNumber(rowField(fields, "wait_days", "下单后需要等待天数")),
       powertrain_type: asText(rowField(fields, "powertrain_type")),
       color: asText(rowField(fields, "color", "外饰颜色")),
+      exteriorColor: asText(rowField(fields, "exterior_color", "外饰颜色")),
+      interiorColor: asText(rowField(fields, "interior_color", "内饰颜色")),
+      reviewer: internalSession ? asText(rowField(fields, "reviewer", "审核人")) : null,
+      developer: internalSession ? asText(rowField(fields, "developer", "开发者")) : null,
+      publicNotes: asText(rowField(fields, "notes", "备注")),
+      mediaSourcePath: internalSession ? asText(rowField(fields, "media_source_path", "素材源文件路径")) : null,
+      experienceNotes: internalSession ? asText(rowField(fields, "experience_notes", "经验")) : null,
+      autoCorrectionNotes: internalSession ? asText(rowField(fields, "auto_correction", "单行自动纠错")) : null,
+      duplicateCheck: internalSession ? asText(rowField(fields, "duplicate_check", "重复数据检查")) : null,
+      recommendationSlot: internalSession ? asText(rowField(fields, "recommendation_slot", "网站推荐位")) : null,
       aiConfidence: asOptionalNumber(rowField(fields, "ai_confidence_score", "AI置信度")),
       priceTermsList,
       isApproved: true,
       canSeePrice,
       syncedAt: asText(rowField(fields, "synced_at")),
+      rawFields: internalSession ? fields : null,
     };
   });
   return json({ vehicles });

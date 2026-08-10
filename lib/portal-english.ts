@@ -50,6 +50,13 @@ export function formatPortalStatus(status: string | null | undefined, locale: Lo
   return locale === "am" ? localizeVehicleValue(english, locale) : english;
 }
 const vehicleEnglishTerms: Array<[string, string]> = [
+  ["供应商报价批次年月", "Supplier Quote Date"],
+  ["生产日期批次年月", "Production Date"],
+  ["供应商报价批次", "Supplier Quote Batch"],
+  ["生产日期批次", "Production Batch"],
+  ["供应商报价", "Supplier Quote"],
+  ["生产日期", "Production Date"],
+  ["生产批次", "Production Batch"],
   ["2026款", "2026 MY"],
   ["2025款", "2025 MY"],
   ["2024款", "2024 MY"],

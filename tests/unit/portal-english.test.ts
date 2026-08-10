@@ -16,6 +16,10 @@ test("vehicle values use local translations without changing Chinese source disp
   );
   expect(localizeVehicleValue("左舵 / 国际版", "en")).toBe("LHD / International Version");
   expect(localizeVehicleValue("未维护的新版本", "en")).toBe("未维护的新版本");
+  expect(localizeVehicleValue("供应商报价批次年月", "en")).toBe("Supplier Quote Date");
+  expect(localizeVehicleValue("生产日期批次年月", "en")).toBe("Production Date");
+  expect(localizeVehicleValue("供应商报价批次", "en")).toBe("Supplier Quote Batch");
+  expect(localizeVehicleValue("生产日期批次", "en")).toBe("Production Batch");
 });
 
 test("portal values use Amharic while preserving automotive abbreviations", () => {
