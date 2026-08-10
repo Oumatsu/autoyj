@@ -81,8 +81,7 @@ const PROCESS_STEP_COUNT = 4;
 
 describe("Unit: Tolgee InContext — Home Process Steps resolve in all locales", () => {
   test("home.process.label resolves", () => assertKey("home.process.label"));
-  test("home.process.titleAccent1 resolves", () => assertKey("home.process.titleAccent1"));
-  test("home.process.titleAccent2 resolves", () => assertKey("home.process.titleAccent2"));
+  test("home.process.title resolves", () => assertKey("home.process.title"));
 
   for (let i = 0; i < PROCESS_STEP_COUNT; i++) {
     for (const field of processStepFields) {

@@ -820,9 +820,7 @@
       "cta": "了解我们的团队 →",
       "desc": "我们独特的双轨出海战略超越了简单的整车代采。我们为每位合作伙伴配备完善的运营工具、专业技术培训与长期售后服务保障，助您在本土市场迅速占领竞争高地。",
       "label": "品牌愿景",
-      "quote1": "我们不只销售车辆，\n我们致力于",
-      "quote2": "的成长。",
-      "quoteAccent": "成就经销商",
+      "quote": "我们不只销售车辆，致力于 <theme>成就经销商</theme> 的成长。",
       "quoteOpen": "“",
       "stats": {
         "0": {
@@ -897,16 +895,12 @@
         "label": "非洲新能源市场情报",
         "title": "2025 非洲电动车\n出海白皮书"
       },
-      "heading": "为经销商打造的<br></br><theme>专业出海工具</theme>",
-      "title1": "为经销商打造的\n",
-      "title2": "专业出海工具",
-      "titleAccent1": "Expert"
+      "title": "<theme>行业前沿</theme>与市场洞察"
     },
     "leadMagnet": {
       "cta": "免费下载报告 →",
       "desc": "按非洲投资回报率排名前 20 车型。真实进口利润率数据。埃塞俄比亚各地经销商用来更聪明地采购。",
       "emailPlaceholder": "您的邮箱地址",
-      "heading": "2025 全球电动车<br></br><theme>展望报告</theme>",
       "label": "免费内部报告",
       "modalCancel": "关闭",
       "modalCta": "前往登录 →",
@@ -914,12 +908,9 @@
       "modalTitle": "需要经销商登录",
       "phonePlaceholder": "WhatsApp 号码（含国家代码）",
       "privacy": "无垃圾邮件。随时取消订阅。",
-      "title1": "2025 全球电动车\n",
-      "title2": null,
-      "titleAccent": "展望报告"
+      "title": "免费下载 2025 年全球电动车 <theme>展望报告</theme>"
     },
     "process": {
-      "heading": "<theme>金牌</theme><accent>生态标准</accent>",
       "label": "端到端透明流程",
       "stats": {
         "0": {
@@ -965,11 +956,7 @@
           "title": "交付与赋能"
         }
       },
-      "title1": null,
-      "title2": null,
-      "title3": null,
-      "titleAccent1": "金牌",
-      "titleAccent2": "生态标准"
+      "title": "一站式 <theme>出口流程</theme>，<accent>全程无忧</accent>"
     },
     "products": {
       "eliteFlagship": {
@@ -982,7 +969,6 @@
         },
         "title": "旗舰精英"
       },
-      "heading": "<accent>生态</accent><theme>赢家</theme>",
       "label": "为您精选高回报车型",
       "revenueKing": {
         "badge": "高投资回报率",
@@ -994,11 +980,7 @@
         },
         "title": "营收之王"
       },
-      "title1": null,
-      "title2": null,
-      "title3": null,
-      "titleAccent1": "生态",
-      "titleAccent2": "赢家",
+      "title": "全球精选 <accent>现车</accent> 与 <theme>优质车源</theme>",
       "utilityPro": {
         "badge": "耐用全路况越野",
         "category": "新能源车型 03",
@@ -1036,7 +1018,6 @@
       },
       "evLabel": "新能源汽车 (EV)",
       "evValue": "~$120 / 月",
-      "heading": "新能源汽车<br></br>vs<br></br>传统燃油车<br></br><theme>真实</theme><br></br><accent>利润</accent>",
       "iceBreakdown": {
         "0": "⛽ 加油油费 ~$280",
         "1": "🔧 售后维修 ~$140"
@@ -1046,12 +1027,7 @@
       "label": "用数据说话",
       "savingsLabel": "单车月度节省额",
       "savingsValue": "3 年累计可省 $10,800",
-      "title1": "新能源汽车 vs 传统燃油车",
-      "title2": null,
-      "title3": null,
-      "title4": null,
-      "titleAccent1": "真实",
-      "titleAccent2": "利润"
+      "title": "新能源汽车 vs 传统燃油车<br></br><theme>真实</theme> <accent>利润</accent>"
     },
     "trustBar": {
       "label": "国际公认的供应链与质量检测合作伙伴",

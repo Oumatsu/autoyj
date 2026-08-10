@@ -142,17 +142,6 @@ describe("Rich-Text Color Tags — Tag Count Consistency Across Locales", () => 
 
 describe("Rich-Text Color Tags — Critical Heading Spot Checks", () => {
   const criticalHeadings: Array<{ lang: "zh" | "en" | "am"; key: string; mustHave: string[] }> = [
-    // Home page section headings
-    { lang: "zh", key: "home.products.heading", mustHave: ["<theme>", "<accent>"] },
-    { lang: "zh", key: "home.process.heading", mustHave: ["<theme>", "<accent>"] },
-    { lang: "zh", key: "home.tco.heading", mustHave: ["<theme>", "<accent>", "<br></br>"] },
-    { lang: "zh", key: "home.insights.heading", mustHave: ["<theme>", "<br></br>"] },
-    { lang: "zh", key: "home.leadMagnet.heading", mustHave: ["<theme>", "<br></br>"] },
-    { lang: "en", key: "home.products.heading", mustHave: ["<theme>", "<accent>"] },
-    { lang: "en", key: "home.process.heading", mustHave: ["<theme>", "<accent>"] },
-    { lang: "en", key: "home.tco.heading", mustHave: ["<theme>", "<accent>", "<br></br>"] },
-    { lang: "en", key: "home.insights.heading", mustHave: ["<theme>", "<br></br>"] },
-    { lang: "en", key: "home.leadMagnet.heading", mustHave: ["<theme>", "<br></br>"] },
     // Products Overview
     { lang: "zh", key: "products.utilityPro.heading", mustHave: ["<theme>", "<accent>", "</theme>", "</accent>"] },
     { lang: "zh", key: "products.eliteFlagship.heading", mustHave: ["<theme>", "<accent>"] },

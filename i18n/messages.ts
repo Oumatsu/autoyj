@@ -15,27 +15,26 @@ type TolgeeStaticTree = {
   [key: string]: string | TolgeeStaticTree;
 };
 
-function flattenObject(obj: Record<string, unknown>, prefix = ""): Record<string, string> {
-  const result: Record<string, string> = {};
-  for (const [key, value] of Object.entries(obj)) {
-    const fullKey = prefix ? `${prefix}.${key}` : key;
-    if (value && typeof value === "object" && !Array.isArray(value)) {
-      Object.assign(result, flattenObject(value as Record<string, unknown>, fullKey));
-    } else if (value !== null && value !== undefined) {
-      result[fullKey] = String(value);
-    }
+function toTolgeeValue(value: unknown): string | TolgeeStaticTree {
+  if (value && typeof value === "object") {
+    return toTolgeeTree(value);
   }
-  return result;
+  return value === null || value === undefined ? "" : String(value);
 }
 
 function toTolgeeTree(value: object): TolgeeStaticTree {
-  return flattenObject(value as Record<string, unknown>) as unknown as TolgeeStaticTree;
+  return Object.fromEntries(
+    Object.entries(value).map(([key, childValue]) => [
+      key,
+      toTolgeeValue(childValue),
+    ])
+  );
 }
 
 const staticDataCache: Partial<Record<Locale, TolgeeStaticTree>> = {};
 
 function getTolgeeTree(locale: Locale): TolgeeStaticTree {
-  if (process.env.NODE_ENV === "development" || !staticDataCache[locale]) {
+  if (!staticDataCache[locale]) {
     staticDataCache[locale] = toTolgeeTree(messages[locale]);
   }
   return staticDataCache[locale]!;

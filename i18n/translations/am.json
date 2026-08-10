@@ -820,9 +820,7 @@
       "cta": "ቡድኑን ይወቁ →",
       "desc": "የእኛ ሁለት-ትራክ ስትራቴጂ ከግዥ በላይ ነው። ለእያንዳንዱ አጋር ከመጀመሪያው ቀን ጀምሮ በአካባቢው ገበያ እንዲያሸንፉ መሳሪያዎችን፣ እውቀትን እና ድጋፍን እናስታጥቃለን።",
       "label": "እኛ ማን ነን",
-      "quote1": "እኛ መኪና ብቻ አንሸጥም።\nእኛ ",
-      "quote2": "።",
-      "quoteAccent": "ነጋዴዎችን እንገነባለን",
+      "quote": "መኪናዎችን ብቻ አንልክም። ለዕድገትዎ <theme>አስተማማኝ መንገዶችን</theme> እንከፍታለን።",
       "quoteOpen": "«",
       "stats": {
         "0": {
@@ -897,16 +895,12 @@
         "label": "የገበያ መረጃ",
         "title": "2025 የአፍሪካ ኤሌክትሪክ መኪና\nየወጪ ንግድ ሪፖርት"
       },
-      "heading": "ለነጋዴዎች የተገነቡ<br></br><theme>የባለሙያ</theme> መሳሪያዎች",
-      "title1": null,
-      "title2": " መሳሪያዎች\nለነጋዴዎች የተገነቡ",
-      "titleAccent1": "የባለሙያ"
+      "title": "<theme>የባለሙያ</theme> እይታዎች"
     },
     "leadMagnet": {
       "cta": "ሪፖርቱን በነጻ አውርድ →",
       "desc": "በአፍሪካ ROI ከፍተኛ 20 ሞዴሎች። እውነተኛ የማስመጣት ትርፍ ህዳግ መረጃ። በመላው ኢትዮጵያ ነጋዴዎች የበለጠ ብልህ ለመግዛት ይጠቀማሉ።",
       "emailPlaceholder": "የኢሜል አድራሻዎ",
-      "heading": "2025 ዓለም አቀፍ ኤሌክትሪክ መኪና<br></br><theme>የእይታ ሪፖርት</theme>",
       "label": "ነጻ የውስጥ ሪፖርት",
       "modalCancel": "ዝጋ",
       "modalCta": "ወደ መግቢያ ይሂዱ →",
@@ -914,12 +908,9 @@
       "modalTitle": "የነጋዴ መግቢያ ያስፈልጋል",
       "phonePlaceholder": "WhatsApp ቁጥር (የሀገር ኮድ ጋር)",
       "privacy": "አይፈለጌ መልእክት የለም። በማንኛውም ጊዜ ምዝገባ መሰረዝ ይቻላል።",
-      "title1": "2025 ዓለም አቀፍ ኤሌክትሪክ መኪና\n",
-      "title2": null,
-      "titleAccent": "የእይታ ሪፖርት"
+      "title": "የ2025 ዓለም አቀፍ የኢቪ <theme>የእይታ ሪፖርት</theme> ያውርዱ"
     },
     "process": {
-      "heading": "<theme>ወርቅ</theme> <accent>ስታንዳርድ</accent>",
       "label": "ግልጽ ሂደት",
       "stats": {
         "0": {
@@ -965,11 +956,7 @@
           "title": "ማድረስ እና ማብቃት"
         }
       },
-      "title1": null,
-      "title2": null,
-      "title3": null,
-      "titleAccent1": "ወርቅ",
-      "titleAccent2": "ስታንዳርድ"
+      "title": "የእኛ ከጫፍ እስከ ጫፍ <theme>የላኳት ሂደት</theme>, <accent>የተቃለለ</accent>"
     },
     "products": {
       "eliteFlagship": {
@@ -982,7 +969,6 @@
         },
         "title": "ልሂቃን ባንዲራ"
       },
-      "heading": "<accent>ኢኮ</accent> <theme>አሸናፊ</theme> ክበብ",
       "label": "ለትርፋማነት የተመረጡ",
       "revenueKing": {
         "badge": "ከፍተኛ የኢንቨስትመንት ተመላሽ",
@@ -994,11 +980,7 @@
         },
         "title": "የገቢ ንጉሥ"
       },
-      "title1": null,
-      "title2": null,
-      "title3": " ክበብ",
-      "titleAccent1": "ኢኮ",
-      "titleAccent2": "አሸናፊ",
+      "title": "የተመረጡ <accent>የቀጥታ ክምችቶች</accent> እና <theme>ፕሪሚየም መኪኖች</theme>",
       "utilityPro": {
         "badge": "ጠንካራ ከመንገድ ውጪ",
         "category": "ምድብ 03",
@@ -1036,7 +1018,6 @@
       },
       "evLabel": "ኤሌክትሪክ መኪና (EV)",
       "evValue": "~$120 / በወር",
-      "heading": "ኤሌክትሪክ መኪና vs ነዳጅ መኪና<br></br><theme>እውነተኛ</theme><br></br><accent>ትርፍ</accent>",
       "iceBreakdown": {
         "0": "⛽ ነዳጅ ~$280",
         "1": "🔧 ጥገና ~$140"
@@ -1046,12 +1027,7 @@
       "label": "ቁጥሮች አይዋሹም",
       "savingsLabel": "በመኪና ወርሃዊ ቁጠባ",
       "savingsValue": "በ3 ዓመት $10,800 ይቆጥቡ",
-      "title1": "ኤሌክትሪክ መኪና vs ነዳጅ መኪና",
-      "title2": null,
-      "title3": null,
-      "title4": null,
-      "titleAccent1": "እውነተኛ",
-      "titleAccent2": "ትርፍ"
+      "title": "NEV VS. ICE:<br></br><theme>የተረጋገጠ</theme> <accent>ትርፍ</accent>"
     },
     "trustBar": {
       "label": "የታመኑ የአቅርቦት ሰንሰለት አጋሮች",

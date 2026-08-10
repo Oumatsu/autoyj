@@ -121,8 +121,7 @@ const REQUIRED_HOME_KEYS = [
   "home.trustBar.label",
   "home.products.label",
   "home.process.label",
-  "home.process.titleAccent1",
-  "home.process.titleAccent2",
+  "home.process.title",
   ...Array.from({ length: SLIDE_COUNT }, (_, i) =>
     SLIDE_REQUIRED.map((f) => `home.hero.slides.s${i}.${f}`)
   ).flat(),

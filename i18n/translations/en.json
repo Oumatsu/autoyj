@@ -820,9 +820,7 @@
       "cta": "Meet the Team →",
       "desc": "Our dual-track strategy goes beyond procurement. We equip every partner with the tools, knowledge, and support to win in their local market from day one.",
       "label": "Who We Are",
-      "quote1": "We don't just sell cars.\nWe ",
-      "quote2": null,
-      "quoteAccent": "build dealers",
+      "quote": "WE DON'T JUST SHIP CARS. WE ARE DEDICATED TO <theme>EMPOWERING DEALERS</theme> TO GROW.",
       "quoteOpen": "“",
       "stats": {
         "0": {
@@ -886,7 +884,7 @@
     },
     "insights": {
       "academy": {
-        "desc": "Free training modules: EV fundamentals, battery safety for African climates, sales scripts, and showroom SOPs. Ready to use from day one.",
+        "desc": "Full free training: EV basics, battery safety for African climate, sales scripts, and showroom SOPs. Ready out of the box.",
         "freeAccess": "Free Access",
         "label": "EV Growth Academy",
         "title": "Turn Your Team\nInto EV Experts"
@@ -897,16 +895,12 @@
         "label": "Market Intelligence",
         "title": "2025 Africa EV\nExport Report"
       },
-      "heading": "<theme>Expert-Grade</theme> Tools<br></br>Built for Dealers",
-      "title1": null,
-      "title2": "Tools\nBuilt for Dealers",
-      "titleAccent1": "Expert-Grade"
+      "title": "<theme>EXPERT-GRADE</theme> INSIGHTS"
     },
     "leadMagnet": {
       "cta": "Download Free Report →",
       "desc": "Top 20 vehicles by African ROI. Real import margin data. Used by dealers across Ethiopia to source smarter.",
       "emailPlaceholder": "Your email address",
-      "heading": "2025 Global EV<br></br><theme>Outlook Report</theme>",
       "label": "Free Insider Report",
       "modalCancel": "Close",
       "modalCta": "Go to Sign In →",
@@ -914,12 +908,9 @@
       "modalTitle": "Dealer Sign In Required",
       "phonePlaceholder": "WhatsApp number (with country code)",
       "privacy": "No spam. Unsubscribe anytime.",
-      "title1": "2025 Global EV\n",
-      "title2": null,
-      "titleAccent": "Outlook Report"
+      "title": "DOWNLOAD THE 2025 GLOBAL EV <theme>OUTLOOK REPORT</theme>"
     },
     "process": {
-      "heading": "<theme>Gold</theme> <accent>Eco Standard</accent>",
       "label": "Transparent Process",
       "stats": {
         "0": {
@@ -965,11 +956,7 @@
           "title": "Delivery & Empowerment"
         }
       },
-      "title1": null,
-      "title2": null,
-      "title3": null,
-      "titleAccent1": "Gold",
-      "titleAccent2": "Eco Standard"
+      "title": "OUR END-TO-END <theme>EXPORT PROCESS</theme>, <accent>SIMPLIFIED</accent>"
     },
     "products": {
       "eliteFlagship": {
@@ -982,7 +969,6 @@
         },
         "title": "Elite Flagship"
       },
-      "heading": "<accent>Ecosystem</accent> <theme>Winners</theme>",
       "label": "Curated for Profitability",
       "revenueKing": {
         "badge": "High ROI",
@@ -994,11 +980,7 @@
         },
         "title": "Revenue King"
       },
-      "title1": null,
-      "title2": null,
-      "title3": null,
-      "titleAccent1": "Ecosystem",
-      "titleAccent2": "Winners",
+      "title": "CURATED <accent>LIVE INVENTORY</accent> & <theme>PREMIUM TRIMS</theme>",
       "utilityPro": {
         "badge": "Rugged Off-Road",
         "category": "Category 03",
@@ -1036,7 +1018,6 @@
       },
       "evLabel": "Electric (EV)",
       "evValue": "~$120 / month",
-      "heading": "EV vs ICE<br></br><theme>Real</theme><br></br><accent>Profits</accent>",
       "iceBreakdown": {
         "0": "⛽ Fuel ~$280",
         "1": "🔧 Repairs ~$140"
@@ -1046,12 +1027,7 @@
       "label": "The Numbers Don't Lie",
       "savingsLabel": "Monthly Savings per Vehicle",
       "savingsValue": "$10,800 over 3 years",
-      "title1": "EV vs ICE",
-      "title2": null,
-      "title3": null,
-      "title4": null,
-      "titleAccent1": "Real",
-      "titleAccent2": "Profits"
+      "title": "NEV VS. ICE:<br></br><theme>PROVEN</theme> <accent>RETURNS</accent>"
     },
     "trustBar": {
       "label": "Trusted Supply Chain Partners",

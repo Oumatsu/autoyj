@@ -30,7 +30,7 @@ const HOME_PAGE_REQUIRED_KEYS = [
   "home.trustBar.label",
   "home.products.label",
   "home.process.label",
-  "home.process.titleAccent1",
+  "home.process.title",
   // Required slide fields — every slide must have these non-empty
   ...Array.from({ length: SLIDE_COUNT }, (_, i) =>
     SLIDE_REQUIRED_FIELDS.map((f) => `home.hero.slides.s${i}.${f}`)
