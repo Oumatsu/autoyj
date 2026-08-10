@@ -26,7 +26,7 @@ function flattenKeys(obj: Record<string, any>, prefix = ""): string[] {
     const key = prefix ? `${prefix}.${k}` : k;
     if (v !== null && typeof v === "object" && !Array.isArray(v)) {
       keys.push(...flattenKeys(v, key));
-    } else {
+    } else if (v !== null) {
       keys.push(key);
     }
   }
