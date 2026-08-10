@@ -897,6 +897,7 @@
         "label": "የገበያ መረጃ",
         "title": "2025 የአፍሪካ ኤሌክትሪክ መኪና\nየወጪ ንግድ ሪፖርት"
       },
+      "heading": "ለነጋዴዎች የተገነቡ<br></br><theme>የባለሙያ</theme> መሳሪያዎች",
       "title1": null,
       "title2": " መሳሪያዎች\nለነጋዴዎች የተገነቡ",
       "titleAccent1": "የባለሙያ"
@@ -905,6 +906,7 @@
       "cta": "ሪፖርቱን በነጻ አውርድ →",
       "desc": "በአፍሪካ ROI ከፍተኛ 20 ሞዴሎች። እውነተኛ የማስመጣት ትርፍ ህዳግ መረጃ። በመላው ኢትዮጵያ ነጋዴዎች የበለጠ ብልህ ለመግዛት ይጠቀማሉ።",
       "emailPlaceholder": "የኢሜል አድራሻዎ",
+      "heading": "2025 ዓለም አቀፍ ኤሌክትሪክ መኪና<br></br><theme>የእይታ ሪፖርት</theme>",
       "label": "ነጻ የውስጥ ሪፖርት",
       "modalCancel": "ዝጋ",
       "modalCta": "ወደ መግቢያ ይሂዱ →",
@@ -917,6 +919,7 @@
       "titleAccent": "የእይታ ሪፖርት"
     },
     "process": {
+      "heading": "<theme>ወርቅ</theme> <accent>ስታንዳርድ</accent>",
       "label": "ግልጽ ሂደት",
       "stats": {
         "0": {
@@ -979,6 +982,7 @@
         },
         "title": "ልሂቃን ባንዲራ"
       },
+      "heading": "<accent>ኢኮ</accent> <theme>አሸናፊ</theme> ክበብ",
       "label": "ለትርፋማነት የተመረጡ",
       "revenueKing": {
         "badge": "ከፍተኛ የኢንቨስትመንት ተመላሽ",
@@ -1032,6 +1036,7 @@
       },
       "evLabel": "ኤሌክትሪክ መኪና (EV)",
       "evValue": "~$120 / በወር",
+      "heading": "ኤሌክትሪክ መኪና vs ነዳጅ መኪና<br></br><theme>እውነተኛ</theme><br></br><accent>ትርፍ</accent>",
       "iceBreakdown": {
         "0": "⛽ ነዳጅ ~$280",
         "1": "🔧 ጥገና ~$140"

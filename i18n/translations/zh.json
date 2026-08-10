@@ -897,6 +897,7 @@
         "label": "非洲新能源市场情报",
         "title": "2025 非洲电动车\n出海白皮书"
       },
+      "heading": "为经销商打造的<br></br><theme>专业出海工具</theme>",
       "title1": "为经销商打造的\n",
       "title2": "专业出海工具",
       "titleAccent1": "Expert"
@@ -905,6 +906,7 @@
       "cta": "免费下载报告 →",
       "desc": "按非洲投资回报率排名前 20 车型。真实进口利润率数据。埃塞俄比亚各地经销商用来更聪明地采购。",
       "emailPlaceholder": "您的邮箱地址",
+      "heading": "2025 全球电动车<br></br><theme>展望报告</theme>",
       "label": "免费内部报告",
       "modalCancel": "关闭",
       "modalCta": "前往登录 →",
@@ -917,6 +919,7 @@
       "titleAccent": "展望报告"
     },
     "process": {
+      "heading": "<theme>金牌</theme><accent>生态标准</accent>",
       "label": "端到端透明流程",
       "stats": {
         "0": {
@@ -979,6 +982,7 @@
         },
         "title": "旗舰精英"
       },
+      "heading": "<accent>生态</accent><theme>赢家</theme>",
       "label": "为您精选高回报车型",
       "revenueKing": {
         "badge": "高投资回报率",
@@ -1032,6 +1036,7 @@
       },
       "evLabel": "新能源汽车 (EV)",
       "evValue": "~$120 / 月",
+      "heading": "新能源汽车<br></br>vs<br></br>传统燃油车<br></br><theme>真实</theme><br></br><accent>利润</accent>",
       "iceBreakdown": {
         "0": "⛽ 加油油费 ~$280",
         "1": "🔧 售后维修 ~$140"
