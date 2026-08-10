@@ -705,7 +705,7 @@ export default function VehicleDetail({ data: rawData }: { data: DetailData }) {
                   <span key={tag} className="text-[9px] font-black px-3 py-1.5 rounded uppercase tracking-widest" style={{ background: "rgba(16,185,129,.15)", color: "var(--color-green)", border: "1px solid rgba(16,185,129,.25)" }}>{tag}</span>
                 ))}
               </div>
-              <h1 className="font-black italic uppercase tracking-tighter text-white leading-none mb-2" style={{ fontSize: "clamp(3rem,8vw,7rem)" }}>{v.brand}<br />{v.name}</h1>
+              <h1 className="font-black italic uppercase tracking-tight text-white leading-none mb-2" style={{ fontSize: "clamp(3rem,8vw,7rem)" }}>{v.brand}<br />{v.name}</h1>
               <p className="text-2xl font-light italic text-gray-500 mb-8">{data.subtitle}</p>
               <p className="hidden lg:block text-gray-300 text-base font-light leading-relaxed mb-10 max-w-lg italic border-l-2 pl-6" style={{ borderColor: "rgba(16,185,129,.45)" }}>{data.heroDesc}</p>
               <div className="hidden min-[456px]:flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4">
