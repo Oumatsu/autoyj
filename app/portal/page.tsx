@@ -1970,7 +1970,6 @@ function AdminVehicles({ data, onEdit, onRefresh }: { data: BootstrapData; onEdi
   const sellableModels = buildSellableModels(data);
   const [expandedModels, setExpandedModels] = useState<Set<string>>(() => new Set());
   const [inquiryVehicleId, setInquiryVehicleId] = useState("");
-  const [expandedDetailVehicleId, setExpandedDetailVehicleId] = useState<string>("");
   const [expandedVariants, setExpandedVariants] = useState<Set<string>>(() => new Set());
   const [searchQuery, setSearchQuery] = useState("");
   const [supplyFilter, setSupplyFilter] = useState("all");
@@ -2303,11 +2302,6 @@ function AdminVehicles({ data, onEdit, onRefresh }: { data: BootstrapData; onEdi
                                       formatPortalHeader("下单后需要等待天数", locale),
                                       formatPortalHeader("左右舵", locale),
                                       formatPortalHeader("国际国内版本", locale),
-                                      formatPortalHeader("审核状态", locale),
-                                      formatPortalHeader("AI置信度", locale),
-                                      formatPortalHeader("审核人", locale),
-                                      formatPortalHeader("开发者", locale),
-                                      formatPortalHeader("详情", locale),
                                       formatPortalHeader("询盘", locale),
                                     ]}
                                     rows={variant.colors.flatMap((color) =>
@@ -2333,38 +2327,11 @@ function AdminVehicles({ data, onEdit, onRefresh }: { data: BootstrapData; onEdi
                                         <span key="wait" className="text-xs text-slate-300">{v.waitDays != null ? t("portal.dayCount", { count: v.waitDays }) : "-"}</span>,
                                         <span key="steering" className="text-xs text-slate-300">{localizeVehicleValue(v.steering, locale) || "-"}</span>,
                                         <span key="market" className="text-xs text-slate-300">{localizeVehicleValue(v.marketVersion, locale) || "-"}</span>,
-                                        <span key="stage" className={`rounded px-1.5 py-0.5 text-[10px] font-bold uppercase ${v.sourceStage === "connected" ? "bg-emerald-500/20 text-emerald-300" : "bg-yellow-500/20 text-yellow-300"}`}>{v.sourceStage || "-"}</span>,
-                                        <span key="ai" className="font-mono text-xs text-slate-400">{v.aiConfidence != null ? `${Math.round(Number(v.aiConfidence) * 100)}%` : "-"}</span>,
-                                        <span key="reviewer" className="text-xs text-slate-300">{v.reviewer || "-"}</span>,
-                                        <span key="developer" className="text-xs text-slate-300">{v.developer || "-"}</span>,
-                                        <button key="detail" type="button" onClick={() => setExpandedDetailVehicleId((current) => current === v.id ? "" : v.id)} className="text-xs font-semibold text-cyan-400 hover:underline">{formatPortalHeader(expandedDetailVehicleId === v.id ? "收起详情" : "详情", locale)}</button>,
                                         <button key="inquiry" type="button" onClick={() => setInquiryVehicleId((current) => current === v.id ? "" : v.id)} className="text-xs font-black text-theme">{formatPortalHeader(inquiryVehicleId === v.id ? "隐藏询盘" : "询盘", locale)}</button>,
                                       ])
                                     )}
                                     emptyText={formatPortalHeader("无库存记录", locale)}
                                   />
-                                  {expandedDetailVehicleId && variant.colors.some((color) => color.vehicles.some((vehicle) => vehicle.id === expandedDetailVehicleId)) && (() => {
-                                    const v = data.vehicles.find((vehicle) => vehicle.id === expandedDetailVehicleId);
-                                    if (!v) return null;
-                                    return (
-                                      <div className="mt-3 rounded-lg border border-cyan-500/30 bg-cyan-950/20 p-3 text-xs text-slate-300">
-                                        <div className="mb-2 flex items-center justify-between font-bold text-cyan-300">
-                                          <span>{formatPortalHeader("行详情", locale)}: {v.brand} {v.model} {v.trim || ""} ({v.id})</span>
-                                          <button type="button" onClick={() => setExpandedDetailVehicleId("")} className="text-slate-400 hover:text-white">&times;</button>
-                                        </div>
-                                        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
-                                          <div><span className="text-slate-500">{formatPortalHeader("素材源文件路径", locale)}:</span> <span className="font-mono text-slate-200 break-all">{v.mediaSourcePath || "-"}</span></div>
-                                          <div><span className="text-slate-500">{formatPortalHeader("经验", locale)}:</span> <span className="text-slate-200">{v.experienceNotes || "-"}</span></div>
-                                          <div><span className="text-slate-500">{formatPortalHeader("单行自动纠错", locale)}:</span> <span className="text-slate-200">{v.autoCorrectionNotes || "-"}</span></div>
-                                          <div><span className="text-slate-500">{formatPortalHeader("重复数据检查", locale)}:</span> <span className="text-slate-200">{v.duplicateCheck || "-"}</span></div>
-                                          <div><span className="text-slate-500">{formatPortalHeader("网站推荐位", locale)}:</span> <span className="text-slate-200">{v.recommendationSlot || "-"}</span></div>
-                                          <div><span className="text-slate-500">{formatPortalHeader("同步批次", locale)}:</span> <span className="font-mono text-slate-200">{v.syncBatchId || "-"}</span></div>
-                                          <div><span className="text-slate-500">{formatPortalHeader("同步时间", locale)}:</span> <span className="font-mono text-slate-200">{v.syncedAt || "-"}</span></div>
-                                          <div><span className="text-slate-500">{formatPortalHeader("备注", locale)}:</span> <span className="text-slate-200">{v.publicNotes || "-"}</span></div>
-                                        </div>
-                                      </div>
-                                    );
-                                  })()}
                                   {inquiryVehicleId && variant.colors.some((color) => color.vehicles.some((vehicle) => vehicle.id === inquiryVehicleId)) && <VehicleInquiryPanel vehicle={data.vehicles.find((vehicle) => vehicle.id === inquiryVehicleId)!} data={data} />}
                                 </>
                               ) : (
