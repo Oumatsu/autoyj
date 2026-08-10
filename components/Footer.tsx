@@ -93,7 +93,7 @@ export function Footer() {
               </LocaleLink>
             </QrDropdown>
             <a
-              href="mailto:alan@youguard.cn"
+              href="mailto:sales@youguard.net"
               className="btn-outline px-8 sm:px-12 py-4 sm:py-5 rounded text-xs sm:text-sm font-black tracking-widest uppercase italic w-full sm:w-auto text-center"
             >
               {t("footer.enquiry")}
