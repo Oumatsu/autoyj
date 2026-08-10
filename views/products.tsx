@@ -10,26 +10,7 @@ import { vehicles as fallbackUtility } from "../app/products/utility-pro/data";
 import { mergeOverviewCard, translateOverviewCard } from "./products/productsOverviewTranslations.ts";
 import { sanitizeDisplayData } from "@/lib/display-text";
 
-function renderHeroHeading(value: string) {
-  const parts = value.split(/(<accent1>|<\/accent1>|<accent2>|<\/accent2>|<br><\/br>)/g);
-  let accent: "accent1" | "accent2" | null = null;
 
-  return parts.map((part, index) => {
-    if (part === "<accent1>" || part === "<accent2>") {
-      accent = part.slice(1, -1) as "accent1" | "accent2";
-      return null;
-    }
-    if (part === "</accent1>" || part === "</accent2>") {
-      accent = null;
-      return null;
-    }
-    if (part === "<br></br>") return <br key={index} />;
-    if (!part) return null;
-    if (accent === "accent1") return <span key={index} className="text-theme">{part}</span>;
-    if (accent === "accent2") return <span key={index} className="text-accent">{part}</span>;
-    return <span key={index}>{part}</span>;
-  });
-}
 
 function getBadgeCls(slug: string, badge: string | null): string {
   if (!badge) return "";
@@ -274,7 +255,7 @@ export default function ProductsPage() {
             className="sh mb-4 sm:mb-6"
             style={{ fontSize: "clamp(2rem, 8vw, 6.5rem)" }}
           >
-            {renderHeroHeading(t("products.hero.heading"))}
+            <T keyName="products.hero.heading" defaultValue={t("products.hero.heading")} params={{ theme: <span className="text-theme" />, accent: <span className="text-accent" />, br: <br /> }} />
           </h1>
           <p className="hidden min-[392px]:block text-gray-300 text-sm sm:text-lg font-light italic max-w-2xl mx-auto leading-relaxed px-2">
             {t("products.hero.subtitle")}
@@ -294,7 +275,7 @@ export default function ProductsPage() {
                   className="sh mb-4"
                   style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)" }}
                 >
-                  <T keyName="products.revenueKing.heading" params={{ theme: <span className="text-theme" />, accent: <span className="text-accent" /> }} />
+                  <T keyName="products.revenueKing.heading" defaultValue={t("products.revenueKing.heading")} params={{ theme: <span className="text-theme" />, accent: <span className="text-accent" /> }} />
                 </h2>
                 <p className="text-gray-500 text-sm font-light italic leading-relaxed">
                   {t("products.revenueKing.description")}
@@ -393,7 +374,7 @@ export default function ProductsPage() {
                   className="sh mb-4"
                   style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)" }}
                 >
-                  <T keyName="products.eliteFlagship.heading" params={{ theme: <span className="text-theme" />, accent: <span className="text-accent" /> }} />
+                  <T keyName="products.eliteFlagship.heading" defaultValue={t("products.eliteFlagship.heading")} params={{ theme: <span className="text-theme" />, accent: <span className="text-accent" /> }} />
                 </h2>
                 <p className="text-gray-500 text-sm font-light italic leading-relaxed">
                   {t("products.eliteFlagship.description")}
@@ -546,7 +527,7 @@ export default function ProductsPage() {
                   className="sh mb-4"
                   style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)" }}
                 >
-                  <T keyName="products.utilityPro.heading" params={{ theme: <span className="text-theme" />, accent: <span className="text-accent" /> }} />
+                  <T keyName="products.utilityPro.heading" defaultValue={t("products.utilityPro.heading")} params={{ theme: <span className="text-theme" />, accent: <span className="text-accent" /> }} />
                 </h2>
                 <p className="text-gray-500 text-sm font-light italic leading-relaxed">
                   {t("products.utilityPro.description")}
