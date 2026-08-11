@@ -41,10 +41,9 @@ function devVarsPlugin(): Plugin {
     config() {
       const vars = parseDevVars();
 
-      // 注入 SSR 侧（process.env）
+      // 注入 SSR 侧（process.env），以 process.env 现有的值为最高优先级
       for (const [k, v] of Object.entries(vars)) {
         process.env[k] ??= v;
-        // 派生浏览器可见变量
         if (k.startsWith("TOLGEE_")) {
           process.env[`NEXT_PUBLIC_${k}`] ??= v;
         }
@@ -55,17 +54,50 @@ function devVarsPlugin(): Plugin {
 
 /** 将 NEXT_PUBLIC_* 变量替换为静态字符串，让浏览器 bundle 可以访问 */
 function buildDefines(): Record<string, string> {
-  const vars = parseDevVars();
+  const devVars = parseDevVars();
   const defines: Record<string, string> = {};
 
-  for (const [k, v] of Object.entries(vars)) {
-    // 直接写了 NEXT_PUBLIC_ 前缀的变量
-    if (k.startsWith("NEXT_PUBLIC_")) {
-      defines[`import.meta.env.${k}`] = JSON.stringify(v);
-    }
-    // TOLGEE_ 自动派生
-    if (k.startsWith("TOLGEE_")) {
-      defines[`import.meta.env.NEXT_PUBLIC_${k}`] = JSON.stringify(v);
+  // 优先级：process.env.NEXT_PUBLIC_* > process.env.TOLGEE_* > devVars.NEXT_PUBLIC_* > devVars.TOLGEE_*
+  const apiKey =
+    process.env.NEXT_PUBLIC_TOLGEE_API_KEY ||
+    process.env.TOLGEE_API_KEY ||
+    devVars.NEXT_PUBLIC_TOLGEE_API_KEY ||
+    devVars.TOLGEE_API_KEY;
+
+  const apiUrl =
+    process.env.NEXT_PUBLIC_TOLGEE_API_URL ||
+    process.env.TOLGEE_API_URL ||
+    devVars.NEXT_PUBLIC_TOLGEE_API_URL ||
+    devVars.TOLGEE_API_URL;
+
+  const projectId =
+    process.env.NEXT_PUBLIC_TOLGEE_PROJECT_ID ||
+    process.env.TOLGEE_PROJECT_ID ||
+    devVars.NEXT_PUBLIC_TOLGEE_PROJECT_ID ||
+    devVars.TOLGEE_PROJECT_ID;
+
+  if (apiKey) {
+    defines["process.env.NEXT_PUBLIC_TOLGEE_API_KEY"] = JSON.stringify(apiKey);
+    defines["import.meta.env.NEXT_PUBLIC_TOLGEE_API_KEY"] = JSON.stringify(apiKey);
+  }
+  if (apiUrl) {
+    defines["process.env.NEXT_PUBLIC_TOLGEE_API_URL"] = JSON.stringify(apiUrl);
+    defines["import.meta.env.NEXT_PUBLIC_TOLGEE_API_URL"] = JSON.stringify(apiUrl);
+  }
+  if (projectId) {
+    defines["process.env.NEXT_PUBLIC_TOLGEE_PROJECT_ID"] = JSON.stringify(projectId);
+    defines["import.meta.env.NEXT_PUBLIC_TOLGEE_PROJECT_ID"] = JSON.stringify(projectId);
+  }
+
+  // 收集其他 NEXT_PUBLIC_* 环境变量
+  const allKeys = new Set([...Object.keys(process.env), ...Object.keys(devVars)]);
+  for (const k of allKeys) {
+    if (k.startsWith("NEXT_PUBLIC_") && !defines[`process.env.${k}`]) {
+      const val = process.env[k] || devVars[k];
+      if (val !== undefined) {
+        defines[`process.env.${k}`] = JSON.stringify(val);
+        defines[`import.meta.env.${k}`] = JSON.stringify(val);
+      }
     }
   }
 

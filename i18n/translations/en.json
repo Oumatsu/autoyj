@@ -204,7 +204,7 @@
         "title": "Chinese EV Diagnostic Tools: What Actually Works"
       },
       "common-fault-patterns-ethiopia": {
-        "content": null,
+        "content": "Comprehensive diagnostic manual for common EV fault patterns in Ethiopian climate and road conditions, covering BMS thermal management, suspension wear, charging protocol mismatch, and 12V battery drain.",
         "date": "2026-05-16",
         "description": "Altitude, dust, grid instability — fault patterns that don't appear in OEM documentation.",
         "tag": "Field Reference",
@@ -256,7 +256,7 @@
         "title": "High Altitude and Dust in Ethiopia: How They Affect Your EV"
       },
       "high-voltage-safety-ev-technicians": {
-        "content": null,
+        "content": "Essential high-voltage safety protocol for EV technicians operating in East Africa. Includes 5-step isolation procedure, PPE specifications, orange cable rules, and emergency response for electric shock.",
         "date": "2026-05-16",
         "description": "The non-negotiable safety protocol for any workshop servicing Chinese EVs.",
         "tag": "High Voltage",
@@ -309,11 +309,6 @@
       "description": "Proprietary documents, Excel models, and checklists reserved exclusively for certified African import partners.",
       "empty": "No resources are currently available.",
       "heading": "The Dealer <theme>Vault</theme>.",
-      "recvnRyGHzd9uS": {
-        "description": "The exact Pre-Delivery Inspection checklist our engineers use in Shanghai before loading your vehicles into the container.",
-        "title": "The 50-Point Factory PDI",
-        "type": "PDF Guide"
-      },
       "recvnRyGHzNocG": {
         "description": "A comprehensive breakdown of which Chinese factories are producing true Right-Hand Drive models and their export availability.",
         "title": "Africa RHD Import Guide",
@@ -323,6 +318,11 @@
         "description": "Plug in local electricity rates and petrol prices to instantly generate a 5-year cost comparison for your commercial clients.",
         "title": "2026 Fleet ROI Calculator",
         "type": "Excel Model"
+      },
+      "recvnRyGHzd9uS": {
+        "description": "The exact Pre-Delivery Inspection checklist our engineers use in Shanghai before loading your vehicles into the container.",
+        "title": "The 50-Point Factory PDI",
+        "type": "PDF Guide"
       },
       "requestViaWhatsApp": "Request via WhatsApp →",
       "v1": {
@@ -1511,15 +1511,15 @@
     "fullTechSpecs": "Full Technical Specification Map",
     "hideColors": "Hide colors",
     "hideTrims": "Hide trims",
+    "inStock": "In Stock",
     "inquiries": "Inquiries",
     "inquiryNo": "Inquiry No.",
-    "inStock": "In Stock",
     "latestQuote": "Latest Quote",
     "location": "Location",
     "modelRepo": "Model Library",
-    "modelsLabel": "Models",
     "modelYear": "{year} model year",
     "modelYearPending": "Model year pending",
+    "modelsLabel": "Models",
     "motorAndPerformance": "Motor & Performance",
     "motorPower": "Max Motor Power",
     "motorTorque": "Max Motor Torque",
@@ -1543,8 +1543,8 @@
     "noStock": "Out of Stock",
     "openInquiries": "Open Inquiries",
     "orderCount": "{count, plural, =0 {0 orders} =1 {1 order} other {# orders}}",
-    "orders": "Orders",
     "orderValue": "Order Value",
+    "orders": "Orders",
     "pdfBrochure": "Official PDF Brochure",
     "pendingAssets": "Pending Assets",
     "preorder": "Pre-order",
@@ -1582,8 +1582,8 @@
     "trimCount": "{count, plural, =0 {0 trims} =1 {1 trim} other {# trims}}",
     "trimsLabel": "Trims",
     "unitCount": "{count, plural, =0 {0 units} =1 {1 unit} other {# units}}",
-    "variantsInStock": "variants in stock",
     "variantStockSummary": "{count, plural, =0 {0 variants in stock} =1 {1 variant in stock} other {# variants in stock}}",
+    "variantsInStock": "variants in stock",
     "vehicle": "Vehicle",
     "vehicleTrimSummary": "{count, plural, =0 {Found {models} vehicle models and 0 trims} =1 {Found {models} vehicle models and 1 trim} other {Found {models} vehicle models and # trims}}",
     "viewColors": "View colors",
@@ -4154,7 +4154,7 @@
     "badge": "Scan to Connect on WhatsApp",
     "heading": "Connect on <theme>WhatsApp</theme> <accent>Now</accent>",
     "headingAccent": "WhatsApp",
-    "headingSuffix": null,
+    "headingSuffix": "",
     "instruction": "Please scan the QR code in WhatsApp",
     "saveButton": "Save QR Image"
   },

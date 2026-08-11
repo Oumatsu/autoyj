@@ -6,8 +6,9 @@
   "scripts": {
     "dev": "bun run db:local:init && vinext dev",
     "build": "vinext build",
+    "build:server": "bun run tolgee:pull:server && vinext build",
     "start": "vinext start",
-    "deploy": "vinext-cloudflare deploy",
+    "deploy": "bun run tolgee:pull:server && vinext-cloudflare deploy",
     "check": "vinext check",
     "check:i18n": "bun run scripts/check-i18n.ts",
     "lint": "vinext lint",
@@ -24,6 +25,9 @@
     "sync:feishu-env": "node scripts/feishu/sync-feishu-env.mjs",
     "tolgee:push": "bun run scripts/tolgee/sync.ts push",
     "tolgee:pull": "bun run scripts/tolgee/sync.ts pull",
+    "tolgee:pull:server": "bun --env-file=.env.build run scripts/tolgee/pull-translations.ts",
+    "deploy:preview": "bun --env-file=.env.preview run scripts/tolgee/deploy-preview.ts",
+    "tolgee:bootstrap": "bun run scripts/tolgee/bootstrap-tolgee.ts",
     "tolgee:server": "mise exec -- java -jar tolgee.jar --tolgee.postgres-autostart.enabled=false --spring.datasource.url=jdbc:postgresql://localhost:5432/tolgee --spring.datasource.username=$(whoami) --tolgee.authentication.enabled=true --tolgee.authentication.registration-enabled=true --tolgee.authentication.initial-username=admin@local.test --tolgee.authentication.initial-password=admin123456 --server.port=8085",
     "knip": "knip"
   },
@@ -34,6 +38,7 @@
     "@tolgee/web": "^7.1.3",
     "better-auth": "^1.6.25",
     "clsx": "^2.1.1",
+    "fflate": "^0.8.3",
     "lucide-react": "^1.28.0",
     "next": "^16.2.12",
     "next-intl": "^4.13.5",

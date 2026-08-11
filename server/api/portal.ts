@@ -3326,8 +3326,13 @@ async function readPublicContent<T>(
   _request: Request,
   env: Env,
   reader: (db: D1Database) => Promise<T>,
+  fallback?: () => T | Promise<T>,
 ): Promise<T> {
-  return reader(requirePublicDb(env));
+  if (!env.PORTAL_DB) {
+    if (fallback) return await fallback();
+    throw problem("Public content database is not configured", 503);
+  }
+  return reader(env.PORTAL_DB);
 }
 
 export type PublicContactRequest = {
@@ -3660,13 +3665,22 @@ function computeBatchMargin(batchLevels: { units: number; display: string }[]) {
 }
 
 async function handlePublicProduct(request: Request, slug: string, env: Env) {
-  const product = await readPublicContent(request, env, (db) => getPublicProduct(db, slug));
+  const product = await readPublicContent(
+    request,
+    env,
+    (db) => getPublicProduct(db, slug),
+    () => {
+      const models = getBaselineVehicleModels();
+      return (models.find((m) => m.id === slug || normalizeProductSlug(m.model) === slug) as any) || null;
+    },
+  );
   return product ? json(product) : problem("Not found", 404);
 }
 
-// 闂傚倸鍊搁崐椋庣矆娴ｉ潻鑰块梺顒€绉埀顒婄畵瀹曞ジ濡风€ｎ亝鍠樻鐐查叄閹稿﹥绔熼埞鍨姦闁哄本鐩獮鍥濞戞瑧浜梺鑽ゅ枑閻熻鲸淇婇崶顒€鐒垫い鎺嗗亾缂佺姴绉瑰畷鏇熸綇閳规儳浜炬慨妯煎帶濞呭秹鏌熼姘辩劯濠碘€崇埣瀹曨亝鎷呴悷鎵В闂備浇顕ч崙鐣岀礊閸℃稑绀堟繛鍡樺姉椤╃兘鏌熼悜姗嗘畷闁?Base 闂傚倸鍊峰ù鍥х暦閻㈢绐楅柟鎵閸嬶繝寮堕崼姘珔缂佽翰鍊曡灃闁挎繂鎳庨弳鐐烘煕?table_id闂傚倸鍊搁崐鐑芥倿閿旈敮鍋撶粭娑樻噽閻瑩鏌熸潏楣冩闁搞倖鍔栭妵鍕冀椤愵澀娌梺绋款儍閸斿秹濡甸崟顖氱疀闁告挷鑳堕弳鐘电磽娴ｆ彃浜鹃梺鍛婂姦閸犳鎮￠弴鐔虹闁瑰瓨绻傞懜瑙勵殽閻愯揪鑰块柡宀€鍠栭幃鍓т沪閸欘偁鍎崇槐鎺撴綇閵婏箑纾抽悗瑙勬礃鐢帡鍩ユ径濞炬瀻闊洦娲﹂弳锟犳⒒?
 async function handlePublicProducts(request: Request, env: Env) {
-  return json(await readPublicContent(request, env, listPublicProducts));
+  return json(
+    await readPublicContent(request, env, listPublicProducts, () => getBaselineVehicleModels() as any),
+  );
 }
 
 
@@ -3712,11 +3726,21 @@ function getBaselineArticles() {
 }
 
 async function handlePublicInsights(request: Request, env: Env) {
-  return json(await readPublicContent(request, env, listPublicInsights));
+  return json(
+    await readPublicContent(request, env, listPublicInsights, () => getBaselineArticles() as any),
+  );
 }
 
 async function handlePublicInsight(request: Request, slug: string, env: Env) {
-  const insight = await readPublicContent(request, env, (db) => getPublicInsight(db, slug));
+  const insight = await readPublicContent(
+    request,
+    env,
+    (db) => getPublicInsight(db, slug),
+    () => {
+      const articles = getBaselineArticles();
+      return (articles.find((a) => a.slug === slug) as any) || null;
+    },
+  );
   return insight ? json(insight) : problem("Not found", 404);
 }
 
@@ -3873,12 +3897,22 @@ function getBaselineAcademy() {
 }
 
 async function handlePublicAcademy(request: Request, env: Env) {
-  return json(await readPublicContent(request, env, listPublicAcademy));
+  return json(
+    await readPublicContent(request, env, listPublicAcademy, () => getBaselineAcademy() as any),
+  );
 }
 
-
 async function handlePublicAcademyLesson(request: Request, category: string, slug: string, env: Env) {
-  const lesson = await readPublicContent(request, env, (db) => getPublicAcademyLesson(db, category, slug));
+  const lesson = await readPublicContent(
+    request,
+    env,
+    (db) => getPublicAcademyLesson(db, category, slug),
+    () => {
+      const academy = getBaselineAcademy() as any;
+      const categoryLessons = academy?.lessons?.[category] || [];
+      return categoryLessons.find((l: any) => l.slug === slug) || null;
+    },
+  );
   return lesson ? json(lesson) : problem("Not found", 404);
 }
 
@@ -3890,6 +3924,7 @@ export async function handleScheduledSync(env: Env): Promise<void> {
 }
 
 export async function handlePortalRequest(request: Request, env: Env) {
+  env = (env || (typeof process !== "undefined" ? (process.env as unknown as Env) : {})) as Env;
   const url = new URL(request.url);
   const path = url.pathname;
 
@@ -3946,7 +3981,6 @@ export async function handlePortalRequest(request: Request, env: Env) {
       return await handleDevLogin(request, env);
     }
     if (path === "/api/portal/session" && request.method === "GET") {
-      if (!env.PORTAL_DB && !isLocalRequest(request)) return problem("Portal database is not configured", 503);
       const session = await readSession(request, env);
       if (!session) return json({ user: null });
       return json({ user: publicUser(session) });

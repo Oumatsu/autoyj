@@ -149,6 +149,11 @@ export function useTranslation() {
         defaultValue: resolvedDefault,
       });
 
+      const hasTolgeeSecret = typeof val === "string" && val.includes("\u200B");
+      if (hasTolgeeSecret) {
+        return val;
+      }
+
       const isRawKeyLeak =
         val === key ||
         (typeof val === "string" &&

@@ -1,0 +1,29 @@
+version: "3.8"
+
+# autoyj 翻译预览服务器
+# ─────────────────────────────────────────────────────────────────
+# 用途：翻译人员 Alt+点击 in-context 编辑
+# 访问：http://152.32.175.18:8080
+# Tolgee：http://152.32.175.18:8085
+#
+# ⚠️  与 Cloudflare 正式部署完全独立，不影响正式环境
+# ─────────────────────────────────────────────────────────────────
+
+services:
+  autoyj-preview:
+    build:
+      context: /opt/autoyj-preview
+      dockerfile: Dockerfile
+    container_name: autoyj-preview
+    restart: unless-stopped
+    ports:
+      - "8080:3000"
+    environment:
+      PORT: "3000"
+    networks:
+      - preview_net
+
+networks:
+  preview_net:
+    name: preview_net
+    driver: bridge
