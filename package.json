@@ -8,8 +8,6 @@
     "build": "vinext build",
     "start": "vinext start",
     "deploy": "vinext-cloudflare deploy",
-    "db:pull:local": "node scripts/pull-d1-to-local.mjs",
-    "dev:worker": "bun run build && bun x wrangler dev --persist-to .wrangler/local-d1",
     "check": "vinext check",
     "check:i18n": "bun run scripts/check-i18n.ts",
     "lint": "vinext lint",

@@ -13,31 +13,27 @@ const customerB = { userId: "customer-b", role: "customer" as const };
 const admin = { userId: "admin", role: "admin" as const };
 const sales = { userId: "sales", role: "sales" as const };
 const privateInquiry = { creatorUserId: "customer-a", isPublic: false };
-const publicInquiry = { creatorUserId: "customer-a", isPublic: true };
+const legacyPublicInquiry = { creatorUserId: "customer-a", isPublic: true };
 
 describe("inquiry visibility", () => {
-  test("allows every account to view a public inquiry but scopes a private inquiry", () => {
-    expect(canViewInquiry(customerB, publicInquiry)).toBe(true);
+  test("keeps every inquiry private even when a legacy record is marked public", () => {
+    expect(canViewInquiry(customerB, legacyPublicInquiry)).toBe(false);
     expect(canViewInquiry(customerA, privateInquiry)).toBe(true);
     expect(canViewInquiry(admin, privateInquiry)).toBe(true);
     expect(canViewInquiry(sales, privateInquiry)).toBe(true);
     expect(canViewInquiry(customerB, privateInquiry)).toBe(false);
   });
 
-  test("scopes private notes to their author and staff while exposing public notes", () => {
-    const privateNote = { authorUserId: "customer-a", isPublic: false };
-    const publicNote = { authorUserId: "customer-a", isPublic: true };
-    expect(canViewNote(customerB, publicInquiry, publicNote)).toBe(true);
-    expect(canViewNote(customerA, publicInquiry, privateNote)).toBe(true);
-    expect(canViewNote(sales, publicInquiry, privateNote)).toBe(true);
-    expect(canViewNote(customerB, publicInquiry, privateNote)).toBe(false);
+  test("shows all comments within the private owner-and-staff conversation only", () => {
+    const staffReply = { authorUserId: "sales", isPublic: false };
+    const legacyPublicNote = { authorUserId: "customer-a", isPublic: true };
+    expect(canViewNote(customerA, privateInquiry, staffReply)).toBe(true);
+    expect(canViewNote(sales, privateInquiry, staffReply)).toBe(true);
+    expect(canViewNote(customerB, legacyPublicInquiry, legacyPublicNote)).toBe(false);
   });
 
-  test("permits public notes only under public inquiry and public parent content", () => {
-    expect(canPublishPublicNote({ inquiryIsPublic: true, parentIsPublic: null, isPublic: true })).toBe(true);
-    expect(canPublishPublicNote({ inquiryIsPublic: false, parentIsPublic: null, isPublic: true })).toBe(false);
-    expect(canPublishPublicNote({ inquiryIsPublic: true, parentIsPublic: false, isPublic: true })).toBe(false);
-    expect(canPublishPublicNote({ inquiryIsPublic: true, parentIsPublic: true, isPublic: true })).toBe(true);
+  test("rejects public publishing for every inquiry", () => {
+    expect(canPublishPublicNote({ inquiryIsPublic: true, parentIsPublic: null, isPublic: true })).toBe(false);
     expect(canPublishPublicNote({ inquiryIsPublic: false, parentIsPublic: false, isPublic: false })).toBe(true);
   });
 

@@ -146,6 +146,7 @@ CREATE TABLE IF NOT EXISTS inquiries (
   trade_term TEXT NOT NULL,
   target_price REAL,
   initial_note TEXT,
+  vehicle_snapshot_json TEXT NOT NULL DEFAULT '',
   is_public INTEGER NOT NULL DEFAULT 0,
   status TEXT NOT NULL DEFAULT 'New Inquiry',
   source TEXT NOT NULL DEFAULT 'Customer Portal',
@@ -198,6 +199,7 @@ CREATE TABLE IF NOT EXISTS inquiry_status_history (
   inquiry_no TEXT NOT NULL REFERENCES inquiries(inquiry_no),
   from_status TEXT,
   to_status TEXT NOT NULL,
+  reason TEXT NOT NULL DEFAULT '',
   actor_user_id TEXT NOT NULL,
   actor_name TEXT NOT NULL,
   actor_role TEXT NOT NULL,
@@ -207,7 +209,6 @@ CREATE TABLE IF NOT EXISTS inquiry_status_history (
 CREATE INDEX IF NOT EXISTS idx_inquiries_customer_updated ON inquiries(customer_id, updated_at DESC);
 CREATE INDEX IF NOT EXISTS idx_inquiry_participants_user ON inquiry_participants(user_id, inquiry_no);
 CREATE INDEX IF NOT EXISTS idx_inquiry_notes_inquiry_created ON inquiry_notes(inquiry_no, created_at);
-CREATE INDEX IF NOT EXISTS idx_inquiry_reads_user ON inquiry_reads(user_id, inquiry_no);
 CREATE INDEX IF NOT EXISTS idx_inquiry_status_history_inquiry_created ON inquiry_status_history(inquiry_no, created_at);
 CREATE INDEX IF NOT EXISTS idx_inquiries_deleted_at ON inquiries(deleted_at);
 CREATE INDEX IF NOT EXISTS idx_inquiry_notes_deleted_at ON inquiry_notes(deleted_at);

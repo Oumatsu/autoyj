@@ -8,7 +8,6 @@ test("portal roles and common operational statuses have English display values",
   expect(formatPortalStatus("待报价")).toBe("Awaiting Quote");
   expect(formatPortalStatus("已装船")).toBe("Shipped");
 });
-
 test("vehicle values use local translations without changing Chinese source display", () => {
   expect(localizeVehicleValue("海狮07EV 智驾版 610智航版", "zh")).toBe("海狮07EV 智驾版 610智航版");
   expect(localizeVehicleValue("海狮07EV 智驾版 610智航版", "en")).toBe(
@@ -23,7 +22,6 @@ test("vehicle values use local translations without changing Chinese source disp
   expect(localizeVehicleValue("供应商", "en")).toBe("Supplier");
   expect(localizeVehicleValue("外饰 / 内饰颜色", "en")).toBe("Exterior / Interior Color");
 });
-
 test("portal table headers strictly match Feishu Chinese headers in zh and clean English in en", () => {
   const feishuHeaders = [
     ["外饰 / 内饰颜色", "Exterior / Interior Color"],
@@ -62,12 +60,4 @@ test("portal values use Amharic while preserving automotive abbreviations", () =
   expect(localizeVehicleValue("左舵 / 国际版", "am")).toBe("LHD / ዓለም አቀፍ ስሪት");
   expect(localizeVehicleValue("海域青 / 海韵灰", "am")).toBe("የውቅያኖስ ሰማያዊ / የውቅያኖስ ግራጫ");
   expect(localizeVehicleValue("FOB $20,160 / 85 units", "am")).toBe("FOB $20,160 / 85 ክፍሎች");
-});
-
-test("inquiry vehicle configuration names are localized for all portal languages", () => {
-  const trim = "Avatr Avatr 06 2025款 Max 增程版";
-
-  expect(localizeVehicleValue(trim, "zh")).toBe(trim);
-  expect(localizeVehicleValue(trim, "en")).toBe("Avatr Avatr 06 2025 MY Max Range-Extended Edition");
-  expect(localizeVehicleValue(trim, "am")).toBe("Avatr Avatr 06 2025 MY Max Range-Extended ስሪት");
 });

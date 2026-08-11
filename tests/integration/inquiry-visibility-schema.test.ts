@@ -21,4 +21,14 @@ describe("Inquiry visibility schema", () => {
     expect(schema).toMatch(/CREATE TABLE IF NOT EXISTS inquiries[\s\S]*?title TEXT NOT NULL DEFAULT ''/);
     expect(migration).toContain("ALTER TABLE inquiries ADD COLUMN title TEXT NOT NULL DEFAULT ''");
   });
+
+  test("persists an immutable vehicle snapshot and a reason for every status change", () => {
+    const schema = readFileSync("server/db/schema.sql", "utf8");
+    const migration = readFileSync("server/db/migrations/0006_inquiry_workflow_hardening.sql", "utf8");
+
+    expect(schema).toMatch(/CREATE TABLE IF NOT EXISTS inquiries[\s\S]*?vehicle_snapshot_json TEXT NOT NULL DEFAULT ''/);
+    expect(schema).toMatch(/CREATE TABLE IF NOT EXISTS inquiry_status_history[\s\S]*?reason TEXT NOT NULL DEFAULT ''/);
+    expect(migration).toContain("ALTER TABLE inquiries ADD COLUMN vehicle_snapshot_json TEXT NOT NULL DEFAULT ''");
+    expect(migration).toContain("ALTER TABLE inquiry_status_history ADD COLUMN reason TEXT NOT NULL DEFAULT ''");
+  });
 });

@@ -46,7 +46,7 @@ describe("Unit: Catalog Filter Logic & Numeric Intervals", () => {
     expect(byId.vehicleClass.options.map((option) => option.label)).toEqual(["紧凑型 SUV"]);
     expect(byId.batteryChemistry.options.map((option) => option.label)).toEqual(["磷酸铁锂"]);
     expect(byId.steeringSetup.options.map((option) => option.label)).toEqual(["左舵"]);
-    expect(byId.inventoryStatus.options.map((option) => option.label)).toEqual(["现货"]);
+    expect(byId.inventoryStatus).toBeUndefined();
     expect(byId.vehicleClass.options[0].id).toBe("value:Compact SUV");
     expect(byId.rangeKm.options.map((option) => option.id)).toEqual([
       "range-under-300",

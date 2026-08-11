@@ -20,15 +20,15 @@ export function isInquiryStaff(viewer: InquiryViewer) {
 }
 
 export function canViewInquiry(viewer: InquiryViewer, inquiry: InquiryVisibility) {
-  return inquiry.isPublic || isInquiryStaff(viewer) || viewer.userId === inquiry.creatorUserId;
+  return isInquiryStaff(viewer) || viewer.userId === inquiry.creatorUserId;
 }
 
 export function canViewNote(viewer: InquiryViewer, inquiry: InquiryVisibility, note: NoteVisibility) {
-  return note.isPublic ? inquiry.isPublic || isInquiryStaff(viewer) : isInquiryStaff(viewer) || viewer.userId === note.authorUserId;
+  return canViewInquiry(viewer, inquiry);
 }
 
 export function canPublishPublicNote({ inquiryIsPublic, parentIsPublic, isPublic }: { inquiryIsPublic: boolean; parentIsPublic: boolean | null; isPublic: boolean }) {
-  return !isPublic || (inquiryIsPublic && (parentIsPublic === null || parentIsPublic));
+  return !isPublic;
 }
 
 export function canDeleteInquiry(viewer: InquiryViewer, creatorUserId: string) {

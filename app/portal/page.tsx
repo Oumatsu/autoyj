@@ -5,7 +5,7 @@ import Loading from "../../components/Loading";
 import type { ReactNode } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Select } from "@/components/ui/select";
@@ -21,8 +21,12 @@ import { Progress } from "@/components/ui/progress";
 import { RefreshCw } from "lucide-react";
 import { useTranslation } from "@/i18n/useTranslation";
 import { sanitizeDisplayData } from "@/lib/display-text";
-import { formatPortalRole, formatPortalStatus, localizeVehicleValue, portalRoleLabels } from "@/lib/portal-english";
+import { getPortalSession, invalidatePortalSession } from "@/lib/portal-session-client";
+import { formatPortalHeader, formatPortalRole, formatPortalStatus, localizeVehicleValue, portalRoleLabels } from "@/lib/portal-english";
 import type { AccountType, PortalRole, PriceTier } from "@/lib/users";
+import { QuotationTemplatePreview } from "@/components/portal/QuotationTemplatePreview";
+import { appendInquiryComment } from "@/lib/inquiry-comment-state";
+import { canTransitionInquiryStatus, groupInquiriesByVehicle, inquiryStatuses, replyReference } from "@/lib/inquiry-workflow";
 
 type AdminModule = "dashboard" | "vehicle_models" | "vehicles" | "quotes" | "orders" | "payments" | "logistics" | "customers" | "staff";
 type AdminIconName = "dashboard" | "vehicle_models" | "vehicles" | "quotes" | "orders" | "payments" | "logistics" | "customers" | "staff";
@@ -66,6 +70,12 @@ type Customer = {
   owner: string;
 };
 
+type VehicleGalleryImage = {
+  src: string;
+  cat?: string;
+  label?: string;
+};
+
 type VehicleModel = {
   id: string;
   brand: string;
@@ -98,6 +108,7 @@ type VehicleModel = {
   marketPosition: string;
   exportNotes: string;
   imageUrl: string;
+  galleryImages?: VehicleGalleryImage[];
   brochureUrl: string;
   sourceUrl: string;
   sourceName: string;
@@ -136,6 +147,10 @@ type Vehicle = {
   colorConfirmed: boolean;
   configuration: string;
   supplier: string;
+  supplierQuoteYear?: string | null;
+  supplierQuoteMonth?: string | null;
+  productionYear?: string | null;
+  productionMonth?: string | null;
   recorder: string;
   location: string;
   steering?: string;
@@ -165,6 +180,22 @@ type Vehicle = {
   isListed: boolean;
   editableFields: string[];
   priceLabel: string;
+  // Extended internal fields (admin/sales only)
+  guidePriceCny?: number | null;
+  currency?: string | null;
+  syncBatchId?: string | null;
+  syncedAt?: string | null;
+  minOrderQuantity?: number | null;
+  fullOrderQuantity?: number | null;
+  sourceStage?: string | null;
+  inventoryStatus?: string | null;
+  reviewer?: string | null;
+  developer?: string | null;
+  mediaSourcePath?: string | null;
+  experienceNotes?: string | null;
+  autoCorrectionNotes?: string | null;
+  duplicateCheck?: string | null;
+  recommendationSlot?: string | null;
 };
 
 type PriceTerm = { term: string; amount: number };
@@ -192,6 +223,8 @@ type ModelProfileGroup = {
   model: string;
   years: string[];
   variants: VehicleModel[];
+  imageUrl: string;
+  galleryImages: VehicleGalleryImage[];
   specsByModel: Map<string, VehicleModelSpec[]>;
   segment: string;
   energyType: string;
@@ -265,23 +298,18 @@ type Inquiry = {
   customerId: string;
   vehicleId: string;
   vehicleModel: string;
-  title: string;
   quantity: number;
   destinationPort: string;
   tradeTerm: string;
   targetPrice: number;
   notes: string;
+  vehicleSnapshot: string;
   isPublic: boolean;
   creatorUserId: string;
   hasUnreadFollowUps: boolean;
   status: string;
   createdAt: string;
   updatedAt: string;
-};
-
-type InquiryVehicleTarget = {
-  vehicleId: string;
-  vehicleModel: string;
 };
 
 type Quote = {
@@ -314,7 +342,7 @@ type Negotiation = {
 };
 
 type InquiryNote = { id: string; noteId: string; inquiryNo: string; parentNoteId: string; authorUserId: string; authorName: string; authorRole: string; body: string; isPublic: boolean; createdAt: string; deletedAt?: string; };
-type InquiryStatusHistory = { id: string; historyId: string; inquiryNo: string; fromStatus: string; toStatus: string; actorName: string; actorRole: string; createdAt: string; };
+type InquiryStatusHistory = { id: string; historyId: string; inquiryNo: string; fromStatus: string; toStatus: string; reason: string; actorName: string; actorRole: string; createdAt: string; };
 
 type Order = {
   id: string;
@@ -358,7 +386,6 @@ type InquiryForm = {
   tradeTerm: string;
   targetPrice: string;
   notes: string;
-  isPublic: boolean;
 };
 
 const emptyInquiryForm: InquiryForm = {
@@ -367,7 +394,6 @@ const emptyInquiryForm: InquiryForm = {
   tradeTerm: "FOB",
   targetPrice: "",
   notes: "",
-  isPublic: false,
 };
 
 const devLoginOptions: { role: PortalRole; label: string; detail: string; email: string; accessCode: string }[] = [
@@ -588,6 +614,7 @@ export default function PortalPage() {
     if (force) {
       globalBootstrapData = null;
       globalBootstrapPromise = null;
+      invalidatePortalSession();
     }
 
     if (!force && globalBootstrapPromise) {
@@ -604,7 +631,7 @@ export default function PortalPage() {
     const promise = (async () => {
       setError("");
       try {
-        const sessionRes = await api<{ user: PortalUser | null }>("/api/portal/session");
+        const sessionRes = await getPortalSession();
         if (!sessionRes.user) {
           globalBootstrapData = null;
           globalBootstrapPromise = null;
@@ -660,7 +687,7 @@ export default function PortalPage() {
       window.removeEventListener("popstate", syncFromUrl);
       clearTimeout(timer);
     };
-  }, []);
+  }, [checkSessionAndLoad]);
 
   const [loadedModels, setLoadedModels] = useState(false);
   const [loadedVehicles, setLoadedVehicles] = useState(false);
@@ -807,6 +834,7 @@ export default function PortalPage() {
 
   async function logout() {
     await api("/api/portal/session", { method: "DELETE" });
+    invalidatePortalSession();
     globalBootstrapData = null;
     globalBootstrapPromise = null;
     setData(null);
@@ -833,7 +861,6 @@ export default function PortalPage() {
           tradeTerm: inquiryForm.tradeTerm,
           targetPrice: Number(inquiryForm.targetPrice || 0),
           notes: inquiryForm.notes,
-          isPublic: inquiryForm.isPublic,
         }),
       });
       setSelectedVehicle(null);
@@ -969,8 +996,8 @@ export default function PortalPage() {
       data={data}
       error={error}
       isModuleLoading={moduleLoading}
-      onLogout={logout}
       onModuleChange={handleModuleChange}
+      onLogout={logout}
       onReload={checkSessionAndLoad}
       onRefreshVehicles={refreshVehicles}
     />
@@ -1023,10 +1050,10 @@ export default function PortalPage() {
                 <div className="grid gap-4 p-5">
                   <div>
                     <p className="text-[10px] font-black uppercase tracking-widest text-accent">{item.segment || "EV"}</p>
-                    <h3 className="mt-2 text-xl font-black uppercase italic text-white">{item.brand} {item.model} {formatModelYear(item.year)}</h3>
+                    <h3 className="mt-2 text-xl font-black uppercase italic text-white">{item.brand} {item.model} {item.year ? t("portal.modelYear", { year: item.year }) : t("portal.modelYearPending")}</h3>
                   </div>
                   <div className="flex flex-wrap items-center gap-2 text-xs">
-                    <PortalInventoryPill label="Stock" value={`${item.stockQuantity} units`} />
+                    <PortalInventoryPill label="Stock" value={t("portal.unitCount", { count: item.stockQuantity })} />
                     <PortalInventoryPill label="Supply" value={formatSupplySummary(item)} />
                     {item.priceTermsSummary.length > 0 ? (
                       item.priceTermsSummary.map((pt) => (
@@ -1062,7 +1089,7 @@ export default function PortalPage() {
                       <div>
                         <p className="text-[10px] font-black uppercase tracking-widest text-accent">{inquiry.status}</p>
                         <h3 className="mt-1 font-black text-white">{inquiry.inquiryNo}</h3>
-                        <p className="mt-1 text-xs text-gray-500">{inquiry.vehicleModel} / {inquiry.quantity} units / {inquiry.tradeTerm} / {inquiry.destinationPort}</p>
+                        <p className="mt-1 text-xs text-gray-500">{inquiry.vehicleModel} / {t("portal.unitCount", { count: inquiry.quantity })} / {inquiry.tradeTerm} / {inquiry.destinationPort}</p>
                       </div>
                       <span className="text-xs text-gray-600">{formatDate(inquiry.updatedAt || inquiry.createdAt)}</span>
                     </div>
@@ -1105,7 +1132,7 @@ export default function PortalPage() {
                   <h3 className="mt-1 font-black text-white">{order.orderNo}</h3>
                   <div className="mt-3 grid grid-cols-2 gap-3 text-xs">
                     <Info label="Quote" value={order.quoteNo} />
-                    <Info label="Quantity" value={`${order.quantity} units`} />
+                    <Info label="Quantity" value={t("portal.unitCount", { count: order.quantity })} />
                     <Info label="Unit Price" value={formatUsd(order.finalUnitPrice)} highlight />
                     <Info label="Total" value={formatUsd(order.total)} highlight />
                   </div>
@@ -1137,11 +1164,11 @@ export default function PortalPage() {
       </section>
 
       {selectedSellableModel && (
-        <Modal title={`${selectedSellableModel.brand} ${selectedSellableModel.model} ${formatModelYear(selectedSellableModel.year)} / Sources`} onClose={() => setSelectedSellableModel(null)}>
+        <Modal title={`${selectedSellableModel.brand} ${selectedSellableModel.model} ${selectedSellableModel.year ? t("portal.modelYear", { year: selectedSellableModel.year }) : t("portal.modelYearPending")} / Sources`} onClose={() => setSelectedSellableModel(null)}>
           <div className="grid gap-4">
             <div className="grid gap-3 sm:grid-cols-3">
               <Info label="Segment" value={selectedSellableModel.segment || "EV"} />
-              <Info label="In-stock Qty" value={`${selectedSellableModel.stockQuantity} units`} />
+              <Info label="In-stock Qty" value={t("portal.unitCount", { count: selectedSellableModel.stockQuantity })} />
               <Info label="FOB Range" value={selectedSellableModel.fobPriceRange} highlight />
             </div>
             <div className="max-w-full overflow-x-auto">
@@ -1242,10 +1269,6 @@ export default function PortalPage() {
             <FormField label="Notes">
               <textarea value={inquiryForm.notes} onChange={(event) => setInquiryForm((current) => ({ ...current, notes: event.target.value }))} placeholder="Color, payment, delivery window, local requirements..." />
             </FormField>
-            <label className="flex items-center gap-2 text-xs font-semibold text-slate-300">
-              <input aria-label="Make this inquiry public" type="checkbox" checked={inquiryForm.isPublic} onChange={(event) => setInquiryForm((current) => ({ ...current, isPublic: event.target.checked }))} />
-              Make this inquiry public
-            </label>
             <button disabled={busy} className="btn-primary rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest disabled:opacity-60">
               {busy ? "Submitting..." : "Submit Inquiry"}
             </button>
@@ -1297,21 +1320,15 @@ function AdminPortal({
   const visibleNav = adminNavItems.filter((item) => item.roles.includes(data.user.role));
   const normalizedActiveModule = visibleNav.some((item) => item.key === activeModule) ? activeModule : "dashboard";
   const activeItem = visibleNav.find((item) => item.key === normalizedActiveModule) || visibleNav[0];
-  // 按车型去重取最大库存（同车型不同颜色共享库存池，不能累加）
-  const stockByModel = new Map<string, number>();
-  for (const v of data.vehicles) {
-    const mk = `${v.brand}|${v.model}|${v.year}`;
-    stockByModel.set(mk, Math.max(stockByModel.get(mk) || 0, v.stockQuantity));
-  }
-  const totalStock = Array.from(stockByModel.values()).reduce((s, q) => s + q, 0);
-  const openInquiries = data.inquiries.filter((item) => !["accepted", "closed", "cancelled"].includes(item.status.toLowerCase())).length;
+  const totalStock = data.vehicles.reduce((sum, vehicle) => sum + getVehicleStockQuantity(vehicle), 0);
+  const openInquiries = data.inquiries.filter((item) => !["accepted", "closed", "cancelled"].includes(item.status.trim().toLowerCase())).length;
   const orderTotal = data.orders.reduce((sum, order) => sum + order.total, 0);
 
   return (
-    <main className="min-h-screen overflow-x-hidden bg-[#0c1322] pt-[var(--navbar-h,56px)] text-slate-100 lg:pt-0">
-      <div className={`grid min-h-screen min-w-0 transition-[grid-template-columns] duration-200 ${sidebarCollapsed ? "lg:grid-cols-[88px_minmax(0,1fr)]" : "lg:grid-cols-[300px_minmax(0,1fr)]"}`}>
-        <aside className={`border-b border-white/10 bg-[#101827] px-4 py-5 transition-[padding] duration-200 lg:sticky lg:h-[calc(100vh-var(--navbar-h,56px))] lg:border-b-0 lg:border-r ${sidebarCollapsed ? "lg:px-3" : "lg:px-5"} flex flex-col justify-between`} style={{ top: "var(--navbar-h, 56px)" }}>
-          <div>
+    <main className="min-h-screen bg-[#0c1322] pt-[var(--navbar-h,56px)] text-slate-100">
+      <div className={`grid min-h-[calc(100vh-var(--navbar-h,56px))] min-w-0 transition-[grid-template-columns] duration-200 ${sidebarCollapsed ? "lg:grid-cols-[88px_minmax(0,1fr)]" : "lg:grid-cols-[300px_minmax(0,1fr)]"}`}>
+        <aside className={`flex min-h-[calc(100vh-var(--navbar-h,56px))] flex-col border-b border-white/10 bg-[#101827] px-4 py-5 transition-[padding] duration-200 lg:sticky lg:h-[calc(100vh-var(--navbar-h,56px))] lg:self-start lg:border-b-0 lg:border-r ${sidebarCollapsed ? "lg:px-3" : "lg:px-5"}`} style={{ top: "var(--navbar-h, 56px)" }}>
+          <div className="min-h-0 flex-1">
             <div className={`flex items-center gap-3 border-b border-white/10 pb-6 ${sidebarCollapsed ? "lg:flex-col lg:justify-center lg:gap-2 lg:pb-4" : ""}`}>
               <div className={`grid shrink-0 place-items-center rounded-2xl bg-[#22b8aa] font-black text-[#0c1322] transition-all duration-200 ${sidebarCollapsed ? "lg:h-12 lg:w-12 lg:text-base" : "h-14 w-14 text-xl"}`}>
                 EV
@@ -1368,8 +1385,11 @@ function AdminPortal({
             </nav>
           </div>
 
-          <div className={`mt-6 rounded-2xl border border-white/10 bg-white/[.04] p-4 ${sidebarCollapsed ? "lg:p-2.5" : ""}`}>
-            <div className={`flex items-center gap-3 ${sidebarCollapsed ? "lg:justify-center" : ""}`}>
+          <div className={`mt-auto shrink-0 rounded-2xl border border-white/10 bg-white/[.04] p-4 ${sidebarCollapsed ? "lg:p-2.5" : ""}`}>
+            <div
+              className={`flex items-center gap-3 ${sidebarCollapsed ? "lg:justify-center" : ""}`}
+              title={sidebarCollapsed ? `${data.user.name || data.user.email} · ${formatPortalRole(data.user.role, locale)}` : undefined}
+            >
               <Avatar className="h-10 w-10">
                 <AvatarFallback>
                   {(data.user.name || data.user.email || "U").slice(0, 2).toUpperCase()}
@@ -1380,18 +1400,10 @@ function AdminPortal({
                 <p className="truncate text-[10px] text-slate-400">{formatPortalRole(data.user.role, locale)} · {data.user.accountType}</p>
               </div>
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => void onLogout()}
-              className={`mt-3 w-full ${sidebarCollapsed ? "lg:h-9 lg:px-0 lg:text-[0px] lg:after:content-['鈫?] lg:after:text-xs" : ""}`}
-            >
-              {t("portal.navSignOut")}
-            </Button>
           </div>
         </aside>
 
-        <section className="min-w-0 overflow-hidden px-4 py-5 sm:px-6 lg:px-8 lg:pb-8 lg:pt-[calc(var(--navbar-h,56px)+2rem)]">
+        <section className="min-w-0 px-4 py-5 sm:px-6 lg:px-8 lg:pb-8 lg:pt-8">
           <header className="mb-6 flex flex-col gap-4 border-b border-white/10 pb-5 xl:flex-row xl:items-end xl:justify-between">
             <div>
               <p className="text-[10px] font-black uppercase tracking-[.24em] text-[#22b8aa]">
@@ -1399,10 +1411,19 @@ function AdminPortal({
               </p>
               <h1 className="mt-2 text-3xl font-black tracking-tight text-white sm:text-4xl">{activeItem ? t(activeItem.labelKey) : t("portal.navDashboard")}</h1>
             </div>
-            <div className="grid w-full min-w-0 gap-2 text-xs text-slate-400 sm:grid-cols-3 xl:max-w-[520px]">
-              <AdminTopMetric label={t("portal.stockUnits")} value={String(totalStock)} />
-              <AdminTopMetric label={t("portal.openInquiries")} value={String(openInquiries)} />
-              <AdminTopMetric label={t("portal.orderValue")} value={formatUsdStrict(orderTotal)} />
+            <div className="flex w-full min-w-0 flex-col gap-3 xl:max-w-[560px]">
+              <div className="grid min-w-0 gap-2 text-xs text-slate-400 sm:grid-cols-3">
+                <AdminTopMetric label={t("portal.stockUnits")} value={String(totalStock)} />
+                <AdminTopMetric label={t("portal.openInquiries")} value={String(openInquiries)} />
+                <AdminTopMetric label={t("portal.orderValue")} value={formatUsdStrict(orderTotal)} />
+              </div>
+              <button
+                type="button"
+                onClick={() => void onLogout()}
+                className="w-fit self-end rounded-full border border-white/15 px-5 py-2 text-[10px] font-black uppercase tracking-widest text-gray-400 transition hover:border-white/40 hover:text-white"
+              >
+                {t("portal.navSignOut")}
+              </button>
             </div>
           </header>
 
@@ -1478,10 +1499,7 @@ function AdminModuleContent({ activeModule, data, isModuleLoading, onEditVehicle
 function AdminDashboard({ data }: { data: BootstrapData }) {
   const { t } = useTranslation();
   // 汇总所有颜色与细分车型的实际库存数量（全量累加）
-  const totalStock = data.vehicles.reduce((sum, v) => {
-    const qty = v.colorStockQuantity ?? (typeof v.stockQuantity === "number" && v.stockQuantity > 0 ? v.stockQuantity : 0);
-    return sum + qty;
-  }, 0);
+  const totalStock = data.vehicles.reduce((sum, vehicle) => sum + getVehicleStockQuantity(vehicle), 0);
   const modelCount = (data.vehicleModels || []).length;
   const quoteValue = data.quotes.reduce((sum, quote) => sum + quote.unitPrice * Math.max(quote.quantity, 1), 0);
   const latestInquiries = [...data.inquiries]
@@ -1492,7 +1510,7 @@ function AdminDashboard({ data }: { data: BootstrapData }) {
   return (
     <div className="grid min-w-0 gap-5">
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <AdminStat label={t("portal.modelRepo")} value={String(modelCount)} note={`${data.vehicles.length} records / ${totalStock} units`} />
+        <AdminStat label={t("portal.modelRepo")} value={String(modelCount)} note={t("portal.recordStockSummary", { records: data.vehicles.length, count: totalStock })} />
         <AdminStat label={t("portal.inquiries")} value={String(data.inquiries.length)} note={`${latestInquiries.length} recent updates`} />
         <AdminStat label={t("portal.quoteVersions")} value={String(data.quotes.length)} note={formatUsdStrict(quoteValue)} />
         <AdminStat label={t("portal.orders")} value={String(data.orders.length)} note={formatUsdStrict(data.orders.reduce((sum, order) => sum + order.total, 0))} />
@@ -1507,7 +1525,7 @@ function AdminDashboard({ data }: { data: BootstrapData }) {
               return [
                 inquiry.inquiryNo,
                 inquiry.vehicleModel || inquiry.vehicleId,
-                `${inquiry.quantity} units`,
+                t("portal.unitCount", { count: inquiry.quantity }),
                 <AdminStatusBadge key="status" status={inquiry.status || "Pending"} />,
                 quote ? `${quote.quoteNo} / ${formatUsdStrict(quote.unitPrice)}` : "Awaiting quote",
               ];
@@ -1521,7 +1539,7 @@ function AdminDashboard({ data }: { data: BootstrapData }) {
             headers={[t("portal.vehicle"), t("portal.stockQuantity"), t("portal.location"), t("portal.supplyType")]}
             rows={lowStock.map((vehicle) => [
               vehicleName(vehicle),
-              `${vehicle.stockQuantity} units`,
+              t("portal.unitCount", { count: vehicle.stockQuantity }),
               vehicle.location || "-",
               <AdminStatusBadge key="status" status={getSupplyType(vehicle)} />,
             ])}
@@ -1536,12 +1554,10 @@ function AdminDashboard({ data }: { data: BootstrapData }) {
 function ModelFullSpecsCard({ group }: { group: ModelProfileGroup }) {
   const { t, locale } = useTranslation();
   const v = group.variants[0] || ({} as VehicleModel);
-  const [selectedVariantId, setSelectedVariantId] = useState<string | null>(null);
   const trimVariants = getModelTrimVariants(group);
   const versionDetails = trimVariants.map((variant) => ({
     variant,
     items: [
-      { label: "List Price", value: getModelSpecValue(group.specsByModel, variant.id, ["中国官方指导价"]) || variant.msrpChina || "-" },
       { label: "CLTC Range", value: getModelSpecValue(group.specsByModel, variant.id, ["CLTC续航"]) || variant.range || "-" },
       { label: "Battery", value: compactJoin([getModelSpecValue(group.specsByModel, variant.id, ["电池容量"]) || variant.battery, getModelSpecValue(group.specsByModel, variant.id, ["电池类型"]) || variant.batteryType]) },
       { label: "Drive / Power", value: compactJoin([getModelSpecValue(group.specsByModel, variant.id, ["驱动方式"]) || variant.driveType, getModelSpecValue(group.specsByModel, variant.id, ["电机总功率"]) || variant.motorPower]) },
@@ -1549,11 +1565,8 @@ function ModelFullSpecsCard({ group }: { group: ModelProfileGroup }) {
       { label: "DC Fast Charging", value: getModelSpecValue(group.specsByModel, variant.id, ["直流快充"]) || variant.charging || "-" },
       { label: "Added Features", value: getModelSpecValue(group.specsByModel, variant.id, ["新增配置"]) || "-" },
       { label: "Upgrade Features", value: getModelSpecValue(group.specsByModel, variant.id, ["升级配置"]) || "-" },
-      { label: "Verification", value: getModelSpecValue(group.specsByModel, variant.id, ["版本核验状态"]) || "-" },
     ],
   }));
-  const selectedVersion = versionDetails.find(({ variant }) => variant.id === selectedVariantId) ?? versionDetails[0];
-
   const batteryVal = safeText(v.battery) || getModelSpecValue(group.specsByModel, v.id, ["电池容量"]) || "-";
   const batteryTypeVal = safeText(v.batteryType) || getModelSpecValue(group.specsByModel, v.id, ["电池类型"]) || "-";
   const batteryMakerVal = safeText(v.batteryMaker) || "-";
@@ -1605,7 +1618,7 @@ function ModelFullSpecsCard({ group }: { group: ModelProfileGroup }) {
     },
     {
       title: `🔎 ${t("portal.adas")}`,
-      items: [[t("portal.adas"), adasVal], [locale === "zh" ? "国内官方指导价" : "Domestic List Price", group.guidePriceSummary || v.msrpChina || "-"], [locale === "zh" ? "出口合规/备注" : "Export Compliance / Notes", localizeVehicleValue(v.exportNotes, locale)]],
+      items: [[t("portal.adas"), adasVal], [locale === "zh" ? "出口合规/备注" : "Export Compliance / Notes", localizeVehicleValue(v.exportNotes, locale)]],
     },
   ];
 
@@ -1616,7 +1629,7 @@ function ModelFullSpecsCard({ group }: { group: ModelProfileGroup }) {
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
               <span className="rounded-md bg-[#22b8aa]/10 px-2 py-1 font-mono text-[10px] font-black uppercase tracking-wider text-[#5ee6d8]">{safeText(group.brand)} · {safeText(group.model)}</span>
-              <span className="text-[11px] text-slate-400">{trimVariants.length} {t("portal.variantsInStock")}</span>
+              <span className="text-[11px] text-slate-400">{t("portal.variantStockSummary", { count: trimVariants.length })}</span>
             </div>
             <h4 className="mt-2 text-base font-black text-white">{safeText(group.marketPosition) || `${safeText(group.brand)} ${safeText(group.model)} ${t("portal.fullTechSpecs")}`}</h4>
           </div>
@@ -1633,7 +1646,7 @@ function ModelFullSpecsCard({ group }: { group: ModelProfileGroup }) {
           <p className="text-[10px] font-black uppercase tracking-[.18em] text-slate-400">MODEL OVERVIEW</p>
           <h5 className="mt-0.5 text-sm font-black text-white">{t("portal.fullTechSpecs")}</h5>
         </div>
-        <div className="grid gap-3.5 grid-cols-1 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-3.5">
           {overviewSections.map((section) => (
             <div key={section.title} className="rounded-xl border border-white/10 bg-[#0c1424] p-4 text-xs transition">
               <strong className="block border-b border-white/10 pb-2 text-xs font-bold uppercase tracking-wide text-[#5ee6d8]">{section.title}</strong>
@@ -1654,36 +1667,121 @@ function ModelFullSpecsCard({ group }: { group: ModelProfileGroup }) {
         <section className="border-t border-white/10 pt-6">
           <div className="mb-4">
             <p className="text-[10px] font-black uppercase tracking-[.18em] text-slate-400">CONFIGURATIONS</p>
-            <h5 className="mt-0.5 text-base font-black text-white">{locale === "zh" ? `配置版本 (${versionDetails.length})` : `Configuration Trims (${versionDetails.length})`}</h5>
+            <h5 className="mt-0.5 text-base font-black text-white">{t("portal.trimCount", { count: versionDetails.length })}</h5>
           </div>
-          <div className="grid min-h-[420px] overflow-hidden rounded-xl border border-white/10 bg-[#070e1b] lg:grid-cols-[minmax(210px,.7fr)_minmax(0,1.7fr)]">
-            <div className="max-h-[320px] overflow-y-auto border-b border-white/10 bg-[#080f1c] lg:max-h-[620px] lg:border-b-0 lg:border-r">
-              {versionDetails.map(({ variant, items }) => {
-                const isSelected = selectedVersion?.variant.id === variant.id;
-                return (
-                  <button key={variant.id} type="button" onClick={() => setSelectedVariantId(variant.id)} className={`w-full border-b border-white/[.07] px-4 py-4 text-left transition last:border-b-0 ${isSelected ? "bg-[#22b8aa]/[.09] shadow-[inset_3px_0_0_#22b8aa]" : "hover:bg-white/[.035]"}`}>
-                    <span className="flex items-start justify-between gap-3"><strong className="min-w-0 break-words text-sm font-black text-white">{localizeVehicleValue(variant.trim || variant.id, locale)}</strong><span className={`shrink-0 rounded-full border px-2 py-1 text-[10px] font-black ${items[8]?.value === "Verified" ? "border-[#22b8aa]/35 bg-[#22b8aa]/10 text-[#5ee6d8]" : "border-amber-400/35 bg-amber-400/10 text-amber-300"}`}>{localizeVehicleValue(items[8]?.value, locale)}</span></span>
-                    <span className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2"><span><span className="block text-[10px] text-slate-500">{items[0]?.label}</span><span className="mt-1 block break-words text-[11px] font-black leading-4 text-amber-300">{items[0]?.value}</span></span><span><span className="block text-[10px] text-slate-500">{items[1]?.label}</span><span className="mt-1 block break-words text-[11px] font-medium leading-4 text-slate-300">{items[1]?.value}</span></span></span>
-                  </button>
-                );
-              })}
-            </div>
-
-            <div className="min-w-0 bg-[#0a1120]">
-              {selectedVersion ? (
-                <div className="h-full">
-                  <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 px-4 py-4"><div><p className="text-[10px] font-black uppercase tracking-[.18em] text-[#5ee6d8]">SELECTED CONFIGURATION</p><strong className="mt-1 block text-sm font-black text-white">{localizeVehicleValue(selectedVersion.variant.trim || selectedVersion.variant.id, locale)}</strong></div><span className="rounded-full border border-white/10 px-2 py-1 text-[10px] font-bold text-slate-300">{localizeVehicleValue(selectedVersion.items[8]?.value, locale)}</span></div>
-                  <div className="grid gap-px bg-white/10 lg:grid-cols-2">
-                    <dl className="grid gap-x-6 gap-y-4 bg-[#0a1120] p-4 sm:grid-cols-2">{selectedVersion.items.slice(0, 6).map((item) => <div key={item.label}><dt className="text-[10px] text-slate-400">{item.label}</dt><dd className="mt-1 break-words text-[12px] leading-5 text-slate-100">{item.value}</dd></div>)}</dl>
-                    <dl className="grid gap-4 bg-[#0a1120] p-4">{selectedVersion.items.slice(6).map((item) => <div key={item.label}><dt className="text-[10px] text-slate-400">{item.label}</dt><dd className="mt-1 break-words text-[12px] leading-5 text-slate-100">{item.value}</dd></div>)}</dl>
+          <div className="grid gap-3">
+            {versionDetails.map(({ variant, items }) => (
+              <article key={variant.id} className="overflow-hidden rounded-xl border border-white/10 bg-[#0a1120]">
+                <header className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 bg-[#080f1c] px-4 py-4">
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-[.18em] text-[#5ee6d8]">CONFIGURATION</p>
+                    <strong className="mt-1 block text-sm font-black text-white">
+                      {localizeVehicleValue(variant.trim || variant.id, locale)}
+                    </strong>
                   </div>
-                </div>
-              ) : null}
-            </div>
+                </header>
+                <dl className="grid gap-x-6 gap-y-4 p-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {items.map((item) => (
+                    <div key={item.label} className="min-w-0">
+                      <dt className="text-[10px] text-slate-400">{item.label}</dt>
+                      <dd className="mt-1 whitespace-pre-line break-words text-[12px] leading-5 text-slate-100">
+                        {item.label === "Added Features" || item.label === "Upgrade Features" ? formatTrimFeatureLines(item.value) : item.value}
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
+              </article>
+            ))}
           </div>
         </section>
       ) : null}
     </div>
+  );
+}
+
+function ModelGalleryCarousel({
+  brand,
+  model,
+  images,
+}: {
+  brand: string;
+  model: string;
+  images: VehicleGalleryImage[];
+}) {
+  const usableImages = images.filter((image) => Boolean(image.src));
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  useEffect(() => {
+    if (usableImages.length < 2) return;
+    const timer = window.setInterval(() => {
+      setActiveIndex((current) => (current + 1) % usableImages.length);
+    }, 5000);
+    return () => window.clearInterval(timer);
+  }, [usableImages.length]);
+
+  if (usableImages.length === 0) return null;
+
+  const currentIndex = Math.min(activeIndex, usableImages.length - 1);
+  const currentImage = usableImages[currentIndex];
+  const move = (offset: number) => {
+    setActiveIndex((current) => (current + offset + usableImages.length) % usableImages.length);
+  };
+
+  return (
+    <section
+      aria-label={`${brand} ${model} image gallery`}
+      className="overflow-hidden rounded-xl border border-white/10 bg-[#070e1b]"
+    >
+      <div className="relative aspect-[16/7] min-h-56 overflow-hidden sm:min-h-64">
+        <img
+          key={currentImage.src}
+          src={currentImage.src}
+          alt={`${brand} ${model}${currentImage.label ? ` — ${currentImage.label}` : ""}`}
+          className="h-full w-full object-cover"
+          decoding="async"
+        />
+        {usableImages.length > 1 ? (
+          <>
+            <button
+              type="button"
+              onClick={() => move(-1)}
+              aria-label="Previous vehicle image"
+              className="absolute left-3 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-full border border-white/20 bg-black/50 text-lg text-white backdrop-blur transition hover:bg-black/75"
+            >
+              ‹
+            </button>
+            <button
+              type="button"
+              onClick={() => move(1)}
+              aria-label="Next vehicle image"
+              className="absolute right-3 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-full border border-white/20 bg-black/50 text-lg text-white backdrop-blur transition hover:bg-black/75"
+            >
+              ›
+            </button>
+          </>
+        ) : null}
+        <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-3 bg-gradient-to-t from-black/80 to-transparent px-4 pb-3 pt-8 text-[10px] font-black uppercase tracking-widest text-white">
+          <span>{currentImage.label || currentImage.cat || "Vehicle image"}</span>
+          <span>{currentIndex + 1} / {usableImages.length}</span>
+        </div>
+      </div>
+      {usableImages.length > 1 ? (
+        <div className="flex items-center justify-center gap-1.5 border-t border-white/10 px-4 py-3">
+          {usableImages.map((image, index) => (
+            <button
+              key={`${image.src}-${index}`}
+              type="button"
+              onClick={() => setActiveIndex(index)}
+              aria-label={`Show vehicle image ${index + 1}`}
+              aria-current={index === currentIndex ? "true" : undefined}
+              className={`h-1.5 rounded-full transition-all ${
+                index === currentIndex ? "w-8 bg-[#5ee6d8]" : "w-2 bg-white/25 hover:bg-white/50"
+              }`}
+            />
+          ))}
+        </div>
+      ) : null}
+    </section>
   );
 }
 
@@ -1703,25 +1801,6 @@ function AdminProfiles({ data }: { data: BootstrapData }) {
   return (
     <div className="grid gap-5">
       <AdminPanel title={t("portal.titleModels")} subtitle="Complete vehicle model data, including battery, motor, dimensions, driving assistance, and export fields.">
-        {/* Model catalogue banner */}
-        <div className="mb-5 flex flex-col gap-3 rounded-2xl border border-[#22b8aa]/30 bg-[#22b8aa]/10 p-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-3">
-            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#22b8aa]/20 text-lg">{"\u{1F5BC}\uFE0F"}</div>
-            <div>
-              <strong className="block text-sm font-bold text-white">Live vehicle model catalogue</strong>
-              <p className="mt-0.5 text-xs text-slate-300">Includes image galleries, configuration details, and current inventory pricing for public viewing.</p>
-            </div>
-          </div>
-          <a
-            href={`/${locale}/vehicles`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-[#22b8aa] px-4 py-2.5 text-xs font-black text-[#0c1322] transition hover:bg-[#5ee6d8]"
-          >
-            <span>Open catalogue →</span>
-          </a>
-        </div>
-
         {/* Search bar + summary */}
         <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end">
           <label className="grid flex-1 gap-2 text-xs font-black uppercase tracking-widest text-slate-500">
@@ -1733,16 +1812,16 @@ function AdminProfiles({ data }: { data: BootstrapData }) {
             />
           </label>
           <div className="flex items-center gap-2 pb-0.5">
-            <AdminSummaryChip label="Models" value={`${visibleGroups.length} / ${groups.length}`} tone="accent" />
-            <AdminSummaryChip label="Trims" value={String(visibleGroups.reduce((sum, group) => sum + getModelTrimVariants(group).length, 0))} />
+            <AdminSummaryChip label={t("portal.modelsLabel")} value={`${visibleGroups.length} / ${groups.length}`} tone="accent" />
+            <AdminSummaryChip label={t("portal.trimsLabel")} value={String(visibleGroups.reduce((sum, group) => sum + getModelTrimVariants(group).length, 0))} />
           </div>
         </div>
 
         {/* Master-detail layout with explicit height */}
-        <div className="flex h-[calc(100vh-280px)] min-h-[550px] max-h-[850px] gap-0 overflow-hidden rounded-xl border border-white/10">
+        <div className="flex min-h-[550px] gap-0 overflow-hidden rounded-xl border border-white/10">
           {/* LEFT: model list */}
           <div
-            className={`flex w-full shrink-0 flex-col overflow-y-auto border-r border-white/10 bg-[#070e1b] lg:w-80 xl:w-96 ${
+            className={`flex w-full shrink-0 flex-col border-r border-white/10 bg-[#070e1b] lg:w-80 xl:w-96 ${
               selectedGroup ? "hidden lg:flex" : "flex"
             }`}
           >
@@ -1764,13 +1843,26 @@ function AdminProfiles({ data }: { data: BootstrapData }) {
                       : "hover:bg-white/[.03]"
                   }`}
                 >
+                  <div className="h-14 w-20 shrink-0 overflow-hidden rounded-lg border border-white/10 bg-[#0c1424]">
+                    {group.imageUrl ? (
+                      <img
+                        src={group.imageUrl}
+                        alt={`${group.brand} ${group.model}`}
+                        className="h-full w-full object-cover"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    ) : (
+                      <div className="grid h-full place-items-center text-[9px] font-black uppercase tracking-widest text-slate-600">No image</div>
+                    )}
+                  </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-2">
                       <span className={`text-[10px] font-black uppercase tracking-widest ${isSelected ? "text-[#22b8aa]" : "text-slate-500"}`}>
                         {group.brand}
                       </span>
                       <span className="shrink-0 rounded-full bg-white/[.06] px-1.5 py-0.5 text-[9px] font-black text-slate-400">
-                        {getModelTrimVariants(group).length} trims
+                        {t("portal.trimCount", { count: getModelTrimVariants(group).length })}
                       </span>
                     </div>
                     <strong className={`mt-0.5 block truncate text-sm ${isSelected ? "text-white" : "text-slate-200"}`}>
@@ -1783,6 +1875,11 @@ function AdminProfiles({ data }: { data: BootstrapData }) {
                       {group.rangeSummary ? (
                         <span className="rounded bg-white/[.05] px-1.5 py-0.5 text-[10px] text-slate-400">{group.rangeSummary}</span>
                       ) : null}
+                      {group.galleryImages.length > 1 ? (
+                        <span className="rounded bg-[#22b8aa]/10 px-1.5 py-0.5 text-[10px] text-[#5ee6d8]">
+                          {group.galleryImages.length} photos
+                        </span>
+                      ) : null}
                     </div>
                   </div>
                 </button>
@@ -1791,7 +1888,7 @@ function AdminProfiles({ data }: { data: BootstrapData }) {
           </div>
 
           {/* RIGHT: detail panel */}
-          <div className={`flex-1 overflow-y-auto bg-[#0a1120] ${selectedGroup ? "flex flex-col" : "hidden lg:flex"}`}>
+          <div className={`flex-1 bg-[#0a1120] ${selectedGroup ? "flex flex-col" : "hidden lg:flex"}`}>
             {!selectedGroup ? (
               <div className="flex flex-1 items-center justify-center px-8 py-16 text-center">
                 <div>
@@ -1813,6 +1910,18 @@ function AdminProfiles({ data }: { data: BootstrapData }) {
                     >
                       ←
                     </button>
+                    <div className="h-14 w-20 shrink-0 overflow-hidden rounded-lg border border-white/10 bg-[#0c1424]">
+                      {selectedGroup.imageUrl ? (
+                        <img
+                          src={selectedGroup.imageUrl}
+                          alt={`${selectedGroup.brand} ${selectedGroup.model}`}
+                          className="h-full w-full object-cover"
+                          decoding="async"
+                        />
+                      ) : (
+                        <div className="grid h-full place-items-center text-[9px] font-black uppercase tracking-widest text-slate-600">No image</div>
+                      )}
+                    </div>
                     <div>
                       <div className="flex items-center gap-2">
                         <span className="text-[10px] font-black uppercase tracking-widest text-[#22b8aa]">{selectedGroup.brand}</span>
@@ -1824,10 +1933,20 @@ function AdminProfiles({ data }: { data: BootstrapData }) {
                     </div>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
-                    <AdminSummaryChip label="Trims" value={String(getModelTrimVariants(selectedGroup).length)} tone="accent" />
-                    {selectedGroup.guidePriceSummary ? <AdminSummaryChip label="List Price" value={selectedGroup.guidePriceSummary} /> : null}
+                    <AdminSummaryChip label={t("portal.trimsLabel")} value={String(getModelTrimVariants(selectedGroup).length)} tone="accent" />
                   </div>
                 </div>
+
+                {selectedGroup.galleryImages.some((image) => Boolean(image.src)) ? (
+                  <div className="px-4 pt-4 sm:px-5">
+                    <ModelGalleryCarousel
+                      key={selectedGroup.key}
+                      brand={selectedGroup.brand}
+                      model={selectedGroup.model}
+                      images={selectedGroup.galleryImages}
+                    />
+                  </div>
+                ) : null}
 
                 {/* Market position */}
                 {selectedGroup.marketPosition ? (
@@ -2039,10 +2158,10 @@ function AdminVehicles({ data, onEdit, onRefresh }: { data: BootstrapData; onEdi
       {/* 缁撴灉缁熻 Summary Bar (鐜拌溅鎬诲彴鏁版牴鎹姹傞殣钘? */}
       <div className="flex flex-wrap items-center justify-between gap-3 px-1 text-xs font-bold text-slate-400">
         <div>
-          Found <span className="font-mono font-bold text-[#5ee6d8]">{visibleModels.length}</span> vehicle models and
-          <span className="font-mono font-bold text-[#5ee6d8]">
-            {visibleModels.reduce((acc, m) => acc + (m.offers?.length || 0), 0)}
-          </span> trims
+          {t("portal.vehicleTrimSummary", {
+            models: visibleModels.length,
+            count: visibleModels.reduce((acc, m) => acc + (m.offers?.length || 0), 0),
+          })}
         </div>
       </div>
 
@@ -2077,9 +2196,9 @@ function AdminVehicles({ data, onEdit, onRefresh }: { data: BootstrapData; onEdi
                           {localizeVehicleValue(item.brand, locale)} {localizeVehicleValue(item.model, locale)}
                       </h2>
                       <p className="mt-0.5 text-xs font-medium text-slate-400">
-                        {variants.length > 0 ? localizeVehicleValue(`${variants.length} trims`, locale) : ""}
+                        {variants.length > 0 ? t("portal.trimCount", { count: variants.length }) : ""}
                         {variants.length > 0 && item.hasStockQuantity ? " / " : ""}
-                        {localizeVehicleValue(item.hasStockQuantity ? `Total stock: ${item.stockQuantity} units` : "Stock pending confirmation", locale)}
+                        {item.hasStockQuantity ? t("portal.totalStock", { count: item.stockQuantity }) : localizeVehicleValue("Stock pending confirmation", locale)}
                       </p>
                     </div>
                   </div>
@@ -2088,7 +2207,7 @@ function AdminVehicles({ data, onEdit, onRefresh }: { data: BootstrapData; onEdi
                     <div className="text-right">
                       <span className="block text-[10px] uppercase tracking-wider text-slate-500">{localizeVehicleValue("Total Stock", locale)}</span>
                       <span className="font-mono font-black text-white text-sm">
-                        {item.hasStockQuantity ? localizeVehicleValue(`${item.stockQuantity} units`, locale) : "-"}
+                        {item.hasStockQuantity ? t("portal.unitCount", { count: item.stockQuantity }) : "-"}
                       </span>
                     </div>
                     <div className="text-right">
@@ -2120,7 +2239,7 @@ function AdminVehicles({ data, onEdit, onRefresh }: { data: BootstrapData; onEdi
                       type="button"
                       className="ml-2 rounded-lg border border-white/10 bg-white/[.04] px-3.5 py-1.5 text-xs font-bold text-[#5ee6d8] transition hover:bg-[#22b8aa] hover:text-[#07111f]"
                     >
-                      {localizeVehicleValue(isExpanded ? "Hide trims" : "View trims", locale)}
+                      {t(isExpanded ? "portal.hideTrims" : "portal.viewTrims")}
                     </button>
                   </div>
                 </header>
@@ -2148,71 +2267,124 @@ function AdminVehicles({ data, onEdit, onRefresh }: { data: BootstrapData; onEdi
                               </div>
                               <div className="mt-1 text-xs text-slate-400">
                                 {compactJoin([
-                                  localizeVehicleValue(vehicle.year ? `${vehicle.year} model year` : "", locale),
+                                  vehicle.year ? t("portal.modelYear", { year: vehicle.year }) : "",
                                   localizeVehicleValue(vehicle.steering, locale),
                                   localizeVehicleValue(vehicle.marketVersion, locale),
                                 ])}
                               </div>
                             </div>
                             <div className="flex items-center gap-4 text-xs">
-                              <span className="text-slate-400">{localizeVehicleValue(`${variant.colors.length} colors`, locale)}</span>
+                              <span className="text-slate-400">{t("portal.colorCount", { count: variant.colors.length })}</span>
                               <span className="font-mono font-black text-white">
-                                {variant.hasStockQuantity ? localizeVehicleValue(`${variant.stockQuantity} units`, locale) : "-"}
+                                {variant.hasStockQuantity ? t("portal.unitCount", { count: variant.stockQuantity }) : "-"}
                               </span>
-                              <span className="text-[#5ee6d8]">{localizeVehicleValue(variantExpanded ? "Hide colors" : "View colors", locale)}</span>
+                              <span className="text-[#5ee6d8]">{t(variantExpanded ? "portal.hideColors" : "portal.viewColors")}</span>
                             </div>
                           </button>
 
                           {variantExpanded && (
                             <div className="border-t border-white/10 p-3 sm:p-4">
-                              <AdminTable
-                                headers={[
-                                  localizeVehicleValue("Exterior / Interior Color", locale),
-                                  localizeVehicleValue("Stock", locale),
-                                  ...(canSeeSupplier ? [localizeVehicleValue("Supplier", locale)] : []),
-                                  ...(canSeeLocation ? [localizeVehicleValue("Location", locale)] : []),
-                                  localizeVehicleValue("USD Price", locale),
-                                  localizeVehicleValue("Wait Days", locale),
-                                  localizeVehicleValue("Inquiry", locale),
-                                ]}
-                                rows={variant.colors.map((color) => {
-                                  const colorVehicle = color.vehicles[0];
-                                  const suppliers = Array.from(new Set(color.vehicles.map((item) => item.supplier).filter(Boolean)));
-                                  const locations = Array.from(new Set(color.vehicles.map((item) => item.location).filter(Boolean)));
-                                  return [
-                                    <span key="color" className="text-xs text-slate-300">
-                                      {formatColorPair(
-                                        localizeVehicleValue(color.exteriorColor, locale),
-                                        localizeVehicleValue(color.interiorColor, locale),
-                                      )}
-                                    </span>,
-                                    <span key="stock" className="font-mono text-xs font-bold text-white">
-                                      {color.hasStockQuantity ? localizeVehicleValue(`${color.quantity} units`, locale) : "-"}
-                                    </span>,
-                                    ...(canSeeSupplier
-                                      ? [<span key="supplier" className="text-xs text-slate-300">{suppliers.length ? suppliers.map((supplier) => localizeVehicleValue(supplier, locale)).join(" / ") : "-"}</span>]
-                                      : []),
-                                    ...(canSeeLocation
-                                      ? [<span key="location" className="text-xs text-slate-300">{locations.length ? locations.map((location) => localizeVehicleValue(location, locale)).join(" / ") : "-"}</span>]
-                                      : []),
-                                    <div key="price" className="flex flex-wrap gap-1">
-                                      {color.priceTerms.length > 0 ? color.priceTerms.map((price) => (
-                                        <span key={`${price.term}-${price.amount}`} className="rounded border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 font-mono text-xs font-bold text-amber-400">
-                                          {price.term} {formatUsdStrict(price.amount)}
-                                        </span>
-                                      )) : colorVehicle.price ? (
-                                        <span className="rounded border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 font-mono text-xs font-bold text-amber-400">
-                                          {colorVehicle.priceTerm || "FOB"} {formatUsdStrict(colorVehicle.price)}
-                                        </span>
-                                      ) : "-"}
-                                    </div>,
-                                    <span key="fulfillment" className="text-xs text-slate-300">{localizeVehicleValue(formatFulfillmentStatus(colorVehicle), locale)}</span>,
-                                    <button key="inquiry" type="button" onClick={() => setInquiryVehicleId((current) => current === colorVehicle.id ? "" : colorVehicle.id)} className="text-xs font-black text-theme">{localizeVehicleValue(inquiryVehicleId === colorVehicle.id ? "Hide inquiry" : "Inquiry discussion", locale)}</button>,
-                                  ];
-                                })}
-                                emptyText={localizeVehicleValue("No color-level inventory", locale)}
-                              />
-                              {inquiryVehicleId && variant.colors.some((color) => color.vehicles.some((vehicle) => vehicle.id === inquiryVehicleId)) && <VehicleInquiryPanelV2 vehicle={data.vehicles.find((vehicle) => vehicle.id === inquiryVehicleId)!} data={data} />}
+                              {canSeeSupplier ? (
+                                // Admin/Sales: one row per DB vehicle row with all fields
+                                <>
+                                  <AdminTable
+                                    headers={[
+                                      formatPortalHeader("外饰 / 内饰颜色", locale),
+                                      formatPortalHeader("供应商", locale),
+                                      formatPortalHeader("供应商报价批次年月", locale),
+                                      formatPortalHeader("生产日期批次年月", locale),
+                                      formatPortalHeader("车源地点", locale),
+                                      formatPortalHeader("颜色库存", locale),
+                                      formatPortalHeader("起订数量", locale),
+                                      formatPortalHeader("满订数量", locale),
+                                      formatPortalHeader("FOB美金价", locale),
+                                      formatPortalHeader("FCA美金价", locale),
+                                      formatPortalHeader("EXW美金价", locale),
+                                      formatPortalHeader("人民币指导价", locale),
+                                      formatPortalHeader("人民币成本价", locale),
+                                      formatPortalHeader("下单后需要等待天数", locale),
+                                      formatPortalHeader("左右舵", locale),
+                                      formatPortalHeader("国际国内版本", locale),
+                                      formatPortalHeader("询盘", locale),
+                                    ]}
+                                    rows={variant.colors.flatMap((color) =>
+                                      color.vehicles.map((v) => [
+                                        <span key="color" className="text-xs text-slate-300">
+                                          {formatColorPair(
+                                            localizeVehicleValue(v.exteriorColor || v.color, locale),
+                                            localizeVehicleValue(v.interiorColor, locale),
+                                          )}
+                                        </span>,
+                                        <span key="supplier" className="text-xs text-slate-300">{v.supplier || "-"}</span>,
+                                        <span key="quoteBatch" className="font-mono text-xs text-slate-300">{formatYearMonth(v.supplierQuoteYear, v.supplierQuoteMonth)}</span>,
+                                        <span key="prodBatch" className="font-mono text-xs text-slate-300">{formatYearMonth(v.productionYear, v.productionMonth)}</span>,
+                                        <span key="location" className="text-xs text-slate-300">{localizeVehicleValue(v.location, locale) || "-"}</span>,
+                                        <span key="stock" className="font-mono text-xs font-bold text-white">{v.colorStockQuantity != null ? t("portal.unitCount", { count: v.colorStockQuantity }) : "-"}</span>,
+                                        <span key="moq" className="font-mono text-xs text-slate-300">{v.minOrderQuantity != null ? String(v.minOrderQuantity) : "-"}</span>,
+                                        <span key="foq" className="font-mono text-xs text-slate-300">{v.fullOrderQuantity != null ? String(v.fullOrderQuantity) : "-"}</span>,
+                                        <span key="fob" className="font-mono text-xs font-bold text-amber-400">{v.fobUsd != null ? formatUsdStrict(v.fobUsd) : "-"}</span>,
+                                        <span key="fca" className="font-mono text-xs text-cyan-300">{v.fcaUsd != null ? formatUsdStrict(v.fcaUsd) : "-"}</span>,
+                                        <span key="exw" className="font-mono text-xs text-emerald-300">{v.exwUsd != null ? formatUsdStrict(v.exwUsd) : "-"}</span>,
+                                        <span key="cny" className="font-mono text-xs text-slate-300">{v.guidePriceCny != null ? `¥${v.guidePriceCny.toLocaleString()}` : "-"}</span>,
+                                        <span key="cost" className="font-mono text-xs text-slate-300">{v.cost != null ? `¥${v.cost.toLocaleString()}` : "-"}</span>,
+                                        <span key="wait" className="text-xs text-slate-300">{v.waitDays != null ? t("portal.dayCount", { count: v.waitDays }) : "-"}</span>,
+                                        <span key="steering" className="text-xs text-slate-300">{localizeVehicleValue(v.steering, locale) || "-"}</span>,
+                                        <span key="market" className="text-xs text-slate-300">{localizeVehicleValue(v.marketVersion, locale) || "-"}</span>,
+                                        <button key="inquiry" type="button" onClick={() => setInquiryVehicleId((current) => current === v.id ? "" : v.id)} className="text-xs font-black text-theme">{formatPortalHeader(inquiryVehicleId === v.id ? "隐藏询盘" : "询盘", locale)}</button>,
+                                      ])
+                                    )}
+                                    emptyText={formatPortalHeader("无库存记录", locale)}
+                                  />
+                                  {inquiryVehicleId && variant.colors.some((color) => color.vehicles.some((vehicle) => vehicle.id === inquiryVehicleId)) && <VehicleInquiryPanel vehicle={data.vehicles.find((vehicle) => vehicle.id === inquiryVehicleId)!} data={data} />}
+                                </>
+                              ) : (
+                                // External users: color-grouped view
+                                <>
+                                  <AdminTable
+                                    headers={[
+                                      formatPortalHeader("外饰 / 内饰颜色", locale),
+                                      formatPortalHeader("颜色库存", locale),
+                                      ...(canSeeLocation ? [formatPortalHeader("车源地点", locale)] : []),
+                                      formatPortalHeader("美金报价", locale),
+                                      formatPortalHeader("下单后需要等待天数", locale),
+                                      formatPortalHeader("询盘", locale),
+                                    ]}
+                                    rows={variant.colors.map((color) => {
+                                      const colorVehicle = color.vehicles[0];
+                                      const locations = Array.from(new Set(color.vehicles.map((item) => item.location).filter(Boolean)));
+                                      return [
+                                        <span key="color" className="text-xs text-slate-300">
+                                          {formatColorPair(
+                                            localizeVehicleValue(color.exteriorColor, locale),
+                                            localizeVehicleValue(color.interiorColor, locale),
+                                          )}
+                                        </span>,
+                                        <span key="stock" className="font-mono text-xs font-bold text-white">
+                                          {color.hasStockQuantity ? t("portal.unitCount", { count: color.quantity }) : "-"}
+                                        </span>,
+                                        ...(canSeeLocation
+                                          ? [<span key="location" className="text-xs text-slate-300">{locations.length ? locations.map((location) => localizeVehicleValue(location, locale)).join(" / ") : "-"}</span>]
+                                          : []),
+                                        <div key="price" className="flex flex-wrap gap-1">
+                                          {color.priceTerms.length > 0 ? color.priceTerms.map((price) => (
+                                            <span key={`${price.term}-${price.amount}`} className="rounded border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 font-mono text-xs font-bold text-amber-400">
+                                              {price.term} {formatUsdStrict(price.amount)}
+                                            </span>
+                                          )) : colorVehicle.price ? (
+                                            <span className="rounded border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 font-mono text-xs font-bold text-amber-400">
+                                              {colorVehicle.priceTerm || "FOB"} {formatUsdStrict(colorVehicle.price)}
+                                            </span>
+                                          ) : "-"}
+                                        </div>,
+                                        <span key="fulfillment" className="text-xs text-slate-300">{formatFulfillmentStatus(colorVehicle, (count) => t("portal.dayCount", { count }))}</span>,
+                                        <button key="inquiry" type="button" onClick={() => setInquiryVehicleId((current) => current === colorVehicle.id ? "" : colorVehicle.id)} className="text-xs font-black text-theme">{formatPortalHeader(inquiryVehicleId === colorVehicle.id ? "隐藏询盘" : "询盘", locale)}</button>,
+                                      ];
+                                    })}
+                                    emptyText={formatPortalHeader("无库存记录", locale)}
+                                  />
+                                  {inquiryVehicleId && variant.colors.some((color) => color.vehicles.some((vehicle) => vehicle.id === inquiryVehicleId)) && <VehicleInquiryPanel vehicle={data.vehicles.find((vehicle) => vehicle.id === inquiryVehicleId)!} data={data} />}
+                                </>
+                              )}
                             </div>
                           )}
                         </section>
@@ -2235,19 +2407,56 @@ function VehicleInquiryPanel({ vehicle, data }: { vehicle: Vehicle; data: Bootst
   const notes = data.inquiryNotes.filter((item) => inquiries.some((inquiry) => inquiry.inquiryNo === item.inquiryNo));
   async function post(event: React.FormEvent) { event.preventDefault(); if (!message.trim()) return; setBusy(true); setError(""); try { const existing = inquiries[0]; if (existing) await api(`/api/portal/inquiries/${encodeURIComponent(existing.inquiryNo)}/notes`, { method: "POST", body: JSON.stringify({ body: message, parentNoteId: replyTo }) }); else await api("/api/portal/inquiries", { method: "POST", body: JSON.stringify({ vehicleId: vehicle.id, quantity: 1, tradeTerm: "FOB", notes: message }) }); window.location.reload(); } catch (e) { setError(e instanceof Error ? e.message : "Could not post inquiry message"); } finally { setBusy(false); } }
   async function remove(noteId: string) { if (!window.confirm("Remove your inquiry follow-up?")) return; setBusy(true); try { await api(`/api/portal/inquiry-content/note/${encodeURIComponent(noteId)}`, { method: "DELETE", body: JSON.stringify({ reason: "Removed by author" }) }); window.location.reload(); } catch (e) { setError(e instanceof Error ? e.message : "Could not remove inquiry follow-up"); } finally { setBusy(false); } }
-  return <section className="mt-3 rounded-lg border border-theme/30 bg-theme/5 p-4"><div className="flex items-center justify-between"><div><p className="text-[10px] font-black uppercase tracking-widest text-theme">Inquiry discussion</p><p className="mt-1 text-xs text-slate-300">{[vehicle.brand, vehicle.model, vehicle.configuration || vehicle.trim, vehicle.color].filter(Boolean).join(" / ")}</p></div><span className="text-xs text-slate-400">{notes.length} follow-ups</span></div><div className="mt-3 grid gap-2">{notes.map((item) => <article key={item.id} className={`rounded border border-white/10 bg-black/15 p-3 ${item.parentNoteId ? "ml-5 border-l-2 border-l-theme" : ""}`}><p className="text-xs font-black text-white">{item.authorName}</p><p className="mt-1 text-sm text-slate-300">{item.body}</p><div className="mt-2 flex gap-3"><button type="button" onClick={() => setReplyTo(item.noteId)} className="text-[10px] font-black uppercase text-theme">Follow up</button>{item.authorUserId === data.user.userId && <button type="button" onClick={() => remove(item.noteId)} className="text-[10px] font-black uppercase text-red-300">Remove my follow-up</button>}</div></article>)}{notes.length === 0 && <p className="text-xs text-slate-400">No inquiry follow-ups yet.</p>}</div><form onSubmit={post} className="mt-3 grid gap-2">{replyTo && <div className="flex justify-between text-xs text-theme">Following up on a specific response <button type="button" onClick={() => setReplyTo("")}>Cancel</button></div>}<textarea value={message} onChange={(e) => setMessage(e.target.value)} placeholder={replyTo ? "Write a follow-up response" : "Describe your purchase intention or ask a follow-up"} className="min-h-20 rounded border border-white/15 bg-black/20 p-3 text-sm text-white" /><div className="flex justify-between">{error ? <span className="text-xs text-red-300">{error}</span> : <span />}<button disabled={busy || !message.trim()} className="btn-primary rounded px-3 py-2 text-[10px] font-black uppercase">{busy ? "Saving..." : inquiries.length ? "Post follow-up" : "Post inquiry request"}</button></div></form></section>;
-}
-
-function InquiryVisibilityToggle({ checked, disabled = false, onChange, label }: { checked: boolean; disabled?: boolean; onChange: (value: boolean) => void; label: string }) {
-  return <label className="flex items-center gap-2 text-xs text-slate-300"><input type="checkbox" checked={checked} disabled={disabled} onChange={(event) => onChange(event.target.checked)} />{label}</label>;
+  return <section className="mt-3 rounded-lg border border-theme/30 bg-theme/5 p-4"><div className="flex items-center justify-between"><div><p className="text-[10px] font-black uppercase tracking-widest text-theme">Inquiry discussion</p><p className="mt-1 text-xs text-slate-300">{[vehicle.brand, vehicle.model, vehicle.configuration || vehicle.trim, vehicle.color].filter(Boolean).join(" / ")}</p></div><span className="text-xs text-slate-400">{notes.length} messages</span></div><div className="mt-3 grid gap-2">{notes.map((item) => <article key={item.id} className="rounded border border-white/10 bg-black/15 p-3"><p className="text-xs font-black text-white">{item.authorName}</p>{item.parentNoteId && <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-theme">Quote reply</p>}<p className="mt-1 text-sm text-slate-300">{item.body}</p><div className="mt-2 flex gap-3"><button type="button" onClick={() => setReplyTo(item.noteId)} className="text-[10px] font-black uppercase text-theme">Quote reply</button>{item.authorUserId === data.user.userId && <button type="button" onClick={() => remove(item.noteId)} className="text-[10px] font-black uppercase text-red-300">Remove my message</button>}</div></article>)}{notes.length === 0 && <p className="text-xs text-slate-400">No messages yet.</p>}</div><form onSubmit={post} className="mt-3 grid gap-2">{replyTo && <div className="flex justify-between text-xs text-theme">Quote reply to a specific message <button type="button" onClick={() => setReplyTo("")}>Cancel</button></div>}<textarea value={message} onChange={(e) => setMessage(e.target.value)} placeholder={replyTo ? "Write a quote reply" : "Describe your purchase intention or ask a question"} className="min-h-20 rounded border border-white/15 bg-black/20 p-3 text-sm text-white" /><div className="flex justify-between">{error ? <span className="text-xs text-red-300">{error}</span> : <span />}<button disabled={busy || !message.trim()} className="btn-primary rounded px-3 py-2 text-[10px] font-black uppercase">{busy ? "Saving..." : inquiries.length ? "Send message" : "Send inquiry request"}</button></div></form></section>;
 }
 
 function VehicleInquiryPanelV2({ vehicle, data }: { vehicle: Vehicle; data: BootstrapData }) {
-  const [message, setMessage] = useState(""); const [replyTo, setReplyTo] = useState(""); const [isPublic, setIsPublic] = useState(false); const [showOnlyMine, setShowOnlyMine] = useState(() => localStorage.getItem("portal-vehicle-inquiries-only-mine") === "1"); const [busy, setBusy] = useState(false); const [error, setError] = useState("");
-  const allInquiries = data.inquiries.filter((item) => item.vehicleId === vehicle.id); const inquiries = showOnlyMine ? allInquiries.filter((item) => item.creatorUserId === data.user.userId) : allInquiries; const targetInquiry = inquiries[0]; const notes = data.inquiryNotes.filter((item) => inquiries.some((inquiry) => inquiry.inquiryNo === item.inquiryNo)); const parent = notes.find((item) => item.noteId === replyTo); const canPublishPublic = !!targetInquiry?.isPublic && (!replyTo || !!parent?.isPublic);
-  function toggleMine(value: boolean) { setShowOnlyMine(value); localStorage.setItem("portal-vehicle-inquiries-only-mine", value ? "1" : "0"); }
-  async function post(event: React.FormEvent) { event.preventDefault(); if (!message.trim()) return; setBusy(true); setError(""); try { if (targetInquiry) await api(`/api/portal/inquiries/${encodeURIComponent(targetInquiry.inquiryNo)}/notes`, { method: "POST", body: JSON.stringify({ body: message, parentNoteId: replyTo, isPublic }) }); else await api("/api/portal/inquiries", { method: "POST", body: JSON.stringify({ vehicleId: vehicle.id, quantity: 1, tradeTerm: "FOB", notes: message, isPublic }) }); window.location.reload(); } catch (e) { setError(e instanceof Error ? e.message : "Could not post inquiry message"); } finally { setBusy(false); } }
-  return <section className="mt-3 rounded-lg border border-theme/30 bg-theme/5 p-4"><div className="flex flex-wrap items-center justify-between gap-3"><div><p className="text-[10px] font-black uppercase tracking-widest text-theme">Inquiry discussion</p><p className="mt-1 text-xs text-slate-300">{[vehicle.brand, vehicle.model, vehicle.configuration || vehicle.trim, vehicle.color].filter(Boolean).join(" / ")}</p></div><InquiryVisibilityToggle checked={showOnlyMine} onChange={toggleMine} label="Show only mine" /></div><div className="mt-3 grid gap-2">{notes.map((item) => <article key={item.id} className={`rounded border border-white/10 bg-black/15 p-3 ${item.parentNoteId ? "ml-5 border-l-2 border-l-theme" : ""}`}><div className="flex justify-between gap-3"><p className="text-xs font-black text-white">{item.authorName}</p><span className="text-[10px] text-slate-400">{item.isPublic ? "Public" : "Private"}</span></div><p className="mt-1 text-sm text-slate-300">{item.body}</p><button type="button" onClick={() => { setReplyTo(item.noteId); setIsPublic(item.isPublic); }} className="mt-2 text-[10px] font-black uppercase text-theme">Follow up</button></article>)}</div><form onSubmit={post} className="mt-3 grid gap-2"><InquiryVisibilityToggle checked={isPublic} disabled={!canPublishPublic && !!targetInquiry} onChange={setIsPublic} label="Make this inquiry public" /><textarea value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Describe your purchase intention or ask a follow-up" className="min-h-20 rounded border border-white/15 bg-black/20 p-3 text-sm text-white" /><div className="flex justify-between">{error ? <span className="text-xs text-red-300">{error}</span> : <span />}<button disabled={busy || !message.trim()} className="btn-primary rounded px-3 py-2 text-[10px] font-black uppercase">{busy ? "Saving..." : targetInquiry ? "Post follow-up" : "Post inquiry request"}</button></div></form></section>;
+  const [message, setMessage] = useState("");
+  const [replyTo, setReplyTo] = useState("");
+  const [selectedInquiryNo, setSelectedInquiryNo] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const [postedNotes, setPostedNotes] = useState<InquiryNote[]>([]);
+  const inquiries = data.inquiries.filter((item) => item.vehicleId === vehicle.id);
+  const targetInquiry = inquiries.find((item) => item.inquiryNo === selectedInquiryNo) || inquiries[0];
+  const notes = postedNotes.filter((note) => note.inquiryNo === targetInquiry?.inquiryNo).reduce((current, note) => appendInquiryComment(current, note), data.inquiryNotes.filter((item) => item.inquiryNo === targetInquiry?.inquiryNo));
+  const parent = notes.find((item) => item.noteId === replyTo);
+
+  function selectConversation(inquiry: Inquiry) {
+    setSelectedInquiryNo(inquiry.inquiryNo);
+    setReplyTo("");
+    if (inquiry.hasUnreadFollowUps) void api(`/api/portal/inquiries/${encodeURIComponent(inquiry.inquiryNo)}/read`, { method: "POST" });
+  }
+
+  async function post(event: React.FormEvent) {
+    event.preventDefault();
+    if (!message.trim()) return;
+    setBusy(true);
+    setError("");
+    try {
+      if (targetInquiry) {
+        const result = await api<{ note: InquiryNote }>(`/api/portal/inquiries/${encodeURIComponent(targetInquiry.inquiryNo)}/notes`, { method: "POST", body: JSON.stringify({ body: message, parentNoteId: replyTo }) });
+        setPostedNotes((current) => appendInquiryComment(current, result.note));
+        setMessage("");
+        setReplyTo("");
+      } else {
+        await api("/api/portal/inquiries", { method: "POST", body: JSON.stringify({ vehicleId: vehicle.id, quantity: 1, tradeTerm: "FOB", notes: message }) });
+        window.location.reload();
+      }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Could not post inquiry message");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return <section className="mt-3 rounded-lg border border-theme/30 bg-theme/5 p-4">
+    <div><p className="text-[10px] font-black uppercase tracking-widest text-theme">Inquiry discussion</p><p className="mt-1 text-xs text-slate-300">{[vehicle.brand, vehicle.model, vehicle.configuration || vehicle.trim, vehicle.color].filter(Boolean).join(" / ")}</p></div>
+    {inquiries.length > 1 && <div className="mt-3 grid gap-2"><p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Private conversations</p>{inquiries.map((inquiry) => <button key={inquiry.inquiryNo} type="button" onClick={() => selectConversation(inquiry)} className={`rounded border p-2 text-left text-xs ${targetInquiry?.inquiryNo === inquiry.inquiryNo ? "border-theme bg-theme/10 text-white" : "border-white/10 text-slate-300"}`}>Customer {inquiry.customerId} · {inquiry.title || inquiry.inquiryNo}{inquiry.hasUnreadFollowUps && <span className="ml-2 inline-block h-2 w-2 rounded-full bg-amber-300" />}</button>)}</div>}
+    {targetInquiry && <p className="mt-3 text-xs text-slate-400">Conversation {targetInquiry.inquiryNo} · {targetInquiry.status}</p>}
+    <div className="mt-3 grid gap-2">{notes.map((item) => { const quoted = notes.find((noteItem) => noteItem.noteId === item.parentNoteId); return <article key={item.id} id={`note-${item.noteId}`} className="rounded border border-white/10 bg-black/15 p-3"><div className="flex justify-between gap-2"><p className="text-xs font-black text-white">{item.authorName} <span className="font-medium text-slate-400">{item.authorRole}</span></p><time className="text-[10px] text-slate-500">{formatDate(item.createdAt)}</time></div>{quoted && <a href={`#note-${quoted.noteId}`} className="mt-2 block rounded border border-theme/20 bg-theme/5 px-2 py-1 text-xs text-theme">{replyReference(quoted)}</a>}<p className="mt-2 whitespace-pre-wrap text-sm text-slate-300">{item.body}</p><button type="button" onClick={() => setReplyTo(item.noteId)} className="mt-2 text-[10px] font-black uppercase text-theme">Quote reply</button></article>; })}{notes.length === 0 && <p className="text-xs text-slate-400">No messages yet.</p>}</div>
+    <form onSubmit={post} className="mt-3 grid gap-2">{replyTo && <div className="flex justify-between rounded border border-theme/30 bg-theme/5 px-3 py-2 text-xs text-theme">{parent ? replyReference(parent) : "Quote reply to selected message"}<button type="button" onClick={() => setReplyTo("")}>Cancel</button></div>}<textarea value={message} maxLength={4000} onChange={(e) => setMessage(e.target.value)} placeholder={replyTo ? "Write a quote reply" : "Describe your purchase intention or ask a question"} className="min-h-20 rounded border border-white/15 bg-black/20 p-3 text-sm text-white" /><div className="flex justify-between">{error ? <span className="text-xs text-red-300">{error}</span> : <span />}<button disabled={busy || !message.trim()} className="btn-primary rounded px-3 py-2 text-[10px] font-black uppercase">{busy ? "Saving..." : targetInquiry ? replyTo ? "Send quote reply" : "Send message" : "Send inquiry request"}</button></div></form>
+  </section>;
 }
 
 function AdminQuotes({ data }: { data: BootstrapData }) {
@@ -2320,32 +2529,45 @@ function AdminQuotesLocalized({ data }: { data: BootstrapData }) {
   const [selectedNo, setSelectedNo] = useState(data.inquiries[0]?.inquiryNo || "");
   const [note, setNote] = useState("");
   const [replyTo, setReplyTo] = useState("");
-  const [isPublic, setIsPublic] = useState(false);
-  const [showOnlyMine, setShowOnlyMine] = useState(() => localStorage.getItem("portal-inquiries-only-mine") === "1");
   const [showNew, setShowNew] = useState(data.inquiries.length === 0);
   const [target, setTarget] = useState<InquiryVehicleTarget>({ vehicleId: "", vehicleModel: "" });
   const [title, setTitle] = useState("");
   const [initialNote, setInitialNote] = useState("");
   const [status, setStatus] = useState("");
+  const [statusReason, setStatusReason] = useState("");
+  const [inquirySearch, setInquirySearch] = useState("");
+  const [inquiryStatusFilter, setInquiryStatusFilter] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const inquiries = showOnlyMine ? data.inquiries.filter((item) => item.creatorUserId === data.user.userId) : data.inquiries;
+  const [postedNotes, setPostedNotes] = useState<InquiryNote[]>([]);
+  const [showQuoteComposer, setShowQuoteComposer] = useState(false);
+  const [quotePrice, setQuotePrice] = useState("");
+  const [quoteCif, setQuoteCif] = useState("");
+  const [preview, setPreview] = useState<{ quoteNo: string; customer: string; vehicleModel: string; quantity: number; unitPrice: number; cifTotal: string } | null>(null);
+  const inquiries = data.inquiries;
+  const visibleInquiries = inquiries.filter((inquiry) => {
+    const haystack = `${inquiry.vehicleModel} ${inquiry.title} ${inquiry.customerId} ${inquiry.inquiryNo}`.toLowerCase();
+    return (!inquirySearch.trim() || haystack.includes(inquirySearch.trim().toLowerCase())) && (!inquiryStatusFilter || inquiry.status === inquiryStatusFilter);
+  });
+  const vehicleGroups = groupInquiriesByVehicle(visibleInquiries);
   const selected = inquiries.find((item) => item.inquiryNo === selectedNo) || inquiries[0];
-  const notes = data.inquiryNotes.filter((item) => item.inquiryNo === selected?.inquiryNo);
+  const notes = postedNotes.filter((note) => note.inquiryNo === selected?.inquiryNo).reduce((current, note) => appendInquiryComment(current, note), data.inquiryNotes.filter((item) => item.inquiryNo === selected?.inquiryNo));
   const parent = notes.find((item) => item.noteId === replyTo);
-  const canPublishPublic = !!selected?.isPublic && (!replyTo || !!parent?.isPublic);
   const canChangeStatus = data.user.role === "admin" || data.user.role === "sales";
+  const canCreateQuote = canChangeStatus;
 
-  function select(inquiry: Inquiry) { setSelectedNo(inquiry.inquiryNo); setStatus(""); if (inquiry.creatorUserId === data.user.userId && inquiry.hasUnreadFollowUps) void api(`/api/portal/inquiries/${encodeURIComponent(inquiry.inquiryNo)}/read`, { method: "POST" }); }
-  function toggleMine(value: boolean) { setShowOnlyMine(value); localStorage.setItem("portal-inquiries-only-mine", value ? "1" : "0"); }
-  async function create(event: React.FormEvent) { event.preventDefault(); if ((!target.vehicleModel && !title.trim()) || !initialNote.trim()) return; setBusy(true); try { await api("/api/portal/inquiries", { method: "POST", body: JSON.stringify({ vehicleId: target.vehicleId, vehicleModel: target.vehicleModel, title, quantity: 1, tradeTerm: "FOB", notes: initialNote, isPublic }) }); window.location.reload(); } catch (e) { setError(e instanceof Error ? e.message : "Could not start inquiry"); } finally { setBusy(false); } }
-  async function post(event: React.FormEvent) { event.preventDefault(); if (!selected || !note.trim()) return; setBusy(true); try { await api(`/api/portal/inquiries/${encodeURIComponent(selected.inquiryNo)}/notes`, { method: "POST", body: JSON.stringify({ body: note, parentNoteId: replyTo, isPublic }) }); window.location.reload(); } catch (e) { setError(e instanceof Error ? e.message : "Could not add follow-up"); } finally { setBusy(false); } }
-  async function updateStatus() { if (!selected || !status) return; await api(`/api/portal/inquiries/${encodeURIComponent(selected.inquiryNo)}/status`, { method: "PATCH", body: JSON.stringify({ status }) }); window.location.reload(); }
+  function select(inquiry: Inquiry) { setSelectedNo(inquiry.inquiryNo); setStatus(""); setStatusReason(""); setError(""); if (inquiry.hasUnreadFollowUps) void api(`/api/portal/inquiries/${encodeURIComponent(inquiry.inquiryNo)}/read`, { method: "POST" }); }
+  async function create(event: React.FormEvent) { event.preventDefault(); if ((!target.vehicleModel && !title.trim()) || !initialNote.trim()) return; setBusy(true); try { await api("/api/portal/inquiries", { method: "POST", body: JSON.stringify({ vehicleId: target.vehicleId, vehicleModel: target.vehicleModel, title, quantity: 1, tradeTerm: "FOB", notes: initialNote }) }); window.location.reload(); } catch (e) { setError(e instanceof Error ? e.message : "Could not start inquiry"); } finally { setBusy(false); } }
+  async function post(event: React.FormEvent) { event.preventDefault(); if (!selected || !note.trim()) return; setBusy(true); try { const result = await api<{ note: InquiryNote }>(`/api/portal/inquiries/${encodeURIComponent(selected.inquiryNo)}/notes`, { method: "POST", body: JSON.stringify({ body: note, parentNoteId: replyTo }) }); setPostedNotes((current) => appendInquiryComment(current, result.note)); setNote(""); setReplyTo(""); } catch (e) { setError(e instanceof Error ? e.message : "Could not add follow-up"); } finally { setBusy(false); } }
+  async function updateStatus() { if (!selected || !status) return; setBusy(true); setError(""); try { await api(`/api/portal/inquiries/${encodeURIComponent(selected.inquiryNo)}/status`, { method: "PATCH", body: JSON.stringify({ status, reason: statusReason || "Updated from Inquiry Management" }) }); window.location.reload(); } catch (e) { setError(e instanceof Error ? e.message : "Could not update inquiry status"); } finally { setBusy(false); } }
+  async function createQuotation(event: React.FormEvent) { event.preventDefault(); if (!selected) return; const unitPrice = Number(quotePrice); if (!Number.isFinite(unitPrice) || unitPrice <= 0) { setError("Enter a USD unit price before creating the quotation"); return; } setBusy(true); setError(""); try { const created = await api<{ quoteNo: string; quantity: number; unitPrice: number }>("/api/portal/quotes", { method: "POST", body: JSON.stringify({ inquiryNo: selected.inquiryNo, unitPrice }) }); setPreview({ quoteNo: created.quoteNo, customer: selected.customerId, vehicleModel: selected.vehicleModel, quantity: created.quantity, unitPrice: created.unitPrice, cifTotal: quoteCif || "USD 0.00" }); setShowQuoteComposer(false); } catch (e) { setError(e instanceof Error ? e.message : "Could not create quotation"); } finally { setBusy(false); } }
 
   return <AdminPanel title="Inquiry Management" subtitle="Inquiry context, status history, and discussion">
-    <div className="mb-4 flex flex-wrap justify-end gap-3"><InquiryVisibilityToggle checked={showOnlyMine} onChange={toggleMine} label="Show only mine" /><button type="button" onClick={() => setShowNew((value) => !value)} className="btn-primary rounded px-4 py-2 text-[10px] font-black uppercase">Start inquiry</button></div>
-    {showNew && <form onSubmit={create} className="mb-4 grid gap-3 rounded-lg border border-theme/30 bg-theme/5 p-4"><InquiryVehiclePicker vehicles={data.vehicles} value={target} onChange={setTarget} /><Input aria-label="Inquiry title" value={title} onChange={(event) => setTitle(event.target.value)} placeholder={target.vehicleModel ? "Inquiry title (optional)" : "Inquiry title (required when no vehicle is selected)"} required={!target.vehicleModel} /><textarea value={initialNote} onChange={(event) => setInitialNote(event.target.value)} className="min-h-24 rounded border border-white/15 bg-black/20 p-3 text-sm text-white" /><InquiryVisibilityToggle checked={isPublic} onChange={setIsPublic} label="Make this inquiry public" /><button disabled={busy || (!target.vehicleModel && !title.trim()) || !initialNote.trim()} className="btn-primary rounded px-4 py-2 text-[10px] font-black uppercase">Post inquiry</button></form>}
-    <div className="grid gap-4 xl:grid-cols-[19rem_minmax(0,1fr)]"><aside className="grid max-h-[70vh] gap-2 overflow-y-auto">{inquiries.map((inquiry) => <button key={inquiry.inquiryNo} onClick={() => select(inquiry)} className="rounded-lg border border-white/10 p-3 text-left"><div className="flex justify-between gap-2"><p className="text-xs font-black text-white">{inquiry.inquiryNo}</p>{inquiry.hasUnreadFollowUps && <span className="h-2 w-2 rounded-full bg-amber-300" />}</div><p className="mt-1 line-clamp-2 text-xs text-gray-400">{inquiry.title || inquiry.vehicleModel}</p><p className="mt-2 text-[10px] text-theme">{inquiry.isPublic ? "Public" : "Private"}</p></button>)}</aside>{selected && <section><div className="rounded-lg border border-white/10 p-4"><p className="text-[10px] font-black uppercase text-theme">Inquiry request</p><h3 className="mt-1 font-black text-white">{selected.title || selected.vehicleModel}</h3>{selected.title && <p className="mt-1 text-xs text-slate-400">{selected.vehicleModel}</p>}<p className="mt-2 text-sm text-slate-300">{selected.notes}</p>{canChangeStatus && <div className="mt-3 flex gap-2"><select value={status} onChange={(event) => setStatus(event.target.value)} className="rounded bg-black p-2 text-xs text-white"><option value="">Change status</option>{["New Inquiry", "Quoted", "Negotiating", "Accepted", "Closed"].map((item) => <option key={item}>{item}</option>)}</select><button onClick={updateStatus} disabled={!status} className="btn-primary rounded px-3 text-xs">Save</button></div>}</div><div className="mt-4 grid gap-3">{notes.map((item) => <article key={item.id} className={`rounded-lg border border-white/10 p-4 ${item.parentNoteId ? "ml-6" : ""}`}><p className="text-xs font-black text-white">{item.authorName} <span className="text-slate-400">{item.isPublic ? "Public" : "Private"}</span></p><p className="mt-2 text-sm text-slate-300">{item.body}</p><button onClick={() => { setReplyTo(item.noteId); setIsPublic(item.isPublic); }} className="mt-3 text-xs text-theme">Follow up</button></article>)}</div><form onSubmit={post} className="mt-4 grid gap-2"><InquiryVisibilityToggle checked={isPublic} disabled={!canPublishPublic} onChange={setIsPublic} label="Make this follow-up public" /><textarea value={note} onChange={(event) => setNote(event.target.value)} className="min-h-24 rounded border border-white/10 bg-black/20 p-3 text-sm text-white" /><button disabled={busy || !note.trim()} className="btn-primary rounded px-4 py-2 text-[10px] font-black uppercase">Post follow-up</button>{error && <p className="text-xs text-red-300">{error}</p>}</form></section>}</div>
+    <div className="mb-4 flex flex-wrap justify-between gap-3"><div className="flex flex-wrap gap-2"><Input aria-label="Search inquiries" value={inquirySearch} onChange={(event) => setInquirySearch(event.target.value)} placeholder="Search vehicle, customer, or inquiry" /><select aria-label="Filter inquiries by status" value={inquiryStatusFilter} onChange={(event) => setInquiryStatusFilter(event.target.value)} className="rounded border border-white/15 bg-black px-3 text-xs text-white"><option value="">All statuses</option>{inquiryStatuses.map((item) => <option key={item}>{item}</option>)}</select></div><div className="flex flex-wrap gap-3">{canCreateQuote && <button type="button" disabled={!selected} onClick={() => setShowQuoteComposer((value) => !value)} className="btn-primary rounded px-4 py-2 text-[10px] font-black uppercase">Create quotation</button>}<button type="button" onClick={() => setShowNew((value) => !value)} className="btn-primary rounded px-4 py-2 text-[10px] font-black uppercase">Start inquiry</button></div></div>
+    {showQuoteComposer && selected && <form onSubmit={createQuotation} className="mb-4 grid gap-3 rounded-lg border border-gold/40 bg-gold/5 p-4 md:grid-cols-3"><p className="text-xs text-slate-300 md:col-span-3">{selected.vehicleModel} / {selected.quantity} units — the original quotation template will open after creation.</p><Input aria-label="USD unit price" type="number" min="0" step="0.01" value={quotePrice} onChange={(event) => setQuotePrice(event.target.value)} placeholder="FOB unit price (USD)" required /><Input aria-label="CIF total" value={quoteCif} onChange={(event) => setQuoteCif(event.target.value)} placeholder="CIF total (USD, manual entry)" /><button disabled={busy} className="btn-primary rounded px-4 py-2 text-[10px] font-black uppercase">{busy ? "Creating..." : "Create and open template"}</button></form>}
+    {showNew && <form onSubmit={create} className="mb-4 grid gap-3 rounded-lg border border-theme/30 bg-theme/5 p-4"><InquiryVehiclePicker vehicles={data.vehicles} value={target} onChange={setTarget} /><Input aria-label="Inquiry title" value={title} onChange={(event) => setTitle(event.target.value)} placeholder={target.vehicleModel ? "Inquiry title (optional)" : "Inquiry title (required when no vehicle is selected)"} required={!target.vehicleModel} /><textarea value={initialNote} onChange={(event) => setInitialNote(event.target.value)} className="min-h-24 rounded border border-white/15 bg-black/20 p-3 text-sm text-white" /><button disabled={busy || (!target.vehicleModel && !title.trim()) || !initialNote.trim()} className="btn-primary rounded px-4 py-2 text-[10px] font-black uppercase">Post inquiry</button></form>}
+    <div className="grid gap-4 xl:grid-cols-[19rem_minmax(0,1fr)]"><aside className="grid max-h-[70vh] gap-3 overflow-y-auto">{vehicleGroups.map((group) => <section key={group.vehicleKey} className="rounded-lg border border-white/10 p-3"><div className="flex justify-between gap-2"><p className="line-clamp-2 text-xs font-black text-white">{group.vehicleLabel}</p><span className="text-[10px] text-slate-500">{group.inquiries.length} conversations</span></div><div className="mt-2 grid gap-1">{group.inquiries.map((inquiry) => <button key={inquiry.inquiryNo} type="button" onClick={() => select(inquiry)} className={`rounded p-2 text-left text-xs ${selected?.inquiryNo === inquiry.inquiryNo ? "bg-theme/15 text-white" : "text-slate-300 hover:bg-white/5"}`}><div className="flex justify-between gap-2"><span>Customer {inquiry.customerId}</span>{inquiry.hasUnreadFollowUps && <span className="h-2 w-2 rounded-full bg-amber-300" />}</div><span className="mt-1 block line-clamp-1 text-[10px] text-slate-500">{inquiry.title || inquiry.inquiryNo}</span></button>)}</div></section>)}{vehicleGroups.length === 0 && <p className="rounded border border-dashed border-white/15 p-3 text-xs text-slate-400">No conversations match this filter.</p>}</aside>{selected && <section><div className="rounded-lg border border-white/10 p-4"><p className="text-[10px] font-black uppercase text-theme">Inquiry request</p><h3 className="mt-1 font-black text-white">{selected.title || selected.vehicleModel}</h3><p className="mt-1 text-xs text-slate-500">{selected.inquiryNo} · Customer {selected.customerId}</p><p className="mt-2 text-sm text-slate-300">{selected.notes}</p>{canChangeStatus && <div className="mt-3 flex flex-wrap gap-2"><select value={status} onChange={(event) => setStatus(event.target.value)} className="rounded bg-black p-2 text-xs text-white"><option value="">Change status</option>{inquiryStatuses.filter((item) => canTransitionInquiryStatus(selected.status, item)).map((item) => <option key={item}>{item}</option>)}</select><Input aria-label="Status change reason" value={statusReason} maxLength={500} onChange={(event) => setStatusReason(event.target.value)} placeholder="Reason for this change" /><button type="button" onClick={updateStatus} disabled={!status || busy} className="btn-primary rounded px-3 text-xs">{busy ? "Saving..." : "Save"}</button></div>}</div><div className="mt-4 grid gap-3">{data.inquiryStatusHistory.filter((history) => history.inquiryNo === selected.inquiryNo).map((history) => <p key={history.id} className="rounded border border-white/10 px-3 py-2 text-xs text-slate-400"><span className="font-semibold text-white">{history.actorName}</span> changed {history.fromStatus || "—"} to {history.toStatus} · {history.reason || "No reason supplied"} · {formatDate(history.createdAt)}</p>)}{notes.map((item) => { const quoted = notes.find((noteItem) => noteItem.noteId === item.parentNoteId); return <article key={item.id} id={`note-${item.noteId}`} className="rounded-lg border border-white/10 p-4"><div className="flex justify-between gap-2"><p className="text-xs font-black text-white">{item.authorName} <span className="font-medium text-slate-400">{item.authorRole}</span></p><time className="text-[10px] text-slate-500">{formatDate(item.createdAt)}</time></div>{quoted && <a href={`#note-${quoted.noteId}`} className="mt-2 block rounded border border-theme/20 bg-theme/5 px-2 py-1 text-xs text-theme">{replyReference(quoted)}</a>}<p className="mt-2 whitespace-pre-wrap text-sm text-slate-300">{item.body}</p><button type="button" onClick={() => setReplyTo(item.noteId)} className="mt-3 text-xs text-theme">Quote reply</button></article>; })}{notes.length === 0 && <p className="text-sm text-slate-400">No messages in this conversation yet.</p>}</div><form onSubmit={post} className="mt-4 grid gap-2">{replyTo && <div className="flex justify-between rounded border border-theme/30 bg-theme/5 px-3 py-2 text-xs text-theme">{parent ? replyReference(parent) : "Quote reply to selected comment"}<button type="button" onClick={() => setReplyTo("")}>Cancel</button></div>}<textarea value={note} maxLength={4000} onChange={(event) => setNote(event.target.value)} placeholder={replyTo ? "Write your quote reply" : "Write a message"} className="min-h-24 rounded border border-white/10 bg-black/20 p-3 text-sm text-white" /><button disabled={busy || !note.trim()} className="btn-primary rounded px-4 py-2 text-[10px] font-black uppercase">{busy ? "Saving..." : replyTo ? "Send quote reply" : "Send message"}</button>{error && <p className="text-xs text-red-300">{error}</p>}</form></section>}</div>
+    {preview && <Dialog open onOpenChange={(open) => !open && setPreview(null)} className="max-w-[min(96vw,1200px)] p-3"><DialogHeader><DialogTitle>Official quotation {preview.quoteNo}</DialogTitle><DialogDescription>The document below is the original quotation template, prefilled from this inquiry.</DialogDescription></DialogHeader><div><QuotationTemplatePreview {...preview} /></div></Dialog>}
   </AdminPanel>;
 }
 
@@ -2382,8 +2604,8 @@ function AdminQuotesLegacy({ data }: { data: BootstrapData }) {
       <aside className="grid max-h-[70vh] gap-2 overflow-y-auto pr-1">{data.inquiries.map((inquiry) => <button key={inquiry.inquiryNo} type="button" onClick={() => { setSelectedNo(inquiry.inquiryNo); setStatus(""); }} className={`rounded-lg border p-3 text-left ${selected?.inquiryNo === inquiry.inquiryNo ? "border-theme bg-theme/10" : "border-white/10 bg-white/[.03]"}`}><p className="text-xs font-black text-white">{inquiry.inquiryNo}</p><p className="mt-1 line-clamp-2 text-xs text-gray-400">{inquiry.vehicleModel || inquiry.vehicleId}</p><p className="mt-2 text-[10px] font-black uppercase tracking-widest text-theme">{inquiry.status}</p></button>)}</aside>
       {selected && <section className="min-w-0">
         <div className="grid gap-3 rounded-lg border border-white/10 bg-white/[.03] p-4 md:grid-cols-[1fr_auto]"><div><p className="text-[10px] font-black uppercase tracking-widest text-theme">Inquiry request</p><h3 className="mt-1 font-black text-white">{selected.vehicleModel || selected.vehicleId}</h3><p className="mt-1 text-xs text-gray-400">{selected.quantity} units / {selected.tradeTerm || "-"} / {selected.destinationPort || "-"}</p><p className="mt-1 whitespace-pre-wrap text-sm text-slate-300">{selected.notes}</p></div><div className="flex items-start gap-2"><AdminStatusBadge status={selected.status || "New Inquiry"} />{data.user.role === "admin" && <button type="button" onClick={() => removeContent("inquiry", selected.inquiryNo)} className="text-[10px] font-black uppercase text-red-300">Remove</button>}{canChangeStatus && <><select aria-label="Inquiry status" value={status} onChange={(e) => setStatus(e.target.value)} className="rounded border border-white/15 bg-black/20 px-2 py-1 text-xs text-white"><option value="">Change status</option>{["New Inquiry", "Quoted", "Negotiating", "Accepted", "Closed"].map((item) => <option key={item}>{item}</option>)}</select><button type="button" disabled={!status || busy} onClick={updateStatus} className="btn-primary rounded px-3 py-1 text-[10px] font-black uppercase">Save</button></>}</div></div>
-        <div className="mt-4 grid gap-3">{history.map((item) => <p key={item.id} className="text-xs text-gray-500">{item.actorName || item.actorRole} updated the inquiry status to {item.toStatus} / {formatDate(item.createdAt)}</p>)}{notes.map((item) => <article key={item.id} className={`rounded-lg border border-white/10 bg-white/[.03] p-4 ${item.parentNoteId ? "ml-6 border-l-2 border-l-theme" : ""}`}><div className="flex justify-between gap-3"><p className="text-xs font-black text-white">{item.authorName || item.authorRole}</p><p className="text-[10px] text-gray-500">{formatDate(item.createdAt)}</p></div><p className="mt-2 whitespace-pre-wrap text-sm text-gray-300">{item.body}</p><div className="mt-3 flex gap-3"><button type="button" onClick={() => setReplyTo(item.noteId)} className="text-[10px] font-black uppercase text-theme">Follow up</button>{(data.user.role === "admin" || item.authorUserId === data.user.userId) && <button type="button" onClick={() => removeContent("note", item.noteId)} className="text-[10px] font-black uppercase text-red-300">Remove</button>}</div></article>)}</div>
-        <form onSubmit={submitNote} className="mt-4 grid gap-2">{replyTo && <div className="flex justify-between text-xs text-theme">Following up on an earlier response <button type="button" onClick={() => setReplyTo("")}>Cancel</button></div>}<textarea value={note} onChange={(e) => setNote(e.target.value)} maxLength={4000} placeholder={replyTo ? "Write a follow-up response" : "Write an inquiry follow-up"} className="min-h-24 rounded-lg border border-white/10 bg-white/[.03] p-3 text-sm text-white" /><div className="flex items-center justify-between gap-3">{error ? <p className="text-xs text-red-300">{error}</p> : <span /> }<button disabled={busy || !note.trim()} className="btn-primary rounded px-4 py-2 text-[10px] font-black uppercase">{busy ? "Saving..." : "Post follow-up"}</button></div></form>
+        <div className="mt-4 grid gap-3">{history.map((item) => <p key={item.id} className="text-xs text-gray-500">{item.actorName || item.actorRole} updated the inquiry status to {item.toStatus} / {formatDate(item.createdAt)}</p>)}{notes.map((item) => <article key={item.id} className="rounded-lg border border-white/10 bg-white/[.03] p-4"><div className="flex justify-between gap-3"><p className="text-xs font-black text-white">{item.authorName || item.authorRole}</p><p className="text-[10px] text-gray-500">{formatDate(item.createdAt)}</p></div>{item.parentNoteId && <p className="mt-2 text-[10px] font-black uppercase tracking-widest text-theme">Quote reply</p>}<p className="mt-2 whitespace-pre-wrap text-sm text-gray-300">{item.body}</p><div className="mt-3 flex gap-3"><button type="button" onClick={() => setReplyTo(item.noteId)} className="text-[10px] font-black uppercase text-theme">Quote reply</button>{(data.user.role === "admin" || item.authorUserId === data.user.userId) && <button type="button" onClick={() => removeContent("note", item.noteId)} className="text-[10px] font-black uppercase text-red-300">Remove</button>}</div></article>)}</div>
+        <form onSubmit={submitNote} className="mt-4 grid gap-2">{replyTo && <div className="flex justify-between text-xs text-theme">Quote reply to an earlier message <button type="button" onClick={() => setReplyTo("")}>Cancel</button></div>}<textarea value={note} onChange={(e) => setNote(e.target.value)} maxLength={4000} placeholder={replyTo ? "Write a quote reply" : "Write a message"} className="min-h-24 rounded-lg border border-white/10 bg-white/[.03] p-3 text-sm text-white" /><div className="flex items-center justify-between gap-3">{error ? <p className="text-xs text-red-300">{error}</p> : <span /> }<button disabled={busy || !note.trim()} className="btn-primary rounded px-4 py-2 text-[10px] font-black uppercase">{busy ? "Saving..." : replyTo ? "Send quote reply" : "Send message"}</button></div></form>
       </section>}
     </div>}
     <Dialog open={showDeleted} onOpenChange={setShowDeleted}><DialogHeader><DialogTitle>Inquiry content management</DialogTitle><DialogDescription>Restore removed content or permanently clear an already removed record.</DialogDescription></DialogHeader><div className="grid max-h-80 gap-3 overflow-y-auto p-4">{[...deletedContent.inquiries.map((item) => ({ type: "inquiry" as const, id: item.inquiryNo, label: item.vehicleModel })), ...deletedContent.notes.map((item) => ({ type: "note" as const, id: item.noteId, label: item.body }))].map((item) => <div key={`${item.type}-${item.id}`} className="flex items-center justify-between gap-3 rounded border border-white/10 p-3 text-sm text-white"><span className="line-clamp-2">{item.label}</span><div className="flex gap-2"><button onClick={() => moderate(item.type,item.id,"restore")} className="text-xs text-theme">Restore</button><button onClick={() => moderate(item.type,item.id,"purge")} className="text-xs text-red-300">Permanently clear</button></div></div>)}</div></Dialog>
@@ -2391,6 +2613,7 @@ function AdminQuotesLegacy({ data }: { data: BootstrapData }) {
 }
 
 function AdminOrders({ data }: { data: BootstrapData }) {
+  const { t } = useTranslation();
   return (
     <AdminPanel title="Order Management" subtitle="Orders created from accepted quotes">
       <AdminTable
@@ -2402,7 +2625,7 @@ function AdminOrders({ data }: { data: BootstrapData }) {
             customer?.company || order.customerId || "-",
             order.quoteNo || "-",
             order.vehicleId,
-            `${order.quantity} units`,
+            t("portal.unitCount", { count: order.quantity }),
             formatUsdStrict(order.total),
             <AdminStatusBadge key="status" status={order.status || "Draft"} />,
             formatDate(order.createdAt),
@@ -2415,6 +2638,7 @@ function AdminOrders({ data }: { data: BootstrapData }) {
 }
 
 function AdminPayments({ data }: { data: BootstrapData }) {
+  const { t } = useTranslation();
   const total = data.orders.reduce((sum, order) => sum + order.total, 0);
   const paid = data.orders
     .filter((order) => order.status.toLowerCase().includes("paid"))
@@ -2423,7 +2647,7 @@ function AdminPayments({ data }: { data: BootstrapData }) {
   return (
     <div className="grid gap-5">
       <section className="grid gap-4 md:grid-cols-3">
-        <AdminStat label="Order Receivables" value={formatUsdStrict(total)} note={`${data.orders.length} orders`} />
+        <AdminStat label="Order Receivables" value={formatUsdStrict(total)} note={t("portal.orderCount", { count: data.orders.length })} />
         <AdminStat label="Received" value={formatUsdStrict(paid)} note="Based on order status" />
         <AdminStat label="Outstanding" value={formatUsdStrict(Math.max(total - paid, 0))} note="Payment detail view pending" />
       </section>
@@ -2448,6 +2672,7 @@ function AdminPayments({ data }: { data: BootstrapData }) {
 }
 
 function AdminLogistics({ data }: { data: BootstrapData }) {
+  const { t } = useTranslation();
   const shippedCount = data.orders.filter((order) => /ship|shipped|shipping|装船|发运/i.test(order.status)).length;
   const customsCount = data.orders.filter((order) => /custom|clearance|清关/i.test(order.status)).length;
   const steps = [
@@ -2475,7 +2700,7 @@ function AdminLogistics({ data }: { data: BootstrapData }) {
               order.orderNo,
               customer?.company || order.customerId || "-",
               order.vehicleId,
-              `${order.quantity} units`,
+              t("portal.unitCount", { count: order.quantity }),
               <AdminStatusBadge key="status" status={order.status || "Draft"} />,
               formatDate(order.createdAt),
             ];
@@ -2766,13 +2991,13 @@ function VehicleEditModal({ vehicle, onClose, onSaved }: { vehicle: Vehicle; onC
 function AdminPanel({ title, subtitle, children }: { title: string; subtitle: string; children: ReactNode }) {
   const { locale } = useTranslation();
   return (
-    <Card className="min-w-0 overflow-hidden shadow-2xl shadow-black/10">
-      <CardHeader className="pb-3">
-        <CardTitle className="text-lg font-black text-white">{localizeVehicleValue(title, locale)}</CardTitle>
-        {subtitle ? <CardDescription className="text-xs text-slate-400">{localizeVehicleValue(subtitle, locale)}</CardDescription> : null}
-      </CardHeader>
-      <CardContent>{children}</CardContent>
-    </Card>
+    <section className="min-w-0">
+      <header className="mb-5 border-b border-white/10 pb-4">
+        <h2 className="text-lg font-black text-white">{localizeVehicleValue(title, locale)}</h2>
+        {subtitle ? <p className="mt-1 text-xs text-slate-400">{localizeVehicleValue(subtitle, locale)}</p> : null}
+      </header>
+      {children}
+    </section>
   );
 }
 
@@ -2969,7 +3194,35 @@ function getModelTrimVariants(group: ModelProfileGroup) {
   return group.variants.filter((variant) => safeText(variant.trim).trim());
 }
 
-function buildModelProfileGroups(data: BootstrapData): ModelProfileGroup[] {
+function mergeModelGalleryImages(
+  existing: VehicleGalleryImage[],
+  incoming: VehicleGalleryImage[],
+): VehicleGalleryImage[] {
+  const seen = new Set<string>();
+  return [...existing, ...incoming].filter((image) => {
+    if (!image.src || seen.has(image.src)) return false;
+    seen.add(image.src);
+    return true;
+  });
+}
+
+function modelGalleryImages(model: VehicleModel): VehicleGalleryImage[] {
+  const images = (Array.isArray(model.galleryImages) ? model.galleryImages : [])
+    .filter((image) => image && typeof image.src === "string" && image.src.trim() && image.src !== "/pic/hero/0.webp")
+    .map((image) => ({
+      src: image.src,
+      cat: image.cat || "Exterior",
+      label: image.label || "Vehicle image",
+    }));
+  const coverImage = model.imageUrl !== "/pic/hero/0.webp" ? model.imageUrl : "";
+  return images.length > 0
+    ? images
+    : coverImage
+      ? [{ src: coverImage, cat: "Exterior", label: "Main Profile" }]
+      : [];
+}
+
+export function buildModelProfileGroups(data: BootstrapData): ModelProfileGroup[] {
   const specsByModel = new Map<string, VehicleModelSpec[]>();
   for (const spec of data.vehicleModelSpecs || []) {
     if (!spec.modelId) continue;
@@ -2987,6 +3240,8 @@ function buildModelProfileGroups(data: BootstrapData): ModelProfileGroup[] {
   const models = activeModels.length ? activeModels : data.vehicleModels || [];
   const grouped = new Map<string, ModelProfileGroup>();
   for (const model of models) {
+    const modelGallery = modelGalleryImages(model);
+    const modelImage = modelGallery[0]?.src || "";
     const key = normalizeKey(model.brand, model.model);
     if (!grouped.has(key)) {
       grouped.set(key, {
@@ -2995,6 +3250,8 @@ function buildModelProfileGroups(data: BootstrapData): ModelProfileGroup[] {
         model: model.model,
         years: [],
         variants: [],
+        imageUrl: modelImage,
+        galleryImages: modelGallery,
         specsByModel,
         segment: "",
         energyType: "",
@@ -3005,6 +3262,11 @@ function buildModelProfileGroups(data: BootstrapData): ModelProfileGroup[] {
     }
     const group = grouped.get(key)!;
     group.variants.push(model);
+    group.galleryImages = mergeModelGalleryImages(group.galleryImages, modelGallery);
+    const specificImage = group.galleryImages.find((image) => image.src !== "/pic/hero/0.webp")?.src;
+    if ((!group.imageUrl || group.imageUrl === "/pic/hero/0.webp") && (specificImage || modelImage)) {
+      group.imageUrl = specificImage || modelImage;
+    }
     if (model.year && !group.years.includes(model.year)) group.years.push(model.year);
   }
 
@@ -3418,24 +3680,6 @@ export function buildVehicleResourceVariants(vehicles: Vehicle[]): VehicleResour
     );
 }
 
-export function buildInquiryVehiclePickerOptions(vehicles: Vehicle[]) {
-  const grouped = new Map<string, { key: string; brand: string; model: string; vehicles: Vehicle[] }>();
-
-  for (const vehicle of vehicles) {
-    const key = modelResourceKey(vehicle.brand, vehicle.model);
-    const existing = grouped.get(key);
-    if (existing) {
-      existing.vehicles.push(vehicle);
-    } else {
-      grouped.set(key, { key, brand: vehicle.brand, model: vehicle.model, vehicles: [vehicle] });
-    }
-  }
-
-  return Array.from(grouped.values())
-    .map((model) => ({ ...model, variants: buildVehicleResourceVariants(model.vehicles) }))
-    .sort((left, right) => compactJoin([left.brand, left.model]).localeCompare(compactJoin([right.brand, right.model])));
-}
-
 function getFobPrice(vehicle: Vehicle) {
   return vehicle.price;
 }
@@ -3594,14 +3838,9 @@ function getSupplyType(vehicle: Vehicle) {
   return "Unknown";
 }
 
-function formatInventoryQuantity(vehicle: Vehicle) {
-  const quantity = vehicle.colorStockQuantity ?? (typeof vehicle.stockQuantity === "number" && vehicle.stockQuantity > 0 ? vehicle.stockQuantity : null);
-  return quantity !== null && quantity !== undefined ? `${quantity} units` : "-";
-}
-
-function formatFulfillmentStatus(vehicle: Vehicle) {
+function formatFulfillmentStatus(vehicle: Vehicle, formatDays: (count: number) => string) {
   if (vehicle.waitDays !== null && vehicle.waitDays !== undefined) {
-    return `${vehicle.waitDays} days`;
+    return formatDays(vehicle.waitDays);
   }
   return "-";
 }
@@ -3611,10 +3850,6 @@ function formatFobRange(prices: number[]) {
   const min = Math.min(...prices);
   const max = Math.max(...prices);
   return `FOB ${formatUsdStrict(min)} - ${formatUsdStrict(max)}`;
-}
-
-function formatModelYear(year: string) {
-  return year ? `${year} model year` : "Model year pending";
 }
 
 function formatSupplySummary(item: SellableModel) {
@@ -3631,6 +3866,31 @@ function formatColorPair(exteriorColor: string, interiorColor: string) {
     return `${validExt} / ${validInt}`;
   }
   return validExt || validInt || "-";
+}
+
+function formatYearMonth(year?: string | number | null, month?: string | number | null): string {
+  if (!year && !month) return "-";
+  const y = year ? String(year).trim() : "";
+  let m = month ? String(month).trim() : "";
+
+  // Handle combined strings in year field (e.g. "2025-08", "2025/8", "2025.08", "2025年8月")
+  if (y && !m) {
+    const match = y.match(/^(\d{4})[-/.\u5e74](\d{1,2})[\u6708]?$/);
+    if (match) {
+      return `${match[1]}-${match[2].padStart(2, "0")}`;
+    }
+  }
+
+  if (m) {
+    m = m.replace(/月/g, "").trim();
+    if (/^\d+$/.test(m)) {
+      m = m.padStart(2, "0");
+    }
+  }
+  if (y && m) return `${y}-${m}`;
+  if (y) return y;
+  if (m) return m;
+  return "-";
 }
 
 function normalizeKey(...values: Array<string | number | null | undefined>) {
@@ -3669,12 +3929,24 @@ function vehicleName(vehicle: Vehicle) {
   return `${vehicle.brand} ${vehicle.model} ${vehicle.trim}`.trim() || vehicle.id;
 }
 
+function getVehicleStockQuantity(vehicle: Pick<Vehicle, "stockQuantity" | "colorStockQuantity">) {
+  return vehicle.colorStockQuantity ?? (typeof vehicle.stockQuantity === "number" && vehicle.stockQuantity > 0 ? vehicle.stockQuantity : 0);
+}
+
 function compactJoin(values: Array<string | number | null | undefined>) {
   const text = values
     .map((value) => String(value ?? "").trim())
     .filter((val) => val && val !== "-" && val !== "未指定")
     .join(" / ");
   return text || "-";
+}
+
+function formatTrimFeatureLines(value: string) {
+  return value
+    .split(/[;；]\s*/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .join("\n");
 }
 
 function getDateTime(value: string) {
