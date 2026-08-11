@@ -155,13 +155,11 @@ export function buildCatalogFilterGroups(
   const categoryGroups = category === "revenue-king"
     ? [
         categoricalGroup("steeringSetup", groupLabel(t, category, "steeringSetup", "Steering Setup"), "steeringSetups", products, t),
-        categoricalGroup("inventoryStatus", groupLabel(t, category, "availability", "Availability"), "inventoryStatuses", products, t),
       ]
     : category === "elite-flagship"
       ? [
           categoricalGroup("voltagePlatform", groupLabel(t, category, "chargingStandard", "Voltage Platform"), "voltagePlatforms", products, t),
           categoricalGroup("powertrainType", groupLabel(t, category, "powertrainType", "Powertrain Type"), "powertrainTypes", products, t),
-          categoricalGroup("inventoryStatus", groupLabel(t, category, "availability", "Availability"), "inventoryStatuses", products, t),
         ]
       : [
           categoricalGroup("drivetrain", groupLabel(t, category, "drivetrain", "Drivetrain"), "drivetrains", products, t),
@@ -169,7 +167,6 @@ export function buildCatalogFilterGroups(
           intervalGroup("groundClearanceMm", groupLabel(t, category, "groundClearance", "Ground Clearance"), "groundClearanceMm", [
             { id: "clearance-200-plus", labelKey: "productsUtilityPro.filterOptions.highClearance", fallback: "High Clearance (200mm+)", interval: { min: 200, max: Number.POSITIVE_INFINITY } },
           ], products, t),
-          categoricalGroup("inventoryStatus", groupLabel(t, category, "availability", "Availability"), "inventoryStatuses", products, t),
         ];
 
   return [...common, ...categoryGroups].filter((group): group is CatalogFilterGroup => group !== null);

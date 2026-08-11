@@ -140,11 +140,14 @@ CREATE TABLE IF NOT EXISTS inquiries (
   customer_id TEXT NOT NULL,
   vehicle_id TEXT NOT NULL,
   vehicle_model TEXT NOT NULL,
+  title TEXT NOT NULL DEFAULT '',
   quantity INTEGER NOT NULL CHECK (quantity > 0),
   destination_port TEXT,
   trade_term TEXT NOT NULL,
   target_price REAL,
   initial_note TEXT,
+  vehicle_snapshot_json TEXT NOT NULL DEFAULT '',
+  is_public INTEGER NOT NULL DEFAULT 0,
   status TEXT NOT NULL DEFAULT 'New Inquiry',
   source TEXT NOT NULL DEFAULT 'Customer Portal',
   deleted_at TEXT,
@@ -175,11 +178,19 @@ CREATE TABLE IF NOT EXISTS inquiry_notes (
   author_name TEXT NOT NULL,
   author_role TEXT NOT NULL,
   body TEXT NOT NULL,
+  is_public INTEGER NOT NULL DEFAULT 0,
   deleted_at TEXT,
   deleted_by_user_id TEXT,
   deleted_by_name TEXT,
   deletion_reason TEXT,
   created_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS inquiry_reads (
+  inquiry_no TEXT NOT NULL REFERENCES inquiries(inquiry_no),
+  user_id TEXT NOT NULL,
+  last_read_at TEXT NOT NULL,
+  PRIMARY KEY (inquiry_no, user_id)
 );
 
 CREATE TABLE IF NOT EXISTS inquiry_status_history (
@@ -188,6 +199,7 @@ CREATE TABLE IF NOT EXISTS inquiry_status_history (
   inquiry_no TEXT NOT NULL REFERENCES inquiries(inquiry_no),
   from_status TEXT,
   to_status TEXT NOT NULL,
+  reason TEXT NOT NULL DEFAULT '',
   actor_user_id TEXT NOT NULL,
   actor_name TEXT NOT NULL,
   actor_role TEXT NOT NULL,

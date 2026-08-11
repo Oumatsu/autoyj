@@ -2,11 +2,20 @@
 
 import { findLocalUser } from "../../lib/users";
 import type { AccountType, PortalRole, PriceTier } from "../../lib/users";
+import { canCreateVehicleQuotation } from "../../lib/quotation-permissions";
+import { canTransitionInquiryStatus, hasUnreadInquiryActivity, inquiryStatuses } from "../../lib/inquiry-workflow";
 import {
   queryVehicleModels,
   queryVehicleTrims,
   queryVehicles,
 } from "../db/d1";
+import {
+  canDeleteInquiry,
+  canDeleteNote,
+  canPublishPublicNote,
+  canViewInquiry,
+  canViewNote,
+} from "../inquiries/visibility";
 import {
   getPublicAcademyLesson,
   getPublicInsight,
@@ -1702,15 +1711,28 @@ async function handleBootstrap(request: Request, env: Env) {
     handleGetVehicles(request, env)
       .then((r) => r.json() as Promise<{ vehicles?: Record<string, unknown>[] }>),
   ]);
-  const [inquiries, quotes, negotiations, orders, inquiryNotes, inquiryStatusHistory] = await Promise.all([
+  const [inquiries, quotes, negotiations, orders] = await Promise.all([
     listScopedInquiries(env, session),
     listScopedQuotes(env, session),
     listScopedNegotiations(env, session),
     listScopedOrders(env, session),
-    listInquiryNotes(env),
-    listInquiryStatusHistory(env),
   ]);
   const inquiryNumbers = new Set(inquiries.map((item) => item.inquiryNo));
+  const [inquiryNotes, inquiryStatusHistory] = await Promise.all([
+    listInquiryNotes(env, session, inquiries),
+    listInquiryStatusHistory(env, [...inquiryNumbers]),
+  ]);
+  const inquiryNotesByNumber = new Map<string, ReturnType<typeof mapD1Note>[]>();
+  for (const note of inquiryNotes) inquiryNotesByNumber.set(note.inquiryNo, [...(inquiryNotesByNumber.get(note.inquiryNo) || []), note]);
+  const inquiriesWithUnread = inquiries.map((inquiry) => ({
+    ...inquiry,
+    hasUnreadFollowUps: (inquiryNotesByNumber.get(inquiry.inquiryNo) || []).some((note) => hasUnreadInquiryActivity({
+      viewerUserId: session.userId,
+      noteAuthorUserId: note.authorUserId,
+      noteCreatedAt: note.createdAt,
+      lastReadAt: inquiry.lastReadAt,
+    })),
+  }));
 
   return json({
     user: publicUser(session),
@@ -2728,20 +2750,29 @@ async function handleGetVehicleModels(request: Request, env: Env) {
     const name = normalizeTrimName(rowField(fields, "trim_name", "variant", "trim"));
     if (!parent || !name) continue;
     const variantId = trim.id;
-    vehicleModelSpecs.push({
-      id: variantId,
-      modelId: variantId,
-      name,
-      status: asText(rowField(fields, "status", "source_status")),
-      displayPriceLow: trim.display_price_low ?? asOptionalNumber(rowField(fields, "trim_price_display")) ?? undefined,
-      displayPriceHigh: trim.display_price_high ?? undefined,
-      powertrainType: trim.powertrain_type ?? undefined,
-      cltcRangeKm: trim.cltc_range_km ?? asOptionalNumber(rowField(fields, "range_display")) ?? undefined,
-      batteryCapacityKwh: trim.battery_capacity_kwh ?? undefined,
-      motorPowerKw: trim.motor_power_kw ?? undefined,
-      topSpeedKmh: trim.top_speed_kmh ?? undefined,
-      zeroTo100Sec: trim.zero_to_100_sec ?? undefined,
-    });
+    const addSpec = (name: string, value: string, sortOrder: number, category: string) => {
+      if (!value) return;
+      vehicleModelSpecs.push({
+        id: `${variantId}:${name}`,
+        modelId: variantId,
+        name,
+        value,
+        category,
+        sortOrder,
+        sourceName: "D1 · vehicle_trims",
+      });
+    };
+
+    addSpec("版本名称", name, 0, "版本");
+    addSpec("CLTC续航", trim.cltc_range_km != null ? `${formatNumber(trim.cltc_range_km)} km` : "", 10, "三电");
+    addSpec("电池容量", trim.battery_capacity_kwh != null ? `${formatNumber(trim.battery_capacity_kwh, 3)} kWh` : "", 11, "三电");
+    addSpec("电池类型", asText(trim.battery_chemistry), 12, "三电");
+    addSpec("驱动方式", asText(trim.drivetrain_display), 20, "性能");
+    addSpec("电机总功率", trim.motor_power_kw != null ? `${formatNumber(trim.motor_power_kw)} kW` : "", 21, "性能");
+    addSpec("直流快充", trimChargingDisplay(fields), 30, "充电");
+    addSpec("基础配置", jsonList(fields.base_spec_summary_json).join("; "), 40, "版本配置");
+    addSpec("新增配置", jsonList(fields.added_features_json).join("; "), 41, "版本配置");
+    addSpec("升级配置", jsonList(fields.upgraded_features_json).join("; "), 42, "版本配置");
   }
 
   return json({ vehicleModels, vehicleModelSpecs });
@@ -3290,9 +3321,12 @@ async function handleCreateInquiry(request: Request, env: Env) {
   const body = (await request.json().catch(() => null)) as Record<string, unknown> | null;
   const vehicleId = asText(body?.vehicleId).trim();
   const quantity = asNumber(body?.quantity);
-  if (!vehicleId || quantity <= 0) return problem("Vehicle and quantity are required");
+  if (quantity <= 0) return problem("Quantity is required");
+  if (!vehicleId && !requestedVehicleModel && !title) return problem("Select a vehicle scope or provide an inquiry title");
+  if (title.length > 160 || requestedVehicleModel.length > 240) return problem("Inquiry title or vehicle name is too long");
   const db = requirePortalDb(env);
   const now = nowText();
+  const isPublic = false;
   const inquiryNo = nextId("INQ");
   const vehicle = await db.prepare("SELECT * FROM vehicles WHERE id = ?").bind(vehicleId).first<Record<string, unknown>>();
   const vehicleModel = vehicle
@@ -3303,8 +3337,17 @@ async function handleCreateInquiry(request: Request, env: Env) {
     ].map(asText).filter(Boolean).join(" ") || vehicleId
     : vehicleId;
   const initialNote = asText(body?.notes).trim();
+  if (initialNote.length > 4000) return problem("Inquiry message must be 4000 characters or fewer");
+  const vehicleSnapshot = JSON.stringify(vehicle ? {
+    vehicleId,
+    brand: rowField(vehicle, "brand", "鍝佺墝"),
+    model: rowField(vehicle, "model", "鍨嬪彿"),
+    variant: rowField(vehicle, "variant", "缁嗗垎鍨嬪彿"),
+    color: rowField(vehicle, "color", "棰滆壊"),
+    priceUsd: rowField(vehicle, "display_price_low", "FOB"),
+  } : { vehicleId, vehicleModel: selectedVehicleModel });
   const statements = [
-    db.prepare("INSERT INTO inquiries (id,inquiry_no,customer_id,vehicle_id,vehicle_model,quantity,destination_port,trade_term,target_price,initial_note,status,source,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)").bind(crypto.randomUUID(), inquiryNo, session.customerId, vehicleId, vehicleModel, quantity, asText(body?.destinationPort), asText(body?.tradeTerm) || "FOB", asNumber(body?.targetPrice) || null, initialNote, "New Inquiry", "Customer Portal", now, now),
+    db.prepare("INSERT INTO inquiries (id,inquiry_no,customer_id,vehicle_id,vehicle_model,title,quantity,destination_port,trade_term,target_price,initial_note,vehicle_snapshot_json,is_public,status,source,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)").bind(crypto.randomUUID(), inquiryNo, session.customerId, vehicleId, selectedVehicleModel, title, quantity, asText(body?.destinationPort), asText(body?.tradeTerm) || "FOB", asNumber(body?.targetPrice) || null, initialNote, vehicleSnapshot, Number(isPublic), "New Inquiry", "Customer Portal", now, now),
     db.prepare("INSERT INTO inquiry_participants (id,inquiry_no,customer_id,user_id,company,role,access_source,created_at) VALUES (?,?,?,?,?,?,?,?)").bind(crypto.randomUUID(), inquiryNo, session.customerId, session.userId, session.company, session.role, "Creator", now),
   ];
   if (initialNote) statements.push(
@@ -3315,6 +3358,34 @@ async function handleCreateInquiry(request: Request, env: Env) {
 }
 
 function canManageInquiryStatus(session: PortalSession) { return session.role === "admin" || session.role === "sales"; }
+
+async function handleCreateQuote(request: Request, env: Env) {
+  const session = await requireSession(request, env);
+  if (!canCreateVehicleQuotation(session.role)) return problem("Only admin and sales can create quotations", 403);
+  const body = (await request.json().catch(() => null)) as Record<string, unknown> | null;
+  const inquiryNo = asText(body?.inquiryNo).trim();
+  const unitPrice = asNumber(body?.unitPrice);
+  if (!inquiryNo || unitPrice <= 0) return problem("Inquiry and USD unit price are required");
+
+  const db = requirePortalDb(env);
+  const inquiry = await db.prepare("SELECT inquiry_no, customer_id, vehicle_id, quantity, status FROM inquiries WHERE inquiry_no=? AND deleted_at IS NULL LIMIT 1").bind(inquiryNo).first<{ inquiry_no: string; customer_id: string; vehicle_id: string; quantity: number; status: string }>();
+  if (!inquiry) return problem("Inquiry not found", 404);
+  if (inquiry.status !== "Quoted" && !canTransitionInquiryStatus(inquiry.status, "Quoted")) return problem(`Cannot create a quotation while inquiry status is ${inquiry.status}`, 409);
+
+  const now = nowText();
+  const quoteNo = nextId("QTE");
+  const statements = [
+    db.prepare("INSERT INTO quotes (id, quote_no, inquiry_no, customer_id, vehicle_id, price, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)").bind(
+      crypto.randomUUID(), quoteNo, inquiry.inquiry_no, inquiry.customer_id, inquiry.vehicle_id, unitPrice, "Active", now, now,
+    ),
+  ];
+  if (inquiry.status !== "Quoted") statements.push(
+    db.prepare("UPDATE inquiries SET status=?, updated_at=? WHERE inquiry_no=?").bind("Quoted", now, inquiry.inquiry_no),
+    inquiryStatusHistoryStatement(db, session, inquiry.inquiry_no, inquiry.status, "Quoted", `Quotation ${quoteNo} created`, now),
+  );
+  await db.batch(statements);
+  return json({ ok: true, quoteNo, inquiryNo, quantity: inquiry.quantity, unitPrice }, { status: 201 });
+}
 
 function requirePortalDb(env: Env) { if (!env.PORTAL_DB) throw problem("Inquiry database is unavailable", 503); return env.PORTAL_DB; }
 function requirePublicDb(env: Env) {
@@ -3382,9 +3453,9 @@ export async function handlePublicContact(request: Request, env: Env) {
   ).run();
   return json({ ok: true });
 }
-function mapD1Inquiry(row: any) { return { id: row.id, inquiryNo: row.inquiry_no, customerId: row.customer_id, vehicleId: row.vehicle_id, vehicleModel: row.vehicle_model, quantity: Number(row.quantity || 0), destinationPort: row.destination_port || "", tradeTerm: row.trade_term || "", targetPrice: Number(row.target_price || 0), notes: row.initial_note || "", status: row.status || "New Inquiry", createdAt: row.created_at, updatedAt: row.updated_at, deletedAt: row.deleted_at || "" }; }
-function mapD1Note(row: any) { return { id: row.id, noteId: row.note_id, inquiryNo: row.inquiry_no, parentNoteId: row.parent_note_id || "", authorUserId: row.author_user_id, authorName: row.author_name, authorRole: row.author_role, body: row.body, createdAt: row.created_at, deletedAt: row.deleted_at || "" }; }
-function mapD1History(row: any) { return { id: row.id, historyId: row.history_id, inquiryNo: row.inquiry_no, fromStatus: row.from_status || "", toStatus: row.to_status, actorName: row.actor_name, actorRole: row.actor_role, createdAt: row.created_at }; }
+function mapD1Inquiry(row: any) { return { id: row.id, inquiryNo: row.inquiry_no, customerId: row.customer_id, vehicleId: row.vehicle_id, vehicleModel: row.vehicle_model, title: row.title || "", quantity: Number(row.quantity || 0), destinationPort: row.destination_port || "", tradeTerm: row.trade_term || "", targetPrice: Number(row.target_price || 0), notes: row.initial_note || "", vehicleSnapshot: row.vehicle_snapshot_json || "", isPublic: Boolean(row.is_public), creatorUserId: row.creator_user_id || "", lastReadAt: row.last_read_at || null, hasUnreadFollowUps: Boolean(row.has_unread_follow_ups), status: row.status || "New Inquiry", createdAt: row.created_at, updatedAt: row.updated_at, deletedAt: row.deleted_at || "" }; }
+function mapD1Note(row: any) { return { id: row.id, noteId: row.note_id, inquiryNo: row.inquiry_no, parentNoteId: row.parent_note_id || "", authorUserId: row.author_user_id, authorName: row.author_name, authorRole: row.author_role, body: row.body, isPublic: Boolean(row.is_public), createdAt: row.created_at, deletedAt: row.deleted_at || "" }; }
+function mapD1History(row: any) { return { id: row.id, historyId: row.history_id, inquiryNo: row.inquiry_no, fromStatus: row.from_status || "", toStatus: row.to_status, reason: row.reason || "", actorName: row.actor_name, actorRole: row.actor_role, createdAt: row.created_at }; }
 function mapD1Quote(row: any) {
   return {
     id: row.id,
@@ -3441,10 +3512,16 @@ async function listInquiryStatusHistory(env: Env) { const r = await requirePorta
 
 async function listScopedInquiries(env: Env, session: PortalSession) {
   const db = requirePortalDb(env);
-  const result = canManageInquiryStatus(session)
-    ? await db.prepare("SELECT * FROM inquiries WHERE deleted_at IS NULL ORDER BY updated_at DESC").all()
-    : await db.prepare("SELECT DISTINCT i.* FROM inquiries i LEFT JOIN inquiry_participants p ON p.inquiry_no=i.inquiry_no WHERE i.deleted_at IS NULL AND (i.customer_id=? OR p.customer_id=? OR p.user_id=?) ORDER BY i.updated_at DESC").bind(session.customerId, session.customerId, session.userId).all();
-  return result.results.map(mapD1Inquiry);
+  const result = await db.prepare(`
+    SELECT i.*, creator.user_id AS creator_user_id, reads.last_read_at
+    FROM inquiries i
+    JOIN inquiry_participants creator ON creator.inquiry_no=i.inquiry_no AND creator.access_source='Creator'
+    LEFT JOIN inquiry_reads reads ON reads.inquiry_no=i.inquiry_no AND reads.user_id=?
+    WHERE i.deleted_at IS NULL
+      AND (? IN ('admin','sales') OR creator.user_id=?)
+    ORDER BY i.updated_at DESC
+  `).bind(session.userId, session.role, session.userId).all();
+  return result.results.map(mapD1Inquiry).filter((inquiry) => canViewInquiry(session, inquiry));
 }
 
 async function findScopedInquiry(env: Env, session: PortalSession, inquiryNo: string) {
@@ -3526,14 +3603,51 @@ async function handleCreateInquiryNote(request: Request, env: Env, inquiryNo: st
   const session = await requireSession(request, env); await findScopedInquiry(env, session, inquiryNo);
   const body = (await request.json().catch(() => null)) as Record<string, unknown> | null; const text = asText(body?.body).trim();
   if (!text) return problem("Note is required"); if (text.length > 4000) return problem("Note must be 4000 characters or fewer");
-  await createInquiryNote(env, session, inquiryNo, text, asText(body?.parentNoteId)); return json({ ok: true }, { status: 201 });
+  const parentNoteId = asText(body?.parentNoteId); const isPublic = false;
+  let parentIsPublic: boolean | null = null;
+  if (parentNoteId) {
+    const parent = await requirePortalDb(env).prepare("SELECT * FROM inquiry_notes WHERE note_id=? AND inquiry_no=? AND deleted_at IS NULL").bind(parentNoteId, inquiryNo).first();
+    if (!parent) return problem("Parent follow-up not found", 404);
+    const note = mapD1Note(parent);
+    if (!canViewNote(session, inquiry, note)) return problem("Parent follow-up not found", 404);
+    parentIsPublic = note.isPublic;
+  }
+  if (!canPublishPublicNote({ inquiryIsPublic: inquiry.isPublic, parentIsPublic, isPublic })) return problem("Public follow-ups require public inquiry content", 403);
+  const db = requirePortalDb(env);
+  const now = nowText();
+  const note = {
+    id: crypto.randomUUID(),
+    noteId: nextId("NOTE"),
+    inquiryNo,
+    parentNoteId: parentNoteId || "",
+    authorUserId: session.userId,
+    authorName: session.name || session.email,
+    authorRole: session.role,
+    body: text,
+    isPublic,
+    createdAt: now,
+    deletedAt: "",
+  };
+  await db.batch([
+    db.prepare("INSERT INTO inquiry_notes (id,note_id,inquiry_no,parent_note_id,author_user_id,author_name,author_role,body,is_public,created_at) VALUES (?,?,?,?,?,?,?,?,?,?)").bind(
+      note.id, note.noteId, note.inquiryNo, note.parentNoteId || null, note.authorUserId, note.authorName, note.authorRole, note.body, Number(note.isPublic), note.createdAt,
+    ),
+    db.prepare("UPDATE inquiries SET updated_at=? WHERE inquiry_no=?").bind(now, inquiryNo),
+  ]);
+  return json({ ok: true, note }, { status: 201 });
+}
+
+function inquiryStatusHistoryStatement(db: D1Database, session: PortalSession, inquiryNo: string, fromStatus: string, toStatus: string, reason: string, createdAt = nowText()) {
+  return db.prepare("INSERT INTO inquiry_status_history (id,history_id,inquiry_no,from_status,to_status,reason,actor_user_id,actor_name,actor_role,created_at) VALUES (?,?,?,?,?,?,?,?,?,?)").bind(crypto.randomUUID(), nextId("STATUS"), inquiryNo, fromStatus || null, toStatus, reason, session.userId, session.name, session.role, createdAt);
 }
 
 async function handleUpdateInquiryStatus(request: Request, env: Env, inquiryNo: string) {
   const session = await requireSession(request, env); if (!canManageInquiryStatus(session)) return problem("Only admin and sales can change inquiry status", 403);
-  const { inquiry } = await findScopedInquiry(env, session, inquiryNo); const body = (await request.json().catch(() => null)) as Record<string, unknown> | null; const status = asText(body?.status).trim();
-  const allowed = new Set(["New Inquiry", "Quoted", "Negotiating", "Accepted", "Closed"]); if (!allowed.has(status)) return problem("Invalid inquiry status");
-  if (status !== inquiry.status) { const now = nowText(); const db = requirePortalDb(env); await db.batch([db.prepare("UPDATE inquiries SET status=?, updated_at=? WHERE inquiry_no=?").bind(status, now, inquiryNo), db.prepare("INSERT INTO inquiry_status_history (id,history_id,inquiry_no,from_status,to_status,actor_user_id,actor_name,actor_role,created_at) VALUES (?,?,?,?,?,?,?,?,?)").bind(crypto.randomUUID(), nextId("STATUS"), inquiryNo, inquiry.status, status, session.userId, session.name, session.role, now)]); }
+  const { inquiry } = await findScopedInquiry(env, session, inquiryNo); const body = (await request.json().catch(() => null)) as Record<string, unknown> | null; const status = asText(body?.status).trim(); const reason = asText(body?.reason).trim();
+  if (!inquiryStatuses.includes(status as typeof inquiryStatuses[number])) return problem("Invalid inquiry status");
+  if (reason.length > 500) return problem("Status reason must be 500 characters or fewer");
+  if (status !== inquiry.status && !canTransitionInquiryStatus(inquiry.status, status)) return problem(`Cannot move an inquiry from ${inquiry.status} to ${status}`, 409);
+  if (status !== inquiry.status) { const now = nowText(); const db = requirePortalDb(env); await db.batch([db.prepare("UPDATE inquiries SET status=?, updated_at=? WHERE inquiry_no=?").bind(status, now, inquiryNo), inquiryStatusHistoryStatement(db, session, inquiryNo, inquiry.status, status, reason || "Manual status update", now)]); }
   return json({ ok: true });
 }
 
@@ -3542,6 +3656,12 @@ async function handleDeleteInquiryContent(request: Request, env: Env, type: "inq
   const row = await db.prepare(`SELECT * FROM ${table} WHERE ${key}=?`).bind(id).first<any>(); if (!row) return problem("Inquiry content not found", 404);
   const authorId = type === "inquiry" ? row.customer_id : row.author_user_id; if (session.role !== "admin" && authorId !== session.userId && authorId !== session.customerId) return problem("Only an administrator can remove another account's content", 403);
   const body = await request.json().catch(() => ({})) as Record<string, unknown>; await db.prepare(`UPDATE ${table} SET deleted_at=?, deleted_by_user_id=?, deleted_by_name=?, deletion_reason=? WHERE ${key}=?`).bind(nowText(), session.userId, session.name, asText(body.reason), id).run(); return json({ ok: true });
+}
+
+async function handleMarkInquiryRead(request: Request, env: Env, inquiryNo: string) {
+  const session = await requireSession(request, env); const { inquiry } = await findScopedInquiry(env, session, inquiryNo);
+  await requirePortalDb(env).prepare("INSERT INTO inquiry_reads (inquiry_no,user_id,last_read_at) VALUES (?,?,?) ON CONFLICT(inquiry_no,user_id) DO UPDATE SET last_read_at=excluded.last_read_at").bind(inquiryNo, session.userId, nowText()).run();
+  return json({ ok: true });
 }
 
 async function handleDeletedInquiryContent(request: Request, env: Env) {
@@ -4005,6 +4125,9 @@ export async function handlePortalRequest(request: Request, env: Env) {
     }
     if (path === "/api/portal/inquiries" && request.method === "POST") {
       return await handleCreateInquiry(request, env);
+    }
+    if (path === "/api/portal/quotes" && request.method === "POST") {
+      return await handleCreateQuote(request, env);
     }
     const inquiryNoteMatch = path.match(/^\/api\/portal\/inquiries\/([^/]+)\/notes$/);
     if (inquiryNoteMatch && request.method === "POST") return await handleCreateInquiryNote(request, env, decodeURIComponent(inquiryNoteMatch[1]));

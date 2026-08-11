@@ -24,6 +24,9 @@ import { sanitizeDisplayData } from "@/lib/display-text";
 import { getPortalSession, invalidatePortalSession } from "@/lib/portal-session-client";
 import { formatPortalHeader, formatPortalRole, formatPortalStatus, localizeVehicleValue, portalRoleLabels } from "@/lib/portal-english";
 import type { AccountType, PortalRole, PriceTier } from "@/lib/users";
+import { QuotationTemplatePreview } from "@/components/portal/QuotationTemplatePreview";
+import { appendInquiryComment } from "@/lib/inquiry-comment-state";
+import { canTransitionInquiryStatus, groupInquiriesByVehicle, inquiryStatuses, replyReference } from "@/lib/inquiry-workflow";
 
 type AdminModule = "dashboard" | "vehicle_models" | "vehicles" | "quotes" | "orders" | "payments" | "logistics" | "customers" | "staff";
 type AdminIconName = "dashboard" | "vehicle_models" | "vehicles" | "quotes" | "orders" | "payments" | "logistics" | "customers" | "staff";
@@ -300,6 +303,10 @@ type Inquiry = {
   tradeTerm: string;
   targetPrice: number;
   notes: string;
+  vehicleSnapshot: string;
+  isPublic: boolean;
+  creatorUserId: string;
+  hasUnreadFollowUps: boolean;
   status: string;
   createdAt: string;
   updatedAt: string;
@@ -334,8 +341,8 @@ type Negotiation = {
   createdAt: string;
 };
 
-type InquiryNote = { id: string; noteId: string; inquiryNo: string; parentNoteId: string; authorUserId: string; authorName: string; authorRole: string; body: string; createdAt: string; deletedAt?: string; };
-type InquiryStatusHistory = { id: string; historyId: string; inquiryNo: string; fromStatus: string; toStatus: string; actorName: string; actorRole: string; createdAt: string; };
+type InquiryNote = { id: string; noteId: string; inquiryNo: string; parentNoteId: string; authorUserId: string; authorName: string; authorRole: string; body: string; isPublic: boolean; createdAt: string; deletedAt?: string; };
+type InquiryStatusHistory = { id: string; historyId: string; inquiryNo: string; fromStatus: string; toStatus: string; reason: string; actorName: string; actorRole: string; createdAt: string; };
 
 type Order = {
   id: string;
@@ -1551,7 +1558,6 @@ function ModelFullSpecsCard({ group }: { group: ModelProfileGroup }) {
   const versionDetails = trimVariants.map((variant) => ({
     variant,
     items: [
-      { label: "List Price", value: getModelSpecValue(group.specsByModel, variant.id, ["中国官方指导价"]) || variant.msrpChina || "-" },
       { label: "CLTC Range", value: getModelSpecValue(group.specsByModel, variant.id, ["CLTC续航"]) || variant.range || "-" },
       { label: "Battery", value: compactJoin([getModelSpecValue(group.specsByModel, variant.id, ["电池容量"]) || variant.battery, getModelSpecValue(group.specsByModel, variant.id, ["电池类型"]) || variant.batteryType]) },
       { label: "Drive / Power", value: compactJoin([getModelSpecValue(group.specsByModel, variant.id, ["驱动方式"]) || variant.driveType, getModelSpecValue(group.specsByModel, variant.id, ["电机总功率"]) || variant.motorPower]) },
@@ -1559,7 +1565,6 @@ function ModelFullSpecsCard({ group }: { group: ModelProfileGroup }) {
       { label: "DC Fast Charging", value: getModelSpecValue(group.specsByModel, variant.id, ["直流快充"]) || variant.charging || "-" },
       { label: "Added Features", value: getModelSpecValue(group.specsByModel, variant.id, ["新增配置"]) || "-" },
       { label: "Upgrade Features", value: getModelSpecValue(group.specsByModel, variant.id, ["升级配置"]) || "-" },
-      { label: "Verification", value: getModelSpecValue(group.specsByModel, variant.id, ["版本核验状态"]) || "-" },
     ],
   }));
   const batteryVal = safeText(v.battery) || getModelSpecValue(group.specsByModel, v.id, ["电池容量"]) || "-";
@@ -1613,7 +1618,7 @@ function ModelFullSpecsCard({ group }: { group: ModelProfileGroup }) {
     },
     {
       title: `🔎 ${t("portal.adas")}`,
-      items: [[t("portal.adas"), adasVal], [locale === "zh" ? "国内官方指导价" : "Domestic List Price", group.guidePriceSummary || v.msrpChina || "-"], [locale === "zh" ? "出口合规/备注" : "Export Compliance / Notes", localizeVehicleValue(v.exportNotes, locale)]],
+      items: [[t("portal.adas"), adasVal], [locale === "zh" ? "出口合规/备注" : "Export Compliance / Notes", localizeVehicleValue(v.exportNotes, locale)]],
     },
   ];
 
@@ -1674,15 +1679,14 @@ function ModelFullSpecsCard({ group }: { group: ModelProfileGroup }) {
                       {localizeVehicleValue(variant.trim || variant.id, locale)}
                     </strong>
                   </div>
-                  <span className={`rounded-full border px-2 py-1 text-[10px] font-black ${items[8]?.value === "Verified" ? "border-[#22b8aa]/35 bg-[#22b8aa]/10 text-[#5ee6d8]" : "border-amber-400/35 bg-amber-400/10 text-amber-300"}`}>
-                    {localizeVehicleValue(items[8]?.value, locale)}
-                  </span>
                 </header>
                 <dl className="grid gap-x-6 gap-y-4 p-4 sm:grid-cols-2 lg:grid-cols-3">
                   {items.map((item) => (
                     <div key={item.label} className="min-w-0">
                       <dt className="text-[10px] text-slate-400">{item.label}</dt>
-                      <dd className="mt-1 break-words text-[12px] leading-5 text-slate-100">{item.value}</dd>
+                      <dd className="mt-1 whitespace-pre-line break-words text-[12px] leading-5 text-slate-100">
+                        {item.label === "Added Features" || item.label === "Upgrade Features" ? formatTrimFeatureLines(item.value) : item.value}
+                      </dd>
                     </div>
                   ))}
                 </dl>
@@ -1930,7 +1934,6 @@ function AdminProfiles({ data }: { data: BootstrapData }) {
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
                     <AdminSummaryChip label={t("portal.trimsLabel")} value={String(getModelTrimVariants(selectedGroup).length)} tone="accent" />
-                    {selectedGroup.guidePriceSummary ? <AdminSummaryChip label="List Price" value={selectedGroup.guidePriceSummary} /> : null}
                   </div>
                 </div>
 
@@ -2404,11 +2407,171 @@ function VehicleInquiryPanel({ vehicle, data }: { vehicle: Vehicle; data: Bootst
   const notes = data.inquiryNotes.filter((item) => inquiries.some((inquiry) => inquiry.inquiryNo === item.inquiryNo));
   async function post(event: React.FormEvent) { event.preventDefault(); if (!message.trim()) return; setBusy(true); setError(""); try { const existing = inquiries[0]; if (existing) await api(`/api/portal/inquiries/${encodeURIComponent(existing.inquiryNo)}/notes`, { method: "POST", body: JSON.stringify({ body: message, parentNoteId: replyTo }) }); else await api("/api/portal/inquiries", { method: "POST", body: JSON.stringify({ vehicleId: vehicle.id, quantity: 1, tradeTerm: "FOB", notes: message }) }); window.location.reload(); } catch (e) { setError(e instanceof Error ? e.message : "Could not post inquiry message"); } finally { setBusy(false); } }
   async function remove(noteId: string) { if (!window.confirm("Remove your inquiry follow-up?")) return; setBusy(true); try { await api(`/api/portal/inquiry-content/note/${encodeURIComponent(noteId)}`, { method: "DELETE", body: JSON.stringify({ reason: "Removed by author" }) }); window.location.reload(); } catch (e) { setError(e instanceof Error ? e.message : "Could not remove inquiry follow-up"); } finally { setBusy(false); } }
-  return <section className="mt-3 rounded-lg border border-theme/30 bg-theme/5 p-4"><div className="flex items-center justify-between"><div><p className="text-[10px] font-black uppercase tracking-widest text-theme">Inquiry discussion</p><p className="mt-1 text-xs text-slate-300">{[vehicle.brand, vehicle.model, vehicle.configuration || vehicle.trim, vehicle.color].filter(Boolean).join(" / ")}</p></div><span className="text-xs text-slate-400">{notes.length} follow-ups</span></div><div className="mt-3 grid gap-2">{notes.map((item) => <article key={item.id} className={`rounded border border-white/10 bg-black/15 p-3 ${item.parentNoteId ? "ml-5 border-l-2 border-l-theme" : ""}`}><p className="text-xs font-black text-white">{item.authorName}</p><p className="mt-1 text-sm text-slate-300">{item.body}</p><div className="mt-2 flex gap-3"><button type="button" onClick={() => setReplyTo(item.noteId)} className="text-[10px] font-black uppercase text-theme">Follow up</button>{item.authorUserId === data.user.userId && <button type="button" onClick={() => remove(item.noteId)} className="text-[10px] font-black uppercase text-red-300">Remove my follow-up</button>}</div></article>)}{notes.length === 0 && <p className="text-xs text-slate-400">No inquiry follow-ups yet.</p>}</div><form onSubmit={post} className="mt-3 grid gap-2">{replyTo && <div className="flex justify-between text-xs text-theme">Following up on a specific response <button type="button" onClick={() => setReplyTo("")}>Cancel</button></div>}<textarea value={message} onChange={(e) => setMessage(e.target.value)} placeholder={replyTo ? "Write a follow-up response" : "Describe your purchase intention or ask a follow-up"} className="min-h-20 rounded border border-white/15 bg-black/20 p-3 text-sm text-white" /><div className="flex justify-between">{error ? <span className="text-xs text-red-300">{error}</span> : <span />}<button disabled={busy || !message.trim()} className="btn-primary rounded px-3 py-2 text-[10px] font-black uppercase">{busy ? "Saving..." : inquiries.length ? "Post follow-up" : "Post inquiry request"}</button></div></form></section>;
+  return <section className="mt-3 rounded-lg border border-theme/30 bg-theme/5 p-4"><div className="flex items-center justify-between"><div><p className="text-[10px] font-black uppercase tracking-widest text-theme">Inquiry discussion</p><p className="mt-1 text-xs text-slate-300">{[vehicle.brand, vehicle.model, vehicle.configuration || vehicle.trim, vehicle.color].filter(Boolean).join(" / ")}</p></div><span className="text-xs text-slate-400">{notes.length} messages</span></div><div className="mt-3 grid gap-2">{notes.map((item) => <article key={item.id} className="rounded border border-white/10 bg-black/15 p-3"><p className="text-xs font-black text-white">{item.authorName}</p>{item.parentNoteId && <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-theme">Quote reply</p>}<p className="mt-1 text-sm text-slate-300">{item.body}</p><div className="mt-2 flex gap-3"><button type="button" onClick={() => setReplyTo(item.noteId)} className="text-[10px] font-black uppercase text-theme">Quote reply</button>{item.authorUserId === data.user.userId && <button type="button" onClick={() => remove(item.noteId)} className="text-[10px] font-black uppercase text-red-300">Remove my message</button>}</div></article>)}{notes.length === 0 && <p className="text-xs text-slate-400">No messages yet.</p>}</div><form onSubmit={post} className="mt-3 grid gap-2">{replyTo && <div className="flex justify-between text-xs text-theme">Quote reply to a specific message <button type="button" onClick={() => setReplyTo("")}>Cancel</button></div>}<textarea value={message} onChange={(e) => setMessage(e.target.value)} placeholder={replyTo ? "Write a quote reply" : "Describe your purchase intention or ask a question"} className="min-h-20 rounded border border-white/15 bg-black/20 p-3 text-sm text-white" /><div className="flex justify-between">{error ? <span className="text-xs text-red-300">{error}</span> : <span />}<button disabled={busy || !message.trim()} className="btn-primary rounded px-3 py-2 text-[10px] font-black uppercase">{busy ? "Saving..." : inquiries.length ? "Send message" : "Send inquiry request"}</button></div></form></section>;
+}
+
+function VehicleInquiryPanelV2({ vehicle, data }: { vehicle: Vehicle; data: BootstrapData }) {
+  const [message, setMessage] = useState("");
+  const [replyTo, setReplyTo] = useState("");
+  const [selectedInquiryNo, setSelectedInquiryNo] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const [postedNotes, setPostedNotes] = useState<InquiryNote[]>([]);
+  const inquiries = data.inquiries.filter((item) => item.vehicleId === vehicle.id);
+  const targetInquiry = inquiries.find((item) => item.inquiryNo === selectedInquiryNo) || inquiries[0];
+  const notes = postedNotes.filter((note) => note.inquiryNo === targetInquiry?.inquiryNo).reduce((current, note) => appendInquiryComment(current, note), data.inquiryNotes.filter((item) => item.inquiryNo === targetInquiry?.inquiryNo));
+  const parent = notes.find((item) => item.noteId === replyTo);
+
+  function selectConversation(inquiry: Inquiry) {
+    setSelectedInquiryNo(inquiry.inquiryNo);
+    setReplyTo("");
+    if (inquiry.hasUnreadFollowUps) void api(`/api/portal/inquiries/${encodeURIComponent(inquiry.inquiryNo)}/read`, { method: "POST" });
+  }
+
+  async function post(event: React.FormEvent) {
+    event.preventDefault();
+    if (!message.trim()) return;
+    setBusy(true);
+    setError("");
+    try {
+      if (targetInquiry) {
+        const result = await api<{ note: InquiryNote }>(`/api/portal/inquiries/${encodeURIComponent(targetInquiry.inquiryNo)}/notes`, { method: "POST", body: JSON.stringify({ body: message, parentNoteId: replyTo }) });
+        setPostedNotes((current) => appendInquiryComment(current, result.note));
+        setMessage("");
+        setReplyTo("");
+      } else {
+        await api("/api/portal/inquiries", { method: "POST", body: JSON.stringify({ vehicleId: vehicle.id, quantity: 1, tradeTerm: "FOB", notes: message }) });
+        window.location.reload();
+      }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Could not post inquiry message");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return <section className="mt-3 rounded-lg border border-theme/30 bg-theme/5 p-4">
+    <div><p className="text-[10px] font-black uppercase tracking-widest text-theme">Inquiry discussion</p><p className="mt-1 text-xs text-slate-300">{[vehicle.brand, vehicle.model, vehicle.configuration || vehicle.trim, vehicle.color].filter(Boolean).join(" / ")}</p></div>
+    {inquiries.length > 1 && <div className="mt-3 grid gap-2"><p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Private conversations</p>{inquiries.map((inquiry) => <button key={inquiry.inquiryNo} type="button" onClick={() => selectConversation(inquiry)} className={`rounded border p-2 text-left text-xs ${targetInquiry?.inquiryNo === inquiry.inquiryNo ? "border-theme bg-theme/10 text-white" : "border-white/10 text-slate-300"}`}>Customer {inquiry.customerId} · {inquiry.title || inquiry.inquiryNo}{inquiry.hasUnreadFollowUps && <span className="ml-2 inline-block h-2 w-2 rounded-full bg-amber-300" />}</button>)}</div>}
+    {targetInquiry && <p className="mt-3 text-xs text-slate-400">Conversation {targetInquiry.inquiryNo} · {targetInquiry.status}</p>}
+    <div className="mt-3 grid gap-2">{notes.map((item) => { const quoted = notes.find((noteItem) => noteItem.noteId === item.parentNoteId); return <article key={item.id} id={`note-${item.noteId}`} className="rounded border border-white/10 bg-black/15 p-3"><div className="flex justify-between gap-2"><p className="text-xs font-black text-white">{item.authorName} <span className="font-medium text-slate-400">{item.authorRole}</span></p><time className="text-[10px] text-slate-500">{formatDate(item.createdAt)}</time></div>{quoted && <a href={`#note-${quoted.noteId}`} className="mt-2 block rounded border border-theme/20 bg-theme/5 px-2 py-1 text-xs text-theme">{replyReference(quoted)}</a>}<p className="mt-2 whitespace-pre-wrap text-sm text-slate-300">{item.body}</p><button type="button" onClick={() => setReplyTo(item.noteId)} className="mt-2 text-[10px] font-black uppercase text-theme">Quote reply</button></article>; })}{notes.length === 0 && <p className="text-xs text-slate-400">No messages yet.</p>}</div>
+    <form onSubmit={post} className="mt-3 grid gap-2">{replyTo && <div className="flex justify-between rounded border border-theme/30 bg-theme/5 px-3 py-2 text-xs text-theme">{parent ? replyReference(parent) : "Quote reply to selected message"}<button type="button" onClick={() => setReplyTo("")}>Cancel</button></div>}<textarea value={message} maxLength={4000} onChange={(e) => setMessage(e.target.value)} placeholder={replyTo ? "Write a quote reply" : "Describe your purchase intention or ask a question"} className="min-h-20 rounded border border-white/15 bg-black/20 p-3 text-sm text-white" /><div className="flex justify-between">{error ? <span className="text-xs text-red-300">{error}</span> : <span />}<button disabled={busy || !message.trim()} className="btn-primary rounded px-3 py-2 text-[10px] font-black uppercase">{busy ? "Saving..." : targetInquiry ? replyTo ? "Send quote reply" : "Send message" : "Send inquiry request"}</button></div></form>
+  </section>;
 }
 
 function AdminQuotes({ data }: { data: BootstrapData }) {
-  const { t } = useTranslation();
+  const { locale } = useTranslation();
+  const localizedData = useMemo(() => ({
+    ...data,
+    inquiries: data.inquiries.map((inquiry) => ({
+      ...inquiry,
+      vehicleModel: localizeVehicleValue(inquiry.vehicleModel, locale),
+    })),
+  }), [data, locale]);
+
+  return <AdminQuotesLocalized data={localizedData} />;
+}
+
+function InquiryVehiclePicker({ vehicles, value, onChange }: { vehicles: Vehicle[]; value: InquiryVehicleTarget; onChange: (target: InquiryVehicleTarget) => void }) {
+  const { locale } = useTranslation();
+  const options = useMemo(() => buildInquiryVehiclePickerOptions(vehicles), [vehicles]);
+  const [search, setSearch] = useState("");
+  const selectedEntry = useMemo(() => options.flatMap((model) => model.variants.flatMap((variant) => variant.colors.flatMap((color) => color.vehicles.map((vehicle) => ({ model, variant, color, vehicle }))))).find((entry) => entry.vehicle.id === value.vehicleId), [options, value.vehicleId]);
+  const [modelKey, setModelKey] = useState(selectedEntry?.model.key || "");
+  const [variantKey, setVariantKey] = useState(selectedEntry?.variant.key || "");
+  const [colorKey, setColorKey] = useState(selectedEntry?.color.key || "");
+  const query = search.trim().toLocaleLowerCase();
+  const matches = (values: Array<string | undefined>) => !query || values.some((item) => {
+    const raw = item || "";
+    return raw.toLocaleLowerCase().includes(query) || localizeVehicleValue(raw, locale).toLocaleLowerCase().includes(query);
+  });
+  const filteredModels = options.filter((model) => matches([model.brand, model.model]) || model.variants.some((variant) => matches([variant.vehicle.trim, variant.vehicle.configuration, variant.vehicle.year, variant.vehicle.steering, variant.vehicle.marketVersion]) || variant.colors.some((color) => matches([color.exteriorColor, color.interiorColor]))));
+  const selectedModel = filteredModels.find((model) => model.key === modelKey) || options.find((model) => model.key === modelKey);
+  const selectedVariant = selectedModel?.variants.find((variant) => variant.key === variantKey);
+  const selectedColor = selectedVariant?.colors.find((color) => color.key === colorKey);
+
+  function chooseModel(nextModelKey: string) {
+    const model = options.find((item) => item.key === nextModelKey);
+    setModelKey(nextModelKey); setVariantKey(""); setColorKey("");
+    onChange(model ? { vehicleId: "", vehicleModel: compactJoin([model.brand, model.model]) } : { vehicleId: "", vehicleModel: "" });
+  }
+  function chooseVariant(nextVariantKey: string) {
+    const variant = selectedModel?.variants.find((item) => item.key === nextVariantKey);
+    setVariantKey(nextVariantKey); setColorKey("");
+    onChange(variant && selectedModel ? { vehicleId: "", vehicleModel: compactJoin([selectedModel.brand, selectedModel.model, variant.vehicle.trim, variant.vehicle.configuration, variant.vehicle.year ? `${variant.vehicle.year} MY` : "", variant.vehicle.steering, variant.vehicle.marketVersion]) } : { vehicleId: "", vehicleModel: "" });
+  }
+  function chooseColor(nextColorKey: string) {
+    setColorKey(nextColorKey);
+    const color = selectedVariant?.colors.find((item) => item.key === nextColorKey);
+    onChange(color && selectedModel && selectedVariant ? { vehicleId: color.vehicles[0]?.id || "", vehicleModel: compactJoin([selectedModel.brand, selectedModel.model, selectedVariant.vehicle.trim, selectedVariant.vehicle.configuration, selectedVariant.vehicle.year ? `${selectedVariant.vehicle.year} MY` : "", selectedVariant.vehicle.steering, selectedVariant.vehicle.marketVersion, formatColorPair(color.exteriorColor, color.interiorColor)]) } : { vehicleId: "", vehicleModel: "" });
+  }
+
+  return <div className="grid gap-3 rounded border border-white/10 bg-black/10 p-3">
+    <Input aria-label="Search vehicle resources" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search model, configuration, or color" />
+    <div className="grid gap-3 md:grid-cols-3">
+      <select aria-label="Vehicle model" value={modelKey} onChange={(event) => chooseModel(event.target.value)} className="rounded border border-white/15 bg-black/20 p-2 text-sm text-white">
+        <option value="">Select vehicle model</option>
+        {filteredModels.map((model) => <option key={model.key} value={model.key}>{compactJoin([localizeVehicleValue(model.brand, locale), localizeVehicleValue(model.model, locale)])}</option>)}
+      </select>
+      <select aria-label="Vehicle configuration" value={variantKey} disabled={!selectedModel} onChange={(event) => chooseVariant(event.target.value)} className="rounded border border-white/15 bg-black/20 p-2 text-sm text-white disabled:opacity-50">
+        <option value="">Select configuration</option>
+        {selectedModel?.variants.map((variant) => <option key={variant.key} value={variant.key}>{compactJoin([localizeVehicleValue(variant.vehicle.trim, locale) || localizeVehicleValue("Trim not specified", locale), localizeVehicleValue(variant.vehicle.configuration, locale), variant.vehicle.year ? `${variant.vehicle.year} MY` : "", localizeVehicleValue(variant.vehicle.steering, locale), localizeVehicleValue(variant.vehicle.marketVersion, locale)])}</option>)}
+      </select>
+      <select aria-label="Vehicle color" value={colorKey} disabled={!selectedVariant} onChange={(event) => chooseColor(event.target.value)} className="rounded border border-white/15 bg-black/20 p-2 text-sm text-white disabled:opacity-50">
+        <option value="">Select color inventory</option>
+        {selectedVariant?.colors.map((color) => <option key={color.key} value={color.key}>{compactJoin([formatColorPair(localizeVehicleValue(color.exteriorColor, locale), localizeVehicleValue(color.interiorColor, locale)), color.hasStockQuantity ? localizeVehicleValue(`${color.quantity} units`, locale) : ""] )}</option>)}
+      </select>
+    </div>
+  </div>;
+}
+
+function AdminQuotesLocalized({ data }: { data: BootstrapData }) {
+  const [selectedNo, setSelectedNo] = useState(data.inquiries[0]?.inquiryNo || "");
+  const [note, setNote] = useState("");
+  const [replyTo, setReplyTo] = useState("");
+  const [showNew, setShowNew] = useState(data.inquiries.length === 0);
+  const [target, setTarget] = useState<InquiryVehicleTarget>({ vehicleId: "", vehicleModel: "" });
+  const [title, setTitle] = useState("");
+  const [initialNote, setInitialNote] = useState("");
+  const [status, setStatus] = useState("");
+  const [statusReason, setStatusReason] = useState("");
+  const [inquirySearch, setInquirySearch] = useState("");
+  const [inquiryStatusFilter, setInquiryStatusFilter] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const [postedNotes, setPostedNotes] = useState<InquiryNote[]>([]);
+  const [showQuoteComposer, setShowQuoteComposer] = useState(false);
+  const [quotePrice, setQuotePrice] = useState("");
+  const [quoteCif, setQuoteCif] = useState("");
+  const [preview, setPreview] = useState<{ quoteNo: string; customer: string; vehicleModel: string; quantity: number; unitPrice: number; cifTotal: string } | null>(null);
+  const inquiries = data.inquiries;
+  const visibleInquiries = inquiries.filter((inquiry) => {
+    const haystack = `${inquiry.vehicleModel} ${inquiry.title} ${inquiry.customerId} ${inquiry.inquiryNo}`.toLowerCase();
+    return (!inquirySearch.trim() || haystack.includes(inquirySearch.trim().toLowerCase())) && (!inquiryStatusFilter || inquiry.status === inquiryStatusFilter);
+  });
+  const vehicleGroups = groupInquiriesByVehicle(visibleInquiries);
+  const selected = inquiries.find((item) => item.inquiryNo === selectedNo) || inquiries[0];
+  const notes = postedNotes.filter((note) => note.inquiryNo === selected?.inquiryNo).reduce((current, note) => appendInquiryComment(current, note), data.inquiryNotes.filter((item) => item.inquiryNo === selected?.inquiryNo));
+  const parent = notes.find((item) => item.noteId === replyTo);
+  const canChangeStatus = data.user.role === "admin" || data.user.role === "sales";
+  const canCreateQuote = canChangeStatus;
+
+  function select(inquiry: Inquiry) { setSelectedNo(inquiry.inquiryNo); setStatus(""); setStatusReason(""); setError(""); if (inquiry.hasUnreadFollowUps) void api(`/api/portal/inquiries/${encodeURIComponent(inquiry.inquiryNo)}/read`, { method: "POST" }); }
+  async function create(event: React.FormEvent) { event.preventDefault(); if ((!target.vehicleModel && !title.trim()) || !initialNote.trim()) return; setBusy(true); try { await api("/api/portal/inquiries", { method: "POST", body: JSON.stringify({ vehicleId: target.vehicleId, vehicleModel: target.vehicleModel, title, quantity: 1, tradeTerm: "FOB", notes: initialNote }) }); window.location.reload(); } catch (e) { setError(e instanceof Error ? e.message : "Could not start inquiry"); } finally { setBusy(false); } }
+  async function post(event: React.FormEvent) { event.preventDefault(); if (!selected || !note.trim()) return; setBusy(true); try { const result = await api<{ note: InquiryNote }>(`/api/portal/inquiries/${encodeURIComponent(selected.inquiryNo)}/notes`, { method: "POST", body: JSON.stringify({ body: note, parentNoteId: replyTo }) }); setPostedNotes((current) => appendInquiryComment(current, result.note)); setNote(""); setReplyTo(""); } catch (e) { setError(e instanceof Error ? e.message : "Could not add follow-up"); } finally { setBusy(false); } }
+  async function updateStatus() { if (!selected || !status) return; setBusy(true); setError(""); try { await api(`/api/portal/inquiries/${encodeURIComponent(selected.inquiryNo)}/status`, { method: "PATCH", body: JSON.stringify({ status, reason: statusReason || "Updated from Inquiry Management" }) }); window.location.reload(); } catch (e) { setError(e instanceof Error ? e.message : "Could not update inquiry status"); } finally { setBusy(false); } }
+  async function createQuotation(event: React.FormEvent) { event.preventDefault(); if (!selected) return; const unitPrice = Number(quotePrice); if (!Number.isFinite(unitPrice) || unitPrice <= 0) { setError("Enter a USD unit price before creating the quotation"); return; } setBusy(true); setError(""); try { const created = await api<{ quoteNo: string; quantity: number; unitPrice: number }>("/api/portal/quotes", { method: "POST", body: JSON.stringify({ inquiryNo: selected.inquiryNo, unitPrice }) }); setPreview({ quoteNo: created.quoteNo, customer: selected.customerId, vehicleModel: selected.vehicleModel, quantity: created.quantity, unitPrice: created.unitPrice, cifTotal: quoteCif || "USD 0.00" }); setShowQuoteComposer(false); } catch (e) { setError(e instanceof Error ? e.message : "Could not create quotation"); } finally { setBusy(false); } }
+
+  return <AdminPanel title="Inquiry Management" subtitle="Inquiry context, status history, and discussion">
+    <div className="mb-4 flex flex-wrap justify-between gap-3"><div className="flex flex-wrap gap-2"><Input aria-label="Search inquiries" value={inquirySearch} onChange={(event) => setInquirySearch(event.target.value)} placeholder="Search vehicle, customer, or inquiry" /><select aria-label="Filter inquiries by status" value={inquiryStatusFilter} onChange={(event) => setInquiryStatusFilter(event.target.value)} className="rounded border border-white/15 bg-black px-3 text-xs text-white"><option value="">All statuses</option>{inquiryStatuses.map((item) => <option key={item}>{item}</option>)}</select></div><div className="flex flex-wrap gap-3">{canCreateQuote && <button type="button" disabled={!selected} onClick={() => setShowQuoteComposer((value) => !value)} className="btn-primary rounded px-4 py-2 text-[10px] font-black uppercase">Create quotation</button>}<button type="button" onClick={() => setShowNew((value) => !value)} className="btn-primary rounded px-4 py-2 text-[10px] font-black uppercase">Start inquiry</button></div></div>
+    {showQuoteComposer && selected && <form onSubmit={createQuotation} className="mb-4 grid gap-3 rounded-lg border border-gold/40 bg-gold/5 p-4 md:grid-cols-3"><p className="text-xs text-slate-300 md:col-span-3">{selected.vehicleModel} / {selected.quantity} units — the original quotation template will open after creation.</p><Input aria-label="USD unit price" type="number" min="0" step="0.01" value={quotePrice} onChange={(event) => setQuotePrice(event.target.value)} placeholder="FOB unit price (USD)" required /><Input aria-label="CIF total" value={quoteCif} onChange={(event) => setQuoteCif(event.target.value)} placeholder="CIF total (USD, manual entry)" /><button disabled={busy} className="btn-primary rounded px-4 py-2 text-[10px] font-black uppercase">{busy ? "Creating..." : "Create and open template"}</button></form>}
+    {showNew && <form onSubmit={create} className="mb-4 grid gap-3 rounded-lg border border-theme/30 bg-theme/5 p-4"><InquiryVehiclePicker vehicles={data.vehicles} value={target} onChange={setTarget} /><Input aria-label="Inquiry title" value={title} onChange={(event) => setTitle(event.target.value)} placeholder={target.vehicleModel ? "Inquiry title (optional)" : "Inquiry title (required when no vehicle is selected)"} required={!target.vehicleModel} /><textarea value={initialNote} onChange={(event) => setInitialNote(event.target.value)} className="min-h-24 rounded border border-white/15 bg-black/20 p-3 text-sm text-white" /><button disabled={busy || (!target.vehicleModel && !title.trim()) || !initialNote.trim()} className="btn-primary rounded px-4 py-2 text-[10px] font-black uppercase">Post inquiry</button></form>}
+    <div className="grid gap-4 xl:grid-cols-[19rem_minmax(0,1fr)]"><aside className="grid max-h-[70vh] gap-3 overflow-y-auto">{vehicleGroups.map((group) => <section key={group.vehicleKey} className="rounded-lg border border-white/10 p-3"><div className="flex justify-between gap-2"><p className="line-clamp-2 text-xs font-black text-white">{group.vehicleLabel}</p><span className="text-[10px] text-slate-500">{group.inquiries.length} conversations</span></div><div className="mt-2 grid gap-1">{group.inquiries.map((inquiry) => <button key={inquiry.inquiryNo} type="button" onClick={() => select(inquiry)} className={`rounded p-2 text-left text-xs ${selected?.inquiryNo === inquiry.inquiryNo ? "bg-theme/15 text-white" : "text-slate-300 hover:bg-white/5"}`}><div className="flex justify-between gap-2"><span>Customer {inquiry.customerId}</span>{inquiry.hasUnreadFollowUps && <span className="h-2 w-2 rounded-full bg-amber-300" />}</div><span className="mt-1 block line-clamp-1 text-[10px] text-slate-500">{inquiry.title || inquiry.inquiryNo}</span></button>)}</div></section>)}{vehicleGroups.length === 0 && <p className="rounded border border-dashed border-white/15 p-3 text-xs text-slate-400">No conversations match this filter.</p>}</aside>{selected && <section><div className="rounded-lg border border-white/10 p-4"><p className="text-[10px] font-black uppercase text-theme">Inquiry request</p><h3 className="mt-1 font-black text-white">{selected.title || selected.vehicleModel}</h3><p className="mt-1 text-xs text-slate-500">{selected.inquiryNo} · Customer {selected.customerId}</p><p className="mt-2 text-sm text-slate-300">{selected.notes}</p>{canChangeStatus && <div className="mt-3 flex flex-wrap gap-2"><select value={status} onChange={(event) => setStatus(event.target.value)} className="rounded bg-black p-2 text-xs text-white"><option value="">Change status</option>{inquiryStatuses.filter((item) => canTransitionInquiryStatus(selected.status, item)).map((item) => <option key={item}>{item}</option>)}</select><Input aria-label="Status change reason" value={statusReason} maxLength={500} onChange={(event) => setStatusReason(event.target.value)} placeholder="Reason for this change" /><button type="button" onClick={updateStatus} disabled={!status || busy} className="btn-primary rounded px-3 text-xs">{busy ? "Saving..." : "Save"}</button></div>}</div><div className="mt-4 grid gap-3">{data.inquiryStatusHistory.filter((history) => history.inquiryNo === selected.inquiryNo).map((history) => <p key={history.id} className="rounded border border-white/10 px-3 py-2 text-xs text-slate-400"><span className="font-semibold text-white">{history.actorName}</span> changed {history.fromStatus || "—"} to {history.toStatus} · {history.reason || "No reason supplied"} · {formatDate(history.createdAt)}</p>)}{notes.map((item) => { const quoted = notes.find((noteItem) => noteItem.noteId === item.parentNoteId); return <article key={item.id} id={`note-${item.noteId}`} className="rounded-lg border border-white/10 p-4"><div className="flex justify-between gap-2"><p className="text-xs font-black text-white">{item.authorName} <span className="font-medium text-slate-400">{item.authorRole}</span></p><time className="text-[10px] text-slate-500">{formatDate(item.createdAt)}</time></div>{quoted && <a href={`#note-${quoted.noteId}`} className="mt-2 block rounded border border-theme/20 bg-theme/5 px-2 py-1 text-xs text-theme">{replyReference(quoted)}</a>}<p className="mt-2 whitespace-pre-wrap text-sm text-slate-300">{item.body}</p><button type="button" onClick={() => setReplyTo(item.noteId)} className="mt-3 text-xs text-theme">Quote reply</button></article>; })}{notes.length === 0 && <p className="text-sm text-slate-400">No messages in this conversation yet.</p>}</div><form onSubmit={post} className="mt-4 grid gap-2">{replyTo && <div className="flex justify-between rounded border border-theme/30 bg-theme/5 px-3 py-2 text-xs text-theme">{parent ? replyReference(parent) : "Quote reply to selected comment"}<button type="button" onClick={() => setReplyTo("")}>Cancel</button></div>}<textarea value={note} maxLength={4000} onChange={(event) => setNote(event.target.value)} placeholder={replyTo ? "Write your quote reply" : "Write a message"} className="min-h-24 rounded border border-white/10 bg-black/20 p-3 text-sm text-white" /><button disabled={busy || !note.trim()} className="btn-primary rounded px-4 py-2 text-[10px] font-black uppercase">{busy ? "Saving..." : replyTo ? "Send quote reply" : "Send message"}</button>{error && <p className="text-xs text-red-300">{error}</p>}</form></section>}</div>
+    {preview && <Dialog open onOpenChange={(open) => !open && setPreview(null)} className="max-w-[min(96vw,1200px)] p-3"><DialogHeader><DialogTitle>Official quotation {preview.quoteNo}</DialogTitle><DialogDescription>The document below is the original quotation template, prefilled from this inquiry.</DialogDescription></DialogHeader><div><QuotationTemplatePreview {...preview} /></div></Dialog>}
+  </AdminPanel>;
+}
+
+function AdminQuotesLegacy({ data }: { data: BootstrapData }) {
   const [selectedNo, setSelectedNo] = useState(data.inquiries[0]?.inquiryNo || "");
   const [note, setNote] = useState("");
   const [status, setStatus] = useState("");
@@ -2440,9 +2603,9 @@ function AdminQuotes({ data }: { data: BootstrapData }) {
     {data.inquiries.length === 0 ? <Empty text="Start an inquiry to open a shared discussion." /> : <div className="grid gap-4 xl:grid-cols-[19rem_minmax(0,1fr)]">
       <aside className="grid max-h-[70vh] gap-2 overflow-y-auto pr-1">{data.inquiries.map((inquiry) => <button key={inquiry.inquiryNo} type="button" onClick={() => { setSelectedNo(inquiry.inquiryNo); setStatus(""); }} className={`rounded-lg border p-3 text-left ${selected?.inquiryNo === inquiry.inquiryNo ? "border-theme bg-theme/10" : "border-white/10 bg-white/[.03]"}`}><p className="text-xs font-black text-white">{inquiry.inquiryNo}</p><p className="mt-1 line-clamp-2 text-xs text-gray-400">{inquiry.vehicleModel || inquiry.vehicleId}</p><p className="mt-2 text-[10px] font-black uppercase tracking-widest text-theme">{inquiry.status}</p></button>)}</aside>
       {selected && <section className="min-w-0">
-        <div className="grid gap-3 rounded-lg border border-white/10 bg-white/[.03] p-4 md:grid-cols-[1fr_auto]"><div><p className="text-[10px] font-black uppercase tracking-widest text-theme">Inquiry request</p><h3 className="mt-1 font-black text-white">{selected.vehicleModel || selected.vehicleId}</h3><p className="mt-1 text-xs text-gray-400">{t("portal.unitCount", { count: selected.quantity })} / {selected.tradeTerm || "-"} / {selected.destinationPort || "-"}</p><p className="mt-1 whitespace-pre-wrap text-sm text-slate-300">{selected.notes}</p></div><div className="flex items-start gap-2"><AdminStatusBadge status={selected.status || "New Inquiry"} />{data.user.role === "admin" && <button type="button" onClick={() => removeContent("inquiry", selected.inquiryNo)} className="text-[10px] font-black uppercase text-red-300">Remove</button>}{canChangeStatus && <><select aria-label="Inquiry status" value={status} onChange={(e) => setStatus(e.target.value)} className="rounded border border-white/15 bg-black/20 px-2 py-1 text-xs text-white"><option value="">Change status</option>{["New Inquiry", "Quoted", "Negotiating", "Accepted", "Closed"].map((item) => <option key={item}>{item}</option>)}</select><button type="button" disabled={!status || busy} onClick={updateStatus} className="btn-primary rounded px-3 py-1 text-[10px] font-black uppercase">Save</button></>}</div></div>
-        <div className="mt-4 grid gap-3">{history.map((item) => <p key={item.id} className="text-xs text-gray-500">{item.actorName || item.actorRole} updated the inquiry status to {item.toStatus} / {formatDate(item.createdAt)}</p>)}{notes.map((item) => <article key={item.id} className={`rounded-lg border border-white/10 bg-white/[.03] p-4 ${item.parentNoteId ? "ml-6 border-l-2 border-l-theme" : ""}`}><div className="flex justify-between gap-3"><p className="text-xs font-black text-white">{item.authorName || item.authorRole}</p><p className="text-[10px] text-gray-500">{formatDate(item.createdAt)}</p></div><p className="mt-2 whitespace-pre-wrap text-sm text-gray-300">{item.body}</p><div className="mt-3 flex gap-3"><button type="button" onClick={() => setReplyTo(item.noteId)} className="text-[10px] font-black uppercase text-theme">Follow up</button>{(data.user.role === "admin" || item.authorUserId === data.user.userId) && <button type="button" onClick={() => removeContent("note", item.noteId)} className="text-[10px] font-black uppercase text-red-300">Remove</button>}</div></article>)}</div>
-        <form onSubmit={submitNote} className="mt-4 grid gap-2">{replyTo && <div className="flex justify-between text-xs text-theme">Following up on an earlier response <button type="button" onClick={() => setReplyTo("")}>Cancel</button></div>}<textarea value={note} onChange={(e) => setNote(e.target.value)} maxLength={4000} placeholder={replyTo ? "Write a follow-up response" : "Write an inquiry follow-up"} className="min-h-24 rounded-lg border border-white/10 bg-white/[.03] p-3 text-sm text-white" /><div className="flex items-center justify-between gap-3">{error ? <p className="text-xs text-red-300">{error}</p> : <span /> }<button disabled={busy || !note.trim()} className="btn-primary rounded px-4 py-2 text-[10px] font-black uppercase">{busy ? "Saving..." : "Post follow-up"}</button></div></form>
+        <div className="grid gap-3 rounded-lg border border-white/10 bg-white/[.03] p-4 md:grid-cols-[1fr_auto]"><div><p className="text-[10px] font-black uppercase tracking-widest text-theme">Inquiry request</p><h3 className="mt-1 font-black text-white">{selected.vehicleModel || selected.vehicleId}</h3><p className="mt-1 text-xs text-gray-400">{selected.quantity} units / {selected.tradeTerm || "-"} / {selected.destinationPort || "-"}</p><p className="mt-1 whitespace-pre-wrap text-sm text-slate-300">{selected.notes}</p></div><div className="flex items-start gap-2"><AdminStatusBadge status={selected.status || "New Inquiry"} />{data.user.role === "admin" && <button type="button" onClick={() => removeContent("inquiry", selected.inquiryNo)} className="text-[10px] font-black uppercase text-red-300">Remove</button>}{canChangeStatus && <><select aria-label="Inquiry status" value={status} onChange={(e) => setStatus(e.target.value)} className="rounded border border-white/15 bg-black/20 px-2 py-1 text-xs text-white"><option value="">Change status</option>{["New Inquiry", "Quoted", "Negotiating", "Accepted", "Closed"].map((item) => <option key={item}>{item}</option>)}</select><button type="button" disabled={!status || busy} onClick={updateStatus} className="btn-primary rounded px-3 py-1 text-[10px] font-black uppercase">Save</button></>}</div></div>
+        <div className="mt-4 grid gap-3">{history.map((item) => <p key={item.id} className="text-xs text-gray-500">{item.actorName || item.actorRole} updated the inquiry status to {item.toStatus} / {formatDate(item.createdAt)}</p>)}{notes.map((item) => <article key={item.id} className="rounded-lg border border-white/10 bg-white/[.03] p-4"><div className="flex justify-between gap-3"><p className="text-xs font-black text-white">{item.authorName || item.authorRole}</p><p className="text-[10px] text-gray-500">{formatDate(item.createdAt)}</p></div>{item.parentNoteId && <p className="mt-2 text-[10px] font-black uppercase tracking-widest text-theme">Quote reply</p>}<p className="mt-2 whitespace-pre-wrap text-sm text-gray-300">{item.body}</p><div className="mt-3 flex gap-3"><button type="button" onClick={() => setReplyTo(item.noteId)} className="text-[10px] font-black uppercase text-theme">Quote reply</button>{(data.user.role === "admin" || item.authorUserId === data.user.userId) && <button type="button" onClick={() => removeContent("note", item.noteId)} className="text-[10px] font-black uppercase text-red-300">Remove</button>}</div></article>)}</div>
+        <form onSubmit={submitNote} className="mt-4 grid gap-2">{replyTo && <div className="flex justify-between text-xs text-theme">Quote reply to an earlier message <button type="button" onClick={() => setReplyTo("")}>Cancel</button></div>}<textarea value={note} onChange={(e) => setNote(e.target.value)} maxLength={4000} placeholder={replyTo ? "Write a quote reply" : "Write a message"} className="min-h-24 rounded-lg border border-white/10 bg-white/[.03] p-3 text-sm text-white" /><div className="flex items-center justify-between gap-3">{error ? <p className="text-xs text-red-300">{error}</p> : <span /> }<button disabled={busy || !note.trim()} className="btn-primary rounded px-4 py-2 text-[10px] font-black uppercase">{busy ? "Saving..." : replyTo ? "Send quote reply" : "Send message"}</button></div></form>
       </section>}
     </div>}
     <Dialog open={showDeleted} onOpenChange={setShowDeleted}><DialogHeader><DialogTitle>Inquiry content management</DialogTitle><DialogDescription>Restore removed content or permanently clear an already removed record.</DialogDescription></DialogHeader><div className="grid max-h-80 gap-3 overflow-y-auto p-4">{[...deletedContent.inquiries.map((item) => ({ type: "inquiry" as const, id: item.inquiryNo, label: item.vehicleModel })), ...deletedContent.notes.map((item) => ({ type: "note" as const, id: item.noteId, label: item.body }))].map((item) => <div key={`${item.type}-${item.id}`} className="flex items-center justify-between gap-3 rounded border border-white/10 p-3 text-sm text-white"><span className="line-clamp-2">{item.label}</span><div className="flex gap-2"><button onClick={() => moderate(item.type,item.id,"restore")} className="text-xs text-theme">Restore</button><button onClick={() => moderate(item.type,item.id,"purge")} className="text-xs text-red-300">Permanently clear</button></div></div>)}</div></Dialog>
@@ -3776,6 +3939,14 @@ function compactJoin(values: Array<string | number | null | undefined>) {
     .filter((val) => val && val !== "-" && val !== "未指定")
     .join(" / ");
   return text || "-";
+}
+
+function formatTrimFeatureLines(value: string) {
+  return value
+    .split(/[;；]\s*/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .join("\n");
 }
 
 function getDateTime(value: string) {

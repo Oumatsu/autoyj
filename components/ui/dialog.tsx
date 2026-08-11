@@ -5,9 +5,10 @@ interface DialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   children: React.ReactNode;
+  className?: string;
 }
 
-export function Dialog({ open, onOpenChange, children }: DialogProps) {
+export function Dialog({ open, onOpenChange, children, className }: DialogProps) {
   if (!open) return null;
 
   return (
@@ -20,7 +21,7 @@ export function Dialog({ open, onOpenChange, children }: DialogProps) {
       <div
         role="dialog"
         aria-modal="true"
-        className="relative z-10 w-full max-w-lg rounded-2xl border border-border bg-background p-6 text-foreground shadow-2xl animate-in zoom-in-95 duration-200"
+        className={cn("relative z-10 w-full max-w-lg rounded-2xl border border-border bg-background p-6 text-foreground shadow-2xl animate-in zoom-in-95 duration-200", className)}
       >
         {children}
       </div>
