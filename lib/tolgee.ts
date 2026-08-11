@@ -72,6 +72,26 @@ export function getTolgeeTargetLanguage(tolgee: object | null | undefined): stri
   return instanceLanguageMap.get(tolgee);
 }
 
+const tolgeeFetch = async (input: RequestInfo | URL, init?: RequestInit) => {
+  const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
+  const response = await fetch(input, init);
+  // Self-hosted Community edition of Tolgee does not enable multibranching (/branches/find).
+  // Intercept HTTP 400 feature_not_enabled to return an empty branch list and prevent console errors.
+  if (response.status === 400 && url.includes("/branches/find")) {
+    return new Response(
+      JSON.stringify({
+        _embedded: { branches: [] },
+        page: { totalElements: 0, totalPages: 0, number: 0, size: 20 },
+      }),
+      {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+  }
+  return response;
+};
+
 export function createTolgee(initialLocale: string = defaultLanguage, options: TolgeeOptions = {}) {
   const language = (availableLanguages as readonly string[]).includes(initialLocale)
     ? initialLocale
@@ -94,7 +114,7 @@ export function createTolgee(initialLocale: string = defaultLanguage, options: T
       fallbackLanguage: fallbackLocale,
       observerType: "invisible",
       staticData: tolgeeStaticData as any,
-      ...(remoteEnabled ? { apiUrl, apiKey, projectId } : {}),
+      ...(remoteEnabled ? { apiUrl, apiKey, projectId, fetch: tolgeeFetch } : {}),
     });
     instanceLanguageMap.set(res, language);
     void res.run();
