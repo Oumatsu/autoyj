@@ -60,10 +60,10 @@ test.describe("proxy.ts — root redirect & Accept-Language resolution", () => {
 test.describe("proxy.ts — locale cookie persistence", () => {
   test("visiting /en sets NEXT_LOCALE cookie to en", async ({ page, context }) => {
     await page.goto("/en", { waitUntil: "networkidle" });
-    const cookies = await context.cookies();
-    const localeCookie = cookies.find((c) => c.name === "NEXT_LOCALE");
-    expect(localeCookie).toBeDefined();
-    expect(localeCookie?.value).toBe("en");
+    await expect.poll(async () => {
+      const localeCookie = (await context.cookies()).find((cookie) => cookie.name === "NEXT_LOCALE");
+      return localeCookie?.value;
+    }).toBe("en");
   });
 
   test("cookie persists: second bare /products visit goes to /en after setting cookie", async ({

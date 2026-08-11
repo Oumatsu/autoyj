@@ -4,7 +4,7 @@ import { HeroSlider } from "@/components/HeroSlider";
 import { SectionTabs } from "@/components/SectionTabs";
 import { TcoCounter } from "@/components/TcoCounter";
 import { ScrollColorCard } from "@/components/ScrollColorCard";
-import { useTranslation } from "@/i18n/useTranslation";
+import { useTranslation, T } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
 import { useState, useEffect } from "react";
 
@@ -61,15 +61,7 @@ export default function HomePage() {
                 {t("home.products.label")}
               </div>
               <h2 className="sh">
-                {t("home.products.title1")}
-                <span className="text-accent">
-                  {t("home.products.titleAccent1")}
-                </span>
-                {t("home.products.title2")}
-                <span className="text-theme">
-                  {t("home.products.titleAccent2")}
-                </span>
-                {t("home.products.title3")}
+                <T keyName="home.products.title" defaultValue={t("home.products.title")} params={{ theme: <span className="text-theme" />, accent: <span className="text-accent" />, br: <br /> }} />
               </h2>
             </div>
             <LocaleLink
@@ -141,15 +133,7 @@ export default function HomePage() {
               {t("home.process.label")}
             </div>
             <h2 className="sh">
-              {t("home.process.title1")}
-              <span className="text-theme">
-                {t("home.process.titleAccent1")}
-              </span>
-              {t("home.process.title2")}
-              <span className="text-accent">
-                {t("home.process.titleAccent2")}
-              </span>
-              {t("home.process.title3")}
+              <T keyName="home.process.title" defaultValue={t("home.process.title")} params={{ theme: <span className="text-theme" />, accent: <span className="text-accent" />, br: <br /> }} />
             </h2>
           </div>
 
@@ -269,18 +253,8 @@ export default function HomePage() {
               <div className="label label-gold mb-5">
                 {t("home.tco.label")}
               </div>
-              <h2 className="sh mb-6">
-                {(() => {
-                  const title1 = t("home.tco.title1").replace(/\n$/, "");
-                  if (locale === "zh") {
-                    const parts = title1.split(" vs ");
-                    if (parts.length === 2) return <>{parts[0]}<br />vs<br />{parts[1]}<br /></>;
-                  }
-                  return <>{title1}<br /></>;
-                })()}
-                <span className="text-theme">{t("home.tco.titleAccent1")}</span><br />
-                <span className="text-accent">{t("home.tco.titleAccent2")}</span>
-                {t("home.tco.title4") && <><br /><span>{t("home.tco.title4")}</span></>}
+              <h2 className="sh text-[24px] sm:text-[32px] font-black tracking-tight leading-tight mb-6">
+                <T keyName="home.tco.title" defaultValue={t("home.tco.title")} params={{ theme: <span className="text-theme" />, accent: <span className="text-accent" />, br: <br /> }} />
               </h2>
               <p className="text-gray-500 text-lg font-light leading-relaxed mb-8 italic">
                 {t("home.tco.desc")}
@@ -474,11 +448,8 @@ export default function HomePage() {
             <div className="label justify-center mb-3 sm:mb-4">
               {t("home.insights.label")}
             </div>
-            <h2 className="sh whitespace-pre-line">
-              <span className="text-theme">
-                {t("home.insights.titleAccent1")}
-              </span>
-              {t("home.insights.title2")}
+            <h2 className="sh text-[24px] sm:text-[32px] font-black tracking-tight leading-tight whitespace-pre-line">
+              <T keyName="home.insights.title" defaultValue={t("home.insights.title")} params={{ theme: <span className="text-theme" />, accent: <span className="text-accent" />, br: <br /> }} />
             </h2>
           </div>
 
@@ -551,13 +522,9 @@ export default function HomePage() {
               <div className="text-5xl italic font-serif mb-3 text-theme">
                 {t("home.about.quoteOpen")}
               </div>
-              <p className="text-2xl md:text-3xl font-light leading-relaxed text-white italic mb-6 whitespace-pre-line">
-                {t("home.about.quote1")}
-                <span className="text-theme">
-                  {t("home.about.quoteAccent")}
-                </span>
-                {t("home.about.quote2")}
-              </p>
+              <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-white/90 leading-relaxed italic mb-6">
+                <T keyName="home.about.quote" defaultValue={t("home.about.quote")} params={{ theme: <span className="text-theme" />, accent: <span className="text-accent" />, br: <br /> }} />
+              </h2>
               <p className="text-gray-500 text-sm leading-relaxed font-light mb-10">
                 {t("home.about.desc")}
               </p>
@@ -609,12 +576,8 @@ export default function HomePage() {
             <div className="label justify-center mb-5">
               {t("home.leadMagnet.label")}
             </div>
-            <h2 className="sh mb-4 whitespace-pre-line">
-              {t("home.leadMagnet.title1")}
-              <span className="text-theme">
-                {t("home.leadMagnet.titleAccent")}
-              </span>
-              {t("home.leadMagnet.title2")}
+            <h2 className="sh text-[24px] sm:text-[36px] font-black tracking-tight leading-tight mb-4 whitespace-pre-line">
+              <T keyName="home.leadMagnet.title" defaultValue={t("home.leadMagnet.title")} params={{ theme: <span className="text-theme" />, accent: <span className="text-accent" />, br: <br /> }} />
             </h2>
             <p className="text-gray-500 text-base font-light leading-relaxed mb-10">
               {t("home.leadMagnet.desc")}

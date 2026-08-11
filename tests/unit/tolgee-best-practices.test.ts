@@ -14,9 +14,9 @@
  * 9. Translation value character count sanity (suspiciously long = copied key)
  */
 import { describe, expect, test } from "bun:test";
-import zh from "../../i18n/translations/zh";
-import en from "../../i18n/translations/en";
-import am from "../../i18n/translations/am";
+import zh from "../../i18n/translations/zh.json";
+import en from "../../i18n/translations/en.json";
+import am from "../../i18n/translations/am.json";
 import { getNestedValue } from "../../i18n/utils";
 
 type LocaleDict = Record<string, unknown>;
@@ -121,8 +121,7 @@ const REQUIRED_HOME_KEYS = [
   "home.trustBar.label",
   "home.products.label",
   "home.process.label",
-  "home.process.titleAccent1",
-  "home.process.titleAccent2",
+  "home.process.title",
   ...Array.from({ length: SLIDE_COUNT }, (_, i) =>
     SLIDE_REQUIRED.map((f) => `home.hero.slides.s${i}.${f}`)
   ).flat(),

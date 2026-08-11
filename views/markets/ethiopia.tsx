@@ -2,6 +2,7 @@
 
 import { useTranslation } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
+import { T } from "@tolgee/react";
 
 const fadeToMid = [
   "linear-gradient(to bottom,",
@@ -106,12 +107,7 @@ export default function EthiopiaMarketPage() {
               className="sh mb-8"
               style={{ fontSize: "clamp(3rem, 7vw, 6rem)" }}
             >
-              {t("marketsEthiopia.hero.heading1")}
-              <br />
-              <span className="text-theme">{t("marketsEthiopia.hero.heading2")}</span>{" "}
-              {t("marketsEthiopia.hero.heading3")}
-              <br />
-              <span className="text-accent">{t("marketsEthiopia.hero.heading4")}</span>
+              <T keyName="marketsEthiopia.hero.heading" params={{ theme: <span className="text-theme" />, accent: <span className="text-accent" /> }} />
             </h1>
             <p className="text-xl text-gray-400 font-light italic border-l-2 pl-8 leading-relaxed max-w-xl" style={{ borderColor: "rgba(197,160,89,.3)" }}>
               {t("marketsEthiopia.hero.description")}
@@ -127,8 +123,7 @@ export default function EthiopiaMarketPage() {
             <div>
               <div className="label label-gold mb-6">{t("marketsEthiopia.overview.label")}</div>
               <h2 className="sh mb-8">
-                {t("marketsEthiopia.overview.heading")}{" "}
-                <span className="text-theme">{t("marketsEthiopia.overview.headingAccent")}</span>
+                <T keyName="marketsEthiopia.overview.heading" params={{ theme: <span className="text-theme" />, accent: <span className="text-accent" /> }} />
               </h2>
               <p className="text-gray-500 text-lg font-light leading-relaxed mb-8">
                 {t("marketsEthiopia.overview.description")}
@@ -177,8 +172,7 @@ export default function EthiopiaMarketPage() {
             <div className="text-center mb-16">
               <div className="label justify-center mb-4">{t("marketsEthiopia.curated.label")}</div>
               <h2 className="sh">
-                {t("marketsEthiopia.curated.heading")}{" "}
-                <span className="text-theme">{t("marketsEthiopia.curated.headingAccent")}</span>
+                <T keyName="marketsEthiopia.curated.heading" params={{ theme: <span className="text-theme" />, accent: <span className="text-accent" /> }} />
               </h2>
             </div>
             <div className="grid md:grid-cols-3 gap-8">
@@ -215,9 +209,7 @@ export default function EthiopiaMarketPage() {
             <div>
               <div className="label mb-6">{t("marketsEthiopia.logistics.label")}</div>
               <h2 className="sh mb-8">
-                {t("marketsEthiopia.logistics.heading")}{" "}
-                <span className="text-accent">{t("marketsEthiopia.logistics.headingArrow")}</span>{" "}
-                <span className="text-theme">{t("marketsEthiopia.logistics.headingAccent")}</span>
+                <T keyName="marketsEthiopia.logistics.heading" params={{ theme: <span className="text-theme" />, accent: <span className="text-accent" /> }} />
               </h2>
               <p className="text-gray-500 text-lg font-light leading-relaxed mb-8">
                 {t("marketsEthiopia.logistics.description1")}
@@ -298,9 +290,7 @@ export default function EthiopiaMarketPage() {
                 className="sh mb-6"
                 style={{ fontSize: "clamp(2.5rem,6.5vw,5.5rem)" }}
               >
-                {t("marketsEthiopia.cta.heading")}{" "}
-                <span className="text-accent">{t("marketsEthiopia.cta.headingAccent")}</span>{" "}
-                {t("marketsEthiopia.cta.headingSuffix")}
+                <T keyName="marketsEthiopia.cta.heading" params={{ theme: <span className="text-theme" />, accent: <span className="text-accent" /> }} />
               </h2>
               <p className="text-gray-500 text-lg font-light italic mb-10 max-w-lg mx-auto">
                 {t("marketsEthiopia.cta.description")}

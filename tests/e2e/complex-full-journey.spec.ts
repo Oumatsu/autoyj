@@ -97,7 +97,7 @@ test.describe("Tier 4: E2E Comprehensive Full-Journey User & Portal Workflows", 
     // Role 1: Admin
     await loginRole("admin@local.test", "admin-demo-2026");
     let content = await page.locator("body").innerText();
-    expect(content).toMatch(/库存台数|待处理询价|车型库/i);
+    expect(content).toMatch(/库存台数|待处理询价|车型库|STOCK UNITS|OPEN INQUIRIES|VEHICLE MODELS/i);
 
     // Tab traversal in Admin Workspace
     const vehiclesTab = page.locator("button, a", { hasText: /车辆资源|Vehicles/i }).first();

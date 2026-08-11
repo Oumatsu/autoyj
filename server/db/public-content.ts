@@ -5,7 +5,7 @@ import {
 import {
   getVehicleGalleryImages,
   getVehicleModelImage,
-  resolveVerifiedPublicImage,
+  resolveSyncedGalleryImage,
   resolveInsightImage,
   resolveLessonImage,
 } from "../../lib/static-assets";
@@ -410,7 +410,7 @@ function galleryImages(row: D1VehicleModel, slug: string): Array<{ src: string; 
       const source = typeof entry === "string"
         ? entry
         : fields.src ?? fields.image ?? fields.url ?? fields.image_url;
-      const src = resolveVerifiedPublicImage(typeof source === "string" ? source : null);
+      const src = resolveSyncedGalleryImage(typeof source === "string" ? source : null);
       if (!src) return null;
       return {
         src,

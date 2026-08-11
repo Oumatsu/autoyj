@@ -11,6 +11,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import createMiddleware from "next-intl/middleware";
 import { routing } from "./i18n/routing";
+import { isLocale } from "./i18n/config";
 import { COOKIE_TTL_1Y, LOCALE_COOKIE_NAME } from "./lib/constants";
 
 const nextIntlProxy = createMiddleware(routing);
@@ -38,16 +39,19 @@ export function isPortalLocaleOverridePath(pathname: string): boolean {
   );
 }
 
-function redirectPortalToEnglish(request: NextRequest): NextResponse {
-  const url = request.nextUrl.clone();
-  url.pathname = `/en${url.pathname}`;
-  const response = NextResponse.redirect(url, { status: 307 });
-  response.cookies.set(LOCALE_COOKIE_NAME, "en", {
+function persistLocaleCookie(response: NextResponse, locale: string): NextResponse {
+  response.cookies.set(LOCALE_COOKIE_NAME, locale, {
     maxAge: COOKIE_TTL_1Y,
     path: "/",
     sameSite: "lax",
   });
   return response;
+}
+
+function redirectPortalToEnglish(request: NextRequest): NextResponse {
+  const url = request.nextUrl.clone();
+  url.pathname = `/en${url.pathname}`;
+  return persistLocaleCookie(NextResponse.redirect(url, { status: 307 }), "en");
 }
 
 export function proxy(request: NextRequest) {
@@ -61,7 +65,9 @@ export function proxy(request: NextRequest) {
     return redirectPortalToEnglish(request);
   }
 
-  return nextIntlProxy(request);
+  const response = nextIntlProxy(request);
+  const locale = pathname.split("/").filter(Boolean)[0];
+  return isLocale(locale) ? persistLocaleCookie(response, locale) : response;
 }
 
 export const config = {

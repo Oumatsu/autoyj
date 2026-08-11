@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useTranslation } from "@/i18n/useTranslation";
+import { T } from "@tolgee/react";
 
 const mediaSlots = [
   {
@@ -121,13 +122,7 @@ export default function AboutPage() {
               className="sh mb-8"
               style={{ fontSize: "clamp(3rem, 7vw, 6rem)" }}
             >
-              {t("about.hero.heading1")}
-              <br />
-              <span className="text-theme">{t("about.hero.heading2")}</span>
-              <br />
-              {t("about.hero.heading3")}
-              <br />
-              <span className="text-accent">{t("about.hero.heading4")}</span>
+              <T keyName="about.hero.heading" params={{ theme: <span className="text-theme" />, accent: <span className="text-accent" /> }} />
             </h1>
             <p
               className="text-xl text-gray-400 font-light italic border-l-2 pl-8 leading-relaxed max-w-xl"
@@ -146,9 +141,7 @@ export default function AboutPage() {
             <div>
               <div className="label label-gold mb-6">{t("about.heritage.label")}</div>
               <h2 className="sh mb-8">
-                {t("about.heritage.heading")}
-                <br />
-                <span className="text-theme">{t("about.heritage.headingAccent")}</span> {t("about.heritage.headingSuffix")}
+                <T keyName="about.heritage.heading" params={{ theme: <span className="text-theme" />, accent: <span className="text-accent" /> }} />
               </h2>
               <p className="text-gray-500 text-lg font-light leading-relaxed mb-12">
                 {t("about.heritage.description")}
@@ -212,11 +205,7 @@ export default function AboutPage() {
             <div className="lg:col-span-5">
               <div className="label label-gold mb-6">{t("about.verification.label")}</div>
               <h2 className="sh mb-8">
-                {t("about.verification.heading")}
-                <br />
-                <span className="text-theme">{t("about.verification.headingAccent")}</span>
-                <br />
-                {t("about.verification.headingSuffix")}
+                <T keyName="about.verification.heading" params={{ theme: <span className="text-theme" />, accent: <span className="text-accent" /> }} />
               </h2>
               <div className="grid grid-cols-2 gap-4">
                 {proofStats.map((stat, i) => (
@@ -248,9 +237,7 @@ export default function AboutPage() {
             <div className="max-w-2xl">
               <div className="label label-gold mb-5">{t("about.capability.label")}</div>
               <h2 className="sh">
-                {t("about.capability.heading")}
-                <br />
-                {t("about.capability.headingAccent")}
+                <T keyName="about.capability.heading" params={{ theme: <span className="text-theme" />, accent: <span className="text-accent" /> }} />
               </h2>
             </div>
             <p className="text-gray-500 text-sm md:text-base font-light leading-relaxed max-w-xl">
@@ -300,11 +287,7 @@ export default function AboutPage() {
             <div>
               <div className="label mb-6">{t("about.presence.label")}</div>
               <h2 className="sh mb-8">
-                {t("about.presence.heading")}
-                <br />
-                <span className="text-theme">{t("about.presence.headingAccent")}</span>
-                <br />
-                {t("about.presence.headingSuffix")}
+                <T keyName="about.presence.heading" params={{ theme: <span className="text-theme" />, accent: <span className="text-accent" /> }} />
               </h2>
               <p className="text-gray-300 text-lg font-light leading-relaxed mb-6">
                 {t("about.presence.description1")}
@@ -344,9 +327,7 @@ export default function AboutPage() {
           <div className="text-center mb-16">
             <div className="label justify-center mb-5">{t("about.gallery.label")}</div>
             <h2 className="sh">
-              {t("about.gallery.heading")}
-              <br />
-              <span className="text-theme">{t("about.gallery.headingAccent")}</span>.
+              <T keyName="about.gallery.heading" params={{ theme: <span className="text-theme" />, accent: <span className="text-accent" /> }} />
             </h2>
             <p className="text-gray-500 text-sm md:text-base font-light leading-relaxed max-w-2xl mx-auto mt-6">
               {t("about.gallery.description")}
@@ -369,7 +350,7 @@ export default function AboutPage() {
                     type="button"
                     onClick={() => setLightbox({ albumIndex, imageIndex: 0 })}
                     className="group block w-full flex-1 min-h-0 text-left"
-                    aria-label={t("about.gallery.lightbox.openAlbum").replace("{title}", title) as string}
+                    aria-label={t("about.gallery.lightbox.openAlbum", { title }) as string}
                   >
                     <div className="aspect-[4/3] lg:aspect-auto lg:h-full relative overflow-hidden">
                       <img
@@ -403,7 +384,7 @@ export default function AboutPage() {
                         type="button"
                         onClick={() => setLightbox({ albumIndex, imageIndex })}
                         className="aspect-[4/3] overflow-hidden rounded-lg border border-white/5 hover:border-gold transition-colors"
-                        aria-label={t("about.gallery.lightbox.viewPhoto").replace("{index}", String(imageIndex + 1)) as string}
+                        aria-label={t("about.gallery.lightbox.viewPhoto", { index: imageIndex + 1 }) as string}
                       >
                         <img
                           src={image}
@@ -447,8 +428,7 @@ export default function AboutPage() {
           <div className="max-w-2xl">
             <div className="label mb-4">{t("about.logistics.label")}</div>
             <h2 className="sh mb-8">
-              {t("about.logistics.heading")}{" "}
-              <span className="text-theme">{t("about.logistics.headingAccent")}</span>
+              <T keyName="about.logistics.heading" params={{ theme: <span className="text-theme" />, accent: <span className="text-accent" /> }} />
             </h2>
             <p
               className="text-gray-400 text-lg font-light leading-relaxed mb-12 border-l-2 border-theme/30 pl-6"
@@ -541,9 +521,10 @@ export default function AboutPage() {
             </div>
 
             <div className="mt-4 text-center text-xs text-gray-500">
-              {(t("about.gallery.lightbox.photoCounter") as string)
-                .replace("{current}", String(lightbox.imageIndex + 1))
-                .replace("{total}", String(activeAlbum.images.length))}
+              {t("about.gallery.lightbox.photoCounter", {
+                current: lightbox.imageIndex + 1,
+                total: activeAlbum.images.length,
+              }) as string}
             </div>
           </div>
         </div>

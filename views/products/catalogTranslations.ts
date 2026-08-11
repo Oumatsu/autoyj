@@ -26,3 +26,15 @@ export function catalogFilterKey(field: string, value: string): string {
 export function catalogCardValueKey(value: string): string {
   return `catalog.cardValues.${catalogValueId(value)}`;
 }
+
+export function catalogFilterFallback(field: string, value: string): string {
+  if (!value) return "";
+  const cleaned = value.replace(/^value:/i, "").trim();
+  if (/^[a-z0-9-]+$/.test(cleaned) && cleaned.includes("-")) {
+    return cleaned
+      .split("-")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  }
+  return cleaned;
+}

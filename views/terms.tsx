@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslation } from "@/i18n/useTranslation";
+import { T } from "@tolgee/react";
 
 export default function TermsPage() {
   const { t, tArray } = useTranslation();
@@ -11,8 +12,7 @@ export default function TermsPage() {
       <div className="container mx-auto px-6 md:px-12 max-w-3xl">
         <div className="label label-gold mb-6">{t("terms.badge")}</div>
         <h1 className="sh mb-4">
-          {t("terms.title")}{" "}
-          <span className="text-theme">{t("terms.titleAccent")}</span>
+          <T keyName="terms.title" params={{ theme: <span className="text-theme" /> }} />
         </h1>
         <p className="text-gray-500 text-sm font-light mb-12">
           {t("terms.lastUpdated")}

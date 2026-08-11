@@ -137,11 +137,7 @@ export default function InsightsPage() {
           <h1 className="text-5xl md:text-6xl font-black italic text-white uppercase tracking-tighter mb-4">
             <T
               keyName="insights.heading"
-              params={{
-                accent1: (chunks: any) => <span className="text-theme">{chunks}</span>,
-                accent2: (chunks: any) => <span className="text-accent">{chunks}</span>,
-                br: () => <br />,
-              }}
+              params={{ theme: <span className="text-theme" />, accent: <span className="text-accent" />, br: <br /> }}
             />
           </h1>
           <p className="text-gray-400 text-lg font-light max-w-2xl">

@@ -249,6 +249,116 @@ describe("portal request/D1 isolation", () => {
     expect(payload.vehicleModelSpecs).toEqual([]);
   });
 
+  test("vehicle model catalog uses the synced gallery when no static cover exists", async () => {
+    const db = fakeD1({
+      models: [{
+        id: "MDL-GALLERY",
+        model_id: "MDL-GALLERY",
+        brand: "AVATR",
+        MODEL: "Avatr 06",
+        gallery_images_json: JSON.stringify([
+          { src: "/pic/revenue-king/seagull/0.webp", cat: "Exterior", label: "Gallery 1" },
+        ]),
+        status: "Active",
+      }],
+    });
+    const devSession = await handlePortalRequest(
+      new Request("http://localhost/api/portal/dev-session", {
+        method: "POST",
+        body: JSON.stringify({ role: "admin" }),
+      }),
+      env(db),
+    );
+    const cookie = devSession.headers.get("set-cookie")?.split(";")[0];
+    expect(cookie).toBeTruthy();
+
+    const response = await handlePortalRequest(
+      new Request("https://portal.example/api/portal/vehicle-models", { headers: { cookie: cookie! } }),
+      env(db),
+    );
+    const payload = await response.json() as {
+      vehicleModels: Array<{ imageUrl: string; galleryImages?: Array<{ src: string }> }>;
+    };
+
+    expect(response.status).toBe(200);
+    expect(payload.vehicleModels[0]?.imageUrl).toBe("/pic/revenue-king/seagull/0.webp");
+    expect(payload.vehicleModels[0]?.galleryImages?.map((image) => image.src)).toEqual([
+      "/pic/revenue-king/seagull/0.webp",
+    ]);
+  });
+
+  test("vehicle model catalog falls back to the pruned synced gallery field", async () => {
+    const db = fakeD1({
+      models: [{
+        id: "MDL-GALLERY-PRUNED",
+        model_id: "MDL-GALLERY-PRUNED",
+        brand: "AVATR",
+        MODEL: "Avatr 06",
+        gallery_images_json: "",
+        gallery_images_json_pruned: JSON.stringify([
+          { image_url: "/pic/revenue-king/seagull/1.webp" },
+        ]),
+        status: "Active",
+      }],
+    });
+    const devSession = await handlePortalRequest(
+      new Request("http://localhost/api/portal/dev-session", {
+        method: "POST",
+        body: JSON.stringify({ role: "admin" }),
+      }),
+      env(db),
+    );
+    const cookie = devSession.headers.get("set-cookie")?.split(";")[0];
+    expect(cookie).toBeTruthy();
+
+    const response = await handlePortalRequest(
+      new Request("https://portal.example/api/portal/vehicle-models", { headers: { cookie: cookie! } }),
+      env(db),
+    );
+    const payload = await response.json() as {
+      vehicleModels: Array<{ imageUrl: string; galleryImages?: Array<{ src: string }> }>;
+    };
+
+    expect(response.status).toBe(200);
+    expect(payload.vehicleModels[0]?.imageUrl).toBe("/pic/revenue-king/seagull/1.webp");
+    expect(payload.vehicleModels[0]?.galleryImages?.map((image) => image.src)).toEqual([
+      "/pic/revenue-king/seagull/1.webp",
+    ]);
+  });
+
+  test("vehicle model catalog leaves image fields empty when no verified gallery exists", async () => {
+    const db = fakeD1({
+      models: [{
+        id: "MDL-NO-GALLERY",
+        model_id: "MDL-NO-GALLERY",
+        brand: "AVATR",
+        MODEL: "Avatr 06",
+        status: "Active",
+      }],
+    });
+    const devSession = await handlePortalRequest(
+      new Request("http://localhost/api/portal/dev-session", {
+        method: "POST",
+        body: JSON.stringify({ role: "admin" }),
+      }),
+      env(db),
+    );
+    const cookie = devSession.headers.get("set-cookie")?.split(";")[0];
+    expect(cookie).toBeTruthy();
+
+    const response = await handlePortalRequest(
+      new Request("https://portal.example/api/portal/vehicle-models", { headers: { cookie: cookie! } }),
+      env(db),
+    );
+    const payload = await response.json() as {
+      vehicleModels: Array<{ imageUrl: string; galleryImages?: Array<{ src: string }> }>;
+    };
+
+    expect(response.status).toBe(200);
+    expect(payload.vehicleModels[0]?.imageUrl).toBe("");
+    expect(payload.vehicleModels[0]?.galleryImages).toEqual([]);
+  });
+
   test("configured vehicle trims take precedence over inventory fallback", async () => {
     const db = fakeD1({
       models: [{
@@ -297,6 +407,55 @@ describe("portal request/D1 isolation", () => {
     expect(payload.vehicleModelSpecs).toEqual([
       expect.objectContaining({ modelId: "TRIM-081-01", name: "Verified 550 MAX" }),
     ]);
+  });
+
+  test("vehicle models resolve trims through the parent record and hide image-list brochures", async () => {
+    const db = fakeD1({
+      models: [{
+        id: "model-record-avatr-11",
+        model_id: "AVATR-11",
+        brand: "AVATR",
+        MODEL: "Avatr 11",
+        brochure_cover: "1.webp, 2.webp, 3.webp",
+        status: "Active",
+      }],
+      trims: Array.from({ length: 6 }, (_, index) => ({
+        id: `trim-avatr-11-${index + 1}`,
+        model_id: "legacy-model-reference",
+        parent_model_record_id: "model-record-avatr-11",
+        trim_name: `Avatr 11 Trim ${index + 1}`,
+        status: "Active",
+      })),
+    });
+    const devSession = await handlePortalRequest(
+      new Request("http://localhost/api/portal/dev-session", {
+        method: "POST",
+        body: JSON.stringify({ role: "admin" }),
+      }),
+      env(db),
+    );
+    const cookie = devSession.headers.get("set-cookie")?.split(";")[0];
+    expect(cookie).toBeTruthy();
+
+    const response = await handlePortalRequest(
+      new Request("https://portal.example/api/portal/vehicle-models", { headers: { cookie: cookie! } }),
+      env(db),
+    );
+    const payload = await response.json() as {
+      vehicleModels: Array<{ trim: string; brochureUrl: string }>;
+    };
+
+    expect(response.status).toBe(200);
+    expect(payload.vehicleModels).toHaveLength(6);
+    expect(payload.vehicleModels.map((model) => model.trim)).toEqual([
+      "Avatr 11 Trim 1",
+      "Avatr 11 Trim 2",
+      "Avatr 11 Trim 3",
+      "Avatr 11 Trim 4",
+      "Avatr 11 Trim 5",
+      "Avatr 11 Trim 6",
+    ]);
+    expect(payload.vehicleModels.every((model) => model.brochureUrl === "")).toBe(true);
   });
 
   test("quote counter and accept use D1 and do not silently succeed without a quote", async () => {

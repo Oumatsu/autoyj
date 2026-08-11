@@ -67,11 +67,7 @@ export default function ContactPage() {
               <h1 className="sh mb-6 leading-tight">
                 <T
                   keyName="contact.heading"
-                  params={{
-                    accent1: (chunks: any) => <span className="text-theme">{chunks}</span>,
-                    accent2: (chunks: any) => <span className="text-accent">{chunks}</span>,
-                    br: () => <br />,
-                  }}
+                  params={{ theme: <span className="text-theme" />, accent: <span className="text-accent" />, br: <br /> }}
                 />
               </h1>
               <p
@@ -116,7 +112,7 @@ export default function ContactPage() {
                 </LocaleLink>
 
                 <a
-                  href="mailto:sales@youguard.com"
+                  href="mailto:sales@youguard.net"
                   className="contact-card group flex items-center gap-4 p-6 rounded-2xl border border-white/5 hover:border-gold transition-all duration-300 hover:translate-x-1"
                   style={{ background: "rgba(255,255,255,0.02)" }}
                 >

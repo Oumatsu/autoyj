@@ -91,9 +91,9 @@ describe("Tolgee sync helpers", () => {
     });
   });
 
-  test("renders the existing default-export TypeScript module shape", () => {
+  test("renders formatted JSON translation file content", () => {
     expect(renderTranslationModule("zh", exportFixtures.zh)).toBe(
-      `const zh = ${JSON.stringify(exportFixtures.zh, null, 2)};\n\nexport default zh;\n`
+      JSON.stringify(exportFixtures.zh, null, 2) + "\n"
     );
   });
 
@@ -102,11 +102,19 @@ describe("Tolgee sync helpers", () => {
       action: "pull",
       allowKeyRemoval: true,
       mergeMissingKeys: false,
+      force: false,
     });
     expect(parseArgs(["pull", "--merge-missing-keys"])).toEqual({
       action: "pull",
       allowKeyRemoval: false,
       mergeMissingKeys: true,
+      force: false,
+    });
+    expect(parseArgs(["pull", "--force"])).toEqual({
+      action: "pull",
+      allowKeyRemoval: false,
+      mergeMissingKeys: false,
+      force: true,
     });
     expect(() => parseArgs(["pull", "--unknown"])).toThrow("Unknown Tolgee sync option");
   });
@@ -179,9 +187,11 @@ describe("Tolgee pull", () => {
     const requests: URL[] = [];
     const fileSystem = new MemoryFileSystem();
     const cwd = "/virtual/project";
-    const paths = ["zh", "en", "am"].map((locale) =>
-      path.resolve(cwd, `i18n/translations/${locale}.ts`)
-    );
+    const paths = [
+      path.resolve(cwd, "i18n/translations/zh.json"),
+      path.resolve(cwd, "i18n/translations/en.json"),
+      path.resolve(cwd, "i18n/translations/am.json"),
+    ];
     paths.forEach((filePath) => fileSystem.files.set(filePath, "old bundle"));
 
     const result = await runPull({
@@ -205,9 +215,9 @@ describe("Tolgee pull", () => {
 
     expect(result).toEqual({
       changedFiles: [
-        "i18n/translations/zh.ts",
-        "i18n/translations/en.ts",
-        "i18n/translations/am.ts",
+        "i18n/translations/zh.json",
+        "i18n/translations/en.json",
+        "i18n/translations/am.json",
       ],
       keyCount: 4,
     });
@@ -222,9 +232,9 @@ describe("Tolgee pull", () => {
       "am",
     ]);
     expect(requests.every((url) => url.searchParams.get("zip") === "false")).toBe(true);
-    expect(fileSystem.files.get(paths[0])).toContain("export default zh;");
-    expect(fileSystem.files.get(paths[1])).toContain("export default en;");
-    expect(fileSystem.files.get(paths[2])).toContain("export default am;");
+    expect(fileSystem.files.get(paths[0])).toContain('"nav"');
+    expect(fileSystem.files.get(paths[1])).toContain('"nav"');
+    expect(fileSystem.files.get(paths[2])).toContain('"nav"');
     expect([...fileSystem.files.keys()].filter((filePath) => filePath.includes(".backup-"))).toEqual(
       []
     );
@@ -262,7 +272,7 @@ describe("Tolgee pull", () => {
         apiKey: "test-key",
         projectId: 42,
         fetchImpl,
-        getDirtyFiles: () => ["i18n/translations/en.ts"],
+        getDirtyFiles: () => ["i18n/translations/en.json"],
       })
     ).rejects.toThrow("uncommitted changes");
     expect(requestCount).toBe(0);
@@ -271,9 +281,11 @@ describe("Tolgee pull", () => {
   test("leaves original files unchanged when an export fails", async () => {
     const fileSystem = new MemoryFileSystem();
     const cwd = "/virtual/project";
-    const paths = ["zh", "en", "am"].map((locale) =>
-      path.resolve(cwd, `i18n/translations/${locale}.ts`)
-    );
+    const paths = [
+      path.resolve(cwd, "i18n/translations/zh.json"),
+      path.resolve(cwd, "i18n/translations/en.json"),
+      path.resolve(cwd, "i18n/translations/am.json"),
+    ];
     paths.forEach((filePath, index) => fileSystem.files.set(filePath, `old bundle ${index}`));
 
     const fetchImpl: typeof fetch = async (input, init) => {
@@ -309,9 +321,11 @@ describe("Tolgee pull", () => {
   test("rejects malformed and empty exports before writing", async () => {
     const fileSystem = new MemoryFileSystem();
     const cwd = "/virtual/project";
-    const paths = ["zh", "en", "am"].map((locale) =>
-      path.resolve(cwd, `i18n/translations/${locale}.ts`)
-    );
+    const paths = [
+      path.resolve(cwd, "i18n/translations/zh.json"),
+      path.resolve(cwd, "i18n/translations/en.json"),
+      path.resolve(cwd, "i18n/translations/am.json"),
+    ];
     paths.forEach((filePath, index) => fileSystem.files.set(filePath, `old bundle ${index}`));
 
     let responseBody = "not-json";
@@ -352,9 +366,11 @@ describe("Tolgee pull", () => {
     const fileSystem = new MemoryFileSystem();
     fileSystem.failRenameAt = 5;
     const cwd = "/virtual/project";
-    const paths = ["zh", "en", "am"].map((locale) =>
-      path.resolve(cwd, `i18n/translations/${locale}.ts`)
-    );
+    const paths = [
+      path.resolve(cwd, "i18n/translations/zh.json"),
+      path.resolve(cwd, "i18n/translations/en.json"),
+      path.resolve(cwd, "i18n/translations/am.json"),
+    ];
     paths.forEach((filePath, index) => fileSystem.files.set(filePath, `old bundle ${index}`));
 
     await expect(

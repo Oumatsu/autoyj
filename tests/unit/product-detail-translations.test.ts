@@ -87,4 +87,19 @@ describe("Unit: Product Detail Translation Identifiers & Phrase Grammar", () => 
     expect(usedKeys.length).toBeGreaterThanOrEqual(45);
     expect([...new Set(usedKeys)].filter((key) => !manifestKeys.has(key))).toEqual([]);
   });
+
+  test("translatedDetailValue NEVER returns productsDetail.values key string when key is missing in translate", () => {
+    // Simulate translate function returning the raw key when untranslated
+    const mockTranslate = (key: string, fallback?: string) => key;
+    const result = translatedDetailValue(mockTranslate, "Geely Geome 310km Star Version");
+    expect(result).toBe("Geely Geome 310km Star Version");
+    expect(result).not.toContain("productsDetail.values");
+  });
+
+  test("translatedDetailString NEVER returns productsDetail raw keys when key is missing in translate", () => {
+    const mockTranslate = (key: string, fallback?: string) => key;
+    const result = translatedDetailString(mockTranslate, "productsDetail.models.geely-geome.heroDesc", "Geely Geome Hero Description");
+    expect(result).toBe("Geely Geome Hero Description");
+    expect(result).not.toContain("productsDetail");
+  });
 });

@@ -2,9 +2,9 @@ import { describe, expect, test } from "bun:test";
 import { readFile } from "node:fs/promises";
 import { catalogCardValueKey } from "../../views/products/catalogTranslations";
 import { translateOverviewCard } from "../../views/products/productsOverviewTranslations";
-import am from "../../i18n/translations/am";
-import en from "../../i18n/translations/en";
-import zh from "../../i18n/translations/zh";
+import am from "../../i18n/translations/am.json";
+import en from "../../i18n/translations/en.json";
+import zh from "../../i18n/translations/zh.json";
 
 const featuredSlugs = [
   "byd-seagull",
@@ -52,7 +52,7 @@ describe("Unit: Products Overview Card Translations", () => {
     });
   });
 
-  test("overview cards tolerate malformed translations and tag payloads", () => {
+  test("overview cards throw strict error on malformed translations", () => {
     const card = {
       slug: "aito-m9",
       name: "AITO M9",
@@ -63,10 +63,7 @@ describe("Unit: Products Overview Card Translations", () => {
     };
     const malformedT = () => ({ invalid: true } as any);
 
-    expect(translateOverviewCard(card, malformedT)).toEqual({
-      ...card,
-      tags: [],
-    });
+    expect(() => translateOverviewCard(card, malformedT)).toThrow("[Strict i18n Error]");
   });
 
   test("Chinese and Amharic cover every featured overview card", () => {
@@ -89,7 +86,7 @@ describe("Unit: Products Overview Card Translations", () => {
   test("overview category headings match navigation terminology", () => {
     for (const locale of [zh, am]) {
       expect(
-        `${locale.products.revenueKing.heading}${locale.products.revenueKing.headingAccent}`
+        `${locale.products.revenueKing.heading}`.replace(/<[^>]+>/g, "").replace(/\s/g, "")
       ).toBe(locale.nav.revenueKing.replace(/\s/g, ""));
     }
   });

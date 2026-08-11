@@ -36,6 +36,7 @@ const notoSans = Noto_Sans({
   weight: ["400", "500", "700", "800"],
   style: ["normal"],
   display: "swap",
+  preload: false,
   variable: "--font-sans",
 });
 
@@ -44,6 +45,7 @@ const notoSansSc = Noto_Sans_SC({
   weight: ["400", "700"],
   style: ["normal"],
   display: "swap",
+  preload: false,
   variable: "--font-sc",
 });
 
@@ -52,6 +54,7 @@ const notoSansEthiopic = Noto_Sans_Ethiopic({
   weight: ["400", "700"],
   style: ["normal"],
   display: "swap",
+  preload: false,
   variable: "--font-ethiopic",
 });
 

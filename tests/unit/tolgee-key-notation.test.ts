@@ -8,9 +8,9 @@
  * keys as "home.process.steps[3].title" instead of "home.process.steps.3.title".
  */
 import { describe, expect, test } from "bun:test";
-import zh from "../../i18n/translations/zh";
-import en from "../../i18n/translations/en";
-import am from "../../i18n/translations/am";
+import zh from "../../i18n/translations/zh.json";
+import en from "../../i18n/translations/en.json";
+import am from "../../i18n/translations/am.json";
 import { getNestedValue } from "../../i18n/utils";
 
 // Replicate the flattenToDot logic from scripts/tolgee/sync.ts

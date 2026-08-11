@@ -14,9 +14,9 @@
  * - views/page.tsx (home page)
  */
 import { describe, expect, test } from "bun:test";
-import zh from "../../i18n/translations/zh";
-import en from "../../i18n/translations/en";
-import am from "../../i18n/translations/am";
+import zh from "../../i18n/translations/zh.json";
+import en from "../../i18n/translations/en.json";
+import am from "../../i18n/translations/am.json";
 import { getNestedValue } from "../../i18n/utils";
 
 type LocaleDict = Record<string, unknown>;
@@ -81,8 +81,7 @@ const PROCESS_STEP_COUNT = 4;
 
 describe("Unit: Tolgee InContext — Home Process Steps resolve in all locales", () => {
   test("home.process.label resolves", () => assertKey("home.process.label"));
-  test("home.process.titleAccent1 resolves", () => assertKey("home.process.titleAccent1"));
-  test("home.process.titleAccent2 resolves", () => assertKey("home.process.titleAccent2"));
+  test("home.process.title resolves", () => assertKey("home.process.title"));
 
   for (let i = 0; i < PROCESS_STEP_COUNT; i++) {
     for (const field of processStepFields) {

@@ -1,4 +1,4 @@
-export type InsightTranslationFn = (key: string, fallback?: string) => unknown;
+export type InsightTranslationFn = (key: string) => unknown;
 
 export type TranslatableInsightArticle = {
   slug?: string;
@@ -8,14 +8,15 @@ export type TranslatableInsightArticle = {
   content?: string;
 };
 
-function translatedText(
+function requireTranslation(
   t: InsightTranslationFn,
   key: string,
-  fallback: unknown,
 ): string {
-  const source = typeof fallback === "string" ? fallback : "";
-  const translated = t(key, source);
-  return typeof translated === "string" ? translated : source;
+  const translated = t(key);
+  if (typeof translated !== "string" || !translated || translated === key) {
+    throw new Error(`[Strict i18n Error] Missing required translation key in dictionary: "${key}"`);
+  }
+  return translated;
 }
 
 export function translateInsightArticle<T extends TranslatableInsightArticle>(
@@ -27,9 +28,9 @@ export function translateInsightArticle<T extends TranslatableInsightArticle>(
 
   return {
     ...article,
-    title: translatedText(t, `${prefix}.title`, article.title),
-    overview: translatedText(t, `${prefix}.overview`, article.overview),
-    date: translatedText(t, `${prefix}.date`, article.date),
-    content: translatedText(t, `${prefix}.content`, article.content),
+    title: requireTranslation(t, `${prefix}.title`),
+    overview: requireTranslation(t, `${prefix}.overview`),
+    date: requireTranslation(t, `${prefix}.date`),
+    content: requireTranslation(t, `${prefix}.content`),
   };
 }

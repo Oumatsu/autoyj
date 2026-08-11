@@ -1,5 +1,10 @@
 import { afterEach, describe, expect, test } from "bun:test";
-import { searchRecords, syncArticlesToD1, syncVehiclesToD1 } from "../../server/api/portal";
+import {
+  searchRecords,
+  syncArticlesToD1,
+  syncVehicleModelsToDB,
+  syncVehiclesToD1,
+} from "../../server/api/portal";
 import { FeishuSyncRunError, runFeishuScheduledSync } from "../../server/jobs/feishu-sync";
 
 type FakeStatement = {
@@ -12,15 +17,33 @@ type FakeStatement = {
 
 class FakeD1 {
   batches: string[][] = [];
+  batchValues: unknown[][][] = [];
   executed: string[] = [];
+  columns = new Map<string, Array<{ name: string; type: string; pk: number }>>();
 
   prepare(sql: string): FakeStatement {
     const statement: FakeStatement = {
       sql,
       bind: (...values) => ({ ...statement, values }),
-      all: async () => ({ results: [{ name: "id", type: "TEXT", pk: 1 }] }),
+      all: async () => {
+        const tableName = sql.match(/PRAGMA table_info\("([^"]+)"\)/)?.[1];
+        return {
+          results: tableName
+            ? (this.columns.get(tableName) ?? [{ name: "id", type: "TEXT", pk: 1 }])
+            : [{ name: "id", type: "TEXT", pk: 1 }],
+        };
+      },
       run: async () => {
         this.executed.push(sql);
+        const alterMatch = sql.match(/ALTER TABLE "([^"]+)" ADD COLUMN "([^"]+)" (\w+)/);
+        if (alterMatch) {
+          const [, tableName, columnName, type] = alterMatch;
+          const tableColumns = this.columns.get(tableName) ?? [{ name: "id", type: "TEXT", pk: 1 }];
+          if (!tableColumns.some((column) => column.name === columnName)) {
+            tableColumns.push({ name: columnName, type, pk: 0 });
+            this.columns.set(tableName, tableColumns);
+          }
+        }
         return { success: true };
       },
     };
@@ -29,6 +52,7 @@ class FakeD1 {
 
   async batch(statements: FakeStatement[]) {
     this.batches.push(statements.map((statement) => statement.sql));
+    this.batchValues.push(statements.map((statement) => statement.values ?? []));
     return statements.map(() => ({ success: true }));
   }
 }
@@ -154,10 +178,43 @@ describe("Feishu sync safety", () => {
       }],
     });
 
-    const { syncVehicleModelsToDB } = await import("../../server/api/portal");
     await expect(syncVehicleModelsToDB(env(db))).resolves.toEqual({ models: 1, trims: 1 });
     expect(db.batches).toHaveLength(1);
     expect(db.executed.some((sql) => sql.includes('ADD COLUMN "trim_name"'))).toBe(true);
+  });
+
+  test("preserves the complete gallery JSON during model sync", async () => {
+    const db = new FakeD1();
+    const gallery = Array.from({ length: 15 }, (_, index) => ({
+      src: `/pic/revenue-king/seagull/${index}.webp`,
+      cat: index < 4 ? "Exterior" : "Interior",
+      label: `Gallery ${index + 1}`,
+    }));
+    mockFeishu({
+      "models-table": [{
+        record_id: "model-record-seagull",
+        fields: {
+          model_id: "MDL-SEAGULL",
+          brand: "BYD",
+          model: "Seagull",
+          gallery_images_json: gallery,
+        },
+      }],
+      "trims-table": [{
+        record_id: "trim-record-seagull",
+        fields: {
+          trim_config_id: "MDL-SEAGULL-1",
+          model_id: "MDL-SEAGULL",
+          trim_name: "305km",
+        },
+      }],
+    });
+
+    await expect(syncVehicleModelsToDB(env(db))).resolves.toEqual({ models: 1, trims: 1 });
+    const modelInsertIndex = db.batches[0].findIndex((sql) => sql.includes('INSERT INTO "vehicle_models"'));
+    expect(modelInsertIndex).toBeGreaterThan(-1);
+    const modelValues = db.batchValues[0][modelInsertIndex];
+    expect(modelValues).toContain(JSON.stringify(gallery));
   });
 
   test("cron rejects with structured failures instead of zero-count success", async () => {

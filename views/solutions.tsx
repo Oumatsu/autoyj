@@ -43,11 +43,7 @@ export default function SolutionsPage() {
           >
             <T
               keyName="solutions.hero.heading"
-              params={{
-                accent1: (chunks: any) => <span className="text-accent">{chunks}</span>,
-                accent2: (chunks: any) => <span className="text-theme">{chunks}</span>,
-                br: () => <br />,
-              }}
+              params={{ theme: <span className="text-theme" />, accent: <span className="text-accent" />, br: <br /> }}
             />
           </h1>
           <p className="hidden min-[392px]:block text-gray-300 text-sm sm:text-lg font-light italic max-w-2xl mx-auto leading-relaxed px-2">
@@ -65,11 +61,7 @@ export default function SolutionsPage() {
               <h2 className="sh mb-8">
                 <T
                   keyName="solutions.pdi.heading"
-                  params={{
-                    accent1: (chunks: any) => <span className="text-theme">{chunks}</span>,
-                    accent2: (chunks: any) => <span className="text-accent">{chunks}</span>,
-                    br: () => <br />,
-                  }}
+                  params={{ theme: <span className="text-theme" />, accent: <span className="text-accent" />, br: <br /> }}
                 />
               </h2>
               <p className="text-gray-500 text-lg font-light leading-relaxed mb-10">
@@ -151,10 +143,7 @@ export default function SolutionsPage() {
             <h2 className="sh mb-8">
               <T
                 keyName="solutions.loading.heading"
-                params={{
-                  accent: (chunks: any) => <span className="text-theme">{chunks}</span>,
-                  br: () => <br />,
-                }}
+                params={{ theme: <span className="text-theme" />, accent: <span className="text-accent" />, br: <br /> }}
               />
             </h2>
             <p className="text-gray-400 text-lg font-light italic leading-relaxed mb-12">
@@ -218,10 +207,7 @@ export default function SolutionsPage() {
               <h2 className="sh mb-8">
                 <T
                   keyName="solutions.partsKit.heading"
-                  params={{
-                    accent: (chunks: any) => <span className="text-accent">{chunks}</span>,
-                    br: () => <br />,
-                  }}
+                  params={{ theme: <span className="text-theme" />, accent: <span className="text-accent" />, br: <br /> }}
                 />
               </h2>
               <p className="text-gray-500 text-lg font-light leading-relaxed mb-8">
@@ -257,10 +243,7 @@ export default function SolutionsPage() {
               <h2 className="sh mb-8">
                 <T
                   keyName="solutions.serviceCentre.heading"
-                  params={{
-                    accent: (chunks: any) => <span className="text-theme">{chunks}</span>,
-                    br: () => <br />,
-                  }}
+                  params={{ theme: <span className="text-theme" />, accent: <span className="text-accent" />, br: <br /> }}
                 />
               </h2>
               <p className="text-gray-500 text-lg font-light leading-relaxed mb-8">
@@ -338,10 +321,7 @@ export default function SolutionsPage() {
             <h2 className="sh mb-8">
               <T
                 keyName="solutions.marketing.heading"
-                params={{
-                  accent: (chunks: any) => <span className="text-theme">{chunks}</span>,
-                  br: () => <br />,
-                }}
+                params={{ theme: <span className="text-theme" />, accent: <span className="text-accent" />, br: <br /> }}
               />
             </h2>
             <p className="text-gray-400 text-lg font-light italic leading-relaxed mb-12">
@@ -395,11 +375,7 @@ export default function SolutionsPage() {
               <h2 className="sh mb-8">
                 <T
                   keyName="solutions.tradeTerms.heading"
-                  params={{
-                    accent1: (chunks: any) => <span className="text-theme">{chunks}</span>,
-                    accent2: (chunks: any) => <span className="text-accent">{chunks}</span>,
-                    br: () => <br />,
-                  }}
+                  params={{ theme: <span className="text-theme" />, accent: <span className="text-accent" />, br: <br /> }}
                 />
               </h2>
               <p className="text-gray-500 text-lg font-light leading-relaxed mb-8">

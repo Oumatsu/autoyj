@@ -2,6 +2,7 @@
 
 import { useTranslation } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
+import { T } from "@tolgee/react";
 
 export default function QrPage() {
   const { t } = useTranslation();
@@ -23,9 +24,7 @@ export default function QrPage() {
           <div className="text-center">
             <div className="label justify-center mb-3">{t("qr.badge")}</div>
             <h1 className="text-xl font-black italic text-white uppercase tracking-tight">
-              {t("qr.heading")}{" "}
-              <span className="text-accent">{t("qr.headingAccent")}</span>{" "}
-              {t("qr.headingSuffix")}
+              <T keyName="qr.heading" params={{ theme: <span className="text-theme" />, accent: <span className="text-accent" /> }} />
             </h1>
           </div>
 

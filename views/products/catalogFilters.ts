@@ -1,4 +1,4 @@
-import { catalogFilterKey } from "./catalogTranslations.ts";
+import { catalogFilterKey, catalogFilterFallback } from "./catalogTranslations.ts";
 
 export type NumericInterval = { min: number; max: number };
 
@@ -69,7 +69,7 @@ function categoricalGroup(
     label,
     options: values.map((value) => ({
       id: `value:${value}`,
-      label: t(catalogFilterKey(id, value), value),
+      label: t(catalogFilterKey(id, value), catalogFilterFallback(id, value)),
       matches: (product) => product.filterData?.[field]?.includes(value) ?? false,
     })),
   };

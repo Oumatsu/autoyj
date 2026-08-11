@@ -1,7 +1,7 @@
 import type { Locale } from "./config";
-import am from "./translations/am";
-import en from "./translations/en";
-import zh from "./translations/zh";
+import am from "./translations/am.json";
+import en from "./translations/en.json";
+import zh from "./translations/zh.json";
 
 export type TranslationMessages = Record<string, unknown>;
 
@@ -31,10 +31,25 @@ function toTolgeeTree(value: object): TolgeeStaticTree {
   );
 }
 
+const staticDataCache: Partial<Record<Locale, TolgeeStaticTree>> = {};
+
+function getTolgeeTree(locale: Locale): TolgeeStaticTree {
+  if (!staticDataCache[locale]) {
+    staticDataCache[locale] = toTolgeeTree(messages[locale]);
+  }
+  return staticDataCache[locale]!;
+}
+
 // Tolgee's static-data contract is a string tree. Keep the source messages
-// structured for React consumers and normalize only the Tolgee adapter input.
+// structured for React consumers and normalize only the Tolgee adapter input on demand.
 export const tolgeeStaticData: Record<Locale, TolgeeStaticTree> = {
-  zh: toTolgeeTree(messages.zh),
-  en: toTolgeeTree(messages.en),
-  am: toTolgeeTree(messages.am),
+  get zh() {
+    return getTolgeeTree("zh");
+  },
+  get en() {
+    return getTolgeeTree("en");
+  },
+  get am() {
+    return getTolgeeTree("am");
+  },
 };

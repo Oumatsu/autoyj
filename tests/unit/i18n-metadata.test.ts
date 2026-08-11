@@ -1,9 +1,9 @@
 import { describe, expect, test } from "bun:test";
 import { buildLocalizedMetadata } from "../../i18n/metadata";
 import { defaultLocale, locales } from "../../i18n/config";
-import am from "../../i18n/translations/am";
-import en from "../../i18n/translations/en";
-import zh from "../../i18n/translations/zh";
+import am from "../../i18n/translations/am.json";
+import en from "../../i18n/translations/en.json";
+import zh from "../../i18n/translations/zh.json";
 
 const translations = { zh, en, am };
 

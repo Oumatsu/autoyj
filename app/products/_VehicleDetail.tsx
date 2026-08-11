@@ -318,7 +318,10 @@ function legacyTrimComparison(data: DetailData, v: DetailData["vehicle"]): TrimC
   };
 }
 
-type Translate = (key: string, fallback?: string) => unknown;
+type Translate = (
+  key: string,
+  fallbackOrOptions?: string | Record<string, string | number>,
+) => unknown;
 
 function TrimPoster({ data, v, t }: { data: DetailData; v: DetailData["vehicle"]; t: Translate }) {
   const comparison = data.trimComparison || legacyTrimComparison(data, v);
@@ -539,12 +542,14 @@ function TrimPoster({ data, v, t }: { data: DetailData; v: DetailData["vehicle"]
 export default function VehicleDetail({ data: rawData }: { data: DetailData }) {
   const { t } = useTranslation();
   const data = useMemo<DetailData>(() => {
+    if (!rawData || typeof rawData !== "object") return rawData;
+
     const modelText = (field: string, fallback: string) =>
       translatedDetailString(t, detailModelKey(rawData.slug, field), fallback);
     const valueText = (fallback: string) => translatedDetailValue(t, fallback);
     const valueArray = (fallback: string[]) => translatedDetailValues(t, fallback);
     const localizeTrim = (trim: TrimComparisonTrim): TrimComparisonTrim => {
-      if (!trim.trimConfigId) return trim;
+      if (!trim || !trim.trimConfigId) return trim;
       const variantText = (field: string, fallback: string) =>
         translatedDetailString(t, detailVariantKey(trim.trimConfigId!, field), fallback);
       return {
@@ -559,8 +564,8 @@ export default function VehicleDetail({ data: rawData }: { data: DetailData }) {
         addedFeatures: valueArray(trim.addedFeatures || []),
         upgradedFeatures: valueArray(trim.upgradedFeatures || []),
         keySpecs: trim.keySpecs?.map((spec) => ({
-          label: valueText(spec.label),
-          value: valueText(spec.value),
+          label: valueText(spec.label || ""),
+          value: valueText(spec.value || ""),
         })),
       };
     };
@@ -570,45 +575,55 @@ export default function VehicleDetail({ data: rawData }: { data: DetailData }) {
       const value = rawData[field];
       if (typeof value === "string") (localized as unknown as Record<string, unknown>)[field] = modelText(field, value);
     });
-    localized.subtitle = valueText(rawData.subtitle);
-    localized.stat1Value = valueText(rawData.stat1Value);
-    localized.stat2Value = valueText(rawData.stat2Value);
-    localized.stat3Value = valueText(rawData.stat3Value);
-    localized.vehicle = {
-      ...rawData.vehicle,
-      brand: modelText("vehicle.brand", rawData.vehicle.brand),
-      name: modelText("vehicle.name", rawData.vehicle.name),
-      charging: valueText(rawData.vehicle.charging),
-      statusText: valueText(rawData.vehicle.statusText),
-    };
-    localized.tags = valueArray(rawData.tags);
-    localized.features = rawData.features.map((feature) => ({
-      ...feature,
-      title: valueText(feature.title),
-      desc: valueText(feature.desc),
-    }));
-    localized.specsLeft = rawData.specsLeft.map((spec) => ({
-      ...spec,
-      value: valueText(spec.value),
-    }));
-    localized.specsRight = rawData.specsRight.map((spec) => ({
-      ...spec,
-      value: valueText(spec.value),
-    }));
-    localized.fits = rawData.fits.map((fit) => ({
-      ...fit,
-      title: valueText(fit.title),
-      desc: valueText(fit.desc),
-      accent: valueText(fit.accent),
-    }));
+    if (rawData.subtitle) localized.subtitle = valueText(rawData.subtitle);
+    if (rawData.stat1Value) localized.stat1Value = valueText(rawData.stat1Value);
+    if (rawData.stat2Value) localized.stat2Value = valueText(rawData.stat2Value);
+    if (rawData.stat3Value) localized.stat3Value = valueText(rawData.stat3Value);
+    if (rawData.vehicle) {
+      localized.vehicle = {
+        ...rawData.vehicle,
+        brand: modelText("vehicle.brand", rawData.vehicle.brand || ""),
+        name: modelText("vehicle.name", rawData.vehicle.name || ""),
+        charging: valueText(rawData.vehicle.charging || ""),
+        statusText: valueText(rawData.vehicle.statusText || ""),
+      };
+    }
+    if (Array.isArray(rawData.tags)) localized.tags = valueArray(rawData.tags);
+    if (Array.isArray(rawData.features)) {
+      localized.features = rawData.features.map((feature) => ({
+        ...feature,
+        title: valueText(feature.title || ""),
+        desc: valueText(feature.desc || ""),
+      }));
+    }
+    if (Array.isArray(rawData.specsLeft)) {
+      localized.specsLeft = rawData.specsLeft.map((spec) => ({
+        ...spec,
+        value: valueText(spec.value || ""),
+      }));
+    }
+    if (Array.isArray(rawData.specsRight)) {
+      localized.specsRight = rawData.specsRight.map((spec) => ({
+        ...spec,
+        value: valueText(spec.value || ""),
+      }));
+    }
+    if (Array.isArray(rawData.fits)) {
+      localized.fits = rawData.fits.map((fit) => ({
+        ...fit,
+        title: valueText(fit.title || ""),
+        desc: valueText(fit.desc || ""),
+        accent: valueText(fit.accent || ""),
+      }));
+    }
     if (rawData.trimComparison) {
       localized.trimComparison = {
         ...rawData.trimComparison,
         status: valueText(rawData.trimComparison.status || ""),
-        trims: rawData.trimComparison.trims.map(localizeTrim),
+        trims: Array.isArray(rawData.trimComparison.trims) ? rawData.trimComparison.trims.map(localizeTrim) : [],
         commonFeatures: rawData.trimComparison.commonFeatures?.map((group) => ({
-          category: valueText(group.category),
-          items: valueArray(group.items),
+          category: valueText(group.category || ""),
+          items: valueArray(group.items || []),
         })),
       };
     }
@@ -690,7 +705,7 @@ export default function VehicleDetail({ data: rawData }: { data: DetailData }) {
                   <span key={tag} className="text-[9px] font-black px-3 py-1.5 rounded uppercase tracking-widest" style={{ background: "rgba(16,185,129,.15)", color: "var(--color-green)", border: "1px solid rgba(16,185,129,.25)" }}>{tag}</span>
                 ))}
               </div>
-              <h1 className="font-black italic uppercase tracking-tighter text-white leading-none mb-2" style={{ fontSize: "clamp(3rem,8vw,7rem)" }}>{v.brand}<br />{v.name}</h1>
+              <h1 className="font-black italic uppercase tracking-tight text-white leading-none mb-2" style={{ fontSize: "clamp(3rem,8vw,7rem)" }}>{v.brand}<br />{v.name}</h1>
               <p className="text-2xl font-light italic text-gray-500 mb-8">{data.subtitle}</p>
               <p className="hidden lg:block text-gray-300 text-base font-light leading-relaxed mb-10 max-w-lg italic border-l-2 pl-6" style={{ borderColor: "rgba(16,185,129,.45)" }}>{data.heroDesc}</p>
               <div className="hidden min-[456px]:flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4">
@@ -830,7 +845,7 @@ export default function VehicleDetail({ data: rawData }: { data: DetailData }) {
             <div className="glass rounded-[2.5rem] p-8 md:p-10" style={{ background: "rgba(0,0,0,.48)" }}>
               <div className="text-[9px] font-black tracking-widest uppercase text-gray-600 mb-8">{t("productsDetail.ui.batchProfitEstimator", "Batch Profit Estimator")}</div>
               <div className="mb-8">
-                <div className="flex justify-between mb-4"><span className="text-xs font-black uppercase tracking-wider text-white">{t("productsDetail.ui.unitsOrdered", "Units Ordered")}</span><span className="text-xs font-black text-theme">{batch.units} {t("productsDetail.ui.unitsLower", "units")}</span></div>
+                <div className="flex justify-between mb-4"><span className="text-xs font-black uppercase tracking-wider text-white">{t("productsDetail.ui.unitsOrdered", "Units Ordered")}</span><span className="text-xs font-black text-theme">{t("productsDetail.ui.unitsCount", { count: batch.units })}</span></div>
                 <div className="flex gap-2">{batchLevels.map((lvl, i) => (<button key={i} onClick={() => setBatchIdx(i)} className="flex-1 py-2.5 rounded-xl text-xs font-black tracking-wider transition" style={i === batchIdx ? { background: "var(--color-gold)", color: "#000" } : { background: "rgba(255,255,255,.06)", color: "#6B7280" }}>{lvl.units}</button>))}</div>
               </div>
               <div className="rounded-2xl p-6 text-center mb-6" style={{ background: "rgba(197,160,89,.08)", border: "1px solid rgba(197,160,89,.25)" }}>

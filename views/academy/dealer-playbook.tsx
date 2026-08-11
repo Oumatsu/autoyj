@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Loading from "@/components/Loading";
-import { useTranslation } from "@/i18n/useTranslation";
+import { useTranslation, T } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
 import { sanitizeDisplayData } from "@/lib/display-text";
 import {
@@ -70,8 +70,10 @@ export default function DealerPlaybookPage() {
             </span>
           </div>
           <h1 className="text-5xl md:text-6xl font-black italic text-white uppercase tracking-tighter mb-4">
-            {t("academyDealerPlaybook.heading")}{" "}
-            <span className="text-theme">{t("academyDealerPlaybook.headingAccent")}</span>
+            <T
+              keyName="academyDealerPlaybook.heading"
+              params={{ theme: <span className="text-theme" />, accent: <span className="text-accent" />, br: <br /> }}
+            />
           </h1>
           <p className="text-gray-400 text-lg font-light max-w-2xl">
             {t("academyDealerPlaybook.description")}

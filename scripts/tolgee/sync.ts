@@ -3,17 +3,17 @@ import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { locales } from "../../i18n/routing";
-import zh from "../../i18n/translations/zh";
-import en from "../../i18n/translations/en";
-import am from "../../i18n/translations/am";
+import zh from "../../i18n/translations/zh.json";
+import en from "../../i18n/translations/en.json";
+import am from "../../i18n/translations/am.json";
 
 export const translationLocales = locales;
 export type TranslationLocale = (typeof translationLocales)[number];
 
 export const translationFiles: Record<TranslationLocale, string> = {
-  zh: "i18n/translations/zh.ts",
-  en: "i18n/translations/en.ts",
-  am: "i18n/translations/am.ts",
+  zh: "i18n/translations/zh.json",
+  en: "i18n/translations/en.json",
+  am: "i18n/translations/am.json",
 };
 
 type TranslationObject = Record<string, unknown>;
@@ -23,6 +23,7 @@ export interface ParsedArgs {
   action: "push" | "pull" | "verify";
   allowKeyRemoval: boolean;
   mergeMissingKeys: boolean;
+  force: boolean;
 }
 
 export interface PullOptions {
@@ -104,11 +105,16 @@ export function flattenToDot(
 }
 
 export function renderTranslationModule(
-  locale: TranslationLocale,
+  _locale: TranslationLocale,
   data: TranslationObject
 ): string {
-  const serialized = JSON.stringify(data, null, 2);
-  return `const ${locale} = ${serialized};\n\nexport default ${locale};\n`;
+  return JSON.stringify(data, null, 2) + "\n";
+}
+
+export interface ParsedArgs {
+  action: "push" | "pull" | "verify";
+  allowKeyRemoval: boolean;
+  force: boolean;
 }
 
 export function parseArgs(args: string[] = process.argv.slice(2)): ParsedArgs {
@@ -118,7 +124,8 @@ export function parseArgs(args: string[] = process.argv.slice(2)): ParsedArgs {
   }
 
   const flags = args.slice(1);
-  const unknownFlag = flags.find((flag) => flag !== "--allow-key-removal" && flag !== "--merge-missing-keys");
+  const allowedFlags = new Set(["--allow-key-removal", "--merge-missing-keys", "--force", "-f"]);
+  const unknownFlag = flags.find((flag) => !allowedFlags.has(flag));
   if (unknownFlag) {
     throw new Error(`Unknown Tolgee sync option "${unknownFlag}".`);
   }
@@ -127,6 +134,7 @@ export function parseArgs(args: string[] = process.argv.slice(2)): ParsedArgs {
     action,
     allowKeyRemoval: flags.includes("--allow-key-removal"),
     mergeMissingKeys: flags.includes("--merge-missing-keys"),
+    force: flags.includes("--force") || flags.includes("-f"),
   };
 }
 
@@ -314,6 +322,9 @@ async function exportLocale(
   url.searchParams.set("structureDelimiter", ".");
   url.searchParams.set("zip", "false");
   url.searchParams.set("languages", locale);
+  url.searchParams.append("filterState", "UNTRANSLATED");
+  url.searchParams.append("filterState", "TRANSLATED");
+  url.searchParams.append("filterState", "REVIEWED");
 
   const response = await fetchImpl(url, {
     headers: { "X-API-Key": apiKey },
@@ -429,6 +440,18 @@ async function replaceFilesAtomically(
   }
 }
 
+export interface PullOptions {
+  apiUrl?: string;
+  apiKey?: string;
+  projectId?: number;
+  cwd?: string;
+  allowKeyRemoval?: boolean;
+  force?: boolean;
+  fetchImpl?: typeof fetch;
+  fileSystem?: SyncFileSystem;
+  getDirtyFiles?: (dir: string) => string[];
+}
+
 export async function runPull(options: PullOptions = {}): Promise<PullResult> {
   const config = getConfig(options);
   const apiKey = requireApiKey(config.apiKey);
@@ -436,10 +459,10 @@ export async function runPull(options: PullOptions = {}): Promise<PullResult> {
   const cwd = options.cwd || process.cwd();
   const dirtyFiles = (options.getDirtyFiles || getDirtyTranslationFiles)(cwd);
 
-  if (dirtyFiles.length > 0) {
+  if (dirtyFiles.length > 0 && !options.force) {
     throw new Error(
       `Translation files have uncommitted changes: ${dirtyFiles.join(", ")}. ` +
-        "Commit or revert them before running tolgee:pull."
+        "Commit or revert them before running tolgee:pull (or pass --force)."
     );
   }
 
@@ -504,6 +527,10 @@ async function discoverProject(apiUrl: string, apiKey: string): Promise<{ id: nu
 }
 
 async function runPush(apiUrl: string, apiKey: string): Promise<void> {
+  console.log("⚠️  NOTICE: 'tolgee:push' is a MANUAL developer override command.");
+  console.log("   It overwrites remote Tolgee database translations with local JSON files.");
+  console.log("   DO NOT automate 'push' in CI/CD or dev watchers. Tolgee server is the source of truth for edits.\n");
+
   const project = await discoverProject(apiUrl, apiKey);
   console.log(`✓ Connected to Tolgee Project: "${project.name}" (ID: ${project.id})`);
 
@@ -617,7 +644,8 @@ async function runVerify(apiUrl: string, apiKey: string): Promise<void> {
 }
 
 export async function main(args: string[] = process.argv.slice(2)): Promise<void> {
-  const { action, allowKeyRemoval, mergeMissingKeys } = parseArgs(args);
+  const parsedArgs = parseArgs(args);
+  const { action, allowKeyRemoval, force, mergeMissingKeys } = parsedArgs;
   const config = getConfig();
   const apiKey = requireApiKey(config.apiKey);
 
@@ -629,7 +657,8 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<void
       ...config,
       apiKey,
       allowKeyRemoval,
-      mergeMissingKeys,
+        mergeMissingKeys,
+        force,
     });
     console.log(
       `\n✅ Pulled ${result.keyCount} keys for ${translationLocales.length} locales into ${result.changedFiles.join(", ")}.`

@@ -1,6 +1,6 @@
 {
   "name": "youguard",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -11,6 +11,7 @@
     "db:pull:local": "node scripts/pull-d1-to-local.mjs",
     "dev:worker": "bun run build && bun x wrangler dev --persist-to .wrangler/local-d1",
     "check": "vinext check",
+    "check:i18n": "bun run scripts/check-i18n.ts",
     "lint": "vinext lint",
     "test": "bun test tests/unit tests/component tests/integration",
     "test:unit": "bun test tests/unit",

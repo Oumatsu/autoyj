@@ -8,9 +8,9 @@
  * such as "home.hero.slides.0.label" to the user.
  */
 import { describe, expect, test } from "bun:test";
-import zh from "../../i18n/translations/zh";
-import en from "../../i18n/translations/en";
-import am from "../../i18n/translations/am";
+import zh from "../../i18n/translations/zh.json";
+import en from "../../i18n/translations/en.json";
+import am from "../../i18n/translations/am.json";
 import { getNestedValue } from "../../i18n/utils";
 
 // All fields in each hero slide — required (must be non-empty)
@@ -30,7 +30,7 @@ const HOME_PAGE_REQUIRED_KEYS = [
   "home.trustBar.label",
   "home.products.label",
   "home.process.label",
-  "home.process.titleAccent1",
+  "home.process.title",
   // Required slide fields — every slide must have these non-empty
   ...Array.from({ length: SLIDE_COUNT }, (_, i) =>
     SLIDE_REQUIRED_FIELDS.map((f) => `home.hero.slides.s${i}.${f}`)
@@ -151,5 +151,43 @@ describe("Unit: Home page must never display raw i18n keys", () => {
     }
 
     expect(leaked).toEqual([]);
+  });
+
+  // ── 7. Products Detail & Footer Key Leak Guard ──
+  test("productsDetail.values and footer.headingLine1 string are strictly forbidden in resolution outputs", () => {
+    const checkValue = (val: unknown): void => {
+      if (typeof val === "string") {
+        expect(val).not.toContain("productsDetail.values");
+        expect(val).not.toContain("footer.headingLine1");
+        expect(val).not.toContain("footer.headingAccent1");
+        expect(val).not.toContain("footer.headingAccent2");
+        expect(val).not.toContain("footer.headingLine2");
+      } else if (Array.isArray(val)) {
+        val.forEach(checkValue);
+      } else if (val && typeof val === "object") {
+        Object.values(val).forEach(checkValue);
+      }
+    };
+    checkValue(zh);
+    checkValue(en);
+    checkValue(am);
+  });
+
+  // ── 8. Footer Heading Keys Must Resolve to Non-Empty Text ──
+  test("All footer heading keys resolve to non-empty translations in all 3 locales", () => {
+    const footerKeys = [
+      "footer.headingLine1",
+      "footer.headingAccent1",
+      "footer.headingAccent2",
+      "footer.headingLine2",
+    ];
+
+    for (const localeDict of [zh, en, am]) {
+      for (const key of footerKeys) {
+        const val = getNestedValue(localeDict as Record<string, unknown>, key);
+        expect(typeof val === "string" && val.length > 0).toBe(true);
+        expect(val).not.toBe(key);
+      }
+    }
   });
 });

@@ -3,32 +3,14 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
+import { T } from "@tolgee/react";
 import { vehicles as fallbackRevenue } from "../app/products/revenue-king/data";
 import { vehicles as fallbackElite } from "../app/products/elite-flagship/data";
 import { vehicles as fallbackUtility } from "../app/products/utility-pro/data";
 import { mergeOverviewCard, translateOverviewCard } from "./products/productsOverviewTranslations.ts";
 import { sanitizeDisplayData } from "@/lib/display-text";
 
-function renderHeroHeading(value: string) {
-  const parts = value.split(/(<accent1>|<\/accent1>|<accent2>|<\/accent2>|<br><\/br>)/g);
-  let accent: "accent1" | "accent2" | null = null;
 
-  return parts.map((part, index) => {
-    if (part === "<accent1>" || part === "<accent2>") {
-      accent = part.slice(1, -1) as "accent1" | "accent2";
-      return null;
-    }
-    if (part === "</accent1>" || part === "</accent2>") {
-      accent = null;
-      return null;
-    }
-    if (part === "<br></br>") return <br key={index} />;
-    if (!part) return null;
-    if (accent === "accent1") return <span key={index} className="text-theme">{part}</span>;
-    if (accent === "accent2") return <span key={index} className="text-accent">{part}</span>;
-    return <span key={index}>{part}</span>;
-  });
-}
 
 function getBadgeCls(slug: string, badge: string | null): string {
   if (!badge) return "";
@@ -56,10 +38,7 @@ function formatSaving(value: string | undefined, t: any): string {
     .replace(/^Save\s*/i, "")
     .replace(/\s*\/\s*mo(?:nth)?$/i, "")
     .trim();
-  const template = t("products.savePerMonthTemplate", "Save {amount}/month");
-  return typeof template === "string"
-    ? template.replace("{amount}", amount)
-    : `Save ${amount}/month`;
+  return t("products.savePerMonthTemplate", { amount, defaultValue: `Save ${amount}/month` });
 }
 
 export default function ProductsPage() {
@@ -135,7 +114,7 @@ export default function ProductsPage() {
         name: "AITO M9",
         tag: t("products.eliteFlagship.performanceKing"),
         desc: t("products.eliteFlagship.description"),
-        label: t("products.eliteFlagship.techPinnacle").replace("{label}", t("products.eliteFlagship.performanceKing")),
+        label: t("products.eliteFlagship.techPinnacle", { label: t("products.eliteFlagship.performanceKing") }),
         img: "/pic/hero/M9 display.webp",
         link: "/products/elite-flagship/aito-m9",
       };
@@ -276,7 +255,7 @@ export default function ProductsPage() {
             className="sh mb-4 sm:mb-6"
             style={{ fontSize: "clamp(2rem, 8vw, 6.5rem)" }}
           >
-            {renderHeroHeading(t("products.hero.heading"))}
+            <T keyName="products.hero.heading" defaultValue={t("products.hero.heading")} params={{ theme: <span className="text-theme" />, accent: <span className="text-accent" />, br: <br /> }} />
           </h1>
           <p className="hidden min-[392px]:block text-gray-300 text-sm sm:text-lg font-light italic max-w-2xl mx-auto leading-relaxed px-2">
             {t("products.hero.subtitle")}
@@ -296,8 +275,7 @@ export default function ProductsPage() {
                   className="sh mb-4"
                   style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)" }}
                 >
-                  {t("products.revenueKing.heading")}{" "}
-                  <span className="text-accent">{t("products.revenueKing.headingAccent")}</span>.
+                  <T keyName="products.revenueKing.heading" defaultValue={t("products.revenueKing.heading")} params={{ theme: <span className="text-theme" />, accent: <span className="text-accent" /> }} />
                 </h2>
                 <p className="text-gray-500 text-sm font-light italic leading-relaxed">
                   {t("products.revenueKing.description")}
@@ -377,7 +355,7 @@ export default function ProductsPage() {
                 className="group flex items-center gap-3 sm:gap-4 px-6 sm:px-10 py-3 sm:py-4 rounded-full border border-white/10 hover:border-accent/40 transition-all"
               >
                 <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] text-gray-500 group-hover:text-white">
-                  {t("products.revenueKing.discoverMore").replace("{count}", String(revenueCount))}
+                  {t("products.revenueKing.discoverMore", { count: revenueCount })}
                 </span>
                 <span className="w-4 sm:w-6 h-px bg-white/10 group-hover:bg-accent/50 transition-all" />
                 <span className="text-accent group-hover:translate-x-1 transition-transform">
@@ -396,8 +374,7 @@ export default function ProductsPage() {
                   className="sh mb-4"
                   style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)" }}
                 >
-                  {t("products.eliteFlagship.heading")}{" "}
-                  <span className="text-theme">{t("products.eliteFlagship.headingAccent")}</span>.
+                  <T keyName="products.eliteFlagship.heading" defaultValue={t("products.eliteFlagship.heading")} params={{ theme: <span className="text-theme" />, accent: <span className="text-accent" /> }} />
                 </h2>
                 <p className="text-gray-500 text-sm font-light italic leading-relaxed">
                   {t("products.eliteFlagship.description")}
@@ -531,7 +508,7 @@ export default function ProductsPage() {
                 className="group flex items-center gap-3 sm:gap-4 px-6 sm:px-10 py-3 sm:py-4 rounded-full border border-white/10 hover:border-theme/40 transition-all"
               >
                 <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] text-gray-500 group-hover:text-white">
-                  {t("products.eliteFlagship.discoverMore").replace("{count}", String(eliteCount))}
+                  {t("products.eliteFlagship.discoverMore", { count: eliteCount })}
                 </span>
                 <span className="w-4 sm:w-6 h-px bg-white/10 group-hover:bg-theme/50 transition-all" />
                 <span className="text-theme group-hover:translate-x-1 transition-transform">
@@ -550,8 +527,7 @@ export default function ProductsPage() {
                   className="sh mb-4"
                   style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)" }}
                 >
-                  {t("products.utilityPro.heading")}{" "}
-                  <span className="text-accent">{t("products.utilityPro.headingAccent")}</span>.
+                  <T keyName="products.utilityPro.heading" defaultValue={t("products.utilityPro.heading")} params={{ theme: <span className="text-theme" />, accent: <span className="text-accent" /> }} />
                 </h2>
                 <p className="text-gray-500 text-sm font-light italic leading-relaxed">
                   {t("products.utilityPro.description")}
@@ -615,7 +591,7 @@ export default function ProductsPage() {
                 className="group flex items-center gap-3 sm:gap-4 px-6 sm:px-10 py-3 sm:py-4 rounded-full border border-white/10 hover:border-accent/40 transition-all"
               >
                 <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] text-gray-500 group-hover:text-white">
-                  {t("products.utilityPro.discoverMore").replace("{count}", String(utilityCount))}
+                  {t("products.utilityPro.discoverMore", { count: utilityCount })}
                 </span>
                 <span className="w-4 sm:w-6 h-px bg-white/10 group-hover:bg-accent/50 transition-all" />
                 <span className="text-accent group-hover:translate-x-1 transition-transform">

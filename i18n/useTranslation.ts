@@ -2,15 +2,21 @@
 
 import { useCallback } from "react";
 import { usePathname } from "next/navigation";
-import { useTranslate } from "@tolgee/react";
-import { Locale } from "./config";
+import { useTranslate, useTolgee } from "@tolgee/react";
+import { defaultLocale, locales, Locale } from "./config";
 import { getLocaleFromPath, getNestedValue } from "./utils";
+import { getTolgeeTargetLanguage, getLastCreatedTolgeeLanguage } from "@/lib/tolgee";
 import { messages } from "./messages";
 
 export { useTranslate, useTolgee, T } from "@tolgee/react";
 export type { TFnType } from "@tolgee/react";
 
 type MessageTree = typeof messages.en;
+type TranslationOptionValue = string | number | bigint | Date;
+type TranslationOptions = {
+  defaultValue?: string;
+  [key: string]: TranslationOptionValue | undefined;
+};
 
 type PathValue<Tree, Path extends string> = Path extends `${infer Head}.${infer Tail}`
   ? Head extends keyof Tree
@@ -33,55 +39,84 @@ type OptionalObjectUnion<Value> = {
 
 type NormalizeMessageValue<Value> = Value extends readonly (infer Item)[]
   ? NormalizeMessageValue<Item>[]
-  : Value extends object
-    ? Exclude<Extract<keyof Value, string>, `${number}`> extends never
-      ? NumericKey<Value> extends never
-        ? Value
-        : NormalizeNumericObject<Value>
-      : {
-          [Key in keyof Value]: NormalizeMessageValue<Value[Key]>;
-        }
+  : Value extends Record<string, unknown>
+    ? keyof Value extends `${number}`
+      ? OptionalObjectUnion<Value[NumericKey<Value>]>[]
+      : { [Key in keyof Value]: NormalizeMessageValue<Value[Key]> }
     : Value;
 
-type NormalizeNumericObject<Value> = NormalizeMessageValue<
-  Value[NumericKey<Value>]
-> extends infer Item
-  ? [Item] extends [object]
-    ? OptionalObjectUnion<Item>[]
-    : Item[]
-  : never;
-
-type ArrayItem<Value> = Value extends readonly (infer Item)[] ? Item : never;
-
-type TranslationArray<Path extends string> = Array<
-  ArrayItem<NormalizeMessageValue<PathValue<MessageTree, Path>>>
+export type TranslationValue<Path extends string> = NormalizeMessageValue<
+  PathValue<MessageTree, Path>
 >;
 
-type OptionalTranslationObject<Value> = Value extends object
-  ? Value extends readonly unknown[]
-    ? Value
-    : {
-        [Key in keyof Value]?: OptionalTranslationObject<Value[Key]>;
-      }
-  : Value;
+export type TranslationArray<Path extends string> = Extract<
+  TranslationValue<Path>,
+  readonly unknown[]
+>;
 
-type TranslationObject<Path extends string> = Partial<
+export type TranslationObject<Path extends string> = Extract<
+  TranslationValue<Path>,
   Record<string, unknown>
-> & {
-  [Key in keyof Extract<
-    NormalizeMessageValue<PathValue<MessageTree, Path>>,
-    object
-  >]?: OptionalTranslationObject<
-    Extract<
-      NormalizeMessageValue<PathValue<MessageTree, Path>>,
-      object
-    >[Key]
-  >;
-};
+>;
+
+export type TranslationObjectKey<Path extends string> = keyof Extract<
+  TranslationValue<Path>,
+  Record<string, unknown>
+>;
+
+export type TranslationObjectItem<
+  Path extends string,
+  Key extends TranslationObjectKey<Path>,
+> = Extract<
+  NormalizeMessageValue<PathValue<MessageTree, Path>>,
+  object
+>[Key];
 
 export function useLocale(): Locale {
+  // useTolgee MUST be called unconditionally (rules of hooks) before any early return
+  let tolgee: ReturnType<typeof useTolgee> | undefined;
+  try {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    tolgee = useTolgee();
+  } catch {
+    // Outside TolgeeProvider context — tolgee remains undefined
+  }
+
   const pathname = usePathname();
-  return getLocaleFromPath(pathname);
+  if (pathname) {
+    const firstSegment = pathname.split("/").filter(Boolean)[0];
+    if (firstSegment && (locales as readonly string[]).includes(firstSegment as Locale)) {
+      return firstSegment as Locale;
+    }
+  }
+
+  if (tolgee) {
+    const lang =
+      (tolgee as any)?.getInitialOptions?.()?.language ||
+      (tolgee as any)?.getLanguage?.() ||
+      (tolgee as any)?.getPendingLanguage?.() ||
+      getTolgeeTargetLanguage(tolgee);
+    if (lang && (locales as readonly string[]).includes(lang)) {
+      return lang as Locale;
+    }
+  }
+
+  const lastLang = getLastCreatedTolgeeLanguage();
+  if (lastLang && (locales as readonly string[]).includes(lastLang)) {
+    return lastLang as Locale;
+  }
+  return defaultLocale;
+}
+
+export function humanizeRawKeyPath(key: string): string {
+  if (!key || typeof key !== "string") return "";
+  const parts = key.split(".");
+  const lastPart = parts[parts.length - 1] || key;
+  return lastPart
+    .replace(/[-_]+/g, " ")
+    .replace(/([a-z])([A-Z])/g, "$1 $2")
+    .replace(/\b\w/g, (c) => c.toUpperCase())
+    .trim();
 }
 
 /**
@@ -93,11 +128,68 @@ export function useTranslation() {
   const locale = useLocale();
 
   const t = useCallback(
-    (key: string, defaultValue?: string): string => {
+    (
+      key: string,
+      defaultValueOrOptions?: string | TranslationOptions,
+      extraOptions?: TranslationOptions,
+    ): string => {
       const staticValue = getNestedValue(messages[locale], key);
+      const explicitDefault =
+        typeof defaultValueOrOptions === "string"
+          ? defaultValueOrOptions
+          : defaultValueOrOptions?.defaultValue;
       const resolvedDefault =
-        typeof staticValue === "string" ? staticValue : defaultValue;
-      return tolgeeT(key, { defaultValue: resolvedDefault });
+        typeof staticValue === "string" ? staticValue : explicitDefault;
+      const options =
+        typeof defaultValueOrOptions === "object"
+          ? defaultValueOrOptions
+          : extraOptions;
+      const val = tolgeeT(key, {
+        ...options,
+        defaultValue: resolvedDefault,
+      });
+
+      const isRawKeyLeak =
+        val === key ||
+        (typeof val === "string" &&
+          (val.startsWith("catalog.") ||
+            val.startsWith("productsDetail.") ||
+            val.startsWith("products.") ||
+            val.startsWith("common.") ||
+            val.startsWith("home.") ||
+            val.startsWith("nav.") ||
+            val.startsWith("insights.") ||
+            val.startsWith("academy.") ||
+            val.startsWith("solutions.") ||
+            val.startsWith("about.") ||
+            val.startsWith("contact.") ||
+            val.startsWith("marketsEthiopia.") ||
+            val.startsWith("privacy.") ||
+            val.startsWith("terms.") ||
+            val.startsWith("qr.") ||
+            /^[a-z0-9_-]+(\.[a-z0-9_-]+)+$/i.test(val)));
+
+      if (isRawKeyLeak) {
+        if (typeof staticValue === "string" && staticValue !== key) {
+          return staticValue;
+        }
+        if (typeof explicitDefault === "string" && explicitDefault.length > 0 && explicitDefault !== key) {
+          if (/^[a-z0-9-]+$/.test(explicitDefault) && explicitDefault.includes("-")) {
+            return humanizeRawKeyPath(explicitDefault);
+          }
+          return explicitDefault;
+        }
+        const zhVal = getNestedValue(messages.zh, key);
+        if (typeof zhVal === "string" && zhVal.length > 0 && zhVal !== key) {
+          return zhVal;
+        }
+        const enVal = getNestedValue(messages.en, key);
+        if (typeof enVal === "string" && enVal.length > 0 && enVal !== key) {
+          return enVal;
+        }
+        return humanizeRawKeyPath(key);
+      }
+      return val;
     },
     [locale, tolgeeT]
   );

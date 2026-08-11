@@ -20,8 +20,11 @@ export default function DynamicVehiclePage({ params }: any) {
       .then((res) => {
         if (!res.ok) throw new Error();
         return res.json().then((payload) => {
+          if (!payload || payload.error || typeof payload !== "object" || !payload.vehicle) {
+            throw new Error();
+          }
           const normalized = sanitizeDisplayData(payload);
-          if (!normalized || typeof normalized !== "object") throw new Error();
+          if (!normalized || typeof normalized !== "object" || !(normalized as any).slug) throw new Error();
           const expectedCategory = normalizeProductCategory(category);
           const productCategory = normalizeProductCategory((normalized as any).category);
           if (!expectedCategory || productCategory !== expectedCategory) {

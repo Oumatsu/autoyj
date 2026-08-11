@@ -5,9 +5,9 @@ import {
   catalogModelKey,
   catalogValueId,
 } from "../../views/products/catalogTranslations";
-import am from "../../i18n/translations/am";
-import en from "../../i18n/translations/en";
-import zh from "../../i18n/translations/zh";
+import am from "../../i18n/translations/am.json";
+import en from "../../i18n/translations/en.json";
+import zh from "../../i18n/translations/zh.json";
 
 function leafCount(value: any): number {
   if (!value || typeof value !== "object") return 1;
@@ -30,10 +30,10 @@ describe("Unit: Product Catalog Translation Identifiers & Dictionary Manifest", 
     for (const locale of [zh, en, am]) {
       expect(Object.keys(locale.catalog.models).length).toBe(47);
       expect(leafCount(locale.catalog.models)).toBe(109);
-      expect(leafCount(locale.catalog.filters)).toBe(39);
+      expect(leafCount(locale.catalog.filters)).toBe(45);
       expect(leafCount(locale.catalog.cardField)).toBe(1);
       expect(leafCount(locale.catalog.cardValues)).toBe(8);
-      expect(leafCount(locale.catalog)).toBe(157);
+      expect(leafCount(locale.catalog)).toBe(163);
     }
 
     expect(zh.catalog.models["geely-geome"].displayName).toBe("吉利星愿");

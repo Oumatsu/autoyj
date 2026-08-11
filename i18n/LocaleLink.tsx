@@ -6,7 +6,7 @@ import { useMemo } from "react";
 import { createNavigation } from "next-intl/navigation";
 import { Locale, isLocale } from "./config";
 import { routing } from "./routing";
-import { getLocaleFromPath } from "./utils";
+import { useLocale } from "./useTranslation";
 
 type LocaleLinkProps = React.ComponentProps<typeof Link>;
 const { getPathname } = createNavigation(routing);
@@ -25,8 +25,7 @@ export function localizeHref(href: string, locale: Locale): string {
 }
 
 export function LocaleLink({ href, prefetch = false, ...props }: LocaleLinkProps) {
-  const pathname = usePathname();
-  const locale = getLocaleFromPath(pathname);
+  const locale = useLocale();
 
   const localizedHref = useMemo(() => {
     return typeof href === "string" ? localizeHref(href, locale) : href;

@@ -13,16 +13,17 @@ export type OverviewCard = Record<string, any> & {
   tags?: unknown;
 };
 
-export type TranslationFn = (key: string, fallback?: string) => unknown;
+export type TranslationFn = (key: string) => unknown;
 
-function translatedText(
+function requireTranslation(
   t: TranslationFn,
   key: string,
-  fallback: unknown,
 ): string {
-  const source = typeof fallback === "string" ? fallback : "";
-  const translated = t(key, source);
-  return typeof translated === "string" ? translated : source;
+  const translated = t(key);
+  if (typeof translated !== "string" || !translated || translated === key) {
+    throw new Error(`[Strict i18n Error] Missing required translation key in dictionary: "${key}"`);
+  }
+  return translated;
 }
 
 function normalizeTags(tags: unknown): string[] {
@@ -55,12 +56,12 @@ export function translateOverviewCard<T extends OverviewCard>(
 
   return {
     ...card,
-    name: translatedText(t, catalogModelKey(slug, "displayName"), card.name),
-    desc: translatedText(t, catalogModelKey(slug, "cardHighlight"), card.desc),
-    tag: translatedText(t, catalogModelKey(slug, "cardTag"), card.tag || tags[0]),
-    label: translatedText(t, catalogModelKey(slug, "cardLabel"), card.label || tags[1]),
+    name: requireTranslation(t, catalogModelKey(slug, "displayName")),
+    desc: requireTranslation(t, catalogModelKey(slug, "cardHighlight")),
+    tag: requireTranslation(t, catalogModelKey(slug, "cardTag")),
+    label: requireTranslation(t, catalogModelKey(slug, "cardLabel")),
     tags: tags.map((tag) =>
-      translatedText(t, catalogCardValueKey(tag), tag),
+      requireTranslation(t, catalogCardValueKey(tag)),
     ),
   };
 }
