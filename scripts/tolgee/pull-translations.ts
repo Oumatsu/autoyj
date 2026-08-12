@@ -16,12 +16,10 @@
  */
 
 import { writeFile, mkdir } from "node:fs/promises";
-import { resolve, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
+import { resolve } from "node:path";
 import { execFileSync, execSync } from "node:child_process";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const ROOT = resolve(__dirname, "../..");
+const ROOT = resolve(import.meta.dir, "../..");
 const OUT_DIR = resolve(ROOT, "i18n/translations");
 
 const API_URL = (process.env.TOLGEE_API_URL || process.env.NEXT_PUBLIC_TOLGEE_API_URL)?.replace(/\/$/, "") ?? "";

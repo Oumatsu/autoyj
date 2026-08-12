@@ -39,13 +39,7 @@ tolgee.jar
 # Generated translation backups
 i18n/translations/*.backup-*
 
-# [feat/tolgee-server branch] Translation JSON files are BUILD ARTIFACTS.
-# They are generated at build time by: bun run tolgee:pull:server
-# Tolgee server (http://152.32.175.18:8080) is the sole source of truth.
-# DO NOT commit these files on this branch.
-i18n/translations/zh.json
-i18n/translations/en.json
-i18n/translations/am.json
+# Translation JSON files are tracked in git and refreshed automatically via bun run tolgee:pull:server before release
 i18n/translations/*.zip
 
 # Temporary screenshots and diagnostics

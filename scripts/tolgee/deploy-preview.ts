@@ -18,13 +18,11 @@
  *   4. 运维：bun run deploy → 翻译进入 Cloudflare 正式部署
  */
 
-import { execFileSync, execSync } from "node:child_process";
-import { resolve, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
+import { execSync } from "node:child_process";
+import { resolve } from "node:path";
 import { existsSync, mkdirSync, cpSync } from "node:fs";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const ROOT = resolve(__dirname, "../..");
+const ROOT = resolve(import.meta.dir, "../..");
 
 // ─── 配置（从 .env.preview 读取）────────────────────────────────
 const SSH_HOST = process.env.PREVIEW_SERVER_HOST ?? "152.32.175.18";
