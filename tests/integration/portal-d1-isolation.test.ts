@@ -97,6 +97,25 @@ async function login(db: D1Database) {
 }
 
 describe("portal request/D1 isolation", () => {
+  test("vehicle resources only query records approved for website connection", async () => {
+    const db = fakeD1({
+      user: validUser,
+      vehicles: [
+        { id: "approved", stage: "connected", brand: "BYD", model: "Seal", variant: "Approved" },
+        { id: "pending", stage: "unreviewed", brand: "BYD", model: "Seal", variant: "Pending" },
+      ],
+    });
+    const cookie = await login(db);
+
+    const response = await handlePortalRequest(
+      new Request("https://portal.example/api/portal/vehicles", { headers: { cookie } }),
+      env(db),
+    );
+
+    expect(response.status).toBe(200);
+    expect(db.queries.some((sql) => /FROM\s+vehicles\s+WHERE\s+stage\s*=\s*['"]connected['"]/i.test(sql))).toBe(true);
+  });
+
   test("formal login uses user JOIN account.password and never calls Feishu", async () => {
     const db = fakeD1({
       user: validUser,

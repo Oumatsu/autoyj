@@ -320,7 +320,7 @@ export async function queryVehicleTrims(db: D1Database, modelId?: string): Promi
 
 export async function queryVehicles(db: D1Database): Promise<D1Vehicle[]> {
   return withD1Retry(async () => {
-    const result = await db.prepare(`SELECT * FROM vehicles`).all<D1Vehicle>();
+    const result = await db.prepare(`SELECT * FROM vehicles WHERE stage = 'connected'`).all<D1Vehicle>();
     return result.results;
   });
 }
