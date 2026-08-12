@@ -7,6 +7,16 @@ describe("Unit: Local User Authentication & Authorization Store", () => {
     expect(user).not.toBeNull();
     expect(user?.role).toBe("partner");
     expect(user?.priceTier).toBe("partner");
+
+    const partnerAebissa = findLocalUser("AebissaG@kairosaddis.com", "Aebissa123");
+    expect(partnerAebissa).not.toBeNull();
+    expect(partnerAebissa?.role).toBe("partner");
+    expect(partnerAebissa?.company).toBe("Kairos Addis");
+
+    const partnerWagari = findLocalUser("WagariG@kairosaddis.com", "WagariG123");
+    expect(partnerWagari).not.toBeNull();
+    expect(partnerWagari?.role).toBe("partner");
+    expect(partnerWagari?.company).toBe("Kairos Addis");
   });
 
   test("findLocalUser handles email case insensitivity and whitespace trimming", () => {

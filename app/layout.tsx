@@ -28,6 +28,7 @@ const inter = Inter({
   weight: ["400", "500", "700", "800"],
   style: ["normal"],
   display: "swap",
+  preload: false,
   variable: "--font-inter",
 });
 

@@ -1,0 +1,61 @@
+version: "3.8"
+
+# Tolgee translation server — isolated from RAGflow
+# Port 8085: Tolgee web UI (http://IP:8085)
+# Network: tolgee_net (completely separate from docker_ragflow)
+
+services:
+  tolgee-db:
+    image: postgres:16-alpine
+    container_name: tolgee-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: tolgee
+      POSTGRES_USER: tolgee
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - tolgee_db_data:/var/lib/postgresql/data
+    networks:
+      - tolgee_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tolgee -d tolgee"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  tolgee:
+    image: tolgee/tolgee:latest
+    container_name: tolgee
+    restart: unless-stopped
+    ports:
+      - "8085:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://tolgee-db:5432/tolgee
+      SPRING_DATASOURCE_USERNAME: tolgee
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      TOLGEE_FRONT_END_URL: ${TOLGEE_FRONTEND_URL}
+      TOLGEE_AUTHENTICATION_INITIAL_USERNAME: ${TOLGEE_ADMIN_USER}
+      TOLGEE_AUTHENTICATION_INITIAL_PASSWORD: ${TOLGEE_ADMIN_PASSWORD}
+      TOLGEE_FILE_STORAGE_PATH: /data/tolgee
+      # Disable Tolgee's built-in embedded PostgreSQL — use external tolgee-db
+      TOLGEE_POSTGRES_AUTOSTART_ENABLED: "false"
+      # Disable sign-up — admin-only access
+      TOLGEE_AUTHENTICATION_SIGN_UP_ENABLED: "false"
+    volumes:
+      - tolgee_data:/data/tolgee
+    networks:
+      - tolgee_net
+    depends_on:
+      tolgee-db:
+        condition: service_healthy
+
+volumes:
+  tolgee_db_data:
+    driver: local
+  tolgee_data:
+    driver: local
+
+networks:
+  tolgee_net:
+    name: tolgee_net
+    driver: bridge

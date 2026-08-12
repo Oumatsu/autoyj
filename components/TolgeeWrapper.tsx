@@ -1,18 +1,18 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { TolgeeProvider } from "@tolgee/react";
-import { createTolgee, probeTolgee } from "@/lib/tolgee";
+import { createTolgee } from "@/lib/tolgee";
 import { defaultLocale } from "@/i18n/config";
+import { tolgeeStaticData } from "@/i18n/messages";
 
 /**
  * Provides Tolgee translation context for client components.
  *
- * Translations are loaded exclusively from local static bundles
- * (i18n/translations/{zh,en,am}.json) managed via `bun run tolgee:push/pull`.
+ * Translations are loaded from local static bundles (i18n/translations/{zh,en,am}.json).
  *
- * The Tolgee dev server is probed at runtime only to enable in-context
- * editing (Alt+click) — it is never the source of truth for translations.
+ * When NEXT_PUBLIC_TOLGEE_API_KEY is present in the bundle, DevTools is automatically enabled,
+ * attaching InvisibleObserver tags to translated text for Alt+click in-context editing.
  */
 export function TolgeeWrapper({
   locale,
@@ -21,26 +21,21 @@ export function TolgeeWrapper({
   locale?: string;
   children: React.ReactNode;
 }) {
-  const [remoteEnabled, setRemoteEnabled] = useState(false);
-
-  useEffect(() => {
-    let active = true;
-    // Probe Tolgee dev server for in-context editing (Alt+click) only
-    void probeTolgee().then((reachable) => {
-      if (active) setRemoteEnabled(reachable);
-    });
-    return () => {
-      active = false;
-    };
-  }, []);
-
+  const currentLocale = locale || defaultLocale;
   const tolgee = useMemo(
-    () => createTolgee(locale || defaultLocale, { remote: remoteEnabled }),
-    [locale, remoteEnabled],
+    () => createTolgee(currentLocale),
+    [currentLocale],
   );
 
   return (
-    <TolgeeProvider key={locale || defaultLocale} tolgee={tolgee}>
+    <TolgeeProvider
+      key={currentLocale}
+      tolgee={tolgee}
+      ssr={{
+        language: currentLocale,
+        staticData: tolgeeStaticData,
+      }}
+    >
       {children}
     </TolgeeProvider>
   );
