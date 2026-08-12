@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "bun run db:local:init && vinext dev",
     "build": "vinext build",
-    "build:cloudflare": "BUILD_TARGET=cloudflare vinext build",
+    "build:cloudflare": "bun run tolgee:pull:server && BUILD_TARGET=cloudflare vinext build",
     "build:standalone": "BUILD_TARGET=standalone vinext build",
     "build:server": "bun run tolgee:pull:server && vinext build",
     "start": "vinext start",
