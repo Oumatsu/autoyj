@@ -30,3 +30,14 @@ test("formats added and upgraded feature changes as separate readable lines", ()
   expect(portalPage).toContain("formatTrimFeatureLines(item.value)");
   expect(portalPage).toContain("whitespace-pre-line");
 });
+
+test("keeps the model list fixed while model details use a separate scroll pane", () => {
+  const profiles = portalPage.slice(
+    portalPage.indexOf("function AdminProfiles"),
+    portalPage.indexOf("function AdminVehicles"),
+  );
+
+  expect(profiles).toContain("h-[calc(100vh-12rem)]");
+  expect(profiles).toContain("overflow-y-auto");
+  expect(profiles).toContain("sticky top-0");
+});

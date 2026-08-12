@@ -1646,6 +1646,17 @@ function nextId(prefix: string) {
   return `${prefix}-${timestamp}-${random}`;
 }
 
+async function nextInquiryNumber(db: D1Database, createdAt: string): Promise<string> {
+  const dateKey = createdAt.slice(0, 10).replace(/-/g, "");
+  const prefix = `YGI${dateKey}`;
+  const latest = await db
+    .prepare("SELECT inquiry_no FROM inquiries WHERE inquiry_no LIKE ? ORDER BY inquiry_no DESC LIMIT 1")
+    .bind(`${prefix}%`)
+    .first<{ inquiry_no: string }>();
+  const priorSequence = Number(latest?.inquiry_no.slice(prefix.length)) || 0;
+  return `${prefix}${String(priorSequence + 1).padStart(2, "0")}`;
+}
+
 async function handleLogin(request: Request, env: Env) {
   const body = (await request.json().catch(() => null)) as { email?: string; accessCode?: string } | null;
   const email = String(body?.email || "").trim().toLowerCase();
@@ -2412,7 +2423,11 @@ async function handleGetVehicles(request: Request, env: Env) {
     const partnerFobUsd = asOptionalNumber(rowField(fields, "partner_fob_usd", "partnerFOB美金报价（自动计算）")) ??
       asOptionalNumber(fields["partnerFOB美金报价（自动计算）"]);
     const displayPriceLow = asOptionalNumber(rowField(fields, "display_price_low"));
-    const fobUsd = externalAccount ? customerFobUsd ?? displayPriceLow : internalFobUsd ?? displayPriceLow;
+    const fobUsd = session.role === "partner" ? partnerFobUsd ?? customerFobUsd ?? displayPriceLow
+      : session.role === "customer" ? customerFobUsd ?? partnerFobUsd ?? displayPriceLow
+      : internalFobUsd ?? displayPriceLow;
+    const recommendationValue = asOptionalNumber(rowField(fields, "recommendation_slot", "网站推荐位"));
+    const recommendationRank = recommendationValue && recommendationValue > 0 ? Math.floor(recommendationValue) : null;
     const exwUsd = externalAccount ? null : asOptionalNumber(rowField(fields, "exw_usd", "EXW美金价"));
     const fcaUsd = externalAccount ? null : asOptionalNumber(rowField(fields, "fca_usd", "FCA美金价"));
     const priceTermsList: { term: string; amount: number }[] = [];
@@ -2428,6 +2443,7 @@ async function handleGetVehicles(request: Request, env: Env) {
       brand: asText(rowField(fields, "brand", "品牌")),
       model: asText(rowField(fields, "model", "型号")),
       trim: asText(rowField(fields, "variant", "细分型号")),
+      modelStyle: asText(rowField(fields, "model_style", "车型款式")),
       supplier: internalSession ? asText(rowField(fields, "supplier", "供应商")) : null,
       supplierQuoteYear: internalSession ? asText(rowField(fields, "supplier_quote_year", "供应商报价年份")) : null,
       supplierQuoteMonth: internalSession ? asText(rowField(fields, "supplier_quote_month", "供应商报价月份")) : null,
@@ -2455,6 +2471,8 @@ async function handleGetVehicles(request: Request, env: Env) {
       color: asText(rowField(fields, "color", "外饰颜色")),
       exteriorColor: asText(rowField(fields, "exterior_color", "外饰颜色")),
       interiorColor: asText(rowField(fields, "interior_color", "内饰颜色")),
+      exteriorColorEnglish: asText(rowField(fields, "exterior_color_en", "外饰颜色英文")),
+      interiorColorEnglish: asText(rowField(fields, "interior_color_en", "内饰颜色英文")),
       reviewer: internalSession ? asText(rowField(fields, "reviewer", "审核人")) : null,
       developer: internalSession ? asText(rowField(fields, "developer", "开发者")) : null,
       publicNotes: asText(rowField(fields, "notes", "备注")),
@@ -2463,6 +2481,7 @@ async function handleGetVehicles(request: Request, env: Env) {
       autoCorrectionNotes: internalSession ? asText(rowField(fields, "auto_correction", "单行自动纠错")) : null,
       duplicateCheck: internalSession ? asText(rowField(fields, "duplicate_check", "重复数据检查")) : null,
       recommendationSlot: internalSession ? asText(rowField(fields, "recommendation_slot", "网站推荐位")) : null,
+      recommendationRank,
       aiConfidence: asOptionalNumber(rowField(fields, "ai_confidence_score", "AI置信度")),
       priceTermsList,
       isApproved: true,
@@ -2472,6 +2491,55 @@ async function handleGetVehicles(request: Request, env: Env) {
     };
   });
   return json({ vehicles });
+}
+
+async function handleUpdateVehicleRecommendation(
+  request: Request,
+  env: Env,
+  vehicleId: string,
+) {
+  const session = await requireSession(request, env);
+  if (session.role !== "admin") {
+    return problem("Administrator access required", 403);
+  }
+
+  const body = await request.json().catch(() => null) as { rank?: unknown } | null;
+  const rawRank = body?.rank;
+  const clearsRank = rawRank === null || rawRank === "" || rawRank === undefined;
+  const rank = clearsRank ? null : asOptionalNumber(rawRank);
+  if (!clearsRank && (!rank || !Number.isInteger(rank) || rank < 1)) {
+    return problem("Recommendation rank must be a positive integer or empty", 400);
+  }
+
+  const db = requirePortalDb(env);
+  const existingVehicle = await db.prepare("SELECT id FROM vehicles WHERE id = ?").bind(vehicleId).first<{ id: string }>();
+  if (!existingVehicle) {
+    return problem("Vehicle resource not found", 404);
+  }
+
+  const appToken = asText(env.FEISHU_BASE_APP_TOKEN).trim();
+  const tableId = asText(env.FEISHU_TABLE_VEHICLES).trim();
+  if (!appToken || !tableId) {
+    return problem("Feishu vehicle source is not configured", 503);
+  }
+
+  await feishuRequest(
+    env,
+    "PUT",
+    `/open-apis/bitable/v1/apps/${appToken}/tables/${tableId}/records/${encodeURIComponent(vehicleId)}`,
+    { fields: { "网站推荐位": rank } },
+  );
+
+  try {
+    await syncVehiclesToD1(env);
+  } catch (error) {
+    cacheMap.clear();
+    console.error("Vehicle recommendation saved to Feishu but D1 refresh failed", error);
+    return problem("Recommendation saved to Feishu. D1 will refresh on the next scheduled sync.", 502);
+  }
+
+  cacheMap.clear();
+  return json({ ok: true, rank });
 }
 
 function normalizeTrimName(value: unknown) {
@@ -3320,6 +3388,8 @@ async function handleCreateInquiry(request: Request, env: Env) {
   const session = await requireSession(request, env);
   const body = (await request.json().catch(() => null)) as Record<string, unknown> | null;
   const vehicleId = asText(body?.vehicleId).trim();
+  const requestedVehicleModel = asText(body?.vehicleModel).trim();
+  const title = asText(body?.title).trim();
   const quantity = asNumber(body?.quantity);
   if (quantity <= 0) return problem("Quantity is required");
   if (!vehicleId && !requestedVehicleModel && !title) return problem("Select a vehicle scope or provide an inquiry title");
@@ -3327,7 +3397,7 @@ async function handleCreateInquiry(request: Request, env: Env) {
   const db = requirePortalDb(env);
   const now = nowText();
   const isPublic = false;
-  const inquiryNo = nextId("INQ");
+  const inquiryNo = await nextInquiryNumber(db, now);
   const vehicle = await db.prepare("SELECT * FROM vehicles WHERE id = ?").bind(vehicleId).first<Record<string, unknown>>();
   const vehicleModel = vehicle
     ? [
@@ -3336,6 +3406,7 @@ async function handleCreateInquiry(request: Request, env: Env) {
       rowField(vehicle, "variant", "细分型号"),
     ].map(asText).filter(Boolean).join(" ") || vehicleId
     : vehicleId;
+  const selectedVehicleModel = vehicleModel || requestedVehicleModel || title;
   const initialNote = asText(body?.notes).trim();
   if (initialNote.length > 4000) return problem("Inquiry message must be 4000 characters or fewer");
   const vehicleSnapshot = JSON.stringify(vehicle ? {
@@ -3344,7 +3415,13 @@ async function handleCreateInquiry(request: Request, env: Env) {
     model: rowField(vehicle, "model", "鍨嬪彿"),
     variant: rowField(vehicle, "variant", "缁嗗垎鍨嬪彿"),
     color: rowField(vehicle, "color", "棰滆壊"),
-    priceUsd: rowField(vehicle, "display_price_low", "FOB"),
+    exteriorColor: rowField(vehicle, "exterior_color", "澶栭グ棰滆壊"),
+    interiorColor: rowField(vehicle, "interior_color", "鍐呴グ棰滆壊"),
+    configuration: rowField(vehicle, "configuration"),
+    steering: rowField(vehicle, "steering", "宸﹀彸鑸?"),
+    marketVersion: rowField(vehicle, "market_version", "鍥介檯鍥藉唴鐗堟湰锛堝閫夛級"),
+    location: rowField(vehicle, "location", "杞︽簮鍦扮偣"),
+    priceUsd: rowField(vehicle, "fob_usd", "display_price_low", "FOB"),
   } : { vehicleId, vehicleModel: selectedVehicleModel });
   const statements = [
     db.prepare("INSERT INTO inquiries (id,inquiry_no,customer_id,vehicle_id,vehicle_model,title,quantity,destination_port,trade_term,target_price,initial_note,vehicle_snapshot_json,is_public,status,source,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)").bind(crypto.randomUUID(), inquiryNo, session.customerId, vehicleId, selectedVehicleModel, title, quantity, asText(body?.destinationPort), asText(body?.tradeTerm) || "FOB", asNumber(body?.targetPrice) || null, initialNote, vehicleSnapshot, Number(isPublic), "New Inquiry", "Customer Portal", now, now),
@@ -3600,7 +3677,7 @@ async function createInquiryNote(env: Env, session: PortalSession, inquiryNo: st
 }
 
 async function handleCreateInquiryNote(request: Request, env: Env, inquiryNo: string) {
-  const session = await requireSession(request, env); await findScopedInquiry(env, session, inquiryNo);
+  const session = await requireSession(request, env); const { inquiry } = await findScopedInquiry(env, session, inquiryNo);
   const body = (await request.json().catch(() => null)) as Record<string, unknown> | null; const text = asText(body?.body).trim();
   if (!text) return problem("Note is required"); if (text.length > 4000) return problem("Note must be 4000 characters or fewer");
   const parentNoteId = asText(body?.parentNoteId); const isPublic = false;
@@ -4125,6 +4202,10 @@ export async function handlePortalRequest(request: Request, env: Env) {
     }
     if (path === "/api/portal/vehicles" && request.method === "GET") {
       return await handleGetVehicles(request, env);
+    }
+    const vehicleRecommendationMatch = path.match(/^\/api\/portal\/vehicles\/([^/]+)\/recommendation$/);
+    if (vehicleRecommendationMatch && request.method === "PATCH") {
+      return await handleUpdateVehicleRecommendation(request, env, decodeURIComponent(vehicleRecommendationMatch[1]));
     }
     if (path === "/api/portal/vehicle-models" && request.method === "GET") {
       return await handleGetVehicleModels(request, env);
