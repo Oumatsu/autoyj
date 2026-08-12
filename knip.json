@@ -18,10 +18,9 @@
   ],
   "ignoreDependencies": [
     "@testing-library/jest-dom",
-    "@testing-library/react",
     "eslint-config-next"
   ],
-  "ignoreBinaries": ["mise"],
+  "ignoreBinaries": ["java"],
   "ignoreExportsUsedInFile": true,
   "ignoreIssues": {
     "components/ui/**": ["exports", "types"],
