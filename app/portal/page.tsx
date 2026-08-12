@@ -81,6 +81,7 @@ type VehicleModel = {
   brand: string;
   model: string;
   trim: string;
+  modelStyle?: string | null;
   year: string;
   bodyType: string;
   fuelType: string;
@@ -140,6 +141,8 @@ type Vehicle = {
   color: string;
   exteriorColor: string;
   interiorColor: string;
+  exteriorColorEnglish?: string | null;
+  interiorColorEnglish?: string | null;
   supplierExteriorColor: string;
   supplierInteriorColor: string;
   colorCode: string;
@@ -196,6 +199,7 @@ type Vehicle = {
   autoCorrectionNotes?: string | null;
   duplicateCheck?: string | null;
   recommendationSlot?: string | null;
+  recommendationRank?: number | null;
 };
 
 type PriceTerm = { term: string; amount: number };
@@ -212,6 +216,7 @@ type SellableModel = {
   hasStockQuantity: boolean;
   preorderAvailable: boolean;
   fobPriceRange: string;
+  recommendationRank: number | null;
   /** 姹囨€昏杞﹀瀷鎵€鏈?offer 涓嚭鐜拌繃鐨?FOB/EXW/FCA 浠锋牸鍖洪棿 */
   priceTermsSummary: PriceTermSummary[];
   offers: VehicleOffer[];
@@ -280,6 +285,7 @@ type VehicleResourceColor = {
   quantity: number;
   hasStockQuantity: boolean;
   priceTerms: PriceTerm[];
+  priceByLocation: Array<{ location: string; term: string; amount: number }>;
   vehicles: Vehicle[];
 };
 
@@ -1579,6 +1585,7 @@ function ModelFullSpecsCard({ group }: { group: ModelProfileGroup }) {
   const { t, locale } = useTranslation();
   const v = group.variants[0] || ({} as VehicleModel);
   const trimVariants = getModelTrimVariants(group);
+  const versionDifferences = buildVariantDifferenceSteps(group, locale);
   const versionDetails = trimVariants.map((variant) => ({
     variant,
     items: [
@@ -1717,6 +1724,23 @@ function ModelFullSpecsCard({ group }: { group: ModelProfileGroup }) {
               </article>
             ))}
           </div>
+          <div className="mt-5 grid gap-3">
+            <p className="text-[10px] font-black uppercase tracking-[.18em] text-[#5ee6d8]">TRIM DIFFERENCES</p>
+            {versionDifferences.map((step) => (
+              <article key={`difference-${step.variant.id}`} className="rounded-xl border border-white/10 bg-[#0c1424] p-4">
+                <strong className="block text-sm text-white">{localizeVehicleValue(step.variant.trim || step.variant.id, locale)}</strong>
+                <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                  {step.sections.flatMap((section) => section.items).map((item) => (
+                    <div key={`${item.name}-${item.value}`} className="rounded border border-white/10 px-3 py-2">
+                      <p className="text-[10px] text-slate-400">{localizeVehicleValue(item.name, locale)}</p>
+                      <p className="mt-1 text-xs text-white">{formatTrimFeatureLines(item.value)}</p>
+                      {item.previousValue && <p className="mt-1 text-[10px] text-slate-500">Previous: {formatTrimFeatureLines(item.previousValue)}</p>}
+                    </div>
+                  ))}
+                </div>
+              </article>
+            ))}
+          </div>
         </section>
       ) : null}
     </div>
@@ -1814,6 +1838,7 @@ function AdminProfiles({ data }: { data: BootstrapData }) {
   const groups = useMemo(() => buildModelProfileGroups(data), [data]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedKey, setSelectedKey] = useState<string | null>(() => null);
+  const [navigatorCollapsed, setNavigatorCollapsed] = useState(false);
 
   const normalizedSearch = searchQuery.trim().toLowerCase();
   const visibleGroups = groups.filter((group) => modelProfileGroupMatchesSearch(group, normalizedSearch));
@@ -1845,10 +1870,14 @@ function AdminProfiles({ data }: { data: BootstrapData }) {
         <div className="flex h-[calc(100vh-12rem)] min-h-[550px] gap-0 overflow-hidden rounded-xl border border-white/10">
           {/* LEFT: model list */}
           <div
-            className={`flex w-full shrink-0 flex-col overflow-y-auto border-r border-white/10 bg-[#070e1b] lg:w-80 xl:w-96 ${
+            className={`flex w-full shrink-0 flex-col overflow-y-auto border-r border-white/10 bg-[#070e1b] ${navigatorCollapsed ? "lg:w-14" : "lg:w-80 xl:w-96"} ${
               selectedGroup ? "hidden lg:flex" : "flex"
             }`}
           >
+            <button type="button" onClick={() => setNavigatorCollapsed((value) => !value)} aria-label={navigatorCollapsed ? "Expand vehicle model list" : "Collapse vehicle model list"} className="hidden h-11 shrink-0 border-b border-white/10 text-xs font-black text-[#5ee6d8] lg:block">
+              {navigatorCollapsed ? "›" : "‹"}
+            </button>
+            {!navigatorCollapsed && <>
             {visibleGroups.length === 0 ? (
               <div className="flex flex-1 items-center justify-center px-4 py-12 text-center text-sm text-slate-600">
                 No matching vehicle models
@@ -1909,6 +1938,7 @@ function AdminProfiles({ data }: { data: BootstrapData }) {
                 </button>
               );
             })}
+            </>}
           </div>
 
           {/* RIGHT: detail panel */}
@@ -1957,6 +1987,7 @@ function AdminProfiles({ data }: { data: BootstrapData }) {
                     </div>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
+                    <button type="button" onClick={() => setNavigatorCollapsed((value) => !value)} className="hidden rounded border border-white/15 px-2 py-1 text-[10px] font-black text-slate-300 lg:block">{navigatorCollapsed ? "Show models" : "Hide models"}</button>
                     <AdminSummaryChip label={t("portal.trimsLabel")} value={String(getModelTrimVariants(selectedGroup).length)} tone="accent" />
                   </div>
                 </div>
@@ -2002,10 +2033,36 @@ function AdminVehicles({ data, onEdit, onRefresh, onRefreshData }: { data: Boots
   const [supplyFilter, setSupplyFilter] = useState("all");
   const [brandFilter, setBrandFilter] = useState("all");
   const [supplierFilter, setSupplierFilter] = useState("all");
+  const [recommendationRanks, setRecommendationRanks] = useState<Record<string, string>>({});
+  const [recommendationBusyId, setRecommendationBusyId] = useState("");
+  const [recommendationError, setRecommendationError] = useState("");
   const normalizedSearch = searchQuery.trim().toLowerCase();
   const canSeeSupplier = data.user.role !== "partner" && data.user.role !== "customer";
   const canSeeLocation = data.user.role !== "partner" && data.user.role !== "customer";
+  const canManageRecommendation = data.user.role === "admin";
   const effectiveSupplierFilter = canSeeSupplier ? supplierFilter : "all";
+
+  async function saveRecommendationRank(vehicle: Vehicle) {
+    const rawRank = (recommendationRanks[vehicle.id] ?? (vehicle.recommendationRank ? String(vehicle.recommendationRank) : "")).trim();
+    if (rawRank && !/^[1-9]\d*$/.test(rawRank)) {
+      setRecommendationError("Recommendation rank must be a positive integer, or empty to remove it.");
+      return;
+    }
+
+    setRecommendationBusyId(vehicle.id);
+    setRecommendationError("");
+    try {
+      await api(`/api/portal/vehicles/${encodeURIComponent(vehicle.id)}/recommendation`, {
+        method: "PATCH",
+        body: JSON.stringify({ rank: rawRank ? Number(rawRank) : null }),
+      });
+      await onRefreshData();
+    } catch (error) {
+      setRecommendationError(error instanceof Error ? error.message : "Could not save recommendation rank");
+    } finally {
+      setRecommendationBusyId("");
+    }
+  }
 
   // 从真实数据中动态提取下拉筛选选项
   const brandOptions = useMemo(() => {
@@ -2291,6 +2348,7 @@ function AdminVehicles({ data, onEdit, onRefresh, onRefreshData }: { data: Boots
                               </div>
                               <div className="mt-1 text-xs text-slate-400">
                                 {compactJoin([
+                                  vehicle.modelStyle ? `Model Year: ${vehicle.modelStyle}` : "",
                                   vehicle.year ? t("portal.modelYear", { year: vehicle.year }) : "",
                                   localizeVehicleValue(vehicle.steering, locale),
                                   localizeVehicleValue(vehicle.marketVersion, locale),
@@ -2329,6 +2387,7 @@ function AdminVehicles({ data, onEdit, onRefresh, onRefreshData }: { data: Boots
                                       formatPortalHeader("下单后需要等待天数", locale),
                                       formatPortalHeader("左右舵", locale),
                                       formatPortalHeader("国际国内版本", locale),
+                                      ...(canManageRecommendation ? ["Recommendation rank"] : []),
                                       formatPortalHeader("询盘", locale),
                                     ]}
                                     rows={variant.colors.flatMap((color) =>
@@ -2354,6 +2413,26 @@ function AdminVehicles({ data, onEdit, onRefresh, onRefreshData }: { data: Boots
                                         <span key="wait" className="text-xs text-slate-300">{v.waitDays != null ? t("portal.dayCount", { count: v.waitDays }) : "-"}</span>,
                                         <span key="steering" className="text-xs text-slate-300">{localizeVehicleValue(v.steering, locale) || "-"}</span>,
                                         <span key="market" className="text-xs text-slate-300">{localizeVehicleValue(v.marketVersion, locale) || "-"}</span>,
+                                        ...(canManageRecommendation ? [
+                                          <div key="recommendation" className="flex min-w-36 items-center gap-1">
+                                            <input
+                                              aria-label={`Recommendation rank for ${v.id}`}
+                                              inputMode="numeric"
+                                              value={recommendationRanks[v.id] ?? (v.recommendationRank ? String(v.recommendationRank) : "")}
+                                              onChange={(event) => setRecommendationRanks((current) => ({ ...current, [v.id]: event.target.value }))}
+                                              className="w-16 rounded border border-white/15 bg-slate-950 px-2 py-1 text-xs text-white"
+                                              placeholder="-"
+                                            />
+                                            <button
+                                              type="button"
+                                              onClick={() => void saveRecommendationRank(v)}
+                                              disabled={recommendationBusyId === v.id}
+                                              className="rounded border border-theme/60 px-2 py-1 text-[10px] font-black text-theme disabled:opacity-50"
+                                            >
+                                              {recommendationBusyId === v.id ? "..." : "Save"}
+                                            </button>
+                                          </div>,
+                                        ] : []),
                                         <button key="inquiry" type="button" onClick={() => setInquiryVehicleId((current) => current === v.id ? "" : v.id)} className="text-xs font-black text-theme">{formatPortalHeader(inquiryVehicleId === v.id ? "隐藏询盘" : "询盘", locale)}</button>,
                                       ])
                                     )}
@@ -2379,8 +2458,8 @@ function AdminVehicles({ data, onEdit, onRefresh, onRefreshData }: { data: Boots
                                       return [
                                         <span key="color" className="text-xs text-slate-300">
                                           {formatColorPair(
-                                            localizeVehicleValue(color.exteriorColor, locale),
-                                            localizeVehicleValue(color.interiorColor, locale),
+                                            localizeVehicleValue(locale === "zh" ? color.exteriorColor : color.vehicles[0]?.exteriorColorEnglish || color.exteriorColor, locale),
+                                            localizeVehicleValue(locale === "zh" ? color.interiorColor : color.vehicles[0]?.interiorColorEnglish || color.interiorColor, locale),
                                           )}
                                         </span>,
                                         <span key="stock" className="font-mono text-xs font-bold text-white">
@@ -2389,10 +2468,10 @@ function AdminVehicles({ data, onEdit, onRefresh, onRefreshData }: { data: Boots
                                         ...(canSeeLocation
                                           ? [<span key="location" className="text-xs text-slate-300">{locations.length ? locations.map((location) => localizeVehicleValue(location, locale)).join(" / ") : "-"}</span>]
                                           : []),
-                                        <div key="price" className="flex flex-wrap gap-1">
-                                          {color.priceTerms.length > 0 ? color.priceTerms.map((price) => (
-                                            <span key={`${price.term}-${price.amount}`} className="rounded border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 font-mono text-xs font-bold text-amber-400">
-                                              {price.term} {formatUsdStrict(price.amount)}
+                                        <div key="price" className="grid gap-1">
+                                          {color.priceByLocation.length > 0 ? color.priceByLocation.map((price) => (
+                                            <span key={`${price.location}-${price.term}-${price.amount}`} className="w-fit rounded border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 font-mono text-xs font-bold text-amber-400">
+                                              {localizeVehicleValue(price.location, locale)} · {price.term} {formatUsdStrict(price.amount)}
                                             </span>
                                           )) : colorVehicle.price ? (
                                             <span className="rounded border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 font-mono text-xs font-bold text-amber-400">
@@ -3362,7 +3441,18 @@ export function buildModelProfileGroups(data: BootstrapData): ModelProfileGroup[
     group.rangeSummary = summarizeGroupSpec(group, ["CLTC续航"]);
     group.guidePriceSummary = summarizeGuidePriceGroup(group);
   }
-  return groups.sort((a, b) => `${a.brand} ${a.model}`.localeCompare(`${b.brand} ${b.model}`));
+  return groups.sort((a, b) => {
+    const aRank = recommendationRankForModel(data.vehicles, a.brand, a.model);
+    const bRank = recommendationRankForModel(data.vehicles, b.brand, b.model);
+    return compareRecommendationRanks(aRank, bRank) || `${a.brand} ${a.model}`.localeCompare(`${b.brand} ${b.model}`);
+  });
+}
+
+function recommendationRankForModel(vehicles: Vehicle[], brand: string, model: string) {
+  return vehicles
+    .filter((vehicle) => vehicle.brand === brand && vehicle.model === model)
+    .map((vehicle) => vehicle.recommendationRank)
+    .reduce<number | null>((best, rank) => compareRecommendationRanks(best, rank) <= 0 ? best : rank ?? null, null);
 }
 
 function modelProfileGroupMatchesSearch(group: ModelProfileGroup, query: string) {
@@ -3592,6 +3682,7 @@ export function buildSellableModels(data: BootstrapData): SellableModel[] {
           hasStockQuantity: false,
           preorderAvailable: false,
           fobPriceRange: "FOB on request",
+          recommendationRank: vehicle.recommendationRank ?? null,
           offers: [],
         },
         offerMap: new Map(),
@@ -3606,6 +3697,9 @@ export function buildSellableModels(data: BootstrapData): SellableModel[] {
       entry.item.hasStockQuantity = true;
     }
     entry.item.preorderAvailable = entry.item.preorderAvailable || supplyType === "Preorder";
+    entry.item.recommendationRank = compareRecommendationRanks(entry.item.recommendationRank, vehicle.recommendationRank) <= 0
+      ? entry.item.recommendationRank
+      : vehicle.recommendationRank ?? null;
     if (!entry.item.imageUrl && vehicle.imageUrl) entry.item.imageUrl = vehicle.imageUrl;
     if (!entry.item.segment && modelInfo?.bodyType) entry.item.segment = modelInfo.bodyType;
 
@@ -3683,8 +3777,9 @@ export function buildSellableModels(data: BootstrapData): SellableModel[] {
       };
     })
     .sort((a, b) => {
+      const recommendationOrder = compareRecommendationRanks(a.recommendationRank, b.recommendationRank);
       const inStockRank = Number(b.offers.some((offer) => offer.supplyType === "In Stock")) - Number(a.offers.some((offer) => offer.supplyType === "In Stock"));
-      return inStockRank || Number(b.hasStockQuantity) - Number(a.hasStockQuantity) || b.stockQuantity - a.stockQuantity || a.brand.localeCompare(b.brand) || a.model.localeCompare(b.model) || b.year.localeCompare(a.year);
+      return recommendationOrder || inStockRank || Number(b.hasStockQuantity) - Number(a.hasStockQuantity) || b.stockQuantity - a.stockQuantity || a.brand.localeCompare(b.brand) || a.model.localeCompare(b.model) || b.year.localeCompare(a.year);
     });
 }
 
@@ -3730,6 +3825,7 @@ export function buildVehicleResourceVariants(vehicles: Vehicle[]): VehicleResour
         quantity: 0,
         hasStockQuantity: false,
         priceTerms: [],
+        priceByLocation: [],
         vehicles: [],
       };
       variant.colors.push(color);
@@ -3745,7 +3841,7 @@ export function buildVehicleResourceVariants(vehicles: Vehicle[]): VehicleResour
     .map((variant) => ({
       ...variant,
       colors: variant.colors
-        .map((color) => ({ ...color, priceTerms: uniqueVehiclePriceTerms(color.vehicles) }))
+        .map((color) => ({ ...color, priceTerms: uniqueVehiclePriceTerms(color.vehicles), priceByLocation: vehiclePriceByLocation(color.vehicles) }))
         .sort((a, b) =>
           formatColorPair(a.exteriorColor, a.interiorColor).localeCompare(formatColorPair(b.exteriorColor, b.interiorColor)),
         ),
@@ -3759,6 +3855,23 @@ export function buildVehicleResourceVariants(vehicles: Vehicle[]): VehicleResour
 
 function getFobPrice(vehicle: Vehicle) {
   return vehicle.price;
+}
+
+function compareRecommendationRanks(left: number | null | undefined, right: number | null | undefined) {
+  const leftRank = left && left > 0 ? left : Number.MAX_SAFE_INTEGER;
+  const rightRank = right && right > 0 ? right : Number.MAX_SAFE_INTEGER;
+  return leftRank - rightRank;
+}
+
+function vehiclePriceByLocation(vehicles: Vehicle[]) {
+  const unique = new Map<string, { location: string; term: string; amount: number }>();
+  for (const vehicle of vehicles) {
+    for (const price of vehicle.priceTermsList || []) {
+      const location = vehicle.location || "China";
+      unique.set(`${location}:${price.term}:${price.amount}`, { location, term: price.term, amount: price.amount });
+    }
+  }
+  return Array.from(unique.values()).sort((a, b) => a.location.localeCompare(b.location) || a.term.localeCompare(b.term) || a.amount - b.amount);
 }
 
 export function vehiclesForSellableModel(vehicles: Vehicle[], item: SellableModel) {

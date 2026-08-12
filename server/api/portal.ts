@@ -2412,7 +2412,11 @@ async function handleGetVehicles(request: Request, env: Env) {
     const partnerFobUsd = asOptionalNumber(rowField(fields, "partner_fob_usd", "partnerFOB美金报价（自动计算）")) ??
       asOptionalNumber(fields["partnerFOB美金报价（自动计算）"]);
     const displayPriceLow = asOptionalNumber(rowField(fields, "display_price_low"));
-    const fobUsd = externalAccount ? customerFobUsd ?? displayPriceLow : internalFobUsd ?? displayPriceLow;
+    const fobUsd = session.role === "partner" ? partnerFobUsd ?? customerFobUsd ?? displayPriceLow
+      : session.role === "customer" ? customerFobUsd ?? partnerFobUsd ?? displayPriceLow
+      : internalFobUsd ?? displayPriceLow;
+    const recommendationValue = asOptionalNumber(rowField(fields, "recommendation_slot", "网站推荐位"));
+    const recommendationRank = recommendationValue && recommendationValue > 0 ? Math.floor(recommendationValue) : null;
     const exwUsd = externalAccount ? null : asOptionalNumber(rowField(fields, "exw_usd", "EXW美金价"));
     const fcaUsd = externalAccount ? null : asOptionalNumber(rowField(fields, "fca_usd", "FCA美金价"));
     const priceTermsList: { term: string; amount: number }[] = [];
@@ -2428,6 +2432,7 @@ async function handleGetVehicles(request: Request, env: Env) {
       brand: asText(rowField(fields, "brand", "品牌")),
       model: asText(rowField(fields, "model", "型号")),
       trim: asText(rowField(fields, "variant", "细分型号")),
+      modelStyle: asText(rowField(fields, "model_style", "车型款式")),
       supplier: internalSession ? asText(rowField(fields, "supplier", "供应商")) : null,
       supplierQuoteYear: internalSession ? asText(rowField(fields, "supplier_quote_year", "供应商报价年份")) : null,
       supplierQuoteMonth: internalSession ? asText(rowField(fields, "supplier_quote_month", "供应商报价月份")) : null,
@@ -2455,6 +2460,8 @@ async function handleGetVehicles(request: Request, env: Env) {
       color: asText(rowField(fields, "color", "外饰颜色")),
       exteriorColor: asText(rowField(fields, "exterior_color", "外饰颜色")),
       interiorColor: asText(rowField(fields, "interior_color", "内饰颜色")),
+      exteriorColorEnglish: asText(rowField(fields, "exterior_color_en", "外饰颜色英文")),
+      interiorColorEnglish: asText(rowField(fields, "interior_color_en", "内饰颜色英文")),
       reviewer: internalSession ? asText(rowField(fields, "reviewer", "审核人")) : null,
       developer: internalSession ? asText(rowField(fields, "developer", "开发者")) : null,
       publicNotes: asText(rowField(fields, "notes", "备注")),
@@ -2463,6 +2470,7 @@ async function handleGetVehicles(request: Request, env: Env) {
       autoCorrectionNotes: internalSession ? asText(rowField(fields, "auto_correction", "单行自动纠错")) : null,
       duplicateCheck: internalSession ? asText(rowField(fields, "duplicate_check", "重复数据检查")) : null,
       recommendationSlot: internalSession ? asText(rowField(fields, "recommendation_slot", "网站推荐位")) : null,
+      recommendationRank,
       aiConfidence: asOptionalNumber(rowField(fields, "ai_confidence_score", "AI置信度")),
       priceTermsList,
       isApproved: true,
@@ -2472,6 +2480,55 @@ async function handleGetVehicles(request: Request, env: Env) {
     };
   });
   return json({ vehicles });
+}
+
+async function handleUpdateVehicleRecommendation(
+  request: Request,
+  env: Env,
+  vehicleId: string,
+) {
+  const session = await requireSession(request, env);
+  if (session.role !== "admin") {
+    return problem("Administrator access required", 403);
+  }
+
+  const body = await request.json().catch(() => null) as { rank?: unknown } | null;
+  const rawRank = body?.rank;
+  const clearsRank = rawRank === null || rawRank === "" || rawRank === undefined;
+  const rank = clearsRank ? null : asOptionalNumber(rawRank);
+  if (!clearsRank && (!rank || !Number.isInteger(rank) || rank < 1)) {
+    return problem("Recommendation rank must be a positive integer or empty", 400);
+  }
+
+  const db = requirePortalDb(env);
+  const existingVehicle = await db.prepare("SELECT id FROM vehicles WHERE id = ?").bind(vehicleId).first<{ id: string }>();
+  if (!existingVehicle) {
+    return problem("Vehicle resource not found", 404);
+  }
+
+  const appToken = asText(env.FEISHU_BASE_APP_TOKEN).trim();
+  const tableId = asText(env.FEISHU_TABLE_VEHICLES).trim();
+  if (!appToken || !tableId) {
+    return problem("Feishu vehicle source is not configured", 503);
+  }
+
+  await feishuRequest(
+    env,
+    "PUT",
+    `/open-apis/bitable/v1/apps/${appToken}/tables/${tableId}/records/${encodeURIComponent(vehicleId)}`,
+    { fields: { "网站推荐位": rank } },
+  );
+
+  try {
+    await syncVehiclesToD1(env);
+  } catch (error) {
+    cacheMap.clear();
+    console.error("Vehicle recommendation saved to Feishu but D1 refresh failed", error);
+    return problem("Recommendation saved to Feishu. D1 will refresh on the next scheduled sync.", 502);
+  }
+
+  cacheMap.clear();
+  return json({ ok: true, rank });
 }
 
 function normalizeTrimName(value: unknown) {
@@ -4122,6 +4179,10 @@ export async function handlePortalRequest(request: Request, env: Env) {
     }
     if (path === "/api/portal/vehicles" && request.method === "GET") {
       return await handleGetVehicles(request, env);
+    }
+    const vehicleRecommendationMatch = path.match(/^\/api\/portal\/vehicles\/([^/]+)\/recommendation$/);
+    if (vehicleRecommendationMatch && request.method === "PATCH") {
+      return await handleUpdateVehicleRecommendation(request, env, decodeURIComponent(vehicleRecommendationMatch[1]));
     }
     if (path === "/api/portal/vehicle-models" && request.method === "GET") {
       return await handleGetVehicleModels(request, env);
