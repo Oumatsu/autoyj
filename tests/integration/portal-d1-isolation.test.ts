@@ -405,7 +405,7 @@ describe("portal request/D1 isolation", () => {
     expect(payload.vehicleModels.map((model) => model.trim)).toEqual(["Verified 550 MAX"]);
     expect(payload.vehicleModels[0]?.id).toBe("TRIM-081-01");
     expect(payload.vehicleModelSpecs).toEqual([
-      expect.objectContaining({ modelId: "TRIM-081-01", name: "Verified 550 MAX" }),
+      expect.objectContaining({ modelId: "TRIM-081-01", name: "版本名称", value: "Verified 550 MAX" }),
     ]);
   });
 

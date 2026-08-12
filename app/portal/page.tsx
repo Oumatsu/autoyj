@@ -25,7 +25,7 @@ import { getPortalSession, invalidatePortalSession } from "@/lib/portal-session-
 import { formatPortalHeader, formatPortalRole, formatPortalStatus, localizeVehicleValue, portalRoleLabels } from "@/lib/portal-english";
 import type { AccountType, PortalRole, PriceTier } from "@/lib/users";
 import { QuotationTemplatePreview } from "@/components/portal/QuotationTemplatePreview";
-import { appendInquiryComment } from "@/lib/inquiry-comment-state";
+import { appendInquiryComment, inquiryCommentAuthorClass } from "@/lib/inquiry-comment-state";
 import { canTransitionInquiryStatus, groupInquiriesByVehicle, inquiryStatuses, replyReference } from "@/lib/inquiry-workflow";
 
 type AdminModule = "dashboard" | "vehicle_models" | "vehicles" | "quotes" | "orders" | "payments" | "logistics" | "customers" | "staff";
@@ -610,6 +610,13 @@ export default function PortalPage() {
     }
   }, []);
 
+  const refreshBootstrap = useCallback(async () => {
+    const bootstrap = await api<BootstrapData>("/api/portal/bootstrap");
+    globalBootstrapData = bootstrap;
+    globalBootstrapPromise = Promise.resolve(bootstrap);
+    setData(bootstrap);
+  }, []);
+
   const checkSessionAndLoad = useCallback(async (force = false) => {
     if (force) {
       globalBootstrapData = null;
@@ -688,6 +695,19 @@ export default function PortalPage() {
       clearTimeout(timer);
     };
   }, [checkSessionAndLoad]);
+
+  useEffect(() => {
+    if (!data || typeof document === "undefined") return;
+    const refreshWhenVisible = () => {
+      if (document.visibilityState === "visible") void refreshBootstrap().catch(() => undefined);
+    };
+    const interval = window.setInterval(refreshWhenVisible, 30_000);
+    document.addEventListener("visibilitychange", refreshWhenVisible);
+    return () => {
+      window.clearInterval(interval);
+      document.removeEventListener("visibilitychange", refreshWhenVisible);
+    };
+  }, [data, refreshBootstrap]);
 
   const [loadedModels, setLoadedModels] = useState(false);
   const [loadedVehicles, setLoadedVehicles] = useState(false);
@@ -865,7 +885,7 @@ export default function PortalPage() {
       });
       setSelectedVehicle(null);
       setInquiryForm(emptyInquiryForm);
-      await checkSessionAndLoad(true); // 用户操作后强制刷新
+      await refreshBootstrap();
     } catch (createError) {
       setError(createError instanceof Error ? createError.message : "Inquiry failed");
     } finally {
@@ -889,7 +909,7 @@ export default function PortalPage() {
       setCounterQuote(null);
       setCounterPrice("");
       setCounterMessage("");
-      await checkSessionAndLoad(true); // 用户操作后强制刷新
+      await refreshBootstrap();
     } catch (counterError) {
       setError(counterError instanceof Error ? counterError.message : "Counteroffer failed");
     } finally {
@@ -902,7 +922,7 @@ export default function PortalPage() {
     setError("");
     try {
       await api(`/api/portal/quotes/${encodeURIComponent(quote.quoteNo)}/accept`, { method: "POST" });
-      await checkSessionAndLoad(true); // 用户操作后强制刷新
+      await refreshBootstrap();
     } catch (acceptError) {
       setError(acceptError instanceof Error ? acceptError.message : "Accept failed");
     } finally {
@@ -1000,6 +1020,7 @@ export default function PortalPage() {
       onLogout={logout}
       onReload={checkSessionAndLoad}
       onRefreshVehicles={refreshVehicles}
+      onRefreshData={refreshBootstrap}
     />
   );
 
@@ -1302,6 +1323,7 @@ function AdminPortal({
   onLogout,
   onReload,
   onRefreshVehicles,
+  onRefreshData,
   error,
   isModuleLoading,
 }: {
@@ -1311,6 +1333,7 @@ function AdminPortal({
   onLogout: () => Promise<void>;
   onReload: () => Promise<void>;
   onRefreshVehicles: () => Promise<void>;
+  onRefreshData: () => Promise<void>;
   error: string;
   isModuleLoading?: boolean;
 }) {
@@ -1439,6 +1462,7 @@ function AdminPortal({
             isModuleLoading={isModuleLoading}
             onEditVehicle={setEditingVehicle}
             onRefreshVehicles={onRefreshVehicles}
+            onRefreshData={onRefreshData}
           />
         </section>
       </div>
@@ -1470,7 +1494,7 @@ function ModuleLoadingSkeleton() {
   );
 }
 
-function AdminModuleContent({ activeModule, data, isModuleLoading, onEditVehicle, onRefreshVehicles }: { activeModule: AdminModule; data: BootstrapData; isModuleLoading?: boolean; onEditVehicle: (vehicle: Vehicle) => void; onRefreshVehicles: () => Promise<void> }) {
+function AdminModuleContent({ activeModule, data, isModuleLoading, onEditVehicle, onRefreshVehicles, onRefreshData }: { activeModule: AdminModule; data: BootstrapData; isModuleLoading?: boolean; onEditVehicle: (vehicle: Vehicle) => void; onRefreshVehicles: () => Promise<void>; onRefreshData: () => Promise<void> }) {
   if (isModuleLoading) {
     return <ModuleLoadingSkeleton />;
   }
@@ -1478,9 +1502,9 @@ function AdminModuleContent({ activeModule, data, isModuleLoading, onEditVehicle
     case "vehicle_models":
       return <AdminProfiles data={data} />;
     case "vehicles":
-      return <AdminVehicles data={data} onEdit={onEditVehicle} onRefresh={onRefreshVehicles} />;
+      return <AdminVehicles data={data} onEdit={onEditVehicle} onRefresh={onRefreshVehicles} onRefreshData={onRefreshData} />;
     case "quotes":
-      return <AdminQuotes data={data} />;
+      return <AdminQuotes data={data} onRefresh={onRefreshData} />;
     case "orders":
       return <AdminOrders data={data} />;
     case "payments":
@@ -1818,10 +1842,10 @@ function AdminProfiles({ data }: { data: BootstrapData }) {
         </div>
 
         {/* Master-detail layout with explicit height */}
-        <div className="flex min-h-[550px] gap-0 overflow-hidden rounded-xl border border-white/10">
+        <div className="flex h-[calc(100vh-12rem)] min-h-[550px] gap-0 overflow-hidden rounded-xl border border-white/10">
           {/* LEFT: model list */}
           <div
-            className={`flex w-full shrink-0 flex-col border-r border-white/10 bg-[#070e1b] lg:w-80 xl:w-96 ${
+            className={`flex w-full shrink-0 flex-col overflow-y-auto border-r border-white/10 bg-[#070e1b] lg:w-80 xl:w-96 ${
               selectedGroup ? "hidden lg:flex" : "flex"
             }`}
           >
@@ -1888,7 +1912,7 @@ function AdminProfiles({ data }: { data: BootstrapData }) {
           </div>
 
           {/* RIGHT: detail panel */}
-          <div className={`flex-1 bg-[#0a1120] ${selectedGroup ? "flex flex-col" : "hidden lg:flex"}`}>
+          <div className={`min-h-0 flex-1 overflow-y-auto bg-[#0a1120] ${selectedGroup ? "flex flex-col" : "hidden lg:flex"}`}>
             {!selectedGroup ? (
               <div className="flex flex-1 items-center justify-center px-8 py-16 text-center">
                 <div>
@@ -1968,7 +1992,7 @@ function AdminProfiles({ data }: { data: BootstrapData }) {
   );
 }
 
-function AdminVehicles({ data, onEdit, onRefresh }: { data: BootstrapData; onEdit: (vehicle: Vehicle) => void; onRefresh: () => Promise<void> }) {
+function AdminVehicles({ data, onEdit, onRefresh, onRefreshData }: { data: BootstrapData; onEdit: (vehicle: Vehicle) => void; onRefresh: () => Promise<void>; onRefreshData: () => Promise<void> }) {
   const { t, locale } = useTranslation();
   const sellableModels = buildSellableModels(data);
   const [expandedModels, setExpandedModels] = useState<Set<string>>(() => new Set());
@@ -2335,7 +2359,7 @@ function AdminVehicles({ data, onEdit, onRefresh }: { data: BootstrapData; onEdi
                                     )}
                                     emptyText={formatPortalHeader("无库存记录", locale)}
                                   />
-                                  {inquiryVehicleId && variant.colors.some((color) => color.vehicles.some((vehicle) => vehicle.id === inquiryVehicleId)) && <VehicleInquiryPanel vehicle={data.vehicles.find((vehicle) => vehicle.id === inquiryVehicleId)!} data={data} />}
+                                  {inquiryVehicleId && variant.colors.some((color) => color.vehicles.some((vehicle) => vehicle.id === inquiryVehicleId)) && <VehicleInquiryPanel vehicle={data.vehicles.find((vehicle) => vehicle.id === inquiryVehicleId)!} data={data} onRefresh={onRefreshData} />}
                                 </>
                               ) : (
                                 // External users: color-grouped view
@@ -2382,7 +2406,7 @@ function AdminVehicles({ data, onEdit, onRefresh }: { data: BootstrapData; onEdi
                                     })}
                                     emptyText={formatPortalHeader("无库存记录", locale)}
                                   />
-                                  {inquiryVehicleId && variant.colors.some((color) => color.vehicles.some((vehicle) => vehicle.id === inquiryVehicleId)) && <VehicleInquiryPanel vehicle={data.vehicles.find((vehicle) => vehicle.id === inquiryVehicleId)!} data={data} />}
+                                  {inquiryVehicleId && variant.colors.some((color) => color.vehicles.some((vehicle) => vehicle.id === inquiryVehicleId)) && <VehicleInquiryPanel vehicle={data.vehicles.find((vehicle) => vehicle.id === inquiryVehicleId)!} data={data} onRefresh={onRefreshData} />}
                                 </>
                               )}
                             </div>
@@ -2401,13 +2425,64 @@ function AdminVehicles({ data, onEdit, onRefresh }: { data: BootstrapData; onEdi
   );
 }
 
-function VehicleInquiryPanel({ vehicle, data }: { vehicle: Vehicle; data: BootstrapData }) {
-  const [message, setMessage] = useState(""); const [replyTo, setReplyTo] = useState(""); const [busy, setBusy] = useState(false); const [error, setError] = useState("");
+function VehicleInquiryPanel({ vehicle, data, onRefresh }: { vehicle: Vehicle; data: BootstrapData; onRefresh: () => Promise<void> }) {
+  const [message, setMessage] = useState("");
+  const [replyTo, setReplyTo] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const [postedNotes, setPostedNotes] = useState<InquiryNote[]>([]);
   const inquiries = data.inquiries.filter((item) => item.vehicleId === vehicle.id);
-  const notes = data.inquiryNotes.filter((item) => inquiries.some((inquiry) => inquiry.inquiryNo === item.inquiryNo));
-  async function post(event: React.FormEvent) { event.preventDefault(); if (!message.trim()) return; setBusy(true); setError(""); try { const existing = inquiries[0]; if (existing) await api(`/api/portal/inquiries/${encodeURIComponent(existing.inquiryNo)}/notes`, { method: "POST", body: JSON.stringify({ body: message, parentNoteId: replyTo }) }); else await api("/api/portal/inquiries", { method: "POST", body: JSON.stringify({ vehicleId: vehicle.id, quantity: 1, tradeTerm: "FOB", notes: message }) }); window.location.reload(); } catch (e) { setError(e instanceof Error ? e.message : "Could not post inquiry message"); } finally { setBusy(false); } }
-  async function remove(noteId: string) { if (!window.confirm("Remove your inquiry follow-up?")) return; setBusy(true); try { await api(`/api/portal/inquiry-content/note/${encodeURIComponent(noteId)}`, { method: "DELETE", body: JSON.stringify({ reason: "Removed by author" }) }); window.location.reload(); } catch (e) { setError(e instanceof Error ? e.message : "Could not remove inquiry follow-up"); } finally { setBusy(false); } }
-  return <section className="mt-3 rounded-lg border border-theme/30 bg-theme/5 p-4"><div className="flex items-center justify-between"><div><p className="text-[10px] font-black uppercase tracking-widest text-theme">Inquiry discussion</p><p className="mt-1 text-xs text-slate-300">{[vehicle.brand, vehicle.model, vehicle.configuration || vehicle.trim, vehicle.color].filter(Boolean).join(" / ")}</p></div><span className="text-xs text-slate-400">{notes.length} messages</span></div><div className="mt-3 grid gap-2">{notes.map((item) => <article key={item.id} className="rounded border border-white/10 bg-black/15 p-3"><p className="text-xs font-black text-white">{item.authorName}</p>{item.parentNoteId && <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-theme">Quote reply</p>}<p className="mt-1 text-sm text-slate-300">{item.body}</p><div className="mt-2 flex gap-3"><button type="button" onClick={() => setReplyTo(item.noteId)} className="text-[10px] font-black uppercase text-theme">Quote reply</button>{item.authorUserId === data.user.userId && <button type="button" onClick={() => remove(item.noteId)} className="text-[10px] font-black uppercase text-red-300">Remove my message</button>}</div></article>)}{notes.length === 0 && <p className="text-xs text-slate-400">No messages yet.</p>}</div><form onSubmit={post} className="mt-3 grid gap-2">{replyTo && <div className="flex justify-between text-xs text-theme">Quote reply to a specific message <button type="button" onClick={() => setReplyTo("")}>Cancel</button></div>}<textarea value={message} onChange={(e) => setMessage(e.target.value)} placeholder={replyTo ? "Write a quote reply" : "Describe your purchase intention or ask a question"} className="min-h-20 rounded border border-white/15 bg-black/20 p-3 text-sm text-white" /><div className="flex justify-between">{error ? <span className="text-xs text-red-300">{error}</span> : <span />}<button disabled={busy || !message.trim()} className="btn-primary rounded px-3 py-2 text-[10px] font-black uppercase">{busy ? "Saving..." : inquiries.length ? "Send message" : "Send inquiry request"}</button></div></form></section>;
+  const notes = postedNotes
+    .filter((item) => inquiries.some((inquiry) => inquiry.inquiryNo === item.inquiryNo))
+    .reduce((current, item) => appendInquiryComment(current, item), data.inquiryNotes.filter((item) => inquiries.some((inquiry) => inquiry.inquiryNo === item.inquiryNo)));
+
+  async function post(event: React.FormEvent) {
+    event.preventDefault();
+    if (!message.trim()) return;
+    setBusy(true);
+    setError("");
+    try {
+      const existing = inquiries[0];
+      if (existing) {
+        const result = await api<{ note: InquiryNote }>(`/api/portal/inquiries/${encodeURIComponent(existing.inquiryNo)}/notes`, {
+          method: "POST",
+          body: JSON.stringify({ body: message, parentNoteId: replyTo }),
+        });
+        setPostedNotes((current) => appendInquiryComment(current, result.note));
+      } else {
+        await api("/api/portal/inquiries", {
+          method: "POST",
+          body: JSON.stringify({ vehicleId: vehicle.id, quantity: 1, tradeTerm: "FOB", notes: message }),
+        });
+        await onRefresh();
+      }
+      setMessage("");
+      setReplyTo("");
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Could not post inquiry message");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function remove(noteId: string) {
+    if (!window.confirm("Remove your inquiry follow-up?")) return;
+    setBusy(true);
+    setError("");
+    try {
+      await api(`/api/portal/inquiry-content/note/${encodeURIComponent(noteId)}`, {
+        method: "DELETE",
+        body: JSON.stringify({ reason: "Removed by author" }),
+      });
+      await onRefresh();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Could not remove inquiry follow-up");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return <section className="mt-3 rounded-lg border border-theme/30 bg-theme/5 p-4"><div className="flex items-center justify-between"><div><p className="text-[10px] font-black uppercase tracking-widest text-theme">Inquiry discussion</p><p className="mt-1 text-xs text-slate-300">{[vehicle.brand, vehicle.model, vehicle.configuration || vehicle.trim, vehicle.color].filter(Boolean).join(" / ")}</p></div><span className="text-xs text-slate-400">{notes.length} messages</span></div><div className="mt-3 grid gap-2">{notes.map((item) => <article key={item.id} className="rounded border border-white/10 bg-black/15 p-3"><p className={`text-xs font-black ${inquiryCommentAuthorClass(item.authorRole)}`}>{item.authorName}</p>{item.parentNoteId && <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-theme">Quote reply</p>}<p className="mt-1 text-sm text-slate-300">{item.body}</p><div className="mt-2 flex gap-3"><button type="button" onClick={() => setReplyTo(item.noteId)} className="text-[10px] font-black uppercase text-theme">Quote reply</button>{item.authorUserId === data.user.userId && <button type="button" onClick={() => remove(item.noteId)} className="text-[10px] font-black uppercase text-red-300">Remove my message</button>}</div></article>)}{notes.length === 0 && <p className="text-xs text-slate-400">No messages yet.</p>}</div><form onSubmit={post} className="mt-3 grid gap-2">{replyTo && <div className="flex justify-between text-xs text-theme">Quote reply to a specific message <button type="button" onClick={() => setReplyTo("")}>Cancel</button></div>}<textarea value={message} onChange={(e) => setMessage(e.target.value)} placeholder={replyTo ? "Write a quote reply" : "Describe your purchase intention or ask a question"} className="min-h-20 rounded border border-white/15 bg-black/20 p-3 text-sm text-white" /><div className="flex justify-between">{error ? <span className="text-xs text-red-300">{error}</span> : <span />}<button disabled={busy || !message.trim()} className="btn-primary rounded px-3 py-2 text-[10px] font-black uppercase">{busy ? "Saving..." : inquiries.length ? "Send message" : "Send inquiry request"}</button></div></form></section>;
 }
 
 function VehicleInquiryPanelV2({ vehicle, data }: { vehicle: Vehicle; data: BootstrapData }) {
@@ -2459,7 +2534,7 @@ function VehicleInquiryPanelV2({ vehicle, data }: { vehicle: Vehicle; data: Boot
   </section>;
 }
 
-function AdminQuotes({ data }: { data: BootstrapData }) {
+function AdminQuotes({ data, onRefresh }: { data: BootstrapData; onRefresh: () => Promise<void> }) {
   const { locale } = useTranslation();
   const localizedData = useMemo(() => ({
     ...data,
@@ -2469,7 +2544,7 @@ function AdminQuotes({ data }: { data: BootstrapData }) {
     })),
   }), [data, locale]);
 
-  return <AdminQuotesLocalized data={localizedData} />;
+  return <AdminQuotesLocalized data={localizedData} onRefresh={onRefresh} />;
 }
 
 function InquiryVehiclePicker({ vehicles, value, onChange }: { vehicles: Vehicle[]; value: InquiryVehicleTarget; onChange: (target: InquiryVehicleTarget) => void }) {
@@ -2525,7 +2600,7 @@ function InquiryVehiclePicker({ vehicles, value, onChange }: { vehicles: Vehicle
   </div>;
 }
 
-function AdminQuotesLocalized({ data }: { data: BootstrapData }) {
+function AdminQuotesLocalized({ data, onRefresh }: { data: BootstrapData; onRefresh: () => Promise<void> }) {
   const [selectedNo, setSelectedNo] = useState(data.inquiries[0]?.inquiryNo || "");
   const [note, setNote] = useState("");
   const [replyTo, setReplyTo] = useState("");
@@ -2555,18 +2630,20 @@ function AdminQuotesLocalized({ data }: { data: BootstrapData }) {
   const parent = notes.find((item) => item.noteId === replyTo);
   const canChangeStatus = data.user.role === "admin" || data.user.role === "sales";
   const canCreateQuote = canChangeStatus;
+  const unreadCount = inquiries.filter((inquiry) => inquiry.hasUnreadFollowUps).length;
 
-  function select(inquiry: Inquiry) { setSelectedNo(inquiry.inquiryNo); setStatus(""); setStatusReason(""); setError(""); if (inquiry.hasUnreadFollowUps) void api(`/api/portal/inquiries/${encodeURIComponent(inquiry.inquiryNo)}/read`, { method: "POST" }); }
-  async function create(event: React.FormEvent) { event.preventDefault(); if ((!target.vehicleModel && !title.trim()) || !initialNote.trim()) return; setBusy(true); try { await api("/api/portal/inquiries", { method: "POST", body: JSON.stringify({ vehicleId: target.vehicleId, vehicleModel: target.vehicleModel, title, quantity: 1, tradeTerm: "FOB", notes: initialNote }) }); window.location.reload(); } catch (e) { setError(e instanceof Error ? e.message : "Could not start inquiry"); } finally { setBusy(false); } }
+  async function select(inquiry: Inquiry) { setSelectedNo(inquiry.inquiryNo); setStatus(""); setStatusReason(""); setError(""); if (inquiry.hasUnreadFollowUps) { await api(`/api/portal/inquiries/${encodeURIComponent(inquiry.inquiryNo)}/read`, { method: "POST" }); await onRefresh(); } }
+  async function create(event: React.FormEvent) { event.preventDefault(); if ((!target.vehicleModel && !title.trim()) || !initialNote.trim()) return; setBusy(true); try { await api("/api/portal/inquiries", { method: "POST", body: JSON.stringify({ vehicleId: target.vehicleId, vehicleModel: target.vehicleModel, title, quantity: 1, tradeTerm: "FOB", notes: initialNote }) }); setShowNew(false); await onRefresh(); } catch (e) { setError(e instanceof Error ? e.message : "Could not start inquiry"); } finally { setBusy(false); } }
   async function post(event: React.FormEvent) { event.preventDefault(); if (!selected || !note.trim()) return; setBusy(true); try { const result = await api<{ note: InquiryNote }>(`/api/portal/inquiries/${encodeURIComponent(selected.inquiryNo)}/notes`, { method: "POST", body: JSON.stringify({ body: note, parentNoteId: replyTo }) }); setPostedNotes((current) => appendInquiryComment(current, result.note)); setNote(""); setReplyTo(""); } catch (e) { setError(e instanceof Error ? e.message : "Could not add follow-up"); } finally { setBusy(false); } }
-  async function updateStatus() { if (!selected || !status) return; setBusy(true); setError(""); try { await api(`/api/portal/inquiries/${encodeURIComponent(selected.inquiryNo)}/status`, { method: "PATCH", body: JSON.stringify({ status, reason: statusReason || "Updated from Inquiry Management" }) }); window.location.reload(); } catch (e) { setError(e instanceof Error ? e.message : "Could not update inquiry status"); } finally { setBusy(false); } }
+  async function updateStatus() { if (!selected || !status) return; setBusy(true); setError(""); try { await api(`/api/portal/inquiries/${encodeURIComponent(selected.inquiryNo)}/status`, { method: "PATCH", body: JSON.stringify({ status, reason: statusReason || "Updated from Inquiry Management" }) }); setStatus(""); setStatusReason(""); await onRefresh(); } catch (e) { setError(e instanceof Error ? e.message : "Could not update inquiry status"); } finally { setBusy(false); } }
   async function createQuotation(event: React.FormEvent) { event.preventDefault(); if (!selected) return; const unitPrice = Number(quotePrice); if (!Number.isFinite(unitPrice) || unitPrice <= 0) { setError("Enter a USD unit price before creating the quotation"); return; } setBusy(true); setError(""); try { const created = await api<{ quoteNo: string; quantity: number; unitPrice: number }>("/api/portal/quotes", { method: "POST", body: JSON.stringify({ inquiryNo: selected.inquiryNo, unitPrice }) }); setPreview({ quoteNo: created.quoteNo, customer: selected.customerId, vehicleModel: selected.vehicleModel, quantity: created.quantity, unitPrice: created.unitPrice, cifTotal: quoteCif || "USD 0.00" }); setShowQuoteComposer(false); } catch (e) { setError(e instanceof Error ? e.message : "Could not create quotation"); } finally { setBusy(false); } }
 
   return <AdminPanel title="Inquiry Management" subtitle="Inquiry context, status history, and discussion">
+    {unreadCount > 0 && <p className="mb-4 rounded border border-amber-300/30 bg-amber-300/10 px-3 py-2 text-xs font-semibold text-amber-200">{unreadCount} conversation{unreadCount === 1 ? " has" : "s have"} new messages.</p>}
     <div className="mb-4 flex flex-wrap justify-between gap-3"><div className="flex flex-wrap gap-2"><Input aria-label="Search inquiries" value={inquirySearch} onChange={(event) => setInquirySearch(event.target.value)} placeholder="Search vehicle, customer, or inquiry" /><select aria-label="Filter inquiries by status" value={inquiryStatusFilter} onChange={(event) => setInquiryStatusFilter(event.target.value)} className="rounded border border-white/15 bg-black px-3 text-xs text-white"><option value="">All statuses</option>{inquiryStatuses.map((item) => <option key={item}>{item}</option>)}</select></div><div className="flex flex-wrap gap-3">{canCreateQuote && <button type="button" disabled={!selected} onClick={() => setShowQuoteComposer((value) => !value)} className="btn-primary rounded px-4 py-2 text-[10px] font-black uppercase">Create quotation</button>}<button type="button" onClick={() => setShowNew((value) => !value)} className="btn-primary rounded px-4 py-2 text-[10px] font-black uppercase">Start inquiry</button></div></div>
     {showQuoteComposer && selected && <form onSubmit={createQuotation} className="mb-4 grid gap-3 rounded-lg border border-gold/40 bg-gold/5 p-4 md:grid-cols-3"><p className="text-xs text-slate-300 md:col-span-3">{selected.vehicleModel} / {selected.quantity} units — the original quotation template will open after creation.</p><Input aria-label="USD unit price" type="number" min="0" step="0.01" value={quotePrice} onChange={(event) => setQuotePrice(event.target.value)} placeholder="FOB unit price (USD)" required /><Input aria-label="CIF total" value={quoteCif} onChange={(event) => setQuoteCif(event.target.value)} placeholder="CIF total (USD, manual entry)" /><button disabled={busy} className="btn-primary rounded px-4 py-2 text-[10px] font-black uppercase">{busy ? "Creating..." : "Create and open template"}</button></form>}
     {showNew && <form onSubmit={create} className="mb-4 grid gap-3 rounded-lg border border-theme/30 bg-theme/5 p-4"><InquiryVehiclePicker vehicles={data.vehicles} value={target} onChange={setTarget} /><Input aria-label="Inquiry title" value={title} onChange={(event) => setTitle(event.target.value)} placeholder={target.vehicleModel ? "Inquiry title (optional)" : "Inquiry title (required when no vehicle is selected)"} required={!target.vehicleModel} /><textarea value={initialNote} onChange={(event) => setInitialNote(event.target.value)} className="min-h-24 rounded border border-white/15 bg-black/20 p-3 text-sm text-white" /><button disabled={busy || (!target.vehicleModel && !title.trim()) || !initialNote.trim()} className="btn-primary rounded px-4 py-2 text-[10px] font-black uppercase">Post inquiry</button></form>}
-    <div className="grid gap-4 xl:grid-cols-[19rem_minmax(0,1fr)]"><aside className="grid max-h-[70vh] gap-3 overflow-y-auto">{vehicleGroups.map((group) => <section key={group.vehicleKey} className="rounded-lg border border-white/10 p-3"><div className="flex justify-between gap-2"><p className="line-clamp-2 text-xs font-black text-white">{group.vehicleLabel}</p><span className="text-[10px] text-slate-500">{group.inquiries.length} conversations</span></div><div className="mt-2 grid gap-1">{group.inquiries.map((inquiry) => <button key={inquiry.inquiryNo} type="button" onClick={() => select(inquiry)} className={`rounded p-2 text-left text-xs ${selected?.inquiryNo === inquiry.inquiryNo ? "bg-theme/15 text-white" : "text-slate-300 hover:bg-white/5"}`}><div className="flex justify-between gap-2"><span>Customer {inquiry.customerId}</span>{inquiry.hasUnreadFollowUps && <span className="h-2 w-2 rounded-full bg-amber-300" />}</div><span className="mt-1 block line-clamp-1 text-[10px] text-slate-500">{inquiry.title || inquiry.inquiryNo}</span></button>)}</div></section>)}{vehicleGroups.length === 0 && <p className="rounded border border-dashed border-white/15 p-3 text-xs text-slate-400">No conversations match this filter.</p>}</aside>{selected && <section><div className="rounded-lg border border-white/10 p-4"><p className="text-[10px] font-black uppercase text-theme">Inquiry request</p><h3 className="mt-1 font-black text-white">{selected.title || selected.vehicleModel}</h3><p className="mt-1 text-xs text-slate-500">{selected.inquiryNo} · Customer {selected.customerId}</p><p className="mt-2 text-sm text-slate-300">{selected.notes}</p>{canChangeStatus && <div className="mt-3 flex flex-wrap gap-2"><select value={status} onChange={(event) => setStatus(event.target.value)} className="rounded bg-black p-2 text-xs text-white"><option value="">Change status</option>{inquiryStatuses.filter((item) => canTransitionInquiryStatus(selected.status, item)).map((item) => <option key={item}>{item}</option>)}</select><Input aria-label="Status change reason" value={statusReason} maxLength={500} onChange={(event) => setStatusReason(event.target.value)} placeholder="Reason for this change" /><button type="button" onClick={updateStatus} disabled={!status || busy} className="btn-primary rounded px-3 text-xs">{busy ? "Saving..." : "Save"}</button></div>}</div><div className="mt-4 grid gap-3">{data.inquiryStatusHistory.filter((history) => history.inquiryNo === selected.inquiryNo).map((history) => <p key={history.id} className="rounded border border-white/10 px-3 py-2 text-xs text-slate-400"><span className="font-semibold text-white">{history.actorName}</span> changed {history.fromStatus || "—"} to {history.toStatus} · {history.reason || "No reason supplied"} · {formatDate(history.createdAt)}</p>)}{notes.map((item) => { const quoted = notes.find((noteItem) => noteItem.noteId === item.parentNoteId); return <article key={item.id} id={`note-${item.noteId}`} className="rounded-lg border border-white/10 p-4"><div className="flex justify-between gap-2"><p className="text-xs font-black text-white">{item.authorName} <span className="font-medium text-slate-400">{item.authorRole}</span></p><time className="text-[10px] text-slate-500">{formatDate(item.createdAt)}</time></div>{quoted && <a href={`#note-${quoted.noteId}`} className="mt-2 block rounded border border-theme/20 bg-theme/5 px-2 py-1 text-xs text-theme">{replyReference(quoted)}</a>}<p className="mt-2 whitespace-pre-wrap text-sm text-slate-300">{item.body}</p><button type="button" onClick={() => setReplyTo(item.noteId)} className="mt-3 text-xs text-theme">Quote reply</button></article>; })}{notes.length === 0 && <p className="text-sm text-slate-400">No messages in this conversation yet.</p>}</div><form onSubmit={post} className="mt-4 grid gap-2">{replyTo && <div className="flex justify-between rounded border border-theme/30 bg-theme/5 px-3 py-2 text-xs text-theme">{parent ? replyReference(parent) : "Quote reply to selected comment"}<button type="button" onClick={() => setReplyTo("")}>Cancel</button></div>}<textarea value={note} maxLength={4000} onChange={(event) => setNote(event.target.value)} placeholder={replyTo ? "Write your quote reply" : "Write a message"} className="min-h-24 rounded border border-white/10 bg-black/20 p-3 text-sm text-white" /><button disabled={busy || !note.trim()} className="btn-primary rounded px-4 py-2 text-[10px] font-black uppercase">{busy ? "Saving..." : replyTo ? "Send quote reply" : "Send message"}</button>{error && <p className="text-xs text-red-300">{error}</p>}</form></section>}</div>
+    <div className="grid gap-4 xl:grid-cols-[19rem_minmax(0,1fr)]"><aside className="grid max-h-[70vh] gap-3 overflow-y-auto">{vehicleGroups.map((group) => <section key={group.vehicleKey} className="rounded-lg border border-white/10 p-3"><div className="flex justify-between gap-2"><p className="line-clamp-2 text-xs font-black text-white">{group.vehicleLabel}</p><span className="text-[10px] text-slate-500">{group.inquiries.length} conversations</span></div><div className="mt-2 grid gap-1">{group.inquiries.map((inquiry) => <button key={inquiry.inquiryNo} type="button" onClick={() => void select(inquiry)} className={`rounded p-2 text-left text-xs ${selected?.inquiryNo === inquiry.inquiryNo ? "bg-theme/15 text-white" : "text-slate-300 hover:bg-white/5"}`}><div className="flex justify-between gap-2"><span>Customer {inquiry.customerId}</span>{inquiry.hasUnreadFollowUps && <span className="h-2 w-2 rounded-full bg-amber-300" />}</div><span className="mt-1 block line-clamp-1 text-[10px] text-slate-500">{inquiry.title || inquiry.inquiryNo}</span></button>)}</div></section>)}{vehicleGroups.length === 0 && <p className="rounded border border-dashed border-white/15 p-3 text-xs text-slate-400">No conversations match this filter.</p>}</aside>{selected && <section><div className="rounded-lg border border-white/10 p-4"><p className="text-[10px] font-black uppercase text-theme">Inquiry request</p><h3 className="mt-1 font-black text-white">{selected.title || selected.vehicleModel}</h3><p className="mt-1 text-xs text-slate-500">{selected.inquiryNo} · Customer {selected.customerId}</p><p className="mt-2 text-sm text-slate-300">{selected.notes}</p>{canChangeStatus && <div className="mt-3 flex flex-wrap gap-2"><select value={status} onChange={(event) => setStatus(event.target.value)} className="rounded bg-black p-2 text-xs text-white"><option value="">Change status</option>{inquiryStatuses.filter((item) => canTransitionInquiryStatus(selected.status, item)).map((item) => <option key={item}>{item}</option>)}</select><Input aria-label="Status change reason" value={statusReason} maxLength={500} onChange={(event) => setStatusReason(event.target.value)} placeholder="Reason for this change" /><button type="button" onClick={updateStatus} disabled={!status || busy} className="btn-primary rounded px-3 text-xs">{busy ? "Saving..." : "Save"}</button></div>}</div><div className="mt-4 grid gap-3">{data.inquiryStatusHistory.filter((history) => history.inquiryNo === selected.inquiryNo).map((history) => <p key={history.id} className="rounded border border-white/10 px-3 py-2 text-xs text-slate-400"><span className="font-semibold text-white">{history.actorName}</span> changed {history.fromStatus || "—"} to {history.toStatus} · {history.reason || "No reason supplied"} · {formatDate(history.createdAt)}</p>)}{notes.map((item) => { const quoted = notes.find((noteItem) => noteItem.noteId === item.parentNoteId); return <article key={item.id} id={`note-${item.noteId}`} className="rounded-lg border border-white/10 p-4"><div className="flex justify-between gap-2"><p className={`text-xs font-black ${inquiryCommentAuthorClass(item.authorRole)}`}>{item.authorName} <span className="font-medium text-slate-400">{item.authorRole}</span></p><time className="text-[10px] text-slate-500">{formatDate(item.createdAt)}</time></div>{quoted && <a href={`#note-${quoted.noteId}`} className="mt-2 block rounded border border-theme/20 bg-theme/5 px-2 py-1 text-xs text-theme">{replyReference(quoted)}</a>}<p className="mt-2 whitespace-pre-wrap text-sm text-slate-300">{item.body}</p><button type="button" onClick={() => setReplyTo(item.noteId)} className="mt-3 text-xs text-theme">Quote reply</button></article>; })}{notes.length === 0 && <p className="text-sm text-slate-400">No messages in this conversation yet.</p>}</div><form onSubmit={post} className="mt-4 grid gap-2">{replyTo && <div className="flex justify-between rounded border border-theme/30 bg-theme/5 px-3 py-2 text-xs text-theme">{parent ? replyReference(parent) : "Quote reply to selected comment"}<button type="button" onClick={() => setReplyTo("")}>Cancel</button></div>}<textarea value={note} maxLength={4000} onChange={(event) => setNote(event.target.value)} placeholder={replyTo ? "Write your quote reply" : "Write a message"} className="min-h-24 rounded border border-white/10 bg-black/20 p-3 text-sm text-white" /><button disabled={busy || !note.trim()} className="btn-primary rounded px-4 py-2 text-[10px] font-black uppercase">{busy ? "Saving..." : replyTo ? "Send quote reply" : "Send message"}</button>{error && <p className="text-xs text-red-300">{error}</p>}</form></section>}</div>
     {preview && <Dialog open onOpenChange={(open) => !open && setPreview(null)} className="max-w-[min(96vw,1200px)] p-3"><DialogHeader><DialogTitle>Official quotation {preview.quoteNo}</DialogTitle><DialogDescription>The document below is the original quotation template, prefilled from this inquiry.</DialogDescription></DialogHeader><div><QuotationTemplatePreview {...preview} /></div></Dialog>}
   </AdminPanel>;
 }

@@ -1,0 +1,46 @@
+import { expect, test } from "bun:test";
+import { readFileSync } from "node:fs";
+
+test("quote replies retain the scoped inquiry for parent-message validation", () => {
+  const source = readFileSync("server/api/portal.ts", "utf8");
+  const start = source.indexOf("async function handleCreateInquiryNote");
+  const end = source.indexOf("function inquiryStatusHistoryStatement", start);
+  const handler = source.slice(start, end);
+
+  expect(handler).toContain("const { inquiry } = await findScopedInquiry(env, session, inquiryNo);");
+  expect(handler).toContain("canViewNote(session, inquiry, note)");
+  expect(handler).toContain("canPublishPublicNote({ inquiryIsPublic: inquiry.isPublic");
+});
+
+test("active inquiry management updates data without a full-page reload", () => {
+  const source = readFileSync("app/portal/page.tsx", "utf8");
+  const start = source.indexOf("function AdminQuotesLocalized");
+  const end = source.indexOf("function AdminQuotesLegacy", start);
+  const panel = source.slice(start, end);
+
+  expect(panel).not.toContain("window.location.reload()");
+  expect(panel).toContain("onRefresh()");
+  expect(panel).toContain("inquiryCommentAuthorClass(item.authorRole)");
+});
+
+test("vehicle-detail inquiry panel updates in place and preserves role styling", () => {
+  const source = readFileSync("app/portal/page.tsx", "utf8");
+  const start = source.indexOf("function VehicleInquiryPanel(");
+  const end = source.indexOf("function VehicleInquiryPanelV2", start);
+  const panel = source.slice(start, end);
+
+  expect(panel).not.toContain("window.location.reload()");
+  expect(panel).toContain("appendInquiryComment");
+  expect(panel).toContain("inquiryCommentAuthorClass(item.authorRole)");
+  expect(panel).toContain("await onRefresh()");
+});
+
+test("unread indicators are refreshed from the server after a conversation is read", () => {
+  const source = readFileSync("app/portal/page.tsx", "utf8");
+  const start = source.indexOf("function AdminQuotesLocalized");
+  const end = source.indexOf("function AdminQuotesLegacy", start);
+  const panel = source.slice(start, end);
+
+  expect(panel).not.toContain("readInquiryNos");
+  expect(panel).toContain("await onRefresh()");
+});

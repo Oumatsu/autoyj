@@ -3320,6 +3320,8 @@ async function handleCreateInquiry(request: Request, env: Env) {
   const session = await requireSession(request, env);
   const body = (await request.json().catch(() => null)) as Record<string, unknown> | null;
   const vehicleId = asText(body?.vehicleId).trim();
+  const requestedVehicleModel = asText(body?.vehicleModel).trim();
+  const title = asText(body?.title).trim();
   const quantity = asNumber(body?.quantity);
   if (quantity <= 0) return problem("Quantity is required");
   if (!vehicleId && !requestedVehicleModel && !title) return problem("Select a vehicle scope or provide an inquiry title");
@@ -3336,6 +3338,7 @@ async function handleCreateInquiry(request: Request, env: Env) {
       rowField(vehicle, "variant", "细分型号"),
     ].map(asText).filter(Boolean).join(" ") || vehicleId
     : vehicleId;
+  const selectedVehicleModel = vehicleModel || requestedVehicleModel || title;
   const initialNote = asText(body?.notes).trim();
   if (initialNote.length > 4000) return problem("Inquiry message must be 4000 characters or fewer");
   const vehicleSnapshot = JSON.stringify(vehicle ? {
@@ -3595,7 +3598,7 @@ async function createInquiryNote(env: Env, session: PortalSession, inquiryNo: st
 }
 
 async function handleCreateInquiryNote(request: Request, env: Env, inquiryNo: string) {
-  const session = await requireSession(request, env); await findScopedInquiry(env, session, inquiryNo);
+  const session = await requireSession(request, env); const { inquiry } = await findScopedInquiry(env, session, inquiryNo);
   const body = (await request.json().catch(() => null)) as Record<string, unknown> | null; const text = asText(body?.body).trim();
   if (!text) return problem("Note is required"); if (text.length > 4000) return problem("Note must be 4000 characters or fewer");
   const parentNoteId = asText(body?.parentNoteId); const isPublic = false;
