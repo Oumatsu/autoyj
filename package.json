@@ -6,9 +6,11 @@
   "scripts": {
     "dev": "bun run db:local:init && vinext dev",
     "build": "vinext build",
+    "build:cloudflare": "BUILD_TARGET=cloudflare vinext build",
+    "build:standalone": "BUILD_TARGET=standalone vinext build",
     "build:server": "bun run tolgee:pull:server && vinext build",
     "start": "vinext start",
-    "deploy": "bun run tolgee:pull:server && vinext-cloudflare deploy",
+    "deploy": "bun run tolgee:pull:server && BUILD_TARGET=cloudflare vinext-cloudflare deploy",
     "check": "vinext check",
     "check:i18n": "bun run scripts/check-i18n.ts",
     "lint": "vinext lint",
@@ -45,7 +47,7 @@
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "tailwind-merge": "^3.6.0",
-    "vinext": "^1.0.0-beta.4"
+    "vinext": "^1.0.0-beta.5"
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "^1.50.0",
@@ -59,7 +61,7 @@
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.0.0",
     "@typescript-eslint/parser": "^8.66.0",
-    "@vinext/cloudflare": "^1.0.0-beta.4",
+    "@vinext/cloudflare": "^1.0.0-beta.5",
     "@vitejs/plugin-react": "^6.0.5",
     "@vitejs/plugin-rsc": "^0.5.32",
     "eslint": "^10.8.0",
