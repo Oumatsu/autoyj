@@ -4086,7 +4086,13 @@ export async function handlePortalRequest(request: Request, env: Env) {
       return json({ ok: true, cleared: true });
     }
     if (path === "/api/portal/webhook/sync-d1" && request.method === "POST") {
-      return problem("Request-time Feishu sync is disabled; scheduled cron only", 410);
+      return problem("Request-time Feishu sync is disabled for public webhooks; use /api/portal/admin/sync-d1 or scheduled cron", 410);
+    }
+    if (path === "/api/portal/admin/sync-d1" && request.method === "POST") {
+      const session = await requireSession(request, env);
+      if (!isInternalSession(session)) return problem("Forbidden: internal admin access required", 403);
+      await handleScheduledSync(env);
+      return json({ ok: true, syncedAt: new Date().toISOString(), message: "Manual Feishu-to-D1 sync triggered successfully." });
     }
 
     if (path.startsWith("/api/auth/")) {
