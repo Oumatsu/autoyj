@@ -10,9 +10,13 @@ FROM oven/bun:1-slim
 
 WORKDIR /app
 
-# Copy standalone build and public static assets (self-contained bundle)
+# 1. Copy standalone build and public static assets
 COPY standalone/ ./
 COPY public/ ./public/
+
+# 2. Copy root package.json and force clean Linux production install
+COPY package.json ./
+RUN rm -rf node_modules && bun install --production
 
 EXPOSE 3000
 

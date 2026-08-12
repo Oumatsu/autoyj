@@ -68,7 +68,10 @@ const tmpDir = "/tmp/autoyj-preview-pkg";
 if (existsSync(tmpDir)) sh(`rm -rf ${tmpDir}`);
 mkdirSync(tmpDir, { recursive: true });
 
-cpSync(resolve(ROOT, "dist", "standalone"), `${tmpDir}/standalone`, { recursive: true });
+cpSync(resolve(ROOT, "dist", "standalone"), `${tmpDir}/standalone`, {
+  recursive: true,
+  filter: (src) => !src.includes("node_modules"),
+});
 cpSync(resolve(ROOT, "public"), `${tmpDir}/public`, { recursive: true });
 cpSync(resolve(ROOT, "deploy/preview/Dockerfile"), `${tmpDir}/Dockerfile`);
 cpSync(resolve(ROOT, "deploy/preview/docker-compose.yml"), `${tmpDir}/docker-compose.yml`);
@@ -89,7 +92,7 @@ console.log("🐳  Step 5: 服务器 Docker 启动预览服务...");
 ssh([
   `cd ${DEPLOY_DIR}`,
   `sudo docker compose down 2>/dev/null || true`,
-  `sudo docker compose build`,
+  `sudo docker compose build --no-cache`,
   `sudo docker compose up -d`,
   `sleep 3`,
   `sudo docker ps --filter name=autoyj-preview --format "table {{.Names}}\t{{.Ports}}\t{{.Status}}"`,
