@@ -81,7 +81,7 @@ describe("public portal routes", () => {
     }
   });
 
-  test("localhost public pages require the Miniflare D1 binding", async () => {
+  test("public pages fallback to baseline snapshot dataset when D1 is not configured", async () => {
     const localEnv = {} as Parameters<typeof handlePortalRequest>[1];
     const products = await handlePortalRequest(
       new Request("http://localhost/api/portal/public/products"),
@@ -96,14 +96,14 @@ describe("public portal routes", () => {
       localEnv,
     );
     const productDetail = await handlePortalRequest(
-      new Request("http://localhost/api/portal/public/products/byd-seagull"),
+      new Request("http://localhost/api/portal/public/products/seal"),
       localEnv,
     );
 
-    expect(products.status).toBe(503);
-    expect(academy.status).toBe(503);
-    expect(insights.status).toBe(503);
-    expect(productDetail.status).toBe(503);
+    expect(products.status).toBe(200);
+    expect(academy.status).toBe(200);
+    expect(insights.status).toBe(200);
+    expect(productDetail.status).toBe(200);
   });
 
   test("localhost public pages surface an uninitialized Miniflare schema", async () => {
@@ -122,14 +122,15 @@ describe("public portal routes", () => {
     expect((await response.json()).error).toMatch(/no such table/i);
   });
 
-  test("non-local public pages still fail clearly when D1 is not configured", async () => {
+  test("non-local public pages fallback to baseline snapshot dataset when D1 is not configured", async () => {
     const response = await handlePortalRequest(
       new Request("https://portal.example/api/portal/public/products"),
       {} as Parameters<typeof handlePortalRequest>[1],
     );
 
-    expect(response.status).toBe(503);
-    expect(await response.json()).toEqual({ error: "Public content database is not configured" });
+    expect(response.status).toBe(200);
+    const body = await response.json();
+    expect(Array.isArray(body)).toBe(true);
   });
 
   test("unknown public details return explicit 404 responses", async () => {
