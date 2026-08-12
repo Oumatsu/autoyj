@@ -33,6 +33,20 @@ test("vehicle resources label every displayed price with its source location", (
   expect(panel).toContain("price.location");
 });
 
+test("inquiry vehicle picker has the model-to-trim-to-color option builder it invokes", () => {
+  expect(pageSource).toContain("export function buildInquiryVehiclePickerOptions(vehicles: Vehicle[])");
+  expect(pageSource).toContain("variants: buildVehicleResourceVariants(model.vehicles)");
+});
+
+test("internal vehicle-resource rows show the synced model style as model year", () => {
+  const start = pageSource.indexOf("function AdminVehicles");
+  const end = pageSource.indexOf("function VehicleInquiryPanel", start);
+  const panel = pageSource.slice(start, end);
+
+  expect(panel).toContain('formatPortalHeader("车型款式", locale)');
+  expect(panel).toContain('v.modelStyle || "-"');
+});
+
 test("model navigator can collapse and configuration uses trim differences", () => {
   const start = pageSource.indexOf("function AdminProfiles");
   const end = pageSource.indexOf("function AdminVehicles", start);

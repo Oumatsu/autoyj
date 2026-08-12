@@ -1646,6 +1646,17 @@ function nextId(prefix: string) {
   return `${prefix}-${timestamp}-${random}`;
 }
 
+async function nextInquiryNumber(db: D1Database, createdAt: string): Promise<string> {
+  const dateKey = createdAt.slice(0, 10).replace(/-/g, "");
+  const prefix = `YGI${dateKey}`;
+  const latest = await db
+    .prepare("SELECT inquiry_no FROM inquiries WHERE inquiry_no LIKE ? ORDER BY inquiry_no DESC LIMIT 1")
+    .bind(`${prefix}%`)
+    .first<{ inquiry_no: string }>();
+  const priorSequence = Number(latest?.inquiry_no.slice(prefix.length)) || 0;
+  return `${prefix}${String(priorSequence + 1).padStart(2, "0")}`;
+}
+
 async function handleLogin(request: Request, env: Env) {
   const body = (await request.json().catch(() => null)) as { email?: string; accessCode?: string } | null;
   const email = String(body?.email || "").trim().toLowerCase();
@@ -3386,7 +3397,7 @@ async function handleCreateInquiry(request: Request, env: Env) {
   const db = requirePortalDb(env);
   const now = nowText();
   const isPublic = false;
-  const inquiryNo = nextId("INQ");
+  const inquiryNo = await nextInquiryNumber(db, now);
   const vehicle = await db.prepare("SELECT * FROM vehicles WHERE id = ?").bind(vehicleId).first<Record<string, unknown>>();
   const vehicleModel = vehicle
     ? [
@@ -3404,7 +3415,13 @@ async function handleCreateInquiry(request: Request, env: Env) {
     model: rowField(vehicle, "model", "鍨嬪彿"),
     variant: rowField(vehicle, "variant", "缁嗗垎鍨嬪彿"),
     color: rowField(vehicle, "color", "棰滆壊"),
-    priceUsd: rowField(vehicle, "display_price_low", "FOB"),
+    exteriorColor: rowField(vehicle, "exterior_color", "澶栭グ棰滆壊"),
+    interiorColor: rowField(vehicle, "interior_color", "鍐呴グ棰滆壊"),
+    configuration: rowField(vehicle, "configuration"),
+    steering: rowField(vehicle, "steering", "宸﹀彸鑸?"),
+    marketVersion: rowField(vehicle, "market_version", "鍥介檯鍥藉唴鐗堟湰锛堝閫夛級"),
+    location: rowField(vehicle, "location", "杞︽簮鍦扮偣"),
+    priceUsd: rowField(vehicle, "fob_usd", "display_price_low", "FOB"),
   } : { vehicleId, vehicleModel: selectedVehicleModel });
   const statements = [
     db.prepare("INSERT INTO inquiries (id,inquiry_no,customer_id,vehicle_id,vehicle_model,title,quantity,destination_port,trade_term,target_price,initial_note,vehicle_snapshot_json,is_public,status,source,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)").bind(crypto.randomUUID(), inquiryNo, session.customerId, vehicleId, selectedVehicleModel, title, quantity, asText(body?.destinationPort), asText(body?.tradeTerm) || "FOB", asNumber(body?.targetPrice) || null, initialNote, vehicleSnapshot, Number(isPublic), "New Inquiry", "Customer Portal", now, now),

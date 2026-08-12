@@ -26,7 +26,7 @@ import { formatPortalHeader, formatPortalRole, formatPortalStatus, localizeVehic
 import type { AccountType, PortalRole, PriceTier } from "@/lib/users";
 import { QuotationTemplatePreview } from "@/components/portal/QuotationTemplatePreview";
 import { appendInquiryComment, inquiryCommentAuthorClass } from "@/lib/inquiry-comment-state";
-import { canTransitionInquiryStatus, groupInquiriesByVehicle, inquiryStatuses, replyReference } from "@/lib/inquiry-workflow";
+import { buildInquiryCommentThreads, canTransitionInquiryStatus, inquiryListSummary, inquiryStatuses, replyReference } from "@/lib/inquiry-workflow";
 
 type AdminModule = "dashboard" | "vehicle_models" | "vehicles" | "quotes" | "orders" | "payments" | "logistics" | "customers" | "staff";
 type AdminIconName = "dashboard" | "vehicle_models" | "vehicles" | "quotes" | "orders" | "payments" | "logistics" | "customers" | "staff";
@@ -2387,6 +2387,7 @@ function AdminVehicles({ data, onEdit, onRefresh, onRefreshData }: { data: Boots
                                       formatPortalHeader("下单后需要等待天数", locale),
                                       formatPortalHeader("左右舵", locale),
                                       formatPortalHeader("国际国内版本", locale),
+                                      formatPortalHeader("车型款式", locale),
                                       ...(canManageRecommendation ? ["Recommendation rank"] : []),
                                       formatPortalHeader("询盘", locale),
                                     ]}
@@ -2413,6 +2414,7 @@ function AdminVehicles({ data, onEdit, onRefresh, onRefreshData }: { data: Boots
                                         <span key="wait" className="text-xs text-slate-300">{v.waitDays != null ? t("portal.dayCount", { count: v.waitDays }) : "-"}</span>,
                                         <span key="steering" className="text-xs text-slate-300">{localizeVehicleValue(v.steering, locale) || "-"}</span>,
                                         <span key="market" className="text-xs text-slate-300">{localizeVehicleValue(v.marketVersion, locale) || "-"}</span>,
+                                        <span key="modelStyle" className="font-mono text-xs text-slate-300">{v.modelStyle || "-"}</span>,
                                         ...(canManageRecommendation ? [
                                           <div key="recommendation" className="flex min-w-36 items-center gap-1">
                                             <input
@@ -2679,12 +2681,55 @@ function InquiryVehiclePicker({ vehicles, value, onChange }: { vehicles: Vehicle
   </div>;
 }
 
+type InquirySnapshot = Record<string, unknown>;
+
+function parseInquirySnapshot(value: string): InquirySnapshot {
+  try {
+    const snapshot = JSON.parse(value);
+    return snapshot && typeof snapshot === "object" ? snapshot as InquirySnapshot : {};
+  } catch {
+    return {};
+  }
+}
+
+function InquirySnapshotDetails({ inquiry }: { inquiry: Inquiry }) {
+  const snapshot = parseInquirySnapshot(inquiry.vehicleSnapshot);
+  const details = [
+    ["Model", [snapshot.brand, snapshot.model, snapshot.variant].filter(Boolean).join(" ") || inquiry.vehicleModel],
+    ["Quantity", `${inquiry.quantity} units`],
+    ["Color", [snapshot.exteriorColor, snapshot.interiorColor, snapshot.color].filter(Boolean).join(" / ")],
+    ["Configuration", snapshot.configuration],
+    ["Steering", snapshot.steering],
+    ["Market version", snapshot.marketVersion],
+    ["Location", snapshot.location],
+    ["Trade term", inquiry.tradeTerm],
+    ["FOB price", snapshot.priceUsd ? `USD ${Number(snapshot.priceUsd).toLocaleString()}` : ""],
+    ["Target price", inquiry.targetPrice ? `USD ${inquiry.targetPrice.toLocaleString()}` : ""],
+    ["Destination port", inquiry.destinationPort],
+  ].filter(([, value]) => Boolean(value));
+
+  return <div className="mt-4 grid gap-2 border-t border-white/10 pt-3 sm:grid-cols-2 xl:grid-cols-3">
+    {details.map(([label, value]) => <div key={String(label)} className="rounded border border-white/10 bg-black/10 px-3 py-2"><p className="text-[10px] font-black uppercase tracking-wider text-slate-500">{label}</p><p className="mt-1 text-xs text-slate-200">{String(value)}</p></div>)}
+  </div>;
+}
+
+function InquiryCommentThread({ thread, onReply }: { thread: ReturnType<typeof buildInquiryCommentThreads<InquiryNote>>[number]; onReply: (noteId: string) => void }) {
+  const { note, replies } = thread;
+  return <article id={`note-${note.noteId}`} className="rounded-lg border border-white/10 bg-[#0b1425] p-4">
+    <div className="flex justify-between gap-2"><p className={`text-xs font-black ${inquiryCommentAuthorClass(note.authorRole)}`}>{note.authorName} <span className="font-medium text-slate-400">{note.authorRole}</span></p><time className="text-[10px] text-slate-500">{formatDate(note.createdAt)}</time></div>
+    <p className="mt-2 whitespace-pre-wrap text-sm text-slate-300">{note.body}</p>
+    <button type="button" onClick={() => onReply(note.noteId)} className="mt-3 text-xs text-theme">Quote reply</button>
+    {replies.length > 0 && <div className="mt-3 grid gap-2 border-l-2 border-theme/40 pl-3">{replies.map((reply) => <InquiryCommentThread key={reply.note.id} thread={reply} onReply={onReply} />)}</div>}
+  </article>;
+}
+
 function AdminQuotesLocalized({ data, onRefresh }: { data: BootstrapData; onRefresh: () => Promise<void> }) {
   const [selectedNo, setSelectedNo] = useState(data.inquiries[0]?.inquiryNo || "");
   const [note, setNote] = useState("");
   const [replyTo, setReplyTo] = useState("");
   const [showNew, setShowNew] = useState(data.inquiries.length === 0);
   const [target, setTarget] = useState<InquiryVehicleTarget>({ vehicleId: "", vehicleModel: "" });
+  const [newInquiryQuantity, setNewInquiryQuantity] = useState(1);
   const [title, setTitle] = useState("");
   const [initialNote, setInitialNote] = useState("");
   const [status, setStatus] = useState("");
@@ -2703,16 +2748,16 @@ function AdminQuotesLocalized({ data, onRefresh }: { data: BootstrapData; onRefr
     const haystack = `${inquiry.vehicleModel} ${inquiry.title} ${inquiry.customerId} ${inquiry.inquiryNo}`.toLowerCase();
     return (!inquirySearch.trim() || haystack.includes(inquirySearch.trim().toLowerCase())) && (!inquiryStatusFilter || inquiry.status === inquiryStatusFilter);
   });
-  const vehicleGroups = groupInquiriesByVehicle(visibleInquiries);
   const selected = inquiries.find((item) => item.inquiryNo === selectedNo) || inquiries[0];
   const notes = postedNotes.filter((note) => note.inquiryNo === selected?.inquiryNo).reduce((current, note) => appendInquiryComment(current, note), data.inquiryNotes.filter((item) => item.inquiryNo === selected?.inquiryNo));
+  const commentThreads = buildInquiryCommentThreads(notes);
   const parent = notes.find((item) => item.noteId === replyTo);
   const canChangeStatus = data.user.role === "admin" || data.user.role === "sales";
   const canCreateQuote = canChangeStatus;
   const unreadCount = inquiries.filter((inquiry) => inquiry.hasUnreadFollowUps).length;
 
   async function select(inquiry: Inquiry) { setSelectedNo(inquiry.inquiryNo); setStatus(""); setStatusReason(""); setError(""); if (inquiry.hasUnreadFollowUps) { await api(`/api/portal/inquiries/${encodeURIComponent(inquiry.inquiryNo)}/read`, { method: "POST" }); await onRefresh(); } }
-  async function create(event: React.FormEvent) { event.preventDefault(); if ((!target.vehicleModel && !title.trim()) || !initialNote.trim()) return; setBusy(true); try { await api("/api/portal/inquiries", { method: "POST", body: JSON.stringify({ vehicleId: target.vehicleId, vehicleModel: target.vehicleModel, title, quantity: 1, tradeTerm: "FOB", notes: initialNote }) }); setShowNew(false); await onRefresh(); } catch (e) { setError(e instanceof Error ? e.message : "Could not start inquiry"); } finally { setBusy(false); } }
+  async function create(event: React.FormEvent) { event.preventDefault(); if ((!target.vehicleModel && !title.trim()) || !initialNote.trim()) return; setBusy(true); try { await api("/api/portal/inquiries", { method: "POST", body: JSON.stringify({ vehicleId: target.vehicleId, vehicleModel: target.vehicleModel, title, quantity: newInquiryQuantity, tradeTerm: "FOB", notes: initialNote }) }); setShowNew(false); await onRefresh(); } catch (e) { setError(e instanceof Error ? e.message : "Could not start inquiry"); } finally { setBusy(false); } }
   async function post(event: React.FormEvent) { event.preventDefault(); if (!selected || !note.trim()) return; setBusy(true); try { const result = await api<{ note: InquiryNote }>(`/api/portal/inquiries/${encodeURIComponent(selected.inquiryNo)}/notes`, { method: "POST", body: JSON.stringify({ body: note, parentNoteId: replyTo }) }); setPostedNotes((current) => appendInquiryComment(current, result.note)); setNote(""); setReplyTo(""); } catch (e) { setError(e instanceof Error ? e.message : "Could not add follow-up"); } finally { setBusy(false); } }
   async function updateStatus() { if (!selected || !status) return; setBusy(true); setError(""); try { await api(`/api/portal/inquiries/${encodeURIComponent(selected.inquiryNo)}/status`, { method: "PATCH", body: JSON.stringify({ status, reason: statusReason || "Updated from Inquiry Management" }) }); setStatus(""); setStatusReason(""); await onRefresh(); } catch (e) { setError(e instanceof Error ? e.message : "Could not update inquiry status"); } finally { setBusy(false); } }
   async function createQuotation(event: React.FormEvent) { event.preventDefault(); if (!selected) return; const unitPrice = Number(quotePrice); if (!Number.isFinite(unitPrice) || unitPrice <= 0) { setError("Enter a USD unit price before creating the quotation"); return; } setBusy(true); setError(""); try { const created = await api<{ quoteNo: string; quantity: number; unitPrice: number }>("/api/portal/quotes", { method: "POST", body: JSON.stringify({ inquiryNo: selected.inquiryNo, unitPrice }) }); setPreview({ quoteNo: created.quoteNo, customer: selected.customerId, vehicleModel: selected.vehicleModel, quantity: created.quantity, unitPrice: created.unitPrice, cifTotal: quoteCif || "USD 0.00" }); setShowQuoteComposer(false); } catch (e) { setError(e instanceof Error ? e.message : "Could not create quotation"); } finally { setBusy(false); } }
@@ -2721,8 +2766,17 @@ function AdminQuotesLocalized({ data, onRefresh }: { data: BootstrapData; onRefr
     {unreadCount > 0 && <p className="mb-4 rounded border border-amber-300/30 bg-amber-300/10 px-3 py-2 text-xs font-semibold text-amber-200">{unreadCount} conversation{unreadCount === 1 ? " has" : "s have"} new messages.</p>}
     <div className="mb-4 flex flex-wrap justify-between gap-3"><div className="flex flex-wrap gap-2"><Input aria-label="Search inquiries" value={inquirySearch} onChange={(event) => setInquirySearch(event.target.value)} placeholder="Search vehicle, customer, or inquiry" /><select aria-label="Filter inquiries by status" value={inquiryStatusFilter} onChange={(event) => setInquiryStatusFilter(event.target.value)} className="rounded border border-white/15 bg-black px-3 text-xs text-white"><option value="">All statuses</option>{inquiryStatuses.map((item) => <option key={item}>{item}</option>)}</select></div><div className="flex flex-wrap gap-3">{canCreateQuote && <button type="button" disabled={!selected} onClick={() => setShowQuoteComposer((value) => !value)} className="btn-primary rounded px-4 py-2 text-[10px] font-black uppercase">Create quotation</button>}<button type="button" onClick={() => setShowNew((value) => !value)} className="btn-primary rounded px-4 py-2 text-[10px] font-black uppercase">Start inquiry</button></div></div>
     {showQuoteComposer && selected && <form onSubmit={createQuotation} className="mb-4 grid gap-3 rounded-lg border border-gold/40 bg-gold/5 p-4 md:grid-cols-3"><p className="text-xs text-slate-300 md:col-span-3">{selected.vehicleModel} / {selected.quantity} units — the original quotation template will open after creation.</p><Input aria-label="USD unit price" type="number" min="0" step="0.01" value={quotePrice} onChange={(event) => setQuotePrice(event.target.value)} placeholder="FOB unit price (USD)" required /><Input aria-label="CIF total" value={quoteCif} onChange={(event) => setQuoteCif(event.target.value)} placeholder="CIF total (USD, manual entry)" /><button disabled={busy} className="btn-primary rounded px-4 py-2 text-[10px] font-black uppercase">{busy ? "Creating..." : "Create and open template"}</button></form>}
-    {showNew && <form onSubmit={create} className="mb-4 grid gap-3 rounded-lg border border-theme/30 bg-theme/5 p-4"><InquiryVehiclePicker vehicles={data.vehicles} value={target} onChange={setTarget} /><Input aria-label="Inquiry title" value={title} onChange={(event) => setTitle(event.target.value)} placeholder={target.vehicleModel ? "Inquiry title (optional)" : "Inquiry title (required when no vehicle is selected)"} required={!target.vehicleModel} /><textarea value={initialNote} onChange={(event) => setInitialNote(event.target.value)} className="min-h-24 rounded border border-white/15 bg-black/20 p-3 text-sm text-white" /><button disabled={busy || (!target.vehicleModel && !title.trim()) || !initialNote.trim()} className="btn-primary rounded px-4 py-2 text-[10px] font-black uppercase">Post inquiry</button></form>}
-    <div className="grid gap-4 xl:grid-cols-[19rem_minmax(0,1fr)]"><aside className="grid max-h-[70vh] gap-3 overflow-y-auto">{vehicleGroups.map((group) => <section key={group.vehicleKey} className="rounded-lg border border-white/10 p-3"><div className="flex justify-between gap-2"><p className="line-clamp-2 text-xs font-black text-white">{group.vehicleLabel}</p><span className="text-[10px] text-slate-500">{group.inquiries.length} conversations</span></div><div className="mt-2 grid gap-1">{group.inquiries.map((inquiry) => <button key={inquiry.inquiryNo} type="button" onClick={() => void select(inquiry)} className={`rounded p-2 text-left text-xs ${selected?.inquiryNo === inquiry.inquiryNo ? "bg-theme/15 text-white" : "text-slate-300 hover:bg-white/5"}`}><div className="flex justify-between gap-2"><span>Customer {inquiry.customerId}</span>{inquiry.hasUnreadFollowUps && <span className="h-2 w-2 rounded-full bg-amber-300" />}</div><span className="mt-1 block line-clamp-1 text-[10px] text-slate-500">{inquiry.title || inquiry.inquiryNo}</span></button>)}</div></section>)}{vehicleGroups.length === 0 && <p className="rounded border border-dashed border-white/15 p-3 text-xs text-slate-400">No conversations match this filter.</p>}</aside>{selected && <section><div className="rounded-lg border border-white/10 p-4"><p className="text-[10px] font-black uppercase text-theme">Inquiry request</p><h3 className="mt-1 font-black text-white">{selected.title || selected.vehicleModel}</h3><p className="mt-1 text-xs text-slate-500">{selected.inquiryNo} · Customer {selected.customerId}</p><p className="mt-2 text-sm text-slate-300">{selected.notes}</p>{canChangeStatus && <div className="mt-3 flex flex-wrap gap-2"><select value={status} onChange={(event) => setStatus(event.target.value)} className="rounded bg-black p-2 text-xs text-white"><option value="">Change status</option>{inquiryStatuses.filter((item) => canTransitionInquiryStatus(selected.status, item)).map((item) => <option key={item}>{item}</option>)}</select><Input aria-label="Status change reason" value={statusReason} maxLength={500} onChange={(event) => setStatusReason(event.target.value)} placeholder="Reason for this change" /><button type="button" onClick={updateStatus} disabled={!status || busy} className="btn-primary rounded px-3 text-xs">{busy ? "Saving..." : "Save"}</button></div>}</div><div className="mt-4 grid gap-3">{data.inquiryStatusHistory.filter((history) => history.inquiryNo === selected.inquiryNo).map((history) => <p key={history.id} className="rounded border border-white/10 px-3 py-2 text-xs text-slate-400"><span className="font-semibold text-white">{history.actorName}</span> changed {history.fromStatus || "—"} to {history.toStatus} · {history.reason || "No reason supplied"} · {formatDate(history.createdAt)}</p>)}{notes.map((item) => { const quoted = notes.find((noteItem) => noteItem.noteId === item.parentNoteId); return <article key={item.id} id={`note-${item.noteId}`} className="rounded-lg border border-white/10 p-4"><div className="flex justify-between gap-2"><p className={`text-xs font-black ${inquiryCommentAuthorClass(item.authorRole)}`}>{item.authorName} <span className="font-medium text-slate-400">{item.authorRole}</span></p><time className="text-[10px] text-slate-500">{formatDate(item.createdAt)}</time></div>{quoted && <a href={`#note-${quoted.noteId}`} className="mt-2 block rounded border border-theme/20 bg-theme/5 px-2 py-1 text-xs text-theme">{replyReference(quoted)}</a>}<p className="mt-2 whitespace-pre-wrap text-sm text-slate-300">{item.body}</p><button type="button" onClick={() => setReplyTo(item.noteId)} className="mt-3 text-xs text-theme">Quote reply</button></article>; })}{notes.length === 0 && <p className="text-sm text-slate-400">No messages in this conversation yet.</p>}</div><form onSubmit={post} className="mt-4 grid gap-2">{replyTo && <div className="flex justify-between rounded border border-theme/30 bg-theme/5 px-3 py-2 text-xs text-theme">{parent ? replyReference(parent) : "Quote reply to selected comment"}<button type="button" onClick={() => setReplyTo("")}>Cancel</button></div>}<textarea value={note} maxLength={4000} onChange={(event) => setNote(event.target.value)} placeholder={replyTo ? "Write your quote reply" : "Write a message"} className="min-h-24 rounded border border-white/10 bg-black/20 p-3 text-sm text-white" /><button disabled={busy || !note.trim()} className="btn-primary rounded px-4 py-2 text-[10px] font-black uppercase">{busy ? "Saving..." : replyTo ? "Send quote reply" : "Send message"}</button>{error && <p className="text-xs text-red-300">{error}</p>}</form></section>}</div>
+    {showNew && <form onSubmit={create} className="mb-4 grid gap-3 rounded-lg border border-theme/30 bg-theme/5 p-4"><InquiryVehiclePicker vehicles={data.vehicles} value={target} onChange={setTarget} /><Input aria-label="Inquiry quantity" type="number" min="1" value={newInquiryQuantity} onChange={(event) => setNewInquiryQuantity(Math.max(1, Number(event.target.value) || 1))} /><Input aria-label="Inquiry title" value={title} onChange={(event) => setTitle(event.target.value)} placeholder={target.vehicleModel ? "Inquiry title (optional)" : "Inquiry title (required when no vehicle is selected)"} required={!target.vehicleModel} /><textarea value={initialNote} onChange={(event) => setInitialNote(event.target.value)} className="min-h-24 rounded border border-white/15 bg-black/20 p-3 text-sm text-white" /><button disabled={busy || (!target.vehicleModel && !title.trim()) || !initialNote.trim()} className="btn-primary rounded px-4 py-2 text-[10px] font-black uppercase">Post inquiry</button></form>}
+    <div className="grid gap-4 xl:grid-cols-[19rem_minmax(0,1fr)]">
+      <aside className="grid max-h-[70vh] gap-2 overflow-y-auto pr-1">
+        {visibleInquiries.map((inquiry) => <button key={inquiry.inquiryNo} type="button" onClick={() => void select(inquiry)} className={`rounded-lg border p-3 text-left ${selected?.inquiryNo === inquiry.inquiryNo ? "border-theme bg-theme/10" : "border-white/10 bg-white/[.03] hover:bg-white/[.06]"}`}>
+          <div className="flex items-center justify-between gap-2"><span className="font-mono text-xs font-black text-white">{inquiry.inquiryNo}</span>{inquiry.hasUnreadFollowUps && <span className="h-2 w-2 rounded-full bg-amber-300" />}</div>
+          <p className="mt-1 line-clamp-1 text-xs text-slate-300">{inquiryListSummary(inquiry)}</p>
+        </button>)}
+        {visibleInquiries.length === 0 && <p className="rounded border border-dashed border-white/15 p-3 text-xs text-slate-400">No inquiries match this filter.</p>}
+      </aside>
+      {selected && <section className="min-w-0"><div className="rounded-lg border border-white/10 bg-[#0b1425] p-4"><p className="text-[10px] font-black uppercase text-theme">Inquiry request</p><h3 className="mt-1 font-black text-white">{selected.inquiryNo}</h3><InquirySnapshotDetails inquiry={selected} /><p className="mt-3 whitespace-pre-wrap text-sm text-slate-300">{selected.notes}</p>{canChangeStatus && <div className="mt-3 flex flex-wrap gap-2"><select value={status} onChange={(event) => setStatus(event.target.value)} className="rounded bg-black p-2 text-xs text-white"><option value="">Change status</option>{inquiryStatuses.filter((item) => canTransitionInquiryStatus(selected.status, item)).map((item) => <option key={item}>{item}</option>)}</select><Input aria-label="Status change reason" value={statusReason} maxLength={500} onChange={(event) => setStatusReason(event.target.value)} placeholder="Reason for this change" /><button type="button" onClick={updateStatus} disabled={!status || busy} className="btn-primary rounded px-3 text-xs">{busy ? "Saving..." : "Save"}</button></div>}</div><div className="mt-4 grid gap-3">{data.inquiryStatusHistory.filter((history) => history.inquiryNo === selected.inquiryNo).map((history) => <p key={history.id} className="rounded border border-white/10 px-3 py-2 text-xs text-slate-400"><span className="font-semibold text-white">{history.actorName}</span> changed {history.fromStatus || "—"} to {history.toStatus} · {history.reason || "No reason supplied"} · {formatDate(history.createdAt)}</p>)}{commentThreads.map((thread) => <InquiryCommentThread key={thread.note.id} thread={thread} onReply={setReplyTo} />)}{notes.length === 0 && <p className="text-sm text-slate-400">No messages in this conversation yet.</p>}</div><form onSubmit={post} className="mt-4 grid gap-2">{replyTo && <div className="flex justify-between rounded border border-theme/30 bg-theme/5 px-3 py-2 text-xs text-theme">{parent ? replyReference(parent) : "Quote reply to selected comment"}<button type="button" onClick={() => setReplyTo("")}>Cancel</button></div>}<textarea value={note} maxLength={4000} onChange={(event) => setNote(event.target.value)} placeholder={replyTo ? "Write your quote reply" : "Write a message"} className="min-h-24 rounded border border-white/10 bg-black/20 p-3 text-sm text-white" /><button disabled={busy || !note.trim()} className="btn-primary rounded px-4 py-2 text-[10px] font-black uppercase">{busy ? "Saving..." : replyTo ? "Send quote reply" : "Send message"}</button>{error && <p className="text-xs text-red-300">{error}</p>}</form></section>}
+    </div>
     {preview && <Dialog open onOpenChange={(open) => !open && setPreview(null)} className="max-w-[min(96vw,1200px)] p-3"><DialogHeader><DialogTitle>Official quotation {preview.quoteNo}</DialogTitle><DialogDescription>The document below is the original quotation template, prefilled from this inquiry.</DialogDescription></DialogHeader><div><QuotationTemplatePreview {...preview} /></div></Dialog>}
   </AdminPanel>;
 }
@@ -3851,6 +3905,21 @@ export function buildVehicleResourceVariants(vehicles: Vehicle[]): VehicleResour
         compactJoin([b.vehicle.trim, b.vehicle.configuration, b.vehicle.year]),
       ),
     );
+}
+
+export function buildInquiryVehiclePickerOptions(vehicles: Vehicle[]) {
+  const grouped = new Map<string, { key: string; brand: string; model: string; vehicles: Vehicle[] }>();
+
+  for (const vehicle of vehicles) {
+    const key = modelResourceKey(vehicle.brand, vehicle.model);
+    const existing = grouped.get(key);
+    if (existing) existing.vehicles.push(vehicle);
+    else grouped.set(key, { key, brand: vehicle.brand, model: vehicle.model, vehicles: [vehicle] });
+  }
+
+  return Array.from(grouped.values())
+    .map((model) => ({ ...model, variants: buildVehicleResourceVariants(model.vehicles) }))
+    .sort((left, right) => compactJoin([left.brand, left.model]).localeCompare(compactJoin([right.brand, right.model])));
 }
 
 function getFobPrice(vehicle: Vehicle) {
