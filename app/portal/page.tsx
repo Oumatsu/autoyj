@@ -26,7 +26,7 @@ import { formatPortalHeader, formatPortalRole, formatPortalStatus, localizeVehic
 import type { AccountType, PortalRole, PriceTier } from "@/lib/users";
 import { QuotationTemplatePreview } from "@/components/portal/QuotationTemplatePreview";
 import { appendInquiryComment, inquiryCommentAuthorClass } from "@/lib/inquiry-comment-state";
-import { buildInquiryCommentThreads, canTransitionInquiryStatus, inquiryListSummary, inquiryStatuses, replyReference } from "@/lib/inquiry-workflow";
+import { buildInquiryCommentThreads, canTransitionInquiryStatus, inquiryListDetails, inquiryStatuses, replyReference } from "@/lib/inquiry-workflow";
 
 type AdminModule = "dashboard" | "vehicle_models" | "vehicles" | "quotes" | "orders" | "payments" | "logistics" | "customers" | "staff";
 type AdminIconName = "dashboard" | "vehicle_models" | "vehicles" | "quotes" | "orders" | "payments" | "logistics" | "customers" | "staff";
@@ -1729,9 +1729,9 @@ function ModelFullSpecsCard({ group }: { group: ModelProfileGroup }) {
             {versionDifferences.map((step) => (
               <article key={`difference-${step.variant.id}`} className="rounded-xl border border-white/10 bg-[#0c1424] p-4">
                 <strong className="block text-sm text-white">{localizeVehicleValue(step.variant.trim || step.variant.id, locale)}</strong>
-                <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                <div className="mt-3 grid gap-2">
                   {step.sections.flatMap((section) => section.items).map((item) => (
-                    <div key={`${item.name}-${item.value}`} className="rounded border border-white/10 px-3 py-2">
+                    <div key={`${item.name}-${item.value}`} className="rounded border border-white/10 border-l-2 border-[#5ee6d8]/40 px-3 py-2">
                       <p className="text-[10px] text-slate-400">{localizeVehicleValue(item.name, locale)}</p>
                       <p className="mt-1 text-xs text-white">{formatTrimFeatureLines(item.value)}</p>
                       {item.previousValue && <p className="mt-1 text-[10px] text-slate-500">Previous: {formatTrimFeatureLines(item.previousValue)}</p>}
@@ -2411,7 +2411,7 @@ function AdminVehicles({ data, onEdit, onRefresh, onRefreshData }: { data: Boots
                                         <span key="exw" className="font-mono text-xs text-emerald-300">{v.exwUsd != null ? formatUsdStrict(v.exwUsd) : "-"}</span>,
                                         <span key="cny" className="font-mono text-xs text-slate-300">{v.guidePriceCny != null ? `¥${v.guidePriceCny.toLocaleString()}` : "-"}</span>,
                                         <span key="cost" className="font-mono text-xs text-slate-300">{v.cost != null ? `¥${v.cost.toLocaleString()}` : "-"}</span>,
-                                        <span key="wait" className="text-xs text-slate-300">{v.waitDays != null ? t("portal.dayCount", { count: v.waitDays }) : "-"}</span>,
+                                        <span key="wait" className="text-xs text-slate-300">{v.waitDays != null ? (v.waitDays === 0 ? t("portal.availableNow") : t("portal.dayCount", { count: v.waitDays })) : "-"}</span>,
                                         <span key="steering" className="text-xs text-slate-300">{localizeVehicleValue(v.steering, locale) || "-"}</span>,
                                         <span key="market" className="text-xs text-slate-300">{localizeVehicleValue(v.marketVersion, locale) || "-"}</span>,
                                         <span key="modelStyle" className="font-mono text-xs text-slate-300">{v.modelStyle || "-"}</span>,
@@ -2481,7 +2481,7 @@ function AdminVehicles({ data, onEdit, onRefresh, onRefreshData }: { data: Boots
                                             </span>
                                           ) : "-"}
                                         </div>,
-                                        <span key="fulfillment" className="text-xs text-slate-300">{formatFulfillmentStatus(colorVehicle, (count) => t("portal.dayCount", { count }))}</span>,
+                                        <span key="fulfillment" className="text-xs text-slate-300">{formatFulfillmentStatus(colorVehicle, (count) => count === 0 ? t("portal.availableNow") : t("portal.dayCount", { count }))}</span>,
                                         <button key="inquiry" type="button" onClick={() => setInquiryVehicleId((current) => current === colorVehicle.id ? "" : colorVehicle.id)} className="text-xs font-black text-theme">{formatPortalHeader(inquiryVehicleId === colorVehicle.id ? "隐藏询盘" : "询盘", locale)}</button>,
                                       ];
                                     })}
@@ -2748,7 +2748,17 @@ function AdminQuotesLocalized({ data, onRefresh }: { data: BootstrapData; onRefr
     const haystack = `${inquiry.vehicleModel} ${inquiry.title} ${inquiry.customerId} ${inquiry.inquiryNo}`.toLowerCase();
     return (!inquirySearch.trim() || haystack.includes(inquirySearch.trim().toLowerCase())) && (!inquiryStatusFilter || inquiry.status === inquiryStatusFilter);
   });
-  const selected = inquiries.find((item) => item.inquiryNo === selectedNo) || inquiries[0];
+  const selected = visibleInquiries.find((item) => item.inquiryNo === selectedNo) || visibleInquiries[0];
+  const activeInquiryNo = selected?.inquiryNo || "";
+  useEffect(() => {
+    if (selectedNo === activeInquiryNo) return;
+    setSelectedNo(activeInquiryNo);
+    setStatus("");
+    setStatusReason("");
+    setReplyTo("");
+    setNote("");
+    setShowQuoteComposer(false);
+  }, [activeInquiryNo, selectedNo]);
   const notes = postedNotes.filter((note) => note.inquiryNo === selected?.inquiryNo).reduce((current, note) => appendInquiryComment(current, note), data.inquiryNotes.filter((item) => item.inquiryNo === selected?.inquiryNo));
   const commentThreads = buildInquiryCommentThreads(notes);
   const parent = notes.find((item) => item.noteId === replyTo);
@@ -2768,11 +2778,20 @@ function AdminQuotesLocalized({ data, onRefresh }: { data: BootstrapData; onRefr
     {showQuoteComposer && selected && <form onSubmit={createQuotation} className="mb-4 grid gap-3 rounded-lg border border-gold/40 bg-gold/5 p-4 md:grid-cols-3"><p className="text-xs text-slate-300 md:col-span-3">{selected.vehicleModel} / {selected.quantity} units — the original quotation template will open after creation.</p><Input aria-label="USD unit price" type="number" min="0" step="0.01" value={quotePrice} onChange={(event) => setQuotePrice(event.target.value)} placeholder="FOB unit price (USD)" required /><Input aria-label="CIF total" value={quoteCif} onChange={(event) => setQuoteCif(event.target.value)} placeholder="CIF total (USD, manual entry)" /><button disabled={busy} className="btn-primary rounded px-4 py-2 text-[10px] font-black uppercase">{busy ? "Creating..." : "Create and open template"}</button></form>}
     {showNew && <form onSubmit={create} className="mb-4 grid gap-3 rounded-lg border border-theme/30 bg-theme/5 p-4"><InquiryVehiclePicker vehicles={data.vehicles} value={target} onChange={setTarget} /><Input aria-label="Inquiry quantity" type="number" min="1" value={newInquiryQuantity} onChange={(event) => setNewInquiryQuantity(Math.max(1, Number(event.target.value) || 1))} /><Input aria-label="Inquiry title" value={title} onChange={(event) => setTitle(event.target.value)} placeholder={target.vehicleModel ? "Inquiry title (optional)" : "Inquiry title (required when no vehicle is selected)"} required={!target.vehicleModel} /><textarea value={initialNote} onChange={(event) => setInitialNote(event.target.value)} className="min-h-24 rounded border border-white/15 bg-black/20 p-3 text-sm text-white" /><button disabled={busy || (!target.vehicleModel && !title.trim()) || !initialNote.trim()} className="btn-primary rounded px-4 py-2 text-[10px] font-black uppercase">Post inquiry</button></form>}
     <div className="grid gap-4 xl:grid-cols-[19rem_minmax(0,1fr)]">
-      <aside className="grid max-h-[70vh] gap-2 overflow-y-auto pr-1">
-        {visibleInquiries.map((inquiry) => <button key={inquiry.inquiryNo} type="button" onClick={() => void select(inquiry)} className={`rounded-lg border p-3 text-left ${selected?.inquiryNo === inquiry.inquiryNo ? "border-theme bg-theme/10" : "border-white/10 bg-white/[.03] hover:bg-white/[.06]"}`}>
-          <div className="flex items-center justify-between gap-2"><span className="font-mono text-xs font-black text-white">{inquiry.inquiryNo}</span>{inquiry.hasUnreadFollowUps && <span className="h-2 w-2 rounded-full bg-amber-300" />}</div>
-          <p className="mt-1 line-clamp-1 text-xs text-slate-300">{inquiryListSummary(inquiry)}</p>
-        </button>)}
+      <aside className="grid content-start max-h-[70vh] gap-2 overflow-y-auto pr-1">
+        {visibleInquiries.map((inquiry) => {
+          const details = inquiryListDetails(inquiry);
+          const isSelected = selected?.inquiryNo === inquiry.inquiryNo;
+          return <button key={inquiry.inquiryNo} type="button" onClick={() => void select(inquiry)} className={`rounded-lg border p-3 text-left ${isSelected ? "border-white bg-emerald-400/15" : "border-white/10 bg-white/[.03] hover:bg-white/[.06]"}`}>
+            <div className="flex items-center justify-between gap-2"><span className={`font-mono text-xs font-black ${isSelected ? "text-lime-300" : "text-white"}`}>{inquiry.inquiryNo}</span>{inquiry.hasUnreadFollowUps && <span className="h-2 w-2 rounded-full bg-amber-300" />}</div>
+            <div className={`mt-2 grid gap-1 text-xs ${isSelected ? "text-lime-300" : "text-slate-300"}`}>
+              <p className="break-words"><span className={`mr-1 ${isSelected ? "text-lime-200" : "text-slate-500"}`}>Units</span>{details.quantity}</p>
+              {details.brand && <p className="break-words"><span className={`mr-1 ${isSelected ? "text-lime-200" : "text-slate-500"}`}>Brand</span>{details.brand}</p>}
+              <p className="break-words"><span className={`mr-1 ${isSelected ? "text-lime-200" : "text-slate-500"}`}>Model</span>{details.model}</p>
+              {details.trim && <p className="break-words"><span className={`mr-1 ${isSelected ? "text-lime-200" : "text-slate-500"}`}>Trim</span>{details.trim}</p>}
+            </div>
+          </button>;
+        })}
         {visibleInquiries.length === 0 && <p className="rounded border border-dashed border-white/15 p-3 text-xs text-slate-400">No inquiries match this filter.</p>}
       </aside>
       {selected && <section className="min-w-0"><div className="rounded-lg border border-white/10 bg-[#0b1425] p-4"><p className="text-[10px] font-black uppercase text-theme">Inquiry request</p><h3 className="mt-1 font-black text-white">{selected.inquiryNo}</h3><InquirySnapshotDetails inquiry={selected} /><p className="mt-3 whitespace-pre-wrap text-sm text-slate-300">{selected.notes}</p>{canChangeStatus && <div className="mt-3 flex flex-wrap gap-2"><select value={status} onChange={(event) => setStatus(event.target.value)} className="rounded bg-black p-2 text-xs text-white"><option value="">Change status</option>{inquiryStatuses.filter((item) => canTransitionInquiryStatus(selected.status, item)).map((item) => <option key={item}>{item}</option>)}</select><Input aria-label="Status change reason" value={statusReason} maxLength={500} onChange={(event) => setStatusReason(event.target.value)} placeholder="Reason for this change" /><button type="button" onClick={updateStatus} disabled={!status || busy} className="btn-primary rounded px-3 text-xs">{busy ? "Saving..." : "Save"}</button></div>}</div><div className="mt-4 grid gap-3">{data.inquiryStatusHistory.filter((history) => history.inquiryNo === selected.inquiryNo).map((history) => <p key={history.id} className="rounded border border-white/10 px-3 py-2 text-xs text-slate-400"><span className="font-semibold text-white">{history.actorName}</span> changed {history.fromStatus || "—"} to {history.toStatus} · {history.reason || "No reason supplied"} · {formatDate(history.createdAt)}</p>)}{commentThreads.map((thread) => <InquiryCommentThread key={thread.note.id} thread={thread} onReply={setReplyTo} />)}{notes.length === 0 && <p className="text-sm text-slate-400">No messages in this conversation yet.</p>}</div><form onSubmit={post} className="mt-4 grid gap-2">{replyTo && <div className="flex justify-between rounded border border-theme/30 bg-theme/5 px-3 py-2 text-xs text-theme">{parent ? replyReference(parent) : "Quote reply to selected comment"}<button type="button" onClick={() => setReplyTo("")}>Cancel</button></div>}<textarea value={note} maxLength={4000} onChange={(event) => setNote(event.target.value)} placeholder={replyTo ? "Write your quote reply" : "Write a message"} className="min-h-24 rounded border border-white/10 bg-black/20 p-3 text-sm text-white" /><button disabled={busy || !note.trim()} className="btn-primary rounded px-4 py-2 text-[10px] font-black uppercase">{busy ? "Saving..." : replyTo ? "Send quote reply" : "Send message"}</button>{error && <p className="text-xs text-red-300">{error}</p>}</form></section>}

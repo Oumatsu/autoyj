@@ -1,13 +1,21 @@
 import { expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
-import { buildInquiryCommentThreads, inquiryListSummary } from "../../lib/inquiry-workflow";
+import { buildInquiryCommentThreads, inquiryListDetails, inquiryListSummary } from "../../lib/inquiry-workflow";
 
 test("inquiry list labels use only quantity and the base vehicle model", () => {
   expect(inquiryListSummary({
     quantity: 3,
     vehicleModel: "BYD Sealion 06 EV Premium / White",
     vehicleSnapshot: JSON.stringify({ brand: "BYD", model: "Sealion 06 EV", variant: "Premium", color: "White" }),
-  })).toBe("3 units BYD Sealion 06 EV");
+})).toBe("3 units BYD Sealion 06 EV");
+});
+
+test("inquiry list details separate quantity, brand, model, and trim", () => {
+  expect(inquiryListDetails({
+    quantity: 3,
+    vehicleModel: "BYD Sealion 06 EV Premium / White",
+    vehicleSnapshot: JSON.stringify({ brand: "BYD", model: "Sealion 06 EV", variant: "Premium" }),
+  })).toEqual({ quantity: "3 units", brand: "BYD", model: "Sealion 06 EV", trim: "Premium" });
 });
 
 test("quote replies are grouped directly under their parent message", () => {
@@ -71,9 +79,30 @@ test("inquiry management uses compact list cards, snapshot details, and nested r
   const end = source.indexOf("function AdminQuotesLegacy", start);
   const panel = source.slice(start, end);
 
-  expect(panel).toContain("inquiryListSummary(inquiry)");
+  expect(panel).toContain("inquiryListDetails(inquiry)");
+  expect(panel).toContain('className="break-words"');
   expect(panel).toContain("InquirySnapshotDetails");
   expect(panel).toContain("InquiryCommentThread");
+});
+
+test("inquiry list cards stay compact and use a distinct selected state", () => {
+  const source = readFileSync("app/portal/page.tsx", "utf8");
+  const start = source.indexOf("function AdminQuotesLocalized");
+  const end = source.indexOf("function AdminQuotesLegacy", start);
+  const panel = source.slice(start, end);
+
+  expect(panel).toContain("content-start max-h-[70vh]");
+  expect(panel).toContain('border-white bg-emerald-400/15');
+  expect(panel).toContain("text-lime-300");
+});
+
+test("inquiry detail selection follows the currently filtered inquiry list", () => {
+  const source = readFileSync("app/portal/page.tsx", "utf8");
+  const start = source.indexOf("function AdminQuotesLocalized");
+  const end = source.indexOf("function AdminQuotesLegacy", start);
+  const panel = source.slice(start, end);
+
+  expect(panel).toContain("const selected = visibleInquiries.find((item) => item.inquiryNo === selectedNo) || visibleInquiries[0];");
 });
 
 test("new inquiries use the daily YGI sequence", () => {

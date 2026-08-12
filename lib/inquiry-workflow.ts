@@ -24,7 +24,7 @@ export function groupInquiriesByVehicle<T extends { inquiryNo: string; vehicleId
   return [...groups.values()];
 }
 
-type InquirySnapshot = { brand?: unknown; model?: unknown };
+type InquirySnapshot = { brand?: unknown; model?: unknown; variant?: unknown };
 
 function parseInquirySnapshot(value: string): InquirySnapshot | null {
   try {
@@ -36,11 +36,19 @@ function parseInquirySnapshot(value: string): InquirySnapshot | null {
 }
 
 export function inquiryListSummary(inquiry: { quantity: number; vehicleModel: string; vehicleSnapshot: string }): string {
+  const details = inquiryListDetails(inquiry);
+  return [details.quantity, details.brand, details.model].filter(Boolean).join(" ").trim();
+}
+
+export function inquiryListDetails(inquiry: { quantity: number; vehicleModel: string; vehicleSnapshot: string }) {
   const snapshot = parseInquirySnapshot(inquiry.vehicleSnapshot);
-  const vehicleModel = [snapshot?.brand, snapshot?.model]
-    .filter((value): value is string => typeof value === "string" && Boolean(value.trim()))
-    .join(" ") || inquiry.vehicleModel;
-  return `${inquiry.quantity} units ${vehicleModel}`.trim();
+  const text = (value: unknown) => typeof value === "string" ? value.trim() : "";
+  return {
+    quantity: `${inquiry.quantity} units`,
+    brand: text(snapshot?.brand),
+    model: text(snapshot?.model) || inquiry.vehicleModel,
+    trim: text(snapshot?.variant),
+  };
 }
 
 export type InquiryCommentThread<T> = { note: T; replies: InquiryCommentThread<T>[] };

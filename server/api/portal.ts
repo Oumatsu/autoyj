@@ -2443,7 +2443,7 @@ async function handleGetVehicles(request: Request, env: Env) {
       brand: asText(rowField(fields, "brand", "品牌")),
       model: asText(rowField(fields, "model", "型号")),
       trim: asText(rowField(fields, "variant", "细分型号")),
-      modelStyle: asText(rowField(fields, "model_style", "车型款式")),
+      modelStyle: asText(rowField(fields, "model_style", "车型年款", "车型款式")),
       supplier: internalSession ? asText(rowField(fields, "supplier", "供应商")) : null,
       supplierQuoteYear: internalSession ? asText(rowField(fields, "supplier_quote_year", "供应商报价年份")) : null,
       supplierQuoteMonth: internalSession ? asText(rowField(fields, "supplier_quote_month", "供应商报价月份")) : null,

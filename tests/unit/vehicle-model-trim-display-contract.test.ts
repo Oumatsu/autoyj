@@ -31,6 +31,16 @@ test("formats added and upgraded feature changes as separate readable lines", ()
   expect(portalPage).toContain("whitespace-pre-line");
 });
 
+test("stacks trim-difference updates vertically instead of placing versions side by side", () => {
+  const card = portalPage.slice(
+    portalPage.indexOf("function ModelFullSpecsCard"),
+    portalPage.indexOf("function ModelGalleryCarousel"),
+  );
+
+  expect(card).toContain('className="mt-3 grid gap-2"');
+  expect(card).toContain('border-l-2 border-[#5ee6d8]/40');
+});
+
 test("keeps the model list fixed while model details use a separate scroll pane", () => {
   const profiles = portalPage.slice(
     portalPage.indexOf("function AdminProfiles"),
