@@ -143,7 +143,8 @@ describe("portal request/D1 isolation", () => {
       new Request("https://portal.example/api/portal/session"),
       env(),
     );
-    expect(sessionResponse.status).toBe(503);
+    expect(sessionResponse.status).toBe(200);
+    expect(await sessionResponse.json()).toEqual({ user: null });
     expect(fetchCalls).toBe(0);
   });
 
