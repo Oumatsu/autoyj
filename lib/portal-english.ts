@@ -18,8 +18,17 @@ const portalRoleLabelsAmharic: Record<keyof typeof portalRoleLabels, string> = {
   customer: "ደንበኛ",
 };
 
+const portalRoleLabelsChinese: Record<keyof typeof portalRoleLabels, string> = {
+  admin: "管理员",
+  sales: "销售",
+  sourcing: "采购",
+  finance: "财务",
+  partner: "合作伙伴",
+  customer: "客户",
+};
+
 export function formatPortalRole(role: keyof typeof portalRoleLabels, locale: Locale): string {
-  if (locale === "zh") return portalRoleLabels[role];
+  if (locale === "zh") return portalRoleLabelsChinese[role];
   return locale === "am" ? portalRoleLabelsAmharic[role] : portalRoleLabels[role];
 }
 
@@ -155,6 +164,14 @@ const vehicleEnglishTerms: Array<[string, string]> = [
   ["电池类型", "Battery Type"],
   ["驱动方式", "Drivetrain"],
   ["电机总功率", "Motor Power"],
+  ["电机总扭矩", "Motor Torque"],
+  ["最高速度", "Top Speed"],
+  ["中国官方指导价", "China Official Guide Price"],
+  ["能源类型", "Powertrain"],
+  ["直流快充", "DC Fast Charging"],
+  ["0-100 km/h加速时间", "0-100 km/h Acceleration"],
+  ["新增配置", "Added Features"],
+  ["升级配置", "Upgrade Features"],
   ["快充时间", "Fast Charging Time"],
   ["快充电量范围", "Fast Charging Range"],
   ["支持", "Supported"],
@@ -348,11 +365,23 @@ const vehicleEnglishTerms: Array<[string, string]> = [
 ];
 
 const vehicleChineseTerms: Array<[string, string]> = [
+  ["Trim Name", "版本名称"],
+  ["Base Configuration", "基础配置"],
   ["CLTC Range", "CLTC续航"],
+  ["Battery Capacity", "电池容量"],
+  ["Battery Type", "电池类型"],
   ["Battery", "电池"],
+  ["Drivetrain", "驱动方式"],
+  ["Powertrain", "能源类型"],
+  ["Motor Power", "电机总功率"],
   ["Drive / Power", "驱动 / 功率"],
-  ["Motor Torque", "电机扭矩"],
+  ["Motor Torque", "电机总扭矩"],
+  ["Top Speed", "最高速度"],
+  ["China Official Guide Price", "中国官方指导价"],
   ["DC Fast Charging", "直流快充"],
+  ["0-100 km/h Acceleration", "0-100 km/h加速时间"],
+  ["Added Features", "新增配置"],
+  ["Upgrade Features", "升级配置"],
   ["Driver Assistance Level", "驾驶辅助等级"],
   ["Driver Assistance System", "驾驶辅助系统"],
   ["Lane Keeping Assist", "车道保持辅助"],
@@ -400,6 +429,22 @@ const vehicleChineseTerms: Array<[string, string]> = [
 ];
 
 const vehicleAmharicTerms: Array<[string, string]> = [
+  ["Trim Name", "የስሪት ስም"],
+  ["Base Configuration", "መሠረታዊ ውቅር"],
+  ["CLTC Range", "የCLTC ክልል"],
+  ["Battery Capacity", "የባትሪ አቅም"],
+  ["Battery Type", "የባትሪ ዓይነት"],
+  ["Drivetrain", "የማሽከርከሪያ ዘዴ"],
+  ["Powertrain", "የኃይል ማስተላለፊያ ስርዓት"],
+  ["Motor Power", "የሞተር ኃይል"],
+  ["Motor Torque", "የሞተር ቶርክ"],
+  ["Top Speed", "ከፍተኛ ፍጥነት"],
+  ["China Official Guide Price", "የቻይና ኦፊሴላዊ መመሪያ ዋጋ"],
+  ["DC Fast Charging", "የዲሲ ፈጣን መሙላት"],
+  ["0-100 km/h Acceleration", "0-100 ኪሜ/ሰ የፍጥነት መጨመሪያ"],
+  ["Added Features", "ተጨማሪ ባህሪያት"],
+  ["Upgrade Features", "የተሻሻሉ ባህሪያት"],
+  ["Fast Charging", "ፈጣን መሙላት"],
   ["Driver Assistance System", "የአሽከርካሪ ረዳት ስርዓት"],
   ["Driver Assistance Level", "የአሽከርካሪ ረዳት ደረጃ"],
   ["Lane Keeping Assist", "የመስመር ጥበቃ ረዳት"],

@@ -42,8 +42,8 @@ test("quote replies retain the scoped inquiry for parent-message validation", ()
 
 test("active inquiry management updates data without a full-page reload", () => {
   const source = readFileSync("app/portal/page.tsx", "utf8");
-  const start = source.indexOf("function AdminQuotesLocalized");
-  const end = source.indexOf("function AdminQuotesLegacy", start);
+  const start = source.indexOf("function AdminQuotes(");
+  const end = source.indexOf("function AdminOrders", start);
   const panel = source.slice(start, end);
 
   expect(panel).not.toContain("window.location.reload()");
@@ -54,7 +54,7 @@ test("active inquiry management updates data without a full-page reload", () => 
 test("vehicle-detail inquiry panel updates in place and preserves role styling", () => {
   const source = readFileSync("app/portal/page.tsx", "utf8");
   const start = source.indexOf("function VehicleInquiryPanel(");
-  const end = source.indexOf("function VehicleInquiryPanelV2", start);
+  const end = source.indexOf("type InquirySnapshot", start);
   const panel = source.slice(start, end);
 
   expect(panel).not.toContain("window.location.reload()");
@@ -65,8 +65,8 @@ test("vehicle-detail inquiry panel updates in place and preserves role styling",
 
 test("unread indicators are refreshed from the server after a conversation is read", () => {
   const source = readFileSync("app/portal/page.tsx", "utf8");
-  const start = source.indexOf("function AdminQuotesLocalized");
-  const end = source.indexOf("function AdminQuotesLegacy", start);
+  const start = source.indexOf("function AdminQuotes(");
+  const end = source.indexOf("function AdminOrders", start);
   const panel = source.slice(start, end);
 
   expect(panel).not.toContain("readInquiryNos");
@@ -75,8 +75,8 @@ test("unread indicators are refreshed from the server after a conversation is re
 
 test("inquiry management uses compact list cards, snapshot details, and nested replies", () => {
   const source = readFileSync("app/portal/page.tsx", "utf8");
-  const start = source.indexOf("function AdminQuotesLocalized");
-  const end = source.indexOf("function AdminQuotesLegacy", start);
+  const start = source.indexOf("function AdminQuotes(");
+  const end = source.indexOf("function AdminOrders", start);
   const panel = source.slice(start, end);
 
   expect(panel).toContain("inquiryListDetails(inquiry)");
@@ -87,8 +87,8 @@ test("inquiry management uses compact list cards, snapshot details, and nested r
 
 test("inquiry list cards stay compact and use a distinct selected state", () => {
   const source = readFileSync("app/portal/page.tsx", "utf8");
-  const start = source.indexOf("function AdminQuotesLocalized");
-  const end = source.indexOf("function AdminQuotesLegacy", start);
+  const start = source.indexOf("function AdminQuotes(");
+  const end = source.indexOf("function AdminOrders", start);
   const panel = source.slice(start, end);
 
   expect(panel).toContain("content-start max-h-[70vh]");
@@ -98,8 +98,8 @@ test("inquiry list cards stay compact and use a distinct selected state", () => 
 
 test("inquiry detail selection follows the currently filtered inquiry list", () => {
   const source = readFileSync("app/portal/page.tsx", "utf8");
-  const start = source.indexOf("function AdminQuotesLocalized");
-  const end = source.indexOf("function AdminQuotesLegacy", start);
+  const start = source.indexOf("function AdminQuotes(");
+  const end = source.indexOf("function AdminOrders", start);
   const panel = source.slice(start, end);
 
   expect(panel).toContain("const selected = visibleInquiries.find((item) => item.inquiryNo === selectedNo) || visibleInquiries[0];");

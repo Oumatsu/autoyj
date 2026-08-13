@@ -1,18 +1,3 @@
-export const inquiryStatuses = ["New Inquiry", "Quoted", "Negotiating", "Accepted", "Closed"] as const;
-export type InquiryStatus = typeof inquiryStatuses[number];
-
-const statusTransitions: Record<InquiryStatus, readonly InquiryStatus[]> = {
-  "New Inquiry": ["Quoted", "Closed"],
-  Quoted: ["Negotiating", "Accepted", "Closed"],
-  Negotiating: ["Quoted", "Accepted", "Closed"],
-  Accepted: ["Closed"],
-  Closed: ["New Inquiry"],
-};
-
-export function canTransitionInquiryStatus(from: string, to: string): boolean {
-  return (statusTransitions[from as InquiryStatus] || []).includes(to as InquiryStatus);
-}
-
 export function groupInquiriesByVehicle<T extends { inquiryNo: string; vehicleId: string; vehicleModel: string }>(inquiries: T[]) {
   const groups = new Map<string, { vehicleKey: string; vehicleLabel: string; inquiries: T[] }>();
   for (const inquiry of inquiries) {

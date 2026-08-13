@@ -3,15 +3,13 @@
 import { findLocalUser } from "../../lib/users";
 import type { AccountType, PortalRole, PriceTier } from "../../lib/users";
 import { canCreateVehicleQuotation } from "../../lib/quotation-permissions";
-import { canTransitionInquiryStatus, hasUnreadInquiryActivity, inquiryStatuses } from "../../lib/inquiry-workflow";
+import { hasUnreadInquiryActivity } from "../../lib/inquiry-workflow";
 import {
   queryVehicleModels,
   queryVehicleTrims,
   queryVehicles,
 } from "../db/d1";
 import {
-  canDeleteInquiry,
-  canDeleteNote,
   canPublishPublicNote,
   canViewInquiry,
   canViewNote,
@@ -130,6 +128,7 @@ type PortalVehicleModel = {
   fullSpecsJson: string;
   status: string;
   recommendationRank: number | null;
+  trimOrder?: number | null;
 };
 
 type PortalGalleryImage = {
@@ -475,8 +474,8 @@ function trimChargingDisplay(fields: Record<string, unknown>) {
   const time = asOptionalNumber(fields.dc_fast_charge_time_hours);
   const min = asOptionalNumber(fields.dc_fast_charge_min_percent);
   const max = asOptionalNumber(fields.dc_fast_charge_max_percent);
-  const window = min !== null && max !== null ? `${formatNumber(min)}-${formatNumber(max)}%` : "DC fast charge";
-  return time !== null ? `${window} in ${formatNumber(time, 2)} h` : window;
+  const range = min !== null && max !== null ? `${formatNumber(min)}-${formatNumber(max)}%` : "-";
+  return `Fast Charging: Supported; Fast Charging Time: ${time !== null ? `${formatNumber(time, 2)} hours` : "-"}; Fast Charging Range: ${range}`;
 }
 
 function buildTrimComparison(modelFields: Record<string, unknown>, trimRecords: FeishuRecord[]) {
@@ -1730,10 +1729,7 @@ async function handleBootstrap(request: Request, env: Env) {
     listScopedOrders(env, session),
   ]);
   const inquiryNumbers = new Set(inquiries.map((item) => item.inquiryNo));
-  const [inquiryNotes, inquiryStatusHistory] = await Promise.all([
-    listInquiryNotes(env, session, inquiries),
-    listInquiryStatusHistory(env, [...inquiryNumbers]),
-  ]);
+  const inquiryNotes = await listInquiryNotes(env, session, inquiries);
   const inquiryNotesByNumber = new Map<string, ReturnType<typeof mapD1Note>[]>();
   for (const note of inquiryNotes) inquiryNotesByNumber.set(note.inquiryNo, [...(inquiryNotesByNumber.get(note.inquiryNo) || []), note]);
   const inquiriesWithUnread = inquiries.map((inquiry) => ({
@@ -1760,7 +1756,7 @@ async function handleBootstrap(request: Request, env: Env) {
     quotes,
     negotiations,
     inquiryNotes: inquiryNotes.filter((item) => inquiryNumbers.has(item.inquiryNo)),
-    inquiryStatusHistory: inquiryStatusHistory.filter((item) => inquiryNumbers.has(item.inquiryNo)),
+    inquiryStatusHistory: [],
     orders,
     internalUsers: [],
     customers: [],
@@ -2562,11 +2558,13 @@ function mapD1VehicleTrimVariant(
   const guidePrice = asOptionalNumber(rowField(row, "guide_price_cny", "人民币指导价"));
   const powertrain = asText(rowField(row, "powertrain_type", "能源类型", "动力类型"));
   const year = asText(rowField(row, "model_year", "year", "生产年份"));
+  const trimOrder = asOptionalNumber(rowField(row, "trim_order"));
   return {
     ...parent,
     id,
     trim: trimName,
     year: year || parent.year,
+    trimOrder,
     fuelType: powertrain,
     msrpChina: guidePrice !== null ? `¥${formatNumber(guidePrice)}` : parent.msrpChina,
     sourceName,
@@ -2837,11 +2835,16 @@ async function handleGetVehicleModels(request: Request, env: Env) {
     };
 
     addSpec("版本名称", name, 0, "版本");
+    addSpec("中国官方指导价", trim.display_price_low != null ? formatUsd(trim.display_price_low) : "", 1, "基本参数");
+    addSpec("能源类型", asText(trim.powertrain_type), 2, "基本参数");
     addSpec("CLTC续航", trim.cltc_range_km != null ? `${formatNumber(trim.cltc_range_km)} km` : "", 10, "三电");
     addSpec("电池容量", trim.battery_capacity_kwh != null ? `${formatNumber(trim.battery_capacity_kwh, 3)} kWh` : "", 11, "三电");
     addSpec("电池类型", asText(trim.battery_chemistry), 12, "三电");
     addSpec("驱动方式", asText(trim.drivetrain_display), 20, "性能");
     addSpec("电机总功率", trim.motor_power_kw != null ? `${formatNumber(trim.motor_power_kw)} kW` : "", 21, "性能");
+    addSpec("电机总扭矩", trim.motor_torque_n_m != null ? `${formatNumber(trim.motor_torque_n_m)} N-m` : "", 22, "性能");
+    addSpec("最高速度", trim.top_speed_kmh != null ? `${formatNumber(trim.top_speed_kmh)} km/h` : "", 23, "性能");
+    addSpec("0-100 km/h加速时间", trim.zero_to_100_sec != null ? `${formatNumber(trim.zero_to_100_sec, 2)} s` : "", 24, "性能");
     addSpec("直流快充", trimChargingDisplay(fields), 30, "充电");
     addSpec("基础配置", jsonList(fields.base_spec_summary_json).join("; "), 40, "版本配置");
     addSpec("新增配置", jsonList(fields.added_features_json).join("; "), 41, "版本配置");
@@ -3439,8 +3442,6 @@ async function handleCreateInquiry(request: Request, env: Env) {
   return json({ ok: true, inquiryNo }, { status: 201 });
 }
 
-function canManageInquiryStatus(session: PortalSession) { return session.role === "admin" || session.role === "sales"; }
-
 async function handleCreateQuote(request: Request, env: Env) {
   const session = await requireSession(request, env);
   if (!canCreateVehicleQuotation(session.role)) return problem("Only admin and sales can create quotations", 403);
@@ -3452,8 +3453,6 @@ async function handleCreateQuote(request: Request, env: Env) {
   const db = requirePortalDb(env);
   const inquiry = await db.prepare("SELECT inquiry_no, customer_id, vehicle_id, quantity, status FROM inquiries WHERE inquiry_no=? AND deleted_at IS NULL LIMIT 1").bind(inquiryNo).first<{ inquiry_no: string; customer_id: string; vehicle_id: string; quantity: number; status: string }>();
   if (!inquiry) return problem("Inquiry not found", 404);
-  if (inquiry.status !== "Quoted" && !canTransitionInquiryStatus(inquiry.status, "Quoted")) return problem(`Cannot create a quotation while inquiry status is ${inquiry.status}`, 409);
-
   const now = nowText();
   const quoteNo = nextId("QTE");
   const statements = [
@@ -3461,10 +3460,6 @@ async function handleCreateQuote(request: Request, env: Env) {
       crypto.randomUUID(), quoteNo, inquiry.inquiry_no, inquiry.customer_id, inquiry.vehicle_id, unitPrice, "Active", now, now,
     ),
   ];
-  if (inquiry.status !== "Quoted") statements.push(
-    db.prepare("UPDATE inquiries SET status=?, updated_at=? WHERE inquiry_no=?").bind("Quoted", now, inquiry.inquiry_no),
-    inquiryStatusHistoryStatement(db, session, inquiry.inquiry_no, inquiry.status, "Quoted", `Quotation ${quoteNo} created`, now),
-  );
   await db.batch(statements);
   return json({ ok: true, quoteNo, inquiryNo, quantity: inquiry.quantity, unitPrice }, { status: 201 });
 }
@@ -3537,7 +3532,6 @@ export async function handlePublicContact(request: Request, env: Env) {
 }
 function mapD1Inquiry(row: any) { return { id: row.id, inquiryNo: row.inquiry_no, customerId: row.customer_id, vehicleId: row.vehicle_id, vehicleModel: row.vehicle_model, title: row.title || "", quantity: Number(row.quantity || 0), destinationPort: row.destination_port || "", tradeTerm: row.trade_term || "", targetPrice: Number(row.target_price || 0), notes: row.initial_note || "", vehicleSnapshot: row.vehicle_snapshot_json || "", isPublic: Boolean(row.is_public), creatorUserId: row.creator_user_id || "", lastReadAt: row.last_read_at || null, hasUnreadFollowUps: Boolean(row.has_unread_follow_ups), status: row.status || "New Inquiry", createdAt: row.created_at, updatedAt: row.updated_at, deletedAt: row.deleted_at || "" }; }
 function mapD1Note(row: any) { return { id: row.id, noteId: row.note_id, inquiryNo: row.inquiry_no, parentNoteId: row.parent_note_id || "", authorUserId: row.author_user_id, authorName: row.author_name, authorRole: row.author_role, body: row.body, isPublic: Boolean(row.is_public), createdAt: row.created_at, deletedAt: row.deleted_at || "" }; }
-function mapD1History(row: any) { return { id: row.id, historyId: row.history_id, inquiryNo: row.inquiry_no, fromStatus: row.from_status || "", toStatus: row.to_status, reason: row.reason || "", actorName: row.actor_name, actorRole: row.actor_role, createdAt: row.created_at }; }
 function mapD1Quote(row: any) {
   return {
     id: row.id,
@@ -3590,7 +3584,6 @@ function mapD1Order(row: any) {
   };
 }
 async function listInquiryNotes(env: Env) { const r = await requirePortalDb(env).prepare("SELECT * FROM inquiry_notes WHERE deleted_at IS NULL ORDER BY created_at").all(); return r.results.map(mapD1Note); }
-async function listInquiryStatusHistory(env: Env) { const r = await requirePortalDb(env).prepare("SELECT * FROM inquiry_status_history ORDER BY created_at").all(); return r.results.map(mapD1History); }
 
 async function listScopedInquiries(env: Env, session: PortalSession) {
   const db = requirePortalDb(env);
@@ -3719,25 +3712,16 @@ async function handleCreateInquiryNote(request: Request, env: Env, inquiryNo: st
   return json({ ok: true, note }, { status: 201 });
 }
 
-function inquiryStatusHistoryStatement(db: D1Database, session: PortalSession, inquiryNo: string, fromStatus: string, toStatus: string, reason: string, createdAt = nowText()) {
-  return db.prepare("INSERT INTO inquiry_status_history (id,history_id,inquiry_no,from_status,to_status,reason,actor_user_id,actor_name,actor_role,created_at) VALUES (?,?,?,?,?,?,?,?,?,?)").bind(crypto.randomUUID(), nextId("STATUS"), inquiryNo, fromStatus || null, toStatus, reason, session.userId, session.name, session.role, createdAt);
-}
-
-async function handleUpdateInquiryStatus(request: Request, env: Env, inquiryNo: string) {
-  const session = await requireSession(request, env); if (!canManageInquiryStatus(session)) return problem("Only admin and sales can change inquiry status", 403);
-  const { inquiry } = await findScopedInquiry(env, session, inquiryNo); const body = (await request.json().catch(() => null)) as Record<string, unknown> | null; const status = asText(body?.status).trim(); const reason = asText(body?.reason).trim();
-  if (!inquiryStatuses.includes(status as typeof inquiryStatuses[number])) return problem("Invalid inquiry status");
-  if (reason.length > 500) return problem("Status reason must be 500 characters or fewer");
-  if (status !== inquiry.status && !canTransitionInquiryStatus(inquiry.status, status)) return problem(`Cannot move an inquiry from ${inquiry.status} to ${status}`, 409);
-  if (status !== inquiry.status) { const now = nowText(); const db = requirePortalDb(env); await db.batch([db.prepare("UPDATE inquiries SET status=?, updated_at=? WHERE inquiry_no=?").bind(status, now, inquiryNo), inquiryStatusHistoryStatement(db, session, inquiryNo, inquiry.status, status, reason || "Manual status update", now)]); }
+async function handleDeleteInquiryContent(request: Request, env: Env, type: "note", id: string) {
+  const session = await requireSession(request, env);
+  if (session.role !== "admin") return problem("Administrator access required", 403);
+  const db = requirePortalDb(env);
+  const note = await db.prepare("SELECT note_id FROM inquiry_notes WHERE note_id=? AND deleted_at IS NULL").bind(id).first();
+  if (!note) return problem("Comment not found", 404);
+  const body = await request.json().catch(() => ({})) as Record<string, unknown>;
+  const reason = asText(body.reason).trim().slice(0, 500) || "Hidden by administrator";
+  await db.prepare("UPDATE inquiry_notes SET deleted_at=?, deleted_by_user_id=?, deleted_by_name=?, deletion_reason=? WHERE note_id=?").bind(nowText(), session.userId, session.name, reason, id).run();
   return json({ ok: true });
-}
-
-async function handleDeleteInquiryContent(request: Request, env: Env, type: "inquiry" | "note", id: string) {
-  const session = await requireSession(request, env); const db = requirePortalDb(env); const table = type === "inquiry" ? "inquiries" : "inquiry_notes"; const key = type === "inquiry" ? "inquiry_no" : "note_id";
-  const row = await db.prepare(`SELECT * FROM ${table} WHERE ${key}=?`).bind(id).first<any>(); if (!row) return problem("Inquiry content not found", 404);
-  const authorId = type === "inquiry" ? row.customer_id : row.author_user_id; if (session.role !== "admin" && authorId !== session.userId && authorId !== session.customerId) return problem("Only an administrator can remove another account's content", 403);
-  const body = await request.json().catch(() => ({})) as Record<string, unknown>; await db.prepare(`UPDATE ${table} SET deleted_at=?, deleted_by_user_id=?, deleted_by_name=?, deletion_reason=? WHERE ${key}=?`).bind(nowText(), session.userId, session.name, asText(body.reason), id).run(); return json({ ok: true });
 }
 
 async function handleMarkInquiryRead(request: Request, env: Env, inquiryNo: string) {
@@ -3748,14 +3732,14 @@ async function handleMarkInquiryRead(request: Request, env: Env, inquiryNo: stri
 
 async function handleDeletedInquiryContent(request: Request, env: Env) {
   const session = await requireSession(request, env); if (session.role !== "admin") return problem("Administrator access required", 403); const db = requirePortalDb(env);
-  const [inquiries, notes] = await Promise.all([db.prepare("SELECT * FROM inquiries WHERE deleted_at IS NOT NULL ORDER BY deleted_at DESC").all(), db.prepare("SELECT * FROM inquiry_notes WHERE deleted_at IS NOT NULL ORDER BY deleted_at DESC").all()]);
-  return json({ inquiries: inquiries.results.map(mapD1Inquiry), notes: notes.results.map(mapD1Note) });
+  const notes = await db.prepare("SELECT * FROM inquiry_notes WHERE deleted_at IS NOT NULL ORDER BY deleted_at DESC").all();
+  return json({ notes: notes.results.map(mapD1Note) });
 }
 
-async function handleModerateDeletedContent(request: Request, env: Env, type: "inquiry" | "note", id: string) {
-  const session = await requireSession(request, env); if (session.role !== "admin") return problem("Administrator access required", 403); const db = requirePortalDb(env); const table = type === "inquiry" ? "inquiries" : "inquiry_notes"; const key = type === "inquiry" ? "inquiry_no" : "note_id"; const body = await request.json().catch(() => ({})) as Record<string, unknown>;
-  if (asText(body.action) === "restore") { await db.prepare(`UPDATE ${table} SET deleted_at=NULL, deleted_by_user_id=NULL, deleted_by_name=NULL, deletion_reason=NULL WHERE ${key}=? AND deleted_at IS NOT NULL`).bind(id).run(); return json({ ok: true }); }
-  if (asText(body.action) === "purge") { await db.prepare(`DELETE FROM ${table} WHERE ${key}=? AND deleted_at IS NOT NULL`).bind(id).run(); return json({ ok: true }); }
+async function handleModerateDeletedContent(request: Request, env: Env, type: "note", id: string) {
+  const session = await requireSession(request, env); if (session.role !== "admin") return problem("Administrator access required", 403); const db = requirePortalDb(env); const body = await request.json().catch(() => ({})) as Record<string, unknown>;
+  if (asText(body.action) === "restore") { await db.prepare("UPDATE inquiry_notes SET deleted_at=NULL, deleted_by_user_id=NULL, deleted_by_name=NULL, deletion_reason=NULL WHERE note_id=? AND deleted_at IS NOT NULL").bind(id).run(); return json({ ok: true }); }
+  if (asText(body.action) === "purge") { await db.prepare("DELETE FROM inquiry_notes WHERE note_id=? AND deleted_at IS NOT NULL").bind(id).run(); return json({ ok: true }); }
   return problem("Invalid moderation action");
 }
 
@@ -3782,7 +3766,6 @@ async function handleCounterOffer(request: Request, env: Env, quoteNo: string) {
       VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `).bind(crypto.randomUUID(), quote.inquiryNo, quote.quoteNo, session.userId, session.name, session.role, counterMessage, now),
     db.prepare("UPDATE quotes SET status=?, updated_at=? WHERE quote_no=?").bind("Counteroffer Received", now, quote.quoteNo),
-    db.prepare("UPDATE inquiries SET status=?, updated_at=? WHERE inquiry_no=?").bind("Negotiating", now, quote.inquiryNo),
   ]);
   return json({ ok: true });
 }
@@ -3809,7 +3792,6 @@ async function handleAcceptQuote(request: Request, env: Env, quoteNo: string) {
       now,
     ),
     db.prepare("UPDATE quotes SET status=?, updated_at=? WHERE quote_no=?").bind("Accepted", now, quote.quoteNo),
-    db.prepare("UPDATE inquiries SET status=?, updated_at=? WHERE inquiry_no=?").bind("Accepted", now, quote.inquiryNo),
     db.prepare(`
       INSERT INTO orders (id, order_no, inquiry_no, customer_id, vehicle_id, quantity, status, created_at, updated_at)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -4223,12 +4205,10 @@ export async function handlePortalRequest(request: Request, env: Env) {
     }
     const inquiryNoteMatch = path.match(/^\/api\/portal\/inquiries\/([^/]+)\/notes$/);
     if (inquiryNoteMatch && request.method === "POST") return await handleCreateInquiryNote(request, env, decodeURIComponent(inquiryNoteMatch[1]));
-    const inquiryStatusMatch = path.match(/^\/api\/portal\/inquiries\/([^/]+)\/status$/);
-    if (inquiryStatusMatch && request.method === "PATCH") return await handleUpdateInquiryStatus(request, env, decodeURIComponent(inquiryStatusMatch[1]));
-    const inquiryContentMatch = path.match(/^\/api\/portal\/inquiry-content\/(inquiry|note)\/([^/]+)$/);
-    if (inquiryContentMatch && request.method === "DELETE") return await handleDeleteInquiryContent(request, env, inquiryContentMatch[1] as "inquiry" | "note", decodeURIComponent(inquiryContentMatch[2]));
+    const inquiryContentMatch = path.match(/^\/api\/portal\/inquiry-content\/(note)\/([^/]+)$/);
+    if (inquiryContentMatch && request.method === "DELETE") return await handleDeleteInquiryContent(request, env, "note", decodeURIComponent(inquiryContentMatch[2]));
     if (path === "/api/portal/inquiry-content/deleted" && request.method === "GET") return await handleDeletedInquiryContent(request, env);
-    if (inquiryContentMatch && request.method === "PATCH") return await handleModerateDeletedContent(request, env, inquiryContentMatch[1] as "inquiry" | "note", decodeURIComponent(inquiryContentMatch[2]));
+    if (inquiryContentMatch && request.method === "PATCH") return await handleModerateDeletedContent(request, env, "note", decodeURIComponent(inquiryContentMatch[2]));
 
     const vehicleMatch = path.match(/^\/api\/portal\/vehicles\/([^/]+)$/);
     if (vehicleMatch && request.method === "PATCH") {

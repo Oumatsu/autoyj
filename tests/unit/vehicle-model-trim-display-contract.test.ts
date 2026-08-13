@@ -28,7 +28,7 @@ test("vehicle model page does not render pricing or warranty fields in the model
 
 test("formats added and upgraded feature changes as separate readable lines", () => {
   expect(portalPage).toContain("function formatTrimFeatureLines");
-  expect(portalPage).toContain("formatTrimFeatureLines(localizeVehicleValue(item.value, locale))");
+  expect(portalPage).toContain("formatTrimFeatureLines(value)");
   expect(portalPage).toContain("whitespace-pre-line");
 });
 
@@ -40,7 +40,7 @@ test("vehicle model detail localizes raw specification, trim, and change values"
 
   expect(card).toContain("localizeVehicleValue(value, locale)");
   expect(card).toContain("localizeVehicleValue(variant.trim || variant.id, locale)");
-  expect(card).toContain("formatTrimFeatureLines(localizeVehicleValue(item.value, locale))");
+  expect(card).toContain("formatTrimFeatureLines(value)");
 });
 
 test("English vehicle-model values translate common model-year trim and charging text without falling back to Chinese", () => {
@@ -58,6 +58,18 @@ test("vehicle model detail does not render a separate trim-differences section",
 
   expect(card).not.toContain("TRIM DIFFERENCES");
   expect(card).not.toContain("versionDifferences.map");
+});
+
+test("renders full trim specifications in one ordered horizontal comparison table", () => {
+  const card = portalPage.slice(
+    portalPage.indexOf("function ModelFullSpecsCard"),
+    portalPage.indexOf("function ModelGalleryCarousel"),
+  );
+
+  expect(card).toContain('buildModelComparisonRows(group, "full")');
+  expect(card).toContain("sticky left-0");
+  expect(card).toContain("trimVariants.map");
+  expect(card).not.toContain("versionDetails.map");
 });
 
 test("keeps the model list fixed while model details use a separate scroll pane", () => {

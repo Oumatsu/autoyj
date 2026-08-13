@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { canTransitionInquiryStatus, groupInquiriesByVehicle, hasUnreadInquiryActivity, replyReference } from "../../lib/inquiry-workflow";
+import { groupInquiriesByVehicle, hasUnreadInquiryActivity, replyReference } from "../../lib/inquiry-workflow";
 
 describe("inquiry workflow", () => {
   test("groups multiple customer conversations under one vehicle", () => {
@@ -16,14 +16,6 @@ describe("inquiry workflow", () => {
         { inquiryNo: "INQ-3", vehicleId: "V-2", vehicleModel: "BYD Han", customerId: "CUS-1" },
       ] },
     ]);
-  });
-
-  test("permits only the defined status transitions", () => {
-    expect(canTransitionInquiryStatus("New Inquiry", "Quoted")).toBe(true);
-    expect(canTransitionInquiryStatus("Quoted", "Negotiating")).toBe(true);
-    expect(canTransitionInquiryStatus("Closed", "New Inquiry")).toBe(true);
-    expect(canTransitionInquiryStatus("New Inquiry", "Accepted")).toBe(false);
-    expect(canTransitionInquiryStatus("Accepted", "Quoted")).toBe(false);
   });
 
   test("builds a concise quote-reply reference to the original author and text", () => {

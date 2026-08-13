@@ -10,6 +10,7 @@ function fakeD1(options: {
   vehicles?: Row[];
   quotes?: Row[];
   inquiries?: Row[];
+  notes?: Row[];
 } = {}) {
   const queries: string[] = [];
   const batches: string[][] = [];
@@ -34,6 +35,10 @@ function fakeD1(options: {
           if (/FROM\s+inquiries/i.test(sql)) {
             const rows = options.inquiries ?? [];
             return { results: rows.filter((row) => !bound.length || row.inquiry_no === bound[0]) as T[] };
+          }
+          if (/FROM\s+inquiry_notes/i.test(sql)) {
+            const rows = options.notes ?? [];
+            return { results: rows.filter((row) => !bound.length || row.note_id === bound[0]) as T[] };
           }
           return { results: [] as T[] };
         },
@@ -395,6 +400,7 @@ describe("portal request/D1 isolation", () => {
         trim_name: "Verified 550 MAX",
         status: "Verified",
         display_price_low: 20000,
+        motor_torque_n_m: 310,
       }],
       vehicles: [{
         id: "vehicle-081",
@@ -424,9 +430,10 @@ describe("portal request/D1 isolation", () => {
     expect(response.status).toBe(200);
     expect(payload.vehicleModels.map((model) => model.trim)).toEqual(["Verified 550 MAX"]);
     expect(payload.vehicleModels[0]?.id).toBe("TRIM-081-01");
-    expect(payload.vehicleModelSpecs).toEqual([
+    expect(payload.vehicleModelSpecs).toEqual(expect.arrayContaining([
       expect.objectContaining({ modelId: "TRIM-081-01", name: "版本名称", value: "Verified 550 MAX" }),
-    ]);
+      expect.objectContaining({ modelId: "TRIM-081-01", name: "电机总扭矩", value: "310 N-m" }),
+    ]));
   });
 
   test("vehicle models resolve trims through the parent record and hide image-list brochures", async () => {
@@ -549,7 +556,7 @@ describe("portal request/D1 isolation", () => {
     const sql = db.batches.flat().join("\n");
     expect(sql).toContain("INSERT INTO negotiations");
     expect(sql).toContain("UPDATE quotes");
-    expect(sql).toContain("UPDATE inquiries");
+    expect(sql).not.toContain("UPDATE inquiries");
     expect(sql).toContain("INSERT INTO orders");
   });
 
@@ -585,5 +592,33 @@ describe("portal request/D1 isolation", () => {
     expect(db.batches[0].some((sql) => sql.includes("inquiries"))).toBe(true);
     expect(db.batches[0].some((sql) => sql.includes("inquiry_participants"))).toBe(true);
     expect(db.batches[0].some((sql) => sql.includes("inquiry_notes"))).toBe(true);
+  });
+
+  test("only an administrator can close one comment, without changing or deleting its inquiry", async () => {
+    const note = { note_id: "NOTE-1", inquiry_no: "INQ-1", body: "Please confirm delivery timing." };
+    const adminDb = fakeD1({ user: { ...validUser, role: "admin", account_type: "internal" }, notes: [note] });
+    const adminCookie = await login(adminDb);
+    const response = await handlePortalRequest(
+      new Request("https://portal.example/api/portal/inquiry-content/note/NOTE-1", {
+        method: "DELETE",
+        headers: { cookie: adminCookie, "content-type": "application/json" },
+        body: JSON.stringify({ reason: "Off-topic" }),
+      }),
+      env(adminDb),
+    );
+
+    expect(response.status).toBe(200);
+    const adminSql = adminDb.queries.join("\n");
+    expect(adminSql).toContain("UPDATE inquiry_notes SET deleted_at");
+    expect(adminSql).not.toContain("UPDATE inquiries SET status");
+    expect(adminSql).not.toContain("DELETE FROM inquiries");
+
+    const salesDb = fakeD1({ user: { ...validUser, role: "sales", account_type: "internal" }, notes: [note] });
+    const salesCookie = await login(salesDb);
+    const denied = await handlePortalRequest(
+      new Request("https://portal.example/api/portal/inquiry-content/note/NOTE-1", { method: "DELETE", headers: { cookie: salesCookie } }),
+      env(salesDb),
+    );
+    expect(denied.status).toBe(403);
   });
 });
