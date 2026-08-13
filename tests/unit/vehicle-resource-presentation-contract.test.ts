@@ -24,6 +24,14 @@ test("vehicle presentation maps model style, English colors, and recommendation 
   expect(handler).toContain('"网站推荐位"');
 });
 
+test("vehicle presentation reads the synced vehicle model-year field", () => {
+  const start = portalSource.indexOf("async function handleGetVehicles");
+  const end = portalSource.indexOf("function normalizeTrimName", start);
+  const handler = portalSource.slice(start, end);
+
+  expect(handler).toContain('rowField(fields, "model_style", "车型年款", "车型款式")');
+});
+
 test("vehicle resources label every displayed price with its source location", () => {
   const start = pageSource.indexOf("function AdminVehicles");
   const end = pageSource.indexOf("function VehicleInquiryPanel", start);
@@ -31,6 +39,15 @@ test("vehicle resources label every displayed price with its source location", (
 
   expect(panel).toContain("priceByLocation");
   expect(panel).toContain("price.location");
+});
+
+test("zero wait days are displayed as in-stock availability", () => {
+  const start = pageSource.indexOf("function AdminVehicles");
+  const end = pageSource.indexOf("function VehicleInquiryPanel", start);
+  const panel = pageSource.slice(start, end);
+
+  expect(panel).toContain('v.waitDays === 0 ? t("portal.availableNow")');
+  expect(panel).toContain('count === 0 ? t("portal.availableNow") : t("portal.dayCount", { count })');
 });
 
 test("inquiry vehicle picker has the model-to-trim-to-color option builder it invokes", () => {

@@ -143,6 +143,22 @@ const vehicleEnglishTerms: Array<[string, string]> = [
   ["舒享", "Comfort"],
   ["悦享", "Enjoy"],
   ["纯电", "BEV"],
+  ["暗夜骑士版", "Night Knight Edition"],
+  ["皇家剧院版", "Royal Theatre Edition"],
+  ["纯电版", "BEV Edition"],
+  ["增程版", "Range-Extended Edition"],
+  ["改款", "Facelift"],
+  ["版本名称", "Trim Name"],
+  ["基础配置", "Base Configuration"],
+  ["CLTC续航", "CLTC Range"],
+  ["电池容量", "Battery Capacity"],
+  ["电池类型", "Battery Type"],
+  ["驱动方式", "Drivetrain"],
+  ["电机总功率", "Motor Power"],
+  ["快充时间", "Fast Charging Time"],
+  ["快充电量范围", "Fast Charging Range"],
+  ["支持", "Supported"],
+  ["小时", "hours"],
   ["增程", "Range-Extended"],
   ["燃油", "ICE"],
   ["快充", "Fast Charge"],
@@ -331,7 +347,99 @@ const vehicleEnglishTerms: Array<[string, string]> = [
   ["随车", "Included"], ["客户", "Customer"], ["自提", "Self Pickup"], ["包邮", "Free Delivery"], ["托运", "Freight Delivery"],
 ];
 
+const vehicleChineseTerms: Array<[string, string]> = [
+  ["CLTC Range", "CLTC续航"],
+  ["Battery", "电池"],
+  ["Drive / Power", "驱动 / 功率"],
+  ["Motor Torque", "电机扭矩"],
+  ["DC Fast Charging", "直流快充"],
+  ["Driver Assistance Level", "驾驶辅助等级"],
+  ["Driver Assistance System", "驾驶辅助系统"],
+  ["Lane Keeping Assist", "车道保持辅助"],
+  ["Active Braking", "主动制动"],
+  ["Sunroof Type", "天窗类型"],
+  ["Sunroof type", "天窗类型"],
+  ["Opening panoramic roof", "可开启全景天窗"],
+  ["Front motor FWD", "前置电机前轮驱动"],
+  ["Fast Charging Time", "快充时间"],
+  ["Fast Charging Range", "快充电量范围"],
+  ["Fast Charging", "快充"],
+  ["Supported", "支持"],
+  ["hours", "小时"],
+  ["hour", "小时"],
+  ["Dual-motor AWD", "双电机四驱"],
+  ["Tri-motor AWD", "三电机四驱"],
+  ["Quad-motor AWD", "四电机四驱"],
+  ["Rear motor RWD", "后置电机后驱"],
+  ["Front motor RWD", "前置电机后驱"],
+  ["Front-engine AWD", "前置发动机四驱"],
+  ["Fixed panoramic sunroof", "固定全景天窗"],
+  ["Driver assistance camera", "驾驶辅助摄像头"],
+  ["Driver assistance chip", "驾驶辅助芯片"],
+  ["Rearview camera", "倒车影像"],
+  ["side blind-spot camera", "侧盲区摄像头"],
+  ["Seat material", "座椅材质"],
+  ["Synthetic leather", "仿皮"],
+  ["Speaker count", "扬声器数量"],
+  ["Heat pump", "热泵"],
+  ["Parking radar", "泊车雷达"],
+  ["Remote parking", "遥控泊车"],
+  ["Lane departure warning", "车道偏离预警"],
+  ["Forward collision warning", "前向碰撞预警"],
+  ["Lane centering", "车道居中辅助"],
+  ["Traffic sign recognition", "交通标志识别"],
+  ["Cruise system", "巡航系统"],
+  ["Standard", "标配"],
+  ["Optional", "选装"],
+  ["Leather", "真皮"],
+  ["Fabric", "织物"],
+  ["speakers", "扬声器"],
+  ["camera", "摄像头"],
+  ["Added Features", "新增配置"],
+  ["Upgrade Features", "升级配置"],
+];
+
 const vehicleAmharicTerms: Array<[string, string]> = [
+  ["Driver Assistance System", "የአሽከርካሪ ረዳት ስርዓት"],
+  ["Driver Assistance Level", "የአሽከርካሪ ረዳት ደረጃ"],
+  ["Lane Keeping Assist", "የመስመር ጥበቃ ረዳት"],
+  ["Sunroof Type", "የፀሐይ ጣሪያ ዓይነት"],
+  ["Sunroof type", "የፀሐይ ጣሪያ ዓይነት"],
+  ["Opening panoramic roof", "የሚከፈት ፓኖራማ ጣሪያ"],
+  ["Front motor FWD", "የፊት ሞተር የፊት ጎማ አንቀሳቃሽ"],
+  ["Fast Charging Time", "የፈጣን መሙላት ጊዜ"],
+  ["Fast Charging Range", "የፈጣን መሙላት መጠን"],
+  ["Supported", "ይደገፋል"],
+  ["Active", "ንቁ"],
+  ["Braking", "ማቆሚያ"],
+  ["Dual-motor AWD", "ባለሁለት ሞተር አራት ጎማ አንቀሳቃሽ"],
+  ["Tri-motor AWD", "ባለሶስት ሞተር አራት ጎማ አንቀሳቃሽ"],
+  ["Quad-motor AWD", "ባለአራት ሞተር አራት ጎማ አንቀሳቃሽ"],
+  ["Rear motor RWD", "የኋላ ሞተር የኋላ ጎማ አንቀሳቃሽ"],
+  ["Front motor RWD", "የፊት ሞተር የኋላ ጎማ አንቀሳቃሽ"],
+  ["Front-engine AWD", "የፊት ሞተር አራት ጎማ አንቀሳቃሽ"],
+  ["Fixed panoramic sunroof", "ቋሚ ፓኖራማ ጣሪያ"],
+  ["Driver assistance camera", "የአሽከርካሪ ረዳት ካሜራ"],
+  ["Driver assistance chip", "የአሽከርካሪ ረዳት ቺፕ"],
+  ["Rearview camera", "የኋላ እይታ ካሜራ"],
+  ["side blind-spot camera", "የጎን ዕውር ቦታ ካሜራ"],
+  ["Seat material", "የመቀመጫ ቁሳቁስ"],
+  ["Synthetic leather", "ሰው ሠራሽ ቆዳ"],
+  ["Speaker count", "የድምጽ ማጉያ ብዛት"],
+  ["Heat pump", "የሙቀት ፓምፕ"],
+  ["Parking radar", "የማቆሚያ ራዳር"],
+  ["Remote parking", "የርቀት ማቆሚያ"],
+  ["Lane departure warning", "የመስመር መውጣት ማስጠንቀቂያ"],
+  ["Forward collision warning", "የፊት ግጭት ማስጠንቀቂያ"],
+  ["Lane centering", "የመስመር መሃል ጥበቃ"],
+  ["Traffic sign recognition", "የትራፊክ ምልክት መለየት"],
+  ["Cruise system", "የክሩዝ ስርዓት"],
+  ["Standard", "መደበኛ"],
+  ["Optional", "አማራጭ"],
+  ["Leather", "ቆዳ"],
+  ["Fabric", "ጨርቅ"],
+  ["speakers", "የድምጽ ማጉያዎች"],
+  ["camera", "ካሜራ"],
   ["China Market Version", "የቻይና ገበያ ስሪት"],
   ["International Version", "ዓለም አቀፍ ስሪት"],
   ["Chinese Version", "የቻይና ስሪት"],
@@ -537,7 +645,15 @@ const vehicleAmharicTerms: Array<[string, string]> = [
 
 export function localizeVehicleValue(value: string | null | undefined, locale: Locale): string {
   const source = String(value || "").trim();
-  if (!source || locale === "zh") return source || "-";
+  if (!source) return "-";
+
+  if (locale === "zh") {
+    let translated = source;
+    for (const [english, chinese] of [...vehicleChineseTerms].sort((a, b) => b[0].length - a[0].length)) {
+      translated = translated.replaceAll(english, chinese);
+    }
+    return translated;
+  }
 
   let translated = source;
   for (const [chinese, english] of [...vehicleEnglishTerms].sort((a, b) => b[0].length - a[0].length)) {
@@ -549,7 +665,7 @@ export function localizeVehicleValue(value: string | null | undefined, locale: L
       translated = translated.replaceAll(english, amharic);
     }
   }
-  translated = translated.replace(/(\d)([A-Z])/g, "$1 $2").replace(/\s{2,}/g, " ").trim();
+  translated = translated.replace(/(\d{4})款/g, "$1 MY").replace(/(\d)([A-Z])/g, "$1 $2").replace(/\s{2,}/g, " ").trim();
 
   // Avoid presenting a partially translated value when a new source value has no complete local coverage.
   return /[\u3400-\u9fff]/.test(translated) ? source : translated;
