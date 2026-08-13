@@ -3736,7 +3736,7 @@ async function handleCreateInquiryNote(request: Request, env: Env, inquiryNo: st
   const session = await requireSession(request, env); const { inquiry } = await findScopedInquiry(env, session, inquiryNo);
   const body = (await request.json().catch(() => null)) as Record<string, unknown> | null; const text = asText(body?.body).trim();
   if (!text) return problem("Note is required"); if (text.length > 4000) return problem("Note must be 4000 characters or fewer");
-  const parentNoteId = asText(body?.parentNoteId); const isPublic = false;
+  const parentNoteId = asText(body?.parentNoteId); const isPublic = Boolean(body?.isPublic);
   let parentIsPublic: boolean | null = null;
   if (parentNoteId) {
     const parent = await requirePortalDb(env).prepare("SELECT * FROM inquiry_notes WHERE note_id=? AND inquiry_no=? AND deleted_at IS NULL").bind(parentNoteId, inquiryNo).first();

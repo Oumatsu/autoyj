@@ -244,4 +244,81 @@ describe("POST /api/portal/inquiries/:id/notes", () => {
     expect(body.ok).toBe(true);
     expect(body.note.authorRole).toBe("customer");
   });
+
+  test("returns 403 when note publishing violates visibility rules (isPublic: true)", async () => {
+    const db = makeDb("sales", INQUIRY);
+    const env = makeEnv(db);
+    const token = await loginAs("sales", env);
+
+    const res = await handlePortalRequest(
+      new Request("http://localhost/api/portal/inquiries/INQ-2026-001/notes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Cookie: `portal_session=${token}` },
+        body: JSON.stringify({ body: "Unauthorized public note", isPublic: true }),
+      }),
+      env,
+    );
+    expect(res.status).toBe(403);
+    const body = (await res.json()) as { error?: string };
+    expect(body.error).toBe("Public follow-ups require public inquiry content");
+  });
+
+  test("asserts note visibility behavior when isPublic: false (internal note) is published vs visible", async () => {
+    const db = makeDb("sales", INQUIRY);
+    const env = makeEnv(db);
+    const salesToken = await loginAs("sales", env);
+
+    // 1. Sales publishes internal note with isPublic: false
+    const pubRes = await handlePortalRequest(
+      new Request("http://localhost/api/portal/inquiries/INQ-2026-001/notes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Cookie: `portal_session=${salesToken}` },
+        body: JSON.stringify({ body: "Confidential internal note", isPublic: false }),
+      }),
+      env,
+    );
+    expect(pubRes.status).toBe(201);
+    const pubBody = (await pubRes.json()) as { ok: boolean; note: { isPublic: boolean; body: string } };
+    expect(pubBody.ok).toBe(true);
+    expect(pubBody.note.isPublic).toBe(false);
+    expect(pubBody.note.body).toBe("Confidential internal note");
+
+    // Verify DB insert recorded is_public = 0
+    const insertedNote = db.written.find(({ sql }) => /INSERT INTO inquiry_notes/i.test(sql));
+    expect(insertedNote).toBeDefined();
+    expect(insertedNote?.values).toContain(0);
+
+    // 2. Owner customer can post internal note on owned inquiry
+    const ownerDb = makeDb("customer", INQUIRY);
+    const ownerEnv = makeEnv(ownerDb);
+    const ownerToken = await loginAs("customer", ownerEnv);
+
+    const ownerRes = await handlePortalRequest(
+      new Request("http://localhost/api/portal/inquiries/INQ-2026-001/notes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Cookie: `portal_session=${ownerToken}` },
+        body: JSON.stringify({ body: "Customer note", isPublic: false }),
+      }),
+      ownerEnv,
+    );
+    expect(ownerRes.status).toBe(201);
+    const ownerBody = (await ownerRes.json()) as { ok: boolean; note: { isPublic: boolean } };
+    expect(ownerBody.note.isPublic).toBe(false);
+
+    // 3. Unowned customer gets 404 when trying to post note on inquiry they don't own
+    const unownedInquiry = { ...INQUIRY, customer_id: "CUS-999", creator_user_id: "CUS-999" };
+    const unownedDb = makeDb("customer", unownedInquiry);
+    const unownedEnv = makeEnv(unownedDb);
+    const unownedToken = await loginAs("customer", unownedEnv);
+
+    const unownedRes = await handlePortalRequest(
+      new Request("http://localhost/api/portal/inquiries/INQ-2026-001/notes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Cookie: `portal_session=${unownedToken}` },
+        body: JSON.stringify({ body: "Forbidden attempt", isPublic: false }),
+      }),
+      unownedEnv,
+    );
+    expect(unownedRes.status).toBe(404);
+  });
 });
