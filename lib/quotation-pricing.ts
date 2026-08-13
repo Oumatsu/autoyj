@@ -57,3 +57,34 @@ export function calculateQuotationItem({
     totalDiscountPct,
   };
 }
+
+export type WhatsAppQuoteParams = {
+  phone?: string;
+  quoteNo: string;
+  customer?: string;
+  vehicleModel: string;
+  quantity: number;
+  unitPrice: number;
+  cifTotal?: string;
+};
+
+export function buildWhatsAppQuoteShareUrl(params: WhatsAppQuoteParams): string {
+  const cleanPhone = (params.phone || "").replace(/[^0-9]/g, "");
+  const lines = [
+    `Dear ${params.customer || "Customer"},`,
+    "",
+    `Please find your official quotation ${params.quoteNo}:`,
+    `• Vehicle: ${params.vehicleModel}`,
+    `• Quantity: ${params.quantity} unit(s)`,
+    `• FOB Unit Price: USD ${params.unitPrice.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+  ];
+  if (params.cifTotal) {
+    lines.push(`• CIF Total: ${params.cifTotal}`);
+  }
+  lines.push("", "Thank you for choosing Youguard Auto.");
+
+  const text = lines.join("\n");
+  const baseUrl = cleanPhone ? `https://wa.me/${cleanPhone}` : "https://wa.me/";
+  return `${baseUrl}?text=${encodeURIComponent(text)}`;
+}
+
