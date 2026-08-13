@@ -1586,23 +1586,26 @@ function ModelFullSpecsCard({ group }: { group: ModelProfileGroup }) {
   const { t, locale } = useTranslation();
   const v = group.variants[0] || ({} as VehicleModel);
   const trimVariants = getModelTrimVariants(group);
+  const addedFeaturesLabel = locale === "zh" ? "新增配置" : locale === "am" ? "ተጨማሪ ባህሪያት" : "Added Features";
+  const upgradeFeaturesLabel = locale === "zh" ? "升级配置" : locale === "am" ? "የተሻሻሉ ባህሪያት" : "Upgrade Features";
+  const modelOverviewLabel = locale === "zh" ? "车型概览" : locale === "am" ? "የሞዴል አጠቃላይ እይታ" : "MODEL OVERVIEW";
+  const configurationsLabel = locale === "zh" ? "版本配置" : locale === "am" ? "የስሪት ውቅሮች" : "CONFIGURATIONS";
+  const configurationLabel = locale === "zh" ? "配置" : locale === "am" ? "ውቅር" : "CONFIGURATION";
   const versionDetails = trimVariants.map((variant) => ({
     variant,
     items: [
-      { label: "CLTC Range", value: getModelSpecValue(group.specsByModel, variant.id, ["CLTC续航"]) || variant.range || "-" },
-      { label: "Battery", value: compactJoin([getModelSpecValue(group.specsByModel, variant.id, ["电池容量"]) || variant.battery, getModelSpecValue(group.specsByModel, variant.id, ["电池类型"]) || variant.batteryType]) },
-      { label: "Drive / Power", value: compactJoin([getModelSpecValue(group.specsByModel, variant.id, ["驱动方式"]) || variant.driveType, getModelSpecValue(group.specsByModel, variant.id, ["电机总功率"]) || variant.motorPower]) },
-      { label: "Motor Torque", value: getModelSpecValue(group.specsByModel, variant.id, ["电机总扭矩"]) || variant.motorTorque || "-" },
-      { label: "DC Fast Charging", value: getModelSpecValue(group.specsByModel, variant.id, ["直流快充"]) || variant.charging || "-" },
-      { label: "Added Features", value: getModelSpecValue(group.specsByModel, variant.id, ["新增配置"]) || "-" },
-      { label: "Upgrade Features", value: getModelSpecValue(group.specsByModel, variant.id, ["升级配置"]) || "-" },
+      { label: t("portal.cltcRange"), value: getModelSpecValue(group.specsByModel, variant.id, ["CLTC续航"]) || variant.range || "-" },
+      { label: t("portal.batteryCapacity"), value: compactJoin([getModelSpecValue(group.specsByModel, variant.id, ["电池容量"]) || variant.battery, getModelSpecValue(group.specsByModel, variant.id, ["电池类型"]) || variant.batteryType]) },
+      { label: t("portal.driveType"), value: compactJoin([getModelSpecValue(group.specsByModel, variant.id, ["驱动方式"]) || variant.driveType, getModelSpecValue(group.specsByModel, variant.id, ["电机总功率"]) || variant.motorPower]) },
+      { label: t("portal.motorTorque"), value: getModelSpecValue(group.specsByModel, variant.id, ["电机总扭矩"]) || variant.motorTorque || "-" },
+      { label: t("portal.chargingSpecs"), value: getModelSpecValue(group.specsByModel, variant.id, ["直流快充"]) || variant.charging || "-" },
+      { label: addedFeaturesLabel, value: getModelSpecValue(group.specsByModel, variant.id, ["新增配置"]) || "-" },
+      { label: upgradeFeaturesLabel, value: getModelSpecValue(group.specsByModel, variant.id, ["升级配置"]) || "-" },
     ],
   }));
   const batteryVal = safeText(v.battery) || getModelSpecValue(group.specsByModel, v.id, ["电池容量"]) || "-";
   const batteryTypeVal = safeText(v.batteryType) || getModelSpecValue(group.specsByModel, v.id, ["电池类型"]) || "-";
-  const batteryMakerVal = safeText(v.batteryMaker) || "-";
   const rangeVal = safeText(group.rangeSummary || v.range) || "-";
-  const energyConsumptionVal = safeText(v.energyConsumption) || "-";
   const chargingVal = safeText(v.charging) || "-";
 
   const motorPowerVal = safeText(v.motorPower) || getModelSpecValue(group.specsByModel, v.id, ["电机总功率"]) || "-";
@@ -1615,8 +1618,6 @@ function ModelFullSpecsCard({ group }: { group: ModelProfileGroup }) {
   const wheelbaseVal = safeText(v.wheelbase) || getModelSpecValue(group.specsByModel, v.id, ["轴距(mm)"]) || "-";
   const seatsVal = safeText(v.seats);
   const doorsVal = safeText(v.doors);
-  const frontSuspensionVal = safeText(v.frontSuspension);
-  const rearSuspensionVal = safeText(v.rearSuspension);
   const curbWeightVal = safeText(v.curbWeight);
   const trunkCapacityVal = safeText(v.trunkCapacity);
 
@@ -1624,20 +1625,14 @@ function ModelFullSpecsCard({ group }: { group: ModelProfileGroup }) {
   const doorsStr = doorsVal && doorsVal !== "-" ? `${doorsVal}${locale === "zh" ? "门" : " doors"}` : "";
   const seatsDoorsVal = compactJoin([seatsStr, doorsStr]);
 
-  const frontSusp = frontSuspensionVal && frontSuspensionVal !== "-" ? frontSuspensionVal : "";
-  const rearSusp = rearSuspensionVal && rearSuspensionVal !== "-" ? rearSuspensionVal : "";
-  const suspensionVal = compactJoin([frontSusp, rearSusp]);
-
   const curbWeightStr = curbWeightVal && curbWeightVal !== "-" ? curbWeightVal : "";
   const trunkCapacityStr = trunkCapacityVal && trunkCapacityVal !== "-" ? trunkCapacityVal : "";
   const weightTrunkVal = compactJoin([curbWeightStr, trunkCapacityStr]);
 
-  const adasVal = safeText(v.adas) || getModelSpecValue(group.specsByModel, v.id, ["ADAS"]) || "-";
-
   const overviewSections = [
     {
       title: `⚡ ${t("portal.batteryAndCharging")}`,
-      items: [[t("portal.cltcRange"), rangeVal], [t("portal.batteryCapacity"), batteryVal], [t("portal.batteryType"), batteryTypeVal], [t("portal.chargingSpecs"), chargingVal], [t("portal.energyConsumption"), energyConsumptionVal], [t("portal.batteryMaker"), batteryMakerVal]],
+      items: [[t("portal.cltcRange"), rangeVal], [t("portal.batteryCapacity"), batteryVal], [t("portal.batteryType"), batteryTypeVal], [t("portal.chargingSpecs"), chargingVal]],
     },
     {
       title: `🏁 ${t("portal.motorAndPerformance")}`,
@@ -1645,11 +1640,7 @@ function ModelFullSpecsCard({ group }: { group: ModelProfileGroup }) {
     },
     {
       title: `🛡️ ${t("portal.bodyAndChassis")}`,
-      items: [[t("portal.dimensions"), dimensionsVal], [t("portal.wheelbase"), wheelbaseVal], [t("portal.seatsDoors"), seatsDoorsVal], [t("portal.suspension"), suspensionVal], [t("portal.weightTrunk"), weightTrunkVal]],
-    },
-    {
-      title: `🔎 ${t("portal.adas")}`,
-      items: [[t("portal.adas"), adasVal], [locale === "zh" ? "出口合规/备注" : "Export Compliance / Notes", localizeVehicleValue(v.exportNotes, locale)]],
+      items: [[t("portal.dimensions"), dimensionsVal], [t("portal.wheelbase"), wheelbaseVal], [t("portal.seatsDoors"), seatsDoorsVal], [t("portal.weightTrunk"), weightTrunkVal]],
     },
   ];
 
@@ -1674,7 +1665,7 @@ function ModelFullSpecsCard({ group }: { group: ModelProfileGroup }) {
 
       <section>
         <div className="mb-3">
-          <p className="text-[10px] font-black uppercase tracking-[.18em] text-slate-400">MODEL OVERVIEW</p>
+          <p className="text-[10px] font-black uppercase tracking-[.18em] text-slate-400">{modelOverviewLabel}</p>
           <h5 className="mt-0.5 text-sm font-black text-white">{t("portal.fullTechSpecs")}</h5>
         </div>
         <div className="grid grid-cols-1 gap-3.5">
@@ -1697,7 +1688,7 @@ function ModelFullSpecsCard({ group }: { group: ModelProfileGroup }) {
       {versionDetails.length > 0 ? (
         <section className="border-t border-white/10 pt-6">
           <div className="mb-4">
-            <p className="text-[10px] font-black uppercase tracking-[.18em] text-slate-400">CONFIGURATIONS</p>
+            <p className="text-[10px] font-black uppercase tracking-[.18em] text-slate-400">{configurationsLabel}</p>
             <h5 className="mt-0.5 text-base font-black text-white">{t("portal.trimCount", { count: versionDetails.length })}</h5>
           </div>
           <div className="grid gap-3">
@@ -1705,7 +1696,7 @@ function ModelFullSpecsCard({ group }: { group: ModelProfileGroup }) {
               <article key={variant.id} className="overflow-hidden rounded-xl border border-white/10 bg-[#0a1120]">
                 <header className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 bg-[#080f1c] px-4 py-4">
                   <div>
-                    <p className="text-[10px] font-black uppercase tracking-[.18em] text-[#5ee6d8]">CONFIGURATION</p>
+                    <p className="text-[10px] font-black uppercase tracking-[.18em] text-[#5ee6d8]">{configurationLabel}</p>
                     <strong className="mt-1 block text-sm font-black text-white">
                       {localizeVehicleValue(variant.trim || variant.id, locale)}
                     </strong>
@@ -1716,7 +1707,7 @@ function ModelFullSpecsCard({ group }: { group: ModelProfileGroup }) {
                     <div key={item.label} className="min-w-0">
                       <dt className="text-[10px] text-slate-400">{item.label}</dt>
                       <dd className="mt-1 whitespace-pre-line break-words text-[12px] leading-5 text-slate-100">
-                        {item.label === "Added Features" || item.label === "Upgrade Features" ? formatTrimFeatureLines(localizeVehicleValue(item.value, locale)) : localizeVehicleValue(item.value, locale)}
+                        {item.label === addedFeaturesLabel || item.label === upgradeFeaturesLabel ? formatTrimFeatureLines(localizeVehicleValue(item.value, locale)) : localizeVehicleValue(item.value, locale)}
                       </dd>
                     </div>
                   ))}
