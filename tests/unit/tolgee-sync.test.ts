@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import path from "node:path";
 import {
   compareKeySets,
   flattenToDot,
@@ -148,9 +149,9 @@ describe("Tolgee pull", () => {
     const fileSystem = new MemoryFileSystem();
     const cwd = "/virtual/project";
     const paths = [
-      `${cwd}/i18n/translations/zh.json`,
-      `${cwd}/i18n/translations/en.json`,
-      `${cwd}/i18n/translations/am.json`,
+      path.resolve(cwd, "i18n/translations/zh.json"),
+      path.resolve(cwd, "i18n/translations/en.json"),
+      path.resolve(cwd, "i18n/translations/am.json"),
     ];
     paths.forEach((filePath) => fileSystem.files.set(filePath, "old bundle"));
 
@@ -242,9 +243,9 @@ describe("Tolgee pull", () => {
     const fileSystem = new MemoryFileSystem();
     const cwd = "/virtual/project";
     const paths = [
-      `${cwd}/i18n/translations/zh.json`,
-      `${cwd}/i18n/translations/en.json`,
-      `${cwd}/i18n/translations/am.json`,
+      path.resolve(cwd, "i18n/translations/zh.json"),
+      path.resolve(cwd, "i18n/translations/en.json"),
+      path.resolve(cwd, "i18n/translations/am.json"),
     ];
     paths.forEach((filePath, index) => fileSystem.files.set(filePath, `old bundle ${index}`));
 
@@ -282,9 +283,9 @@ describe("Tolgee pull", () => {
     const fileSystem = new MemoryFileSystem();
     const cwd = "/virtual/project";
     const paths = [
-      `${cwd}/i18n/translations/zh.json`,
-      `${cwd}/i18n/translations/en.json`,
-      `${cwd}/i18n/translations/am.json`,
+      path.resolve(cwd, "i18n/translations/zh.json"),
+      path.resolve(cwd, "i18n/translations/en.json"),
+      path.resolve(cwd, "i18n/translations/am.json"),
     ];
     paths.forEach((filePath, index) => fileSystem.files.set(filePath, `old bundle ${index}`));
 
@@ -327,9 +328,9 @@ describe("Tolgee pull", () => {
     fileSystem.failRenameAt = 5;
     const cwd = "/virtual/project";
     const paths = [
-      `${cwd}/i18n/translations/zh.json`,
-      `${cwd}/i18n/translations/en.json`,
-      `${cwd}/i18n/translations/am.json`,
+      path.resolve(cwd, "i18n/translations/zh.json"),
+      path.resolve(cwd, "i18n/translations/en.json"),
+      path.resolve(cwd, "i18n/translations/am.json"),
     ];
     paths.forEach((filePath, index) => fileSystem.files.set(filePath, `old bundle ${index}`));
 

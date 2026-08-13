@@ -64,7 +64,7 @@ test("internal vehicle-resource rows show the synced model style as model year",
   expect(panel).toContain('v.modelStyle || "-"');
 });
 
-test("model navigator can collapse and configuration uses trim differences", () => {
+test("model navigator can collapse and configuration uses the full trim comparison table", () => {
   const start = pageSource.indexOf("function AdminProfiles");
   const end = pageSource.indexOf("function AdminVehicles", start);
   const profiles = pageSource.slice(start, end);
@@ -73,7 +73,8 @@ test("model navigator can collapse and configuration uses trim differences", () 
   const card = pageSource.slice(cardStart, cardEnd);
 
   expect(profiles).toContain("setNavigatorCollapsed");
-  expect(card).toContain("versionDetails");
+  expect(card).toContain('buildModelComparisonRows(group, "full")');
+  expect(card).toContain("gridTemplateColumns");
 });
 
 test("shared vehicle builders sort recommendation rank before ordinary availability", () => {
