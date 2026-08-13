@@ -143,6 +143,22 @@ const vehicleEnglishTerms: Array<[string, string]> = [
   ["舒享", "Comfort"],
   ["悦享", "Enjoy"],
   ["纯电", "BEV"],
+  ["暗夜骑士版", "Night Knight Edition"],
+  ["皇家剧院版", "Royal Theatre Edition"],
+  ["纯电版", "BEV Edition"],
+  ["增程版", "Range-Extended Edition"],
+  ["改款", "Facelift"],
+  ["版本名称", "Trim Name"],
+  ["基础配置", "Base Configuration"],
+  ["CLTC续航", "CLTC Range"],
+  ["电池容量", "Battery Capacity"],
+  ["电池类型", "Battery Type"],
+  ["驱动方式", "Drivetrain"],
+  ["电机总功率", "Motor Power"],
+  ["快充时间", "Fast Charging Time"],
+  ["快充电量范围", "Fast Charging Range"],
+  ["支持", "Supported"],
+  ["小时", "hours"],
   ["增程", "Range-Extended"],
   ["燃油", "ICE"],
   ["快充", "Fast Charge"],
@@ -549,7 +565,7 @@ export function localizeVehicleValue(value: string | null | undefined, locale: L
       translated = translated.replaceAll(english, amharic);
     }
   }
-  translated = translated.replace(/(\d)([A-Z])/g, "$1 $2").replace(/\s{2,}/g, " ").trim();
+  translated = translated.replace(/(\d{4})款/g, "$1 MY").replace(/(\d)([A-Z])/g, "$1 $2").replace(/\s{2,}/g, " ").trim();
 
   // Avoid presenting a partially translated value when a new source value has no complete local coverage.
   return /[\u3400-\u9fff]/.test(translated) ? source : translated;

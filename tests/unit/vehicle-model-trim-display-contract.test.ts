@@ -1,5 +1,6 @@
 import { expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
+import { localizeVehicleValue } from "@/lib/portal-english";
 
 const portalApi = readFileSync("server/api/portal.ts", "utf8");
 const portalPage = readFileSync("app/portal/page.tsx", "utf8");
@@ -27,18 +28,36 @@ test("vehicle model page does not render pricing or warranty fields in the model
 
 test("formats added and upgraded feature changes as separate readable lines", () => {
   expect(portalPage).toContain("function formatTrimFeatureLines");
-  expect(portalPage).toContain("formatTrimFeatureLines(item.value)");
+  expect(portalPage).toContain("formatTrimFeatureLines(localizeVehicleValue(item.value, locale))");
   expect(portalPage).toContain("whitespace-pre-line");
 });
 
-test("stacks trim-difference updates vertically instead of placing versions side by side", () => {
+test("vehicle model detail localizes raw specification, trim, and change values", () => {
   const card = portalPage.slice(
     portalPage.indexOf("function ModelFullSpecsCard"),
     portalPage.indexOf("function ModelGalleryCarousel"),
   );
 
-  expect(card).toContain('className="mt-3 grid gap-2"');
-  expect(card).toContain('border-l-2 border-[#5ee6d8]/40');
+  expect(card).toContain("localizeVehicleValue(value, locale)");
+  expect(card).toContain("localizeVehicleValue(variant.trim || variant.id, locale)");
+  expect(card).toContain("formatTrimFeatureLines(localizeVehicleValue(item.value, locale))");
+});
+
+test("English vehicle-model values translate common model-year trim and charging text without falling back to Chinese", () => {
+  expect(localizeVehicleValue("2025款 暗夜骑士版", "en")).toBe("2025 MY Night Knight Edition");
+  expect(localizeVehicleValue("快充: 支持; 快充时间: 0.25 小时; 快充电量范围: 30-80%", "en")).toBe(
+    "Fast Charge: Supported; Fast Charging Time: 0.25 hours; Fast Charging Range: 30-80%",
+  );
+});
+
+test("vehicle model detail does not render a separate trim-differences section", () => {
+  const card = portalPage.slice(
+    portalPage.indexOf("function ModelFullSpecsCard"),
+    portalPage.indexOf("function ModelGalleryCarousel"),
+  );
+
+  expect(card).not.toContain("TRIM DIFFERENCES");
+  expect(card).not.toContain("versionDifferences.map");
 });
 
 test("keeps the model list fixed while model details use a separate scroll pane", () => {
@@ -50,4 +69,18 @@ test("keeps the model list fixed while model details use a separate scroll pane"
   expect(profiles).toContain("h-[calc(100vh-12rem)]");
   expect(profiles).toContain("overflow-y-auto");
   expect(profiles).toContain("sticky top-0");
+});
+
+test("vehicle model navigator ranks the D1 Recommendation column with lower numbers first", () => {
+  const handlerStart = portalApi.indexOf("async function handleGetVehicleModels");
+  const handlerEnd = portalApi.indexOf("function getBaselineVehicleModels", handlerStart);
+  const handler = portalApi.slice(handlerStart, handlerEnd);
+  const builderStart = portalPage.indexOf("function buildModelProfileGroups");
+  const builderEnd = portalPage.indexOf("function modelProfileGroupMatchesSearch", builderStart);
+  const builder = portalPage.slice(builderStart, builderEnd);
+
+  expect(handler).toContain('rowField(row as unknown as Record<string, unknown>, "Recommendation")');
+  expect(handler).toContain("recommendationRank");
+  expect(builder).toContain("recommendationRankForModelGroup");
+  expect(builder).toContain("compareRecommendationRanks");
 });

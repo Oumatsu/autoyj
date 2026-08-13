@@ -129,6 +129,7 @@ type PortalVehicleModel = {
   lastSyncedAt: string;
   fullSpecsJson: string;
   status: string;
+  recommendationRank: number | null;
 };
 
 type PortalGalleryImage = {
@@ -2708,7 +2709,9 @@ async function handleGetVehicleModels(request: Request, env: Env) {
     queryVehicleTrims(requirePortalDb(env)),
     queryVehicles(requirePortalDb(env)),
   ]);
-  const baseModels: PortalVehicleModel[] = modelRows.map((row) => ({
+  const baseModels: PortalVehicleModel[] = modelRows.map((row) => {
+    const recommendationValue = asOptionalNumber(rowField(row as unknown as Record<string, unknown>, "Recommendation"));
+    return ({
     id: row.id,
     model_id: row.model_id ?? "",
     brand: asText(rowField(row as unknown as Record<string, unknown>, "brand", "品牌")),
@@ -2773,7 +2776,9 @@ async function handleGetVehicleModels(request: Request, env: Env) {
     lastSyncedAt: asText(row.synced_at || (row as unknown as Record<string, unknown>).last_synced_at),
     fullSpecsJson: "",
     status: row.status ?? "Active",
-  }));
+    recommendationRank: recommendationValue && recommendationValue > 0 ? Math.floor(recommendationValue) : null,
+  });
+  });
 
   const modelLookup = buildVehicleModelLookup(baseModels);
 

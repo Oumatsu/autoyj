@@ -116,6 +116,7 @@ type VehicleModel = {
   lastSyncedAt: string;
   fullSpecsJson: string;
   status: string;
+  recommendationRank: number | null;
 };
 
 type VehicleModelSpec = {
@@ -1436,7 +1437,7 @@ function AdminPortal({
           <header className="mb-6 flex flex-col gap-4 border-b border-white/10 pb-5 xl:flex-row xl:items-end xl:justify-between">
             <div>
               <p className="text-[10px] font-black uppercase tracking-[.24em] text-[#22b8aa]">
-                {adminRoleLabels[data.user.role]} View
+                {data.user.role === "admin" ? t("portal.administrator") : formatPortalRole(data.user.role, locale)} {t("portal.adminView")}
               </p>
               <h1 className="mt-2 text-3xl font-black tracking-tight text-white sm:text-4xl">{activeItem ? t(activeItem.labelKey) : t("portal.navDashboard")}</h1>
             </div>
@@ -1541,13 +1542,13 @@ function AdminDashboard({ data }: { data: BootstrapData }) {
     <div className="grid min-w-0 gap-5">
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <AdminStat label={t("portal.modelRepo")} value={String(modelCount)} note={t("portal.recordStockSummary", { records: data.vehicles.length, count: totalStock })} />
-        <AdminStat label={t("portal.inquiries")} value={String(data.inquiries.length)} note={`${latestInquiries.length} recent updates`} />
+        <AdminStat label={t("portal.inquiries")} value={String(data.inquiries.length)} note={`${latestInquiries.length} ${t("portal.recentUpdates")}`} />
         <AdminStat label={t("portal.quoteVersions")} value={String(data.quotes.length)} note={formatUsdStrict(quoteValue)} />
         <AdminStat label={t("portal.orders")} value={String(data.orders.length)} note={formatUsdStrict(data.orders.reduce((sum, order) => sum + order.total, 0))} />
       </section>
 
       <section className="grid min-w-0 gap-5 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,.9fr)]">
-        <AdminPanel title={t("portal.recentInquiries")} subtitle="Latest records for inquiries and quotes">
+        <AdminPanel title={t("portal.recentInquiries")} subtitle={t("portal.recentRecordsSubtitle")}>
           <AdminTable
             headers={[t("portal.inquiryNo"), t("portal.vehicle"), t("portal.quantity"), t("portal.status"), t("portal.latestQuote")]}
             rows={latestInquiries.map((inquiry) => {
@@ -1557,14 +1558,14 @@ function AdminDashboard({ data }: { data: BootstrapData }) {
                 inquiry.vehicleModel || inquiry.vehicleId,
                 t("portal.unitCount", { count: inquiry.quantity }),
                 <AdminStatusBadge key="status" status={inquiry.status || "Pending"} />,
-                quote ? `${quote.quoteNo} / ${formatUsdStrict(quote.unitPrice)}` : "Awaiting quote",
+                quote ? `${quote.quoteNo} / ${formatUsdStrict(quote.unitPrice)}` : t("portal.awaitingQuote"),
               ];
             })}
             emptyText={t("portal.noInquiries")}
           />
         </AdminPanel>
 
-        <AdminPanel title={t("portal.stockAlert")} subtitle="Low-stock and pending-confirmation vehicles">
+        <AdminPanel title={t("portal.stockAlert")} subtitle={t("portal.lowStockSubtitle")}>
           <AdminTable
             headers={[t("portal.vehicle"), t("portal.stockQuantity"), t("portal.location"), t("portal.supplyType")]}
             rows={lowStock.map((vehicle) => [
@@ -1585,7 +1586,6 @@ function ModelFullSpecsCard({ group }: { group: ModelProfileGroup }) {
   const { t, locale } = useTranslation();
   const v = group.variants[0] || ({} as VehicleModel);
   const trimVariants = getModelTrimVariants(group);
-  const versionDifferences = buildVariantDifferenceSteps(group, locale);
   const versionDetails = trimVariants.map((variant) => ({
     variant,
     items: [
@@ -1659,10 +1659,10 @@ function ModelFullSpecsCard({ group }: { group: ModelProfileGroup }) {
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="rounded-md bg-[#22b8aa]/10 px-2 py-1 font-mono text-[10px] font-black uppercase tracking-wider text-[#5ee6d8]">{safeText(group.brand)} · {safeText(group.model)}</span>
+              <span className="rounded-md bg-[#22b8aa]/10 px-2 py-1 font-mono text-[10px] font-black uppercase tracking-wider text-[#5ee6d8]">{localizeVehicleValue(safeText(group.brand), locale)} · {localizeVehicleValue(safeText(group.model), locale)}</span>
               <span className="text-[11px] text-slate-400">{t("portal.variantStockSummary", { count: trimVariants.length })}</span>
             </div>
-            <h4 className="mt-2 text-base font-black text-white">{safeText(group.marketPosition) || `${safeText(group.brand)} ${safeText(group.model)} ${t("portal.fullTechSpecs")}`}</h4>
+            <h4 className="mt-2 text-base font-black text-white">{localizeVehicleValue(safeText(group.marketPosition), locale) || `${localizeVehicleValue(safeText(group.brand), locale)} ${localizeVehicleValue(safeText(group.model), locale)} ${t("portal.fullTechSpecs")}`}</h4>
           </div>
           {v.brochureUrl ? (
             <div className="flex flex-wrap items-center gap-2 text-[10px]">
@@ -1685,7 +1685,7 @@ function ModelFullSpecsCard({ group }: { group: ModelProfileGroup }) {
                 {section.items.map(([label, value]) => (
                   <div key={label} className="min-w-0">
                     <dt className="text-[10px] font-medium text-slate-400">{label}</dt>
-                    <dd className="mt-0.5 break-words font-semibold text-slate-100 leading-5">{value}</dd>
+                    <dd className="mt-0.5 break-words font-semibold text-slate-100 leading-5">{localizeVehicleValue(value, locale)}</dd>
                   </div>
                 ))}
               </dl>
@@ -1716,28 +1716,11 @@ function ModelFullSpecsCard({ group }: { group: ModelProfileGroup }) {
                     <div key={item.label} className="min-w-0">
                       <dt className="text-[10px] text-slate-400">{item.label}</dt>
                       <dd className="mt-1 whitespace-pre-line break-words text-[12px] leading-5 text-slate-100">
-                        {item.label === "Added Features" || item.label === "Upgrade Features" ? formatTrimFeatureLines(item.value) : item.value}
+                        {item.label === "Added Features" || item.label === "Upgrade Features" ? formatTrimFeatureLines(localizeVehicleValue(item.value, locale)) : localizeVehicleValue(item.value, locale)}
                       </dd>
                     </div>
                   ))}
                 </dl>
-              </article>
-            ))}
-          </div>
-          <div className="mt-5 grid gap-3">
-            <p className="text-[10px] font-black uppercase tracking-[.18em] text-[#5ee6d8]">TRIM DIFFERENCES</p>
-            {versionDifferences.map((step) => (
-              <article key={`difference-${step.variant.id}`} className="rounded-xl border border-white/10 bg-[#0c1424] p-4">
-                <strong className="block text-sm text-white">{localizeVehicleValue(step.variant.trim || step.variant.id, locale)}</strong>
-                <div className="mt-3 grid gap-2">
-                  {step.sections.flatMap((section) => section.items).map((item) => (
-                    <div key={`${item.name}-${item.value}`} className="rounded border border-white/10 border-l-2 border-[#5ee6d8]/40 px-3 py-2">
-                      <p className="text-[10px] text-slate-400">{localizeVehicleValue(item.name, locale)}</p>
-                      <p className="mt-1 text-xs text-white">{formatTrimFeatureLines(item.value)}</p>
-                      {item.previousValue && <p className="mt-1 text-[10px] text-slate-500">Previous: {formatTrimFeatureLines(item.previousValue)}</p>}
-                    </div>
-                  ))}
-                </div>
               </article>
             ))}
           </div>
@@ -1849,15 +1832,15 @@ function AdminProfiles({ data }: { data: BootstrapData }) {
 
   return (
     <div className="grid gap-5">
-      <AdminPanel title={t("portal.titleModels")} subtitle="Complete vehicle model data, including battery, motor, dimensions, driving assistance, and export fields.">
+      <AdminPanel title={t("portal.titleModels")} subtitle={t("portal.modelLibrarySubtitle")}>
         {/* Search bar + summary */}
         <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end">
           <label className="grid flex-1 gap-2 text-xs font-black uppercase tracking-widest text-slate-500">
-            Search vehicle models
+            {t("portal.searchVehicleModels")}
             <Input
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value)}
-              placeholder="Brand, model, year, trim, segment, battery, motor, or ADAS"
+              placeholder={t("portal.modelSearchPlaceholder")}
             />
           </label>
           <div className="flex items-center gap-2 pb-0.5">
@@ -2145,7 +2128,7 @@ function AdminVehicles({ data, onEdit, onRefresh, onRefreshData }: { data: Boots
         <div>
           <h1 className="text-2xl font-black text-white sm:text-3xl">{t("portal.titleVehicles")}</h1>
           <p className="mt-1.5 text-xs font-medium text-slate-400">
-            Browse vehicle models, trims, available stock, lead times, and price validity.
+            {t("portal.vehicleResourcesSubtitle")}
           </p>
         </div>
 
@@ -2211,11 +2194,11 @@ function AdminVehicles({ data, onEdit, onRefresh, onRefreshData }: { data: Boots
               void onRefresh();
             }}
             className="inline-flex items-center gap-1.5 rounded-xl border border-[#22b8aa]/30 bg-[#22b8aa]/10 px-3.5 py-2.5 text-xs font-bold text-[#5ee6d8] transition hover:border-[#22b8aa] hover:bg-[#22b8aa]/15 hover:text-white"
-            aria-label="Refresh vehicle resources"
-            title="Refresh vehicle resources"
+            aria-label={t("portal.refreshVehicleResources")}
+            title={t("portal.refreshVehicleResources")}
           >
             <RefreshCw className="h-3.5 w-3.5" aria-hidden="true" />
-            Refresh
+            {t("portal.refreshVehicleResources")}
           </button>
 
           {/* 重置按钮 */}
@@ -2724,6 +2707,7 @@ function InquiryCommentThread({ thread, onReply }: { thread: ReturnType<typeof b
 }
 
 function AdminQuotesLocalized({ data, onRefresh }: { data: BootstrapData; onRefresh: () => Promise<void> }) {
+  const { t, locale } = useTranslation();
   const [selectedNo, setSelectedNo] = useState(data.inquiries[0]?.inquiryNo || "");
   const [note, setNote] = useState("");
   const [replyTo, setReplyTo] = useState("");
@@ -2772,9 +2756,9 @@ function AdminQuotesLocalized({ data, onRefresh }: { data: BootstrapData; onRefr
   async function updateStatus() { if (!selected || !status) return; setBusy(true); setError(""); try { await api(`/api/portal/inquiries/${encodeURIComponent(selected.inquiryNo)}/status`, { method: "PATCH", body: JSON.stringify({ status, reason: statusReason || "Updated from Inquiry Management" }) }); setStatus(""); setStatusReason(""); await onRefresh(); } catch (e) { setError(e instanceof Error ? e.message : "Could not update inquiry status"); } finally { setBusy(false); } }
   async function createQuotation(event: React.FormEvent) { event.preventDefault(); if (!selected) return; const unitPrice = Number(quotePrice); if (!Number.isFinite(unitPrice) || unitPrice <= 0) { setError("Enter a USD unit price before creating the quotation"); return; } setBusy(true); setError(""); try { const created = await api<{ quoteNo: string; quantity: number; unitPrice: number }>("/api/portal/quotes", { method: "POST", body: JSON.stringify({ inquiryNo: selected.inquiryNo, unitPrice }) }); setPreview({ quoteNo: created.quoteNo, customer: selected.customerId, vehicleModel: selected.vehicleModel, quantity: created.quantity, unitPrice: created.unitPrice, cifTotal: quoteCif || "USD 0.00" }); setShowQuoteComposer(false); } catch (e) { setError(e instanceof Error ? e.message : "Could not create quotation"); } finally { setBusy(false); } }
 
-  return <AdminPanel title="Inquiry Management" subtitle="Inquiry context, status history, and discussion">
+  return <AdminPanel title={t("portal.inquiryManagementTitle")} subtitle={t("portal.inquiryManagementSubtitle")}>
     {unreadCount > 0 && <p className="mb-4 rounded border border-amber-300/30 bg-amber-300/10 px-3 py-2 text-xs font-semibold text-amber-200">{unreadCount} conversation{unreadCount === 1 ? " has" : "s have"} new messages.</p>}
-    <div className="mb-4 flex flex-wrap justify-between gap-3"><div className="flex flex-wrap gap-2"><Input aria-label="Search inquiries" value={inquirySearch} onChange={(event) => setInquirySearch(event.target.value)} placeholder="Search vehicle, customer, or inquiry" /><select aria-label="Filter inquiries by status" value={inquiryStatusFilter} onChange={(event) => setInquiryStatusFilter(event.target.value)} className="rounded border border-white/15 bg-black px-3 text-xs text-white"><option value="">All statuses</option>{inquiryStatuses.map((item) => <option key={item}>{item}</option>)}</select></div><div className="flex flex-wrap gap-3">{canCreateQuote && <button type="button" disabled={!selected} onClick={() => setShowQuoteComposer((value) => !value)} className="btn-primary rounded px-4 py-2 text-[10px] font-black uppercase">Create quotation</button>}<button type="button" onClick={() => setShowNew((value) => !value)} className="btn-primary rounded px-4 py-2 text-[10px] font-black uppercase">Start inquiry</button></div></div>
+    <div className="mb-4 flex flex-wrap justify-between gap-3"><div className="flex flex-wrap gap-2"><Input aria-label="Search inquiries" value={inquirySearch} onChange={(event) => setInquirySearch(event.target.value)} placeholder="Search vehicle, customer, or inquiry" /><select aria-label="Filter inquiries by status" value={inquiryStatusFilter} onChange={(event) => setInquiryStatusFilter(event.target.value)} className="rounded border border-white/15 bg-black px-3 text-xs text-white"><option value="">{t("portal.allInquiryStatuses")}</option>{inquiryStatuses.map((item) => <option key={item}>{formatPortalStatus(item, locale)}</option>)}</select></div><div className="flex flex-wrap gap-3">{canCreateQuote && <button type="button" disabled={!selected} onClick={() => setShowQuoteComposer((value) => !value)} className="btn-primary rounded px-4 py-2 text-[10px] font-black uppercase">{t("portal.createQuotation")}</button>}<button type="button" onClick={() => setShowNew((value) => !value)} className="btn-primary rounded px-4 py-2 text-[10px] font-black uppercase">{t("portal.startInquiry")}</button></div></div>
     {showQuoteComposer && selected && <form onSubmit={createQuotation} className="mb-4 grid gap-3 rounded-lg border border-gold/40 bg-gold/5 p-4 md:grid-cols-3"><p className="text-xs text-slate-300 md:col-span-3">{selected.vehicleModel} / {selected.quantity} units — the original quotation template will open after creation.</p><Input aria-label="USD unit price" type="number" min="0" step="0.01" value={quotePrice} onChange={(event) => setQuotePrice(event.target.value)} placeholder="FOB unit price (USD)" required /><Input aria-label="CIF total" value={quoteCif} onChange={(event) => setQuoteCif(event.target.value)} placeholder="CIF total (USD, manual entry)" /><button disabled={busy} className="btn-primary rounded px-4 py-2 text-[10px] font-black uppercase">{busy ? "Creating..." : "Create and open template"}</button></form>}
     {showNew && <form onSubmit={create} className="mb-4 grid gap-3 rounded-lg border border-theme/30 bg-theme/5 p-4"><InquiryVehiclePicker vehicles={data.vehicles} value={target} onChange={setTarget} /><Input aria-label="Inquiry quantity" type="number" min="1" value={newInquiryQuantity} onChange={(event) => setNewInquiryQuantity(Math.max(1, Number(event.target.value) || 1))} /><Input aria-label="Inquiry title" value={title} onChange={(event) => setTitle(event.target.value)} placeholder={target.vehicleModel ? "Inquiry title (optional)" : "Inquiry title (required when no vehicle is selected)"} required={!target.vehicleModel} /><textarea value={initialNote} onChange={(event) => setInitialNote(event.target.value)} className="min-h-24 rounded border border-white/15 bg-black/20 p-3 text-sm text-white" /><button disabled={busy || (!target.vehicleModel && !title.trim()) || !initialNote.trim()} className="btn-primary rounded px-4 py-2 text-[10px] font-black uppercase">Post inquiry</button></form>}
     <div className="grid gap-4 xl:grid-cols-[19rem_minmax(0,1fr)]">
@@ -2844,9 +2828,9 @@ function AdminQuotesLegacy({ data }: { data: BootstrapData }) {
 function AdminOrders({ data }: { data: BootstrapData }) {
   const { t } = useTranslation();
   return (
-    <AdminPanel title="Order Management" subtitle="Orders created from accepted quotes">
+    <AdminPanel title={t("portal.orderManagementTitle")} subtitle={t("portal.orderManagementSubtitle")}>
       <AdminTable
-        headers={["Order No.", "Customer", "Quote No.", "Vehicle", "Quantity", "Total", "Status", "Created"]}
+        headers={[t("portal.orderNo"), t("portal.customer"), t("portal.quoteNo"), t("portal.vehicle"), t("portal.quantity"), t("portal.total"), t("portal.status"), t("portal.created")]}
         rows={data.orders.map((order) => {
           const customer = findCustomer(data, order.customerId);
           return [
@@ -2860,7 +2844,7 @@ function AdminOrders({ data }: { data: BootstrapData }) {
             formatDate(order.createdAt),
           ];
         })}
-        emptyText="No orders"
+        emptyText={t("portal.noOrders")}
       />
     </AdminPanel>
   );
@@ -2876,13 +2860,13 @@ function AdminPayments({ data }: { data: BootstrapData }) {
   return (
     <div className="grid gap-5">
       <section className="grid gap-4 md:grid-cols-3">
-        <AdminStat label="Order Receivables" value={formatUsdStrict(total)} note={t("portal.orderCount", { count: data.orders.length })} />
-        <AdminStat label="Received" value={formatUsdStrict(paid)} note="Based on order status" />
-        <AdminStat label="Outstanding" value={formatUsdStrict(Math.max(total - paid, 0))} note="Payment detail view pending" />
+        <AdminStat label={t("portal.orderReceivables")} value={formatUsdStrict(total)} note={t("portal.orderCount", { count: data.orders.length })} />
+        <AdminStat label={t("portal.received")} value={formatUsdStrict(paid)} note={t("portal.basedOnOrderStatus")} />
+        <AdminStat label={t("portal.outstanding")} value={formatUsdStrict(Math.max(total - paid, 0))} note={t("portal.paymentDetailPending")} />
       </section>
-      <AdminPanel title="Payments & Finance" subtitle="Order values, payment terms, and payment status">
+      <AdminPanel title={t("portal.paymentsTitle")} subtitle={t("portal.paymentsSubtitle")}>
         <AdminTable
-          headers={["Order No.", "Customer", "Payment Terms", "Order Value", "Payment Status"]}
+          headers={[t("portal.orderNo"), t("portal.customer"), t("portal.paymentTerms"), t("portal.orderValue"), t("portal.paymentStatus")]}
           rows={data.orders.map((order) => {
             const customer = findCustomer(data, order.customerId);
             return [
@@ -2893,7 +2877,7 @@ function AdminPayments({ data }: { data: BootstrapData }) {
               <AdminStatusBadge key="status" status={order.status || "Draft"} />,
             ];
           })}
-          emptyText="No finance records"
+          emptyText={t("portal.noFinanceRecords")}
         />
       </AdminPanel>
     </div>
@@ -2920,9 +2904,9 @@ function AdminLogistics({ data }: { data: BootstrapData }) {
           <AdminStat key={String(label)} label={String(label)} value={String(count)} note={String(note)} />
         ))}
       </section>
-      <AdminPanel title="Export Workflow" subtitle="Order logistics milestones">
+      <AdminPanel title={t("portal.exportWorkflowTitle")} subtitle={t("portal.exportWorkflowSubtitle")}>
         <AdminTable
-          headers={["Order No.", "Customer", "Vehicle", "Quantity", "Current Stage", "Created"]}
+          headers={[t("portal.orderNo"), t("portal.customer"), t("portal.vehicle"), t("portal.quantity"), t("portal.currentStage"), t("portal.created")]}
           rows={data.orders.map((order) => {
             const customer = findCustomer(data, order.customerId);
             return [
@@ -2934,7 +2918,7 @@ function AdminLogistics({ data }: { data: BootstrapData }) {
               formatDate(order.createdAt),
             ];
           })}
-          emptyText="No export workflow records"
+          emptyText={t("portal.noExportWorkflowRecords")}
         />
       </AdminPanel>
     </div>
@@ -2942,28 +2926,30 @@ function AdminLogistics({ data }: { data: BootstrapData }) {
 }
 
 function AdminCustomers({ data }: { data: BootstrapData }) {
+  const { t, locale } = useTranslation();
   const customers = data.customers || [];
   return (
-    <AdminPanel title="Customer Accounts" subtitle="External accounts and price permissions">
+    <AdminPanel title={t("portal.customerAccountsTitle")} subtitle={t("portal.customerAccountsSubtitle")}>
       <AdminTable
-        headers={["Customer ID", "Company", "Contact", "Email", "Role", "Price Tier", "Country", "Status"]}
+        headers={[t("portal.userId"), t("portal.company"), t("portal.contact"), t("portal.email"), t("portal.role"), t("portal.priceTier"), t("portal.country"), t("portal.status")]}
         rows={customers.map((customer) => [
           <span key="id" className="font-mono text-xs text-[#22b8aa]">{customer.customerId}</span>,
           customer.company || "-",
           customer.contact || "-",
           customer.email || "-",
-          adminRoleLabels[customer.role],
+          formatPortalRole(customer.role, locale),
           customer.priceTier,
           customer.country || "-",
           <AdminStatusBadge key="status" status={customer.status || "Active"} />,
         ])}
-        emptyText="No customer accounts"
+        emptyText={t("portal.noCustomerAccounts")}
       />
     </AdminPanel>
   );
 }
 
 function AdminStaff({ data }: { data: BootstrapData }) {
+  const { t, locale } = useTranslation();
   const users = data.internalUsers || [];
   const rows =
     users.length > 0
@@ -2971,7 +2957,7 @@ function AdminStaff({ data }: { data: BootstrapData }) {
           user.userId || "-",
           user.name || "-",
           user.email || "-",
-          adminRoleLabels[user.role],
+          formatPortalRole(user.role, locale),
           compactJoin([
             user.canEditVehicles ? "Vehicle editing" : "",
             user.canSeeCost ? "Cost visibility" : "",
@@ -2981,13 +2967,13 @@ function AdminStaff({ data }: { data: BootstrapData }) {
           user.status || "Active",
         ])
       : [
-          [data.user.userId || "USR-ADMIN", data.user.name || data.user.email, data.user.email, adminRoleLabels[data.user.role], "Current signed-in account", "-", "Active"],
+          [data.user.userId || "USR-ADMIN", data.user.name || data.user.email, data.user.email, formatPortalRole(data.user.role, locale), t("portal.currentSignedInAccount"), "-", t("portal.active")],
         ];
 
   return (
-    <AdminPanel title="Staff Accounts" subtitle="Internal accounts and permissions">
+    <AdminPanel title={t("portal.staffAccountsTitle")} subtitle={t("portal.staffAccountsSubtitle")}>
       <AdminTable
-        headers={["User ID", "Name", "Email", "Role", "Permissions", "Department", "Status"]}
+        headers={[t("portal.userId"), t("portal.name"), t("portal.email"), t("portal.role"), t("portal.permissions"), t("portal.department"), t("portal.status")]}
         rows={rows.map((row) => [
           <span key="id" className="font-mono text-xs text-[#22b8aa]">{row[0]}</span>,
           row[1],
@@ -2997,7 +2983,7 @@ function AdminStaff({ data }: { data: BootstrapData }) {
           row[5],
           <AdminStatusBadge key="status" status={row[6]} />,
         ])}
-        emptyText="No staff accounts"
+        emptyText={t("portal.noStaffAccounts")}
       />
     </AdminPanel>
   );
@@ -3515,16 +3501,15 @@ export function buildModelProfileGroups(data: BootstrapData): ModelProfileGroup[
     group.guidePriceSummary = summarizeGuidePriceGroup(group);
   }
   return groups.sort((a, b) => {
-    const aRank = recommendationRankForModel(data.vehicles, a.brand, a.model);
-    const bRank = recommendationRankForModel(data.vehicles, b.brand, b.model);
+    const aRank = recommendationRankForModelGroup(a);
+    const bRank = recommendationRankForModelGroup(b);
     return compareRecommendationRanks(aRank, bRank) || `${a.brand} ${a.model}`.localeCompare(`${b.brand} ${b.model}`);
   });
 }
 
-function recommendationRankForModel(vehicles: Vehicle[], brand: string, model: string) {
-  return vehicles
-    .filter((vehicle) => vehicle.brand === brand && vehicle.model === model)
-    .map((vehicle) => vehicle.recommendationRank)
+function recommendationRankForModelGroup(group: ModelProfileGroup) {
+  return group.variants
+    .map((variant) => variant.recommendationRank)
     .reduce<number | null>((best, rank) => compareRecommendationRanks(best, rank) <= 0 ? best : rank ?? null, null);
 }
 
@@ -3607,9 +3592,8 @@ function buildModelComparisonRows(group: ModelProfileGroup, mode: "core" | "full
 }
 
 function buildVariantDifferenceSteps(group: ModelProfileGroup, locale: string = "zh"): VariantDifferenceStep[] {
-  const ignoredNames = new Set(["品牌", "车系", "车型", "年款", "版本", "市场定位", "原始参数JSON", "出口备注", "版本核对", "中国官方指导价", "国内官方指导价"]);
+  const ignoredNames = new Set(["品牌", "车系", "车型", "年款", "版本", "版本名称", "市场定位", "原始参数JSON", "出口备注", "版本核对", "中国官方指导价", "国内官方指导价", "基础配置"]);
   const entryNames = new Set(["车身级别", "能源类型", "CLTC续航", "电池容量", "电池类型", "电机总功率", "驱动方式", "座位数"]);
-  const sections: VariantDifferenceStep["sections"] = [];
   return group.variants.map((variant, index) => {
     const specs = (group.specsByModel.get(variant.id) || [])
       .filter((spec) => spec.name && spec.value && !ignoredNames.has(spec.name))
@@ -3624,49 +3608,17 @@ function buildVariantDifferenceSteps(group: ModelProfileGroup, locale: string = 
       value: formatSpecValue(spec),
       previousValue: index === 0 ? "" : previousValues.get(spec.name) || "",
     }));
-    if (index > 0 && sectionItems.length === 0) {
-      sectionItems.push({
-        category: "配置",
-        name: "配置差异待补充",
-        value: "当前参数表未记录明显新增项",
-        previousValue: "",
-      });
-    }
-    if (sectionItems.length) {
-      sections.push({
-        label: index === 0 ? "鍏ラ棬鍩虹" : `绗?{index + 1}妗ｆ柊澧?鍗囩骇`,
-        tone: upgradeStepColor(index),
-        isCurrent: true,
-        items: sectionItems,
-      });
-    }
-    const visibleSections = sections.map((section, sectionIndex) => ({
-      ...section,
-      isCurrent: sectionIndex === sections.length - 1,
-    }));
-
     return {
       variant,
       label: index === 0 ? "入门版底座" : index === group.variants.length - 1 ? "最高配升级" : "加价升级",
       price: getModelSpecValue(group.specsByModel, variant.id, ["中国官方指导价"]),
       range: getModelSpecValue(group.specsByModel, variant.id, ["CLTC续航"]),
-      sections: visibleSections.length
-        ? visibleSections
-        : [
-            {
-              label: "配置待补充",
-              tone: specCategoryTone("其他"),
-              isCurrent: true,
-              items: [
-                {
-                  category: "配置",
-                  name: index === 0 ? "核心配置" : "差异待补充",
-                  value: index === 0 ? "参数表暂无核心配置摘要" : "参数表暂无明显新增项",
-                  previousValue: "",
-                },
-              ],
-            },
-          ],
+      sections: sectionItems.length ? [{
+        label: index === 0 ? "基础配置" : `第 ${index + 1} 档新增/升级`,
+        tone: upgradeStepColor(index),
+        isCurrent: true,
+        items: sectionItems,
+      }] : [],
     };
   });
 }
