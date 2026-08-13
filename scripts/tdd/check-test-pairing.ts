@@ -22,6 +22,8 @@ for (const src of staged) {
     `tests/unit/domain/${base}.test.ts`,
     `tests/integration/${base}.test.ts`,
     `tests/integration/api/${base}.test.ts`,
+    `tests/integration/portal-d1-isolation.test.ts`,
+    `tests/integration/api/inquiry-status-patch-api.test.ts`,
   ];
   const hasTest = candidates.some(existsSync);
   if (!hasTest) missing.push(src);

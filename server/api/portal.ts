@@ -3464,7 +3464,66 @@ async function handleCreateQuote(request: Request, env: Env) {
   return json({ ok: true, quoteNo, inquiryNo, quantity: inquiry.quantity, unitPrice }, { status: 201 });
 }
 
-function requirePortalDb(env: Env) { if (!env.PORTAL_DB) throw problem("Inquiry database is unavailable", 503); return env.PORTAL_DB; }
+const INQUIRY_STATUS_TRANSITIONS: Record<string, string[]> = {
+  "New Inquiry": ["Quoted", "Closed"],
+  "Quoted": ["Negotiating", "Accepted", "Closed"],
+  "Negotiating": ["Quoted", "Accepted", "Closed"],
+  "Accepted": ["Closed"],
+  "Closed": ["New Inquiry"],
+};
+
+async function handleUpdateInquiryStatus(request: Request, env: Env, inquiryNo: string) {
+  const session = await requireSession(request, env);
+  if (!canCreateVehicleQuotation(session.role)) {
+    return problem("Only admin and sales can update inquiry status", 403);
+  }
+  const body = (await request.json().catch(() => null)) as Record<string, unknown> | null;
+  const newStatus = asText(body?.status).trim();
+  const reason = asText(body?.reason).trim();
+  if (!newStatus) return problem("Target status is required", 400);
+
+  const db = requirePortalDb(env);
+  const inquiry = await db
+    .prepare("SELECT inquiry_no, status FROM inquiries WHERE inquiry_no=? AND deleted_at IS NULL LIMIT 1")
+    .bind(inquiryNo)
+    .first<{ inquiry_no: string; status: string }>();
+
+  if (!inquiry) return problem("Inquiry not found", 404);
+
+  const currentStatus = inquiry.status || "New Inquiry";
+  const allowedNext = INQUIRY_STATUS_TRANSITIONS[currentStatus] || [];
+  if (!allowedNext.includes(newStatus)) {
+    return problem(`Invalid status transition from '${currentStatus}' to '${newStatus}'`, 400);
+  }
+
+  const now = nowText();
+  const historyId = nextId("HIS");
+  const statements = [
+    db.prepare("UPDATE inquiries SET status=?, updated_at=? WHERE inquiry_no=?").bind(newStatus, now, inquiryNo),
+    db.prepare(
+      "INSERT INTO inquiry_status_history (id, history_id, inquiry_no, from_status, to_status, reason, actor_user_id, actor_name, actor_role, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+    ).bind(
+      crypto.randomUUID(),
+      historyId,
+      inquiryNo,
+      currentStatus,
+      newStatus,
+      reason,
+      session.userId,
+      session.name,
+      session.role,
+      now,
+    ),
+  ];
+  await db.batch(statements);
+  return json({ ok: true, inquiryNo, status: newStatus });
+}
+
+function requirePortalDb(env: Env) {
+  const db = env.PORTAL_DB || (env as unknown as { DB?: D1Database }).DB;
+  if (!db) throw problem("Inquiry database is unavailable", 503);
+  return db;
+}
 function requirePublicDb(env: Env) {
   if (!env.PORTAL_DB) throw problem("Public content database is not configured", 503);
   return env.PORTAL_DB;
@@ -4205,6 +4264,8 @@ export async function handlePortalRequest(request: Request, env: Env) {
     }
     const inquiryNoteMatch = path.match(/^\/api\/portal\/inquiries\/([^/]+)\/notes$/);
     if (inquiryNoteMatch && request.method === "POST") return await handleCreateInquiryNote(request, env, decodeURIComponent(inquiryNoteMatch[1]));
+    const inquiryStatusMatch = path.match(/^\/api\/portal\/inquiries\/([^/]+)\/status$/);
+    if (inquiryStatusMatch && request.method === "PATCH") return await handleUpdateInquiryStatus(request, env, decodeURIComponent(inquiryStatusMatch[1]));
     const inquiryContentMatch = path.match(/^\/api\/portal\/inquiry-content\/(note)\/([^/]+)$/);
     if (inquiryContentMatch && request.method === "DELETE") return await handleDeleteInquiryContent(request, env, "note", decodeURIComponent(inquiryContentMatch[2]));
     if (path === "/api/portal/inquiry-content/deleted" && request.method === "GET") return await handleDeletedInquiryContent(request, env);
