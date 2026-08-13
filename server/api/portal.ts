@@ -3520,9 +3520,8 @@ async function handleUpdateInquiryStatus(request: Request, env: Env, inquiryNo: 
 }
 
 function requirePortalDb(env: Env) {
-  const db = env.PORTAL_DB || (env as unknown as { DB?: D1Database }).DB;
-  if (!db) throw problem("Inquiry database is unavailable", 503);
-  return db;
+  if (!env.PORTAL_DB) throw problem("Inquiry database is unavailable", 503);
+  return env.PORTAL_DB;
 }
 function requirePublicDb(env: Env) {
   if (!env.PORTAL_DB) throw problem("Public content database is not configured", 503);

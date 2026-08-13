@@ -89,7 +89,7 @@ function makeDb(inquiry = INQUIRY, quote = QUOTE) {
 }
 
 function makeEnv(db: D1Database) {
-  return { PORTAL_DB: db, DB: db, ENVIRONMENT: "test", PORTAL_COOKIE_NAME: "portal_session" } as unknown as Env;
+  return { PORTAL_DB: db, ENVIRONMENT: "test", PORTAL_COOKIE_NAME: "portal_session" } as unknown as Env;
 }
 
 async function loginAs(role: string, env: ReturnType<typeof makeEnv>) {

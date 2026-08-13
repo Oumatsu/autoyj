@@ -7,7 +7,7 @@
 import { execSync } from "node:child_process";
 import { existsSync } from "node:fs";
 
-const staged = execSync("git diff --staged --name-only", { encoding: "utf8" })
+const staged = execSync("git diff --staged --name-only --diff-filter=AM", { encoding: "utf8" })
   .split("\n")
   .filter((f) => f.endsWith(".ts") || f.endsWith(".tsx"))
   .filter((f) => f.startsWith("lib/") || f.startsWith("server/api/"));
@@ -15,15 +15,17 @@ const staged = execSync("git diff --staged --name-only", { encoding: "utf8" })
 const missing: string[] = [];
 
 for (const src of staged) {
-  const base = src.replace(/^(lib|server\/api)\//, "").replace(/\.tsx?$/, "");
+  const base = src
+    .replace(/^lib\//, "")
+    .replace(/^server\/api\//, "")
+    .replace(/\.tsx?$/, "");
+
   const candidates = [
     `tests/unit/${base}.test.ts`,
     `tests/unit/utils/${base}.test.ts`,
     `tests/unit/domain/${base}.test.ts`,
     `tests/integration/${base}.test.ts`,
     `tests/integration/api/${base}.test.ts`,
-    `tests/integration/portal-d1-isolation.test.ts`,
-    `tests/integration/api/inquiry-status-patch-api.test.ts`,
   ];
   const hasTest = candidates.some(existsSync);
   if (!hasTest) missing.push(src);

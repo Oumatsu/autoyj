@@ -22,7 +22,7 @@ function makeEnv() {
     },
     async batch(stmts: Array<{ sql?: string }>) { return stmts.map(() => ({ success: true })); },
   };
-  return { PORTAL_DB: db, DB: db, ENVIRONMENT: "test", PORTAL_COOKIE_NAME: "portal_session" } as unknown as Env;
+  return { PORTAL_DB: db, ENVIRONMENT: "test", PORTAL_COOKIE_NAME: "portal_session" } as unknown as Env;
 }
 
 describe("DELETE /api/portal/session", () => {
