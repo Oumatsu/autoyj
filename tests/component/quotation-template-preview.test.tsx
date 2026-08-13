@@ -1,17 +1,38 @@
-import { expect, test } from "bun:test";
-import { render, screen } from "@testing-library/react";
+import { describe, expect, test } from "bun:test";
+import React from "react";
+import { renderToString } from "react-dom/server";
 import { QuotationTemplatePreview } from "../../components/portal/QuotationTemplatePreview";
 
-test("uses a 16:9 viewport for the original quotation template", () => {
-  render(<QuotationTemplatePreview quoteNo="QTE-001" customer="Customer" vehicleModel="BYD Seal" quantity={1} unitPrice={25000} cifTotal="USD 26,000.00" />);
+describe("QuotationTemplatePreview", () => {
+  const sample = {
+    quoteNo: "YG-2026-999",
+    customer: "Addis Enterprise",
+    vehicleModel: "BYD Tang EV",
+    quantity: 2,
+    unitPrice: 35000,
+    cifTotal: "USD 72,000.00",
+  };
 
-  expect(screen.getByTitle("Quotation QTE-001").className).toContain("aspect-video");
+  test("renders print/PDF button, WhatsApp share link, and copy summary button", () => {
+    const html = renderToString(<QuotationTemplatePreview {...sample} />);
+    expect(html).toContain("Print / PDF");
+    expect(html).toContain("WhatsApp");
+    expect(html).toContain("Copy Summary");
+    expect(html).toContain("https://wa.me/");
+    expect(html).toContain("YG-2026-999");
+  });
+
+  test("renders iframe with prefilled quotation data", () => {
+    const html = renderToString(<QuotationTemplatePreview {...sample} />);
+    expect(html).toContain('<iframe');
+    expect(html).toContain('title="Quotation YG-2026-999"');
+    expect(html).toContain("aspect-video");
+  });
+
+  test("embeds the original Youguard logo so the srcdoc document has no relative logo request", () => {
+    const html = renderToString(<QuotationTemplatePreview {...sample} />);
+    expect(html).toContain("data:image/svg+xml,");
+    expect(html).not.toContain('src="youguard-logo.svg"');
+  });
 });
 
-test("embeds the original Youguard logo so the srcdoc document has no relative logo request", () => {
-  render(<QuotationTemplatePreview quoteNo="QTE-001" customer="Customer" vehicleModel="BYD Seal" quantity={1} unitPrice={25000} cifTotal="USD 26,000.00" />);
-
-  const source = screen.getByTitle("Quotation QTE-001").getAttribute("srcDoc") || "";
-  expect(source).toContain("data:image/svg+xml,");
-  expect(source).not.toContain('src="youguard-logo.svg"');
-});
