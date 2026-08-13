@@ -3803,7 +3803,8 @@ async function handleModerateDeletedContent(request: Request, env: Env, type: "n
 }
 
 async function handleUpdateVehicle(request: Request, env: Env, _vehicleId: string) {
-  await requireSession(request, env);
+  const session = await requireSession(request, env);
+  if (!isInternalSession(session)) return problem("Forbidden: internal access required", 403);
   return problem("Vehicle inventory is not connected", 503);
 }
 
