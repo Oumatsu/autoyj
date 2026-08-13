@@ -20,6 +20,11 @@
     "test:component": "bun test tests/component",
     "test:integration": "bun test tests/integration",
     "test:e2e": "bunx playwright test",
+    "tdd": "bun test --watch tests/unit tests/component",
+    "tdd:domain": "bun test --watch tests/unit/domain",
+    "tdd:integration": "bun test --watch tests/integration",
+    "test:coverage": "bun test --coverage tests/unit tests/component tests/integration",
+    "test:cov:check": "bun run test:coverage && bun run scripts/tdd/check-coverage.ts",
     "test:all": "bun run test && bun run test:e2e",
     "db:local:init": "wrangler d1 execute autoyj-portal --local --persist-to .wrangler/state --file=server/db/schema.sql --yes",
     "db:local:sync": "node scripts/d1/sync-local.mjs",
@@ -32,7 +37,8 @@
     "deploy:preview": "bun --env-file=.env.preview run scripts/tolgee/deploy-preview.ts",
     "tolgee:setup": "bun run scripts/tolgee/setup-tolgee-jar.ts",
     "tolgee:server": "bun run scripts/tolgee/setup-tolgee-jar.ts --run",
-    "knip": "knip"
+    "knip": "knip",
+    "prepare": "husky"
   },
   "dependencies": {
     "@tolgee/core": "^7.1.3",
