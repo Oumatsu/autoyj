@@ -64,3 +64,23 @@ export function hasUnreadInquiryActivity({ viewerUserId, noteAuthorUserId, noteC
 }) {
   return noteAuthorUserId !== viewerUserId && (!lastReadAt || noteCreatedAt > lastReadAt);
 }
+
+export type InquiryStatus = "New Inquiry" | "Quoted" | "Negotiating" | "Accepted" | "Closed";
+
+const LEGAL_INQUIRY_TRANSITIONS: Record<string, string[]> = {
+  "New Inquiry": ["Quoted", "Closed"],
+  "Quoted": ["Negotiating", "Accepted", "Closed"],
+  "Negotiating": ["Quoted", "Accepted", "Closed"],
+  "Accepted": ["Closed"],
+  "Closed": ["New Inquiry"],
+};
+
+export function canTransitionInquiryStatus(
+  fromStatus: string | null | undefined,
+  toStatus: string | null | undefined
+): boolean {
+  if (!fromStatus || !toStatus) return false;
+  const allowed = LEGAL_INQUIRY_TRANSITIONS[fromStatus];
+  return allowed ? allowed.includes(toStatus) : false;
+}
+
