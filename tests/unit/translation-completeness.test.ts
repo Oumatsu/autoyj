@@ -92,8 +92,10 @@ describe("Unit: i18n Translation Completeness & Key Symmetry", () => {
     for (const [key, zhVal] of zhMap.entries()) {
       if (typeof zhVal === "string" && zhVal.includes("{")) {
         const zhVars = extractPlaceholders(zhVal);
-        const enVars = extractPlaceholders(enMap.get(key));
-        const amVars = extractPlaceholders(amMap.get(key));
+        const enVal = enMap.get(key);
+        const amVal = amMap.get(key);
+        const enVars = typeof enVal === "string" ? extractPlaceholders(enVal) : [];
+        const amVars = typeof amVal === "string" ? extractPlaceholders(amVal) : [];
 
         if (JSON.stringify(zhVars) !== JSON.stringify(enVars)) {
           placeholderMismatches.push(`EN placeholder mismatch at '${key}': ZH ${JSON.stringify(zhVars)} vs EN ${JSON.stringify(enVars)}`);

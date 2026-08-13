@@ -1,3 +1,4 @@
+import { expect, test } from "bun:test";
 import { canCreateVehicleQuotation } from "../../lib/quotation-permissions";
 
 test("only admin and sales can create vehicle quotations", () => {

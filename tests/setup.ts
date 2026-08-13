@@ -2,14 +2,13 @@ import { GlobalWindow } from "happy-dom";
 
 const window = new GlobalWindow();
 globalThis.window = window as unknown as Window & typeof globalThis;
-globalThis.document = window.document;
-globalThis.navigator = window.navigator;
-globalThis.HTMLElement = window.HTMLElement;
-globalThis.Element = window.Element;
-globalThis.Node = window.Node;
-globalThis.CustomEvent = window.CustomEvent;
-import { MutationObserver } from "happy-dom";
-globalThis.MutationObserver = window.MutationObserver;
+globalThis.document = window.document as any;
+globalThis.navigator = window.navigator as any;
+globalThis.HTMLElement = window.HTMLElement as any;
+globalThis.Element = window.Element as any;
+globalThis.Node = window.Node as any;
+globalThis.CustomEvent = window.CustomEvent as any;
+globalThis.MutationObserver = window.MutationObserver as any;
 
 import { mock } from "bun:test";
 

@@ -19,7 +19,7 @@ describe("Unit: Insights Article Translation Resolvers", () => {
     };
 
     expect(
-      translateInsightArticle(article, (key, fallback) => translations[key] ?? fallback)
+      translateInsightArticle(article, (key: string, fallback?: string) => translations[key] ?? fallback ?? key)
     ).toEqual({
       ...article,
       title: "中文标题",

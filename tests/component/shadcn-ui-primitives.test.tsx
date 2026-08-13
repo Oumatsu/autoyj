@@ -112,7 +112,7 @@ describe("Component: shadcn/ui Primitives Comprehensive Suite", () => {
   test("Dialog renders title, description, and overlay when open", () => {
     const html = renderToString(
       React.createElement(
-        Dialog,
+        Dialog as any,
         { open: true, onClose: () => {} },
         React.createElement(
           DialogHeader,
@@ -134,7 +134,7 @@ describe("Component: shadcn/ui Primitives Comprehensive Suite", () => {
       React.createElement(Switch, { checked: true, "aria-label": "Toggle listing" })
     );
     const checkboxHtml = renderToString(
-      React.createElement(Checkbox, { checked: true, label: "Confirm Color" })
+      React.createElement(Checkbox as any, { checked: true, label: "Confirm Color" })
     );
     expect(switchHtml).toContain('role="switch"');
     expect(switchHtml).toContain('aria-checked="true"');
@@ -146,12 +146,12 @@ describe("Component: shadcn/ui Primitives Comprehensive Suite", () => {
       React.createElement(
         Accordion,
         null,
-        React.createElement(AccordionItem, { value: "specs", title: "Technical Specs", defaultOpen: true }, "39.4 kWh Battery")
+        React.createElement(AccordionItem as any, { value: "specs", title: "Technical Specs", defaultOpen: true }, "39.4 kWh Battery")
       )
     );
     const collapsibleHtml = renderToString(
       React.createElement(
-        Collapsible,
+        Collapsible as any,
         { defaultOpen: true },
         React.createElement(CollapsibleTrigger, null, "Toggle Filter"),
         React.createElement(CollapsibleContent, null, "Filter Options")
@@ -220,7 +220,7 @@ describe("Component: shadcn/ui Primitives Comprehensive Suite", () => {
   test("Sheet renders slide-in panel with title and close action", () => {
     const sheetHtml = renderToString(
       React.createElement(
-        Sheet,
+        Sheet as any,
         { open: true, onOpenChange: () => {}, side: "right" },
         React.createElement(SheetHeader, null, React.createElement(SheetTitle, null, "Menu Title")),
         React.createElement(SheetDescription, null, "Menu Description")
@@ -258,9 +258,9 @@ describe("Component: shadcn/ui Primitives Comprehensive Suite", () => {
   test("Popover and HoverCard render popover and hover preview panels", () => {
     const popoverHtml = renderToString(
       React.createElement(
-        Popover,
+        Popover as any,
         { open: true, onOpenChange: () => {} },
-        React.createElement(PopoverContent, { open: true }, "Popover Content")
+        React.createElement(PopoverContent as any, { open: true }, "Popover Content")
       )
     );
     const hoverHtml = renderToString(

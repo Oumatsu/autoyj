@@ -1,4 +1,4 @@
-import { catalogFilterKey, catalogFilterFallback } from "./catalogTranslations.ts";
+import { catalogFilterKey, catalogFilterFallback } from "./catalogTranslations";
 
 export type NumericInterval = { min: number; max: number };
 

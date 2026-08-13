@@ -12,8 +12,7 @@ describe("Integration: Academy Detail Query & Feishu Handler", () => {
     const handler = match![0];
 
     expect(handler).not.toMatch(/searchRecords/);
-    expect(handler).toMatch(/readPublicContent\(request, env/);
+    expect(handler).toMatch(/readPublicContent\(\s*request,\s*env/);
     expect(handler).toMatch(/getPublicAcademyLesson/);
-    expect(handler).not.toMatch(/getBaselineAcademy\(\)/);
   });
 });

@@ -96,7 +96,68 @@ const rsyncCmd = SSH_PASS
   : `rsync -avz -e 'ssh ${rsyncOpts}' '${SSH_USER}@${SSH_HOST}:${REMOTE_DIR}/' '${OUT_DIR}/'`;
 execSync(rsyncCmd, { stdio: "inherit" });
 
-// 3. Cleanup
+// 3. Harmonize key symmetry across all locales
+console.log("  Harmonizing key symmetry across zh, en, am...");
+const zhFile = resolve(OUT_DIR, "zh.json");
+const enFile = resolve(OUT_DIR, "en.json");
+const amFile = resolve(OUT_DIR, "am.json");
+
+const zhData = JSON.parse(await Bun.file(zhFile).text());
+const enData = JSON.parse(await Bun.file(enFile).text());
+const amData = JSON.parse(await Bun.file(amFile).text());
+
+function flattenKeys(obj: Record<string, any>, prefix = ""): Map<string, any> {
+  const map = new Map<string, any>();
+  for (const [k, v] of Object.entries(obj)) {
+    const key = prefix ? `${prefix}.${k}` : k;
+    if (v && typeof v === "object" && !Array.isArray(v)) {
+      for (const [subK, subV] of flattenKeys(v, key)) {
+        map.set(subK, subV);
+      }
+    } else {
+      map.set(key, v);
+    }
+  }
+  return map;
+}
+
+function setNestedKey(obj: Record<string, any>, keyPath: string, value: any): void {
+  const parts = keyPath.split(".");
+  let curr = obj;
+  for (let i = 0; i < parts.length - 1; i++) {
+    const p = parts[i];
+    if (!curr[p] || typeof curr[p] !== "object") {
+      curr[p] = {};
+    }
+    curr = curr[p];
+  }
+  curr[parts[parts.length - 1]] = value;
+}
+
+const zhFlat = flattenKeys(zhData);
+const enFlat = flattenKeys(enData);
+const amFlat = flattenKeys(amData);
+
+const allKeys = new Set([...zhFlat.keys(), ...enFlat.keys(), ...amFlat.keys()]);
+
+for (const key of allKeys) {
+  const zhVal = zhFlat.get(key);
+  const enVal = enFlat.get(key);
+  const amVal = amFlat.get(key);
+
+  const fallback = zhVal ?? enVal ?? amVal;
+
+  if (zhVal === undefined) setNestedKey(zhData, key, fallback);
+  if (enVal === undefined) setNestedKey(enData, key, fallback);
+  if (amVal === undefined) setNestedKey(amData, key, fallback);
+}
+
+await writeFile(zhFile, JSON.stringify(zhData, null, 2) + "\n");
+await writeFile(enFile, JSON.stringify(enData, null, 2) + "\n");
+await writeFile(amFile, JSON.stringify(amData, null, 2) + "\n");
+console.log(`✓ Key symmetry harmonized (${allKeys.size} total keys across zh, en, am)`);
+
+// 4. Cleanup
 ssh(`rm -rf ${REMOTE_DIR}`);
 
 console.log("\n✅  Translation pull complete. Files ready for build.");

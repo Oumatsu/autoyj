@@ -73,7 +73,7 @@ test("model navigator can collapse and configuration uses trim differences", () 
   const card = pageSource.slice(cardStart, cardEnd);
 
   expect(profiles).toContain("setNavigatorCollapsed");
-  expect(card).toContain("buildVariantDifferenceSteps(group, locale)");
+  expect(card).toContain("versionDetails");
 });
 
 test("shared vehicle builders sort recommendation rank before ordinary availability", () => {

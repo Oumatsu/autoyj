@@ -36,7 +36,7 @@ export default function TermsPage() {
               )}
               {section.items && (
                 <ul className="list-disc list-inside text-gray-400 font-light space-y-2 ml-4">
-                  {section.items.map((item: string, i: number) => {
+                  {(Array.isArray(section.items) ? section.items : Object.values(section.items)).map((item: string, i: number) => {
                     const parts = item.split("：");
                     if (parts.length > 1) {
                       return (

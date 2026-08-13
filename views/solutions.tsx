@@ -98,7 +98,7 @@ export default function SolutionsPage() {
                       {cat.title}
                     </h4>
                     <div className="grid gap-2">
-                      {cat.items?.map((item: string, j: number) => (
+                      {(Array.isArray(cat.items) ? cat.items : cat.items ? Object.values(cat.items) : []).map((item: string, j: number) => (
                         <div key={j} className="pdi-item">
                           <div className="pdi-check" />
                           <span className="text-xs text-gray-400">{item}</span>

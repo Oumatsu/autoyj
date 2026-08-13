@@ -1,3 +1,4 @@
+import { expect, test } from "bun:test";
 import { appendInquiryComment, inquiryCommentAuthorClass } from "../../lib/inquiry-comment-state";
 
 test("adds a newly posted comment immediately without duplicating an existing note", () => {

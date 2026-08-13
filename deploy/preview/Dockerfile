@@ -10,14 +10,17 @@ FROM oven/bun:1-slim
 
 WORKDIR /app
 
-# 1. 先拷贝 package.json 并安装依赖，补充 standalone 缺失的 react/react-dom 等模块
-COPY package.json bun.lockb* ./
-RUN bun install --production
-
-# 2. 覆盖 standalone 产物与静态资源
+# 1. Copy standalone build and public static assets
 COPY standalone/ ./
 COPY public/ ./public/
 
+# 2. Copy root package.json and force clean Linux production install
+COPY package.json ./
+RUN rm -rf node_modules && bun install --production
+
 EXPOSE 3000
+
+ENV PORT=3000
+ENV HOST=0.0.0.0
 
 CMD ["bun", "run", "server.js"]
