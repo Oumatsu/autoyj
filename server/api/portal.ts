@@ -3810,7 +3810,7 @@ async function handleUpdateVehicle(request: Request, env: Env, _vehicleId: strin
 async function handleCounterOffer(request: Request, env: Env, quoteNo: string) {
   const session = await requireSession(request, env);
   const body = (await request.json().catch(() => null)) as Record<string, unknown> | null;
-  const offeredPrice = asNumber(body?.offeredPrice);
+  const offeredPrice = asNumber(body?.offeredPrice ?? body?.counterPrice);
   const message = asText(body?.message).trim();
   if (!offeredPrice && !message) return problem("Counteroffer price or message is required");
   const { db, quote } = await findScopedQuote(env, session, quoteNo);
