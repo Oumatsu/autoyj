@@ -19,7 +19,7 @@ export default function DynamicVehiclePage({ params }: any) {
     fetch(`/api/portal/public/products/${slug}`)
       .then((res) => {
         if (!res.ok) throw new Error();
-        return res.json().then((payload) => {
+        return res.json().then((payload: any) => {
           if (!payload || payload.error || typeof payload !== "object" || !payload.vehicle) {
             throw new Error();
           }

@@ -7,7 +7,7 @@ import { T } from "@tolgee/react";
 import { vehicles as fallbackRevenue } from "../app/products/revenue-king/data";
 import { vehicles as fallbackElite } from "../app/products/elite-flagship/data";
 import { vehicles as fallbackUtility } from "../app/products/utility-pro/data";
-import { mergeOverviewCard, translateOverviewCard } from "./products/productsOverviewTranslations.ts";
+import { mergeOverviewCard, translateOverviewCard } from "./products/productsOverviewTranslations";
 import { sanitizeDisplayData } from "@/lib/display-text";
 
 

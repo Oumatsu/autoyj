@@ -120,9 +120,9 @@ describe("portal request/D1 isolation", () => {
     const db = fakeD1({
       user: validUser,
     });
-    globalThis.fetch = async () => {
+    globalThis.fetch = (async () => {
       throw new Error("request-time Feishu call");
-    };
+    }) as any;
 
     await login(db);
     expect(db.queries.some((query) => /JOIN\s+account/i.test(query) && /account\.password/i.test(query))).toBe(true);
@@ -130,10 +130,10 @@ describe("portal request/D1 isolation", () => {
 
   test("formal login and business requests fail clearly without PORTAL_DB", async () => {
     let fetchCalls = 0;
-    globalThis.fetch = async () => {
+    globalThis.fetch = (async () => {
       fetchCalls += 1;
       throw new Error("request-time Feishu call");
-    };
+    }) as any;
 
     const loginResponse = await handlePortalRequest(
       new Request("https://portal.example/api/portal/session", {
@@ -163,16 +163,16 @@ describe("portal request/D1 isolation", () => {
       env(),
     );
     expect(sessionResponse.status).toBe(200);
-    expect(await sessionResponse.json()).toEqual({ user: null });
+    expect((await sessionResponse.json()) as any).toEqual({ user: null });
     expect(fetchCalls).toBe(0);
   });
 
   test("legacy /api/auth routes are explicit D1-only responses without Feishu", async () => {
     let fetchCalls = 0;
-    globalThis.fetch = async () => {
+    globalThis.fetch = (async () => {
       fetchCalls += 1;
       throw new Error("request-time Feishu call");
-    };
+    }) as any;
 
     const response = await handlePortalRequest(
       new Request("https://portal.example/api/auth/sign-in/email", { method: "POST" }),
@@ -180,16 +180,16 @@ describe("portal request/D1 isolation", () => {
     );
 
     expect(response.status).toBe(503);
-    expect(await response.json()).toEqual({ error: "Portal database is not configured" });
+    expect((await response.json()) as any).toEqual({ error: "Portal database is not configured" });
     expect(fetchCalls).toBe(0);
   });
 
   test("empty D1 catalogs return empty results without a Feishu fallback", async () => {
     const db = fakeD1({ user: validUser });
     const cookie = await login(db);
-    globalThis.fetch = async () => {
+    globalThis.fetch = (async () => {
       throw new Error("request-time Feishu call");
-    };
+    }) as any;
 
     const [catalog, models, vehicles] = await Promise.all([
       handlePortalRequest(new Request("https://portal.example/api/portal/catalog", { headers: { cookie } }), env(db)),
@@ -198,9 +198,9 @@ describe("portal request/D1 isolation", () => {
     ]);
 
     expect(catalog.status).toBe(200);
-    expect(await catalog.json()).toEqual({ vehicleModels: [], vehicleModelSpecs: [], vehicles: [] });
-    expect(await models.json()).toEqual({ vehicleModels: [], vehicleModelSpecs: [] });
-    expect(await vehicles.json()).toEqual({ vehicles: [] });
+    expect((await catalog.json()) as any).toEqual({ vehicleModels: [], vehicleModelSpecs: [], vehicles: [] });
+    expect((await models.json()) as any).toEqual({ vehicleModels: [], vehicleModelSpecs: [] });
+    expect((await vehicles.json()) as any).toEqual({ vehicles: [] });
   });
 
   test("vehicle model catalog derives real trims from inventory when trim rows are empty", async () => {
@@ -481,9 +481,9 @@ describe("portal request/D1 isolation", () => {
   test("quote counter and accept use D1 and do not silently succeed without a quote", async () => {
     const db = fakeD1({ user: validUser });
     const cookie = await login(db);
-    globalThis.fetch = async () => {
+    globalThis.fetch = (async () => {
       throw new Error("request-time Feishu call");
-    };
+    }) as any;
 
     const counter = await handlePortalRequest(
       new Request("https://portal.example/api/portal/quotes/QUOTE-1/counter", {
@@ -524,9 +524,9 @@ describe("portal request/D1 isolation", () => {
       }],
     });
     const cookie = await login(db);
-    globalThis.fetch = async () => {
+    globalThis.fetch = (async () => {
       throw new Error("request-time Feishu call");
-    };
+    }) as any;
 
     const counter = await handlePortalRequest(
       new Request("https://portal.example/api/portal/quotes/QUOTE-1/counter", {

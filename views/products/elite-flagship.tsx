@@ -7,7 +7,7 @@ import { sanitizeDisplayData } from "@/lib/display-text";
 import { LocaleLink } from "@/i18n/LocaleLink";
 import { ProductCatalogSkeleton, ProductCatalogUnavailable } from "@/components/ProductCatalogState";
 import { buildCatalogFilterGroups, filterCatalogProducts } from "./catalogFilters";
-import { catalogFilterKey, catalogModelKey } from "./catalogTranslations.ts";
+import { catalogFilterKey, catalogModelKey } from "./catalogTranslations";
 import { getVehicleModelImage } from "@/lib/static-assets";
 import { vehicles } from "../../app/products/elite-flagship/data";
 

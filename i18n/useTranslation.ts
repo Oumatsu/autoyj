@@ -41,7 +41,9 @@ type NormalizeMessageValue<Value> = Value extends readonly (infer Item)[]
   ? NormalizeMessageValue<Item>[]
   : Value extends Record<string, unknown>
     ? keyof Value extends `${number}`
-      ? OptionalObjectUnion<Value[NumericKey<Value>]>[]
+      ? Value[NumericKey<Value>] extends string | number | boolean
+        ? Value[NumericKey<Value>][]
+        : OptionalObjectUnion<Value[NumericKey<Value>]>[]
       : { [Key in keyof Value]: NormalizeMessageValue<Value[Key]> }
     : Value;
 

@@ -5,7 +5,7 @@ import {
   intervalsOverlap,
 } from "../../views/products/catalogFilters";
 
-const translate = (_key: string, fallback: string) => fallback;
+const translate = (_key: string, fallback: string = "") => fallback;
 
 function product(name: string, filterData: any) {
   return { name, filterData };
@@ -25,7 +25,7 @@ describe("Unit: Catalog Filter Logic & Numeric Intervals", () => {
       ["catalog.filters.steeringSetup.lhd", "左舵"],
       ["catalog.filters.inventoryStatus.in-stock", "现货"],
     ]);
-    const translateCatalog = (key: string, fallback: string) => translated.get(key) ?? fallback;
+    const translateCatalog = (key: string, fallback: string = "") => translated.get(key) ?? fallback;
     const groups = buildCatalogFilterGroups(
       "revenue-king",
       [

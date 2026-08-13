@@ -7,7 +7,7 @@ import { TolgeeWrapper } from "../../components/TolgeeWrapper";
 describe("Component: Real Home Page View & Trust Bar", () => {
   test("HomePage component renders HeroSlider, Trust Bar, and product sections cleanly", () => {
     const html = renderToString(
-      React.createElement(TolgeeWrapper, { locale: "en" }, React.createElement(HomePage))
+      React.createElement(TolgeeWrapper as any, { locale: "en" }, React.createElement(HomePage))
     );
 
     expect(html).toMatch(/Explore Our Process/i);

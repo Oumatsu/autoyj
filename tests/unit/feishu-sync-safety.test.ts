@@ -151,7 +151,7 @@ describe("Feishu sync safety", () => {
         msg: "success",
         data: { items: [{ record_id: "rec-1", fields: { name: "ready" } }] },
       }), { status: 200 });
-    }) as typeof fetch;
+    }) as any;
 
     await expect(searchRecords(env(new FakeD1()), "table-id", {
       pageSize: 10,

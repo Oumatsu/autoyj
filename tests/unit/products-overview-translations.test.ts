@@ -40,7 +40,7 @@ describe("Unit: Products Overview Card Translations", () => {
       "catalog.models.aito-m9.cardLabel": "科技巅峰",
       "catalog.cardValues.405km-range": "405 公里续航",
     };
-    const t = (key: string, fallback: string) => translations[key] ?? fallback;
+    const t = (key: string, fallback?: string) => translations[key] ?? fallback ?? key;
 
     expect(translateOverviewCard(rawCard, t)).toEqual({
       ...rawCard,

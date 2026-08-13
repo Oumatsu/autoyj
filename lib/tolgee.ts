@@ -34,32 +34,6 @@ export function getTolgeeConfig() {
 
 export { DevTools };
 
-let tolgeeReachability: Promise<boolean> | null = null;
-
-/**
- * Keep the static bundle usable when the optional local Tolgee editor is stopped.
- * no-cors avoids a second preflight just to check whether the local server exists.
- */
-export function probeTolgee(): Promise<boolean> {
-  if (tolgeeReachability) return tolgeeReachability;
-
-  const { apiKey, apiUrl } = getTolgeeConfig();
-  if (!apiKey || typeof window === "undefined") return Promise.resolve(false);
-
-  const controller = new AbortController();
-  const timeoutId = window.setTimeout(() => controller.abort(), 3000);
-  tolgeeReachability = fetch(apiUrl, {
-    cache: "no-store",
-    mode: "no-cors",
-    signal: controller.signal,
-  })
-    .then(() => true)
-    .catch(() => true)
-    .finally(() => window.clearTimeout(timeoutId));
-
-  return tolgeeReachability;
-}
-
 const instanceLanguageMap = new WeakMap<object, string>();
 let lastCreatedLanguage: string = defaultLanguage;
 

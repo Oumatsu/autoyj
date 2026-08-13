@@ -61,8 +61,8 @@ class MemoryFileSystem implements PullFileSystem {
 function createFetchMock(
   bodyByLocale: Record<string, string>,
   requests: URL[] = []
-): typeof fetch {
-  return async (input, init) => {
+): any {
+  return async (input: any, init?: any) => {
     const url = new URL(String(input));
     requests.push(url);
     const locale = url.searchParams.get("languages") || "unknown";
@@ -222,7 +222,7 @@ describe("Tolgee pull", () => {
 
   test("rejects a dirty translation file before exporting", async () => {
     let requestCount = 0;
-    const fetchImpl: typeof fetch = async () => {
+    const fetchImpl: any = async () => {
       requestCount += 1;
       return new Response("{}");
     };
@@ -248,7 +248,7 @@ describe("Tolgee pull", () => {
     ];
     paths.forEach((filePath, index) => fileSystem.files.set(filePath, `old bundle ${index}`));
 
-    const fetchImpl: typeof fetch = async (input, init) => {
+    const fetchImpl: any = async (input: any, init: any) => {
       const url = new URL(String(input));
       if (url.searchParams.get("languages") === "en") {
         return new Response("upstream unavailable", { status: 503 });
@@ -289,7 +289,7 @@ describe("Tolgee pull", () => {
     paths.forEach((filePath, index) => fileSystem.files.set(filePath, `old bundle ${index}`));
 
     let responseBody = "not-json";
-    const fetchImpl: typeof fetch = async () => new Response(responseBody, { status: 200 });
+    const fetchImpl: any = async () => new Response(responseBody, { status: 200 });
 
     await expect(
       runPull({

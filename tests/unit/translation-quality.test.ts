@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
-import am from "../../i18n/translations/am";
-import en from "../../i18n/translations/en";
-import zh from "../../i18n/translations/zh";
+import am from "../../i18n/translations/am.json";
+import en from "../../i18n/translations/en.json";
+import zh from "../../i18n/translations/zh.json";
 
 function flatten(obj: any, prefix = ""): Record<string, string> {
   const result: Record<string, string> = {};

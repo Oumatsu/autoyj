@@ -61,9 +61,9 @@ describe("public portal routes", () => {
   test("empty D1 products still return complete static cards without network fallback", async () => {
     const db = fakeD1({ vehicle_models: [], vehicle_trims: [] });
     const originalFetch = globalThis.fetch;
-    globalThis.fetch = async () => {
+    globalThis.fetch = (async () => {
       throw new Error("public route made an unexpected network request");
-    };
+    }) as any;
 
     try {
       const response = await get("/api/portal/public/products", db);
@@ -119,7 +119,7 @@ describe("public portal routes", () => {
     );
 
     expect(response.status).toBe(500);
-    expect((await response.json()).error).toMatch(/no such table/i);
+    expect(((await response.json()) as any).error).toMatch(/no such table/i);
   });
 
   test("non-local public pages fallback to baseline snapshot dataset when D1 is not configured", async () => {
@@ -207,7 +207,7 @@ describe("public portal routes", () => {
       env(db),
     );
     expect(valid.status).toBe(200);
-    expect(await valid.json()).toEqual({ ok: true });
+    expect((await valid.json()) as any).toEqual({ ok: true });
     expect(db.inserts).toBe(1);
   });
 

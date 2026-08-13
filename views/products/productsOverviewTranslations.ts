@@ -1,7 +1,7 @@
 import {
   catalogCardValueKey,
   catalogModelKey,
-} from "./catalogTranslations.ts";
+} from "./catalogTranslations";
 
 export type OverviewCard = Record<string, any> & {
   slug?: string;
