@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 
 test.describe("E2E Journey: Inquiry → Quote → Counter-Offer → Order", () => {
-  test("verifies complete customer and sales quote collaboration lifecycle", async ({ request, page }) => {
+  test("verifies complete customer and sales quote collaboration lifecycle", async ({ request }) => {
     // 1. Dev login as sales to verify portal bootstrap
     const salesLogin = await request.post("/api/portal/dev-session", {
       data: { role: "sales" },
@@ -31,5 +31,48 @@ test.describe("E2E Journey: Inquiry → Quote → Counter-Offer → Order", () =
     expect(customerSession.status()).toBe(200);
     const sessionData = await customerSession.json();
     expect(sessionData.user.role).toBe("customer");
+
+    // 4. Customer creates an inquiry
+    const createInquiryRes = await request.post("/api/portal/inquiries", {
+      headers: { Cookie: customerCookie },
+      data: {
+        vehicleId: data.vehicles?.[0]?.id || "V-001",
+        vehicleModel: "BYD Seal 2026",
+        title: "Bulk Fleet Purchase 5 units",
+        quantity: 5,
+        tradeTerm: "FOB",
+        notes: "Inquiring about FOB price for 5 units to Djibouti port.",
+      },
+    });
+    expect(createInquiryRes.status()).toBe(201);
+    const inquiryResult = await createInquiryRes.json();
+    expect(inquiryResult).toHaveProperty("inquiryNo");
+    const inquiryNo = inquiryResult.inquiryNo;
+    expect(typeof inquiryNo).toBe("string");
+
+    // 5. Sales creates quote for the inquiry
+    const createQuoteRes = await request.post("/api/portal/quotes", {
+      headers: { Cookie: salesCookie },
+      data: {
+        inquiryNo,
+        unitPrice: 28500,
+      },
+    });
+    expect(createQuoteRes.status()).toBe(201);
+    const quoteResult = await createQuoteRes.json();
+    expect(quoteResult).toHaveProperty("quoteNo");
+    const quoteNo = quoteResult.quoteNo;
+    expect(typeof quoteNo).toBe("string");
+
+    // 6. Customer accepts the quotation -> triggers order creation
+    const acceptQuoteRes = await request.post(`/api/portal/quotes/${encodeURIComponent(quoteNo)}/accept`, {
+      headers: { Cookie: customerCookie },
+      data: {},
+    });
+    expect(acceptQuoteRes.status()).toBe(201);
+    const acceptResult = await acceptQuoteRes.json();
+    expect(acceptResult).toHaveProperty("orderNo");
+    expect(typeof acceptResult.orderNo).toBe("string");
+    expect(acceptResult.orderNo.length).toBeGreaterThan(0);
   });
 });

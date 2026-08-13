@@ -1,7 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { canTransitionInquiryStatus } from "../../../lib/inquiry-workflow";
-
-type InquiryStatus = "New Inquiry" | "Quoted" | "Negotiating" | "Accepted" | "Closed";
+import { canTransitionInquiryStatus, type InquiryStatus } from "../../../lib/inquiry-workflow";
 
 const ALL_STATUSES: InquiryStatus[] = [
   "New Inquiry",

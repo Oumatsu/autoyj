@@ -1,48 +1,13 @@
 import { describe, expect, test } from "bun:test";
-import React from "react";
+import React, { act } from "react";
+import { createRoot } from "react-dom/client";
 import { renderToString } from "react-dom/server";
-
-function SimpleQuoteComposer({
-  inquiryNo,
-  quantity,
-  unitPrice,
-  tradeTerm,
-  onSubmit,
-}: {
-  inquiryNo: string;
-  quantity: number;
-  unitPrice: number;
-  tradeTerm: string;
-  onSubmit: (e: React.FormEvent) => void;
-}) {
-  const total = quantity * unitPrice;
-  return (
-    <form data-testid="quote-form" onSubmit={onSubmit}>
-      <input type="hidden" name="inquiryNo" value={inquiryNo} />
-      <div className="field">
-        <label htmlFor="qty">Quantity</label>
-        <input id="qty" type="number" readOnly value={quantity} />
-      </div>
-      <div className="field">
-        <label htmlFor="price">Unit Price (USD)</label>
-        <input id="price" type="number" defaultValue={unitPrice} required min="1" />
-      </div>
-      <div className="field">
-        <label htmlFor="term">Trade Term</label>
-        <input id="term" type="text" readOnly value={tradeTerm} />
-      </div>
-      <div data-testid="total-amount" className="total">
-        {`Total: $${total.toLocaleString()}`}
-      </div>
-      <button type="submit" disabled={unitPrice <= 0}>Send Quotation</button>
-    </form>
-  );
-}
+import { QuoteComposerForm } from "../../components/portal/QuoteComposerForm";
 
 describe("Quote Composer Form Component", () => {
   test("renders quote composer with pre-filled quantity and calculated total", () => {
     const html = renderToString(
-      <SimpleQuoteComposer
+      <QuoteComposerForm
         inquiryNo="INQ-2026-001"
         quantity={5}
         unitPrice={28000}
@@ -58,7 +23,7 @@ describe("Quote Composer Form Component", () => {
 
   test("disables submit button when unit price is zero or negative", () => {
     const html = renderToString(
-      <SimpleQuoteComposer
+      <QuoteComposerForm
         inquiryNo="INQ-2026-001"
         quantity={5}
         unitPrice={0}
@@ -67,5 +32,69 @@ describe("Quote Composer Form Component", () => {
       />
     );
     expect(html).toContain("disabled");
+  });
+
+  test("updates total amount and dispatches submit event with Happy DOM", async () => {
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+    const root = createRoot(container);
+
+    let submitted = false;
+    let priceChangedVal = 0;
+
+    await act(async () => {
+      root.render(
+        <QuoteComposerForm
+          inquiryNo="INQ-2026-001"
+          quantity={3}
+          unitPrice={20000}
+          tradeTerm="CIF"
+          onSubmit={(e) => {
+            e.preventDefault();
+            submitted = true;
+          }}
+          onChangeUnitPrice={(val) => {
+            priceChangedVal = val;
+          }}
+        />
+      );
+    });
+
+    const priceInput = container.querySelector("#price") as HTMLInputElement;
+    const totalDiv = container.querySelector('[data-testid="total-amount"]') as HTMLDivElement;
+    const form = container.querySelector('[data-testid="quote-form"]') as HTMLFormElement;
+
+    expect(priceInput).not.toBeNull();
+    expect(totalDiv.textContent).toBe("Total: $60,000");
+
+    // Change unit price using React-compatible setter & dispatch
+    await act(async () => {
+      const nativeSetter = Object.getOwnPropertyDescriptor(
+        window.HTMLInputElement.prototype,
+        "value"
+      )?.set;
+      if (nativeSetter) {
+        nativeSetter.call(priceInput, "25000");
+      } else {
+        priceInput.value = "25000";
+      }
+      priceInput.dispatchEvent(new window.Event("input", { bubbles: true }));
+      priceInput.dispatchEvent(new window.Event("change", { bubbles: true }));
+    });
+
+    expect(priceChangedVal).toBe(25000);
+    expect(totalDiv.textContent).toBe("Total: $75,000");
+
+    // Submit form
+    await act(async () => {
+      form.dispatchEvent(new window.Event("submit", { bubbles: true, cancelable: true }));
+    });
+
+    expect(submitted).toBe(true);
+
+    await act(async () => {
+      root.unmount();
+    });
+    container.remove();
   });
 });

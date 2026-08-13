@@ -9,6 +9,7 @@ globalThis.Element = window.Element as any;
 globalThis.Node = window.Node as any;
 globalThis.CustomEvent = window.CustomEvent as any;
 globalThis.MutationObserver = window.MutationObserver as any;
+(globalThis as any).IS_REACT_ACT_ENVIRONMENT = true;
 
 import { mock } from "bun:test";
 

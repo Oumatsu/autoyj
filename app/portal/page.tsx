@@ -25,6 +25,7 @@ import { getPortalSession, invalidatePortalSession } from "@/lib/portal-session-
 import { formatPortalHeader, formatPortalRole, formatPortalStatus, localizeVehicleValue, portalRoleLabels } from "@/lib/portal-english";
 import type { AccountType, PortalRole, PriceTier } from "@/lib/users";
 import { QuotationTemplatePreview } from "@/components/portal/QuotationTemplatePreview";
+import { InquiryVehiclePicker } from "@/components/portal/InquiryVehiclePickerField";
 import { appendInquiryComment, inquiryCommentAuthorClass } from "@/lib/inquiry-comment-state";
 import { buildInquiryCommentThreads, inquiryListDetails, replyReference } from "@/lib/inquiry-workflow";
 
