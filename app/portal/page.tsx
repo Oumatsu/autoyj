@@ -2340,14 +2340,6 @@ function AdminQuotes({ data, onRefresh }: { data: BootstrapData; onRefresh: () =
     return !inquirySearch.trim() || haystack.includes(inquirySearch.trim().toLowerCase());
   });
   const selected = visibleInquiries.find((item) => item.inquiryNo === selectedNo) || visibleInquiries[0];
-  const activeInquiryNo = selected?.inquiryNo || "";
-  useEffect(() => {
-    if (selectedNo === activeInquiryNo) return;
-    setSelectedNo(activeInquiryNo);
-    setReplyTo("");
-    setNote("");
-    setShowQuoteComposer(false);
-  }, [activeInquiryNo, selectedNo]);
   const notes = postedNotes.filter((note) => note.inquiryNo === selected?.inquiryNo).reduce((current, note) => appendInquiryComment(current, note), data.inquiryNotes.filter((item) => item.inquiryNo === selected?.inquiryNo));
   const commentThreads = buildInquiryCommentThreads(notes);
   const parent = notes.find((item) => item.noteId === replyTo);
@@ -2355,7 +2347,17 @@ function AdminQuotes({ data, onRefresh }: { data: BootstrapData; onRefresh: () =
   const canCreateQuote = data.user.role === "admin" || data.user.role === "sales";
   const unreadCount = inquiries.filter((inquiry) => inquiry.hasUnreadFollowUps).length;
 
-  async function select(inquiry: Inquiry) { setSelectedNo(inquiry.inquiryNo); setError(""); if (inquiry.hasUnreadFollowUps) { await api(`/api/portal/inquiries/${encodeURIComponent(inquiry.inquiryNo)}/read`, { method: "POST" }); await onRefresh(); } }
+  async function select(inquiry: Inquiry) {
+    setSelectedNo(inquiry.inquiryNo);
+    setReplyTo("");
+    setNote("");
+    setShowQuoteComposer(false);
+    setError("");
+    if (inquiry.hasUnreadFollowUps) {
+      await api(`/api/portal/inquiries/${encodeURIComponent(inquiry.inquiryNo)}/read`, { method: "POST" });
+      await onRefresh();
+    }
+  }
   async function create(event: React.FormEvent) { event.preventDefault(); if ((!target.vehicleModel && !title.trim()) || !initialNote.trim()) return; setBusy(true); try { await api("/api/portal/inquiries", { method: "POST", body: JSON.stringify({ vehicleId: target.vehicleId, vehicleModel: target.vehicleModel, title, quantity: newInquiryQuantity, tradeTerm: "FOB", notes: initialNote }) }); setShowNew(false); await onRefresh(); } catch (e) { setError(e instanceof Error ? e.message : "Could not start inquiry"); } finally { setBusy(false); } }
   async function post(event: React.FormEvent) { event.preventDefault(); if (!selected || !note.trim()) return; setBusy(true); try { const result = await api<{ note: InquiryNote }>(`/api/portal/inquiries/${encodeURIComponent(selected.inquiryNo)}/notes`, { method: "POST", body: JSON.stringify({ body: note, parentNoteId: replyTo }) }); setPostedNotes((current) => appendInquiryComment(current, result.note)); setNote(""); setReplyTo(""); } catch (e) { setError(e instanceof Error ? e.message : "Could not add follow-up"); } finally { setBusy(false); } }
   async function closeComment(comment: InquiryNote) { if (!window.confirm(`${copy.closeComment}?`)) return; setBusy(true); setError(""); try { await api(`/api/portal/inquiry-content/note/${encodeURIComponent(comment.noteId)}`, { method: "DELETE", body: JSON.stringify({ reason: "Closed by administrator" }) }); setPostedNotes((current) => current.filter((item) => item.noteId !== comment.noteId)); await onRefresh(); } catch (e) { setError(e instanceof Error ? e.message : "Could not close comment"); } finally { setBusy(false); } }
