@@ -621,4 +621,37 @@ describe("portal request/D1 isolation", () => {
     );
     expect(denied.status).toBe(403);
   });
+
+  test("only an administrator can close an inquiry without deleting its discussion", async () => {
+    const inquiry = { inquiry_no: "INQ-1", status: "New Inquiry", customer_id: "CUS-1" };
+    const adminDb = fakeD1({ user: { ...validUser, role: "admin", account_type: "internal" }, inquiries: [inquiry] });
+    const adminCookie = await login(adminDb);
+    const response = await handlePortalRequest(
+      new Request("https://portal.example/api/portal/inquiries/INQ-1/status", {
+        method: "PATCH",
+        headers: { cookie: adminCookie, "content-type": "application/json" },
+        body: JSON.stringify({ status: "Closed" }),
+      }),
+      env(adminDb),
+    );
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toMatchObject({ ok: true, status: "Closed" });
+    const adminSql = adminDb.batches.flat().join("\n");
+    expect(adminSql).toContain("UPDATE inquiries SET status='Closed'");
+    expect(adminSql).toContain("INSERT INTO inquiry_status_history");
+    expect(adminSql).not.toContain("DELETE FROM inquiries");
+
+    const salesDb = fakeD1({ user: { ...validUser, role: "sales", account_type: "internal" }, inquiries: [inquiry] });
+    const salesCookie = await login(salesDb);
+    const denied = await handlePortalRequest(
+      new Request("https://portal.example/api/portal/inquiries/INQ-1/status", {
+        method: "PATCH",
+        headers: { cookie: salesCookie, "content-type": "application/json" },
+        body: JSON.stringify({ status: "Closed" }),
+      }),
+      env(salesDb),
+    );
+    expect(denied.status).toBe(403);
+  });
 });

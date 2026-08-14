@@ -4,15 +4,19 @@ import { readFileSync } from "node:fs";
 const portalPage = readFileSync("app/portal/page.tsx", "utf8");
 const portalApi = readFileSync("server/api/portal.ts", "utf8");
 
-test("active quotes moderation operates on one comment rather than the inquiry status", () => {
+test("active quote cards show their start time, hide IDs from non-admins, and let administrators close an inquiry", () => {
   const start = portalPage.indexOf("function AdminQuotes(");
   const end = portalPage.indexOf("function AdminOrders", start);
   const panel = portalPage.slice(start, end);
 
+  expect(panel).toContain("inquiry.createdAt");
+  expect(panel).toContain("inquiryCloseCopy.startedAt");
+  expect(panel).toContain("canModerateComments && <span");
+  expect(panel).toContain('status: "Closed"');
+  expect(panel).toContain("/inquiries/${encodeURIComponent(inquiry.inquiryNo)}/status");
+  expect(panel).toContain("inquiryCloseCopy.closeInquiry");
   expect(panel).toContain("Close comment");
   expect(panel).toContain("/api/portal/inquiry-content/note/");
-  expect(panel).not.toContain("Close inquiry");
-  expect(panel).not.toContain("/inquiries/${encodeURIComponent(selected.inquiryNo)}/status");
 });
 
 test("comment moderation endpoints accept notes only and require an administrator", () => {

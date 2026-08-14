@@ -3441,6 +3441,37 @@ async function handleCreateInquiry(request: Request, env: Env) {
   return json({ ok: true, inquiryNo }, { status: 201 });
 }
 
+async function handleUpdateInquiryStatus(request: Request, env: Env, inquiryNo: string) {
+  const session = await requireSession(request, env);
+  if (session.role !== "admin") return problem("Administrator access required", 403);
+
+  const body = await request.json().catch(() => null) as Record<string, unknown> | null;
+  if (asText(body?.status).trim().toLowerCase() !== "closed") return problem("Only Closed status is supported");
+
+  const db = requirePortalDb(env);
+  const inquiry = await db.prepare("SELECT inquiry_no, status FROM inquiries WHERE inquiry_no=? AND deleted_at IS NULL").bind(inquiryNo).first<{ inquiry_no: string; status: string }>();
+  if (!inquiry) return problem("Inquiry not found", 404);
+  if (asText(inquiry.status).trim().toLowerCase() === "closed") return json({ ok: true, status: "Closed" });
+
+  const now = nowText();
+  await db.batch([
+    db.prepare("UPDATE inquiries SET status='Closed', updated_at=? WHERE inquiry_no=?").bind(now, inquiryNo),
+    db.prepare("INSERT INTO inquiry_status_history (id,history_id,inquiry_no,from_status,to_status,reason,actor_user_id,actor_name,actor_role,created_at) VALUES (?,?,?,?,?,?,?,?,?,?)").bind(
+      nextId("IHS"),
+      nextId("HIS"),
+      inquiryNo,
+      asText(inquiry.status),
+      "Closed",
+      "Closed by administrator",
+      session.userId,
+      session.name,
+      session.role,
+      now,
+    ),
+  ]);
+  return json({ ok: true, status: "Closed" });
+}
+
 async function handleCreateQuote(request: Request, env: Env) {
   const session = await requireSession(request, env);
   if (!canCreateVehicleQuotation(session.role)) return problem("Only admin and sales can create quotations", 403);
@@ -3592,6 +3623,7 @@ async function listScopedInquiries(env: Env, session: PortalSession) {
     JOIN inquiry_participants creator ON creator.inquiry_no=i.inquiry_no AND creator.access_source='Creator'
     LEFT JOIN inquiry_reads reads ON reads.inquiry_no=i.inquiry_no AND reads.user_id=?
     WHERE i.deleted_at IS NULL
+      AND LOWER(i.status) <> 'closed'
       AND (? IN ('admin','sales') OR creator.user_id=?)
     ORDER BY i.updated_at DESC
   `).bind(session.userId, session.role, session.userId).all();
@@ -4198,6 +4230,10 @@ export async function handlePortalRequest(request: Request, env: Env) {
     }
     if (path === "/api/portal/inquiries" && request.method === "POST") {
       return await handleCreateInquiry(request, env);
+    }
+    const inquiryStatusMatch = path.match(/^\/api\/portal\/inquiries\/([^/]+)\/status$/);
+    if (inquiryStatusMatch && request.method === "PATCH") {
+      return await handleUpdateInquiryStatus(request, env, decodeURIComponent(inquiryStatusMatch[1]));
     }
     if (path === "/api/portal/quotes" && request.method === "POST") {
       return await handleCreateQuote(request, env);
