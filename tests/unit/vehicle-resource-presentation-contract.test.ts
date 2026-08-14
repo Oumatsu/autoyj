@@ -64,7 +64,7 @@ test("internal vehicle-resource rows show the synced model style as model year",
   expect(panel).toContain('v.modelStyle || "-"');
 });
 
-test("model navigator can collapse and configuration uses the full trim comparison table", () => {
+test("model navigator can collapse and configuration uses responsive trim cards", () => {
   const start = pageSource.indexOf("function AdminProfiles");
   const end = pageSource.indexOf("function AdminVehicles", start);
   const profiles = pageSource.slice(start, end);
@@ -74,7 +74,20 @@ test("model navigator can collapse and configuration uses the full trim comparis
 
   expect(profiles).toContain("setNavigatorCollapsed");
   expect(card).toContain('buildModelComparisonRows(group, "full")');
-  expect(card).toContain("gridTemplateColumns");
+  expect(card).toContain("grid grid-cols-1 gap-4 md:grid-cols-2 2xl:grid-cols-3");
+  expect(card).not.toContain("gridTemplateColumns");
+});
+
+test("mobile dashboard hides the sidebar until its dedicated navigation drawer is opened", () => {
+  const start = pageSource.indexOf("function AdminPortal(");
+  const end = pageSource.indexOf("function ModuleLoadingSkeleton", start);
+  const portal = pageSource.slice(start, end);
+
+  expect(portal).toContain("const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);");
+  expect(portal).toContain('aria-label="Open dashboard navigation"');
+  expect(portal).toContain('mobileSidebarOpen ? "fixed inset-y-[var(--navbar-h,56px)] left-0 z-40 flex" : "hidden"');
+  expect(portal).toContain("lg:flex");
+  expect(portal).toContain("setMobileSidebarOpen(false);");
 });
 
 test("shared vehicle builders sort recommendation rank before ordinary availability", () => {

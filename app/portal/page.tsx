@@ -1348,6 +1348,7 @@ function AdminPortal({
   const { t, locale } = useTranslation();
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const visibleNav = adminNavItems.filter((item) => item.roles.includes(data.user.role));
   const normalizedActiveModule = visibleNav.some((item) => item.key === activeModule) ? activeModule : "dashboard";
   const activeItem = visibleNav.find((item) => item.key === normalizedActiveModule) || visibleNav[0];
@@ -1358,7 +1359,15 @@ function AdminPortal({
   return (
     <main className="min-h-screen bg-[#0c1322] pt-[var(--navbar-h,56px)] text-slate-100">
       <div className={`grid min-h-[calc(100vh-var(--navbar-h,56px))] min-w-0 transition-[grid-template-columns] duration-200 ${sidebarCollapsed ? "lg:grid-cols-[88px_minmax(0,1fr)]" : "lg:grid-cols-[300px_minmax(0,1fr)]"}`}>
-        <aside className={`flex min-h-[calc(100vh-var(--navbar-h,56px))] flex-col border-b border-white/10 bg-[#101827] px-4 py-5 transition-[padding] duration-200 lg:sticky lg:h-[calc(100vh-var(--navbar-h,56px))] lg:self-start lg:border-b-0 lg:border-r ${sidebarCollapsed ? "lg:px-3" : "lg:px-5"}`} style={{ top: "var(--navbar-h, 56px)" }}>
+        {mobileSidebarOpen && (
+          <button
+            type="button"
+            aria-label="Close dashboard navigation"
+            onClick={() => setMobileSidebarOpen(false)}
+            className="fixed inset-0 z-30 bg-black/70 lg:hidden"
+          />
+        )}
+        <aside className={`${mobileSidebarOpen ? "fixed inset-y-[var(--navbar-h,56px)] left-0 z-40 flex" : "hidden"} min-h-[calc(100vh-var(--navbar-h,56px))] w-[min(20rem,calc(100vw-2rem))] flex-col overflow-y-auto border-b border-white/10 bg-[#101827] px-4 py-5 shadow-2xl transition-[padding] duration-200 lg:sticky lg:z-auto lg:flex lg:h-[calc(100vh-var(--navbar-h,56px))] lg:w-auto lg:self-start lg:overflow-visible lg:border-b-0 lg:border-r lg:shadow-none ${sidebarCollapsed ? "lg:px-3" : "lg:px-5"}`} style={{ top: "var(--navbar-h, 56px)" }}>
           <div className="min-h-0 flex-1">
             <div className={`flex items-center gap-3 border-b border-white/10 pb-6 ${sidebarCollapsed ? "lg:flex-col lg:justify-center lg:gap-2 lg:pb-4" : ""}`}>
               <div className={`grid shrink-0 place-items-center rounded-2xl bg-[#22b8aa] font-black text-[#0c1322] transition-all duration-200 ${sidebarCollapsed ? "lg:h-12 lg:w-12 lg:text-base" : "h-14 w-14 text-xl"}`}>
@@ -1393,6 +1402,7 @@ function AdminPortal({
                     onClick={(e) => {
                       e.preventDefault();
                       onModuleChange(item.key);
+                      setMobileSidebarOpen(false);
                     }}
                       title={t(item.labelKey)}
                       className={`grid min-h-12 grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-xl px-3 py-2.5 text-left text-[13px] font-bold transition cursor-pointer ${sidebarCollapsed ? "lg:grid-cols-1 lg:justify-items-center lg:px-0" : ""} ${
@@ -1436,11 +1446,25 @@ function AdminPortal({
 
         <section className="min-w-0 px-4 py-5 sm:px-6 lg:px-8 lg:pb-8 lg:pt-8">
           <header className="mb-6 flex flex-col gap-4 border-b border-white/10 pb-5 xl:flex-row xl:items-end xl:justify-between">
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-[.24em] text-[#22b8aa]">
-                {data.user.role === "admin" ? t("portal.administrator") : formatPortalRole(data.user.role, locale)} {t("portal.adminView")}
-              </p>
-              <h1 className="mt-2 text-3xl font-black tracking-tight text-white sm:text-4xl">{activeItem ? t(activeItem.labelKey) : t("portal.navDashboard")}</h1>
+            <div className="flex items-start gap-3">
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                aria-label="Open dashboard navigation"
+                onClick={() => setMobileSidebarOpen(true)}
+                className="mt-0.5 shrink-0 border border-white/10 text-slate-200 lg:hidden"
+              >
+                <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+                  <path d="M4 7h16M4 12h16M4 17h16" />
+                </svg>
+              </Button>
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[.24em] text-[#22b8aa]">
+                  {data.user.role === "admin" ? t("portal.administrator") : formatPortalRole(data.user.role, locale)} {t("portal.adminView")}
+                </p>
+                <h1 className="mt-2 text-3xl font-black tracking-tight text-white sm:text-4xl">{activeItem ? t(activeItem.labelKey) : t("portal.navDashboard")}</h1>
+              </div>
             </div>
             <div className="flex w-full min-w-0 flex-col gap-3 xl:max-w-[560px]">
               <div className="grid min-w-0 gap-2 text-xs text-slate-400 sm:grid-cols-3">
@@ -1691,39 +1715,52 @@ function ModelFullSpecsCard({ group }: { group: ModelProfileGroup }) {
             <p className="text-[10px] font-black uppercase tracking-[.18em] text-slate-400">{locale === "zh" ? "版本配置" : locale === "am" ? "የስሪት ውቅሮች" : "CONFIGURATIONS"}</p>
             <h5 className="mt-0.5 text-base font-black text-white">{t("portal.trimCount", { count: trimVariants.length })}</h5>
           </div>
-          <div className="overflow-x-auto rounded-xl border border-white/10 bg-[#0a1120]">
-            <div className="min-w-max">
-              <div className="grid border-b border-white/10 bg-[#d8edf7] text-slate-950" style={{ gridTemplateColumns: `220px repeat(${trimVariants.length}, minmax(190px, 1fr))` }}>
-                <div className="sticky left-0 z-20 bg-[#d8edf7] px-4 py-5 text-[10px] font-black uppercase tracking-[.18em]">{locale === "zh" ? "参数" : locale === "am" ? "መለኪያ" : "Specification"}</div>
-                {trimVariants.map((variant) => (
-                  <div key={variant.id} className={`border-l border-slate-900/15 px-4 py-5 text-sm font-black leading-6 ${variant.recommendationRank ? "bg-[#c5e7e4]" : ""}`}>
-                    {localizeVehicleValue(variant.trim || variant.id, locale)}
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 2xl:grid-cols-3">
+            {trimVariants.map((variant) => (
+              <article
+                key={variant.id}
+                className={`min-w-0 overflow-hidden rounded-xl border bg-[#0a1120] ${variant.recommendationRank ? "border-[#5ee6d8]/50" : "border-white/10"}`}
+              >
+                <header className={`border-b border-white/10 px-4 py-4 ${variant.recommendationRank ? "bg-[#5ee6d8]/10" : "bg-[#d8edf7] text-slate-950"}`}>
+                  <div className="flex items-start justify-between gap-3">
+                    <h6 className={`min-w-0 break-words text-sm font-black leading-6 ${variant.recommendationRank ? "text-white" : "text-slate-950"}`}>
+                      {localizeVehicleValue(variant.trim || variant.id, locale)}
+                    </h6>
+                    {variant.recommendationRank ? (
+                      <span className="shrink-0 rounded-full bg-[#5ee6d8] px-2 py-1 text-[10px] font-black uppercase tracking-wide text-slate-950">
+                        {locale === "zh" ? "推荐" : locale === "am" ? "የሚመከር" : "Recommended"}
+                      </span>
+                    ) : null}
                   </div>
-                ))}
-              </div>
-              {groupedComparisonRows.map((section) => (
-                <div key={section.label}>
-                  <div className="sticky left-0 z-10 border-y border-white/10 bg-[#111c2d] px-4 py-3 text-[11px] font-black text-[#5ee6d8]" style={{ minWidth: `${220 + trimVariants.length * 190}px` }}>{section.label}</div>
-                  {section.rows.map((row) => {
-                    const isChangeRow = row.label === "新增配置" || row.label === "升级配置";
-                    return (
-                      <div key={`${row.category}:${row.label}`} className="grid border-b border-white/10 last:border-b-0" style={{ gridTemplateColumns: `220px repeat(${trimVariants.length}, minmax(190px, 1fr))` }}>
-                        <div className="sticky left-0 z-10 bg-[#0f1929] px-4 py-3 text-xs font-bold text-slate-300">{localizeVehicleValue(row.label, locale)}</div>
-                        {trimVariants.map((variant) => {
+                </header>
+                <div className="space-y-5 p-4">
+                  {groupedComparisonRows.map((section) => (
+                    <section key={section.label}>
+                      <h6 className="border-b border-white/10 pb-2 text-[10px] font-black uppercase tracking-[.14em] text-[#5ee6d8]">
+                        {section.label}
+                      </h6>
+                      <dl className="mt-3 grid grid-cols-1 gap-x-4 gap-y-3 sm:grid-cols-2">
+                        {section.rows.map((row) => {
+                          const isChangeRow = row.label === "新增配置" || row.label === "升级配置";
                           const rawValue = safeText(row.values[variant.id]).trim() || "-";
                           const value = localizeVehicleValue(rawValue, locale);
                           return (
-                            <div key={`${variant.id}:${row.label}`} className={`border-l border-white/5 px-4 py-3 text-xs leading-5 ${variant.recommendationRank ? "bg-[#5ee6d8]/[0.05]" : ""} ${rawValue === "-" ? "text-slate-600" : "text-slate-100"}`}>
-                              {isChangeRow ? <span className="whitespace-pre-line">{formatTrimFeatureLines(value)}</span> : value}
+                            <div key={`${variant.id}:${row.category}:${row.label}`} className="min-w-0">
+                              <dt className="text-[10px] font-medium text-slate-400">
+                                {localizeVehicleValue(row.label, locale)}
+                              </dt>
+                              <dd className={`mt-0.5 break-words text-xs font-semibold leading-5 ${rawValue === "-" ? "text-slate-600" : "text-slate-100"}`}>
+                                {isChangeRow ? <span className="whitespace-pre-line">{formatTrimFeatureLines(value)}</span> : value}
+                              </dd>
                             </div>
                           );
                         })}
-                      </div>
-                    );
-                  })}
+                      </dl>
+                    </section>
+                  ))}
                 </div>
-              ))}
-            </div>
+              </article>
+            ))}
           </div>
         </section>
       ) : null}
