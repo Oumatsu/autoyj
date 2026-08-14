@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { handlePortalRequest } from "../../../server/api/portal";
+import type { PortalEnv as Env } from "../../../server/types";
 
 const INQUIRY = {
   id: "inq-1",

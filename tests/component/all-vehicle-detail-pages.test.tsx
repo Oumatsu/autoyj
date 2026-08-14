@@ -66,11 +66,9 @@ describe("All Vehicle Detail Pages - Zero Runtime Errors & Zero Key Leaks", () =
 
       for (const locale of ["zh", "en", "am"]) {
         const html = renderToString(
-          React.createElement(
-            TolgeeWrapper,
-            { locale },
-            React.createElement(VehicleDetail, { data: productData! as any })
-          )
+          <TolgeeWrapper locale={locale}>
+            <VehicleDetail data={productData! as any} />
+          </TolgeeWrapper>
         );
 
         expect(html).not.toContain("productsDetail.values");

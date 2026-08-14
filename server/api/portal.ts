@@ -127,7 +127,7 @@ type PortalVehicleModel = {
   lastSyncedAt: string;
   fullSpecsJson: string;
   status: string;
-  recommendationRank: number | null;
+  recommendationRank?: number | null;
   trimOrder?: number | null;
 };
 
@@ -1729,7 +1729,7 @@ async function handleBootstrap(request: Request, env: Env) {
     listScopedOrders(env, session),
   ]);
   const inquiryNumbers = new Set(inquiries.map((item) => item.inquiryNo));
-  const inquiryNotes = await listInquiryNotes(env, session, inquiries);
+  const inquiryNotes = await listInquiryNotes(env);
   const inquiryNotesByNumber = new Map<string, ReturnType<typeof mapD1Note>[]>();
   for (const note of inquiryNotes) inquiryNotesByNumber.set(note.inquiryNo, [...(inquiryNotesByNumber.get(note.inquiryNo) || []), note]);
   const inquiriesWithUnread = inquiries.map((inquiry) => ({

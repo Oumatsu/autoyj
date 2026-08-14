@@ -69,10 +69,9 @@ export type TranslationObjectKey<Path extends string> = keyof Extract<
 export type TranslationObjectItem<
   Path extends string,
   Key extends TranslationObjectKey<Path>,
-> = Extract<
-  NormalizeMessageValue<PathValue<MessageTree, Path>>,
-  object
->[Key];
+> = Key extends keyof Extract<NormalizeMessageValue<PathValue<MessageTree, Path>>, object>
+  ? Extract<NormalizeMessageValue<PathValue<MessageTree, Path>>, object>[Key]
+  : unknown;
 
 export function useLocale(): Locale {
   // useTolgee MUST be called unconditionally (rules of hooks) before any early return
@@ -204,7 +203,7 @@ export function useTranslation() {
   const tArray = useCallback(
     <Path extends string>(
       key: Path,
-      fallback: TranslationArray<Path> = []
+      fallback: TranslationArray<Path> = [] as unknown as TranslationArray<Path>
     ): TranslationArray<Path> => {
       const source = getNestedValue(messages[locale], key);
       if (source === undefined || source === null) return fallback;
@@ -220,11 +219,11 @@ export function useTranslation() {
   const tObject = useCallback(
     <Path extends string>(key: Path): TranslationObject<Path> => {
       const source = getNestedValue(messages[locale], key);
-      if (!source || typeof source !== "object" || Array.isArray(source)) return {};
+      if (!source || typeof source !== "object" || Array.isArray(source)) return {} as TranslationObject<Path>;
       const value = normalizeStructuredArrays(
         localizeStructuredValue(source, key, tolgeeT)
       );
-      return isTranslationObject<Path>(value) ? value : {};
+      return isTranslationObject<Path>(value) ? value : ({} as TranslationObject<Path>);
     },
     [locale, tolgeeT]
   );

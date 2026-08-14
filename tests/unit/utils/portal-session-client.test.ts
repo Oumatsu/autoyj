@@ -25,7 +25,7 @@ describe("portal-session-client", () => {
         status: 200,
         headers: { "Content-Type": "application/json" },
       });
-    }) as typeof fetch;
+    }) as unknown as typeof fetch;
 
     const result = await getPortalSession();
     expect(result).toEqual(mockUserData);
@@ -38,7 +38,7 @@ describe("portal-session-client", () => {
     globalThis.fetch = mock(async () => {
       fetchCount++;
       return new Response(JSON.stringify(mockUserData), { status: 200 });
-    }) as typeof fetch;
+    }) as unknown as typeof fetch;
 
     const p1 = getPortalSession();
     const p2 = getPortalSession();
@@ -60,7 +60,7 @@ describe("portal-session-client", () => {
         return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
       }
       return new Response(JSON.stringify({ user: { role: "user" } }), { status: 200 });
-    }) as typeof fetch;
+    }) as unknown as typeof fetch;
 
     await expect(getPortalSession()).rejects.toThrow("Unable to load portal session");
     expect(fetchCount).toBe(1);
@@ -78,7 +78,7 @@ describe("portal-session-client", () => {
     globalThis.fetch = mock(async () => {
       fetchCount++;
       return new Response(JSON.stringify(mockUserData), { status: 200 });
-    }) as typeof fetch;
+    }) as unknown as typeof fetch;
 
     await getPortalSession();
     expect(fetchCount).toBe(1);

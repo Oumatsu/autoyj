@@ -36,7 +36,7 @@ describe("Component: Catalog Filter Interactive Selection State", () => {
   ];
 
   test("User selecting multiple filter chips filters product list accurately", () => {
-    const groups = buildCatalogFilterGroups("revenue-king", sampleProducts, (_k, f) => f);
+    const groups = buildCatalogFilterGroups("revenue-king", sampleProducts, (_k, f) => f ?? "");
 
     const activeFilters = {
       batteryChemistry: new Set(["value:LFP"]),
@@ -47,7 +47,7 @@ describe("Component: Catalog Filter Interactive Selection State", () => {
   });
 
   test("User deselecting all filters restores complete product catalog", () => {
-    const groups = buildCatalogFilterGroups("revenue-king", sampleProducts, (_k, f) => f);
+    const groups = buildCatalogFilterGroups("revenue-king", sampleProducts, (_k, f) => f ?? "");
     const emptyFilters = {};
 
     const filtered = filterCatalogProducts(sampleProducts, emptyFilters, groups);

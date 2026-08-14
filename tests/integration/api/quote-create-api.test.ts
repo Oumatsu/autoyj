@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { handlePortalRequest } from "../../../server/api/portal";
+import type { PortalEnv as Env } from "../../../server/types";
 
 function makeDb(inquiry: Record<string, unknown>) {
   const written: Array<{ sql: string; values: unknown[] }> = [];

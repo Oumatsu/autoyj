@@ -33,7 +33,7 @@ function getFiles(dir: string): string[] {
   return results;
 }
 
-import { listPublicInsights, listPublicAcademy } from "../server/db/public-content.ts";
+import { listPublicInsights, listPublicAcademy } from "../server/db/public-content";
 
 export async function auditTranslations() {
   const allDefinedKeys = flattenKeys(enMessages as Record<string, unknown>);

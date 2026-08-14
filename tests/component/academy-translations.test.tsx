@@ -50,7 +50,7 @@ describe("Component: Academy Views & Localization Render Contracts", () => {
       "academy.vault.recvault.type": "Excel 模型",
       "academy.vault.recvault.description": "五年成本对比",
     };
-    const t = (key: string, fallback: string) => values[key] ?? fallback;
+    const t = (key: string, fallback?: string) => values[key] ?? fallback ?? "";
 
     expect(
       translateAcademyLesson(

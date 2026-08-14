@@ -60,11 +60,9 @@ export const mockGeelyGeomeData = {
 describe("Component: Geely Geome Vehicle Detail Page (http://localhost:3000/zh/products/revenue-king/geely-geome)", () => {
   test("renders Geely Geome vehicle detail page without leaking productsDetail.values or any raw i18n keys in Chinese locale", () => {
     const html = renderToString(
-      React.createElement(
-        TolgeeWrapper,
-        { locale: "zh" },
-        React.createElement(VehicleDetail, { data: mockGeelyGeomeData as any })
-      )
+      <TolgeeWrapper locale="zh">
+        <VehicleDetail data={mockGeelyGeomeData as any} />
+      </TolgeeWrapper>
     );
 
     // Core User Requirement: "http://localhost:3000/zh/products/revenue-king/geely-geome 中不允许在渲染后的页面出现productsDetail.values字样"
@@ -83,11 +81,9 @@ describe("Component: Geely Geome Vehicle Detail Page (http://localhost:3000/zh/p
   test("renders Geely Geome vehicle detail page without leaking productsDetail.values or any raw i18n keys in English and Amharic locales", () => {
     for (const locale of ["en", "am"]) {
       const html = renderToString(
-        React.createElement(
-          TolgeeWrapper,
-          { locale },
-          React.createElement(VehicleDetail, { data: mockGeelyGeomeData as any })
-        )
+        <TolgeeWrapper locale={locale}>
+          <VehicleDetail data={mockGeelyGeomeData as any} />
+        </TolgeeWrapper>
       );
 
       expect(html).not.toContain("productsDetail.values");
@@ -143,11 +139,9 @@ describe("Component: Geely Geome Vehicle Detail Page (http://localhost:3000/zh/p
     };
 
     const html = renderToString(
-      React.createElement(
-        TolgeeWrapper,
-        { locale: "zh" },
-        React.createElement(VehicleDetail, { data: mockBydYuanUpData as any })
-      )
+      <TolgeeWrapper locale="zh">
+        <VehicleDetail data={mockBydYuanUpData as any} />
+      </TolgeeWrapper>
     );
 
     expect(html).not.toContain("productsDetail.values");

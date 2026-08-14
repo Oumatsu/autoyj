@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { handlePortalRequest } from "../../../server/api/portal";
+import type { PortalEnv as Env } from "../../../server/types";
 
 // Minimal fakeD1 that supports inquiry lookup and write operations
 function makeDb(inquiry: Record<string, unknown>) {

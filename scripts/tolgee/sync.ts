@@ -393,7 +393,7 @@ export interface PullOptions {
   allowKeyRemoval?: boolean;
   force?: boolean;
   fetchImpl?: typeof fetch;
-  fileSystem?: SyncFileSystem;
+  fileSystem?: PullFileSystem;
   getDirtyFiles?: (dir: string) => string[];
 }
 

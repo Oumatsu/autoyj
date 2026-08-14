@@ -192,9 +192,9 @@ function canonicalBatteryChemistry(value: string): string {
   return value;
 }
 
-function intervalFrom(minValue: unknown, maxValue: unknown): FilterInterval | null {
+function intervalFrom(minValue: unknown, maxValue?: unknown): FilterInterval | null {
   const min = number(minValue);
-  const max = number(maxValue);
+  const max = maxValue !== undefined ? number(maxValue) : null;
   if (min === null && max === null) return null;
   const first = min ?? max!;
   const second = max ?? min!;
@@ -210,8 +210,8 @@ function numericRangeFromText(value: string): FilterInterval | null {
   return { min: Math.min(...values), max: Math.max(...values) };
 }
 
-function filterDataFor(row: D1VehicleModel | null, card: PublicProductCard): ProductFilterData {
-  const tags = card.tags;
+function filterDataFor(row: D1VehicleModel | null, card: Partial<PublicProductCard>): ProductFilterData {
+  const tags = card.tags ?? [];
   const explicitVehicleClasses = textValues(rowValue(row ?? ({} as D1VehicleModel), "vehicle_class"));
   const vehicleClasses = explicitVehicleClasses.length
     ? explicitVehicleClasses
@@ -220,18 +220,18 @@ function filterDataFor(row: D1VehicleModel | null, card: PublicProductCard): Pro
       : [];
   const fallbackClass = tags[0] ? [tags[0]] : [];
   const batteryChemistries = atomicValues(rowValue(row ?? ({} as D1VehicleModel), "battery_chemistry", "battery_chemistry_auto", "battery_technology"));
-  const fallbackChemistry = atomicValues(card.batteryType).map(canonicalBatteryChemistry);
+  const fallbackChemistry = atomicValues(card.batteryType ?? "").map(canonicalBatteryChemistry);
   const rangeKm = intervalFrom(
     rowValue(row ?? ({} as D1VehicleModel), "cltc_range_min_km", "cltc_range_min_km_auto"),
     rowValue(row ?? ({} as D1VehicleModel), "cltc_range_max_km", "cltc_range_max_km_auto"),
-  ) ?? numericRangeFromText(card.range);
+  ) ?? numericRangeFromText(card.range ?? "");
   const priceUsd = intervalFrom(
     rowValue(row ?? ({} as D1VehicleModel), "display_price_low"),
     rowValue(row ?? ({} as D1VehicleModel), "display_price_high"),
   ) ?? intervalFrom(
     rowValue(row ?? ({} as D1VehicleModel), "guide_price_min_usd_auto"),
     rowValue(row ?? ({} as D1VehicleModel), "guide_price_max_usd_auto"),
-  ) ?? numericRangeFromText(card.fob);
+  ) ?? numericRangeFromText(card.fob ?? "");
   const steeringSetups = textValues(rowValue(row ?? ({} as D1VehicleModel), "steering_setup"));
   const powertrainTypes = textValues(rowValue(row ?? ({} as D1VehicleModel), "powertrain_type"));
   const inventoryStatuses = textValues(rowValue(row ?? ({} as D1VehicleModel), "inventory_status", "status"));
@@ -250,7 +250,7 @@ function filterDataFor(row: D1VehicleModel | null, card: PublicProductCard): Pro
       ? steeringSetups
       : tags.flatMap((tag) => /\bLHD\b/i.test(tag) ? ["LHD"] : /\bRHD\b/i.test(tag) ? ["RHD"] : []),
     powertrainTypes: powertrainTypes.length ? powertrainTypes : atomicValues(tags.filter((tag) => /\b(?:BEV|HEV|PHEV|EREV)\b/i.test(tag))),
-    inventoryStatuses: inventoryStatuses.length ? inventoryStatuses : [card.statusText].filter(Boolean),
+    inventoryStatuses: inventoryStatuses.length ? inventoryStatuses : (card.statusText ? [card.statusText] : []),
     voltagePlatforms: voltagePlatforms.length ? voltagePlatforms : tags.filter((tag) => /\b\d{3,4}V\b/i.test(tag)).map((tag) => tag.match(/\b\d{3,4}V\b/i)?.[0] ?? tag),
     v2lAvailability: v2lAvailability.length ? v2lAvailability : tags.filter((tag) => /V2L/i.test(tag)),
     drivetrains: drivetrains.length ? drivetrains : atomicValues(tags.filter((tag) => /(?:AWD|4WD|FWD|RWD)/i.test(tag))),
@@ -771,7 +771,7 @@ export async function getPublicProduct(db: D1Database | null, slug: string): Pro
       trimComparison: trimComparison(null, []),
     };
   }
-  const trims = await queryVehicleTrims(db, firstText(row.model_id, row.id));
+  const trims = db ? await queryVehicleTrims(db, firstText(row.model_id, row.id)) : [];
   const modelId = firstText(row.model_id, row.id, normalizedSlug);
   const title = firstText(row.page_title, `${vehicle.brand} ${vehicle.name}`);
   const subtitle = firstText(row.page_subtitle, vehicle.charging);

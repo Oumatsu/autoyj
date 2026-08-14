@@ -186,6 +186,7 @@ type Vehicle = {
   isListed: boolean;
   editableFields: string[];
   priceLabel: string;
+  modelStyle?: string | null;
   // Extended internal fields (admin/sales only)
   guidePriceCny?: number | null;
   currency?: string | null;
@@ -304,6 +305,7 @@ type VehicleResourceVariant = {
 type Inquiry = {
   id: string;
   inquiryNo: string;
+  title?: string;
   customerId: string;
   vehicleId: string;
   vehicleModel: string;
@@ -319,6 +321,11 @@ type Inquiry = {
   status: string;
   createdAt: string;
   updatedAt: string;
+};
+
+type InquiryVehicleTarget = {
+  vehicleId: string;
+  vehicleModel: string;
 };
 
 type Quote = {
@@ -577,7 +584,7 @@ export default function PortalPage() {
     if (typeof window !== "undefined") {
       const pathname = window.location.pathname.toLowerCase();
       const segments = pathname.split("/").filter(Boolean);
-      const lastSegment = (segments[segments.length - 1] || "").replaceAll("-", "_") as AdminModule;
+      const lastSegment = (segments[segments.length - 1] || "").replaceAll("-", "_");
       if (lastSegment === "vehicle_models" || lastSegment === "profiles") return "vehicle_models";
       if (lastSegment === "vehicles") return "vehicles";
       if (lastSegment === "quotes" || lastSegment === "inquiries") return "quotes";
@@ -726,7 +733,7 @@ export default function PortalPage() {
     if (loadedModels) return;
     setModuleLoading(true);
     try {
-      const res = await api<{ vehicleModels: VehicleModel[]; vehicleModelSpecs: VehicleSpec[] }>("/api/portal/vehicle-models");
+      const res = await api<{ vehicleModels: VehicleModel[]; vehicleModelSpecs: VehicleModelSpec[] }>("/api/portal/vehicle-models");
       if (res) {
         setData((prev) =>
           prev
@@ -1032,297 +1039,6 @@ export default function PortalPage() {
       onRefreshData={refreshBootstrap}
     />
   );
-
-  return (
-    <main className="min-h-screen bg-bg px-4 pb-24 pt-[var(--navbar-h,56px)] sm:px-6">
-      <section className="mx-auto grid max-w-7xl gap-8">
-        <header className="flex flex-col gap-5 border-b border-white/10 pb-8 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <div className="label label-gold mb-4">Youguard Dashboard</div>
-            <h1 className="text-4xl font-black uppercase italic tracking-tight text-white sm:text-5xl">
-              {data.user.company}
-            </h1>
-            <p className="mt-3 text-sm text-gray-500">
-              {roleLabels[data.user.role].toUpperCase()} / {data.user.accountType.toUpperCase()} / {data.user.priceTier.toUpperCase()} / {data.user.customerId}
-            </p>
-          </div>
-          <button onClick={logout} className="w-fit rounded-full border border-white/15 px-5 py-2 text-[10px] font-black uppercase tracking-widest text-gray-400 transition hover:border-white/40 hover:text-white">
-            Sign Out
-          </button>
-        </header>
-
-        {error && <p className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm font-bold text-red-300">{error}</p>}
-
-        <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <Metric label="Sellable Models" value={String(sellableModels.length)} />
-          <Metric label="Open Inquiries" value={String(data.inquiries.filter((item) => !["Accepted", "Closed"].includes(item.status)).length)} />
-          <Metric label="Quote Versions" value={String(data.quotes.length)} />
-          <Metric label="Draft Orders" value={String(data.orders.length)} />
-        </section>
-
-        <section>
-          <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <h2 className="text-2xl font-black uppercase italic tracking-tight text-white">Available Models</h2>
-              <p className="mt-1 text-xs text-gray-500">FOB prices are filtered by your portal access level.</p>
-            </div>
-          </div>
-          <div className="grid gap-4 lg:grid-cols-3">
-            {sellableModels.map((item) => (
-              <article key={item.key} className="glass grid overflow-hidden rounded-[1.5rem]">
-                <div className="aspect-[16/9] overflow-hidden bg-black">
-                  {item.imageUrl ? (
-                    <img src={item.imageUrl} alt={`${item.brand} ${item.model}`} className="h-full w-full object-cover" />
-                  ) : (
-                    <div className="grid h-full place-items-center text-xs font-black uppercase tracking-widest text-gray-700">Youguard EV</div>
-                  )}
-                </div>
-                <div className="grid gap-4 p-5">
-                  <div>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-accent">{item.segment || "EV"}</p>
-                    <h3 className="mt-2 text-xl font-black uppercase italic text-white">{item.brand} {item.model} {item.year ? t("portal.modelYear", { year: item.year }) : t("portal.modelYearPending")}</h3>
-                  </div>
-                  <div className="flex flex-wrap items-center gap-2 text-xs">
-                    <PortalInventoryPill label="Stock" value={t("portal.unitCount", { count: item.stockQuantity })} />
-                    <PortalInventoryPill label="Supply" value={formatSupplySummary(item)} />
-                    {item.priceTermsSummary.length > 0 ? (
-                      item.priceTermsSummary.map((pt) => (
-                        <PortalInventoryPill key={pt.term} label={pt.term} value={formatPriceTermRange(pt)} highlight />
-                      ))
-                    ) : (
-                      <PortalInventoryPill label="FOB" value={item.fobPriceRange.replace(/^FOB\s*/i, "")} highlight />
-                    )}
-                    <PortalInventoryPill label="Sources" value={String(item.offers.length)} />
-                  </div>
-                  <button
-                    onClick={() => setSelectedSellableModel(item)}
-                    className="btn-primary rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest"
-                  >
-                    View Sources
-                  </button>
-                </div>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section className="grid gap-4 lg:grid-cols-[1.1fr_.9fr]">
-          <div className="glass rounded-[1.5rem] p-5">
-            <h2 className="mb-4 text-2xl font-black uppercase italic text-white">Inquiries and Quotes</h2>
-            <div className="grid gap-4">
-              {data.inquiries.length === 0 && <Empty text="No inquiries yet." />}
-              {data.inquiries.map((inquiry) => {
-                const quotes = quoteByInquiry.get(inquiry.inquiryNo) || [];
-                return (
-                  <article key={inquiry.inquiryNo} className="rounded-xl border border-white/10 bg-white/[.03] p-4">
-                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                      <div>
-                        <p className="text-[10px] font-black uppercase tracking-widest text-accent">{inquiry.status}</p>
-                        <h3 className="mt-1 font-black text-white">{inquiry.inquiryNo}</h3>
-                        <p className="mt-1 text-xs text-gray-500">{inquiry.vehicleModel} / {t("portal.unitCount", { count: inquiry.quantity })} / {inquiry.tradeTerm} / {inquiry.destinationPort}</p>
-                      </div>
-                      <span className="text-xs text-gray-600">{formatDate(inquiry.updatedAt || inquiry.createdAt)}</span>
-                    </div>
-
-                    <div className="mt-4 grid gap-3">
-                      {quotes.length === 0 && <p className="rounded-lg border border-white/10 px-3 py-3 text-xs text-gray-500">Waiting for Youguard quote.</p>}
-                      {quotes.map((quote) => (
-                        <div key={quote.quoteNo} className="rounded-lg border border-gold/20 bg-black/20 p-3">
-                          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                            <div>
-                              <p className="text-[10px] font-black uppercase tracking-widest text-theme">Quote V{quote.version} / {quote.status}</p>
-                              <p className="mt-1 text-sm font-bold text-white">{quote.quoteNo} / {formatUsd(quote.unitPrice)} per unit</p>
-                              <p className="mt-1 text-xs text-gray-500">{quote.tradeTerm} / {quote.paymentTerms || "Payment terms pending"} / valid {quote.validUntil || "TBC"}</p>
-                            </div>
-                            <div className="flex gap-2">
-                              <button onClick={() => acceptQuote(quote)} disabled={busy || quote.status === "Accepted"} className="rounded-lg bg-accent px-3 py-2 text-[10px] font-black uppercase tracking-widest text-black disabled:opacity-50">
-                                Accept
-                              </button>
-                              <button onClick={() => setCounterQuote(quote)} className="rounded-lg border border-white/15 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-gray-300">
-                                Counter
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </article>
-                );
-              })}
-            </div>
-          </div>
-
-          <div className="glass rounded-[1.5rem] p-5">
-            <h2 className="mb-4 text-2xl font-black uppercase italic text-white">Orders</h2>
-            <div className="grid gap-3">
-              {data.orders.length === 0 && <Empty text="Accepted quotes will create draft orders here." />}
-              {data.orders.map((order) => (
-                <article key={order.orderNo} className="rounded-xl border border-white/10 bg-white/[.03] p-4">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-accent">{order.status}</p>
-                  <h3 className="mt-1 font-black text-white">{order.orderNo}</h3>
-                  <div className="mt-3 grid grid-cols-2 gap-3 text-xs">
-                    <Info label="Quote" value={order.quoteNo} />
-                    <Info label="Quantity" value={t("portal.unitCount", { count: order.quantity })} />
-                    <Info label="Unit Price" value={formatUsd(order.finalUnitPrice)} highlight />
-                    <Info label="Total" value={formatUsd(order.total)} highlight />
-                  </div>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="glass rounded-[1.5rem] p-5">
-          <h2 className="mb-4 text-2xl font-black uppercase italic text-white">Negotiation Log</h2>
-          <div className="grid gap-3">
-            {data.negotiations.length === 0 && <Empty text="Portal inquiry and counteroffer actions will appear here." />}
-            {data.negotiations.map((log) => (
-              <div key={log.id} className="grid gap-2 rounded-xl border border-white/10 bg-white/[.03] p-4 sm:grid-cols-[1fr_auto]">
-                <div>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-theme">{log.actor} / {log.action}</p>
-                  <p className="mt-1 text-sm text-white">{log.message || "No message"}</p>
-                  <p className="mt-1 text-xs text-gray-500">{log.inquiryNo} / {log.quoteNo || "No quote yet"}</p>
-                </div>
-                <div className="text-left sm:text-right">
-                  <p className="font-black text-accent">{formatUsd(log.offeredPrice)}</p>
-                  <p className="mt-1 text-xs text-gray-600">{formatDate(log.createdAt)}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-      </section>
-
-      {selectedSellableModel && (
-        <Modal title={`${selectedSellableModel.brand} ${selectedSellableModel.model} ${selectedSellableModel.year ? t("portal.modelYear", { year: selectedSellableModel.year }) : t("portal.modelYearPending")} / Sources`} onClose={() => setSelectedSellableModel(null)}>
-          <div className="grid gap-4">
-            <div className="grid gap-3 sm:grid-cols-3">
-              <Info label="Segment" value={selectedSellableModel.segment || "EV"} />
-              <Info label="In-stock Qty" value={t("portal.unitCount", { count: selectedSellableModel.stockQuantity })} />
-              <Info label="FOB Range" value={selectedSellableModel.fobPriceRange} highlight />
-            </div>
-            <div className="max-w-full overflow-x-auto">
-              <table className="w-full min-w-[760px] border-separate border-spacing-0 text-left text-sm">
-                <thead>
-                  <tr>
-                    {["Year", "Trim / Config", "Color", "Qty", "Supply", "Lead Time", "Location", locale === "zh" ? "报价" : "Quote", "Action"].map((header) => (
-                      <th key={header} className="border-b border-white/10 px-3 py-3 text-[10px] font-black uppercase tracking-widest text-gray-500">
-                        {header}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {selectedSellableModel.offers.map((offer) => (
-                    <tr key={offer.key} className="align-top">
-                      <td className="border-b border-white/[.06] px-3 py-3 text-gray-300">{offer.year || "-"}</td>
-                      <td className="border-b border-white/[.06] px-3 py-3 text-gray-300">
-                        <strong className="block text-white">{offer.trim || "-"}</strong>
-                        <span className="mt-1 block text-xs text-gray-500">{offer.configuration || "-"}</span>
-                      </td>
-                      <td className="border-b border-white/[.06] px-3 py-3 text-gray-300">{formatColorPair(offer.exteriorColor, offer.interiorColor)}</td>
-                      <td className="border-b border-white/[.06] px-3 py-3 text-gray-300">{offer.quantity}</td>
-                      <td className="border-b border-white/[.06] px-3 py-3 text-gray-300">{offer.supplyType}</td>
-                      <td className="border-b border-white/[.06] px-3 py-3 text-gray-300">{offer.leadTime || (offer.supplyType === "In Stock" ? "Ready stock" : "-")}</td>
-                      <td className="border-b border-white/[.06] px-3 py-3 text-gray-300">{offer.location || "-"}</td>
-                      <td className="border-b border-white/[.06] px-3 py-3">
-                        {offer.priceTermsList.length > 0 ? (
-                          <div className="flex flex-col gap-1">
-                            {offer.priceTermsList.map((pt) => (
-                              <span
-                                key={pt.term}
-                                className={`w-fit font-mono text-xs font-black ${
-                                  pt.term === "FOB"
-                                    ? "text-amber-400"
-                                    : pt.term === "FCA"
-                                    ? "text-cyan-300"
-                                    : "text-emerald-300"
-                                }`}
-                              >
-                                {pt.term} {formatUsdStrict(pt.amount)}
-                              </span>
-                            ))}
-                          </div>
-                        ) : (
-                          <span className="font-mono text-xs font-black text-accent">{offer.priceLabel}</span>
-                        )}
-                      </td>
-                      <td className="border-b border-white/[.06] px-3 py-3">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setSelectedSellableModel(null);
-                            setSelectedVehicle(offer.vehicle);
-                            setInquiryForm((current) => ({ ...emptyInquiryForm, quantity: Math.max(1, offer.quantity || current.quantity || 1) }));
-                          }}
-                          className="rounded-lg border border-accent/40 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-accent transition hover:border-accent hover:bg-accent/10"
-                        >
-                          Inquiry
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </Modal>
-      )}
-
-      {selectedVehicle && (
-        <Modal title={`Request quote / ${selectedVehicle.brand} ${selectedVehicle.model} ${selectedVehicle.trim}`.trim()} onClose={() => setSelectedVehicle(null)}>
-          <form onSubmit={createInquiry} className="grid gap-4">
-            <div className="grid gap-3 sm:grid-cols-3">
-              <Info label="Year" value={selectedVehicle.year || "-"} />
-              <Info label="Color" value={formatColorPair(selectedVehicle.exteriorColor, selectedVehicle.interiorColor)} />
-              <Info label="FOB" value={selectedVehicle.price ? formatUsdStrict(selectedVehicle.price) : selectedVehicle.priceLabel} highlight={selectedVehicle.canSeePrice} />
-            </div>
-            <div className="grid gap-3 sm:grid-cols-2">
-              <FormField label="Quantity">
-                <input min="1" type="number" value={inquiryForm.quantity} onChange={(event) => setInquiryForm((current) => ({ ...current, quantity: Number(event.target.value) }))} />
-              </FormField>
-              <FormField label="Destination Port">
-                <input value={inquiryForm.destinationPort} onChange={(event) => setInquiryForm((current) => ({ ...current, destinationPort: event.target.value }))} placeholder="Djibouti, Mombasa..." />
-              </FormField>
-              <FormField label="Trade Term">
-                <select value={inquiryForm.tradeTerm} onChange={(event) => setInquiryForm((current) => ({ ...current, tradeTerm: event.target.value }))}>
-                  <option>FOB</option>
-                  <option>CIF</option>
-                  <option>CFR</option>
-                  <option>EXW</option>
-                </select>
-              </FormField>
-              <FormField label="Target Price">
-                <input value={inquiryForm.targetPrice} onChange={(event) => setInquiryForm((current) => ({ ...current, targetPrice: event.target.value }))} placeholder="Optional" type="number" />
-              </FormField>
-            </div>
-            <FormField label="Notes">
-              <textarea value={inquiryForm.notes} onChange={(event) => setInquiryForm((current) => ({ ...current, notes: event.target.value }))} placeholder="Color, payment, delivery window, local requirements..." />
-            </FormField>
-            <button disabled={busy} className="btn-primary rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest disabled:opacity-60">
-              {busy ? "Submitting..." : "Submit Inquiry"}
-            </button>
-          </form>
-        </Modal>
-      )}
-
-      {counterQuote && (
-        <Modal title={`Counteroffer / ${counterQuote.quoteNo}`} onClose={() => setCounterQuote(null)}>
-          <form onSubmit={submitCounter} className="grid gap-4">
-            <FormField label="Your Target Unit Price">
-              <input value={counterPrice} onChange={(event) => setCounterPrice(event.target.value)} placeholder="18300" type="number" />
-            </FormField>
-            <FormField label="Message">
-              <textarea value={counterMessage} onChange={(event) => setCounterMessage(event.target.value)} placeholder="Please include battery warranty, LC payment, and August shipment..." />
-            </FormField>
-            <button disabled={busy} className="btn-primary rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest disabled:opacity-60">
-              {busy ? "Sending..." : "Send Counteroffer"}
-            </button>
-          </form>
-        </Modal>
-      )}
-    </main>
-  );
 }
 
 function AdminPortal({
@@ -1478,8 +1194,6 @@ function AdminPortal({
       {editingVehicle && (
         <VehicleEditModal
           vehicle={editingVehicle}
-          canSeeSupplier={data.user.role !== "partner" && data.user.role !== "customer"}
-          canSeeLocation={data.user.role !== "partner" && data.user.role !== "customer"}
           onClose={() => setEditingVehicle(null)}
           onSaved={async () => {
             setEditingVehicle(null);
@@ -2571,7 +2285,7 @@ function InquirySnapshotDetails({ inquiry }: { inquiry: Inquiry }) {
   ].filter(([, value]) => Boolean(value));
 
   return <div className="mt-4 grid gap-2 border-t border-white/10 pt-3 sm:grid-cols-2 xl:grid-cols-3">
-    {details.map(([label, value]) => <div key={String(label)} className="rounded border border-white/10 bg-black/10 px-3 py-2"><p className="text-[10px] font-black uppercase tracking-wider text-slate-500">{label}</p><p className="mt-1 text-xs text-slate-200">{String(value)}</p></div>)}
+    {details.map(([label, value]) => <div key={String(label)} className="rounded border border-white/10 bg-black/10 px-3 py-2"><p className="text-[10px] font-black uppercase tracking-wider text-slate-500">{String(label)}</p><p className="mt-1 text-xs text-slate-200">{String(value)}</p></div>)}
   </div>;
 }
 
@@ -2860,6 +2574,7 @@ function AdminStaff({ data }: { data: BootstrapData }) {
 }
 
 function VehicleEditModal({ vehicle, onClose, onSaved }: { vehicle: Vehicle; onClose: () => void; onSaved: () => Promise<void> }) {
+  const { locale } = useTranslation();
   const editableFields = new Set(vehicle.editableFields || []);
   const canEditOptionalField = (fieldName: string) => editableFields.has(fieldName);
   const [form, setForm] = useState({
@@ -3580,6 +3295,7 @@ export function buildSellableModels(data: BootstrapData): SellableModel[] {
           preorderAvailable: false,
           fobPriceRange: "FOB on request",
           recommendationRank: vehicle.recommendationRank ?? null,
+          priceTermsSummary: [],
           offers: [],
         },
         offerMap: new Map(),
@@ -3840,11 +3556,9 @@ function offerMatchesAdminFilters(
     item.segment,
     offer.year,
     offer.trim,
-    offer.specs,
     offer.configuration,
     offer.exteriorColor,
     offer.interiorColor,
-    offer.badge,
     offer.supplyType,
     offer.leadTime,
     ...(canSeeLocation ? [offer.location] : []),

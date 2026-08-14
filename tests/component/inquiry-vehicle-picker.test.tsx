@@ -43,8 +43,7 @@ describe("Inquiry Vehicle Picker Component", () => {
     document.body.appendChild(container);
     const root = createRoot(container);
 
-    let changedValue: { vehicleId: string; vehicleModel: string } | null = null;
-
+    let changedValue: { vehicleId: string; vehicleModel: string } = { vehicleId: "", vehicleModel: "" };
     await act(async () => {
       root.render(
         <InquiryVehiclePickerField
@@ -57,7 +56,7 @@ describe("Inquiry Vehicle Picker Component", () => {
       );
     });
 
-    const select = container.querySelector('[data-testid="brand-select"]') as HTMLSelectElement;
+    const select = container.querySelector('[data-testid="brand-select"]') as unknown as HTMLSelectElement;
     expect(select).not.toBeNull();
 
     select.value = "Changan";

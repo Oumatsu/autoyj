@@ -57,7 +57,7 @@ export function createTolgee(initialLocale: string = defaultLanguage, options: T
   const remoteEnabled = options.remote !== false && Boolean(apiKey);
 
   if (typeof window !== "undefined") {
-    const instance = Tolgee({ defaultLanguage: language }).use(FormatIcu());
+    const instance = Tolgee().use(FormatIcu());
     if (remoteEnabled) {
       instance.use(DevTools());
     }
@@ -75,7 +75,7 @@ export function createTolgee(initialLocale: string = defaultLanguage, options: T
     return res;
   }
 
-  const instance = Tolgee({ defaultLanguage: language }).use(FormatIcu());
+  const instance = Tolgee().use(FormatIcu());
   instanceLanguageMap.set(instance, language);
   const res = instance.init({
     language,

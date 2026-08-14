@@ -1,4 +1,4 @@
-export type AcademyTranslationFn = (key: string) => unknown;
+export type AcademyTranslationFn = (key: string, fallback?: string) => unknown;
 
 function requireTranslation(
   t: AcademyTranslationFn,
