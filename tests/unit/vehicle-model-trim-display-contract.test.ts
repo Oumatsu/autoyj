@@ -60,15 +60,19 @@ test("vehicle model detail does not render a separate trim-differences section",
   expect(card).not.toContain("versionDifferences.map");
 });
 
-test("renders full trim specifications in one ordered horizontal comparison table", () => {
+test("renders full trim specifications as a responsive ordered card grid", () => {
   const card = portalPage.slice(
     portalPage.indexOf("function ModelFullSpecsCard"),
     portalPage.indexOf("function ModelGalleryCarousel"),
   );
 
   expect(card).toContain('buildModelComparisonRows(group, "full")');
-  expect(card).toContain("sticky left-0");
+  expect(card).toContain("grid grid-cols-1 gap-4 md:grid-cols-2 2xl:grid-cols-3");
+  expect(card).toContain("sm:grid-cols-2");
   expect(card).toContain("trimVariants.map");
+  expect(card).not.toContain("overflow-x-auto");
+  expect(card).not.toContain("gridTemplateColumns");
+  expect(card).not.toContain("sticky left-0");
   expect(card).not.toContain("versionDetails.map");
 });
 
@@ -95,4 +99,17 @@ test("vehicle model navigator ranks the D1 Recommendation column with lower numb
   expect(handler).toContain("recommendationRank");
   expect(builder).toContain("recommendationRankForModelGroup");
   expect(builder).toContain("compareRecommendationRanks");
+});
+
+test("dashboard model summaries preserve linked-trim metric intervals", () => {
+  const handlerStart = portalApi.indexOf("async function handleGetVehicleModels");
+  const handlerEnd = portalApi.indexOf("function getBaselineVehicleModels", handlerStart);
+  const handler = portalApi.slice(handlerStart, handlerEnd);
+
+  expect(portalApi).toContain('"motor_torque_min_n_m_auto"');
+  expect(portalApi).toContain('"motor_torque_max_n_m_auto"');
+  expect(handler).toContain("battery: batteryCapacityDisplay(fields)");
+  expect(handler).toContain("range: cltcRangeDisplay(fields)");
+  expect(handler).toContain("motorPower: motorPowerDisplay(fields)");
+  expect(handler).toContain("motorTorque: motorTorqueDisplay(fields)");
 });

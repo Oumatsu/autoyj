@@ -1065,6 +1065,7 @@ function AdminPortal({
   const { t, locale } = useTranslation();
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const visibleNav = adminNavItems.filter((item) => item.roles.includes(data.user.role));
   const normalizedActiveModule = visibleNav.some((item) => item.key === activeModule) ? activeModule : "dashboard";
   const activeItem = visibleNav.find((item) => item.key === normalizedActiveModule) || visibleNav[0];
@@ -1075,7 +1076,15 @@ function AdminPortal({
   return (
     <main className="min-h-screen bg-[#0c1322] pt-[var(--navbar-h,56px)] text-slate-100">
       <div className={`grid min-h-[calc(100vh-var(--navbar-h,56px))] min-w-0 transition-[grid-template-columns] duration-200 ${sidebarCollapsed ? "lg:grid-cols-[88px_minmax(0,1fr)]" : "lg:grid-cols-[300px_minmax(0,1fr)]"}`}>
-        <aside className={`flex min-h-[calc(100vh-var(--navbar-h,56px))] flex-col border-b border-white/10 bg-[#101827] px-4 py-5 transition-[padding] duration-200 lg:sticky lg:h-[calc(100vh-var(--navbar-h,56px))] lg:self-start lg:border-b-0 lg:border-r ${sidebarCollapsed ? "lg:px-3" : "lg:px-5"}`} style={{ top: "var(--navbar-h, 56px)" }}>
+        {mobileSidebarOpen && (
+          <button
+            type="button"
+            aria-label="Close dashboard navigation"
+            onClick={() => setMobileSidebarOpen(false)}
+            className="fixed inset-0 z-30 bg-black/70 lg:hidden"
+          />
+        )}
+        <aside className={`${mobileSidebarOpen ? "fixed inset-y-[var(--navbar-h,56px)] left-0 z-40 flex" : "hidden"} min-h-[calc(100vh-var(--navbar-h,56px))] w-[min(20rem,calc(100vw-2rem))] flex-col overflow-y-auto border-b border-white/10 bg-[#101827] px-4 py-5 shadow-2xl transition-[padding] duration-200 lg:sticky lg:z-auto lg:flex lg:h-[calc(100vh-var(--navbar-h,56px))] lg:w-auto lg:self-start lg:overflow-visible lg:border-b-0 lg:border-r lg:shadow-none ${sidebarCollapsed ? "lg:px-3" : "lg:px-5"}`} style={{ top: "var(--navbar-h, 56px)" }}>
           <div className="min-h-0 flex-1">
             <div className={`flex items-center gap-3 border-b border-white/10 pb-6 ${sidebarCollapsed ? "lg:flex-col lg:justify-center lg:gap-2 lg:pb-4" : ""}`}>
               <div className={`grid shrink-0 place-items-center rounded-2xl bg-[#22b8aa] font-black text-[#0c1322] transition-all duration-200 ${sidebarCollapsed ? "lg:h-12 lg:w-12 lg:text-base" : "h-14 w-14 text-xl"}`}>
@@ -1110,6 +1119,7 @@ function AdminPortal({
                     onClick={(e) => {
                       e.preventDefault();
                       onModuleChange(item.key);
+                      setMobileSidebarOpen(false);
                     }}
                       title={t(item.labelKey)}
                       className={`grid min-h-12 grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-xl px-3 py-2.5 text-left text-[13px] font-bold transition cursor-pointer ${sidebarCollapsed ? "lg:grid-cols-1 lg:justify-items-center lg:px-0" : ""} ${
@@ -1153,11 +1163,25 @@ function AdminPortal({
 
         <section className="min-w-0 px-4 py-5 sm:px-6 lg:px-8 lg:pb-8 lg:pt-8">
           <header className="mb-6 flex flex-col gap-4 border-b border-white/10 pb-5 xl:flex-row xl:items-end xl:justify-between">
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-[.24em] text-[#22b8aa]">
-                {data.user.role === "admin" ? t("portal.administrator") : formatPortalRole(data.user.role, locale)} {t("portal.adminView")}
-              </p>
-              <h1 className="mt-2 text-3xl font-black tracking-tight text-white sm:text-4xl">{activeItem ? t(activeItem.labelKey) : t("portal.navDashboard")}</h1>
+            <div className="flex items-start gap-3">
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                aria-label="Open dashboard navigation"
+                onClick={() => setMobileSidebarOpen(true)}
+                className="mt-0.5 shrink-0 border border-white/10 text-slate-200 lg:hidden"
+              >
+                <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+                  <path d="M4 7h16M4 12h16M4 17h16" />
+                </svg>
+              </Button>
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[.24em] text-[#22b8aa]">
+                  {data.user.role === "admin" ? t("portal.administrator") : formatPortalRole(data.user.role, locale)} {t("portal.adminView")}
+                </p>
+                <h1 className="mt-2 text-3xl font-black tracking-tight text-white sm:text-4xl">{activeItem ? t(activeItem.labelKey) : t("portal.navDashboard")}</h1>
+              </div>
             </div>
             <div className="flex w-full min-w-0 flex-col gap-3 xl:max-w-[560px]">
               <div className="grid min-w-0 gap-2 text-xs text-slate-400 sm:grid-cols-3">
@@ -1406,39 +1430,52 @@ function ModelFullSpecsCard({ group }: { group: ModelProfileGroup }) {
             <p className="text-[10px] font-black uppercase tracking-[.18em] text-slate-400">{locale === "zh" ? "版本配置" : locale === "am" ? "የስሪት ውቅሮች" : "CONFIGURATIONS"}</p>
             <h5 className="mt-0.5 text-base font-black text-white">{t("portal.trimCount", { count: trimVariants.length })}</h5>
           </div>
-          <div className="overflow-x-auto rounded-xl border border-white/10 bg-[#0a1120]">
-            <div className="min-w-max">
-              <div className="grid border-b border-white/10 bg-[#d8edf7] text-slate-950" style={{ gridTemplateColumns: `220px repeat(${trimVariants.length}, minmax(190px, 1fr))` }}>
-                <div className="sticky left-0 z-20 bg-[#d8edf7] px-4 py-5 text-[10px] font-black uppercase tracking-[.18em]">{locale === "zh" ? "参数" : locale === "am" ? "መለኪያ" : "Specification"}</div>
-                {trimVariants.map((variant) => (
-                  <div key={variant.id} className={`border-l border-slate-900/15 px-4 py-5 text-sm font-black leading-6 ${variant.recommendationRank ? "bg-[#c5e7e4]" : ""}`}>
-                    {localizeVehicleValue(variant.trim || variant.id, locale)}
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 2xl:grid-cols-3">
+            {trimVariants.map((variant) => (
+              <article
+                key={variant.id}
+                className={`min-w-0 overflow-hidden rounded-xl border bg-[#0a1120] ${variant.recommendationRank ? "border-[#5ee6d8]/50" : "border-white/10"}`}
+              >
+                <header className={`border-b border-white/10 px-4 py-4 ${variant.recommendationRank ? "bg-[#5ee6d8]/10" : "bg-[#d8edf7] text-slate-950"}`}>
+                  <div className="flex items-start justify-between gap-3">
+                    <h6 className={`min-w-0 break-words text-sm font-black leading-6 ${variant.recommendationRank ? "text-white" : "text-slate-950"}`}>
+                      {localizeVehicleValue(variant.trim || variant.id, locale)}
+                    </h6>
+                    {variant.recommendationRank ? (
+                      <span className="shrink-0 rounded-full bg-[#5ee6d8] px-2 py-1 text-[10px] font-black uppercase tracking-wide text-slate-950">
+                        {locale === "zh" ? "推荐" : locale === "am" ? "የሚመከር" : "Recommended"}
+                      </span>
+                    ) : null}
                   </div>
-                ))}
-              </div>
-              {groupedComparisonRows.map((section) => (
-                <div key={section.label}>
-                  <div className="sticky left-0 z-10 border-y border-white/10 bg-[#111c2d] px-4 py-3 text-[11px] font-black text-[#5ee6d8]" style={{ minWidth: `${220 + trimVariants.length * 190}px` }}>{section.label}</div>
-                  {section.rows.map((row) => {
-                    const isChangeRow = row.label === "新增配置" || row.label === "升级配置";
-                    return (
-                      <div key={`${row.category}:${row.label}`} className="grid border-b border-white/10 last:border-b-0" style={{ gridTemplateColumns: `220px repeat(${trimVariants.length}, minmax(190px, 1fr))` }}>
-                        <div className="sticky left-0 z-10 bg-[#0f1929] px-4 py-3 text-xs font-bold text-slate-300">{localizeVehicleValue(row.label, locale)}</div>
-                        {trimVariants.map((variant) => {
+                </header>
+                <div className="space-y-5 p-4">
+                  {groupedComparisonRows.map((section) => (
+                    <section key={section.label}>
+                      <h6 className="border-b border-white/10 pb-2 text-[10px] font-black uppercase tracking-[.14em] text-[#5ee6d8]">
+                        {section.label}
+                      </h6>
+                      <dl className="mt-3 grid grid-cols-1 gap-x-4 gap-y-3 sm:grid-cols-2">
+                        {section.rows.map((row) => {
+                          const isChangeRow = row.label === "新增配置" || row.label === "升级配置";
                           const rawValue = safeText(row.values[variant.id]).trim() || "-";
                           const value = localizeVehicleValue(rawValue, locale);
                           return (
-                            <div key={`${variant.id}:${row.label}`} className={`border-l border-white/5 px-4 py-3 text-xs leading-5 ${variant.recommendationRank ? "bg-[#5ee6d8]/[0.05]" : ""} ${rawValue === "-" ? "text-slate-600" : "text-slate-100"}`}>
-                              {isChangeRow ? <span className="whitespace-pre-line">{formatTrimFeatureLines(value)}</span> : value}
+                            <div key={`${variant.id}:${row.category}:${row.label}`} className="min-w-0">
+                              <dt className="text-[10px] font-medium text-slate-400">
+                                {localizeVehicleValue(row.label, locale)}
+                              </dt>
+                              <dd className={`mt-0.5 break-words text-xs font-semibold leading-5 ${rawValue === "-" ? "text-slate-600" : "text-slate-100"}`}>
+                                {isChangeRow ? <span className="whitespace-pre-line">{formatTrimFeatureLines(value)}</span> : value}
+                              </dd>
                             </div>
                           );
                         })}
-                      </div>
-                    );
-                  })}
+                      </dl>
+                    </section>
+                  ))}
                 </div>
-              ))}
-            </div>
+              </article>
+            ))}
           </div>
         </section>
       ) : null}
@@ -2327,6 +2364,11 @@ function AdminQuotes({ data, onRefresh }: { data: BootstrapData; onRefresh: () =
   } : {
     search: "Search vehicle, customer, or inquiry", noResults: "No inquiries match this search.", inquiryRequest: "Inquiry request", closeComment: "Close comment", manageHidden: "Manage closed comments", hiddenTitle: "Closed comments", restore: "Restore comment", deletePermanently: "Delete permanently", cancel: "Cancel", reply: "Quote reply", replyPlaceholder: "Write a reply", messagePlaceholder: "Write a message", send: "Send message", saving: "Saving…", postInquiry: "Post inquiry", units: "Units", brand: "Brand", model: "Model", trim: "Trim", quoteReply: "Quote reply", hiddenEmpty: "No closed comments.",
   };
+  const inquiryCloseCopy = locale === "zh"
+    ? { startedAt: "开始时间", closeInquiry: "关闭询价", closeInquiryConfirmation: "确定关闭此询价？它将从进行中的讨论中移除。" }
+    : locale === "am"
+      ? { startedAt: "የጀመረበት ጊዜ", closeInquiry: "ጥያቄን ዝጋ", closeInquiryConfirmation: "ይህን ጥያቄ ለመዝጋት እርግጠኛ ነዎት? ከንቁ ውይይቶች ይወገዳል።" }
+      : { startedAt: "Started", closeInquiry: "Close inquiry", closeInquiryConfirmation: "Close this inquiry? It will be removed from active discussions." };
   const commentCopy = locale === "zh" ? {
     inquiryRequest: "询价请求", closeComment: "关闭评论", reply: "引用回复", cancel: "取消", replyPlaceholder: "写一条引用回复", messagePlaceholder: "写一条消息", send: "发送消息", sendReply: "发送引用回复", saving: "保存中…", noMessages: "此询价暂无评论。", hiddenTitle: "已关闭的评论", hiddenDescription: "关闭仅会从主会话中隐藏单条评论，不会关闭或删除整条询价。", hiddenEmpty: "没有已关闭的评论。", restore: "恢复评论", deletePermanently: "永久删除", manageHidden: "管理已关闭评论",
   } : locale === "am" ? {
@@ -2334,7 +2376,7 @@ function AdminQuotes({ data, onRefresh }: { data: BootstrapData; onRefresh: () =
   } : {
     inquiryRequest: "Inquiry request", closeComment: "Close comment", reply: "Quote reply", cancel: "Cancel", replyPlaceholder: "Write a quote reply", messagePlaceholder: "Write a message", send: "Send message", sendReply: "Send quote reply", saving: "Saving…", noMessages: "No comments in this inquiry yet.", hiddenTitle: "Closed comments", hiddenDescription: "Closing only hides one comment from the main conversation. It does not close or delete the inquiry.", hiddenEmpty: "No closed comments.", restore: "Restore comment", deletePermanently: "Delete permanently", manageHidden: "Manage closed comments",
   };
-  const inquiries = data.inquiries;
+  const inquiries = data.inquiries.filter((inquiry) => inquiry.status.trim().toLowerCase() !== "closed");
   const visibleInquiries = inquiries.filter((inquiry) => {
     const haystack = `${inquiry.vehicleModel} ${inquiry.title} ${inquiry.customerId} ${inquiry.inquiryNo}`.toLowerCase();
     return !inquirySearch.trim() || haystack.includes(inquirySearch.trim().toLowerCase());
@@ -2361,6 +2403,7 @@ function AdminQuotes({ data, onRefresh }: { data: BootstrapData; onRefresh: () =
   async function create(event: React.FormEvent) { event.preventDefault(); if ((!target.vehicleModel && !title.trim()) || !initialNote.trim()) return; setBusy(true); try { await api("/api/portal/inquiries", { method: "POST", body: JSON.stringify({ vehicleId: target.vehicleId, vehicleModel: target.vehicleModel, title, quantity: newInquiryQuantity, tradeTerm: "FOB", notes: initialNote }) }); setShowNew(false); await onRefresh(); } catch (e) { setError(e instanceof Error ? e.message : "Could not start inquiry"); } finally { setBusy(false); } }
   async function post(event: React.FormEvent) { event.preventDefault(); if (!selected || !note.trim()) return; setBusy(true); try { const result = await api<{ note: InquiryNote }>(`/api/portal/inquiries/${encodeURIComponent(selected.inquiryNo)}/notes`, { method: "POST", body: JSON.stringify({ body: note, parentNoteId: replyTo }) }); setPostedNotes((current) => appendInquiryComment(current, result.note)); setNote(""); setReplyTo(""); } catch (e) { setError(e instanceof Error ? e.message : "Could not add follow-up"); } finally { setBusy(false); } }
   async function closeComment(comment: InquiryNote) { if (!window.confirm(`${copy.closeComment}?`)) return; setBusy(true); setError(""); try { await api(`/api/portal/inquiry-content/note/${encodeURIComponent(comment.noteId)}`, { method: "DELETE", body: JSON.stringify({ reason: "Closed by administrator" }) }); setPostedNotes((current) => current.filter((item) => item.noteId !== comment.noteId)); await onRefresh(); } catch (e) { setError(e instanceof Error ? e.message : "Could not close comment"); } finally { setBusy(false); } }
+  async function closeInquiry(inquiry: Inquiry) { if (!window.confirm(inquiryCloseCopy.closeInquiryConfirmation)) return; setBusy(true); setError(""); try { await api(`/api/portal/inquiries/${encodeURIComponent(inquiry.inquiryNo)}/status`, { method: "PATCH", body: JSON.stringify({ status: "Closed" }) }); await onRefresh(); } catch (e) { setError(e instanceof Error ? e.message : "Could not close inquiry"); } finally { setBusy(false); } }
   async function loadHiddenComments() { setBusy(true); setError(""); try { const result = await api<{ notes: InquiryNote[] }>("/api/portal/inquiry-content/deleted"); setHiddenNotes(result.notes); setShowHiddenNotes(true); } catch (e) { setError(e instanceof Error ? e.message : "Could not load closed comments"); } finally { setBusy(false); } }
   async function moderateHiddenComment(noteId: string, action: "restore" | "purge") { if (action === "purge" && !window.confirm(copy.deletePermanently + "?")) return; setBusy(true); setError(""); try { await api(`/api/portal/inquiry-content/note/${encodeURIComponent(noteId)}`, { method: "PATCH", body: JSON.stringify({ action }) }); if (action === "restore") await onRefresh(); await loadHiddenComments(); } catch (e) { setError(e instanceof Error ? e.message : "Could not update closed comment"); } finally { setBusy(false); } }
   async function createQuotation(event: React.FormEvent) { event.preventDefault(); if (!selected) return; const unitPrice = Number(quotePrice); if (!Number.isFinite(unitPrice) || unitPrice <= 0) { setError("Enter a USD unit price before creating the quotation"); return; } setBusy(true); setError(""); try { const created = await api<{ quoteNo: string; quantity: number; unitPrice: number }>("/api/portal/quotes", { method: "POST", body: JSON.stringify({ inquiryNo: selected.inquiryNo, unitPrice }) }); setPreview({ quoteNo: created.quoteNo, customer: selected.customerId, vehicleModel: selected.vehicleModel, quantity: created.quantity, unitPrice: created.unitPrice, cifTotal: quoteCif || "USD 0.00" }); setShowQuoteComposer(false); } catch (e) { setError(e instanceof Error ? e.message : "Could not create quotation"); } finally { setBusy(false); } }
@@ -2375,22 +2418,26 @@ function AdminQuotes({ data, onRefresh }: { data: BootstrapData; onRefresh: () =
         {visibleInquiries.map((inquiry) => {
           const details = inquiryListDetails(inquiry);
           const isSelected = selected?.inquiryNo === inquiry.inquiryNo;
-          return <button key={inquiry.inquiryNo} type="button" onClick={() => void select(inquiry)} className={`rounded-lg border p-3 text-left ${isSelected ? "border-white bg-emerald-400/15" : "border-white/10 bg-white/[.03] hover:bg-white/[.06]"}`}>
-            <div className="flex items-center justify-between gap-2"><span className={`font-mono text-xs font-black ${isSelected ? "text-lime-300" : "text-white"}`}>{inquiry.inquiryNo}</span>{inquiry.hasUnreadFollowUps && <span className="h-2 w-2 rounded-full bg-amber-300" />}</div>
-            <div className={`mt-2 grid gap-1 text-xs ${isSelected ? "text-lime-300" : "text-slate-300"}`}>
-              <p className="break-words"><span className={`mr-1 ${isSelected ? "text-lime-200" : "text-slate-500"}`}>{copy.units}</span>{details.quantity}</p>
-              {details.brand && <p className="break-words"><span className={`mr-1 ${isSelected ? "text-lime-200" : "text-slate-500"}`}>{copy.brand}</span>{details.brand}</p>}
-              <p className="break-words"><span className={`mr-1 ${isSelected ? "text-lime-200" : "text-slate-500"}`}>{copy.model}</span>{details.model}</p>
-              {details.trim && <p className="break-words"><span className={`mr-1 ${isSelected ? "text-lime-200" : "text-slate-500"}`}>{copy.trim}</span>{details.trim}</p>}
-            </div>
-          </button>;
+          return <article key={inquiry.inquiryNo} className={`rounded-lg border p-3 ${isSelected ? "border-white bg-emerald-400/15" : "border-white/10 bg-white/[.03] hover:bg-white/[.06]"}`}>
+            <button type="button" onClick={() => void select(inquiry)} className="w-full text-left">
+              <div className="flex items-center justify-between gap-2"><span className={`min-w-0 truncate text-xs font-black ${isSelected ? "text-lime-300" : "text-white"}`}>{inquiry.title || details.model}</span>{canModerateComments && <span className="shrink-0 font-mono text-[10px] font-medium text-slate-500">{inquiry.inquiryNo}</span>}{inquiry.hasUnreadFollowUps && <span className="h-2 w-2 shrink-0 rounded-full bg-amber-300" />}</div>
+              <time className={`mt-2 block text-[10px] ${isSelected ? "text-lime-200/70" : "text-slate-500"}`}>{inquiryCloseCopy.startedAt}: {formatDate(inquiry.createdAt)}</time>
+              <div className={`mt-2 grid gap-1 text-xs ${isSelected ? "text-lime-300" : "text-slate-300"}`}>
+                <p className="break-words"><span className={`mr-1 ${isSelected ? "text-lime-200" : "text-slate-500"}`}>{copy.units}</span>{details.quantity}</p>
+                {details.brand && <p className="break-words"><span className={`mr-1 ${isSelected ? "text-lime-200" : "text-slate-500"}`}>{copy.brand}</span>{details.brand}</p>}
+                <p className="break-words"><span className={`mr-1 ${isSelected ? "text-lime-200" : "text-slate-500"}`}>{copy.model}</span>{details.model}</p>
+                {details.trim && <p className="break-words"><span className={`mr-1 ${isSelected ? "text-lime-200" : "text-slate-500"}`}>{copy.trim}</span>{details.trim}</p>}
+              </div>
+            </button>
+            {canModerateComments && <button type="button" disabled={busy} onClick={() => void closeInquiry(inquiry)} className="mt-3 text-[10px] font-black uppercase text-red-300 transition hover:text-red-200 disabled:cursor-wait disabled:opacity-60">{inquiryCloseCopy.closeInquiry}</button>}
+          </article>;
         })}
         {visibleInquiries.length === 0 && <p className="rounded border border-dashed border-white/15 p-3 text-xs text-slate-400">{copy.noResults}</p>}
       </aside>
       {selected && <section className="min-w-0">
         <div className="rounded-lg border border-white/10 bg-[#0b1425] p-4">
-          <p className="text-[10px] font-black uppercase text-theme">{commentCopy.inquiryRequest}</p>
-          <h3 className="mt-1 font-black text-white">{selected.inquiryNo}</h3>
+          <div className="flex items-center gap-2"><p className="text-[10px] font-black uppercase text-theme">{commentCopy.inquiryRequest}</p>{canModerateComments && <span className="font-mono text-[10px] font-medium text-slate-500">{selected.inquiryNo}</span>}</div>
+          <h3 className="mt-1 font-black text-white">{selected.title || selected.vehicleModel}</h3>
           <InquirySnapshotDetails inquiry={selected} />
           <p className="mt-3 whitespace-pre-wrap text-sm text-slate-300">{selected.notes}</p>
         </div>

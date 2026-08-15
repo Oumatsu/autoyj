@@ -51,7 +51,7 @@ test.describe("Advanced E2E: Auth Session Lifecycle & Browser API Verification",
     expect(pageErrors).toEqual([]);
 
     // 8. Verify no network requests failed catastrophically
-    expect(failedRequests.filter((req) => !req.includes("favicon") && !req.includes("localhost:8085"))).toEqual([]);
+    expect(failedRequests.filter((req) => !req.includes("favicon"))).toEqual([]);
   });
 
   test("Cookie & Storage state transition across login and logout", async ({ page, context }) => {

@@ -357,8 +357,8 @@ function metricDisplay(
   precision = 0,
 ) {
   return formatMetricRange(
-    asOptionalNumber(fields[autoMinField]),
-    asOptionalNumber(fields[autoMaxField]),
+    asOptionalNumber(rowField(fields, autoMinField.replace(/_auto$/, ""), autoMinField)),
+    asOptionalNumber(rowField(fields, autoMaxField.replace(/_auto$/, ""), autoMaxField)),
     unit,
     precision,
   );
@@ -392,6 +392,10 @@ function batteryCapacityDisplay(fields: Record<string, unknown>) {
 
 function motorPowerDisplay(fields: Record<string, unknown>) {
   return metricDisplay(fields, "motor_power_min_kw_auto", "motor_power_max_kw_auto", "kW");
+}
+
+function motorTorqueDisplay(fields: Record<string, unknown>) {
+  return metricDisplay(fields, "motor_torque_min_n_m_auto", "motor_torque_max_n_m_auto", "N-m");
 }
 
 function batteryChemistryDisplay(fields: Record<string, unknown>) {
@@ -2708,6 +2712,7 @@ async function handleGetVehicleModels(request: Request, env: Env) {
     queryVehicles(requirePortalDb(env)),
   ]);
   const baseModels: PortalVehicleModel[] = modelRows.map((row) => {
+    const fields = row as unknown as Record<string, unknown>;
     const recommendationValue = asOptionalNumber(rowField(row as unknown as Record<string, unknown>, "Recommendation"));
     return ({
     id: row.id,
@@ -2719,19 +2724,13 @@ async function handleGetVehicleModels(request: Request, env: Env) {
     bodyType: asText(rowField(row as unknown as Record<string, unknown>, "vehicle_class", "segment")),
     fuelType: asText(rowField(row as unknown as Record<string, unknown>, "powertrain_type")),
     msrpChina: row.display_price_low != null ? `¥${formatNumber(row.display_price_low)}` : "",
-    battery: asText(rowField(row as unknown as Record<string, unknown>, "battery_capacity_max_kwh", "battery_capacity_max_kwh_auto"))
-      ? `${asText(rowField(row as unknown as Record<string, unknown>, "battery_capacity_max_kwh", "battery_capacity_max_kwh_auto"))} kWh`
-      : "",
+    battery: batteryCapacityDisplay(fields),
     batteryType: asText(rowField(row as unknown as Record<string, unknown>, "battery_chemistry", "battery_chemistry_auto")),
     batteryMaker: "",
-    range: asText(rowField(row as unknown as Record<string, unknown>, "cltc_range_max_km", "cltc_range_max_km_auto"))
-      ? `${asText(rowField(row as unknown as Record<string, unknown>, "cltc_range_max_km", "cltc_range_max_km_auto"))} km (CLTC)`
-      : "",
+    range: cltcRangeDisplay(fields),
     energyConsumption: "",
-    motorPower: asText(rowField(row as unknown as Record<string, unknown>, "motor_power_max_kw", "motor_power_max_kw_auto"))
-      ? `${asText(rowField(row as unknown as Record<string, unknown>, "motor_power_max_kw", "motor_power_max_kw_auto"))} kW`
-      : "",
-    motorTorque: "",
+    motorPower: motorPowerDisplay(fields),
+    motorTorque: motorTorqueDisplay(fields),
     driveType: asText(rowField(row as unknown as Record<string, unknown>, "drivetrain_display", "drivetrain_display_auto")),
     topSpeed: asText(rowField(row as unknown as Record<string, unknown>, "top_speed_max_kmh", "top_speed_max_kmh_auto"))
       ? `${asText(rowField(row as unknown as Record<string, unknown>, "top_speed_max_kmh", "top_speed_max_kmh_auto"))} km/h`
@@ -3474,13 +3473,16 @@ const INQUIRY_STATUS_TRANSITIONS: Record<string, string[]> = {
 
 async function handleUpdateInquiryStatus(request: Request, env: Env, inquiryNo: string) {
   const session = await requireSession(request, env);
-  if (!canCreateVehicleQuotation(session.role)) {
-    return problem("Only admin and sales can update inquiry status", 403);
-  }
   const body = (await request.json().catch(() => null)) as Record<string, unknown> | null;
   const newStatus = asText(body?.status).trim();
   const reason = asText(body?.reason).trim();
   if (!newStatus) return problem("Target status is required", 400);
+
+  if (newStatus.toLowerCase() === "closed") {
+    if (session.role !== "admin") return problem("Administrator access required", 403);
+  } else if (!canCreateVehicleQuotation(session.role)) {
+    return problem("Only admin and sales can update inquiry status", 403);
+  }
 
   const db = requirePortalDb(env);
   const inquiry = await db
@@ -3498,8 +3500,13 @@ async function handleUpdateInquiryStatus(request: Request, env: Env, inquiryNo: 
 
   const now = nowText();
   const historyId = nextId("HIS");
+  const updateStmt =
+    newStatus === "Closed"
+      ? db.prepare("UPDATE inquiries SET status='Closed', updated_at=? WHERE inquiry_no=?").bind(now, inquiryNo)
+      : db.prepare("UPDATE inquiries SET status=?, updated_at=? WHERE inquiry_no=?").bind(newStatus, now, inquiryNo);
+
   const statements = [
-    db.prepare("UPDATE inquiries SET status=?, updated_at=? WHERE inquiry_no=?").bind(newStatus, now, inquiryNo),
+    updateStmt,
     db.prepare(
       "INSERT INTO inquiry_status_history (id, history_id, inquiry_no, from_status, to_status, reason, actor_user_id, actor_name, actor_role, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
     ).bind(
@@ -3508,7 +3515,7 @@ async function handleUpdateInquiryStatus(request: Request, env: Env, inquiryNo: 
       inquiryNo,
       currentStatus,
       newStatus,
-      reason,
+      reason || (newStatus === "Closed" ? "Closed by administrator" : `Status updated to ${newStatus}`),
       session.userId,
       session.name,
       session.role,
@@ -3651,6 +3658,7 @@ async function listScopedInquiries(env: Env, session: PortalSession) {
     JOIN inquiry_participants creator ON creator.inquiry_no=i.inquiry_no AND creator.access_source='Creator'
     LEFT JOIN inquiry_reads reads ON reads.inquiry_no=i.inquiry_no AND reads.user_id=?
     WHERE i.deleted_at IS NULL
+      AND LOWER(i.status) <> 'closed'
       AND (? IN ('admin','sales') OR creator.user_id=?)
     ORDER BY i.updated_at DESC
   `).bind(session.userId, session.role, session.userId).all();

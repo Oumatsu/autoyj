@@ -1,11 +1,15 @@
 import { describe, expect, test } from "bun:test";
-import { createTolgee, getTolgeeConfig } from "../../lib/tolgee";
+import {
+  createTolgee,
+  getLastCreatedTolgeeLanguage,
+  getTolgeeTargetLanguage,
+} from "../../lib/tolgee";
 
 describe("lib/tolgee", () => {
-  test("getTolgeeConfig returns configuration object with defaults", () => {
-    const config = getTolgeeConfig();
-    expect(config).toBeDefined();
-    expect(typeof config.apiUrl).toBe("string");
+  test("getLastCreatedTolgeeLanguage and getTolgeeTargetLanguage track instance locale", () => {
+    const tolgee = createTolgee("zh");
+    expect(getLastCreatedTolgeeLanguage()).toBe("zh");
+    expect(getTolgeeTargetLanguage(tolgee)).toBe("zh");
   });
 
   test("createTolgee initializes Tolgee instance for valid locale", () => {

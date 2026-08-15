@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import { readFileSync } from "node:fs";
 import { TolgeeCore } from "@tolgee/core";
 import { FormatIcu } from "@tolgee/format-icu";
 import { fallbackLocale } from "../../i18n/config";
@@ -9,7 +10,16 @@ import {
 } from "../../i18n/useTranslation";
 import { getNestedValue } from "../../i18n/utils";
 
+const tolgeeRuntimeSource = readFileSync("lib/tolgee.ts", "utf8");
+
 describe("Tolgee framework fallback", () => {
+  test("client runtime uses only committed static dictionaries and never enables remote Tolgee from public environment values", () => {
+    expect(tolgeeRuntimeSource).toContain("staticData: tolgeeStaticData as any");
+    expect(tolgeeRuntimeSource).not.toContain("NEXT_PUBLIC_TOLGEE_");
+    expect(tolgeeRuntimeSource).not.toContain("DevTools");
+    expect(tolgeeRuntimeSource).not.toContain("apiUrl");
+  });
+
   test("uses English when the active locale does not define a key", () => {
     const tolgee = TolgeeCore().init({
       language: "zh",
