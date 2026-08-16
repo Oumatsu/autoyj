@@ -15,6 +15,9 @@ const isStandalone = process.env.BUILD_TARGET === "standalone";
 
 const config: NextConfig = {
   ...(isStandalone ? { output: "standalone" } : {}),
+  images: {
+    unoptimized: true,
+  },
 };
 
 export default config;

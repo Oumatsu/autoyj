@@ -200,6 +200,14 @@ function json(data: unknown, init: ResponseInit = {}) {
   });
 }
 
+function publicCacheJson(data: unknown, maxAgeSec = 300, staleSec = 86400) {
+  return json(data, {
+    headers: {
+      "cache-control": `public, max-age=${maxAgeSec}, s-maxage=${maxAgeSec}, stale-while-revalidate=${staleSec}`,
+    },
+  });
+}
+
 function problem(message: string, status = 400) {
   return json({ error: message }, { status });
 }
@@ -1733,7 +1741,7 @@ async function handleBootstrap(request: Request, env: Env) {
     listScopedOrders(env, session),
   ]);
   const inquiryNumbers = new Set(inquiries.map((item) => item.inquiryNo));
-  const inquiryNotes = await listInquiryNotes(env);
+  const inquiryNotes = await listScopedInquiryNotes(env, session, Array.from(inquiryNumbers));
   const inquiryNotesByNumber = new Map<string, ReturnType<typeof mapD1Note>[]>();
   for (const note of inquiryNotes) inquiryNotesByNumber.set(note.inquiryNo, [...(inquiryNotesByNumber.get(note.inquiryNo) || []), note]);
   const inquiriesWithUnread = inquiries.map((inquiry) => ({
@@ -3648,7 +3656,16 @@ function mapD1Order(row: any) {
     createdAt: row.created_at,
   };
 }
-async function listInquiryNotes(env: Env) { const r = await requirePortalDb(env).prepare("SELECT * FROM inquiry_notes WHERE deleted_at IS NULL ORDER BY created_at").all(); return r.results.map(mapD1Note); }
+async function listScopedInquiryNotes(env: Env, session: PortalSession, inquiryNumbers: string[]) {
+  if (!inquiryNumbers.length) return [];
+  const db = requirePortalDb(env);
+  const placeholders = inquiryNumbers.map(() => "?").join(",");
+  const limit = isInternalSession(session) ? 500 : 200;
+  const result = await db.prepare(
+    `SELECT * FROM inquiry_notes WHERE deleted_at IS NULL AND inquiry_no IN (${placeholders}) ORDER BY created_at LIMIT ${limit}`
+  ).bind(...inquiryNumbers).all();
+  return result.results.map(mapD1Note);
+}
 
 async function listScopedInquiries(env: Env, session: PortalSession) {
   const db = requirePortalDb(env);
@@ -3925,11 +3942,11 @@ async function handlePublicProduct(request: Request, slug: string, env: Env) {
       return (models.find((m) => m.id === slug || normalizeProductSlug(m.model) === slug) as any) || null;
     },
   );
-  return product ? json(product) : problem("Not found", 404);
+  return product ? publicCacheJson(product) : problem("Not found", 404);
 }
 
 async function handlePublicProducts(request: Request, env: Env) {
-  return json(
+  return publicCacheJson(
     await readPublicContent(request, env, listPublicProducts, () => getBaselineVehicleModels() as any),
   );
 }
@@ -3977,7 +3994,7 @@ function getBaselineArticles() {
 }
 
 async function handlePublicInsights(request: Request, env: Env) {
-  return json(
+  return publicCacheJson(
     await readPublicContent(request, env, listPublicInsights, () => getBaselineArticles() as any),
   );
 }
@@ -3992,7 +4009,7 @@ async function handlePublicInsight(request: Request, slug: string, env: Env) {
       return (articles.find((a) => a.slug === slug) as any) || null;
     },
   );
-  return insight ? json(insight) : problem("Not found", 404);
+  return insight ? publicCacheJson(insight) : problem("Not found", 404);
 }
 
 function getBaselineAcademy() {
@@ -4148,7 +4165,7 @@ function getBaselineAcademy() {
 }
 
 async function handlePublicAcademy(request: Request, env: Env) {
-  return json(
+  return publicCacheJson(
     await readPublicContent(request, env, listPublicAcademy, () => getBaselineAcademy() as any),
   );
 }
@@ -4164,7 +4181,7 @@ async function handlePublicAcademyLesson(request: Request, category: string, slu
       return categoryLessons.find((l: any) => l.slug === slug) || null;
     },
   );
-  return lesson ? json(lesson) : problem("Not found", 404);
+  return lesson ? publicCacheJson(lesson) : problem("Not found", 404);
 }
 
 export async function handleScheduledSync(env: Env): Promise<void> {
