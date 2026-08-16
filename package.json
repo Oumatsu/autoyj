@@ -38,7 +38,7 @@
     "tolgee:setup": "bun run scripts/tolgee/setup-tolgee-jar.ts",
     "tolgee:server": "bun run scripts/tolgee/setup-tolgee-jar.ts --run",
     "knip": "knip",
-    "prepare": "husky"
+    "prepare": "husky || true"
   },
   "dependencies": {
     "@tolgee/core": "^7.1.3",
