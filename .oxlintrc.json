@@ -1,0 +1,26 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": [
+    "react",
+    "nextjs",
+    "import",
+    "jsx-a11y"
+  ],
+  "ignorePatterns": [
+    ".next/**",
+    ".vinext/**",
+    "dist/**",
+    "node_modules/**",
+    ".agents/**",
+    "coverage/**",
+    "test-results/**",
+    "public/**",
+    "scripts/**"
+  ],
+  "rules": {
+    "@next/next/no-img-element": "off",
+    "@next/next/no-html-link-for-pages": "off",
+    "no-unused-vars": "off",
+    "no-empty": "warn"
+  }
+}
