@@ -34,6 +34,20 @@ export default {
       return assetResponse;
     }
 
+    if (url.pathname === "/robots.txt" || url.pathname === "/sitemap.xml") {
+      const assetResponse = await env.ASSETS.fetch(request);
+      if (assetResponse.status === 200) {
+        const headers = new Headers(assetResponse.headers);
+        const contentType = url.pathname.endsWith(".xml") ? "application/xml; charset=utf-8" : "text/plain; charset=utf-8";
+        headers.set("content-type", contentType);
+        headers.set("cache-control", "public, max-age=86400, stale-while-revalidate=604800");
+        return new Response(assetResponse.body, {
+          status: 200,
+          headers,
+        });
+      }
+    }
+
     if (url.pathname.startsWith("/api/portal/")) {
       return handlePortalRequest(request, env);
     }

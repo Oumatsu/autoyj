@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+
+  <!-- Core Pages -->
+  <url>
+    <loc>https://youguard.net/en</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://youguard.net/en" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://youguard.net/zh" />
+    <xhtml:link rel="alternate" hreflang="am" href="https://youguard.net/am" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://youguard.net/en" />
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://youguard.net/zh</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://youguard.net/en" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://youguard.net/zh" />
+    <xhtml:link rel="alternate" hreflang="am" href="https://youguard.net/am" />
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://youguard.net/am</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://youguard.net/en" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://youguard.net/zh" />
+    <xhtml:link rel="alternate" hreflang="am" href="https://youguard.net/am" />
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Product Catalog -->
+  <url>
+    <loc>https://youguard.net/en/products</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://youguard.net/en/products" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://youguard.net/zh/products" />
+    <xhtml:link rel="alternate" hreflang="am" href="https://youguard.net/am/products" />
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://youguard.net/zh/products</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://youguard.net/en/products" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://youguard.net/zh/products" />
+    <xhtml:link rel="alternate" hreflang="am" href="https://youguard.net/am/products" />
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://youguard.net/am/products</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://youguard.net/en/products" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://youguard.net/zh/products" />
+    <xhtml:link rel="alternate" hreflang="am" href="https://youguard.net/am/products" />
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Product Categories -->
+  <url>
+    <loc>https://youguard.net/en/products/elite-flagship</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://youguard.net/en/products/elite-flagship" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://youguard.net/zh/products/elite-flagship" />
+    <xhtml:link rel="alternate" hreflang="am" href="https://youguard.net/am/products/elite-flagship" />
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://youguard.net/en/products/revenue-king</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://youguard.net/en/products/revenue-king" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://youguard.net/zh/products/revenue-king" />
+    <xhtml:link rel="alternate" hreflang="am" href="https://youguard.net/am/products/revenue-king" />
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://youguard.net/en/products/utility-pro</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://youguard.net/en/products/utility-pro" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://youguard.net/zh/products/utility-pro" />
+    <xhtml:link rel="alternate" hreflang="am" href="https://youguard.net/am/products/utility-pro" />
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Solutions & Markets -->
+  <url>
+    <loc>https://youguard.net/en/solutions</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://youguard.net/en/solutions" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://youguard.net/zh/solutions" />
+    <xhtml:link rel="alternate" hreflang="am" href="https://youguard.net/am/solutions" />
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://youguard.net/en/solutions/request-quote</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://youguard.net/en/solutions/request-quote" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://youguard.net/zh/solutions/request-quote" />
+    <xhtml:link rel="alternate" hreflang="am" href="https://youguard.net/am/solutions/request-quote" />
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://youguard.net/en/solutions/configure-kit</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://youguard.net/en/solutions/configure-kit" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://youguard.net/zh/solutions/configure-kit" />
+    <xhtml:link rel="alternate" hreflang="am" href="https://youguard.net/am/solutions/configure-kit" />
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://youguard.net/en/markets/ethiopia</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://youguard.net/en/markets/ethiopia" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://youguard.net/zh/markets/ethiopia" />
+    <xhtml:link rel="alternate" hreflang="am" href="https://youguard.net/am/markets/ethiopia" />
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Insights & News -->
+  <url>
+    <loc>https://youguard.net/en/insights</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://youguard.net/en/insights" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://youguard.net/zh/insights" />
+    <xhtml:link rel="alternate" hreflang="am" href="https://youguard.net/am/insights" />
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://youguard.net/en/insights/ethiopia-ev-tax-policy-2026</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://youguard.net/en/insights/ethiopia-ev-tax-policy-2026" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://youguard.net/zh/insights/ethiopia-ev-tax-policy-2026" />
+    <xhtml:link rel="alternate" hreflang="am" href="https://youguard.net/am/insights/ethiopia-ev-tax-policy-2026" />
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://youguard.net/en/insights/sourcing-byd-evs-for-east-africa</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://youguard.net/en/insights/sourcing-byd-evs-for-east-africa" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://youguard.net/zh/insights/sourcing-byd-evs-for-east-africa" />
+    <xhtml:link rel="alternate" hreflang="am" href="https://youguard.net/am/insights/sourcing-byd-evs-for-east-africa" />
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://youguard.net/en/insights/ev-charging-infrastructure-addis-ababa</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://youguard.net/en/insights/ev-charging-infrastructure-addis-ababa" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://youguard.net/zh/insights/ev-charging-infrastructure-addis-ababa" />
+    <xhtml:link rel="alternate" hreflang="am" href="https://youguard.net/am/insights/ev-charging-infrastructure-addis-ababa" />
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- EV Academy -->
+  <url>
+    <loc>https://youguard.net/en/academy</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://youguard.net/en/academy" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://youguard.net/zh/academy" />
+    <xhtml:link rel="alternate" hreflang="am" href="https://youguard.net/am/academy" />
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://youguard.net/en/academy/ev-fundamentals</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://youguard.net/en/academy/ev-fundamentals" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://youguard.net/zh/academy/ev-fundamentals" />
+    <xhtml:link rel="alternate" hreflang="am" href="https://youguard.net/am/academy/ev-fundamentals" />
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://youguard.net/en/academy/technical-workshop</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://youguard.net/en/academy/technical-workshop" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://youguard.net/zh/academy/technical-workshop" />
+    <xhtml:link rel="alternate" hreflang="am" href="https://youguard.net/am/academy/technical-workshop" />
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://youguard.net/en/academy/dealer-playbook</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://youguard.net/en/academy/dealer-playbook" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://youguard.net/zh/academy/dealer-playbook" />
+    <xhtml:link rel="alternate" hreflang="am" href="https://youguard.net/am/academy/dealer-playbook" />
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Company & Legal -->
+  <url>
+    <loc>https://youguard.net/en/about</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://youguard.net/en/about" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://youguard.net/zh/about" />
+    <xhtml:link rel="alternate" hreflang="am" href="https://youguard.net/am/about" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://youguard.net/en/contact</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://youguard.net/en/contact" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://youguard.net/zh/contact" />
+    <xhtml:link rel="alternate" hreflang="am" href="https://youguard.net/am/contact" />
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://youguard.net/en/privacy</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://youguard.net/en/privacy" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://youguard.net/zh/privacy" />
+    <xhtml:link rel="alternate" hreflang="am" href="https://youguard.net/am/privacy" />
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://youguard.net/en/terms</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://youguard.net/en/terms" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://youguard.net/zh/terms" />
+    <xhtml:link rel="alternate" hreflang="am" href="https://youguard.net/am/terms" />
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+
+</urlset>

@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /api/portal/dev-session
+Disallow: /api/portal/session
+Disallow: /_next/
+Disallow: /_vinext/
+
+Sitemap: https://youguard.net/sitemap.xml
