@@ -21,8 +21,6 @@ const LOCALE_FONT_CLASS: Record<string, string> = {
 /** All font-class names that the script may need to remove before adding one. */
 const ALL_FONT_CLASSES = [...new Set(Object.values(LOCALE_FONT_CLASS))];
 
-export const dynamic = "force-dynamic";
-
 const inter = Inter({
   subsets: ["latin"],
   weight: ["400", "500", "700", "800"],
