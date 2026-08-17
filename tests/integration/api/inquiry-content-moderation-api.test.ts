@@ -44,6 +44,32 @@ function makeDb() {
           return null;
         },
         async all<T>() {
+          if (/FROM\s+inquiry_notes/i.test(sql) && /deleted_at\s+IS\s+NOT\s+NULL/i.test(sql)) {
+            return {
+              results: [{
+                id: "note-1",
+                note_id: "note-1",
+                inquiry_no: "INQ-2026-001",
+                parent_note_id: "",
+                author_user_id: "USR-ADMIN-01",
+                author_name: "Admin",
+                author_role: "admin",
+                body: "A note",
+                is_public: 1,
+                created_at: "2026-08-14T00:00:00Z",
+                deleted_at: "2026-08-14T01:00:00Z",
+                context_inquiry_no: "INQ-2026-001",
+                context_vehicle_model: "BYD Dolphin",
+                context_title: "Dolphin sourcing",
+                context_quantity: 5,
+                context_destination_port: "Djibouti",
+                context_trade_term: "FOB",
+                context_initial_note: "Need delivery confirmation",
+                context_created_at: "2026-08-13T00:00:00Z",
+                context_creator_name: "Aebissa G",
+              } as T],
+            };
+          }
           return { results: [] as T[] };
         },
         async run() {
@@ -166,5 +192,34 @@ describe("PATCH /api/portal/inquiry-content/note/:id", () => {
       env,
     );
     expect(res.status).toBe(403);
+  });
+});
+
+describe("GET /api/portal/inquiry-content/deleted", () => {
+  test("admin receives each deleted comment with its original inquiry context", async () => {
+    const db = makeDb();
+    const env = makeEnv(db);
+    const token = await loginAs("admin", env);
+
+    const res = await handlePortalRequest(
+      new Request("http://localhost/api/portal/inquiry-content/deleted", {
+        headers: { Cookie: `portal_session=${token}` },
+      }),
+      env,
+    );
+
+    expect(res.status).toBe(200);
+    const payload = await res.json() as { notes: Array<{ inquiryNo: string; inquiry?: { inquiryNo: string; vehicleModel: string; creatorName: string; createdAt: string } }> };
+    expect(payload.notes[0]).toMatchObject({
+      inquiryNo: "INQ-2026-001",
+      inquiry: {
+        inquiryNo: "INQ-2026-001",
+        vehicleModel: "BYD Dolphin",
+        creatorName: "Aebissa G",
+        createdAt: "2026-08-13T00:00:00Z",
+      },
+    });
+    expect(JSON.stringify(payload.notes[0])).not.toContain("deletion_reason");
+    expect(JSON.stringify(payload.notes[0])).not.toContain("deleted_by_name");
   });
 });

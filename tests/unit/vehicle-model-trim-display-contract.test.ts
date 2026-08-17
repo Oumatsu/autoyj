@@ -45,9 +45,32 @@ test("vehicle model detail localizes raw specification, trim, and change values"
 
 test("English vehicle-model values translate common model-year trim and charging text without falling back to Chinese", () => {
   expect(localizeVehicleValue("2025款 暗夜骑士版", "en")).toBe("2025 MY Night Knight Edition");
+  expect(localizeVehicleValue("2025款 智驾版 510KM 卓越型", "en")).toBe(
+    "2025 MY Smart Driving Edition 510 KM Excellence Variant",
+  );
+  expect(localizeVehicleValue("2026款 630KM 卓越型", "en")).toBe("2026 MY 630 KM Excellence Variant");
   expect(localizeVehicleValue("快充: 支持; 快充时间: 0.25 小时; 快充电量范围: 30-80%", "en")).toBe(
     "Fast Charge: Supported; Fast Charging Time: 0.25 hours; Fast Charging Range: 30-80%",
   );
+});
+
+test("canonical English trim names remain localized for Chinese and Amharic dashboards", () => {
+  const chinese = "2026款 第四代 新蓝鲸 1.5T 精英型";
+  const english = "2026 MY Fourth Generation New Blue Whale 1.5 T Elite Variant";
+  expect(localizeVehicleValue(chinese, "en")).toBe(english);
+  expect(localizeVehicleValue(english, "zh")).toBe(chinese);
+  expect(localizeVehicleValue(english, "am")).toBe("2026 የሞዴል ዓመት አራተኛ ትውልድ አዲስ ብሉ ዌል 1.5 T ልሂቅ ልዩነት ስሪት");
+});
+
+test("canonical English trim vocabulary remains localized outside migrated Chinese source rows", () => {
+  const canonical = "2025 Avatr 06 Pro Electric Version";
+
+  expect(localizeVehicleValue(canonical, "zh")).toBe("2025 Avatr 06 专业 纯电版");
+  expect(localizeVehicleValue(canonical, "am")).toBe("2025 Avatr 06 ፕሮ ኤሌክትሪክ ስሪት");
+  expect(localizeVehicleValue("2025 Starlight 730 EV 500 km Deluxe", "zh")).toContain("豪华");
+  expect(localizeVehicleValue("2025 Starlight 730 EV 500 km Deluxe", "am")).toContain("የቅንጦት");
+  expect(localizeVehicleValue("550KM GrapefruitPlus", "zh")).toContain("葡萄柚");
+  expect(localizeVehicleValue("Commercial EditionPilot TrimSmall Double Cab", "am")).toContain("የንግድ");
 });
 
 test("vehicle model detail does not render a separate trim-differences section", () => {

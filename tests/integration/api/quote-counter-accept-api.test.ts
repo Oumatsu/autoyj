@@ -51,7 +51,7 @@ function makeDb(inquiry = INQUIRY, quote = QUOTE) {
         },
         async first<T>() {
           if (/FROM\s+inquiries/i.test(sql)) return inquiry as T;
-          if (/FROM\s+quotes/i.test(sql)) return quote as T;
+          if (/FROM\s+quotes/i.test(sql)) return { ...quote, inquiry_status: inquiry.status } as T;
           if (/FROM\s+user/i.test(sql) || /JOIN\s+account/i.test(sql)) {
             return {
               id: "CUS-002",

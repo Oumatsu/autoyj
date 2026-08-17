@@ -12,6 +12,7 @@ function makeDb(inquiry: Record<string, unknown>) {
         bound: [] as unknown[],
         bind(...v: unknown[]) { this.bound = v; return this; },
         async first<T>() {
+          if (/FROM\s+inquiry_status_history/i.test(sql)) return { from_status: "Quoted" } as T;
           if (/FROM\s+inquiries/i.test(sql)) return inquiry as T;
           if (/FROM\s+user/i.test(sql) || /JOIN\s+account/i.test(sql)) {
             return { id: "USR-SALES-01", role: "sales", account_type: "internal",
@@ -20,7 +21,12 @@ function makeDb(inquiry: Record<string, unknown>) {
           }
           return null;
         },
-        async all<T>() { return { results: [] as T[] }; },
+        async all<T>() {
+          if (/FROM\s+inquiries/i.test(sql) && /LOWER\(i\.status\)\s*=\s*'closed'/i.test(sql)) {
+            return { results: [inquiry] as T[] };
+          }
+          return { results: [] as T[] };
+        },
         async run() { written.push({ sql, values: this.bound }); return { success: true, meta: {} }; },
       };
       return stmt;
@@ -65,6 +71,8 @@ const OPEN_INQUIRY = {
   is_public: 0, status: "New Inquiry", source: "Customer Portal",
   deleted_at: null, created_at: "2026-08-14T00:00:00.000Z", updated_at: "2026-08-14T00:00:00.000Z",
 };
+
+const CLOSED_INQUIRY = { ...OPEN_INQUIRY, status: "Closed", updated_at: "2026-08-15T00:00:00.000Z" };
 
 describe("PATCH /api/portal/inquiries/:id/status", () => {
   test("returns 400 for illegal status transition (New Inquiry → Accepted)", async () => {
@@ -117,5 +125,111 @@ describe("PATCH /api/portal/inquiries/:id/status", () => {
     expect(res.status).toBe(200);
     const historyWrite = db.written.some(({ sql }) => /inquiry_status_history/i.test(sql));
     expect(historyWrite).toBe(true);
+  });
+
+  test("only administrators can restore a closed inquiry to its pre-closure status", async () => {
+    const db = makeDb(CLOSED_INQUIRY);
+    const env = makeEnv(db);
+    const salesToken = await loginAs("sales", env);
+    const adminToken = await loginAs("admin", env);
+
+    const denied = await handlePortalRequest(
+      new Request("http://localhost/api/portal/inquiries/INQ-2026-001/status", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", Cookie: `portal_session=${salesToken}` },
+        body: JSON.stringify({ action: "restore" }),
+      }),
+      env,
+    );
+    expect(denied.status).toBe(403);
+
+    const restored = await handlePortalRequest(
+      new Request("http://localhost/api/portal/inquiries/INQ-2026-001/status", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", Cookie: `portal_session=${adminToken}` },
+        body: JSON.stringify({ action: "restore" }),
+      }),
+      env,
+    );
+    expect(restored.status).toBe(200);
+    expect(db.written.some(({ sql, values }) => /UPDATE\s+inquiries\s+SET\s+status=\?/i.test(sql) && values.includes("Quoted"))).toBe(true);
+  });
+
+  test("administrator can list closed inquiries for recovery", async () => {
+    const db = makeDb(CLOSED_INQUIRY);
+    const env = makeEnv(db);
+    const token = await loginAs("admin", env);
+
+    const res = await handlePortalRequest(
+      new Request("http://localhost/api/portal/inquiries/closed", {
+        headers: { Cookie: `portal_session=${token}` },
+      }),
+      env,
+    );
+    expect(res.status).toBe(200);
+    const payload = await res.json() as { inquiries: Array<{ inquiryNo: string; status: string }> };
+    expect(payload.inquiries).toEqual([expect.objectContaining({ inquiryNo: "INQ-2026-001", status: "Closed" })]);
+  });
+
+  test("non-administrators cannot read the closed inquiry recovery list", async () => {
+    const db = makeDb(CLOSED_INQUIRY);
+    const env = makeEnv(db);
+    const token = await loginAs("customer", env);
+
+    const res = await handlePortalRequest(
+      new Request("http://localhost/api/portal/inquiries/closed", {
+        headers: { Cookie: `portal_session=${token}` },
+      }),
+      env,
+    );
+    expect(res.status).toBe(403);
+  });
+
+  test("administrator permanently deletes a closed inquiry and all of its dependent records", async () => {
+    const db = makeDb(CLOSED_INQUIRY);
+    const env = makeEnv(db);
+    const token = await loginAs("admin", env);
+
+    const res = await handlePortalRequest(
+      new Request("http://localhost/api/portal/inquiries/INQ-2026-001", {
+        method: "DELETE",
+        headers: { Cookie: `portal_session=${token}` },
+      }),
+      env,
+    );
+    expect(res.status).toBe(200);
+    for (const table of ["orders", "negotiations", "quotes", "inquiry_reads", "inquiry_notes", "inquiry_status_history", "inquiry_participants", "inquiries"]) {
+      expect(db.written.some(({ sql, values }) => new RegExp(`DELETE\\s+FROM\\s+${table}\\s+WHERE\\s+inquiry_no=\\?`, "i").test(sql) && values.includes("INQ-2026-001"))).toBe(true);
+    }
+  });
+
+  test("non-administrators cannot permanently delete a closed inquiry", async () => {
+    const db = makeDb(CLOSED_INQUIRY);
+    const env = makeEnv(db);
+    const token = await loginAs("sales", env);
+
+    const res = await handlePortalRequest(
+      new Request("http://localhost/api/portal/inquiries/INQ-2026-001", {
+        method: "DELETE",
+        headers: { Cookie: `portal_session=${token}` },
+      }),
+      env,
+    );
+    expect(res.status).toBe(403);
+  });
+
+  test("administrator cannot permanently delete an active inquiry", async () => {
+    const db = makeDb(OPEN_INQUIRY);
+    const env = makeEnv(db);
+    const token = await loginAs("admin", env);
+
+    const res = await handlePortalRequest(
+      new Request("http://localhost/api/portal/inquiries/INQ-2026-001", {
+        method: "DELETE",
+        headers: { Cookie: `portal_session=${token}` },
+      }),
+      env,
+    );
+    expect(res.status).toBe(409);
   });
 });

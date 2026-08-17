@@ -96,6 +96,15 @@ test("inquiry list cards stay compact and use a distinct selected state", () => 
   expect(panel).toContain("text-lime-300");
 });
 
+test("inquiry management reserves a card-width sidebar before the detail pane", () => {
+  const source = readFileSync("app/portal/page.tsx", "utf8");
+  const start = source.indexOf("function AdminQuotes(");
+  const end = source.indexOf("function AdminOrders", start);
+  const panel = source.slice(start, end);
+
+  expect(panel).toContain('xl:grid-cols-[minmax(23rem,0.8fr)_minmax(0,1.2fr)]');
+});
+
 test("inquiry detail selection follows the currently filtered inquiry list", () => {
   const source = readFileSync("app/portal/page.tsx", "utf8");
   const start = source.indexOf("function AdminQuotes(");

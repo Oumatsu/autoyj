@@ -30,7 +30,8 @@ function fakeD1(options: {
           if (/FROM\s+vehicles/i.test(sql)) return { results: (options.vehicles ?? []) as T[] };
           if (/FROM\s+quotes/i.test(sql)) {
             const rows = options.quotes ?? [];
-            return { results: rows.filter((row) => !bound.length || row.quote_no === bound[0]) as T[] };
+            const includeInquiryStatus = /i\.status\s+AS\s+inquiry_status/i.test(sql);
+            return { results: rows.filter((row) => !bound.length || row.quote_no === bound[0]).map((row) => includeInquiryStatus ? { ...row, inquiry_status: options.inquiries?.find((inquiry) => inquiry.inquiry_no === row.inquiry_no)?.status || "" } : row) as T[] };
           }
           if (/FROM\s+inquiries/i.test(sql)) {
             const rows = options.inquiries ?? [];
@@ -528,6 +529,7 @@ describe("portal request/D1 isolation", () => {
       inquiries: [{
         inquiry_no: "INQ-1",
         customer_id: "CUS-1",
+        status: "Quoted",
       }],
     });
     const cookie = await login(db);
@@ -556,7 +558,8 @@ describe("portal request/D1 isolation", () => {
     const sql = db.batches.flat().join("\n");
     expect(sql).toContain("INSERT INTO negotiations");
     expect(sql).toContain("UPDATE quotes");
-    expect(sql).not.toContain("UPDATE inquiries");
+    expect(sql).toContain("UPDATE inquiries");
+    expect(sql).toContain("INSERT INTO inquiry_status_history");
     expect(sql).toContain("INSERT INTO orders");
   });
 

@@ -30,6 +30,37 @@ test("comment moderation endpoints accept notes only and require an administrato
   expect(handler).not.toContain('type === "inquiry"');
 });
 
+test("deleted comment manager groups comments by inquiry and keeps their original context visible", () => {
+  const start = portalPage.indexOf("function AdminQuotes(");
+  const end = portalPage.indexOf("function AdminOrders", start);
+  const panel = portalPage.slice(start, end);
+
+  expect(panel).toContain("groupedHiddenNotes");
+  expect(panel).toContain("item.inquiry.inquiryNo");
+  expect(panel).toContain("item.inquiry.vehicleModel");
+  expect(panel).toContain("item.inquiry.creatorName");
+  expect(panel).toContain("item.inquiry.createdAt");
+  expect(panel).toContain("item.createdAt");
+  expect(panel).toContain("item.deletedAt");
+});
+
+test("closed inquiries have a separate administrator recovery manager", () => {
+  const start = portalPage.indexOf("function AdminQuotes(");
+  const end = portalPage.indexOf("function AdminOrders", start);
+  const panel = portalPage.slice(start, end);
+
+  expect(panel).toContain("loadClosedInquiries");
+  expect(panel).toContain("/api/portal/inquiries/closed");
+  expect(panel).toContain("restoreClosedInquiry");
+  const restoreHandler = panel.slice(panel.indexOf("async function restoreClosedInquiry"), panel.indexOf("async function deleteClosedInquiry"));
+  expect(restoreHandler).toContain('action: "restore"');
+  expect(panel).toContain("manageClosedInquiries");
+  expect(panel).toContain("closedInquiryTitle");
+  expect(panel).toContain("deleteClosedInquiry");
+  expect(panel).toContain('method: "DELETE"');
+  expect(panel).toContain("deleteInquiryConfirmation");
+});
+
 test("vehicle comment panels keep different inquiries for the same vehicle separate", () => {
   const start = portalPage.indexOf("function VehicleInquiryPanel(");
   const end = portalPage.indexOf("type InquirySnapshot", start);

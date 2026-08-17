@@ -146,6 +146,7 @@ const vehicleEnglishTerms: Array<[string, string]> = [
   ["探索", "Explorer"],
   ["领先", "Leading"],
   ["超越", "Beyond"],
+  ["卓越", "Excellence"],
   ["旗舰", "Flagship"],
   ["尊享", "Premium"],
   ["尊荣", "Prestige"],
@@ -364,6 +365,194 @@ const vehicleEnglishTerms: Array<[string, string]> = [
   ["随车", "Included"], ["客户", "Customer"], ["自提", "Self Pickup"], ["包邮", "Free Delivery"], ["托运", "Freight Delivery"],
 ];
 
+// Canonical trim data is stored in English. These terms keep the Chinese and
+// Amharic dashboards deterministic without persisting locale-specific copies.
+const trimTermTranslations: Array<[chinese: string, english: string, amharic: string]> = [
+  // Shared English trim vocabulary already present in older Base rows. These
+  // are deliberately separate from model names, battery chemistry, and units.
+  ["商用版精英配置小双排", "Commercial EditionElite TrimSmall Double Cab", "የንግድ ስሪት ልሂቅ አወቃቀር ትንሽ ድርብ ካብ"],
+  ["商用版领航配置小双排", "Commercial EditionPilot TrimSmall Double Cab", "የንግድ ስሪት መሪ አወቃቀር ትንሽ ድርብ ካብ"],
+  ["商用版领航配置大双排", "Commercial EditionPilot TrimLarge Double Cab", "የንግድ ስሪት መሪ አወቃቀር ትልቅ ድርብ ካብ"],
+  ["蓝莓C400", "BlueberryC400", "ብሉቤሪ C400"],
+  ["400KM蓝莓增强版", "400KM BlueberryPlus", "400KM ብሉቤሪ ተጨማሪ"],
+  ["葡萄C550", "GrapeC550", "ወይን C550"],
+  ["550KM葡萄柚增强版", "550KM GrapefruitPlus", "550KM ግሬፕፍሩት ተጨማሪ"],
+  ["葡萄柚C550", "GrapefruitC550", "ግሬፕፍሩት C550"],
+  ["智能驾驶", "Smart Driving", "ብልህ መንዳት"],
+  ["增程", "Extended-Range", "የተራዘመ ክልል"],
+  ["增程", "Range-Extended", "የተራዘመ ክልል"],
+  ["长续航", "Long Range", "ረጅም ክልል"],
+  ["长轴距", "Long Wheelbase", "ረጅም የጎማ መሠረት"],
+  ["顶配", "Top Spec", "ከፍተኛ ዝርዝር መግለጫ"],
+  ["高配", "High Spec", "ከፍተኛ ዝርዝር መግለጫ"],
+  ["默认专业规格", "Default Pro Spec", "ነባሪ ፕሮ ዝርዝር መግለጫ"],
+  ["高级移动版", "Advanced Mobility Edition", "የላቀ የእንቅስቃሴ ስሪት"],
+  ["高能移动版", "High Energy Mobility Edition", "ከፍተኛ ኃይል የእንቅስቃሴ ስሪት"],
+  ["技术创新", "Tech Innovation", "የቴክኖሎጂ ፈጠራ"],
+  ["无图智驾", "NoHuman-machine", "ሰው አልባ ሰው-ማሽን"],
+  ["云翼", "Cloud Wing", "የደመና ክንፍ"],
+  ["舒享", "Comfort Enjoy", "ምቾት ደስታ"],
+  ["平顺驾驶", "Smooth Drive", "ለስላሳ መንዳት"],
+  ["新鲜香气", "Fresh Scent", "ትኩስ ሽታ"],
+  ["蜂蜜香气", "Honey Fragrance", "የማር መዓዛ"],
+  ["清香", "Fragrance", "መዓዛ"],
+  ["飞行", "Flying", "መብረር"],
+  ["乘风", "Ride the Wind", "ከነፋስ ጋር ጉዞ"],
+  ["自由", "Freedom", "ነፃነት"],
+  ["自由", "Free", "ነፃ"],
+  ["梦想", "Dream", "ህልም"],
+  ["理想", "Ideal", "ተስማሚ"],
+  ["行政", "Executive", "ሥራ አስፈጻሚ"],
+  ["政府", "Government", "መንግሥት"],
+  ["领航", "Pilot", "መሪ"],
+  ["探索", "Explorer", "አሳሽ"],
+  ["高级", "Advanced", "የላቀ"],
+  ["活力", "Vitality", "ሕይወት ኃይል"],
+  ["发售", "Launch", "ማስጀመሪያ"],
+  ["冠军", "Champion", "ሻምፒዮን"],
+  ["荣耀", "Honor", "ክብር"],
+  ["纯电版", "Electric Version", "ኤሌክትሪክ ስሪት"],
+  ["电动", "Electric", "ኤሌክትሪክ"],
+  ["基础", "Base", "መሠረታዊ"],
+  ["专业", "Pro", "ፕሮ"],
+  ["至尊", "Ultra", "ከፍተኛ"],
+  ["旗舰", "Max", "ከፍተኛ"],
+  ["增强", "Plus", "ተጨማሪ"],
+  ["空气", "Air", "አየር"],
+  ["版本", "Version", "ስሪት"],
+  ["版本", "Edition", "ስሪት"],
+  ["配置", "Trim", "አወቃቀር"],
+  ["车型", "Model", "ሞዴል"],
+  ["高级", "Premium", "ፕሪሚየም"],
+  ["豪华", "Deluxe", "የቅንጦት"],
+  ["超级", "super", "እጅግ"],
+  ["蓝莓", "Blueberry", "ብሉቤሪ"],
+  ["葡萄", "Grape", "ወይን"],
+  ["葡萄柚", "Grapefruit", "ግሬፕፍሩት"],
+  ["两驱", "2WD", "ሁለት ጎማ አንቀሳቃሽ"],
+  ["四驱", "AWD", "ሁሉም ጎማ አንቀሳቃሽ"],
+  ["后驱", "RWD", "የኋላ ጎማ አንቀሳቃሽ"],
+  ["前驱", "FWD", "የፊት ጎማ አንቀሳቃሽ"],
+  ["第四代", "Fourth Generation", "አራተኛ ትውልድ"],
+  ["第三代", "Third Generation", "ሦስተኛ ትውልድ"],
+  ["第二代", "Second Generation", "ሁለተኛ ትውልድ"],
+  ["新蓝鲸", "New Blue Whale", "አዲስ ብሉ ዌል"],
+  ["蓝鲸超擎", "Blue Whale Super Engine", "ብሉ ዌል ከፍተኛ ኃይል"],
+  ["蓝鲸智电", "Blue Whale iDD", "ብሉ ዌል iDD"],
+  ["蓝鲸", "Blue Whale", "ብሉ ዌል"],
+  ["智慧冠军版", "Smart Champion Edition", "ብልህ ሻምፒዮን ስሪት"],
+  ["智慧卓越型", "Smart Excellence Variant", "ብልህ የላቀ ልዩነት ስሪት"],
+  ["智慧尊享型", "Smart Premium Variant", "ብልህ ፕሪሚየም ልዩነት ስሪት"],
+  ["智慧旗舰型", "Smart Flagship Variant", "ብልህ ዋና ልዩነት ስሪት"],
+  ["智慧领航型", "Smart Pilot Variant", "ብልህ ፓይለት ልዩነት ስሪት"],
+  ["智慧", "Smart", "ብልህ"],
+  ["吉利银河", "Geely Galaxy", "Geely Galaxy"],
+  ["天枢", "Tianshu", "Tianshu"],
+  ["乾崑", "Qiankun", "Qiankun"],
+  ["宁德时代", "CATL", "CATL"],
+  ["上汽一亿台限定版", "SAIC 100 Million Units Limited Edition", "SAIC 100 ሚሊዮን ዩኒት ውስን ስሪት"],
+  ["增程式混动", "Range-Extended Hybrid", "የተራዘመ ክልል ሃይብሪድ"],
+  ["超长蓝鲸增程版", "Ultra Long-Range Blue Whale EREV Edition", "እጅግ ረጅም ክልል Blue Whale EREV ስሪት"],
+  ["超长蓝鲸纯电版", "Ultra Long-Range Blue Whale BEV Edition", "እጅግ ረጅም ክልል Blue Whale BEV ስሪት"],
+  ["超长续航奇旅", "Ultra Long-Range Adventure", "እጅግ ረጅም ክልል ጀብዱ"],
+  ["长续航奇旅", "Long-Range Adventure", "ረጅም ክልል ጀብዱ"],
+  ["智慧新蓝鲸", "Smart New Blue Whale", "ብልህ አዲስ ብሉ ዌል"],
+  ["激光雷达", "LiDAR", "LiDAR"],
+  ["激光极智版", "LiDAR Ultimate Smart Edition", "LiDAR እጅግ ብልህ ስሪት"],
+  ["尊贵运动型", "Premium Sport Variant", "ፕሪሚየም ስፖርት ልዩነት ስሪት"],
+  ["尊贵型", "Premium Variant", "ፕሪሚየም ልዩነት ስሪት"],
+  ["尊享型", "Premium Variant", "ፕሪሚየም ልዩነት ስሪት"],
+  ["尊耀型", "Prestige Variant", "የክብር ልዩነት ስሪት"],
+  ["卓越型", "Excellence Variant", "የላቀ ልዩነት ስሪት"],
+  ["旗舰型", "Flagship Variant", "ዋና ልዩነት ስሪት"],
+  ["领先型", "Leading Variant", "መሪ ልዩነት ስሪት"],
+  ["进取型", "Progressive Variant", "ተራማጅ ልዩነት ስሪት"],
+  ["精英型", "Elite Variant", "ልሂቅ ልዩነት ስሪት"],
+  ["基本型", "Basic Variant", "መሠረታዊ ልዩነት ስሪት"],
+  ["高能版", "High-Energy Edition", "ከፍተኛ ኃይል ስሪት"],
+  ["高能PRO", "High-Energy PRO", "ከፍተኛ ኃይል PRO"],
+  ["高能运动版", "High-Energy Sport Edition", "ከፍተኛ ኃይል ስፖርት ስሪት"],
+  ["超能版", "Ultra-Power Edition", "ከፍተኛ ኃይል ስሪት"],
+  ["超能型", "Ultra-Power Variant", "ከፍተኛ ኃይል ልዩነት ስሪት"],
+  ["真香型", "Great Value Variant", "ጥሩ ዋጋ ልዩነት ስሪት"],
+  ["智领型", "Smart Lead Variant", "ብልህ መሪ ልዩነት ስሪት"],
+  ["智享型", "Smart Enjoy Variant", "ብልህ ደስታ ልዩነት ስሪት"],
+  ["劲享型", "Power Enjoy Variant", "ኃይል ደስታ ልዩነት ስሪት"],
+  ["悦享型", "Enjoy Variant", "ደስታ ልዩነት ስሪት"],
+  ["优享型", "Preferred Variant", "ተመራጭ ልዩነት ስሪት"],
+  ["豪享版", "Luxury Enjoy Edition", "የቅንጦት ደስታ ስሪት"],
+  ["臻享版", "Refined Enjoy Edition", "የተሻሻለ ደስታ ስሪት"],
+  ["臻享型", "Refined Enjoy Variant", "የተሻሻለ ደስታ ልዩነት ስሪት"],
+  ["醇净版", "Pure Edition", "ንጹህ ስሪት"],
+  ["公务版", "Business Edition", "የንግድ ስሪት"],
+  ["营运版", "Commercial Edition", "የንግድ ስሪት"],
+  ["实用型", "Utility Variant", "ጠቃሚ ልዩነት ስሪት"],
+  ["舒适型", "Comfort Variant", "ምቹ ልዩነት ስሪት"],
+  ["标准型", "Standard Variant", "መደበኛ ልዩነት ስሪት"],
+  ["豪华型", "Luxury Variant", "የቅንጦት ልዩነት ስሪት"],
+  ["经典版", "Classic Edition", "የታወቀ ስሪት"],
+  ["经典运动型", "Classic Sport Variant", "የታወቀ ስፖርት ልዩነት ስሪት"],
+  ["运动型", "Sport Variant", "ስፖርት ልዩነት ስሪት"],
+  ["先锋型", "Pioneer Variant", "ቀዳሚ ልዩነት ስሪት"],
+  ["先锋PRO", "Pioneer PRO", "ቀዳሚ PRO"],
+  ["轻年版", "Youth Edition", "ወጣት ስሪት"],
+  ["型动长续航版", "Dynamic Long-Range Edition", "ተለዋዋጭ ረጅም ክልል ስሪት"],
+  ["型动标准版", "Dynamic Standard Edition", "ተለዋዋጭ መደበኛ ስሪት"],
+  ["型动四驱版", "Dynamic AWD Edition", "ተለዋዋጭ AWD ስሪት"],
+  ["艺术特别版", "Art Special Edition", "የጥበብ ልዩ ስሪት"],
+  ["性能版", "Performance Edition", "የአፈጻጸም ስሪት"],
+  ["丛林之境", "Jungle Realm", "የጫካ ዓለም"],
+  ["寻川版", "River Quest Edition", "የወንዝ ፍለጋ ስሪት"],
+  ["逐岳版", "Mountain Trek Edition", "የተራራ ጉዞ ስሪት"],
+  ["潮玩版", "Trend Play Edition", "ዘመናዊ መዝናኛ ስሪት"],
+  ["鲸喜版", "Whale Joy Edition", "የዋል ደስታ ስሪት"],
+  ["萌趣马", "Cute Pony", "ቆንጆ ፖኒ"],
+  ["炫彩马", "Colorful Pony", "ባለቀለም ፖኒ"],
+  ["闪耀马", "Shining Pony", "የሚያበራ ፖኒ"],
+  ["伶俐马", "Clever Pony", "ብልህ ፖኒ"],
+  ["玲珑马", "Delicate Pony", "ልቀት ያለው ፖኒ"],
+  ["摩登马", "Modern Pony", "ዘመናዊ ፖኒ"],
+  ["耐力熊", "Endurance Panda", "የጽናት ፓንዳ"],
+  ["卡丁", "Kart", "ካርት"],
+  ["勇士", "Warrior", "ተዋጊ"],
+  ["骑士", "Knight", "ፈረሰኛ"],
+  ["战舰", "Battleship", "የጦር መርከብ"],
+  ["擎风", "Power Breeze", "የኃይል ንፋስ"],
+  ["擎云", "Power Cloud", "የኃይል ደመና"],
+  ["劲速", "Power Speed", "የኃይል ፍጥነት"],
+  ["劲擎", "Power Engine", "የኃይል ሞተር"],
+  ["加长", "Extended", "የተራዘመ"],
+  ["封窗车", "Panel Van", "ፓነል ቫን"],
+  ["封窗版", "Panel Van Edition", "ፓነል ቫን ስሪት"],
+  ["客车版", "Passenger Van Edition", "የተሳፋሪ ቫን ስሪት"],
+  ["定制版", "Custom Edition", "ብጁ ስሪት"],
+  ["助力版", "Power-Assist Edition", "የኃይል ረዳት ስሪት"],
+  ["空调版", "Air-Conditioned Edition", "በአየር ማቀዝቀዣ የታጠቀ ስሪት"],
+  ["双离合", "DCT", "DCT"],
+  ["手动", "Manual", "በእጅ"],
+  ["自由型", "Freedom Variant", "ነፃነት ልዩነት ስሪት"],
+  ["畅玩型", "Fun Variant", "መዝናኛ ልዩነት ስሪት"],
+  ["插混", "PHEV", "PHEV"],
+  ["纯电", "BEV", "BEV"],
+  ["增程", "EREV", "EREV"],
+  ["欢乐", "Joy", "ደስታ"],
+  ["幸福", "Happiness", "ደስታ"],
+  ["美满", "Fulfillment", "ሙሉነት"],
+  ["款", "MY", "የሞዴል ዓመት"],
+  ["座", "seats", "መቀመጫዎች"],
+  ["不支持", "Not Supported", "አይደገፍም"],
+  ["纯电俊雅版", "BEV Elegant Edition", "BEV ውብ ስሪት"],
+  ["俊雅", "Elegant", "ውብ"],
+  ["限量版", "Limited Edition", "ውስን ስሪት"],
+  ["六座", "Six-seat", "ስድስት መቀመጫ"],
+  ["领汇", "Leadway", "Leadway"],
+  ["闪充", "Flash Charge", "ፈጣን መሙላት"],
+  ["宝藏版", "Treasure Edition", "ውድ ሀብት ስሪት"],
+  ["纯爱米", "Pure Love Beige", "ንጹህ ፍቅር ቢጅ"],
+  ["酷爱米", "Cool Love Beige", "ቀዝቃዛ ፍቅር ቢጅ"],
+  ["臻爱米", "True Love Beige", "እውነተኛ ፍቅር ቢጅ"],
+];
+
 const vehicleChineseTerms: Array<[string, string]> = [
   ["Trim Name", "版本名称"],
   ["Base Configuration", "基础配置"],
@@ -554,6 +743,7 @@ const vehicleAmharicTerms: Array<[string, string]> = [
   ["Comfort", "ምቹ"],
   ["Flagship", "ፍላጎት"],
   ["Premium", "ፕሪሚየም"],
+  ["Excellence", "የላቀ"],
   ["Edition", "ስሪት"],
   ["Variant", "የልዩነት ስሪት"],
   ["seats", "መቀመጫዎች"],
@@ -688,29 +878,76 @@ const vehicleAmharicTerms: Array<[string, string]> = [
   ["Media Source Path", "የሚዲያ ፋይል መንገድ"],
 ];
 
+function replaceStandaloneEnglishTerm(value: string, english: string, localized: string): string {
+  const escaped = english.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  // Avoid translating a trim word embedded in a product name, for example
+  // "Pilot" in the proper name "DiPilot". Digits and punctuation remain
+  // valid trim separators, so names such as "405Air" still localize.
+  return value.replace(new RegExp(`(^|[^A-Za-z])(${escaped})(?=$|[^A-Za-z])`, "g"), `$1${localized}`);
+}
+
 export function localizeVehicleValue(value: string | null | undefined, locale: Locale): string {
   const source = String(value || "").trim();
   if (!source) return "-";
 
   if (locale === "zh") {
     let translated = source;
+    for (const [chinese, english] of [...trimTermTranslations]
+      .filter(([, english]) => english.length > 10)
+      .sort((a, b) => b[1].length - a[1].length)) {
+      translated = replaceStandaloneEnglishTerm(translated, english, chinese);
+    }
     for (const [english, chinese] of [...vehicleChineseTerms].sort((a, b) => b[0].length - a[0].length)) {
       translated = translated.replaceAll(english, chinese);
     }
-    return translated;
+    for (const [chinese, english] of [...trimTermTranslations]
+      .filter(([, english]) => english.length <= 10)
+      .sort((a, b) => b[1].length - a[1].length)) {
+      translated = replaceStandaloneEnglishTerm(translated, english, chinese);
+    }
+    return translated
+      .replace(/(\d)\s+款/g, "$1款")
+      .replace(/(\d)\s+(?=[A-Z]{1,4}\b)/g, "$1");
   }
 
   let translated = source;
-  for (const [chinese, english] of [...vehicleEnglishTerms].sort((a, b) => b[0].length - a[0].length)) {
+  const englishTerms: Array<[string, string]> = [
+    ...vehicleEnglishTerms,
+    ...trimTermTranslations.map(([chinese, english]) => [chinese, english] as [string, string]),
+  ];
+  for (const [chinese, english] of englishTerms.sort((a, b) => b[0].length - a[0].length)) {
     translated = translated.replaceAll(chinese, english);
   }
 
   if (locale === "am") {
+    for (const [, english, amharic] of [...trimTermTranslations]
+      .filter(([, english]) => english.length > 10)
+      .sort((a, b) => b[1].length - a[1].length)) {
+      translated = replaceStandaloneEnglishTerm(translated, english, amharic);
+    }
     for (const [english, amharic] of [...vehicleAmharicTerms].sort((a, b) => b[0].length - a[0].length)) {
       translated = translated.replaceAll(english, amharic);
     }
+    for (const [, english, amharic] of [...trimTermTranslations]
+      .filter(([, english]) => english.length <= 10)
+      .sort((a, b) => b[1].length - a[1].length)) {
+      translated = replaceStandaloneEnglishTerm(translated, english, amharic);
+    }
   }
-  translated = translated.replace(/(\d{4})款/g, "$1 MY").replace(/(\d)([A-Z])/g, "$1 $2").replace(/\s{2,}/g, " ").trim();
+  translated = translated.replace(/(\d{4})款/g, "$1 MY").replace(/(\d)T\b/g, "$1 T");
+
+  // Title-case normalization is only for the canonical English source. Applying
+  // it after Amharic translation would split stable units such as "kW" into
+  // "k W".
+  if (locale === "en") {
+    translated = translated
+      .replace(/([a-z])(\d)/g, "$1 $2")
+      .replace(/([a-z])([A-Z])/g, "$1 $2")
+      .replace(/([A-Z]{2,})([A-Z][a-z])/g, "$1 $2")
+      .replace(/(\d)([A-Z])/g, "$1 $2");
+  }
+
+  translated = translated.replace(/\s{2,}/g, " ").trim();
 
   // Avoid presenting a partially translated value when a new source value has no complete local coverage.
   return /[\u3400-\u9fff]/.test(translated) ? source : translated;

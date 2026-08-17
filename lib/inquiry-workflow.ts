@@ -38,6 +38,57 @@ export function inquiryListDetails(inquiry: { quantity: number; vehicleModel: st
 
 export type InquiryCommentThread<T> = { note: T; replies: InquiryCommentThread<T>[] };
 
+type DiscussionNote = {
+  noteId: string;
+  parentNoteId: string;
+  authorName: string;
+  authorRole: string;
+  body: string;
+  deletedAt?: string;
+};
+
+/**
+ * Keeps active discussion notes and the hidden ancestors required to preserve
+ * their reply tree. Hidden ancestors are deliberately redacted before they
+ * leave the moderation boundary, so the discussion UI cannot reveal their
+ * author, role, or original content.
+ */
+export function selectDiscussionNotes<T extends DiscussionNote>(notes: T[]): Array<T & { isHiddenPlaceholder: boolean }> {
+  const byId = new Map(notes.map((note) => [note.noteId, note]));
+  const visibleIds = new Set<string>();
+
+  for (const note of notes) {
+    if (note.deletedAt) continue;
+    let current: T | undefined = note;
+    while (current && !visibleIds.has(current.noteId)) {
+      visibleIds.add(current.noteId);
+      current = current.parentNoteId ? byId.get(current.parentNoteId) : undefined;
+    }
+  }
+
+  return notes
+    .filter((note) => visibleIds.has(note.noteId))
+    .map((note) => note.deletedAt
+      ? { ...note, authorName: "", authorRole: "", body: "", isHiddenPlaceholder: true }
+      : { ...note, isHiddenPlaceholder: false });
+}
+
+export function inquiryCommentDescendantIds<T extends { noteId: string; parentNoteId: string }>(notes: T[], rootNoteId: string): string[] {
+  const childrenByParentId = new Map<string, string[]>();
+  for (const note of notes) {
+    if (!note.parentNoteId) continue;
+    childrenByParentId.set(note.parentNoteId, [...(childrenByParentId.get(note.parentNoteId) || []), note.noteId]);
+  }
+  const descendants: string[] = [];
+  const pending = [...(childrenByParentId.get(rootNoteId) || [])];
+  while (pending.length) {
+    const noteId = pending.shift()!;
+    descendants.push(noteId);
+    pending.push(...(childrenByParentId.get(noteId) || []));
+  }
+  return descendants;
+}
+
 export function buildInquiryCommentThreads<T extends { noteId: string; parentNoteId: string; createdAt: string }>(notes: T[]): InquiryCommentThread<T>[] {
   const byParentId = new Map<string, T[]>();
   const noteIds = new Set(notes.map((note) => note.noteId));
