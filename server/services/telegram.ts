@@ -54,6 +54,14 @@ export async function saveTelegramUserBinding(
         now
       )
       .run();
+      await db
+      .prepare(
+        `UPDATE portal_users SET telegram_chat_id = ?, telegram_username = ?, updated_at = ? WHERE user_id = ?`
+      )
+      .bind(params.chatId, params.username ?? "", now, params.userId)
+      .run()
+      .catch(() => {});
+
     return true;
   } catch (err) {
     console.error("Failed to save telegram user binding:", err);
