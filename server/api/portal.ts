@@ -1799,22 +1799,39 @@ async function handleDevLogin(request: Request, env: Env) {
 
 async function handleBootstrap(request: Request, env: Env) {
   const session = await requireSession(request, env);
-  requirePortalDb(env);
+  const db = requirePortalDb(env);
 
-  const [modelsRes, vehiclesRes] = await Promise.all([
-    handleGetVehicleModels(request, env)
-      .then((r) => r.json() as Promise<{ vehicleModels?: PortalVehicleModel[]; vehicleModelSpecs?: PortalVehicleModelSpec[] }>),
-    handleGetVehicles(request, env)
-      .then((r) => r.json() as Promise<{ vehicles?: Record<string, unknown>[] }>),
-  ]);
-  const [inquiries, quotes, negotiations, orders] = await Promise.all([
+  const [
+    modelRows,
+    trimRows,
+    vehicleRows,
+    inquiries,
+    quotes,
+    negotiations,
+    orders,
+    telegramRow,
+    portalUsers,
+  ] = await Promise.all([
+    queryVehicleModels(db),
+    queryVehicleTrims(db),
+    queryVehicles(db),
     listScopedInquiries(env, session),
     listScopedQuotes(env, session),
     listScopedNegotiations(env, session),
     listScopedOrders(env, session),
+    getTelegramUserBinding(db, session.userId).catch(() => null),
+    session.role === "admin" ? listAllPortalUsers(db) : Promise.resolve([]),
   ]);
+
+  const [modelsRes, vehiclesRes] = await Promise.all([
+    handleGetVehicleModels(request, env, { modelRows, trimRows, vehicleRows })
+      .then((r) => r.json() as Promise<{ vehicleModels?: PortalVehicleModel[]; vehicleModelSpecs?: PortalVehicleModelSpec[] }>),
+    handleGetVehicles(request, env, vehicleRows)
+      .then((r) => r.json() as Promise<{ vehicles?: Record<string, unknown>[] }>),
+  ]);
+
   const inquiryNumbers = new Set(inquiries.map((item) => item.inquiryNo));
-  const inquiryNotes = await listScopedInquiryNotes(env, session, Array.from(inquiryNumbers));
+  const inquiryNotes = inquiryNumbers.size > 0 ? await listScopedInquiryNotes(env, session, Array.from(inquiryNumbers)) : [];
   const inquiryNotesByNumber = new Map<string, ReturnType<typeof mapD1Note>[]>();
   for (const note of inquiryNotes) inquiryNotesByNumber.set(note.inquiryNo, [...(inquiryNotesByNumber.get(note.inquiryNo) || []), note]);
   const inquiriesWithUnread = inquiries.map((inquiry) => ({
@@ -1827,13 +1844,11 @@ async function handleBootstrap(request: Request, env: Env) {
     })),
   }));
 
-  const telegramRow = await getTelegramUserBinding(requirePortalDb(env), session.userId).catch(() => null);
   const telegramBinding = {
     bound: Boolean(telegramRow?.chat_id),
     telegramUsername: telegramRow?.telegram_username || null,
     bindingUrl: buildTelegramBindingUrl(env, session.userId),
   };
-  const portalUsers = session.role === "admin" ? await listAllPortalUsers(requirePortalDb(env)) : [];
 
   return json({
     user: publicUser(session),
@@ -1845,7 +1860,7 @@ async function handleBootstrap(request: Request, env: Env) {
     vehicleModels: modelsRes.vehicleModels || [],
     vehicleModelSpecs: modelsRes.vehicleModelSpecs || [],
     vehicles: vehiclesRes.vehicles || [],
-    inquiries,
+    inquiries: inquiriesWithUnread,
     quotes,
     negotiations,
     inquiryNotes: inquiryNotes.filter((item) => inquiryNumbers.has(item.inquiryNo)),
@@ -1869,10 +1884,16 @@ async function handleGetCatalog(request: Request, env: Env) {
     return handleGetVehicles(request, env);
   }
 
-  // Catalog data is always read from D1; an empty D1 snapshot is a valid empty catalog.
+  const db = requirePortalDb(env);
+  const [modelRows, trimRows, vehicleRows] = await Promise.all([
+    queryVehicleModels(db),
+    queryVehicleTrims(db),
+    queryVehicles(db),
+  ]);
+
   const [modelsRes, vehiclesRes] = await Promise.all([
-    handleGetVehicleModels(request, env).then(r => r.json() as Promise<{ vehicleModels?: PortalVehicleModel[]; vehicleModelSpecs?: PortalVehicleModelSpec[] }>),
-    handleGetVehicles(request, env).then(r => r.json() as Promise<{ vehicles?: Record<string, unknown>[] }>),
+    handleGetVehicleModels(request, env, { modelRows, trimRows, vehicleRows }).then((r) => r.json() as Promise<{ vehicleModels?: PortalVehicleModel[]; vehicleModelSpecs?: PortalVehicleModelSpec[] }>),
+    handleGetVehicles(request, env, vehicleRows).then((r) => r.json() as Promise<{ vehicles?: Record<string, unknown>[] }>),
   ]);
 
   return json({
@@ -2498,11 +2519,9 @@ export async function syncVehicleModelsToDB(env: Env): Promise<{ models: number;
   return { models: modelRecords.length, trims: trimRecords.length };
 }
 
-// ─── API handlers: read ONLY from D1, zero Feishu calls ─────────────────────
-
-async function handleGetVehicles(request: Request, env: Env) {
+async function handleGetVehicles(request: Request, env: Env, preloadedRows?: unknown[]) {
   const session = await requireSession(request, env);
-  const rows = await queryVehicles(requirePortalDb(env));
+  const rows = (preloadedRows as Record<string, unknown>[]) ?? await queryVehicles(requirePortalDb(env));
   const canSeePrice = canSeePortalPrice(session);
   const internalSession = isInternalSession(session);
 
@@ -2795,77 +2814,83 @@ function dashboardVehicleModelImage(row: Record<string, unknown>, slug: string):
     ?? "";
 }
 
-async function handleGetVehicleModels(request: Request, env: Env) {
+async function handleGetVehicleModels(
+  request: Request,
+  env: Env,
+  preloaded?: { modelRows: D1VehicleModel[]; trimRows: D1VehicleTrim[]; vehicleRows: D1Vehicle[] }
+) {
   const session = await requireSession(request, env);
-  const [modelRows, trimRows, vehicleRows] = await Promise.all([
-    queryVehicleModels(requirePortalDb(env)),
-    queryVehicleTrims(requirePortalDb(env)),
-    queryVehicles(requirePortalDb(env)),
-  ]);
+  const [modelRows, trimRows, vehicleRows] = preloaded
+    ? [preloaded.modelRows, preloaded.trimRows, preloaded.vehicleRows]
+    : await Promise.all([
+        queryVehicleModels(requirePortalDb(env)),
+        queryVehicleTrims(requirePortalDb(env)),
+        queryVehicles(requirePortalDb(env)),
+      ]);
   const baseModels: PortalVehicleModel[] = modelRows.map((row) => {
     const fields = row as unknown as Record<string, unknown>;
     const recommendationValue = asOptionalNumber(rowField(row as unknown as Record<string, unknown>, "Recommendation"));
-    return ({
-    id: row.id,
-    model_id: row.model_id ?? "",
-    brand: asText(rowField(row as unknown as Record<string, unknown>, "brand", "品牌")),
-    model: asText(rowField(row as unknown as Record<string, unknown>, "model", "MODEL", "型号")),
-    trim: "",
-    year: asText(rowField(row as unknown as Record<string, unknown>, "model_year")),
-    bodyType: asText(rowField(row as unknown as Record<string, unknown>, "vehicle_class", "segment")),
-    fuelType: asText(rowField(row as unknown as Record<string, unknown>, "powertrain_type")),
-    msrpChina: row.display_price_low != null ? `¥${formatNumber(row.display_price_low)}` : "",
-    battery: batteryCapacityDisplay(fields),
-    batteryType: asText(rowField(row as unknown as Record<string, unknown>, "battery_chemistry", "battery_chemistry_auto")),
-    batteryMaker: "",
-    range: cltcRangeDisplay(fields),
-    energyConsumption: "",
-    motorPower: motorPowerDisplay(fields),
-    motorTorque: motorTorqueDisplay(fields),
-    driveType: asText(rowField(row as unknown as Record<string, unknown>, "drivetrain_display", "drivetrain_display_auto")),
-    topSpeed: asText(rowField(row as unknown as Record<string, unknown>, "top_speed_max_kmh", "top_speed_max_kmh_auto"))
-      ? `${asText(rowField(row as unknown as Record<string, unknown>, "top_speed_max_kmh", "top_speed_max_kmh_auto"))} km/h`
-      : "",
-    acceleration: asText(rowField(row as unknown as Record<string, unknown>, "zero_to_100_sec", "0_100_km_h_sec"))
-      ? `${asText(rowField(row as unknown as Record<string, unknown>, "zero_to_100_sec", "0_100_km_h_sec"))} sec`
-      : "",
-    seats: row.seats_max != null ? `${row.seats_max} seats` : "",
-    doors: "",
-    dimensions: [row.length_mm, row.width_mm, row.height_mm].every((v) => v != null)
-      ? `${row.length_mm} x ${row.width_mm} x ${row.height_mm} mm` : "",
-    wheelbase: row.wheelbase_mm != null ? `${row.wheelbase_mm} mm` : "",
-    curbWeight: "",
-    trunkCapacity: row.boot_volume_l != null ? `${row.boot_volume_l} L` : "",
-    charging: row.charging ?? "",
-    frontSuspension: "",
-    rearSuspension: "",
-    adas: "",
-    marketPosition: asText(row.page_subtitle) || asText(row.version),
-    exportNotes: "",
-    galleryImages: dashboardVehicleModelGallery(
-      row as unknown as Record<string, unknown>,
-      normalizeProductSlug(
-        row.product_path ||
-        row.model_id ||
-        [row.brand, row.model || (row as unknown as Record<string, unknown>).MODEL].filter(Boolean).join("-"),
+    return {
+      id: row.id,
+      model_id: row.model_id ?? "",
+      brand: asText(rowField(row as unknown as Record<string, unknown>, "brand", "品牌")),
+      model: asText(rowField(row as unknown as Record<string, unknown>, "model", "MODEL", "型号")),
+      trim: "",
+      year: asText(rowField(row as unknown as Record<string, unknown>, "model_year")),
+      bodyType: asText(rowField(row as unknown as Record<string, unknown>, "vehicle_class", "segment")),
+      fuelType: asText(rowField(row as unknown as Record<string, unknown>, "powertrain_type")),
+      msrpChina: row.display_price_low != null ? `¥${formatNumber(row.display_price_low)}` : "",
+      battery: batteryCapacityDisplay(fields),
+      batteryType: asText(rowField(row as unknown as Record<string, unknown>, "battery_chemistry", "battery_chemistry_auto")),
+      batteryMaker: "",
+      range: cltcRangeDisplay(fields),
+      energyConsumption: "",
+      motorPower: motorPowerDisplay(fields),
+      motorTorque: motorTorqueDisplay(fields),
+      driveType: asText(rowField(row as unknown as Record<string, unknown>, "drivetrain_display", "drivetrain_display_auto")),
+      topSpeed: asText(rowField(row as unknown as Record<string, unknown>, "top_speed_max_kmh", "top_speed_max_kmh_auto"))
+        ? `${asText(rowField(row as unknown as Record<string, unknown>, "top_speed_max_kmh", "top_speed_max_kmh_auto"))} km/h`
+        : "",
+      acceleration: asText(rowField(row as unknown as Record<string, unknown>, "zero_to_100_sec", "0_100_km_h_sec"))
+        ? `${asText(rowField(row as unknown as Record<string, unknown>, "zero_to_100_sec", "0_100_km_h_sec"))} sec`
+        : "",
+      seats: row.seats_max != null ? `${row.seats_max} seats` : "",
+      doors: "",
+      dimensions: [row.length_mm, row.width_mm, row.height_mm].every((v) => v != null)
+        ? `${row.length_mm} x ${row.width_mm} x ${row.height_mm} mm` : "",
+      wheelbase: row.wheelbase_mm != null ? `${row.wheelbase_mm} mm` : "",
+      curbWeight: "",
+      trunkCapacity: row.boot_volume_l != null ? `${row.boot_volume_l} L` : "",
+      charging: row.charging ?? "",
+      frontSuspension: "",
+      rearSuspension: "",
+      adas: "",
+      marketPosition: asText(row.page_subtitle) || asText(row.version),
+      exportNotes: "",
+      galleryImages: dashboardVehicleModelGallery(
+        row as unknown as Record<string, unknown>,
+        normalizeProductSlug(
+          row.product_path ||
+          row.model_id ||
+          [row.brand, row.model || (row as unknown as Record<string, unknown>).MODEL].filter(Boolean).join("-"),
+        ),
       ),
-    ),
-    imageUrl: dashboardVehicleModelImage(
-      row as unknown as Record<string, unknown>,
-      normalizeProductSlug(
-        row.product_path ||
-        row.model_id ||
-        [row.brand, row.model || (row as unknown as Record<string, unknown>).MODEL].filter(Boolean).join("-"),
+      imageUrl: dashboardVehicleModelImage(
+        row as unknown as Record<string, unknown>,
+        normalizeProductSlug(
+          row.product_path ||
+          row.model_id ||
+          [row.brand, row.model || (row as unknown as Record<string, unknown>).MODEL].filter(Boolean).join("-"),
+        ),
       ),
-    ),
-    brochureUrl: normalizeBrochureUrl(row.brochure_cover),
-    sourceUrl: row.product_path ?? "",
-    sourceName: "",
-    lastSyncedAt: asText(row.synced_at || (row as unknown as Record<string, unknown>).last_synced_at),
-    fullSpecsJson: "",
-    status: row.status ?? "Active",
-    recommendationRank: recommendationValue && recommendationValue > 0 ? Math.floor(recommendationValue) : null,
-  });
+      brochureUrl: normalizeBrochureUrl(row.brochure_cover),
+      sourceUrl: row.product_path ?? "",
+      sourceName: "",
+      lastSyncedAt: asText(row.synced_at || (row as unknown as Record<string, unknown>).last_synced_at),
+      fullSpecsJson: "",
+      status: row.status ?? "Active",
+      recommendationRank: recommendationValue && recommendationValue > 0 ? Math.floor(recommendationValue) : null,
+    };
   });
 
   const modelLookup = buildVehicleModelLookup(baseModels);
