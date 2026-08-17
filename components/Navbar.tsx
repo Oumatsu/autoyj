@@ -50,9 +50,11 @@ export function Navbar() {
     const handleScroll = () => {
       const navbar = document.getElementById("navbar");
       if (!navbar) return;
-      const py = window.scrollY > 50 ? "10px" : "16px";
-      navbar.style.paddingTop = py;
-      navbar.style.paddingBottom = py;
+      const isScrolled = window.scrollY > 50;
+      navbar.style.paddingTop = isScrolled
+        ? "calc(env(safe-area-inset-top, 0px) + 8px)"
+        : "calc(env(safe-area-inset-top, 0px) + 14px)";
+      navbar.style.paddingBottom = isScrolled ? "8px" : "14px";
     };
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
@@ -124,7 +126,11 @@ export function Navbar() {
     <>
       <nav
         id="navbar"
-        className="fixed top-0 left-0 right-0 z-50 glass px-6 md:px-10 py-4 flex items-center justify-between transition-all duration-300"
+        className="fixed top-0 left-0 right-0 z-50 glass px-6 md:px-10 flex items-center justify-between transition-all duration-300"
+        style={{
+          paddingTop: "calc(env(safe-area-inset-top, 0px) + 14px)",
+          paddingBottom: "14px",
+        }}
       >
         <LocaleLink href="/" className="flex items-center gap-2.5">
           <img src="/favicon.svg" className="h-8 w-auto" alt="Youguard" />
@@ -249,8 +255,10 @@ export function Navbar() {
         </div>
 
         <button
+          type="button"
+          aria-label="Toggle navigation menu"
           onClick={() => setMobileOpen((prev) => !prev)}
-          className="lg:hidden p-2 flex flex-col gap-1.5"
+          className="lg:hidden p-2 flex flex-col gap-1.5 focus:outline-none"
         >
           {mobileOpen ? (
             <span className="text-2xl leading-none text-white">✕</span>

@@ -1,4 +1,4 @@
-const CACHE_NAME = "youguard-pwa-v1";
+const CACHE_NAME = "youguard-pwa-v2";
 const PRECACHE_ASSETS = [
   "/favicon.svg",
   "/logo.svg",
@@ -31,6 +31,13 @@ self.addEventListener("activate", (event) => {
   );
 });
 
+// Support external instant force-update signal
+self.addEventListener("message", (event) => {
+  if (event.data && event.data.type === "SKIP_WAITING") {
+    self.skipWaiting();
+  }
+});
+
 self.addEventListener("fetch", (event) => {
   const { request } = event;
 
@@ -41,7 +48,7 @@ self.addEventListener("fetch", (event) => {
 
   const url = new URL(request.url);
 
-  // Never intercept API routes or dynamic sessions
+  // Never intercept API routes, dev sessions, or webhook paths
   if (url.pathname.startsWith("/api/")) {
     return;
   }
@@ -70,10 +77,18 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // HTML / Page Navigation (Network-First with Cache Fallback)
+  // HTML / Page Navigation (Strict Network-First with Offline Cache Fallback)
   if (request.mode === "navigate") {
     event.respondWith(
-      fetch(request).catch(() => caches.match(request).then((res) => res || caches.match("/en")))
+      fetch(request)
+        .then((response) => {
+          if (response.status === 200) {
+            const copy = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+          }
+          return response;
+        })
+        .catch(() => caches.match(request).then((res) => res || caches.match("/en")))
     );
   }
 });

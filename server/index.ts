@@ -80,7 +80,9 @@ export default {
             headers.set("cache-control", "public, max-age=86400, stale-while-revalidate=604800");
           } else if (url.pathname === "/sw.js") {
             headers.set("content-type", "application/javascript; charset=utf-8");
-            headers.set("cache-control", "public, max-age=0, must-revalidate");
+            headers.set("cache-control", "no-cache, no-store, must-revalidate, max-age=0");
+            headers.set("pragma", "no-cache");
+            headers.set("expires", "0");
           } else {
             headers.set("cache-control", "public, max-age=86400, stale-while-revalidate=604800");
           }
