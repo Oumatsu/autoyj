@@ -32,6 +32,7 @@ import {
   sendTelegramInquiryUpdateNotification,
   getTelegramUserBinding,
   buildTelegramBindingUrl,
+  saveTelegramUserBinding,
 } from "../services/telegram";
 import type { PortalEnv } from "../types";
 
@@ -1601,9 +1602,49 @@ function mapSourceImport(record: FeishuRecord): Record<string, unknown> {
   };
 }
 
+export type PortalUserRecord = {
+  user_id: string;
+  customer_id: string;
+  name: string;
+  email: string;
+  company: string;
+  whatsapp: string;
+  telegram_chat_id: string;
+  telegram_username: string;
+  account_type: AccountType;
+  role: PortalRole;
+  price_tier: PriceTier;
+  password: string;
+  status: "Active" | "Disabled";
+  created_at: string;
+  updated_at: string;
+  bound_chat_id?: string;
+  bound_telegram_username?: string;
+};
+
+async function listAllPortalUsers(db: D1Database): Promise<PortalUserRecord[]> {
+  try {
+    const res = await db
+      .prepare(
+        `SELECT u.*, t.chat_id AS bound_chat_id, t.telegram_username AS bound_telegram_username
+         FROM portal_users u
+         LEFT JOIN user_telegram_bindings t ON u.user_id = t.user_id
+         ORDER BY u.created_at DESC`
+      )
+      .all<PortalUserRecord>();
+    return res.results || [];
+  } catch {
+    return [];
+  }
+}
+
 async function findLoginAccount(env: Env, email: string, accessCode: string): Promise<Omit<PortalSession, "exp"> | null> {
   if (!env.PORTAL_DB) throw problem("Portal database is not configured", 503);
 
+  const cleanEmail = email.trim().toLowerCase();
+  const cleanCode = accessCode.trim();
+
+  // 1. Primary: user JOIN account (D1 auth schema)
   const user = await env.PORTAL_DB.prepare(`
     SELECT
       u.id, u.user_id, u.customer_id, u.name, u.email, u.company,
@@ -1613,7 +1654,7 @@ async function findLoginAccount(env: Env, email: string, accessCode: string): Pr
     INNER JOIN account ON account.userId = u.id
     WHERE LOWER(u.email) = LOWER(?) AND account.providerId = 'credential'
     LIMIT 1
-  `).bind(email).first<{
+  `).bind(cleanEmail).first<{
     id: string;
     user_id?: string | null;
     customer_id?: string | null;
@@ -1625,23 +1666,49 @@ async function findLoginAccount(env: Env, email: string, accessCode: string): Pr
     price_tier?: string | null;
     status?: string | null;
     password?: string | null;
-  }>();
+  }>().catch(() => null);
 
-  if (!user || user.password !== accessCode) return null;
-  if (user.status && user.status.toLowerCase() !== "active") {
-    throw problem("This account is not active", 403);
+  if (user) {
+    if (user.password !== cleanCode) return null;
+    if (user.status && user.status.toLowerCase() !== "active") {
+      throw problem("This account is not active", 403);
+    }
+
+    return {
+      userId: user.user_id || user.id,
+      customerId: user.customer_id || user.id,
+      name: user.name || user.email.split("@")[0],
+      email: user.email,
+      company: user.company || "",
+      accountType: user.account_type === "internal" ? "internal" : "external",
+      role: normalizeRole(user.role),
+      priceTier: normalizePriceTier(user.price_tier),
+    };
   }
 
-  return {
-    userId: user.user_id || user.id,
-    customerId: user.customer_id || user.id,
-    name: user.name || user.email.split("@")[0],
-    email: user.email,
-    company: user.company || "",
-    accountType: user.account_type === "internal" ? "internal" : "external",
-    role: normalizeRole(user.role),
-    priceTier: normalizePriceTier(user.price_tier),
-  };
+  // 2. Secondary: portal_users table in D1
+  const portalUser = await env.PORTAL_DB.prepare(
+    "SELECT * FROM portal_users WHERE LOWER(email) = LOWER(?) LIMIT 1"
+  ).bind(cleanEmail).first<PortalUserRecord>().catch(() => null);
+
+  if (portalUser) {
+    if (portalUser.password !== cleanCode) return null;
+    if (portalUser.status && portalUser.status.toLowerCase() !== "active") {
+      throw problem("This account is not active", 403);
+    }
+    return {
+      userId: portalUser.user_id,
+      customerId: portalUser.customer_id,
+      name: portalUser.name,
+      email: portalUser.email,
+      company: portalUser.company,
+      accountType: portalUser.account_type,
+      role: portalUser.role,
+      priceTier: portalUser.price_tier,
+    };
+  }
+
+  return null;
 }
 
 async function requireSession(request: Request, env: Env) {
@@ -1766,6 +1833,7 @@ async function handleBootstrap(request: Request, env: Env) {
     telegramUsername: telegramRow?.telegram_username || null,
     bindingUrl: buildTelegramBindingUrl(env, session.userId),
   };
+  const portalUsers = session.role === "admin" ? await listAllPortalUsers(requirePortalDb(env)) : [];
 
   return json({
     user: publicUser(session),
@@ -1785,6 +1853,7 @@ async function handleBootstrap(request: Request, env: Env) {
     orders,
     internalUsers: [],
     customers: [],
+    portalUsers,
     telegramBinding,
   });
 }
@@ -3851,6 +3920,134 @@ async function handleModerateDeletedContent(request: Request, env: Env, type: "n
   return problem("Invalid moderation action");
 }
 
+async function handleGetAdminUsers(request: Request, env: Env) {
+  const session = await requireSession(request, env);
+  if (session.role !== "admin") return problem("Administrator access required", 403);
+  const users = await listAllPortalUsers(requirePortalDb(env));
+  return json({ ok: true, users });
+}
+
+async function handleCreateAdminUser(request: Request, env: Env) {
+  const session = await requireSession(request, env);
+  if (session.role !== "admin") return problem("Administrator access required", 403);
+
+  const body = (await request.json().catch(() => null)) as Record<string, unknown> | null;
+  const name = asText(body?.name).trim();
+  const email = asText(body?.email).trim().toLowerCase();
+  const company = asText(body?.company).trim();
+  const role = (asText(body?.role).toLowerCase() || "customer") as PortalRole;
+  const priceTier = (asText(body?.priceTier).toLowerCase() || "partner") as PriceTier;
+  const accessCode = asText(body?.accessCode).trim();
+  const whatsapp = asText(body?.whatsapp).trim();
+  const telegramChatId = asText(body?.telegramChatId ?? body?.telegram_chat_id).trim();
+  const telegramUsername = asText(body?.telegramUsername ?? body?.telegram_username).trim().replace(/^@/, "");
+
+  if (!name) return problem("Name is required", 400);
+  if (!email || !email.includes("@")) return problem("Valid email is required", 400);
+  if (!accessCode) return problem("Access code / password is required", 400);
+
+  const db = requirePortalDb(env);
+  const existing = await db.prepare("SELECT user_id FROM portal_users WHERE email = ?").bind(email).first();
+  if (existing) return problem("A user with this email already exists", 400);
+
+  const now = nowText();
+  const rolePrefix = role === "admin" ? "USR-ADMIN" : role === "sales" ? "USR-SALES" : role === "partner" ? "PARTNER" : "CUS";
+  const randomSuffix = Math.random().toString(36).substring(2, 6).toUpperCase();
+  const userId = `${rolePrefix}-${randomSuffix}`;
+  const accountType = role === "admin" || role === "sales" || role === "sourcing" || role === "finance" ? "internal" : "external";
+
+  await db.prepare(
+    `INSERT INTO portal_users (user_id, customer_id, name, email, company, whatsapp, telegram_chat_id, telegram_username, account_type, role, price_tier, password, status, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Active', ?, ?)`
+  ).bind(
+    userId, userId, name, email, company, whatsapp, telegramChatId, telegramUsername, accountType, role, priceTier, accessCode, now, now
+  ).run();
+
+  if (telegramChatId) {
+    await saveTelegramUserBinding(db, {
+      userId,
+      chatId: telegramChatId,
+      username: telegramUsername || null,
+      firstName: name,
+    });
+  }
+
+  return json({
+    ok: true,
+    user: {
+      user_id: userId,
+      customer_id: userId,
+      name,
+      email,
+      company,
+      whatsapp,
+      telegram_chat_id: telegramChatId,
+      telegram_username: telegramUsername,
+      account_type: accountType,
+      role,
+      price_tier: priceTier,
+      password: accessCode,
+      status: "Active",
+      created_at: now,
+      updated_at: now,
+    },
+  }, { status: 201 });
+}
+
+async function handleUpdateAdminUser(request: Request, env: Env, userId: string) {
+  const session = await requireSession(request, env);
+  if (session.role !== "admin") return problem("Administrator access required", 403);
+
+  const body = (await request.json().catch(() => null)) as Record<string, unknown> | null;
+  if (!body) return problem("Invalid update payload", 400);
+
+  const db = requirePortalDb(env);
+  const existing = await db.prepare("SELECT * FROM portal_users WHERE user_id = ?").bind(userId).first<PortalUserRecord>();
+  if (!existing) return problem("User not found", 404);
+
+  const name = body.name !== undefined ? asText(body.name).trim() : existing.name;
+  const email = body.email !== undefined ? asText(body.email).trim().toLowerCase() : existing.email;
+  const company = body.company !== undefined ? asText(body.company).trim() : existing.company;
+  const role = body.role !== undefined ? (asText(body.role).toLowerCase() as PortalRole) : existing.role;
+  const priceTier = body.priceTier !== undefined ? (asText(body.priceTier).toLowerCase() as PriceTier) : existing.price_tier;
+  const accessCode = body.accessCode !== undefined ? asText(body.accessCode).trim() : existing.password;
+  const whatsapp = body.whatsapp !== undefined ? asText(body.whatsapp).trim() : existing.whatsapp;
+  const telegramChatId = body.telegramChatId !== undefined || body.telegram_chat_id !== undefined ? asText(body.telegramChatId ?? body.telegram_chat_id).trim() : existing.telegram_chat_id;
+  const telegramUsername = body.telegramUsername !== undefined || body.telegram_username !== undefined ? asText(body.telegramUsername ?? body.telegram_username).trim().replace(/^@/, "") : existing.telegram_username;
+  const status = body.status !== undefined ? (asText(body.status) === "Disabled" ? "Disabled" : "Active") : existing.status;
+  const now = nowText();
+
+  await db.prepare(
+    `UPDATE portal_users SET
+       name = ?, email = ?, company = ?, role = ?, price_tier = ?, password = ?, whatsapp = ?, telegram_chat_id = ?, telegram_username = ?, status = ?, updated_at = ?
+     WHERE user_id = ?`
+  ).bind(
+    name, email, company, role, priceTier, accessCode, whatsapp, telegramChatId, telegramUsername, status, now, userId
+  ).run();
+
+  if (telegramChatId) {
+    await saveTelegramUserBinding(db, {
+      userId,
+      chatId: telegramChatId,
+      username: telegramUsername || null,
+      firstName: name,
+    });
+  }
+
+  return json({ ok: true, message: "User updated successfully" });
+}
+
+async function handleDeleteAdminUser(request: Request, env: Env, userId: string) {
+  const session = await requireSession(request, env);
+  if (session.role !== "admin") return problem("Administrator access required", 403);
+  if (userId === session.userId) return problem("Cannot delete your own admin account", 400);
+
+  const db = requirePortalDb(env);
+  await db.prepare("DELETE FROM portal_users WHERE user_id = ?").bind(userId).run();
+  await db.prepare("DELETE FROM user_telegram_bindings WHERE user_id = ?").bind(userId).run();
+  return json({ ok: true, message: "User deleted" });
+}
+
 async function handleUpdateVehicle(request: Request, env: Env, _vehicleId: string) {
   const session = await requireSession(request, env);
   if (!isInternalSession(session)) return problem("Forbidden: internal access required", 403);
@@ -4272,6 +4469,19 @@ export async function handlePortalRequest(request: Request, env: Env) {
     }
     if (path === "/api/portal/webhook/sync-d1" && request.method === "POST") {
       return problem("Request-time Feishu sync is disabled for public webhooks; use /api/portal/admin/sync-d1 or scheduled cron", 410);
+    }
+    if (path === "/api/portal/admin/users" && request.method === "GET") {
+      return await handleGetAdminUsers(request, env);
+    }
+    if (path === "/api/portal/admin/users" && request.method === "POST") {
+      return await handleCreateAdminUser(request, env);
+    }
+    const adminUserMatch = path.match(/^\/api\/portal\/admin\/users\/([^/]+)$/);
+    if (adminUserMatch && request.method === "PATCH") {
+      return await handleUpdateAdminUser(request, env, decodeURIComponent(adminUserMatch[1]));
+    }
+    if (adminUserMatch && request.method === "DELETE") {
+      return await handleDeleteAdminUser(request, env, decodeURIComponent(adminUserMatch[1]));
     }
     if (path === "/api/portal/admin/sync-d1" && request.method === "POST") {
       const session = await requireSession(request, env);

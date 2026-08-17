@@ -376,6 +376,26 @@ type Order = {
   createdAt: string;
 };
 
+export type PortalUserRecord = {
+  user_id: string;
+  customer_id: string;
+  name: string;
+  email: string;
+  company: string;
+  whatsapp: string;
+  telegram_chat_id: string;
+  telegram_username: string;
+  account_type: AccountType;
+  role: PortalRole;
+  price_tier: PriceTier;
+  access_code: string;
+  status: "Active" | "Disabled";
+  created_at: string;
+  updated_at: string;
+  bound_chat_id?: string;
+  bound_telegram_username?: string;
+};
+
 type BootstrapData = {
   user: PortalUser;
   permissions: {
@@ -394,6 +414,7 @@ type BootstrapData = {
   orders: Order[];
   internalUsers: InternalUser[];
   customers: Customer[];
+  portalUsers?: PortalUserRecord[];
   telegramBinding?: {
     bound: boolean;
     telegramUsername: string | null;
@@ -1300,9 +1321,9 @@ function AdminModuleContent({ activeModule, data, isModuleLoading, onEditVehicle
     case "logistics":
       return <AdminLogistics data={data} />;
     case "customers":
-      return <AdminCustomers data={data} />;
+      return <AdminUserManagement data={data} filterType="customers" onRefreshData={onRefreshData} />;
     case "staff":
-      return <AdminStaff data={data} />;
+      return <AdminUserManagement data={data} filterType="staff" onRefreshData={onRefreshData} />;
     default:
       return <AdminDashboard data={data} />;
   }
@@ -2599,66 +2620,587 @@ function AdminLogistics({ data }: { data: BootstrapData }) {
   );
 }
 
-function AdminCustomers({ data }: { data: BootstrapData }) {
+function AdminUserManagement({
+  data,
+  filterType = "all",
+  onRefreshData,
+}: {
+  data: BootstrapData;
+  filterType?: "all" | "customers" | "staff";
+  onRefreshData: () => Promise<void>;
+}) {
   const { t, locale } = useTranslation();
-  const customers = data.customers || [];
-  return (
-    <AdminPanel title={t("portal.customerAccountsTitle")} subtitle={t("portal.customerAccountsSubtitle")}>
-      <AdminTable
-        headers={[t("portal.userId"), t("portal.company"), t("portal.contact"), t("portal.email"), t("portal.role"), t("portal.priceTier"), t("portal.country"), t("portal.status")]}
-        rows={customers.map((customer) => [
-          <span key="id" className="font-mono text-xs text-[#22b8aa]">{customer.customerId}</span>,
-          customer.company || "-",
-          customer.contact || "-",
-          customer.email || "-",
-          formatPortalRole(customer.role, locale),
-          customer.priceTier,
-          customer.country || "-",
-          <AdminStatusBadge key="status" status={customer.status || "Active"} />,
-        ])}
-        emptyText={t("portal.noCustomerAccounts")}
-      />
-    </AdminPanel>
-  );
-}
+  const [search, setSearch] = useState("");
+  const [activeTab, setActiveTab] = useState<"all" | "customers" | "staff">(filterType);
+  const [showModal, setShowModal] = useState(false);
+  const [editingUser, setEditingUser] = useState<PortalUserRecord | null>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    accessCode: "",
+    role: "customer" as PortalRole,
+    priceTier: "partner" as PriceTier,
+    company: "",
+    whatsapp: "",
+    telegramChatId: "",
+    telegramUsername: "",
+    status: "Active" as "Active" | "Disabled",
+  });
 
-function AdminStaff({ data }: { data: BootstrapData }) {
-  const { t, locale } = useTranslation();
-  const users = data.internalUsers || [];
-  const rows =
-    users.length > 0
-      ? users.map((user) => [
-          user.userId || "-",
-          user.name || "-",
-          user.email || "-",
-          formatPortalRole(user.role, locale),
-          compactJoin([
-            user.canEditVehicles ? "Vehicle editing" : "",
-            user.canSeeCost ? "Cost visibility" : "",
-            user.canSeeSupplier ? "Supplier visibility" : "",
-          ]),
-          user.department || "-",
-          user.status || "Active",
-        ])
-      : [
-          [data.user.userId || "USR-ADMIN", data.user.name || data.user.email, data.user.email, formatPortalRole(data.user.role, locale), t("portal.currentSignedInAccount"), "-", t("portal.active")],
-        ];
+  const allUsers: PortalUserRecord[] = useMemo(() => {
+    if (data.portalUsers && data.portalUsers.length > 0) {
+      return data.portalUsers;
+    }
+    return [
+      {
+        user_id: "USR-ADMIN-01",
+        customer_id: "USR-ADMIN-01",
+        name: "Admin Manager",
+        email: "admin@local.test",
+        company: "Youguard Operations",
+        whatsapp: "",
+        telegram_chat_id: "",
+        telegram_username: "",
+        account_type: "internal",
+        role: "admin",
+        price_tier: "internal",
+        access_code: "admin-demo-2026",
+        status: "Active",
+        created_at: "2026-08-01T00:00:00Z",
+        updated_at: "2026-08-01T00:00:00Z",
+      },
+      {
+        user_id: "USR-SALES-01",
+        customer_id: "USR-SALES-01",
+        name: "Sales Lead",
+        email: "sales@local.test",
+        company: "Youguard Sales Team",
+        whatsapp: "",
+        telegram_chat_id: "",
+        telegram_username: "",
+        account_type: "internal",
+        role: "sales",
+        price_tier: "internal",
+        access_code: "sales-demo-2026",
+        status: "Active",
+        created_at: "2026-08-01T00:00:00Z",
+        updated_at: "2026-08-01T00:00:00Z",
+      },
+      {
+        user_id: "PARTNER-001",
+        customer_id: "PARTNER-001",
+        name: "Partner Agent",
+        email: "partner@example.com",
+        company: "Addis Auto Imports PLC",
+        whatsapp: "",
+        telegram_chat_id: "",
+        telegram_username: "",
+        account_type: "external",
+        role: "partner",
+        price_tier: "partner",
+        access_code: "partner-demo-2026",
+        status: "Active",
+        created_at: "2026-08-01T00:00:00Z",
+        updated_at: "2026-08-01T00:00:00Z",
+      },
+      {
+        user_id: "PARTNER-002",
+        customer_id: "PARTNER-002",
+        name: "Aebissa G",
+        email: "AebissaG@kairosaddis.com",
+        company: "Kairos Addis",
+        whatsapp: "",
+        telegram_chat_id: "",
+        telegram_username: "",
+        account_type: "external",
+        role: "partner",
+        price_tier: "partner",
+        access_code: "Aebissa123",
+        status: "Active",
+        created_at: "2026-08-01T00:00:00Z",
+        updated_at: "2026-08-01T00:00:00Z",
+      },
+      {
+        user_id: "PARTNER-003",
+        customer_id: "PARTNER-003",
+        name: "Wagari G",
+        email: "WagariG@kairosaddis.com",
+        company: "Kairos Addis",
+        whatsapp: "",
+        telegram_chat_id: "",
+        telegram_username: "",
+        account_type: "external",
+        role: "partner",
+        price_tier: "partner",
+        access_code: "WagariG123",
+        status: "Active",
+        created_at: "2026-08-01T00:00:00Z",
+        updated_at: "2026-08-01T00:00:00Z",
+      },
+      {
+        user_id: "CUS-002",
+        customer_id: "CUS-002",
+        name: "VIP Customer",
+        email: "customer@example.com",
+        company: "Green Ride Enterprise",
+        whatsapp: "",
+        telegram_chat_id: "",
+        telegram_username: "",
+        account_type: "external",
+        role: "customer",
+        price_tier: "vip",
+        access_code: "customer-demo-2026",
+        status: "Active",
+        created_at: "2026-08-01T00:00:00Z",
+        updated_at: "2026-08-01T00:00:00Z",
+      },
+    ];
+  }, [data.portalUsers]);
+
+  const filteredUsers = useMemo(() => {
+    return allUsers.filter((user) => {
+      if (activeTab === "customers" && (user.role === "admin" || user.role === "sales")) return false;
+      if (activeTab === "staff" && (user.role !== "admin" && user.role !== "sales")) return false;
+      if (!search.trim()) return true;
+      const q = search.toLowerCase();
+      return (
+        user.name.toLowerCase().includes(q) ||
+        user.email.toLowerCase().includes(q) ||
+        user.company.toLowerCase().includes(q) ||
+        user.user_id.toLowerCase().includes(q) ||
+        (user.telegram_username && user.telegram_username.toLowerCase().includes(q)) ||
+        (user.whatsapp && user.whatsapp.includes(q))
+      );
+    });
+  }, [allUsers, activeTab, search]);
+
+  const handleCopyTelegramLink = (userId: string) => {
+    const url = `https://t.me/youguard_ev_bot?start=bind_${encodeURIComponent(userId)}`;
+    navigator.clipboard.writeText(url).then(() => {
+      setCopiedId(userId);
+      setTimeout(() => setCopiedId(null), 2000);
+    });
+  };
+
+  const openCreateModal = () => {
+    setForm({
+      name: "",
+      email: "",
+      accessCode: "",
+      role: activeTab === "staff" ? "sales" : "customer",
+      priceTier: activeTab === "staff" ? "internal" : "partner",
+      company: "",
+      whatsapp: "",
+      telegramChatId: "",
+      telegramUsername: "",
+      status: "Active",
+    });
+    setEditingUser(null);
+    setError("");
+    setShowModal(true);
+  };
+
+  const openEditModal = (user: PortalUserRecord) => {
+    setForm({
+      name: user.name,
+      email: user.email,
+      accessCode: user.access_code || "",
+      role: user.role,
+      priceTier: user.price_tier,
+      company: user.company || "",
+      whatsapp: user.whatsapp || "",
+      telegramChatId: user.bound_chat_id || user.telegram_chat_id || "",
+      telegramUsername: user.bound_telegram_username || user.telegram_username || "",
+      status: user.status || "Active",
+    });
+    setEditingUser(user);
+    setError("");
+    setShowModal(true);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setBusy(true);
+    setError("");
+
+    try {
+      if (editingUser) {
+        await api(`/api/portal/admin/users/${encodeURIComponent(editingUser.user_id)}`, {
+          method: "PATCH",
+          body: JSON.stringify(form),
+        });
+      } else {
+        await api("/api/portal/admin/users", {
+          method: "POST",
+          body: JSON.stringify(form),
+        });
+      }
+      setShowModal(false);
+      await onRefreshData();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to save user account");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const handleDeleteUser = async (userId: string, name: string) => {
+    if (!window.confirm(`Are you sure you want to delete user account "${name}" (${userId})?`)) {
+      return;
+    }
+    setBusy(true);
+    try {
+      await api(`/api/portal/admin/users/${encodeURIComponent(userId)}`, {
+        method: "DELETE",
+      });
+      await onRefreshData();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Failed to delete user");
+    } finally {
+      setBusy(false);
+    }
+  };
 
   return (
-    <AdminPanel title={t("portal.staffAccountsTitle")} subtitle={t("portal.staffAccountsSubtitle")}>
-      <AdminTable
-        headers={[t("portal.userId"), t("portal.name"), t("portal.email"), t("portal.role"), t("portal.permissions"), t("portal.department"), t("portal.status")]}
-        rows={rows.map((row) => [
-          <span key="id" className="font-mono text-xs text-[#22b8aa]">{row[0]}</span>,
-          row[1],
-          row[2],
-          row[3],
-          row[4] || "-",
-          row[5],
-          <AdminStatusBadge key="status" status={row[6]} />,
-        ])}
-        emptyText={t("portal.noStaffAccounts")}
-      />
+    <AdminPanel
+      title={activeTab === "staff" ? t("portal.staffAccountsTitle") : activeTab === "customers" ? t("portal.customerAccountsTitle") : "User & Account Management"}
+      subtitle="Manage internal staff, customer accounts, credentials, WhatsApp, and Telegram bot binding IDs"
+    >
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setActiveTab("all")}
+            className={`rounded-full px-4 py-1.5 text-xs font-black uppercase tracking-wider transition ${
+              activeTab === "all" ? "bg-theme text-black" : "border border-white/10 text-gray-400 hover:text-white"
+            }`}
+          >
+            All Accounts ({allUsers.length})
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab("customers")}
+            className={`rounded-full px-4 py-1.5 text-xs font-black uppercase tracking-wider transition ${
+              activeTab === "customers" ? "bg-theme text-black" : "border border-white/10 text-gray-400 hover:text-white"
+            }`}
+          >
+            Customers & Partners ({allUsers.filter((u) => u.role === "customer" || u.role === "partner").length})
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab("staff")}
+            className={`rounded-full px-4 py-1.5 text-xs font-black uppercase tracking-wider transition ${
+              activeTab === "staff" ? "bg-theme text-black" : "border border-white/10 text-gray-400 hover:text-white"
+            }`}
+          >
+            Internal Staff ({allUsers.filter((u) => u.role === "admin" || u.role === "sales").length})
+          </button>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Input
+            aria-label="Search users"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search name, email, company, telegram..."
+            className="w-64 max-w-full text-xs"
+          />
+          <button
+            type="button"
+            onClick={openCreateModal}
+            className="btn-primary flex items-center gap-1.5 rounded-full px-5 py-2 text-xs font-black uppercase tracking-wider shadow-lg"
+          >
+            <span>+ Add Account</span>
+          </button>
+        </div>
+      </div>
+
+      {error && (
+        <Alert variant="destructive" className="mb-4">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+
+      <div className="overflow-x-auto rounded-2xl border border-white/10 bg-black/20 shadow-xl">
+        <Table>
+          <TableHeader>
+            <TableRow className="border-b border-white/10 bg-white/[0.02]">
+              <TableHead className="text-[11px] font-black uppercase tracking-wider text-slate-400">Account / Identity</TableHead>
+              <TableHead className="text-[11px] font-black uppercase tracking-wider text-slate-400">Role & Tier</TableHead>
+              <TableHead className="text-[11px] font-black uppercase tracking-wider text-slate-400">Company</TableHead>
+              <TableHead className="text-[11px] font-black uppercase tracking-wider text-slate-400">WhatsApp</TableHead>
+              <TableHead className="text-[11px] font-black uppercase tracking-wider text-slate-400">Telegram Bot Binding</TableHead>
+              <TableHead className="text-[11px] font-black uppercase tracking-wider text-slate-400">Access Code</TableHead>
+              <TableHead className="text-[11px] font-black uppercase tracking-wider text-slate-400">Status</TableHead>
+              <TableHead className="text-right text-[11px] font-black uppercase tracking-wider text-slate-400">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {filteredUsers.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={8} className="py-8 text-center text-xs text-gray-500">
+                  No accounts found matching current filter.
+                </TableCell>
+              </TableRow>
+            ) : (
+              filteredUsers.map((user) => {
+                const tgChatId = user.bound_chat_id || user.telegram_chat_id;
+                const tgUsername = user.bound_telegram_username || user.telegram_username;
+                const isTelegramBound = Boolean(tgChatId);
+
+                return (
+                  <TableRow key={user.user_id} className="border-b border-white/5 transition hover:bg-white/[0.02]">
+                    <TableCell className="py-3">
+                      <div className="font-bold text-white text-xs">{user.name}</div>
+                      <div className="text-[11px] text-gray-400">{user.email}</div>
+                      <div className="font-mono text-[10px] text-[#22b8aa]">{user.user_id}</div>
+                    </TableCell>
+                    <TableCell className="py-3">
+                      <div className="flex flex-col gap-1">
+                        <span className={`inline-flex w-fit items-center rounded-md px-2 py-0.5 text-[10px] font-black uppercase tracking-wider ${
+                          user.role === "admin"
+                            ? "bg-purple-500/20 text-purple-300 border border-purple-500/30"
+                            : user.role === "sales"
+                            ? "bg-blue-500/20 text-blue-300 border border-blue-500/30"
+                            : user.role === "partner"
+                            ? "bg-amber-500/20 text-amber-300 border border-amber-500/30"
+                            : "bg-teal-500/20 text-teal-300 border border-teal-500/30"
+                        }`}>
+                          {formatPortalRole(user.role, locale)}
+                        </span>
+                        <span className="text-[10px] text-gray-400 uppercase">Tier: <strong className="text-gray-200">{user.price_tier}</strong></span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="py-3 text-xs text-gray-300">
+                      {user.company || "-"}
+                    </TableCell>
+                    <TableCell className="py-3">
+                      {user.whatsapp ? (
+                        <a
+                          href={`https://wa.me/${user.whatsapp.replace(/[^0-9]/g, "")}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 rounded border border-emerald-500/30 bg-emerald-500/10 px-2 py-1 text-[11px] text-emerald-300 transition hover:bg-emerald-500/20"
+                        >
+                          <span>{user.whatsapp}</span>
+                        </a>
+                      ) : (
+                        <span className="text-[11px] text-gray-600">-</span>
+                      )}
+                    </TableCell>
+                    <TableCell className="py-3">
+                      <div className="flex flex-col gap-1">
+                        {isTelegramBound ? (
+                          <div className="flex items-center gap-1.5">
+                            <span className="inline-flex items-center gap-1 rounded border border-emerald-500/40 bg-emerald-500/15 px-2 py-0.5 text-[10px] font-bold text-emerald-300">
+                              <span>✅ Linked</span>
+                              {tgUsername && <span>(@{tgUsername})</span>}
+                            </span>
+                            {tgChatId && <span className="font-mono text-[9px] text-gray-500">ID: {tgChatId}</span>}
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2">
+                            <span className="inline-flex items-center rounded border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[10px] font-bold text-amber-300">
+                              ⚠️ Unbound
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => handleCopyTelegramLink(user.user_id)}
+                              className="rounded border border-white/15 bg-white/5 px-2 py-0.5 text-[10px] text-gray-300 transition hover:bg-white/15 hover:text-white"
+                              title="Copy Telegram binding link to send to customer"
+                            >
+                              {copiedId === user.user_id ? "Copied!" : "Copy Link"}
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell className="py-3">
+                      <span className="font-mono text-xs text-gray-300 bg-white/5 px-2 py-1 rounded border border-white/10">{user.access_code}</span>
+                    </TableCell>
+                    <TableCell className="py-3">
+                      <AdminStatusBadge status={user.status || "Active"} />
+                    </TableCell>
+                    <TableCell className="py-3 text-right">
+                      <div className="flex items-center justify-end gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => openEditModal(user)}
+                          className="rounded border border-white/15 bg-white/5 px-2.5 py-1 text-xs text-gray-200 transition hover:border-[#c5a059] hover:bg-[#c5a059]/10 hover:text-[#dfba73]"
+                        >
+                          Edit
+                        </button>
+                        {user.user_id !== data.user.userId && (
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteUser(user.user_id, user.name)}
+                            className="rounded border border-red-500/20 bg-red-500/10 px-2.5 py-1 text-xs text-red-300 transition hover:bg-red-500/20"
+                          >
+                            Delete
+                          </button>
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                );
+              })
+            )}
+          </TableBody>
+        </Table>
+      </div>
+
+      {showModal && (
+        <Dialog open={showModal} onOpenChange={setShowModal}>
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-md">
+            <div className="w-full max-w-lg rounded-2xl border border-white/15 bg-[#0b1425] p-6 shadow-2xl animate-in fade-in zoom-in-95">
+              <DialogHeader>
+                <DialogTitle className="text-xl font-black text-white">
+                  {editingUser ? `Edit Account: ${editingUser.name}` : "Create New Account"}
+                </DialogTitle>
+                <DialogDescription className="text-xs text-gray-400">
+                  {editingUser
+                    ? "Update credentials, price tier, WhatsApp, or manually configure Telegram chat ID."
+                    : "Create a new internal staff or buyer account with login credentials."}
+                </DialogDescription>
+              </DialogHeader>
+
+              <form onSubmit={handleSubmit} className="mt-4 grid gap-3.5">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label className="text-[11px] font-bold text-gray-300">Full Name *</Label>
+                    <Input
+                      required
+                      value={form.name}
+                      onChange={(e) => setForm({ ...form, name: e.target.value })}
+                      placeholder="e.g. Dawit Bekele"
+                      className="mt-1 text-xs"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-[11px] font-bold text-gray-300">Email Address *</Label>
+                    <Input
+                      required
+                      type="email"
+                      value={form.email}
+                      onChange={(e) => setForm({ ...form, email: e.target.value })}
+                      placeholder="e.g. dawit@example.com"
+                      className="mt-1 text-xs"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label className="text-[11px] font-bold text-gray-300">Access Code / Password *</Label>
+                    <Input
+                      required
+                      value={form.accessCode}
+                      onChange={(e) => setForm({ ...form, accessCode: e.target.value })}
+                      placeholder="e.g. pass-2026"
+                      className="mt-1 text-xs font-mono"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-[11px] font-bold text-gray-300">Company Name</Label>
+                    <Input
+                      value={form.company}
+                      onChange={(e) => setForm({ ...form, company: e.target.value })}
+                      placeholder="e.g. Addis EV Motors"
+                      className="mt-1 text-xs"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label className="text-[11px] font-bold text-gray-300">Role</Label>
+                    <select
+                      value={form.role}
+                      onChange={(e) => setForm({ ...form, role: e.target.value as PortalRole })}
+                      className="mt-1 w-full rounded-md border border-white/15 bg-black/40 px-3 py-2 text-xs text-white"
+                    >
+                      <option value="customer">Customer (海外买家)</option>
+                      <option value="partner">Partner (渠道合伙人)</option>
+                      <option value="sales">Sales Lead (销售经理)</option>
+                      <option value="admin">Administrator (管理员)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <Label className="text-[11px] font-bold text-gray-300">Price Tier (价格权限)</Label>
+                    <select
+                      value={form.priceTier}
+                      onChange={(e) => setForm({ ...form, priceTier: e.target.value as PriceTier })}
+                      className="mt-1 w-full rounded-md border border-white/15 bg-black/40 px-3 py-2 text-xs text-white"
+                    >
+                      <option value="partner">Partner (代理阶梯价)</option>
+                      <option value="vip">VIP (大客户VIP价)</option>
+                      <option value="internal">Internal (内部底价全可见)</option>
+                      <option value="hidden">Hidden (隐藏价格)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <Label className="text-[11px] font-bold text-gray-300">WhatsApp / Mobile Number</Label>
+                  <Input
+                    value={form.whatsapp}
+                    onChange={(e) => setForm({ ...form, whatsapp: e.target.value })}
+                    placeholder="+251 91 123 4567"
+                    className="mt-1 text-xs"
+                  />
+                </div>
+
+                <div className="rounded-xl border border-gold/30 bg-gold/5 p-3.5">
+                  <div className="text-xs font-black text-[#dfba73]">✈️ Telegram Bot Configuration (手动配置)</div>
+                  <div className="mt-1 text-[10px] text-gray-400">
+                    You can manually enter the customer&apos;s Telegram Chat ID, or let the customer tap the bot link to link automatically.
+                  </div>
+                  <div className="mt-2.5 grid grid-cols-2 gap-2.5">
+                    <div>
+                      <Label className="text-[10px] text-gray-300">Telegram Chat ID (数字ID)</Label>
+                      <Input
+                        value={form.telegramChatId}
+                        onChange={(e) => setForm({ ...form, telegramChatId: e.target.value })}
+                        placeholder="e.g. 987654321"
+                        className="mt-1 text-xs font-mono"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-[10px] text-gray-300">Telegram Username (@用户名)</Label>
+                      <Input
+                        value={form.telegramUsername}
+                        onChange={(e) => setForm({ ...form, telegramUsername: e.target.value })}
+                        placeholder="e.g. dawit_ev"
+                        className="mt-1 text-xs"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-2 flex items-center justify-end gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => setShowModal(false)}
+                    className="rounded-lg border border-white/15 px-4 py-2 text-xs font-bold text-gray-400 hover:text-white"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={busy}
+                    className="btn-primary rounded-lg px-5 py-2 text-xs font-black uppercase tracking-wider"
+                  >
+                    {busy ? "Saving..." : editingUser ? "Update Account" : "Create Account"}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </Dialog>
+      )}
     </AdminPanel>
   );
 }
