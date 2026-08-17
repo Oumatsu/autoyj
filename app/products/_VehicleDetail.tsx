@@ -205,6 +205,29 @@ function parseTrimFeature(item: string) {
   };
 }
 
+function resolveStatLabel(
+  t: (key: string, fallback?: string) => any,
+  label: string | undefined,
+  fallbackKey: "range" | "battery" | "price" | "charging",
+  fallbackText: string
+): string {
+  if (!label) return t(`productsDetail.ui.${fallbackKey}`, fallbackText) as string;
+  const lower = label.toLowerCase();
+  if (lower.includes("range") || lower.includes("续航")) {
+    return t("productsDetail.ui.range", "Range") as string;
+  }
+  if (lower.includes("battery") || lower.includes("电池")) {
+    return t("productsDetail.ui.battery", "Battery") as string;
+  }
+  if (lower.includes("fob") || lower.includes("price") || lower.includes("价格") || lower.includes("售价")) {
+    return t("productsDetail.ui.price", "Price") as string;
+  }
+  if (lower.includes("charging") || lower.includes("charge") || lower.includes("快充") || lower.includes("充电")) {
+    return t("productsDetail.ui.charging", "Charging") as string;
+  }
+  return label;
+}
+
 function buildTrimLadderRows(trims: TrimComparisonTrim[]): TrimLadderRow[] {
   const inherited: TrimLadderFeature[] = [];
 
@@ -576,8 +599,11 @@ export default function VehicleDetail({ data: rawData }: { data: DetailData }) {
       if (typeof value === "string") (localized as unknown as Record<string, unknown>)[field] = modelText(field, value);
     });
     if (rawData.subtitle) localized.subtitle = valueText(rawData.subtitle);
+    if (rawData.stat1Label) localized.stat1Label = valueText(rawData.stat1Label);
     if (rawData.stat1Value) localized.stat1Value = valueText(rawData.stat1Value);
+    if (rawData.stat2Label) localized.stat2Label = valueText(rawData.stat2Label);
     if (rawData.stat2Value) localized.stat2Value = valueText(rawData.stat2Value);
+    if (rawData.stat3Label) localized.stat3Label = valueText(rawData.stat3Label);
     if (rawData.stat3Value) localized.stat3Value = valueText(rawData.stat3Value);
     if (rawData.vehicle) {
       localized.vehicle = {
@@ -714,9 +740,30 @@ export default function VehicleDetail({ data: rawData }: { data: DetailData }) {
               </div>
             </div>
             <div className="hidden min-[812px]:grid grid-cols-3 gap-3">
-              <div className="glass rounded-[1.5rem] p-5 text-center border-accent/20"><div className="text-3xl font-black italic text-accent mb-1">{data.stat1Value}</div><div className="text-[8px] font-black tracking-[.25em] uppercase text-gray-600">{t("productsDetail.ui.range", "Range")}</div></div>
-              <div className="glass rounded-[1.5rem] p-5 text-center border-theme/20"><div className="text-3xl font-black italic text-theme mb-1">{data.stat2Value}</div><div className="text-[8px] font-black tracking-[.25em] uppercase text-gray-600">{t("productsDetail.ui.price", "Price")}</div></div>
-              <div className="glass rounded-[1.5rem] p-5 text-center border-accent/20"><div className="text-xl font-black italic text-white mb-1">{data.stat3Value}</div><div className="text-[8px] font-black tracking-[.25em] uppercase text-gray-600">{t("productsDetail.ui.battery", "Battery")}</div></div>
+              <div className="glass rounded-[1.5rem] p-4 lg:p-5 text-center border-accent/20 flex flex-col justify-center items-center">
+                <div className="text-lg lg:text-xl xl:text-2xl font-black italic text-accent mb-1 tracking-tight leading-tight whitespace-nowrap overflow-hidden text-ellipsis max-w-full">
+                  {data.stat1Value}
+                </div>
+                <div className="text-[9px] font-black tracking-[.25em] uppercase text-gray-500">
+                  {resolveStatLabel(t, data.stat1Label, "battery", "Battery")}
+                </div>
+              </div>
+              <div className="glass rounded-[1.5rem] p-4 lg:p-5 text-center border-theme/20 flex flex-col justify-center items-center">
+                <div className="text-lg lg:text-xl xl:text-2xl font-black italic text-theme mb-1 tracking-tight leading-tight whitespace-nowrap overflow-hidden text-ellipsis max-w-full">
+                  {data.stat2Value}
+                </div>
+                <div className="text-[9px] font-black tracking-[.25em] uppercase text-gray-500">
+                  {resolveStatLabel(t, data.stat2Label, "range", "Range")}
+                </div>
+              </div>
+              <div className="glass rounded-[1.5rem] p-4 lg:p-5 text-center border-white/10 flex flex-col justify-center items-center">
+                <div className="text-lg lg:text-xl xl:text-2xl font-black italic text-white mb-1 tracking-tight leading-tight whitespace-nowrap overflow-hidden text-ellipsis max-w-full">
+                  {data.stat3Value}
+                </div>
+                <div className="text-[9px] font-black tracking-[.25em] uppercase text-gray-500">
+                  {resolveStatLabel(t, data.stat3Label, "price", "Price")}
+                </div>
+              </div>
               <div className="col-span-3 glass rounded-[1.5rem] px-6 py-4 flex items-center justify-between border-theme/10">
                 <div className="flex items-center gap-2.5"><div className="pulse-dot" /><span className="text-[10px] font-black tracking-widest uppercase text-gray-500">{t("productsDetail.ui.factoryPrice", "Factory Price")}</span></div>
                 <LocaleLink href="/solutions/request-quote" className="text-[10px] font-black tracking-widest uppercase text-theme hover:text-white transition">{t("productsDetail.ui.requestBatchQuote", "Request Batch Quote") as string} →</LocaleLink>
