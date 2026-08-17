@@ -61,8 +61,15 @@ export const metadata: Metadata = {
   title: "Youguard - Your Dedicated EV Sourcing Expert for Africa",
   description:
     "China's premier EV export partner for African dealers. Expert sourcing, transparent PDI, turnkey dealer empowerment.",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Youguard Auto",
+  },
   icons: {
     icon: "/logo.svg",
+    apple: "/icons/apple-touch-icon.png",
   },
 };
 
@@ -79,6 +86,12 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
+        <link rel="manifest" href="/manifest.webmanifest" />
+        <meta name="theme-color" content="#0b1425" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="Youguard Auto" />
+        <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
         {/* next/font/google downloads fonts at build time — served from
             .vinext/fonts/. No CDN preconnect needed or wanted here. */}
         {/* Runs before React hydration: sets the correct lang attr and font
@@ -107,6 +120,11 @@ export default function RootLayout({
                   document.documentElement.classList.add(targetClass);
                 } catch (e) {}
               })();
+              if (typeof window !== 'undefined' && 'serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.hostname === 'localhost')) {
+                window.addEventListener('load', function() {
+                  navigator.serviceWorker.register('/sw.js').catch(function() {});
+                });
+              }
             `,
           }}
         />

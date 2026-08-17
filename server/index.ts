@@ -3,7 +3,7 @@ import { handlePortalRequest } from "./api/portal";
 import { runFeishuScheduledSync } from "./jobs/feishu-sync";
 import type { ExecutionContext, WorkerEnv } from "./types";
 
-const STATIC_EXTENSIONS = /\.(webp|png|jpg|jpeg|svg|ico|gif|woff2?|ttf|eot|css|js|map|json|pdf|txt|xml)$/i;
+const STATIC_EXTENSIONS = /\.(webp|png|jpg|jpeg|svg|ico|gif|woff2?|ttf|eot|css|js|map|json|pdf|txt|xml|webmanifest)$/i;
 
 function isStaticAssetPath(pathname: string): boolean {
   return (
@@ -19,6 +19,8 @@ function isStaticAssetPath(pathname: string): boolean {
     pathname.startsWith("/fonts") ||
     pathname === "/robots.txt" ||
     pathname === "/sitemap.xml" ||
+    pathname === "/manifest.webmanifest" ||
+    pathname === "/sw.js" ||
     STATIC_EXTENSIONS.test(pathname)
   );
 }
@@ -78,6 +80,12 @@ export default {
           } else if (url.pathname === "/robots.txt") {
             headers.set("content-type", "text/plain; charset=utf-8");
             headers.set("cache-control", "public, max-age=86400, stale-while-revalidate=604800");
+          } else if (url.pathname === "/manifest.webmanifest") {
+            headers.set("content-type", "application/manifest+json; charset=utf-8");
+            headers.set("cache-control", "public, max-age=86400, stale-while-revalidate=604800");
+          } else if (url.pathname === "/sw.js") {
+            headers.set("content-type", "application/javascript; charset=utf-8");
+            headers.set("cache-control", "public, max-age=0, must-revalidate");
           } else {
             headers.set("cache-control", "public, max-age=86400, stale-while-revalidate=604800");
           }

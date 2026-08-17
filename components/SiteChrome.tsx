@@ -9,6 +9,7 @@ import { getLocaleFromPath } from "@/i18n/utils";
 import { localeLabels } from "@/i18n/config";
 
 import { TolgeeWrapper } from "./TolgeeWrapper";
+import { PwaInstallPrompt } from "./PwaInstallPrompt";
 
 export function SiteChrome({ children }: { children: ReactNode }) {
   const pathname = usePathname();
@@ -44,6 +45,7 @@ export function SiteChrome({ children }: { children: ReactNode }) {
       {!isPortalRoute && <Navbar />}
       {children}
       {!hidePublicFooter && <Footer />}
+      <PwaInstallPrompt />
     </TolgeeWrapper>
   );
 }
