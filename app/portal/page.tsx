@@ -2875,6 +2875,23 @@ function AdminUserManagement({
     }
   };
 
+  const handleUnbindTelegram = async (userId: string, name: string) => {
+    if (!window.confirm(`Are you sure you want to unbind Telegram for "${name}"? The status will revert to Unbound.`)) {
+      return;
+    }
+    setBusy(true);
+    try {
+      await api(`/api/portal/admin/users/${encodeURIComponent(userId)}/telegram`, {
+        method: "DELETE",
+      });
+      await onRefreshData();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Failed to unbind Telegram");
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const handleDeleteUser = async (userId: string, name: string) => {
     if (!window.confirm(`Are you sure you want to delete user account "${name}" (${userId})?`)) {
       return;
@@ -3022,12 +3039,20 @@ function AdminUserManagement({
                     <TableCell className="py-3">
                       <div className="flex flex-col gap-1">
                         {isTelegramBound ? (
-                          <div className="flex items-center gap-1.5">
+                          <div className="flex flex-wrap items-center gap-1.5">
                             <span className="inline-flex items-center gap-1 rounded border border-emerald-500/40 bg-emerald-500/15 px-2 py-0.5 text-[10px] font-bold text-emerald-300">
                               <span>✅ Linked</span>
                               {tgUsername && <span>(@{tgUsername})</span>}
                             </span>
-                            {tgChatId && <span className="font-mono text-[9px] text-gray-500">ID: {tgChatId}</span>}
+                            {tgChatId && <span className="font-mono text-[9px] text-gray-400">ID: {tgChatId}</span>}
+                            <button
+                              type="button"
+                              onClick={() => handleUnbindTelegram(user.user_id, user.name)}
+                              className="rounded border border-red-500/30 bg-red-500/10 px-1.5 py-0.5 text-[10px] font-bold text-red-300 transition hover:bg-red-500/25"
+                              title="Unbind Telegram account and revert back to Unbound state"
+                            >
+                              ✕ Unlink (解绑)
+                            </button>
                           </div>
                         ) : (
                           <div className="flex items-center gap-2">
@@ -3182,9 +3207,20 @@ function AdminUserManagement({
                 </div>
 
                 <div className="rounded-xl border border-gold/30 bg-gold/5 p-3.5">
-                  <div className="text-xs font-black text-[#dfba73]">✈️ Telegram Bot Configuration (手动配置)</div>
+                  <div className="flex items-center justify-between">
+                    <div className="text-xs font-black text-[#dfba73]">✈️ Telegram Bot Configuration</div>
+                    {(form.telegramChatId || form.telegramUsername) && (
+                      <button
+                        type="button"
+                        onClick={() => setForm({ ...form, telegramChatId: "", telegramUsername: "" })}
+                        className="rounded border border-red-500/30 bg-red-500/15 px-2 py-0.5 text-[10px] font-bold text-red-300 hover:bg-red-500/30 transition"
+                      >
+                        ✕ Clear / Reset to Unbound (一键清空/解绑)
+                      </button>
+                    )}
+                  </div>
                   <div className="mt-1 text-[10px] text-gray-400">
-                    You can manually enter the customer&apos;s Telegram Chat ID, or let the customer tap the bot link to link automatically.
+                    Enter Chat ID manually, click &quot;Clear / Reset to Unbound&quot; to unbind, or let customer tap the invite link.
                   </div>
                   <div className="mt-2.5 grid grid-cols-2 gap-2.5">
                     <div>
@@ -3192,7 +3228,7 @@ function AdminUserManagement({
                       <Input
                         value={form.telegramChatId}
                         onChange={(e) => setForm({ ...form, telegramChatId: e.target.value })}
-                        placeholder="e.g. 987654321"
+                        placeholder="e.g. 987654321 (Empty = Unbound)"
                         className="mt-1 text-xs font-mono"
                       />
                     </div>

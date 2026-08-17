@@ -4057,9 +4057,22 @@ async function handleUpdateAdminUser(request: Request, env: Env, userId: string)
       username: telegramUsername || null,
       firstName: name,
     });
+  } else {
+    await db.prepare("DELETE FROM user_telegram_bindings WHERE user_id = ?").bind(userId).run().catch(() => {});
   }
 
   return json({ ok: true, message: "User updated successfully" });
+}
+
+async function handleUnbindAdminUserTelegram(request: Request, env: Env, userId: string) {
+  const session = await requireSession(request, env);
+  if (session.role !== "admin") return problem("Administrator access required", 403);
+
+  const db = requirePortalDb(env);
+  const now = nowText();
+  await db.prepare("UPDATE portal_users SET telegram_chat_id = '', telegram_username = '', updated_at = ? WHERE user_id = ?").bind(now, userId).run();
+  await db.prepare("DELETE FROM user_telegram_bindings WHERE user_id = ?").bind(userId).run();
+  return json({ ok: true, message: "Telegram binding removed successfully" });
 }
 
 async function handleDeleteAdminUser(request: Request, env: Env, userId: string) {
@@ -4500,6 +4513,10 @@ export async function handlePortalRequest(request: Request, env: Env) {
     }
     if (path === "/api/portal/admin/users" && request.method === "POST") {
       return await handleCreateAdminUser(request, env);
+    }
+    const adminUserTelegramMatch = path.match(/^\/api\/portal\/admin\/users\/([^/]+)\/telegram$/);
+    if (adminUserTelegramMatch && request.method === "DELETE") {
+      return await handleUnbindAdminUserTelegram(request, env, decodeURIComponent(adminUserTelegramMatch[1]));
     }
     const adminUserMatch = path.match(/^\/api\/portal\/admin\/users\/([^/]+)$/);
     if (adminUserMatch && request.method === "PATCH") {

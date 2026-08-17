@@ -76,7 +76,17 @@ function makeMockAdminDb() {
               status: "Active",
             });
           }
-          if (sql.includes("UPDATE portal_users SET")) {
+          if (sql.includes("UPDATE portal_users SET telegram_chat_id = ''")) {
+            const userId = String(boundValues[1]);
+            const existing = users.get(userId);
+            if (existing) {
+              users.set(userId, {
+                ...existing,
+                telegram_chat_id: "",
+                telegram_username: "",
+              });
+            }
+          } else if (sql.includes("UPDATE portal_users SET")) {
             const userId = String(boundValues[11]);
             const existing = users.get(userId);
             if (existing) {
@@ -217,5 +227,19 @@ describe("Admin User Management API", () => {
     expect(updated?.company).toBe("Youguard Global Operations");
     expect(updated?.telegram_chat_id).toBe("555666777");
     expect(updated?.telegram_username).toBe("youguard_ops_lead");
+  });
+
+  test("DELETE /api/portal/admin/users/:id/telegram unbinds Telegram and reverts back to Unbound", async () => {
+    const adminCookie = await getAdminCookie();
+    const unbindReq = new Request("http://localhost:3000/api/portal/admin/users/USR-ADMIN-01/telegram", {
+      method: "DELETE",
+      headers: { cookie: adminCookie },
+    });
+
+    const unbindRes = await handlePortalRequest(unbindReq, env);
+    expect(unbindRes.status).toBe(200);
+    const updated = users.get("USR-ADMIN-01");
+    expect(updated?.telegram_chat_id).toBe("");
+    expect(updated?.telegram_username).toBe("");
   });
 });
