@@ -27,6 +27,12 @@ import {
   getVehicleGalleryImages,
   resolveSyncedGalleryImage,
 } from "../../lib/static-assets";
+import {
+  handleTelegramWebhook,
+  sendTelegramInquiryUpdateNotification,
+  getTelegramUserBinding,
+  buildTelegramBindingUrl,
+} from "../services/telegram";
 import type { PortalEnv } from "../types";
 
 export type Env = PortalEnv;
@@ -1754,6 +1760,13 @@ async function handleBootstrap(request: Request, env: Env) {
     })),
   }));
 
+  const telegramRow = await getTelegramUserBinding(requirePortalDb(env), session.userId).catch(() => null);
+  const telegramBinding = {
+    bound: Boolean(telegramRow?.chat_id),
+    telegramUsername: telegramRow?.telegram_username || null,
+    bindingUrl: buildTelegramBindingUrl(env, session.userId),
+  };
+
   return json({
     user: publicUser(session),
     permissions: {
@@ -1772,6 +1785,7 @@ async function handleBootstrap(request: Request, env: Env) {
     orders,
     internalUsers: [],
     customers: [],
+    telegramBinding,
   });
 }
 
@@ -3792,6 +3806,17 @@ async function handleCreateInquiryNote(request: Request, env: Env, inquiryNo: st
     ),
     db.prepare("UPDATE inquiries SET updated_at=? WHERE inquiry_no=?").bind(now, inquiryNo),
   ]);
+
+  if (session.role === "sales" || session.role === "admin") {
+    sendTelegramInquiryUpdateNotification(env, {
+      inquiryNo,
+      customerUserId: inquiry.customerId,
+      vehicleModel: inquiry.vehicleModel || "Vehicle Inquiry",
+      noteBody: note.body,
+      authorName: session.name || "Sales Manager",
+    }).catch(() => {});
+  }
+
   return json({ ok: true, note }, { status: 201 });
 }
 
@@ -4228,6 +4253,18 @@ export async function handlePortalRequest(request: Request, env: Env) {
           env,
         );
       }
+    }
+    if (path === "/api/portal/webhook/telegram" && request.method === "POST") {
+      return await handleTelegramWebhook(request, env);
+    }
+    if (path === "/api/portal/telegram/binding" && request.method === "GET") {
+      const session = await requireSession(request, env);
+      const telegramRow = await getTelegramUserBinding(requirePortalDb(env), session.userId).catch(() => null);
+      return json({
+        bound: Boolean(telegramRow?.chat_id),
+        telegramUsername: telegramRow?.telegram_username || null,
+        bindingUrl: buildTelegramBindingUrl(env, session.userId),
+      });
     }
     if (path === "/api/portal/webhook/sync" && request.method === "POST") {
       cacheMap.clear();

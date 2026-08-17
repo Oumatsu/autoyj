@@ -368,3 +368,15 @@ CREATE TABLE IF NOT EXISTS public_contact_submissions (
   status TEXT NOT NULL DEFAULT 'new'
 );
 
+-- Telegram Bot user bindings for instant notifications
+CREATE TABLE IF NOT EXISTS user_telegram_bindings (
+  user_id TEXT PRIMARY KEY,
+  chat_id TEXT NOT NULL,
+  telegram_username TEXT,
+  first_name TEXT,
+  bound_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_user_telegram_chat_id ON user_telegram_bindings(chat_id);
+
+

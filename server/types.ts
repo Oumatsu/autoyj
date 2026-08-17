@@ -39,6 +39,8 @@ export interface PortalEnv {
   FEISHU_VIEW_VEHICLE_TRIM_CONFIGURATIONS?: string;
   FEISHU_ALLOW_EMPTY_ARTICLES?: string;
   FEISHU_ALLOW_EMPTY_ACADEMY?: string;
+  TELEGRAM_BOT_TOKEN?: string;
+  TELEGRAM_BOT_USERNAME?: string;
   DEV?: boolean;
   /** Cloudflare D1 database binding — read by API handlers, written by Cron Job. */
   PORTAL_DB?: D1Database;
