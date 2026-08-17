@@ -26,14 +26,9 @@ function isStaticAssetPath(pathname: string): boolean {
 }
 
 function isPublicCacheableRoute(pathname: string): boolean {
-  return (
-    !pathname.startsWith("/api/") &&
-    !pathname.startsWith("/dashboard") &&
-    !pathname.startsWith("/portal") &&
-    !pathname.includes("/dashboard") &&
-    !pathname.includes("/portal")
-  );
+  return !pathname.startsWith("/api/");
 }
+
 
 export default {
   async fetch(request: Request, env: WorkerEnv, ctx: ExecutionContext): Promise<Response> {

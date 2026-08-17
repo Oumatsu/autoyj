@@ -562,8 +562,21 @@ async function api<T>(path: string, init?: RequestInit): Promise<T> {
 // 妯″潡鍏ㄥ眬缂撳瓨锛堣法璺敱鍒囨崲/缁勪欢鍗歌浇鎸傝浇鍏变韩锛屽疄鐜伴〉闈㈠垏鎹?0 娆￠噸澶嶈姹備笌骞跺彂鍘婚噸锛?
 let globalBootstrapData: BootstrapData | null = null;
 let globalBootstrapPromise: Promise<BootstrapData | null> | null = null;
-
 export default function PortalPage() {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted || typeof window === "undefined") {
+    return <Loading text="Loading portal..." />;
+  }
+
+  return <PortalClientContent />;
+}
+
+function PortalClientContent() {
   const { t, locale } = useTranslation();
   const [email, setEmail] = useState("");
   const [accessCode, setAccessCode] = useState("");
