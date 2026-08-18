@@ -16,6 +16,7 @@
     "check:i18n": "bun run scripts/check-i18n.ts",
     "lint:fast": "oxlint",
     "lint": "oxlint && vinext lint",
+    "audit:lighthouse": "bunx lighthouse http://localhost:3000/en --chrome-flags=\"--headless --no-sandbox\" --output=html --output-path=./lighthouse-report.html",
     "audit:w3c": "bun run scripts/audit-w3c-standards.ts",
     "test": "bun test tests/unit tests/component tests/integration",
     "test:unit": "bun test tests/unit",
