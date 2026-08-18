@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef } from "react";
 import Loading from "@/components/Loading";
 import { useTranslation, T } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
@@ -17,8 +17,9 @@ const tabSectionIds = ["hero", "fundamentals", "playbook", "workshop", "vault"];
 export default function AcademyPage() {
   const { t } = useTranslation();
   const tabBarRef = useRef<HTMLDivElement>(null);
-  const [activeId, setActiveId] = useState<string | null>(null);
   const heroRef = useRef<HTMLElement>(null);
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [isVisible, setIsVisible] = useState(false);
 
   const [fundamentalsArticles, setFundamentalsArticles] = useState<any[]>([]);
   const [playbookArticles, setPlaybookArticles] = useState<any[]>([]);
@@ -39,13 +40,6 @@ export default function AcademyPage() {
   const localizedVault = vaultItems.map((item) =>
     translateAcademyVaultItem(item, t),
   );
-
-  const syncTabTop = useCallback(() => {
-    const navbar = document.getElementById("navbar");
-    const tabBar = tabBarRef.current;
-    if (!tabBar || !navbar) return;
-    tabBar.style.top = navbar.offsetHeight - 1 + "px";
-  }, []);
 
   useEffect(() => {
     let isMounted = true;
@@ -82,33 +76,31 @@ export default function AcademyPage() {
   }, []);
 
   useEffect(() => {
-    syncTabTop();
     const handleScroll = () => {
-      syncTabTop();
       const hero = heroRef.current;
-      const tabBar = tabBarRef.current;
-      if (!hero || !tabBar) return;
-      const heroBottom = hero.getBoundingClientRect().bottom;
-      tabBar.classList.toggle("visible", heroBottom < window.innerHeight * 0.25);
+      if (hero) {
+        const heroBottom = hero.getBoundingClientRect().bottom;
+        setIsVisible(heroBottom < window.innerHeight * 0.25);
+      }
       const mid = window.innerHeight * 0.45;
       let active: string | null = null;
-      tabSectionIds.forEach((id) => {
+      for (const id of tabSectionIds) {
         const el = document.getElementById(id);
-        if (!el) return;
-        if (el.getBoundingClientRect().top <= mid) active = id;
-      });
+        if (el && el.getBoundingClientRect().top <= mid) {
+          active = id;
+        }
+      }
       setActiveId(active);
     };
     window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [syncTabTop]);
+  }, []);
 
   const scrollTo = (targetId: string) => {
     const target = document.getElementById(targetId);
-    const navbar = document.getElementById("navbar");
-    const tabBar = tabBarRef.current;
-    if (!target || !navbar || !tabBar) return;
-    const offset = navbar.offsetHeight + tabBar.offsetHeight + 10;
+    if (!target) return;
+    const offset = 110;
     const top = target.getBoundingClientRect().top + window.scrollY - offset;
     window.scrollTo({ top, behavior: "smooth" });
   };
@@ -117,7 +109,14 @@ export default function AcademyPage() {
     <>
       <div className="h-[var(--navbar-h,56px)] lg:hidden bg-black w-full" />
       {/* Section Tabs */}
-      <div id="section-tabs" ref={tabBarRef} role="navigation" aria-label="Page sections">
+      <div
+        id="section-tabs"
+        ref={tabBarRef}
+        role="navigation"
+        aria-label="Page sections"
+        className={isVisible ? "visible" : ""}
+        style={{ top: "calc(var(--navbar-h, 56px) - 1px)" }}
+      >
         <div className="tab-inner">
           <button
             className={`tab-btn ${activeId === "hero" ? "active" : ""}`}

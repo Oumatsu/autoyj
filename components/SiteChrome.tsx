@@ -1,7 +1,6 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { Footer } from "./Footer";
 import { Navbar } from "./Navbar";
@@ -10,6 +9,12 @@ import { localeLabels } from "@/i18n/config";
 
 import { TolgeeWrapper } from "./TolgeeWrapper";
 import { PwaInstallPrompt } from "./PwaInstallPrompt";
+
+const LOCALE_FONT_MAP: Record<string, string> = {
+  zh: "font-sans",
+  en: "font-inter",
+  am: "font-ethiopic",
+};
 
 export function SiteChrome({ children }: { children: ReactNode }) {
   const pathname = usePathname();
@@ -24,30 +29,17 @@ export function SiteChrome({ children }: { children: ReactNode }) {
   const hidePublicFooter = isAppConsole;
   const hidePublicNavbar = isAppConsole;
   const locale = getLocaleFromPath(pathname);
-
-  useEffect(() => {
-    document.documentElement.lang = locale;
-    document.documentElement.dir = localeLabels[locale].dir;
-    
-    // 渐进式切换 html 字体类，不直接覆写整个 className
-    if (locale === "en") {
-      document.documentElement.classList.add("font-inter");
-      document.documentElement.classList.remove("font-sans", "font-ethiopic");
-    } else if (locale === "am") {
-      document.documentElement.classList.add("font-ethiopic");
-      document.documentElement.classList.remove("font-inter", "font-sans");
-    } else {
-      document.documentElement.classList.add("font-sans");
-      document.documentElement.classList.remove("font-inter", "font-ethiopic");
-    }
-  }, [pathname, locale]);
+  const fontClass = LOCALE_FONT_MAP[locale] || "font-sans";
+  const textDir = localeLabels[locale]?.dir || "ltr";
 
   return (
     <TolgeeWrapper locale={locale}>
-      {!hidePublicNavbar && <Navbar />}
-      {children}
-      {!hidePublicFooter && <Footer />}
-      <PwaInstallPrompt />
+      <div lang={locale} dir={textDir} className={`min-h-screen ${fontClass}`}>
+        {!hidePublicNavbar && <Navbar />}
+        {children}
+        {!hidePublicFooter && <Footer />}
+        <PwaInstallPrompt />
+      </div>
     </TolgeeWrapper>
   );
 }

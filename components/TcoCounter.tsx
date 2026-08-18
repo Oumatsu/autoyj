@@ -5,29 +5,30 @@ import { useEffect, useRef, useState } from "react";
 export function TcoCounter() {
   const [count, setCount] = useState(0);
   const doneRef = useRef(false);
+  const elRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
-    const el = document.getElementById("tco-num");
+    const el = elRef.current;
     if (!el) return;
 
-    const handleScroll = () => {
-      if (doneRef.current) return;
-      const rect = el!.getBoundingClientRect();
-      if (rect.top < window.innerHeight * 0.85) {
-        doneRef.current = true;
-        let n = 0;
-        const tick = setInterval(() => {
-          n = Math.min(n + 7, 300);
-          setCount(n);
-          if (n >= 300) clearInterval(tick);
-        }, 18);
-      }
-    };
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting && !doneRef.current) {
+          doneRef.current = true;
+          let n = 0;
+          const tick = setInterval(() => {
+            n = Math.min(n + 7, 300);
+            setCount(n);
+            if (n >= 300) clearInterval(tick);
+          }, 18);
+        }
+      },
+      { threshold: 0.1 }
+    );
 
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll();
-    return () => window.removeEventListener("scroll", handleScroll);
+    observer.observe(el);
+    return () => observer.disconnect();
   }, []);
 
-  return <span id="tco-num">{count}</span>;
+  return <span id="tco-num" ref={elRef}>{count}</span>;
 }

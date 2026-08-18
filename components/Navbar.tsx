@@ -46,33 +46,14 @@ export function Navbar() {
     }
   }
 
+  const [isScrolled, setIsScrolled] = useState(false);
+
   useEffect(() => {
     const handleScroll = () => {
-      const navbar = document.getElementById("navbar");
-      if (!navbar) return;
-      const isScrolled = window.scrollY > 50;
-      navbar.style.paddingTop = isScrolled
-        ? "calc(env(safe-area-inset-top, 0px) + 8px)"
-        : "calc(env(safe-area-inset-top, 0px) + 14px)";
-      navbar.style.paddingBottom = isScrolled ? "8px" : "14px";
+      setIsScrolled(window.scrollY > 50);
     };
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  useEffect(() => {
-    const navbar = document.getElementById("navbar");
-    if (!navbar) return;
-    const syncHeight = () => {
-      document.documentElement.style.setProperty(
-        "--navbar-h",
-        `${navbar.offsetHeight}px`
-      );
-    };
-    syncHeight();
-    const observer = new ResizeObserver(syncHeight);
-    observer.observe(navbar);
-    return () => observer.disconnect();
   }, []);
 
   const closeMobile = useCallback(() => {
@@ -129,8 +110,10 @@ export function Navbar() {
         aria-label="Main Navigation"
         className="fixed top-0 left-0 right-0 z-50 glass px-6 md:px-10 flex items-center justify-between transition-all duration-300"
         style={{
-          paddingTop: "calc(env(safe-area-inset-top, 0px) + 14px)",
-          paddingBottom: "14px",
+          paddingTop: isScrolled
+            ? "calc(env(safe-area-inset-top, 0px) + 8px)"
+            : "calc(env(safe-area-inset-top, 0px) + 14px)",
+          paddingBottom: isScrolled ? "8px" : "14px",
         }}
       >
         <LocaleLink href="/" className="flex items-center gap-2.5">

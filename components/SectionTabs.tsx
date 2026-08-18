@@ -1,9 +1,7 @@
 "use client";
 
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useTranslation } from "@/i18n/useTranslation";
-import { LocaleLink } from "@/i18n/LocaleLink";
-import { Button } from "@/components/ui/button";
 import { QrDropdown } from "./QrDropdown";
 import { OFFICIAL_WHATSAPP_URL } from "@/lib/constants";
 
@@ -13,49 +11,36 @@ export function SectionTabs() {
   const { t } = useTranslation();
   const tabBarRef = useRef<HTMLDivElement>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
-
-  const syncTabTop = useCallback(() => {
-    const navbar = document.getElementById("navbar");
-    const tabBar = tabBarRef.current;
-    if (!tabBar || !navbar) return;
-    tabBar.style.top = navbar.offsetHeight - 1 + "px";
-  }, []);
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    syncTabTop();
-
     const handleScroll = () => {
-      syncTabTop();
-
       const hero = document.getElementById("hero");
-      const tabBar = tabBarRef.current;
-      if (!hero || !tabBar) return;
-      const heroBottom = hero.getBoundingClientRect().bottom;
-      tabBar.classList.toggle(
-        "visible",
-        heroBottom < window.innerHeight * 0.25
-      );
+      if (hero) {
+        const heroBottom = hero.getBoundingClientRect().bottom;
+        setIsVisible(heroBottom < window.innerHeight * 0.25);
+      }
 
       const mid = window.innerHeight * 0.45;
       let active: string | null = null;
-      tabSectionIds.forEach((id) => {
+      for (const id of tabSectionIds) {
         const el = document.getElementById(id);
-        if (!el) return;
-        if (el.getBoundingClientRect().top <= mid) active = id;
-      });
+        if (el && el.getBoundingClientRect().top <= mid) {
+          active = id;
+        }
+      }
       setActiveId(active);
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [syncTabTop]);
+  }, []);
 
   const scrollTo = (targetId: string) => {
     const target = document.getElementById(targetId);
-    const navbar = document.getElementById("navbar");
-    const tabBar = tabBarRef.current;
-    if (!target || !navbar || !tabBar) return;
-    const offset = navbar.offsetHeight + tabBar.offsetHeight + 10;
+    if (!target) return;
+    const offset = 110;
     const top = target.getBoundingClientRect().top + window.scrollY - offset;
     window.scrollTo({ top, behavior: "smooth" });
   };
@@ -66,6 +51,8 @@ export function SectionTabs() {
       ref={tabBarRef}
       role="navigation"
       aria-label="Page sections"
+      className={isVisible ? "visible" : ""}
+      style={{ top: "calc(var(--navbar-h, 56px) - 1px)" }}
     >
       <div className="tab-inner">
         <button
