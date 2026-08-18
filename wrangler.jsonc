@@ -38,8 +38,5 @@
       "database_name": "autoyj-portal",
       "database_id": "68b32d63-714a-48a9-b8f2-af47c076deb4"
     }
-  ],
-  "triggers": {
-    "crons": ["*/10 * * * *"]
-  }
+  ]
 }

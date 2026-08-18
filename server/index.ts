@@ -112,31 +112,49 @@ export default {
       });
     }
 
-    const response = await handler.fetch(request, env, ctx);
+    try {
+      const response = await handler.fetch(request, env, ctx);
 
-    // Apply Edge caching for public marketing/catalog HTML pages to eliminate Error 1102
-    if (
-      request.method === "GET" &&
-      response.status === 200 &&
-      isPublicCacheableRoute(url.pathname)
-    ) {
-      const contentType = response.headers.get("content-type") || "";
-      if (contentType.includes("text/html") || response.headers.get("rsc")) {
-        const headers = new Headers(response.headers);
-        if (!headers.has("cache-control") || headers.get("cache-control")?.includes("no-store")) {
-          headers.set("cache-control", "public, max-age=0, s-maxage=300, stale-while-revalidate=86400");
-          return new Response(response.body, {
-            status: response.status,
-            statusText: response.statusText,
-            headers,
-          });
+      // Apply Edge caching for public marketing/catalog HTML pages to eliminate Error 1102
+      if (
+        request.method === "GET" &&
+        response.status === 200 &&
+        isPublicCacheableRoute(url.pathname)
+      ) {
+        const contentType = response.headers.get("content-type") || "";
+        if (contentType.includes("text/html") || response.headers.get("rsc")) {
+          const headers = new Headers(response.headers);
+          if (!headers.has("cache-control") || headers.get("cache-control")?.includes("no-store")) {
+            headers.set("cache-control", "public, max-age=0, s-maxage=300, stale-while-revalidate=86400");
+            return new Response(response.body, {
+              status: response.status,
+              statusText: response.statusText,
+              headers,
+            });
+          }
         }
       }
-    }
 
-    return response;
+      return response;
+    } catch (fetchError) {
+      console.error("[server:edge-worker] Uncaught error during fetch handler:", fetchError);
+      return new Response(
+        JSON.stringify({
+          error: "Internal Server Error",
+          message: fetchError instanceof Error ? fetchError.message : "Unexpected worker execution failure",
+        }),
+        {
+          status: 500,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
   },
   async scheduled(_event: { cron: string }, env: WorkerEnv, ctx: ExecutionContext): Promise<void> {
-    ctx.waitUntil(runFeishuScheduledSync(env));
+    ctx.waitUntil(
+      runFeishuScheduledSync(env).catch((err) => {
+        console.error("[cron:feishu-sync] Uncaught error during scheduled sync:", err);
+      })
+    );
   },
 };
