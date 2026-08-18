@@ -92,7 +92,7 @@ async function main() {
   writeFileSync(resolve(import.meta.dir, "../public/icons/icon-512.png"), icon512Buffer);
   console.log("✅ Generated public/icons/icon-512.png (512x512)");
 
-  // 3. Generate 512x512 Maskable Icon (safe zone is 80% inner circle/square: 320px)
+  // 3. Generate 512x512 Maskable Icon (safe zone is 80% inner circle/square: 300px)
   await page.setContent(`
     <!DOCTYPE html>
     <html>
@@ -174,6 +174,49 @@ async function main() {
   const appleTouchBuffer = await page.screenshot({ type: "png" });
   writeFileSync(resolve(import.meta.dir, "../public/icons/apple-touch-icon.png"), appleTouchBuffer);
   console.log("✅ Generated public/icons/apple-touch-icon.png (180x180)");
+
+  // 5. Generate 1:1 square favicon.png and favicon.ico (64x64)
+  await page.setViewportSize({ width: 64, height: 64 });
+  await page.setContent(`
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <style>
+          * { margin: 0; padding: 0; box-sizing: border-box; }
+          body {
+            width: 64px;
+            height: 64px;
+            background: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+          }
+          .icon-container {
+            width: 64px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+          svg {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="icon-container">
+          ${logoSvg}
+        </div>
+      </body>
+    </html>
+  `);
+  const faviconBuffer = await page.screenshot({ type: "png" });
+  writeFileSync(resolve(import.meta.dir, "../public/favicon.png"), faviconBuffer);
+  writeFileSync(resolve(import.meta.dir, "../public/favicon.ico"), faviconBuffer);
+  console.log("✅ Generated public/favicon.png and public/favicon.ico (1:1 square 64x64)");
 
   await browser.close();
 }

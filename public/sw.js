@@ -1,8 +1,11 @@
-const CACHE_NAME = "youguard-pwa-v2";
+const CACHE_NAME = "youguard-pwa-v3";
 const PRECACHE_ASSETS = [
+  "/favicon.ico",
+  "/favicon.png",
   "/favicon.svg",
   "/logo.svg",
   "/icons/icon-192.png",
+  "/icons/icon-512.png",
   "/icons/apple-touch-icon.png",
   "/manifest.webmanifest",
 ];
