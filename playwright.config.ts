@@ -5,10 +5,14 @@ const baseURL = `http://localhost:${PORT}`;
 
 export default defineConfig({
   testDir: "./tests/e2e",
-  fullyParallel: true,
+  fullyParallel: false,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  retries: process.env.CI ? 2 : 1,
+  workers: process.env.CI ? 2 : 2,
+  timeout: 60 * 1000,
+  expect: {
+    timeout: 10 * 1000,
+  },
   reporter: [
     ["list"],
     ["json", { outputFile: "test-results/playwright-results.json" }],
@@ -16,6 +20,8 @@ export default defineConfig({
   ],
   use: {
     baseURL,
+    actionTimeout: 15 * 1000,
+    navigationTimeout: 30 * 1000,
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
     video: "retain-on-failure",

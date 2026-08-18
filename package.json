@@ -18,6 +18,7 @@
     "lint": "oxlint && vinext lint",
     "audit:lighthouse": "bunx lighthouse http://localhost:3000/en --chrome-flags=\"--headless --no-sandbox\" --output=html --output-path=./lighthouse-report.html",
     "audit:w3c": "bun run scripts/audit-w3c-standards.ts",
+    "pre-push": "bun run scripts/ci/pre-push-gate.ts",
     "test": "bun test tests/unit tests/component tests/integration",
     "test:unit": "bun test tests/unit",
     "test:component": "bun test tests/component",
