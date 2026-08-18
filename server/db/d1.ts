@@ -81,6 +81,7 @@ export interface D1VehicleTrim {
   status: string | null;
   display_price_low: number | null;
   display_price_high: number | null;
+  trim_price_rmb?: number | null;
   powertrain_type: string | null;
   cltc_range_km: number | null;
   battery_capacity_kwh: number | null;

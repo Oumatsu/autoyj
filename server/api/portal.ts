@@ -338,6 +338,10 @@ function formatUsd(value: number) {
   return `$${Math.round(value).toLocaleString("en-US")}`;
 }
 
+function formatCny(value: number) {
+  return `¥${Math.round(value).toLocaleString("en-US")}`;
+}
+
 function formatUsdRange(min: number | null, max: number | null) {
   if (min !== null && max !== null) {
     return Math.round(min) === Math.round(max) ? formatUsd(min) : `${formatUsd(min)} - ${formatUsd(max)}`;
@@ -2489,6 +2493,7 @@ export async function syncVehicleModelsToDB(env: Env): Promise<{ models: number;
         status: asText(f.status) || asText(f.source_status) || null,
         display_price_low: displayPrice,
         display_price_high: asOptionalNumber(f.display_price_high) ?? displayPrice,
+        trim_price_rmb: asOptionalNumber(f.trim_price_rmb),
         powertrain_type: asText(f.powertrain_type) || asText(p.powertrain_type) || null,
         cltc_range_km: range,
         battery_capacity_kwh: batteryCapacity,
@@ -2580,6 +2585,7 @@ async function handleGetVehicles(request: Request, env: Env, preloadedRows?: unk
       colorStockQuantity: asOptionalNumber(rowField(fields, "inventory_count", "颜色库存")),
       waitDays: asOptionalNumber(rowField(fields, "wait_days", "下单后需要等待天数")),
       powertrain_type: asText(rowField(fields, "powertrain_type")),
+      vehicleClass: asText(rowField(fields, "vehicle_class", "车型大类")),
       color: asText(rowField(fields, "color", "外饰颜色")),
       exteriorColor: asText(rowField(fields, "exterior_color", "外饰颜色")),
       interiorColor: asText(rowField(fields, "interior_color", "内饰颜色")),
@@ -2670,7 +2676,7 @@ function mapD1VehicleTrimVariant(
 ) {
   const trimName = normalizeTrimName(rowField(row, "trim_name", "variant", "trim", "细分型号"));
   if (!trimName) return null;
-  const guidePrice = asOptionalNumber(rowField(row, "guide_price_cny", "人民币指导价"));
+  const guidePrice = asOptionalNumber(rowField(row, "trim_price_rmb", "guide_price_cny", "人民币指导价"));
   const powertrain = asText(rowField(row, "powertrain_type", "能源类型", "动力类型"));
   const year = asText(rowField(row, "model_year", "year", "生产年份"));
   const trimOrder = asOptionalNumber(rowField(row, "trim_order"));
@@ -2951,7 +2957,7 @@ async function handleGetVehicleModels(
     };
 
     addSpec("版本名称", name, 0, "版本");
-    addSpec("中国官方指导价", trim.display_price_low != null ? formatUsd(trim.display_price_low) : "", 1, "基本参数");
+    addSpec("中国官方指导价", trim.trim_price_rmb != null ? formatCny(trim.trim_price_rmb) : "", 1, "基本参数");
     addSpec("能源类型", asText(trim.powertrain_type), 2, "基本参数");
     addSpec("CLTC续航", trim.cltc_range_km != null ? `${formatNumber(trim.cltc_range_km)} km` : "", 10, "三电");
     addSpec("电池容量", trim.battery_capacity_kwh != null ? `${formatNumber(trim.battery_capacity_kwh, 3)} kWh` : "", 11, "三电");

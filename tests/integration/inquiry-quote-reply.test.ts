@@ -73,6 +73,15 @@ test("unread indicators are refreshed from the server after a conversation is re
   expect(panel).toContain("await onRefresh()");
 });
 
+test("the initially displayed unread inquiry is marked read without requiring a second card click", () => {
+  const source = readFileSync("app/portal/page.tsx", "utf8");
+  const start = source.indexOf("function AdminQuotes(");
+  const end = source.indexOf("function AdminOrders", start);
+  const panel = source.slice(start, end);
+
+  expect(panel).toContain("void markInquiryRead(selected);");
+});
+
 test("inquiry management uses compact list cards, snapshot details, and nested replies", () => {
   const source = readFileSync("app/portal/page.tsx", "utf8");
   const start = source.indexOf("function AdminQuotes(");

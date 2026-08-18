@@ -71,6 +71,7 @@ CREATE TABLE IF NOT EXISTS vehicle_trims (
   status TEXT,
   display_price_low REAL,
   display_price_high REAL,
+  trim_price_rmb REAL,
   powertrain_type TEXT,
   cltc_range_km INTEGER,
   battery_capacity_kwh REAL,

@@ -4,6 +4,7 @@ import {
   buildSellableModels,
   buildModelProfileGroups,
   buildVehicleResourceVariants,
+  isStockAlertEligible,
   vehiclesForSellableModel,
 } from "../../app/portal/page";
 
@@ -155,6 +156,39 @@ describe("buildSellableModels", () => {
     // In Stock offer should come first
     expect(item.offers[0].vehicle.id).toBe("V-1");
     expect(item.offers[1].vehicle.id).toBe("V-2");
+  });
+
+  test("uses the unified catalogue model when an offer uses a Qin EV or DM-i suffix", () => {
+    const result = buildSellableModels({
+      vehicleModels: [{ id: "qin-l", brand: "BYD", model: "Qin L", bodyType: "Mid-size Sedan" }],
+      vehicles: [
+        { id: "ev", brand: "BYD", model: "Qin L EV", year: "2025", trim: "EV 545", waitDays: 0, stockQuantity: 2 },
+        { id: "dmi", brand: "BYD", model: "Qin L Dmi", year: "2025", trim: "DM-i 120", waitDays: 45, stockQuantity: 0 },
+      ],
+    } as any);
+
+    expect(result).toHaveLength(1);
+    expect(result[0].model).toBe("Qin L");
+    expect(result[0].offers).toHaveLength(2);
+    expect(result[0].segment).toBe("Mid-size Sedan");
+  });
+
+  test("does not present an energy type as a body category when source classification is absent", () => {
+    const result = buildSellableModels({
+      vehicleModels: [],
+      vehicles: [{ id: "unknown", brand: "Example", model: "Unclassified EV", year: "2025", trim: "", waitDays: 45, stockQuantity: 0 }],
+    } as any);
+
+    expect(result[0].segment).toBe("Other");
+  });
+});
+
+describe("isStockAlertEligible", () => {
+  test("alerts only verified in-stock offers with a low numeric inventory", () => {
+    expect(isStockAlertEligible({ waitDays: 0, colorStockQuantity: 2 } as any)).toBe(true);
+    expect(isStockAlertEligible({ waitDays: 0, colorStockQuantity: 0 } as any)).toBe(true);
+    expect(isStockAlertEligible({ waitDays: 45, colorStockQuantity: 0 } as any)).toBe(false);
+    expect(isStockAlertEligible({ waitDays: 0, colorStockQuantity: null } as any)).toBe(false);
   });
 });
 

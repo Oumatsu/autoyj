@@ -196,6 +196,7 @@ type Vehicle = {
   fullOrderQuantity?: number | null;
   sourceStage?: string | null;
   inventoryStatus?: string | null;
+  vehicleClass?: string | null;
   reviewer?: string | null;
   developer?: string | null;
   mediaSourcePath?: string | null;
@@ -1368,7 +1369,7 @@ function AdminDashboard({ data }: { data: BootstrapData }) {
   const latestInquiries = [...data.inquiries]
     .sort((a, b) => getDateTime(b.updatedAt || b.createdAt) - getDateTime(a.updatedAt || a.createdAt))
     .slice(0, 6);
-  const lowStock = data.vehicles.filter((vehicle) => vehicle.stockQuantity <= 2).slice(0, 6);
+  const lowStock = data.vehicles.filter(isStockAlertEligible).slice(0, 6);
 
   return (
     <div className="grid min-w-0 gap-5">
@@ -1401,7 +1402,7 @@ function AdminDashboard({ data }: { data: BootstrapData }) {
             headers={[t("portal.vehicle"), t("portal.stockQuantity"), t("portal.location"), t("portal.supplyType")]}
             rows={lowStock.map((vehicle) => [
               vehicleName(vehicle),
-              t("portal.unitCount", { count: vehicle.stockQuantity }),
+              t("portal.unitCount", { count: getConfirmedStockQuantity(vehicle)! }),
               vehicle.location || "-",
               <AdminStatusBadge key="status" status={getSupplyType(vehicle)} />,
             ])}
@@ -1422,10 +1423,19 @@ function ModelFullSpecsCard({ group }: { group: ModelProfileGroup }) {
   const addedFeaturesLabel = locale === "zh" ? "新增配置" : locale === "am" ? "ተጨማሪ ባህሪያት" : "Added Features";
   const upgradeFeaturesLabel = locale === "zh" ? "升级配置" : locale === "am" ? "የተሻሻሉ ባህሪያት" : "Upgrade Features";
   const modelOverviewLabel = locale === "zh" ? "车型概览" : locale === "am" ? "የሞዴል አጠቃላይ እይታ" : "MODEL OVERVIEW";
-  const fullComparisonRows = buildModelComparisonRows(group, "full")
-    .filter((row) => trimVariants.some((variant) => safeText(row.values[variant.id]).trim()))
+  const comparisonRows = buildModelComparisonRows(group, "full");
+  const configurationLabels = ["基础配置", "新增配置", "升级配置"];
+  const fullComparisonRows = comparisonRows
+    .filter((row) => configurationLabels.includes(row.label) || trimVariants.some((variant) => safeText(row.values[variant.id]).trim()))
     .filter((row) => !/^(版本名称|推荐版本|版本核验状态|最后核验|备注)$/i.test(row.label));
-  const configurationRows = fullComparisonRows.filter((row) => ["基础配置", "新增配置", "升级配置"].includes(row.label));
+  const configurationRows = configurationLabels.map((label, index) =>
+    comparisonRows.find((row) => row.label === label) ?? {
+      category: "版本配置",
+      label,
+      sortOrder: 40 + index,
+      values: Object.fromEntries(trimVariants.map((variant) => [variant.id, ""])),
+    },
+  );
   const groupedComparisonRows = [
     { label: locale === "zh" ? "基本信息" : locale === "am" ? "መሠረታዊ መረጃ" : "Basic Information", rows: fullComparisonRows.filter((row) => row.category === "基本参数" || row.category === "版本") },
     { label: locale === "zh" ? "车身" : locale === "am" ? "አካል" : "Body", rows: fullComparisonRows.filter((row) => row.category === "车身") },
@@ -1548,17 +1558,19 @@ function ModelFullSpecsCard({ group }: { group: ModelProfileGroup }) {
                       </h6>
                       <dl className="mt-3 grid grid-cols-1 gap-x-4 gap-y-3 sm:grid-cols-2">
                         {section.rows.map((row) => {
-                          const isChangeRow = row.label === "新增配置" || row.label === "升级配置";
+                          const isChangeRow = configurationLabels.includes(row.label);
                           const rawValue = safeText(row.values[variant.id]).trim() || "-";
                           const value = localizeVehicleValue(rawValue, locale);
                           return (
-                            <div key={`${variant.id}:${row.category}:${row.label}`} className="min-w-0">
-                              <dt className="text-[10px] font-medium text-slate-400">
-                                {localizeVehicleValue(row.label, locale)}
-                              </dt>
-                              <dd className={`mt-0.5 break-words text-xs font-semibold leading-5 ${rawValue === "-" ? "text-slate-600" : "text-slate-100"}`}>
-                                {isChangeRow ? <span className="whitespace-pre-line">{formatTrimFeatureLines(value)}</span> : value}
-                              </dd>
+                            <div key={`${variant.id}:${row.category}:${row.label}`} className={`min-w-0 ${isChangeRow ? "sm:col-span-2" : ""}`}>
+                              <div className={isChangeRow ? "sm:flex sm:items-start sm:gap-4" : ""}>
+                                <dt className="shrink-0 text-[10px] font-medium text-slate-400">
+                                  {localizeVehicleValue(row.label, locale)}
+                                </dt>
+                                <dd className={`mt-0.5 break-words text-xs font-semibold leading-5 ${isChangeRow ? "sm:mt-0 sm:flex-1" : ""} ${rawValue === "-" ? "text-slate-600" : "text-slate-100"}`}>
+                                  {isChangeRow ? <span className="whitespace-pre-line">{formatTrimFeatureLines(value)}</span> : value}
+                                </dd>
+                              </div>
                             </div>
                           );
                         })}
@@ -2104,6 +2116,11 @@ function AdminVehicles({ data, onEdit, onRefresh, onRefreshData }: { data: Boots
                       <h2 className="text-lg font-black text-white sm:text-xl">
                           {localizeVehicleValue(item.brand, locale)} {localizeVehicleValue(item.model, locale)}
                       </h2>
+                      {item.segment ? (
+                        <p className="mt-1 text-[10px] font-bold uppercase tracking-wide text-[#5ee6d8]">
+                          {locale === "zh" ? "车型大类" : locale === "am" ? "የተሽከርካሪ ምድብ" : "Vehicle Category"} · {localizeVehicleValue(item.segment, locale)}
+                        </p>
+                      ) : null}
                       <p className="mt-0.5 text-xs font-medium text-slate-400">
                         {variants.length > 0 ? t("portal.trimCount", { count: variants.length }) : ""}
                         {variants.length > 0 && item.hasStockQuantity ? " / " : ""}
@@ -2223,8 +2240,8 @@ function AdminVehicles({ data, onEdit, onRefresh, onRefreshData }: { data: Boots
                                       color.vehicles.map((v) => [
                                         <span key="color" className="text-xs text-slate-300">
                                           {formatColorPair(
-                                            localizeVehicleValue(v.exteriorColor || v.color, locale),
-                                            localizeVehicleValue(v.interiorColor, locale),
+                                            localizeVehicleValue(locale === "zh" ? v.exteriorColor || v.color : v.exteriorColorEnglish || v.exteriorColor || v.color, locale),
+                                            localizeVehicleValue(locale === "zh" ? v.interiorColor : v.interiorColorEnglish || v.interiorColor, locale),
                                           )}
                                         </span>,
                                         <span key="supplier" className="text-xs text-slate-300">{v.supplier || "-"}</span>,
@@ -2492,16 +2509,26 @@ function AdminQuotes({ data, onRefresh }: { data: BootstrapData; onRefresh: () =
   const canCreateQuote = data.user.role === "admin" || data.user.role === "sales";
   const unreadCount = inquiries.filter((inquiry) => inquiry.hasUnreadFollowUps).length;
 
+  const markInquiryRead = useCallback(async (inquiry: Inquiry) => {
+    if (!inquiry.hasUnreadFollowUps) return;
+    try {
+      await api(`/api/portal/inquiries/${encodeURIComponent(inquiry.inquiryNo)}/read`, { method: "POST" });
+      await onRefresh();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Could not mark inquiry as read");
+    }
+  }, [onRefresh]);
+
+  useEffect(() => {
+    if (selected?.hasUnreadFollowUps) void markInquiryRead(selected);
+  }, [markInquiryRead, selected?.hasUnreadFollowUps, selected?.inquiryNo]);
+
   async function select(inquiry: Inquiry) {
     setSelectedNo(inquiry.inquiryNo);
     setReplyTo("");
     setNote("");
     setShowQuoteComposer(false);
     setError("");
-    if (inquiry.hasUnreadFollowUps) {
-      await api(`/api/portal/inquiries/${encodeURIComponent(inquiry.inquiryNo)}/read`, { method: "POST" });
-      await onRefresh();
-    }
   }
   async function create(event: React.FormEvent) { event.preventDefault(); if ((!target.vehicleModel && !title.trim()) || !initialNote.trim()) return; setBusy(true); try { await api("/api/portal/inquiries", { method: "POST", body: JSON.stringify({ vehicleId: target.vehicleId, vehicleModel: target.vehicleModel, title, quantity: newInquiryQuantity, tradeTerm: "FOB", notes: initialNote }) }); setShowNew(false); await onRefresh(); } catch (e) { setError(e instanceof Error ? e.message : "Could not start inquiry"); } finally { setBusy(false); } }
   async function post(event: React.FormEvent) { event.preventDefault(); if (!selected || !note.trim()) return; setBusy(true); try { const result = await api<{ note: InquiryNote }>(`/api/portal/inquiries/${encodeURIComponent(selected.inquiryNo)}/notes`, { method: "POST", body: JSON.stringify({ body: note, parentNoteId: replyTo }) }); setPostedNotes((current) => appendInquiryComment(current, result.note)); setNote(""); setReplyTo(""); } catch (e) { setError(e instanceof Error ? e.message : "Could not add follow-up"); } finally { setBusy(false); } }
@@ -3752,7 +3779,54 @@ export function buildModelProfileGroups(data: BootstrapData): ModelProfileGroup[
     const st = (model.status || "active").toLowerCase().trim();
     return st === "active" || st === "published" || st === "online" || st === "在售" || st === "启用" || !/archived|draft|disabled|下架|停售/i.test(st);
   });
-  const models = activeModels.length ? activeModels : data.vehicleModels || [];
+  const models = [...(activeModels.length ? activeModels : data.vehicleModels || [])];
+  const knownModelKeys = new Set(models.map((model) => normalizeKey(model.brand, model.model)));
+  for (const vehicle of data.vehicles || []) {
+    const canonicalModel = canonicalCatalogModelName(vehicle.brand, vehicle.model, models);
+    const key = normalizeKey(vehicle.brand, canonicalModel);
+    if (knownModelKeys.has(key)) continue;
+    models.push({
+      id: `resource:${modelResourceKey(vehicle.brand, canonicalModel)}`,
+      brand: vehicle.brand,
+      model: canonicalModel,
+      trim: "",
+      year: vehicle.year || "",
+      bodyType: vehicle.vehicleClass || inferVehicleSegment(vehicle),
+      fuelType: "",
+      msrpChina: "",
+      battery: "",
+      batteryType: "",
+      batteryMaker: "",
+      range: "",
+      energyConsumption: "",
+      motorPower: "",
+      motorTorque: "",
+      driveType: "",
+      topSpeed: "",
+      acceleration: "",
+      seats: "",
+      doors: "",
+      dimensions: "",
+      wheelbase: "",
+      curbWeight: "",
+      trunkCapacity: "",
+      charging: "",
+      frontSuspension: "",
+      rearSuspension: "",
+      adas: "",
+      marketPosition: "",
+      exportNotes: "",
+      imageUrl: vehicle.imageUrl || "",
+      brochureUrl: "",
+      sourceUrl: "",
+      sourceName: "Vehicle Resource",
+      lastSyncedAt: vehicle.syncedAt || "",
+      fullSpecsJson: "",
+      status: "active",
+      recommendationRank: vehicle.recommendationRank ?? null,
+    });
+    knownModelKeys.add(key);
+  }
   const grouped = new Map<string, ModelProfileGroup>();
   for (const model of models) {
     const modelGallery = modelGalleryImages(model);
@@ -3994,16 +4068,18 @@ export function buildSellableModels(data: BootstrapData): SellableModel[] {
 
   const grouped = new Map<string, { item: SellableModel; offerMap: Map<string, VehicleOffer> }>();
   for (const vehicle of data.vehicles || []) {
-    const modelInfo = modelsByVehicle.get(vehicle.modelId) || modelsByName.get(modelResourceKey(vehicle.brand, vehicle.model));
-    const modelKey = modelResourceKey(vehicle.brand, vehicle.model);
+    const directModel = modelsByVehicle.get(vehicle.modelId) || modelsByName.get(modelResourceKey(vehicle.brand, vehicle.model));
+    const canonicalModel = directModel?.model || canonicalCatalogModelName(vehicle.brand, vehicle.model, data.vehicleModels || []);
+    const modelInfo = directModel || modelsByName.get(modelResourceKey(vehicle.brand, canonicalModel));
+    const modelKey = modelResourceKey(vehicle.brand, canonicalModel);
     if (!grouped.has(modelKey)) {
       grouped.set(modelKey, {
         item: {
           key: modelKey,
           brand: vehicle.brand,
-          model: vehicle.model,
+          model: canonicalModel,
           year: vehicle.year,
-          segment: modelInfo?.bodyType || inferVehicleSegment(vehicle),
+          segment: vehicle.vehicleClass || modelInfo?.bodyType || inferVehicleSegment(vehicle),
           imageUrl: modelInfo?.imageUrl || vehicle.imageUrl,
           stockQuantity: 0,
           hasStockQuantity: false,
@@ -4029,7 +4105,7 @@ export function buildSellableModels(data: BootstrapData): SellableModel[] {
       ? entry.item.recommendationRank
       : vehicle.recommendationRank ?? null;
     if (!entry.item.imageUrl && vehicle.imageUrl) entry.item.imageUrl = vehicle.imageUrl;
-    if (!entry.item.segment && modelInfo?.bodyType) entry.item.segment = modelInfo.bodyType;
+    if (!entry.item.segment && (vehicle.vehicleClass || modelInfo?.bodyType)) entry.item.segment = vehicle.vehicleClass || modelInfo?.bodyType || "";
 
     const offerKey = normalizeKey(
       vehicle.brand,
@@ -4219,7 +4295,10 @@ function vehiclePriceByLocation(vehicles: Vehicle[]) {
 
 export function vehiclesForSellableModel(vehicles: Vehicle[], item: SellableModel) {
   return vehicles
-    .filter((vehicle) => modelResourceKey(vehicle.brand, vehicle.model) === item.key)
+    .filter((vehicle) => {
+      const rawKey = modelResourceKey(vehicle.brand, vehicle.model);
+      return rawKey === item.key || modelResourceKey(vehicle.brand, stripPowertrainSuffix(vehicle.model)) === item.key;
+    })
     .sort((a, b) => {
       const supplyRank = Number(getSupplyType(b) === "In Stock") - Number(getSupplyType(a) === "In Stock");
       return supplyRank || (getFobPrice(a) || Number.MAX_SAFE_INTEGER) - (getFobPrice(b) || Number.MAX_SAFE_INTEGER);
@@ -4358,7 +4437,7 @@ function inferVehicleSegment(vehicle: Vehicle) {
   if (name.includes("yuan plus") || name.includes("galaxy e5")) return "Compact SUV";
   if (name.includes("pickup") || name.includes("shark") || name.includes("cannon")) return "Pickup";
   if (name.includes("van")) return "Van";
-  return "EV";
+  return "Other";
 }
 
 function getSupplyType(vehicle: Vehicle) {
@@ -4456,12 +4535,40 @@ function modelResourceKey(brand: string, model: string) {
   return `${normalizedBrand}::${modelWithoutRepeatedBrand}`;
 }
 
+function stripPowertrainSuffix(model: string) {
+  return String(model || "")
+    .trim()
+    .replace(/\s+(?:ev|dm-?i|phev|erev)$/i, "")
+    .trim();
+}
+
+function canonicalCatalogModelName(brand: string, model: string, catalogModels: VehicleModel[]) {
+  const exactKey = modelResourceKey(brand, model);
+  const exact = catalogModels.find((candidate) => modelResourceKey(candidate.brand, candidate.model) === exactKey);
+  if (exact) return exact.model;
+
+  const baseModel = stripPowertrainSuffix(model);
+  const base = catalogModels.find((candidate) => modelResourceKey(candidate.brand, candidate.model) === modelResourceKey(brand, baseModel));
+  return base?.model || model;
+}
+
 function vehicleName(vehicle: Vehicle) {
   return `${vehicle.brand} ${vehicle.model} ${vehicle.trim}`.trim() || vehicle.id;
 }
 
 function getVehicleStockQuantity(vehicle: Pick<Vehicle, "stockQuantity" | "colorStockQuantity">) {
   return vehicle.colorStockQuantity ?? (typeof vehicle.stockQuantity === "number" && vehicle.stockQuantity > 0 ? vehicle.stockQuantity : 0);
+}
+
+function getConfirmedStockQuantity(vehicle: Pick<Vehicle, "colorStockQuantity">) {
+  return typeof vehicle.colorStockQuantity === "number" && Number.isFinite(vehicle.colorStockQuantity)
+    ? vehicle.colorStockQuantity
+    : null;
+}
+
+export function isStockAlertEligible(vehicle: Pick<Vehicle, "waitDays" | "colorStockQuantity">) {
+  const quantity = getConfirmedStockQuantity(vehicle);
+  return getSupplyType(vehicle as Vehicle) === "In Stock" && quantity !== null && quantity >= 0 && quantity <= 2;
 }
 
 function compactJoin(values: Array<string | number | null | undefined>) {

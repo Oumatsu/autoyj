@@ -32,6 +32,16 @@ test("formats added and upgraded feature changes as separate readable lines", ()
   expect(portalPage).toContain("whitespace-pre-line");
 });
 
+test("keeps configuration-change fields in full-width horizontal rows", () => {
+  const card = portalPage.slice(
+    portalPage.indexOf("function ModelFullSpecsCard"),
+    portalPage.indexOf("function ModelGalleryCarousel"),
+  );
+
+  expect(card).toContain('isChangeRow ? "sm:col-span-2"');
+  expect(card).toContain("sm:flex sm:items-start sm:gap-4");
+});
+
 test("vehicle model detail localizes raw specification, trim, and change values", () => {
   const card = portalPage.slice(
     portalPage.indexOf("function ModelFullSpecsCard"),
@@ -52,6 +62,7 @@ test("English vehicle-model values translate common model-year trim and charging
   expect(localizeVehicleValue("快充: 支持; 快充时间: 0.25 小时; 快充电量范围: 30-80%", "en")).toBe(
     "Fast Charge: Supported; Fast Charging Time: 0.25 hours; Fast Charging Range: 30-80%",
   );
+  expect(localizeVehicleValue("铠甲灰", "en")).toBe("Armor Grey");
 });
 
 test("canonical English trim names remain localized for Chinese and Amharic dashboards", () => {
@@ -135,4 +146,17 @@ test("dashboard model summaries preserve linked-trim metric intervals", () => {
   expect(handler).toContain("range: cltcRangeDisplay(fields)");
   expect(handler).toContain("motorPower: motorPowerDisplay(fields)");
   expect(handler).toContain("motorTorque: motorTorqueDisplay(fields)");
+});
+
+test("D1 trim guide prices sync and display from the RMB guide-price field", () => {
+  const syncStart = portalApi.indexOf("export async function syncVehicleModelsToDB");
+  const syncEnd = portalApi.indexOf("async function handleGetVehicles", syncStart);
+  const syncHandler = portalApi.slice(syncStart, syncEnd);
+  const modelHandlerStart = portalApi.indexOf("async function handleGetVehicleModels");
+  const modelHandlerEnd = portalApi.indexOf("function getBaselineVehicleModels", modelHandlerStart);
+  const modelHandler = portalApi.slice(modelHandlerStart, modelHandlerEnd);
+
+  expect(syncHandler).toContain("trim_price_rmb: asOptionalNumber(f.trim_price_rmb)");
+  expect(modelHandler).toContain("formatCny(trim.trim_price_rmb)");
+  expect(modelHandler).not.toContain('formatUsd(trim.display_price_low)');
 });

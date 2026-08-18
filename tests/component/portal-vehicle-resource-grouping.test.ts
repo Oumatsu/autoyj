@@ -51,6 +51,17 @@ describe("Portal vehicle resource grouping", () => {
     expect(groups[0].galleryImages).toEqual([]);
   });
 
+  test("includes a resource-only model in the vehicle-model navigator", () => {
+    const groups = buildModelProfileGroups({
+      vehicleModels: [],
+      vehicles: [{ id: "huajing-s", brand: "Wuling", model: "Huajing S", year: "2025", trim: "", waitDays: 45, stockQuantity: 0 }],
+      vehicleModelSpecs: [],
+    } as any);
+
+    expect(groups).toHaveLength(1);
+    expect(groups[0].model).toBe("Huajing S");
+  });
+
   test("groups matching vehicles across years and keeps supplier resources in the detail rows", () => {
     const vehicles = [
       {
