@@ -5,6 +5,7 @@ import { LocaleLink } from "@/i18n/LocaleLink";
 
 import { useTranslation } from "@/i18n/useTranslation";
 import { getVehicleGalleryImages } from "@/lib/static-assets";
+import { buildOfficialWhatsAppUrl } from "@/lib/constants";
 import {
   detailModelKey,
   detailVariantKey,
@@ -735,7 +736,15 @@ export default function VehicleDetail({ data: rawData }: { data: DetailData }) {
               <p className="text-2xl font-light italic text-gray-500 mb-8">{data.subtitle}</p>
               <p className="hidden lg:block text-gray-300 text-base font-light leading-relaxed mb-10 max-w-lg italic border-l-2 pl-6" style={{ borderColor: "rgba(16,185,129,.45)" }}>{data.heroDesc}</p>
               <div className="hidden min-[456px]:flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4">
-                <LocaleLink href="/qr" className="btn-primary px-6 sm:px-9 py-3 sm:py-4 rounded text-xs sm:text-sm font-black tracking-widest uppercase italic shadow-lg text-center">{t("productsDetail.ui.whatsappInquiry", "WhatsApp Inquiry")}</LocaleLink>
+                <a
+                  href={buildOfficialWhatsAppUrl(`Hello Youguard team, I would like to inquire about ${v.brand} ${v.name}.`)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-primary px-6 sm:px-9 py-3 sm:py-4 rounded text-xs sm:text-sm font-black tracking-widest uppercase italic shadow-lg text-center inline-flex items-center justify-center gap-2"
+                >
+                  {t("productsDetail.ui.whatsappInquiry", "WhatsApp Inquiry")}
+                  <span className="text-xs">↗</span>
+                </a>
                 <LocaleLink href="#specs" className="px-6 sm:px-9 py-3 sm:py-4 rounded text-xs sm:text-sm font-black tracking-widest uppercase italic border border-accent/40 text-accent hover:bg-accent hover:text-black transition text-center">{t("productsDetail.ui.viewFullSpecs", "View Full Specs") as string} ↓</LocaleLink>
               </div>
             </div>

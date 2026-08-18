@@ -11,6 +11,8 @@ import {
   translateAcademyLesson,
 } from "@/views/academy/academyTranslations";
 import { resolveLessonImage } from "@/lib/static-assets";
+import { QrDropdown } from "@/components/QrDropdown";
+import { OFFICIAL_WHATSAPP_URL } from "@/lib/constants";
 
 interface Lesson {
   title: string;
@@ -330,12 +332,17 @@ export default function DynamicLessonPage({ params }: any) {
                       ? t("academyDetail.sidebar.workshopDesc")
                       : t("academyDetail.sidebar.expertDesc", { category: meta.label.toLowerCase() })}
                   </p>
-                  <LocaleLink
-                    href="/qr"
-                    className="w-full btn-primary py-3 rounded text-[10px] font-black tracking-widest uppercase flex items-center justify-center gap-2"
-                  >
-                    {t("academyDetail.sidebar.whatsappUs")}
-                  </LocaleLink>
+                  <QrDropdown>
+                    <a
+                      href={OFFICIAL_WHATSAPP_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full btn-primary py-3 rounded text-[10px] font-black tracking-widest uppercase flex items-center justify-center gap-2 shadow text-center"
+                    >
+                      <span>{t("academyDetail.sidebar.whatsappUs")}</span>
+                      <span className="text-xs">↗</span>
+                    </a>
+                  </QrDropdown>
                 </div>
               </div>
             </aside>

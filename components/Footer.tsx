@@ -6,6 +6,7 @@ import { QrDropdown } from "./QrDropdown";
 import { useTranslation, T } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
 import { Button } from "@/components/ui/button";
+import { OFFICIAL_WHATSAPP_URL } from "@/lib/constants";
 
 export function Footer() {
   const [mobileFooterOpen, setMobileFooterOpen] = useState(false);
@@ -66,8 +67,10 @@ export function Footer() {
             {t("footer.response")}
           </p>
           <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-3 sm:gap-4">
-            <LocaleLink
-              href="/qr"
+            <a
+              href={OFFICIAL_WHATSAPP_URL}
+              target="_blank"
+              rel="noopener noreferrer"
               className="sm:hidden btn-primary inline-flex items-center justify-center gap-2 px-8 py-4 rounded text-xs font-black tracking-widest uppercase italic shadow-lg w-full text-center"
             >
               <svg viewBox="0 0 32 32" width="18" height="18" fill="none" aria-hidden="true">
@@ -78,10 +81,12 @@ export function Footer() {
                 />
               </svg>
               {t("footer.whatsapp")}
-            </LocaleLink>
+            </a>
             <QrDropdown>
-              <LocaleLink
-                href="/qr"
+              <a
+                href={OFFICIAL_WHATSAPP_URL}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="hidden sm:inline-flex btn-primary items-center gap-2 px-8 sm:px-12 py-4 sm:py-5 rounded text-xs sm:text-sm font-black tracking-widest uppercase italic shadow-lg"
               >
                 <svg viewBox="0 0 32 32" width="18" height="18" fill="none" aria-hidden="true">
@@ -92,7 +97,7 @@ export function Footer() {
                   />
                 </svg>
                 {t("footer.whatsapp")}
-              </LocaleLink>
+              </a>
             </QrDropdown>
             <a
               href="mailto:sales@youguard.net"

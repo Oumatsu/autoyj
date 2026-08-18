@@ -3,6 +3,8 @@
 import { useTranslation } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
 import { T } from "@tolgee/react";
+import { QrDropdown } from "@/components/QrDropdown";
+import { OFFICIAL_WHATSAPP_URL } from "@/lib/constants";
 
 const fadeToMid = [
   "linear-gradient(to bottom,",
@@ -296,12 +298,17 @@ export default function EthiopiaMarketPage() {
                 {t("marketsEthiopia.cta.description")}
               </p>
               <div className="flex flex-wrap justify-center gap-4">
-                <LocaleLink
-                  href="/qr"
-                  className="btn-primary px-12 py-5 rounded text-sm font-black tracking-widest uppercase italic shadow-lg"
-                >
-                  {t("marketsEthiopia.cta.whatsappButton")}
-                </LocaleLink>
+                <QrDropdown>
+                  <a
+                    href={OFFICIAL_WHATSAPP_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn-primary px-12 py-5 rounded text-sm font-black tracking-widest uppercase italic shadow-lg inline-flex items-center gap-2"
+                  >
+                    <span>{t("marketsEthiopia.cta.whatsappButton")}</span>
+                    <span className="text-xs">↗</span>
+                  </a>
+                </QrDropdown>
                 <LocaleLink
                   href="/contact"
                   className="btn-outline px-12 py-5 rounded text-sm font-black tracking-widest uppercase italic"

@@ -6,6 +6,8 @@ import { useTranslation, T } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
 import { sanitizeDisplayData } from "@/lib/display-text";
 import { translateInsightArticle } from "@/views/insights/articleTranslations";
+import { QrDropdown } from "@/components/QrDropdown";
+import { OFFICIAL_WHATSAPP_URL } from "@/lib/constants";
 
 type SortMode = "recommended" | "newest" | "oldest";
 
@@ -278,7 +280,17 @@ export default function InsightsPage() {
                         <div className="text-[10px] font-black uppercase tracking-widest text-theme mb-4">{t("insights.sidebar.title")}</div>
                         <h3 className="text-2xl font-black italic text-white mb-4">{t("insights.sidebar.heading")}</h3>
                         <p className="text-gray-400 text-sm font-light leading-relaxed mb-6">{t("insights.sidebar.description")}</p>
-                        <LocaleLink href="/qr" className="w-full btn-primary py-3 rounded-lg text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2">{t("insights.sidebar.subscribeButton")}</LocaleLink>
+                        <QrDropdown>
+                          <a
+                            href={OFFICIAL_WHATSAPP_URL}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="w-full btn-primary py-3 rounded-lg text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 shadow text-center"
+                          >
+                            <span>{t("insights.sidebar.subscribeButton")}</span>
+                            <span className="text-xs">↗</span>
+                          </a>
+                        </QrDropdown>
                       </div>
                     </div>
                   </div>

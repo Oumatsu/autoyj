@@ -3,6 +3,7 @@
 import { useTranslation, T } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
 import { FormEvent, useState } from "react";
+import { OFFICIAL_WHATSAPP_URL } from "@/lib/constants";
 
 export default function ContactPage() {
   const { t, tArray } = useTranslation();
@@ -78,38 +79,51 @@ export default function ContactPage() {
               </p>
 
               <div className="space-y-4 mb-16">
-                <LocaleLink
-                  href="/qr"
-                  className="contact-card group flex items-center gap-4 p-6 rounded-2xl border border-white/5 hover:border-gold transition-all duration-300 hover:translate-x-1"
+                <a
+                  href={OFFICIAL_WHATSAPP_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="contact-card group flex items-center justify-between gap-4 p-6 rounded-2xl border border-white/5 hover:border-gold transition-all duration-300 hover:translate-x-1"
                   style={{ background: "rgba(255,255,255,0.02)" }}
                 >
-                  <div className="contact-icon w-12 h-12 rounded-full flex items-center justify-center bg-white/5 text-gold group-hover:bg-green group-hover:text-black transition-all">
-                    <svg
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
-                    </svg>
+                  <div className="flex items-center gap-4">
+                    <div className="contact-icon w-12 h-12 rounded-full flex items-center justify-center bg-white/5 text-gold group-hover:bg-green group-hover:text-black transition-all">
+                      <svg
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <div className="text-[9px] font-black uppercase tracking-widest text-green mb-1 flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-green animate-pulse" />{" "}
+                        {t("contact.whatsapp.label")}
+                      </div>
+                      <div className="text-white font-bold group-hover:text-green transition-colors flex items-center gap-1.5">
+                        <span>{t("contact.whatsapp.title")}</span>
+                        <span className="text-xs">↗</span>
+                      </div>
+                      <div className="text-xs text-gray-500 font-light mt-1">
+                        {t("contact.whatsapp.response")}
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <div className="text-[9px] font-black uppercase tracking-widest text-green mb-1 flex items-center gap-1.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-green animate-pulse" />{" "}
-                      {t("contact.whatsapp.label")}
-                    </div>
-                    <div className="text-white font-bold group-hover:text-green transition-colors">
-                      {t("contact.whatsapp.title")}
-                    </div>
-                    <div className="text-xs text-gray-500 font-light mt-1">
-                      {t("contact.whatsapp.response")}
-                    </div>
-                  </div>
-                </LocaleLink>
+                  <LocaleLink
+                    href="/qr"
+                    onClick={(e) => e.stopPropagation()}
+                    className="shrink-0 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/15 text-[10px] font-bold text-gray-400 hover:text-white uppercase tracking-wider transition"
+                    title="View QR Code"
+                  >
+                    QR Code
+                  </LocaleLink>
+                </a>
 
                 <a
                   href="mailto:sales@youguard.net"

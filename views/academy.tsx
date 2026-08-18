@@ -10,6 +10,7 @@ import {
   translateAcademyLesson,
   translateAcademyVaultItem,
 } from "@/views/academy/academyTranslations";
+import { buildOfficialWhatsAppUrl } from "@/lib/constants";
 
 const tabSectionIds = ["hero", "fundamentals", "playbook", "workshop", "vault"];
 
@@ -451,12 +452,14 @@ export default function AcademyPage() {
                 </div>
                 <h3 className="text-2xl font-black italic text-white mb-4">{vaultItem.title}</h3>
                 <p className="text-gray-400 text-xs font-light leading-relaxed mb-8">{vaultItem.desc}</p>
-                <LocaleLink
-                  href="/qr"
+                <a
+                  href={buildOfficialWhatsAppUrl(`Hello Youguard, I would like to request the resource: ${vaultItem.title}`)}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="text-[9px] font-black uppercase tracking-widest text-gold flex items-center gap-2 group-hover:gap-4 transition-all"
                 >
-                  {t("academy.vault.requestViaWhatsApp")} <span className="text-lg">→</span>
-                </LocaleLink>
+                  {t("academy.vault.requestViaWhatsApp", "Request via WhatsApp")} <span className="text-lg">→</span>
+                </a>
               </div>
               ))
             ) : !loading && !error ? (
