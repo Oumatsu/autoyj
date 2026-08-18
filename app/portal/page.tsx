@@ -390,7 +390,6 @@ export type PortalUserRecord = {
   telegram_username: string;
   account_type: AccountType;
   role: PortalRole;
-  price_tier: PriceTier;
   access_code: string;
   status: "Active" | "Disabled";
   created_at: string;
@@ -2768,7 +2767,6 @@ function AdminUserManagement({
         telegram_username: "",
         account_type: "internal",
         role: "admin",
-        price_tier: "internal",
         access_code: "admin-demo-2026",
         status: "Active",
         created_at: "2026-08-01T00:00:00Z",
@@ -2785,7 +2783,6 @@ function AdminUserManagement({
         telegram_username: "",
         account_type: "internal",
         role: "sales",
-        price_tier: "internal",
         access_code: "sales-demo-2026",
         status: "Active",
         created_at: "2026-08-01T00:00:00Z",
@@ -2802,7 +2799,6 @@ function AdminUserManagement({
         telegram_username: "",
         account_type: "external",
         role: "partner",
-        price_tier: "partner",
         access_code: "partner-demo-2026",
         status: "Active",
         created_at: "2026-08-01T00:00:00Z",
@@ -2819,7 +2815,6 @@ function AdminUserManagement({
         telegram_username: "",
         account_type: "external",
         role: "partner",
-        price_tier: "partner",
         access_code: "Aebissa123",
         status: "Active",
         created_at: "2026-08-01T00:00:00Z",
@@ -2836,7 +2831,6 @@ function AdminUserManagement({
         telegram_username: "",
         account_type: "external",
         role: "partner",
-        price_tier: "partner",
         access_code: "WagariG123",
         status: "Active",
         created_at: "2026-08-01T00:00:00Z",
@@ -2853,7 +2847,6 @@ function AdminUserManagement({
         telegram_username: "",
         account_type: "external",
         role: "customer",
-        price_tier: "vip",
         access_code: "customer-demo-2026",
         status: "Active",
         created_at: "2026-08-01T00:00:00Z",
@@ -2912,7 +2905,7 @@ function AdminUserManagement({
       email: user.email,
       accessCode: user.access_code || "",
       role: user.role,
-      priceTier: user.price_tier,
+      priceTier: defaultPriceTierForRole(user.role),
       company: user.company || "",
       whatsapp: user.whatsapp || "",
       telegramChatId: user.bound_chat_id || user.telegram_chat_id || "",

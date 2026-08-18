@@ -2,7 +2,7 @@ import { betterAuth } from "better-auth";
 import { customSession } from "better-auth/plugins";
 import { SESSION_TTL_7D, SESSION_UPDATE_AGE_1D } from "./constants";
 
-import type { AccountType, PortalRole, PriceTier } from "./users";
+import { defaultPriceTierForRole, type AccountType, type PortalRole, type PriceTier } from "./users";
 export type { AccountType, PortalRole, PriceTier } from "./users";
 
 export type FeishuAuthUser = {
@@ -46,7 +46,6 @@ export function createFeishuAuth(env: Record<string, unknown> = {}) {
         company: { type: "string", required: false },
         account_type: { type: "string", required: false, defaultValue: "external" },
         role: { type: "string", required: false, defaultValue: "customer" },
-        price_tier: { type: "string", required: false, defaultValue: "vip" },
         status: { type: "string", required: false, defaultValue: "Active" },
       },
     },
@@ -71,8 +70,7 @@ export function createFeishuAuth(env: Record<string, unknown> = {}) {
     plugins: [
       customSession(async ({ user, session }) => {
         const fields = user as unknown as Record<string, unknown>;
-        const rawRole = fields.role || "customer";
-        const rawPriceTier = fields.price_tier || "vip";
+        const rawRole = (fields.role as PortalRole) || "customer";
         const rawAccountType = fields.account_type || "external";
         return {
           session,
@@ -83,7 +81,7 @@ export function createFeishuAuth(env: Record<string, unknown> = {}) {
             company: fields.company as string || "Youguard",
             accountType: rawAccountType as AccountType,
             role: rawRole as PortalRole,
-            priceTier: rawPriceTier as PriceTier,
+            priceTier: defaultPriceTierForRole(rawRole as PortalRole),
           },
         };
       }),

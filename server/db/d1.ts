@@ -343,7 +343,6 @@ export interface D1AuthUserRecord {
   company?: string;
   account_type?: string;
   role?: string;
-  price_tier?: string;
   status?: string;
   accessCode?: string;
 }
@@ -356,8 +355,8 @@ export async function upsertUsersToD1(db: D1Database, users: D1AuthUserRecord[])
     db.prepare(`
       INSERT INTO user (
         id, name, email, emailVerified, image, createdAt, updatedAt,
-        user_id, customer_id, company, account_type, role, price_tier, status
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        user_id, customer_id, company, account_type, role, status
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       ON CONFLICT(id) DO UPDATE SET
         name = excluded.name,
         email = excluded.email,
@@ -367,7 +366,6 @@ export async function upsertUsersToD1(db: D1Database, users: D1AuthUserRecord[])
         company = excluded.company,
         account_type = excluded.account_type,
         role = excluded.role,
-        price_tier = excluded.price_tier,
         status = excluded.status;
     `).bind(
       u.id,
@@ -382,7 +380,6 @@ export async function upsertUsersToD1(db: D1Database, users: D1AuthUserRecord[])
       u.company ?? "Youguard",
       u.account_type ?? "external",
       u.role ?? "customer",
-      u.price_tier ?? "vip",
       u.status ?? "Active"
     )
   );

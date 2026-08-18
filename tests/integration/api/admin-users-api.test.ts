@@ -18,7 +18,6 @@ function makeMockAdminDb() {
     telegram_username: "admin_youguard",
     account_type: "internal",
     role: "admin",
-    price_tier: "internal",
     access_code: "admin-demo-2026",
     status: "Active",
     created_at: "2026-08-01T00:00:00Z",
@@ -59,7 +58,7 @@ function makeMockAdminDb() {
         },
         async run() {
           if (sql.includes("INSERT INTO portal_users")) {
-            const [userId, customerId, name, email, company, whatsapp, telegramChatId, telegramUsername, accountType, role, priceTier, accessCode] = boundValues;
+            const [userId, customerId, name, email, company, whatsapp, telegramChatId, telegramUsername, accountType, role, accessCode] = boundValues;
             users.set(String(userId), {
               user_id: String(userId),
               customer_id: String(customerId),
@@ -71,7 +70,6 @@ function makeMockAdminDb() {
               telegram_username: String(telegramUsername),
               account_type: String(accountType),
               role: String(role),
-              price_tier: String(priceTier),
               access_code: String(accessCode),
               status: "Active",
             });
@@ -87,17 +85,16 @@ function makeMockAdminDb() {
               });
             }
           } else if (sql.includes("UPDATE portal_users SET")) {
-            const userId = String(boundValues[11]);
+            const userId = String(boundValues[10]);
             const existing = users.get(userId);
             if (existing) {
-              const [name, email, company, role, priceTier, accessCode, whatsapp, telegramChatId, telegramUsername, status] = boundValues;
+              const [name, email, company, role, accessCode, whatsapp, telegramChatId, telegramUsername, status] = boundValues;
               users.set(userId, {
                 ...existing,
                 name: String(name),
                 email: String(email),
                 company: String(company),
                 role: String(role),
-                price_tier: String(priceTier),
                 access_code: String(accessCode),
                 whatsapp: String(whatsapp),
                 telegram_chat_id: String(telegramChatId),

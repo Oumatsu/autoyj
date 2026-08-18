@@ -228,7 +228,6 @@ CREATE TABLE IF NOT EXISTS user (
   company TEXT,
   account_type TEXT DEFAULT 'external',
   role TEXT DEFAULT 'customer',
-  price_tier TEXT DEFAULT 'vip',
   status TEXT DEFAULT 'Active'
 );
 
@@ -392,7 +391,6 @@ CREATE TABLE IF NOT EXISTS portal_users (
   telegram_username TEXT NOT NULL DEFAULT '',
   account_type TEXT NOT NULL DEFAULT 'external',
   role TEXT NOT NULL DEFAULT 'customer',
-  price_tier TEXT NOT NULL DEFAULT 'partner',
   password TEXT NOT NULL,
   status TEXT NOT NULL DEFAULT 'Active',
   created_at TEXT NOT NULL,

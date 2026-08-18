@@ -1692,7 +1692,6 @@ export type PortalUserRecord = {
   telegram_username: string;
   account_type: AccountType;
   role: PortalRole;
-  price_tier: PriceTier;
   password: string;
   status: "Active" | "Disabled";
   created_at: string;
@@ -1727,7 +1726,7 @@ async function findLoginAccount(env: Env, email: string, accessCode: string): Pr
   const user = await env.PORTAL_DB.prepare(`
     SELECT
       u.id, u.user_id, u.customer_id, u.name, u.email, u.company,
-      u.account_type, u.role, u.price_tier, u.status,
+      u.account_type, u.role, u.status,
       account.password
     FROM user AS u
     INNER JOIN account ON account.userId = u.id
@@ -1742,7 +1741,6 @@ async function findLoginAccount(env: Env, email: string, accessCode: string): Pr
     company?: string | null;
     account_type?: string | null;
     role?: string | null;
-    price_tier?: string | null;
     status?: string | null;
     password?: string | null;
   }>().catch(() => null);
@@ -1753,6 +1751,7 @@ async function findLoginAccount(env: Env, email: string, accessCode: string): Pr
       throw problem("This account is not active", 403);
     }
 
+    const role = normalizeRole(user.role);
     return {
       userId: user.user_id || user.id,
       customerId: user.customer_id || user.id,
@@ -1760,8 +1759,8 @@ async function findLoginAccount(env: Env, email: string, accessCode: string): Pr
       email: user.email,
       company: user.company || "",
       accountType: user.account_type === "internal" ? "internal" : "external",
-      role: normalizeRole(user.role),
-      priceTier: normalizePriceTier(user.price_tier),
+      role,
+      priceTier: defaultPriceTierForRole(role),
     };
   }
 
@@ -1783,7 +1782,7 @@ async function findLoginAccount(env: Env, email: string, accessCode: string): Pr
       company: portalUser.company,
       accountType: portalUser.account_type,
       role: portalUser.role,
-      priceTier: portalUser.price_tier,
+      priceTier: defaultPriceTierForRole(portalUser.role),
     };
   }
 
@@ -2346,7 +2345,6 @@ export async function syncUsersToD1(env: Env): Promise<{ users: number }> {
     company: u.company,
     account_type: u.accountType,
     role: u.role,
-    price_tier: u.priceTier,
     status: u.status,
     accessCode: u.accessCode,
   }));
@@ -4178,10 +4176,10 @@ async function handleCreateAdminUser(request: Request, env: Env) {
   const accountType = role === "admin" || role === "sales" || role === "sourcing" || role === "finance" ? "internal" : "external";
 
   await db.prepare(
-    `INSERT INTO portal_users (user_id, customer_id, name, email, company, whatsapp, telegram_chat_id, telegram_username, account_type, role, price_tier, password, status, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Active', ?, ?)`
+    `INSERT INTO portal_users (user_id, customer_id, name, email, company, whatsapp, telegram_chat_id, telegram_username, account_type, role, password, status, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Active', ?, ?)`
   ).bind(
-    userId, userId, name, email, company, whatsapp, telegramChatId, telegramUsername, accountType, role, priceTier, accessCode, now, now
+    userId, userId, name, email, company, whatsapp, telegramChatId, telegramUsername, accountType, role, accessCode, now, now
   ).run();
 
   if (telegramChatId) {
@@ -4230,7 +4228,6 @@ async function handleUpdateAdminUser(request: Request, env: Env, userId: string)
   const email = body.email !== undefined ? asText(body.email).trim().toLowerCase() : existing.email;
   const company = body.company !== undefined ? asText(body.company).trim() : existing.company;
   const role = body.role !== undefined ? (asText(body.role).toLowerCase() as PortalRole) : existing.role;
-  const priceTier = body.priceTier !== undefined ? (asText(body.priceTier).toLowerCase() as PriceTier) : existing.price_tier;
   const accessCode = body.accessCode !== undefined ? asText(body.accessCode).trim() : existing.password;
   const whatsapp = body.whatsapp !== undefined ? asText(body.whatsapp).trim() : existing.whatsapp;
   const telegramChatId = body.telegramChatId !== undefined || body.telegram_chat_id !== undefined ? asText(body.telegramChatId ?? body.telegram_chat_id).trim() : existing.telegram_chat_id;
@@ -4240,10 +4237,10 @@ async function handleUpdateAdminUser(request: Request, env: Env, userId: string)
 
   await db.prepare(
     `UPDATE portal_users SET
-       name = ?, email = ?, company = ?, role = ?, price_tier = ?, password = ?, whatsapp = ?, telegram_chat_id = ?, telegram_username = ?, status = ?, updated_at = ?
+       name = ?, email = ?, company = ?, role = ?, password = ?, whatsapp = ?, telegram_chat_id = ?, telegram_username = ?, status = ?, updated_at = ?
      WHERE user_id = ?`
   ).bind(
-    name, email, company, role, priceTier, accessCode, whatsapp, telegramChatId, telegramUsername, status, now, userId
+    name, email, company, role, accessCode, whatsapp, telegramChatId, telegramUsername, status, now, userId
   ).run();
 
   if (telegramChatId) {
