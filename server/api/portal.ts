@@ -4693,6 +4693,8 @@ export async function handlePortalRequest(request: Request, env: Env) {
     if (path === "/api/portal/inquiries/closed" && request.method === "GET") {
       return await handleListClosedInquiries(request, env);
     }
+    const inquiryReadMatch = path.match(/^\/api\/portal\/inquiries\/([^/]+)\/read$/);
+    if (inquiryReadMatch && request.method === "POST") return await handleMarkInquiryRead(request, env, decodeURIComponent(inquiryReadMatch[1]));
     const inquiryMatch = path.match(/^\/api\/portal\/inquiries\/([^/]+)$/);
     if (inquiryMatch && request.method === "DELETE") return await handlePermanentlyDeleteInquiry(request, env, decodeURIComponent(inquiryMatch[1]));
     if (path === "/api/portal/quotes" && request.method === "POST") {

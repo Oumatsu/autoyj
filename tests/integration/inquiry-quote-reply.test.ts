@@ -82,6 +82,15 @@ test("the initially displayed unread inquiry is marked read without requiring a 
   expect(panel).toContain("void markInquiryRead(selected);");
 });
 
+test("the read endpoint is routed to persist an inquiry read receipt", () => {
+  const source = readFileSync("server/api/portal.ts", "utf8");
+  const dispatchStart = source.indexOf("export async function handlePortalRequest");
+  const dispatch = source.slice(dispatchStart);
+
+  expect(dispatch).toContain('const inquiryReadMatch = path.match(/^\\/api\\/portal\\/inquiries\\/([^/]+)\\/read$/);');
+  expect(dispatch).toContain('if (inquiryReadMatch && request.method === "POST") return await handleMarkInquiryRead(request, env, decodeURIComponent(inquiryReadMatch[1]));');
+});
+
 test("inquiry management uses compact list cards, snapshot details, and nested replies", () => {
   const source = readFileSync("app/portal/page.tsx", "utf8");
   const start = source.indexOf("function AdminQuotes(");
