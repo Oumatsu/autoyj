@@ -17,4 +17,3 @@ type TolgeeStaticTree = {
 
 // Tolgee's static-data contract is an object tree. messages is already a clean structured tree.
 export const tolgeeStaticData = messages as unknown as Record<Locale, TolgeeStaticTree>;
-

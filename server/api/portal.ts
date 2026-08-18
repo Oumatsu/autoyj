@@ -9,6 +9,7 @@ import {
   queryVehicleTrims,
   queryVehicles,
 } from "../db/d1";
+import type { D1Vehicle, D1VehicleModel, D1VehicleTrim } from "../db/d1";
 import {
   canPublishPublicNote,
   canViewInquiry,

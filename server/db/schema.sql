@@ -400,4 +400,3 @@ CREATE TABLE IF NOT EXISTS portal_users (
 CREATE INDEX IF NOT EXISTS idx_portal_users_email ON portal_users(email);
 CREATE INDEX IF NOT EXISTS idx_portal_users_role ON portal_users(role);
 
-
