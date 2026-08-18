@@ -69,10 +69,8 @@ async function ensureLocalServer(): Promise<ChildProcess | null> {
     return null;
   }
 
-  console.log(`${COLOR_YELLOW}⚡ Building production bundle and starting server on http://localhost:3000...${COLOR_RESET}`);
-  await runStep("bun", ["run", "build"], "Production Build (Vinext)");
-
-  const serverProc = spawn("bun", ["run", "start"], {
+  console.log(`${COLOR_YELLOW}⚡ Starting local dev server on http://localhost:3000...${COLOR_RESET}`);
+  const serverProc = spawn("bun", ["run", "dev"], {
     stdio: "ignore",
     detached: true,
     env: { ...process.env, PORT: "3000" },

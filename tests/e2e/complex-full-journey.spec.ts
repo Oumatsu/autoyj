@@ -79,7 +79,7 @@ test.describe("Tier 4: E2E Comprehensive Full-Journey User & Portal Workflows", 
     const loginRole = async (email: string, code: string) => {
       const emailInput = page.locator("#login-email");
       const codeInput = page.locator("#login-access-code");
-      const submitBtn = page.locator("form button[type='submit'], form button", { hasText: /Sign In/i });
+      const submitBtn = page.locator("form button[type='submit'], form button", { hasText: /Sign In|登录|Sign in/i }).first();
 
       await expect(emailInput).toBeVisible();
       await emailInput.fill(email);

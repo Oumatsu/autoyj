@@ -28,13 +28,13 @@ test.describe("Advanced E2E: Auth Session Lifecycle & Browser API Verification",
     });
 
     // 2. Navigate to portal login page
-    await page.goto("/portal", { waitUntil: "networkidle" });
+    await page.goto("/portal", { waitUntil: "domcontentloaded" });
     await expect(page.locator("#login-email")).toBeVisible();
 
     // 3. Perform login as partner
     await page.locator("#login-email").fill("partner@example.com");
     await page.locator("#login-access-code").fill("partner-demo-2026");
-    await page.locator("form button[type='submit'], form button", { hasText: /Sign In/i }).click();
+    await page.locator("form button[type='submit'], form button", { hasText: /Sign In|登录|Sign in/i }).first().click();
 
     // 4. Assert workspace renders cleanly
     const logoutBtn = page.locator("button", { hasText: /退出登录|Log Out|Sign Out|Logout/i }).first();
@@ -56,7 +56,7 @@ test.describe("Advanced E2E: Auth Session Lifecycle & Browser API Verification",
 
   test("Cookie & Storage state transition across login and logout", async ({ page, context }) => {
     // 1. Initial unauthenticated state check
-    await page.goto("/portal", { waitUntil: "networkidle" });
+    await page.goto("/portal", { waitUntil: "domcontentloaded" });
     let cookies = await context.cookies();
     let sessionCookie = cookies.find((c) => c.name.includes("session") || c.name.includes("auth"));
 
@@ -90,7 +90,7 @@ test.describe("Advanced E2E: Auth Session Lifecycle & Browser API Verification",
   test("Logout dispatches 'youguard-session-changed' custom event without DOM exception", async ({
     page,
   }) => {
-    await page.goto("/portal", { waitUntil: "networkidle" });
+    await page.goto("/portal", { waitUntil: "domcontentloaded" });
 
     // 1. Login
     await page.locator("#login-email").fill("partner@example.com");
@@ -131,7 +131,7 @@ test.describe("Advanced E2E: Auth Session Lifecycle & Browser API Verification",
     ];
 
     for (const user of roles) {
-      await page.goto("/portal", { waitUntil: "networkidle" });
+      await page.goto("/portal", { waitUntil: "domcontentloaded" });
 
       // Fill credentials
       await page.locator("#login-email").fill(user.email);
