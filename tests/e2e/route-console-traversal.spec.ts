@@ -70,6 +70,8 @@ test.describe("Tier 4: E2E Real Browser Traversal & Console Interception", () =>
 
       const response = await page.goto(route, { waitUntil: "domcontentloaded" });
       expect(response?.status()).toBeLessThan(400);
+      await page.waitForLoadState("load");
+      await page.waitForTimeout(200);
 
       const content = await page.content();
       expect(content.includes("[object Object]")).toBe(false);
