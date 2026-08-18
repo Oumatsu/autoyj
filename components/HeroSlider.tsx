@@ -156,6 +156,9 @@ export function HeroSlider() {
             className="absolute inset-0 w-full h-full object-cover"
             style={{ filter: "brightness(.95)" }}
             alt={t(`home.hero.slides.s${i}.label`)}
+            loading={i === 0 ? "eager" : "lazy"}
+            fetchPriority={i === 0 ? "high" : "low"}
+            decoding={i === 0 ? "sync" : "async"}
           />
           <div
             className="absolute inset-0"
@@ -197,24 +200,43 @@ export function HeroSlider() {
                     {t(`${base}.label`)}
                   </span>
                 </div>
-                <h1
-                  ref={(node) => { h1Refs.current[slideIndex] = node; }}
-                  className="sh mb-3 lg:mb-8"
-                  style={{ fontSize: "calc(clamp(1.8rem, 7vw, 6.5rem) * 1)" }}
-                >
-                  <T
-                    keyName={`${base}.heading`}
-                    params={{
-                      accent: (chunks: any) => <span className="text-accent">{chunks}</span>,
-                      theme: (chunks: any) => <span className="text-theme">{chunks}</span>,
-                      br: () => <br />,
-                    }}
-                  />
-                </h1>
+                {slideIndex === 0 ? (
+                  <h1
+                    ref={(node) => { h1Refs.current[slideIndex] = node; }}
+                    className="sh mb-3 lg:mb-8"
+                    style={{ fontSize: "calc(clamp(1.8rem, 7vw, 6.5rem) * 1)" }}
+                  >
+                    <T
+                      keyName={`${base}.heading`}
+                      params={{
+                        accent: (chunks: any) => <span className="text-accent">{chunks}</span>,
+                        theme: (chunks: any) => <span className="text-theme">{chunks}</span>,
+                        br: () => <br />,
+                      }}
+                    />
+                  </h1>
+                ) : (
+                  <div
+                    role="heading"
+                    aria-level={2}
+                    ref={(node) => { h1Refs.current[slideIndex] = node; }}
+                    className="sh mb-3 lg:mb-8"
+                    style={{ fontSize: "calc(clamp(1.8rem, 7vw, 6.5rem) * 1)" }}
+                  >
+                    <T
+                      keyName={`${base}.heading`}
+                      params={{
+                        accent: (chunks: any) => <span className="text-accent">{chunks}</span>,
+                        theme: (chunks: any) => <span className="text-theme">{chunks}</span>,
+                        br: () => <br />,
+                      }}
+                    />
+                  </div>
+                )}
 
-                {/* Sub-copy */}
+                {/* Sub-copy (High-contrast for WCAG 2.1 AA) */}
                 <p
-                  className="hidden sm:block text-xs md:text-lg lg:text-xl text-gray-500 mb-6 lg:mb-12 max-w-xl leading-relaxed italic border-l-2 pl-4 lg:pl-8"
+                  className="hidden sm:block text-xs md:text-lg lg:text-xl text-gray-300 mb-6 lg:mb-12 max-w-xl leading-relaxed italic border-l-2 pl-4 lg:pl-8"
                   style={{ borderColor: "rgba(197,160,89,.3)" }}
                 >
                   {t(`${base}.sub`)}
@@ -230,12 +252,14 @@ export function HeroSlider() {
                 >
                   <a
                     href="#products"
+                    tabIndex={isActive ? 0 : -1}
                     className="btn-primary px-6 lg:px-10 py-3 lg:py-5 rounded text-[10px] lg:text-sm font-black tracking-widest uppercase italic"
                   >
                     {t(`${base}.cta`)}
                   </a>
                   <a
                     href="#solutions"
+                    tabIndex={isActive ? 0 : -1}
                     className="btn-outline px-6 lg:px-10 py-3 lg:py-5 rounded text-[10px] lg:text-sm font-black tracking-widest uppercase italic"
                   >
                     {t("home.hero.process")}

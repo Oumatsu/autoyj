@@ -95,6 +95,10 @@ export default function RootLayout({
       <head>
         <link rel="manifest" href="/manifest.webmanifest" />
         <meta name="theme-color" content="#0b1425" />
+        <meta
+          name="description"
+          content="China's premier EV export partner for African dealers. Expert sourcing, transparent PDI, turnkey dealer empowerment."
+        />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="Youguard Auto" />
