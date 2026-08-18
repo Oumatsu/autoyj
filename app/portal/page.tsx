@@ -1255,6 +1255,28 @@ function AdminPortal({
               <div className={`min-w-0 flex-1 ${sidebarCollapsed ? "lg:hidden" : ""}`}>
                 <strong className="block truncate text-xs font-black text-white">{data.user.name || data.user.email}</strong>
                 <p className="truncate text-[10px] text-slate-400">{formatPortalRole(data.user.role, locale)} · {data.user.accountType}</p>
+                {data.telegramBinding && (
+                  <a
+                    href={data.telegramBinding.bindingUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`mt-2 flex items-center gap-1.5 text-[10px] font-bold transition ${
+                      data.telegramBinding.bound
+                        ? "text-emerald-400 hover:underline"
+                        : "text-[#dfba73] hover:underline"
+                    }`}
+                    title="One-click bind your personal Telegram to receive instant mobile alerts"
+                  >
+                    <svg className="h-3 w-3 fill-current shrink-0" viewBox="0 0 24 24">
+                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.19-.08-.05-.19-.02-.27 0-.12.03-1.99 1.27-5.61 3.72-.53.36-1.01.54-1.44.53-.47-.01-1.38-.27-2.06-.49-.83-.27-1.49-.42-1.43-.89.03-.25.38-.51 1.05-.78 4.12-1.79 6.87-2.97 8.25-3.55 3.93-1.64 4.74-1.92 5.27-1.93.12 0 .37.03.54.17.14.12.18.28.2.45-.02.07-.02.19-.04.35z"/>
+                    </svg>
+                    <span className="truncate">
+                      {data.telegramBinding.bound
+                        ? `@${data.telegramBinding.telegramUsername || "Linked"}`
+                        : "Connect Telegram ↗"}
+                    </span>
+                  </a>
+                )}
               </div>
             </div>
           </div>
@@ -1400,6 +1422,34 @@ function AdminDashboard({ data }: { data: BootstrapData }) {
 
   return (
     <div className="grid min-w-0 gap-5">
+      {data.telegramBinding && !data.telegramBinding.bound && (
+        <section className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 rounded-2xl border border-[#dfba73]/40 bg-gradient-to-r from-[#c5a059]/15 via-black/40 to-[#5ee6d8]/10 shadow-lg backdrop-blur-md">
+          <div className="flex items-center gap-3.5">
+            <div className="w-10 h-10 rounded-xl bg-[#c5a059]/20 flex items-center justify-center text-[#dfba73] shrink-0 border border-[#c5a059]/30">
+              <svg className="h-5 w-5 fill-current" viewBox="0 0 24 24">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.19-.08-.05-.19-.02-.27 0-.12.03-1.99 1.27-5.61 3.72-.53.36-1.01.54-1.44.53-.47-.01-1.38-.27-2.06-.49-.83-.27-1.49-.42-1.43-.89.03-.25.38-.51 1.05-.78 4.12-1.79 6.87-2.97 8.25-3.55 3.93-1.64 4.74-1.92 5.27-1.93.12 0 .37.03.54.17.14.12.18.28.2.45-.02.07-.02.19-.04.35z"/>
+              </svg>
+            </div>
+            <div>
+              <h4 className="text-sm font-black text-white">
+                {t("portal.connectTelegramTitle", "Connect Telegram Bot for Instant Push Alerts")}
+              </h4>
+              <p className="text-xs text-slate-300 font-light mt-0.5">
+                {t("portal.connectTelegramDesc", "Link your personal Telegram account to receive real-time push alerts for new inquiries, quote replies, and orders directly on your device.")}
+              </p>
+            </div>
+          </div>
+          <a
+            href={data.telegramBinding.bindingUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-primary shrink-0 px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-2 shadow-lg shadow-[#5ee6d8]/15 hover:shadow-[#5ee6d8]/25 transition-all text-center"
+          >
+            <span>{t("portal.connectTelegramCta", "One-Click Bind Telegram ↗")}</span>
+          </a>
+        </section>
+      )}
+
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <AdminStat label={t("portal.modelRepo")} value={String(modelCount)} note={t("portal.recordStockSummary", { records: data.vehicles.length, count: totalStock })} />
         <AdminStat label={t("portal.inquiries")} value={String(data.inquiries.length)} note={`${latestInquiries.length} ${t("portal.recentUpdates")}`} />
