@@ -1,6 +1,6 @@
 /// <reference types="@cloudflare/workers-types" />
 
-import { findLocalUser } from "../../lib/users";
+import { findLocalUser, defaultPriceTierForRole } from "../../lib/users";
 import type { AccountType, PortalRole, PriceTier } from "../../lib/users";
 import { canCreateVehicleQuotation } from "../../lib/quotation-permissions";
 import { hasUnreadInquiryActivity, inquiryCommentDescendantIds, selectDiscussionNotes } from "../../lib/inquiry-workflow";
@@ -4157,7 +4157,7 @@ async function handleCreateAdminUser(request: Request, env: Env) {
   const email = asText(body?.email).trim().toLowerCase();
   const company = asText(body?.company).trim();
   const role = (asText(body?.role).toLowerCase() || "customer") as PortalRole;
-  const priceTier = (asText(body?.priceTier).toLowerCase() || "partner") as PriceTier;
+  const priceTier = (asText(body?.priceTier).toLowerCase() || defaultPriceTierForRole(role)) as PriceTier;
   const accessCode = asText(body?.accessCode).trim();
   const whatsapp = asText(body?.whatsapp).trim();
   const telegramChatId = asText(body?.telegramChatId ?? body?.telegram_chat_id).trim();

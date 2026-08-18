@@ -15,6 +15,16 @@ export type LocalUser = {
   status: "Active" | "Disabled";
 };
 
+export function defaultPriceTierForRole(role: PortalRole): PriceTier {
+  if (role === "admin" || role === "sales" || role === "sourcing" || role === "finance") {
+    return "internal";
+  }
+  if (role === "partner") {
+    return "partner";
+  }
+  return "partner";
+}
+
 /**
  * 本地用户登录凭证与账号库
  * 摆脱向飞书 API 发送用户表查询带来的耗时，实现 <5ms 极速响应

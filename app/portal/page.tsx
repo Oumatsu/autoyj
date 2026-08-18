@@ -23,7 +23,7 @@ import { useTranslation } from "@/i18n/useTranslation";
 import { sanitizeDisplayData } from "@/lib/display-text";
 import { getPortalSession, invalidatePortalSession } from "@/lib/portal-session-client";
 import { formatPortalHeader, formatPortalRole, formatPortalStatus, localizeVehicleValue, portalRoleLabels } from "@/lib/portal-english";
-import type { AccountType, PortalRole, PriceTier } from "@/lib/users";
+import { defaultPriceTierForRole, type AccountType, type PortalRole, type PriceTier } from "@/lib/users";
 import { QuotationTemplatePreview } from "@/components/portal/QuotationTemplatePreview";
 import { InquiryVehiclePicker } from "@/components/portal/InquiryVehiclePickerField";
 import { appendInquiryComment, inquiryCommentAuthorClass } from "@/lib/inquiry-comment-state";
@@ -2885,12 +2885,13 @@ function AdminUserManagement({
   };
 
   const openCreateModal = () => {
+    const initialRole: PortalRole = activeTab === "staff" ? "sales" : "customer";
     setForm({
       name: "",
       email: "",
       accessCode: "",
-      role: activeTab === "staff" ? "sales" : "customer",
-      priceTier: activeTab === "staff" ? "internal" : "partner",
+      role: initialRole,
+      priceTier: defaultPriceTierForRole(initialRole),
       company: "",
       whatsapp: "",
       telegramChatId: "",
@@ -3238,33 +3239,21 @@ function AdminUserManagement({
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <Label className="text-[11px] font-bold text-gray-300">Role</Label>
-                    <select
-                      value={form.role}
-                      onChange={(e) => setForm({ ...form, role: e.target.value as PortalRole })}
-                      className="mt-1 w-full rounded-md border border-white/15 bg-black/40 px-3 py-2 text-xs text-white"
-                    >
-                      <option value="customer">Customer (海外买家)</option>
-                      <option value="partner">Partner (渠道合伙人)</option>
-                      <option value="sales">Sales Lead (销售经理)</option>
-                      <option value="admin">Administrator (管理员)</option>
-                    </select>
-                  </div>
-                  <div>
-                    <Label className="text-[11px] font-bold text-gray-300">Price Tier (价格权限)</Label>
-                    <select
-                      value={form.priceTier}
-                      onChange={(e) => setForm({ ...form, priceTier: e.target.value as PriceTier })}
-                      className="mt-1 w-full rounded-md border border-white/15 bg-black/40 px-3 py-2 text-xs text-white"
-                    >
-                      <option value="partner">Partner (代理阶梯价)</option>
-                      <option value="vip">VIP (大客户VIP价)</option>
-                      <option value="internal">Internal (内部底价全可见)</option>
-                      <option value="hidden">Hidden (隐藏价格)</option>
-                    </select>
-                  </div>
+                <div>
+                  <Label className="text-[11px] font-bold text-gray-300">Account Type / Role (账号类型)</Label>
+                  <select
+                    value={form.role}
+                    onChange={(e) => {
+                      const newRole = e.target.value as PortalRole;
+                      setForm({ ...form, role: newRole, priceTier: defaultPriceTierForRole(newRole) });
+                    }}
+                    className="mt-1 w-full rounded-md border border-white/15 bg-black/40 px-3 py-2 text-xs text-white"
+                  >
+                    <option value="customer">Customer (海外买家)</option>
+                    <option value="partner">Partner (合作分销商)</option>
+                    <option value="sales">Sales (销售顾问)</option>
+                    <option value="admin">Admin (系统管理员)</option>
+                  </select>
                 </div>
 
                 <div>
