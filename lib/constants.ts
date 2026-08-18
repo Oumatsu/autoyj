@@ -38,11 +38,9 @@ export const TOLGEE_API_URL_DEFAULT = "https://app.tolgee.io";
 // Official WhatsApp Contact & Deep Link
 // ---------------------------------------------------------------------------
 
-/** Official WhatsApp Business contact phone number (E.164 format digits only) */
-export const OFFICIAL_WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "8613800000000";
-
-/** Official WhatsApp direct chat deep link */
-export const OFFICIAL_WHATSAPP_URL = `https://wa.me/${OFFICIAL_WHATSAPP_NUMBER}`;
+/** Official WhatsApp Business direct QR / chat deep link */
+export const OFFICIAL_WHATSAPP_URL =
+  process.env.NEXT_PUBLIC_WHATSAPP_URL || "https://wa.me/qr/F7M2RQADCE3KN1";
 
 /**
  * Builds a direct WhatsApp deep link with optional pre-filled message
@@ -50,5 +48,6 @@ export const OFFICIAL_WHATSAPP_URL = `https://wa.me/${OFFICIAL_WHATSAPP_NUMBER}`
 export function buildOfficialWhatsAppUrl(customMessage?: string): string {
   const base = OFFICIAL_WHATSAPP_URL;
   if (!customMessage || !customMessage.trim()) return base;
-  return `${base}?text=${encodeURIComponent(customMessage.trim())}`;
+  const separator = base.includes("?") ? "&" : "?";
+  return `${base}${separator}text=${encodeURIComponent(customMessage.trim())}`;
 }

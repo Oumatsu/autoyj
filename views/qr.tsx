@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useTranslation } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
 import { T } from "@tolgee/react";
-import { OFFICIAL_WHATSAPP_URL, OFFICIAL_WHATSAPP_NUMBER } from "@/lib/constants";
+import { OFFICIAL_WHATSAPP_URL } from "@/lib/constants";
 
 export default function QrPage() {
   const { t } = useTranslation();
@@ -83,7 +83,7 @@ export default function QrPage() {
           {/* Direct Link & Copy Helper */}
           <div className="w-full flex items-center justify-between p-3 rounded-xl bg-white/[0.04] border border-white/5 text-xs">
             <div className="truncate text-gray-300 font-mono text-[11px]">
-              +{OFFICIAL_WHATSAPP_NUMBER}
+              {OFFICIAL_WHATSAPP_URL.replace("https://", "")}
             </div>
             <button
               type="button"

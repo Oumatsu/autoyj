@@ -1,29 +1,26 @@
 import { describe, expect, test } from "bun:test";
 import { readFile } from "node:fs/promises";
 import {
-  OFFICIAL_WHATSAPP_NUMBER,
   OFFICIAL_WHATSAPP_URL,
   buildOfficialWhatsAppUrl,
 } from "../../lib/constants";
 
 describe("WhatsApp Deep Links & Interactive QR Integration", () => {
   test("constants build valid official WhatsApp deep link and pre-filled inquiry text", () => {
-    expect(OFFICIAL_WHATSAPP_NUMBER).toBeDefined();
-    expect(OFFICIAL_WHATSAPP_URL).toBe(`https://wa.me/${OFFICIAL_WHATSAPP_NUMBER}`);
+    expect(OFFICIAL_WHATSAPP_URL).toBe("https://wa.me/qr/F7M2RQADCE3KN1");
 
     const emptyUrl = buildOfficialWhatsAppUrl();
     expect(emptyUrl).toBe(OFFICIAL_WHATSAPP_URL);
 
     const vehicleInquiryUrl = buildOfficialWhatsAppUrl("Hello Youguard team, I want to buy BYD Dolphin.");
     expect(vehicleInquiryUrl).toBe(
-      `https://wa.me/${OFFICIAL_WHATSAPP_NUMBER}?text=Hello%20Youguard%20team%2C%20I%20want%20to%20buy%20BYD%20Dolphin.`
+      "https://wa.me/qr/F7M2RQADCE3KN1?text=Hello%20Youguard%20team%2C%20I%20want%20to%20buy%20BYD%20Dolphin."
     );
   });
 
   test("views/qr.tsx contains direct deep link, clickable QR, copy action, and save button", async () => {
     const source = await readFile(new URL("../../views/qr.tsx", import.meta.url), "utf8");
     expect(source).toContain("OFFICIAL_WHATSAPP_URL");
-    expect(source).toContain("OFFICIAL_WHATSAPP_NUMBER");
     expect(source).toContain("Chat Directly on WhatsApp");
     expect(source).toContain("navigator.clipboard.writeText");
     expect(source).toContain("Save QR Code Image");
