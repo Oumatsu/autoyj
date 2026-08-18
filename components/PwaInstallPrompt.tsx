@@ -71,8 +71,8 @@ export function PwaInstallPrompt() {
             className="h-10 w-10 rounded-xl border border-white/10 shadow-md object-contain"
           />
           <div>
-            <div className="text-xs font-black text-white">Youguard Auto App</div>
-            <div className="text-[10px] text-gray-400">Install for faster offline vehicle browsing</div>
+            <div className="text-xs font-black text-white">Youguard Portal App</div>
+            <div className="text-[10px] text-gray-300">Instant quotation & inspection alerts</div>
           </div>
         </div>
         <div className="flex items-center gap-1.5">
