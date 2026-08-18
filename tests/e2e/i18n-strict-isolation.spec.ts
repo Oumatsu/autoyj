@@ -46,6 +46,7 @@ const STATIC_PAGES = [
 const CJK_RE = /[\u4e00-\u9fff]/;
 
 async function collectLocalImgSrcs(page: import("@playwright/test").Page): Promise<string[]> {
+  await page.waitForLoadState("domcontentloaded");
   return page.evaluate(() => {
     return Array.from(document.querySelectorAll("img[src]") as NodeListOf<HTMLImageElement>)
       .map((img) => img.getAttribute("src") ?? "")
@@ -54,6 +55,7 @@ async function collectLocalImgSrcs(page: import("@playwright/test").Page): Promi
 }
 
 async function getBodyText(page: import("@playwright/test").Page): Promise<string> {
+  await page.waitForLoadState("domcontentloaded");
   return page.evaluate(() => {
     const clone = document.body.cloneNode(true) as HTMLElement;
     clone.querySelectorAll("script, style, noscript, meta").forEach((el) => el.remove());
