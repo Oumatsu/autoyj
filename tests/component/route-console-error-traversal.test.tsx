@@ -65,7 +65,6 @@ const routesToTraverse = [
   { route: "/[locale]/dashboard/quotes", component: LocaleDashboardModulePage, props: { params: { module: "quotes" } } },
   { route: "/[locale]/dashboard/orders", component: LocaleDashboardModulePage, props: { params: { module: "orders" } } },
   { route: "/[locale]/dashboard/accounts", component: LocaleDashboardModulePage, props: { params: { module: "accounts" } } },
-  { route: "/[locale]/dashboard/customers", component: LocaleDashboardModulePage, props: { params: { module: "customers" } } },
   { route: "/", component: HomePage },
   { route: "/[locale]", component: LocaleHomePage },
   { route: "/about", component: AboutPage },

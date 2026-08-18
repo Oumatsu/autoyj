@@ -29,8 +29,8 @@ import { InquiryVehiclePicker } from "@/components/portal/InquiryVehiclePickerFi
 import { appendInquiryComment, inquiryCommentAuthorClass } from "@/lib/inquiry-comment-state";
 import { buildInquiryCommentThreads, inquiryListDetails, replyReference } from "@/lib/inquiry-workflow";
 
-type AdminModule = "dashboard" | "vehicle_models" | "vehicles" | "quotes" | "orders" | "payments" | "logistics" | "accounts" | "customers" | "staff";
-type AdminIconName = "dashboard" | "vehicle_models" | "vehicles" | "quotes" | "orders" | "payments" | "logistics" | "accounts" | "customers" | "staff";
+type AdminModule = "dashboard" | "vehicle_models" | "vehicles" | "quotes" | "orders" | "payments" | "logistics" | "accounts";
+type AdminIconName = "dashboard" | "vehicle_models" | "vehicles" | "quotes" | "orders" | "payments" | "logistics" | "accounts";
 
 type PortalUser = {
   userId: string;
@@ -741,11 +741,18 @@ function PortalClientContent() {
   }, []);
 
   useEffect(() => {
-    const validModules: AdminModule[] = ["dashboard", "vehicle_models", "vehicles", "quotes", "orders", "payments", "logistics", "accounts", "customers", "staff"];
+    const validModules: AdminModule[] = ["dashboard", "vehicle_models", "vehicles", "quotes", "orders", "payments", "logistics", "accounts"];
     const syncFromUrl = () => {
       const pathname = window.location.pathname.toLowerCase();
       const segments = pathname.split("/").filter(Boolean);
       const lastSegment = (segments[segments.length - 1] || "").replaceAll("-", "_");
+
+      if (lastSegment === "staff" || lastSegment === "customers" || lastSegment === "users") {
+        const canonicalPath = pathname.replace(/\/(staff|customers|users)$/, "/accounts");
+        if (canonicalPath !== pathname) {
+          window.history.replaceState({}, "", canonicalPath + window.location.search);
+        }
+      }
 
       const params = new URLSearchParams(window.location.search);
       const queryTab = (params.get("tab") || params.get("module") || "").toLowerCase().replaceAll("-", "_");
@@ -1376,10 +1383,6 @@ function AdminModuleContent({ activeModule, data, isModuleLoading, onEditVehicle
       return <AdminLogistics data={data} />;
     case "accounts":
       return <AdminUserManagement data={data} filterType="all" onRefreshData={onRefreshData} />;
-    case "customers":
-      return <AdminUserManagement data={data} filterType="customers" onRefreshData={onRefreshData} />;
-    case "staff":
-      return <AdminUserManagement data={data} filterType="staff" onRefreshData={onRefreshData} />;
     default:
       return <AdminDashboard data={data} />;
   }
@@ -2983,8 +2986,8 @@ function AdminUserManagement({
 
   return (
     <AdminPanel
-      title={activeTab === "staff" ? t("portal.staffAccountsTitle") : activeTab === "customers" ? t("portal.customerAccountsTitle") : "User & Account Management"}
-      subtitle="Manage internal staff, customer accounts, credentials, WhatsApp, and Telegram bot binding IDs"
+      title={activeTab === "staff" ? "Internal Accounts" : activeTab === "customers" ? "Customer & Partner Accounts" : "User & Account Management"}
+      subtitle="Manage administrator, sales, partner, and customer accounts, credentials, WhatsApp, and Telegram bindings"
     >
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2">
@@ -3013,7 +3016,7 @@ function AdminUserManagement({
               activeTab === "staff" ? "bg-theme text-black" : "border border-white/10 text-gray-400 hover:text-white"
             }`}
           >
-            Internal Staff ({allUsers.filter((u) => u.role === "admin" || u.role === "sales").length})
+            Internal Accounts ({allUsers.filter((u) => u.role === "admin" || u.role === "sales").length})
           </button>
         </div>
 
@@ -3711,20 +3714,12 @@ function AdminNavIcon({ name }: { name: AdminIconName }) {
         </svg>
       );
     case "accounts":
-    case "customers":
       return (
         <svg {...common}>
           <circle cx="9" cy="8" r="3" />
           <path d="M3.5 20a5.5 5.5 0 0 1 11 0" />
           <circle cx="17" cy="9" r="2.5" />
           <path d="M15.5 20a4.5 4.5 0 0 1 5-4" />
-        </svg>
-      );
-    case "staff":
-      return (
-        <svg {...common}>
-          <path d="M12 3l7 3v5c0 4.5-2.8 8-7 10-4.2-2-7-5.5-7-10V6z" />
-          <path d="M9 12l2 2 4-5" />
         </svg>
       );
   }
