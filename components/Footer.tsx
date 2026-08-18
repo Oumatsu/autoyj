@@ -19,6 +19,8 @@ export function Footer() {
           className="w-full h-full object-cover"
           style={{ filter: "brightness(.28) grayscale(20%)" }}
           alt=""
+          loading="lazy"
+          decoding="async"
         />
         <div
           className="absolute inset-0"

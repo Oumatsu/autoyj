@@ -56,20 +56,6 @@ export function HeroSlider() {
     }
   }, []);
 
-  const checkTitleLines = useCallback(() => {
-    const el = h1Refs.current[currentIndexRef.current];
-    if (!el) return;
-    const lineHeight = parseFloat(getComputedStyle(el).lineHeight);
-    if (isNaN(lineHeight) || lineHeight === 0) return;
-    const lines = Math.round(el.scrollHeight / lineHeight);
-    let scale = 1;
-    if (lines > 4) {
-      const scales = [1, 1, 1, 1, 0.82, 0.7, 0.6, 0.52, 0.46];
-      scale = scales[lines - 1] || 0.46;
-    }
-    el.style.fontSize = `calc(clamp(1.8rem, 7vw, 6.5rem) * ${scale})`;
-  }, []);
-
   const showSlide = useCallback(
     (nextIndex: number) => {
       const normalizedIndex = ((nextIndex % SLIDE_COUNT) + SLIDE_COUNT) % SLIDE_COUNT;
@@ -86,6 +72,10 @@ export function HeroSlider() {
         panel.classList.toggle("opacity-0", !active);
         panel.classList.toggle("pointer-events-none", !active);
         panel.setAttribute("aria-hidden", String(!active));
+        panel.toggleAttribute("inert", !active);
+        panel.querySelectorAll("a, button").forEach((el) => {
+          el.setAttribute("tabindex", active ? "0" : "-1");
+        });
       });
       dotRefs.current.forEach((dot, index) => {
         dot?.classList.toggle("active", index === normalizedIndex);
@@ -97,37 +87,40 @@ export function HeroSlider() {
       btnRowRef.current =
         panelRefs.current[normalizedIndex]?.querySelector("[data-hero-buttons]") ?? null;
       checkOverlap();
-      checkTitleLines();
     },
-    [checkOverlap, checkTitleLines]
+    [checkOverlap]
   );
 
   const resetTimer = useCallback(() => {
     if (timerRef.current) clearInterval(timerRef.current);
     timerRef.current = setInterval(() => {
       showSlide(currentIndexRef.current + 1);
-    }, 5500);
+    }, 6000);
   }, [showSlide]);
 
   useEffect(() => {
     currentIndexRef.current = 0;
     showSlide(0);
-    resetTimer();
+
+    // Defer auto-slider interval slightly to give main thread 100% idle time during initial page load/LCP
+    const initialDelay = setTimeout(() => {
+      resetTimer();
+    }, 3000);
+
     return () => {
+      clearTimeout(initialDelay);
       if (timerRef.current) clearInterval(timerRef.current);
     };
   }, [resetTimer, showSlide]);
 
   useEffect(() => {
     checkOverlap();
-    checkTitleLines();
     const onResize = () => {
       checkOverlap();
-      checkTitleLines();
     };
-    window.addEventListener("resize", onResize);
+    window.addEventListener("resize", onResize, { passive: true });
     return () => window.removeEventListener("resize", onResize);
-  }, [checkOverlap, checkTitleLines]);
+  }, [checkOverlap]);
 
   const goSlide = (n: number) => {
     showSlide(n);
@@ -153,6 +146,8 @@ export function HeroSlider() {
         >
           <img
             src={toStaticAssetUrl(SLIDE_IMAGES[i])}
+            width={1920}
+            height={1080}
             className="absolute inset-0 w-full h-full object-cover"
             style={{ filter: "brightness(.95)" }}
             alt={t(`home.hero.slides.s${i}.label`)}
@@ -188,6 +183,7 @@ export function HeroSlider() {
                 key={slideIndex}
                 ref={(node) => { panelRefs.current[slideIndex] = node; }}
                 aria-hidden={!isActive}
+                inert={!isActive ? true : undefined}
                 className={`transition-opacity duration-700 ${
                   isActive ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
                 }`}

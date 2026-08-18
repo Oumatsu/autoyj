@@ -52,6 +52,7 @@ function runLighthouse(url: string, outputPathBase: string): Promise<void> {
       "--output=html",
       `--output-path=${outputPathBase}`,
       "--only-categories=accessibility,best-practices,seo,performance",
+      "--max-wait-for-load=45000",
       "--quiet",
     ];
 
