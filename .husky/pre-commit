@@ -1,1 +1,1 @@
-bun run scripts/tdd/check-test-pairing.ts
+bun run gate:fast

@@ -18,7 +18,7 @@
     "lint": "oxlint && vinext lint",
     "audit:lighthouse": "bun run scripts/audit-lighthouse.ts",
     "audit:w3c": "bun run scripts/audit-w3c-standards.ts",
-    "pre-push": "bun run scripts/ci/pre-push-gate.ts",
+    "pre-push": "bun run gate:push",
     "test": "bun test tests/unit tests/component tests/integration",
     "test:unit": "bun test tests/unit",
     "test:component": "bun test tests/component",
@@ -42,7 +42,10 @@
     "tolgee:setup": "bun run scripts/tolgee/setup-tolgee-jar.ts",
     "tolgee:server": "bun run scripts/tolgee/setup-tolgee-jar.ts --run",
     "knip": "knip",
-    "prepare": "husky || true"
+    "prepare": "husky || true",
+    "gate:fast": "bun run scripts/ci/gate-fast.ts",
+    "gate:push": "bun run scripts/ci/gate-push.ts",
+    "gate:full": "bun run scripts/ci/gate-full.ts"
   },
   "dependencies": {
     "@tolgee/core": "^7.1.3",
