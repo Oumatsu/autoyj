@@ -126,6 +126,7 @@ export function Navbar() {
     <>
       <nav
         id="navbar"
+        aria-label="Main Navigation"
         className="fixed top-0 left-0 right-0 z-50 glass px-6 md:px-10 flex items-center justify-between transition-all duration-300"
         style={{
           paddingTop: "calc(env(safe-area-inset-top, 0px) + 14px)",

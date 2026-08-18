@@ -257,10 +257,10 @@ export default function ContactPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-[10px] font-black uppercase tracking-widest text-gold mb-2 ml-1">
+                    <label htmlFor="targetMarket" className="block text-[10px] font-black uppercase tracking-widest text-gold mb-2 ml-1">
                       {t("contact.form.targetMarket")}
                     </label>
-                    <select required name="targetMarket" className="form-input w-full">
+                    <select id="targetMarket" required name="targetMarket" className="form-input w-full">
                       <option value="" disabled defaultValue="">
                         {t("contact.form.marketPlaceholder")}
                       </option>
@@ -272,10 +272,10 @@ export default function ContactPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-[10px] font-black uppercase tracking-widest text-gold mb-2 ml-1">
+                    <label htmlFor="monthlyVolume" className="block text-[10px] font-black uppercase tracking-widest text-gold mb-2 ml-1">
                       {t("contact.form.monthlyVolume")}
                     </label>
-                    <select required name="monthlyVolume" className="form-input w-full">
+                    <select id="monthlyVolume" required name="monthlyVolume" className="form-input w-full">
                       <option value="" disabled defaultValue="">
                         {t("contact.form.volumePlaceholder")}
                       </option>
@@ -288,10 +288,10 @@ export default function ContactPage() {
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-black uppercase tracking-widest text-gold mb-2 ml-1">
+                  <label htmlFor="primaryInterest" className="block text-[10px] font-black uppercase tracking-widest text-gold mb-2 ml-1">
                     {t("contact.form.primaryInterest")}
                   </label>
-                  <select required name="primaryInterest" className="form-input w-full">
+                  <select id="primaryInterest" required name="primaryInterest" className="form-input w-full">
                     <option value="" disabled defaultValue="">
                       {t("contact.form.interestPlaceholder")}
                     </option>
