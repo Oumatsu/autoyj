@@ -13,6 +13,7 @@
  */
 
 import { spawn, type ChildProcess } from "node:child_process";
+import { rmSync } from "node:fs";
 
 const COLOR_CYAN = "\x1b[36m";
 const COLOR_GREEN = "\x1b[32m";
@@ -81,7 +82,7 @@ async function ensureLocalServer(): Promise<ChildProcess | null> {
 
   while (Date.now() - start < maxWaitMs) {
     if (await isServerReady(3000)) {
-      console.log(`${COLOR_GREEN}✓ Local dev server is ready!${COLOR_RESET}\n`);
+      console.log(`${COLOR_GREEN}✓ Production server is ready on port 3000!${COLOR_RESET}\n`);
       return serverProc;
     }
     await new Promise((r) => setTimeout(r, pollInterval));
@@ -90,7 +91,7 @@ async function ensureLocalServer(): Promise<ChildProcess | null> {
   try {
     if (serverProc.pid) process.kill(-serverProc.pid, "SIGTERM");
   } catch {}
-  throw new Error("Failed to start local dev server within 45 seconds.");
+  throw new Error("Failed to start local server within 45 seconds.");
 }
 
 async function main() {
@@ -123,6 +124,7 @@ async function main() {
 
     // 5. Tier 4 Playwright Full E2E User Journeys
     logHeader(5, totalSteps, "TIER 4 PLAYWRIGHT FULL E2E USER JOURNEYS (297 SCENARIOS)");
+    try { rmSync("test-results", { recursive: true, force: true }); } catch {}
     await runStep("bun", ["run", "test:e2e"], "Playwright E2E Suite");
 
     // 6. Google Lighthouse 100/100 Audit
@@ -142,6 +144,7 @@ async function main() {
     console.error(`${COLOR_RED}${COLOR_BOLD}======================================================================${COLOR_RESET}\n`);
     process.exit(1);
   } finally {
+    try { rmSync("test-results", { recursive: true, force: true }); } catch {}
     if (spawnedServer && spawnedServer.pid) {
       try {
         process.kill(-spawnedServer.pid, "SIGTERM");

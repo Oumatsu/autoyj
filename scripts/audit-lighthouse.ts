@@ -7,7 +7,7 @@
  * saves detailed reports to ./lighthouse-reports/, and prints an ANSI summary table.
  */
 
-import { spawn } from "node:child_process";
+import { spawn, type ChildProcess } from "node:child_process";
 import { mkdirSync, readFileSync, existsSync } from "node:fs";
 import { resolve } from "node:path";
 
@@ -42,6 +42,45 @@ if (!existsSync(OUTPUT_DIR)) {
   mkdirSync(OUTPUT_DIR, { recursive: true });
 }
 
+async function isServerReady(port = 3000): Promise<boolean> {
+  try {
+    const res = await fetch(`http://localhost:${port}/en`, { method: "HEAD", signal: AbortSignal.timeout(2000) });
+    return res.status < 500;
+  } catch {
+    return false;
+  }
+}
+
+async function ensureLocalServer(): Promise<ChildProcess | null> {
+  if (await isServerReady(3000)) {
+    return null;
+  }
+
+  console.log(`${COLOR_YELLOW}⚡ Starting local dev server on http://localhost:3000 for Lighthouse...${COLOR_RESET}`);
+  const serverProc = spawn("bun", ["run", "dev"], {
+    stdio: "ignore",
+    detached: true,
+    env: { ...process.env, PORT: "3000" },
+  });
+
+  const maxWaitMs = 45000;
+  const pollInterval = 500;
+  const start = Date.now();
+
+  while (Date.now() - start < maxWaitMs) {
+    if (await isServerReady(3000)) {
+      console.log(`${COLOR_GREEN}✓ Local dev server is ready!${COLOR_RESET}\n`);
+      return serverProc;
+    }
+    await new Promise((r) => setTimeout(r, pollInterval));
+  }
+
+  try {
+    if (serverProc.pid) process.kill(-serverProc.pid, "SIGTERM");
+  } catch {}
+  throw new Error("Failed to start local dev server within 45 seconds.");
+}
+
 function runLighthouse(url: string, outputPathBase: string): Promise<void> {
   return new Promise((resolvePromise, rejectPromise) => {
     const args = [
@@ -52,6 +91,7 @@ function runLighthouse(url: string, outputPathBase: string): Promise<void> {
       "--output=html",
       `--output-path=${outputPathBase}`,
       "--only-categories=accessibility,best-practices,seo,performance",
+      "--max-wait-for-load=45000",
       "--quiet",
     ];
 
@@ -86,10 +126,16 @@ async function main() {
   console.log(`Target Base URL: ${baseUrl}`);
   console.log(`Reports Output: ${OUTPUT_DIR}\n`);
 
+  let spawnedServer: ChildProcess | null = null;
+  if (!process.env.BASE_URL) {
+    spawnedServer = await ensureLocalServer();
+  }
+
   const summaries: LighthouseSummary[] = [];
   let hasCriticalFailure = false;
 
-  for (const route of ROUTES) {
+  try {
+    for (const route of ROUTES) {
     const targetUrl = `${baseUrl}${route}`;
     const fileSlug = route.replace(/\//g, "_").replace(/^_/, "") || "root";
     const reportPathBase = resolve(OUTPUT_DIR, `lighthouse-${fileSlug}`);
@@ -149,12 +195,23 @@ async function main() {
   }
   console.log(`${COLOR_CYAN}${COLOR_BOLD}======================================================================${COLOR_RESET}\n`);
 
-  if (hasCriticalFailure) {
-    console.error(`${COLOR_RED}Lighthouse audit completed with critical errors.${COLOR_RESET}`);
-    process.exit(1);
-  } else {
-    console.log(`${COLOR_GREEN}✓ All routes passed Lighthouse benchmark thresholds!${COLOR_RESET}\n`);
-    process.exit(0);
+    if (hasCriticalFailure) {
+      console.error(`${COLOR_RED}Lighthouse audit completed with critical errors.${COLOR_RESET}`);
+      process.exit(1);
+    } else {
+      console.log(`${COLOR_GREEN}✓ All routes passed Lighthouse benchmark thresholds!${COLOR_RESET}\n`);
+      process.exit(0);
+    }
+  } finally {
+    if (spawnedServer && spawnedServer.pid) {
+      try {
+        process.kill(-spawnedServer.pid, "SIGTERM");
+      } catch {
+        try {
+          spawnedServer.kill("SIGTERM");
+        } catch {}
+      }
+    }
   }
 }
 

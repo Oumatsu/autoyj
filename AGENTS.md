@@ -1,4 +1,34 @@
+## Project Iron Laws (项目铁则)
+
+All AI agents and contributors must strictly enforce the following engineering iron laws:
+
+1. **Screenshot-less Development Mode (无截图模式开发)**:
+   - Do NOT use screenshots, visual snapshots, or OCR to evaluate UI layouts or test regressions.
+   - Verify UI correctness programmatically through semantic DOM assertions (`page.getByRole()`, `page.getByLabel()`), network interception, accessibility tree scans (`@axe-core/playwright`), and console zero-error traps.
+   - Screenshots and traces are permitted ONLY as post-mortem forensic attachments on failure (`screenshot: "only-on-failure"`).
+
+2. **AI-Native Engineering & Eval-First TDD (AI 原生工程体系)**:
+   - Every feature or bug fix must be driven by automated tests (Eval-Driven Development).
+   - Zero-Human-Check: No pull request or push may rely on manual clicking or human inspection for correctness.
+   - Business math (pricing, trade terms, volume discounts) and workflow state machines must reside in pure domain modules (`lib/`) and be covered by exhaustive unit tests.
+
+3. **Playwright Standard Best Practices (Playwright 工业级准则)**:
+   - Use semantic, user-facing locators (`getByRole`, `getByText`, `getByLabel`, `[data-testid]`). Avoid brittle CSS paths or raw XPaths.
+   - Implement explicit lifecycle settling (`domcontentloaded` + locator visibility) and cookie/context isolation across multi-lingual and multi-role journeys.
+   - Full specification: see `docs/agents/engineering-standards.md`.
+
+4. **4-Tier Test Suite & Local Pre-Push Gate (四层测试金字塔与本地门禁)**:
+   - Tier 1: Domain Unit Tests (`tests/unit/domain/`)
+   - Tier 2: Component Interaction Tests (`tests/component/`)
+   - Tier 3: Isolated Integration & API Tests (`tests/integration/`)
+   - Tier 4: Comprehensive Playwright E2E (`tests/e2e/`)
+   - All code pushed to remote must pass the local `.husky/pre-push` gate (`bun run pre-push` covering Lint, D1 Init, Tier 1-3, W3C, E2E, and Google Lighthouse 100/100 Matrix).
+
 ## Agent skills
+
+### Engineering standards
+
+See `docs/agents/engineering-standards.md` for full rules and implementation guides.
 
 ### Issue tracker
 
@@ -7,3 +37,4 @@ Issues for this repository are tracked in GitHub Issues with the `gh` CLI. See `
 ### Domain docs
 
 This repository uses a single-context domain documentation layout. See `docs/agents/domain.md`.
+

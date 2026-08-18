@@ -9,26 +9,19 @@ test.describe("Tier 4: E2E Comprehensive Full-Journey User & Portal Workflows", 
     // 1. Visit Chinese homepage
     await page.goto("/zh", { waitUntil: "domcontentloaded" });
     await expect(page).toHaveURL(/\/zh/);
-    let htmlLang = await page.getAttribute("html", "lang");
-    expect(htmlLang).toBe("zh");
-
-    await page.waitForTimeout(300);
+    await expect(page.locator("html")).toHaveAttribute("lang", "zh");
 
     // 2. Switch to Amharic
     await page.context().clearCookies();
     await page.goto("/am", { waitUntil: "domcontentloaded" });
     await expect(page).toHaveURL(/\/am/);
-    htmlLang = await page.getAttribute("html", "lang");
-    expect(htmlLang).toBe("am");
-
-    await page.waitForTimeout(300);
+    await expect(page.locator("html")).toHaveAttribute("lang", "am");
 
     // 3. Switch to English
     await page.context().clearCookies();
     await page.goto("/en", { waitUntil: "domcontentloaded" });
     await expect(page).toHaveURL(/\/en/);
-    htmlLang = await page.getAttribute("html", "lang");
-    expect(htmlLang).toBe("en");
+    await expect(page.locator("html")).toHaveAttribute("lang", "en");
 
     // 4. Click product link and verify language prefix remains /en/
     const productLink = page.locator("a[href*='/en/products']").first();
@@ -86,7 +79,7 @@ test.describe("Tier 4: E2E Comprehensive Full-Journey User & Portal Workflows", 
     const loginRole = async (email: string, code: string) => {
       const emailInput = page.locator("#login-email");
       const codeInput = page.locator("#login-access-code");
-      const submitBtn = page.locator("form button[type='submit'], form button", { hasText: /Sign In/i });
+      const submitBtn = page.locator("form button[type='submit'], form button", { hasText: /Sign In|登录|Sign in/i }).first();
 
       await expect(emailInput).toBeVisible();
       await emailInput.fill(email);

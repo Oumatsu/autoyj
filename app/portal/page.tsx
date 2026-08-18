@@ -29,8 +29,8 @@ import { InquiryVehiclePicker } from "@/components/portal/InquiryVehiclePickerFi
 import { appendInquiryComment, inquiryCommentAuthorClass } from "@/lib/inquiry-comment-state";
 import { buildInquiryCommentThreads, inquiryListDetails, replyReference } from "@/lib/inquiry-workflow";
 
-type AdminModule = "dashboard" | "vehicle_models" | "vehicles" | "quotes" | "orders" | "payments" | "logistics" | "customers" | "staff";
-type AdminIconName = "dashboard" | "vehicle_models" | "vehicles" | "quotes" | "orders" | "payments" | "logistics" | "customers" | "staff";
+type AdminModule = "dashboard" | "vehicle_models" | "vehicles" | "quotes" | "orders" | "payments" | "logistics" | "accounts" | "customers" | "staff";
+type AdminIconName = "dashboard" | "vehicle_models" | "vehicles" | "quotes" | "orders" | "payments" | "logistics" | "accounts" | "customers" | "staff";
 
 type PortalUser = {
   userId: string;
@@ -481,8 +481,7 @@ const adminNavItems: { key: AdminModule; labelKey: string; roles: PortalRole[]; 
   { key: "orders", labelKey: "portal.navOrders", roles: ["admin", "sales", "finance", "partner", "customer"], icon: "orders", badge: "development" },
   { key: "payments", labelKey: "portal.navPayments", roles: ["admin", "finance"], icon: "payments", badge: "development" },
   { key: "logistics", labelKey: "portal.navLogistics", roles: ["admin", "sales", "partner", "customer"], icon: "logistics", badge: "development" },
-  { key: "customers", labelKey: "portal.navCustomers", roles: ["admin"], icon: "customers", badge: "development" },
-  { key: "staff", labelKey: "portal.navStaff", roles: ["admin"], icon: "staff", badge: "development" },
+  { key: "accounts", labelKey: "portal.navAccounts", roles: ["admin"], icon: "accounts", badge: "development" },
 ];
 
 const modelCoreSpecNames = [
@@ -647,8 +646,8 @@ function PortalClientContent() {
       if (lastSegment === "orders") return "orders";
       if (lastSegment === "payments") return "payments";
       if (lastSegment === "logistics") return "logistics";
-      if (lastSegment === "customers") return "customers";
-      if (lastSegment === "staff") return "staff";
+      if (lastSegment === "accounts" || lastSegment === "users") return "accounts";
+      if (lastSegment === "customers" || lastSegment === "staff") return "accounts";
 
       const params = new URLSearchParams(window.location.search);
       const queryTab = (params.get("tab") || params.get("module") || "").toLowerCase().replaceAll("-", "_");
@@ -658,8 +657,8 @@ function PortalClientContent() {
       if (queryTab === "orders") return "orders";
       if (queryTab === "payments") return "payments";
       if (queryTab === "logistics") return "logistics";
-      if (queryTab === "customers") return "customers";
-      if (queryTab === "staff") return "staff";
+      if (queryTab === "accounts" || queryTab === "users") return "accounts";
+      if (queryTab === "customers" || queryTab === "staff") return "accounts";
     }
     return "dashboard";
   });
@@ -742,19 +741,26 @@ function PortalClientContent() {
   }, []);
 
   useEffect(() => {
-    const validModules: AdminModule[] = ["dashboard", "vehicle_models", "vehicles", "quotes", "orders", "payments", "logistics", "customers", "staff"];
+    const validModules: AdminModule[] = ["dashboard", "vehicle_models", "vehicles", "quotes", "orders", "payments", "logistics", "accounts", "customers", "staff"];
     const syncFromUrl = () => {
       const pathname = window.location.pathname.toLowerCase();
       const segments = pathname.split("/").filter(Boolean);
-      const lastSegment = (segments[segments.length - 1] || "").replaceAll("-", "_") as AdminModule;
+      const lastSegment = (segments[segments.length - 1] || "").replaceAll("-", "_");
 
       const params = new URLSearchParams(window.location.search);
-      const queryTab = (params.get("tab") || params.get("module") || "").toLowerCase().replaceAll("-", "_") as AdminModule;
+      const queryTab = (params.get("tab") || params.get("module") || "").toLowerCase().replaceAll("-", "_");
 
-      if (queryTab && (validModules.includes(queryTab) || queryTab === "profiles" as any)) {
-        setActiveAdminModule(queryTab === "profiles" as any ? "vehicle_models" : queryTab);
-      } else if (lastSegment && (validModules.includes(lastSegment) || lastSegment === "profiles" as any)) {
-        setActiveAdminModule(lastSegment === "profiles" as any ? "vehicle_models" : lastSegment);
+      const normalize = (val: string): AdminModule | null => {
+        if (!val) return null;
+        if (val === "profiles") return "vehicle_models";
+        if (val === "accounts" || val === "users" || val === "customers" || val === "staff") return "accounts";
+        if (validModules.includes(val as AdminModule)) return val as AdminModule;
+        return null;
+      };
+
+      const matched = normalize(queryTab) || normalize(lastSegment);
+      if (matched) {
+        setActiveAdminModule(matched);
       }
     };
 
@@ -1368,6 +1374,8 @@ function AdminModuleContent({ activeModule, data, isModuleLoading, onEditVehicle
       return <AdminPayments data={data} />;
     case "logistics":
       return <AdminLogistics data={data} />;
+    case "accounts":
+      return <AdminUserManagement data={data} filterType="all" onRefreshData={onRefreshData} />;
     case "customers":
       return <AdminUserManagement data={data} filterType="customers" onRefreshData={onRefreshData} />;
     case "staff":
@@ -3716,6 +3724,7 @@ function AdminNavIcon({ name }: { name: AdminIconName }) {
           <path d="M6 20c1.5 1 3 1 4.5 0s3-1 4.5 0 3 1 4.5 0" />
         </svg>
       );
+    case "accounts":
     case "customers":
       return (
         <svg {...common}>

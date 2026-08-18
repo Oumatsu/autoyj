@@ -135,36 +135,10 @@ export default function RootLayout({
                 } catch (e) {}
               })();
               if (typeof window !== 'undefined' && 'serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.hostname === 'localhost')) {
-                var refreshing = false;
-                navigator.serviceWorker.addEventListener('controllerchange', function() {
-                  if (!refreshing) {
-                    refreshing = true;
-                    window.location.reload();
-                  }
-                });
-
                 window.addEventListener('load', function() {
                   navigator.serviceWorker.register('/sw.js').then(function(reg) {
                     try { reg.update(); } catch (e) {}
-                    reg.addEventListener('updatefound', function() {
-                      var newWorker = reg.installing;
-                      if (newWorker) {
-                        newWorker.addEventListener('statechange', function() {
-                          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                            newWorker.postMessage({ type: 'SKIP_WAITING' });
-                          }
-                        });
-                      }
-                    });
                   }).catch(function() {});
-                });
-
-                document.addEventListener('visibilitychange', function() {
-                  if (document.visibilityState === 'visible') {
-                    navigator.serviceWorker.getRegistration().then(function(reg) {
-                      if (reg) { try { reg.update(); } catch (e) {} }
-                    });
-                  }
                 });
               }
             `,
