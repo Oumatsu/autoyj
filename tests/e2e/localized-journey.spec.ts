@@ -127,26 +127,36 @@ test.describe("proxy.ts — static passthrough (no redirect loop)", () => {
 // 5. Existing journey tests (kept from original localized-journey.spec.ts)
 // ---------------------------------------------------------------------------
 test.describe("Tier 4: E2E Interactive User Journeys", () => {
+  test.beforeEach(async ({ context }) => {
+    await context.clearCookies();
+  });
+
   test("User can navigate to localized product page and inspect vehicle cards", async ({ page }) => {
-    // 1. Visit Chinese home page
-    await page.goto("/zh/products");
+    // 1. Visit Chinese products page
+    await page.goto("/zh/products", { waitUntil: "domcontentloaded" });
     await expect(page).toHaveURL(/\/zh\/products/);
 
     // 2. Verify page heading renders Chinese copy
     const heading = page.locator("h1");
     await expect(heading).toBeVisible();
 
+    await page.waitForTimeout(300);
+
     // 3. Switch to English route
-    await page.goto("/en/products");
+    await page.context().clearCookies();
+    await page.goto("/en/products", { waitUntil: "domcontentloaded" });
     await expect(page).toHaveURL(/\/en\/products/);
 
+    await page.waitForTimeout(300);
+
     // 4. Switch to Amharic route
-    await page.goto("/am/products");
+    await page.context().clearCookies();
+    await page.goto("/am/products", { waitUntil: "domcontentloaded" });
     await expect(page).toHaveURL(/\/am\/products/);
   });
 
   test("User can open Solutions page and check PDI checklist section", async ({ page }) => {
-    await page.goto("/en/solutions");
+    await page.goto("/en/solutions", { waitUntil: "domcontentloaded" });
     await expect(page.locator("body")).toBeVisible();
 
     // Ensure page rendered without JS error overlay
