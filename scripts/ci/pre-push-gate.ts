@@ -71,11 +71,11 @@ async function ensureLocalServer(): Promise<ChildProcess | null> {
   console.log(`${COLOR_YELLOW}⚡ Starting local dev server on http://localhost:3000...${COLOR_RESET}`);
   const serverProc = spawn("bun", ["run", "dev"], {
     stdio: "ignore",
-    detached: false,
+    detached: true,
     env: { ...process.env, PORT: "3000" },
   });
 
-  const maxWaitMs = 30000;
+  const maxWaitMs = 45000;
   const pollInterval = 500;
   const start = Date.now();
 
@@ -87,8 +87,10 @@ async function ensureLocalServer(): Promise<ChildProcess | null> {
     await new Promise((r) => setTimeout(r, pollInterval));
   }
 
-  serverProc.kill("SIGTERM");
-  throw new Error("Failed to start local dev server within 30 seconds.");
+  try {
+    if (serverProc.pid) process.kill(-serverProc.pid, "SIGTERM");
+  } catch {}
+  throw new Error("Failed to start local dev server within 45 seconds.");
 }
 
 async function main() {
@@ -140,8 +142,14 @@ async function main() {
     console.error(`${COLOR_RED}${COLOR_BOLD}======================================================================${COLOR_RESET}\n`);
     process.exit(1);
   } finally {
-    if (spawnedServer && !spawnedServer.killed) {
-      spawnedServer.kill("SIGTERM");
+    if (spawnedServer && spawnedServer.pid) {
+      try {
+        process.kill(-spawnedServer.pid, "SIGTERM");
+      } catch {
+        try {
+          spawnedServer.kill("SIGTERM");
+        } catch {}
+      }
     }
   }
 }
