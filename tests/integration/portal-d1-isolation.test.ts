@@ -275,6 +275,58 @@ describe("portal request/D1 isolation", () => {
     expect(payload.vehicleModelSpecs).toEqual([]);
   });
 
+  test("vehicle model catalog fills split-model overview values from its trims and an unambiguous sibling", async () => {
+    const db = fakeD1({
+      models: [
+        {
+          id: "M9-EREV",
+          model_id: "M9-EREV",
+          brand: "AITO",
+          MODEL: "AITO M9 EREV",
+          length_mm: 5402,
+          width_mm: 2026,
+          height_mm: 1845,
+          wheelbase_mm: 3236,
+          seats_min: 5,
+          seats_max: 6,
+          boot_volume_l: 316,
+          status: "Active",
+        },
+        { id: "M9-BEV", model_id: "M9-BEV", brand: "AITO", MODEL: "AITO M9 BEV", status: "Active" },
+      ],
+      trims: [{
+        id: "M9-BEV-MAX",
+        model_id: "M9-BEV",
+        trim_name: "BEV Max+",
+        top_speed_kmh: 250,
+        zero_to_100_sec: 4.9,
+        dc_fast_charge_supported: 1,
+        dc_fast_charge_time_hours: 0.25,
+        dc_fast_charge_min_percent: 30,
+        dc_fast_charge_max_percent: 80,
+      }],
+    });
+    const session = await handlePortalRequest(
+      new Request("http://localhost/api/portal/dev-session", { method: "POST", body: JSON.stringify({ role: "admin" }) }),
+      env(db),
+    );
+    const cookie = session.headers.get("set-cookie")?.split(";")[0];
+    const response = await handlePortalRequest(
+      new Request("https://portal.example/api/portal/vehicle-models", { headers: { cookie: cookie! } }),
+      env(db),
+    );
+    const payload = await response.json() as { vehicleModels: Array<Record<string, string>> };
+    const bev = payload.vehicleModels.find((model) => model.id === "M9-BEV-MAX")!;
+
+    expect(bev.topSpeed).toBe("250 km/h");
+    expect(bev.acceleration).toBe("4.9 sec");
+    expect(bev.charging).toContain("Fast Charging: Supported");
+    expect(bev.dimensions).toBe("5402 x 2026 x 1845 mm");
+    expect(bev.wheelbase).toBe("3236 mm");
+    expect(bev.seats).toBe("6 seats");
+    expect(bev.trunkCapacity).toBe("316 L");
+  });
+
   test("vehicle model catalog uses the synced gallery when no static cover exists", async () => {
     const db = fakeD1({
       models: [{

@@ -5,6 +5,20 @@ import { localizeVehicleValue } from "@/lib/portal-english";
 const portalApi = readFileSync("server/api/portal.ts", "utf8");
 const portalPage = readFileSync("app/portal/page.tsx", "utf8");
 
+test("bootstrap defers full trim specifications until the vehicle-model module loads", () => {
+  const bootstrap = portalApi.slice(
+    portalApi.indexOf("async function handleBootstrap"),
+    portalApi.indexOf("async function handleGetCatalog"),
+  );
+
+  expect(bootstrap).toContain("includeTrimDetails: false");
+});
+
+test("background bootstrap refresh preserves an already hydrated vehicle-model payload", () => {
+  expect(portalPage).toContain("function mergeBootstrapData");
+  expect(portalPage).toContain("mergeBootstrapData(prev, bootstrap)");
+});
+
 test("maps each D1 trim's added and upgraded fields without a fragile verification field", () => {
   expect(portalApi).toContain('addSpec("新增配置"');
   expect(portalApi).toContain('fields.added_features_json');

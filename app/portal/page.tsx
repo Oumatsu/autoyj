@@ -425,6 +425,20 @@ type BootstrapData = {
   };
 };
 
+function mergeBootstrapData(current: BootstrapData | null, incoming: BootstrapData): BootstrapData {
+  if (!current) return incoming;
+
+  // `/bootstrap` deliberately omits the heavy trim payload. Keep the coupled
+  // model rows and their specifications until `/vehicle-models` is reloaded.
+  const keepHydratedModels = current.vehicleModelSpecs.length > 0 && incoming.vehicleModelSpecs.length === 0;
+  return {
+    ...incoming,
+    vehicleModels: keepHydratedModels ? current.vehicleModels : incoming.vehicleModels,
+    vehicleModelSpecs: keepHydratedModels ? current.vehicleModelSpecs : incoming.vehicleModelSpecs,
+    vehicles: incoming.vehicles.length > 0 ? incoming.vehicles : current.vehicles,
+  };
+}
+
 type InquiryForm = {
   quantity: number;
   destinationPort: string;
@@ -670,9 +684,12 @@ function PortalClientContent() {
 
   const refreshBootstrap = useCallback(async () => {
     const bootstrap = await api<BootstrapData>("/api/portal/bootstrap");
-    globalBootstrapData = bootstrap;
-    globalBootstrapPromise = Promise.resolve(bootstrap);
-    setData(bootstrap);
+    setData((prev) => {
+      const merged = mergeBootstrapData(prev, bootstrap);
+      globalBootstrapData = merged;
+      globalBootstrapPromise = Promise.resolve(merged);
+      return merged;
+    });
   }, []);
 
   const checkSessionAndLoad = useCallback(async (force = false) => {

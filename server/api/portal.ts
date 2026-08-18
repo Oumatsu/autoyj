@@ -502,6 +502,80 @@ function trimChargingDisplay(fields: Record<string, unknown>) {
   return `Fast Charging: Supported; Fast Charging Time: ${time !== null ? `${formatNumber(time, 2)} hours` : "-"}; Fast Charging Range: ${range}`;
 }
 
+function trimMetricRange(rows: Record<string, unknown>[], field: string, unit: string, precision = 0) {
+  const values = rows
+    .map((row) => asOptionalNumber(rowField(row, field)))
+    .filter((value): value is number => value !== null);
+  if (!values.length) return "";
+  return formatMetricRange(Math.min(...values), Math.max(...values), unit, precision);
+}
+
+function trimChargingSummary(rows: Record<string, unknown>[]) {
+  const supported = rows.filter((row) => asBool(rowField(row, "dc_fast_charge_supported")));
+  if (!supported.length) return "";
+  const time = trimMetricRange(supported, "dc_fast_charge_time_hours", "hours", 2) || "-";
+  const min = rows
+    .map((row) => asOptionalNumber(rowField(row, "dc_fast_charge_min_percent")))
+    .filter((value): value is number => value !== null);
+  const max = rows
+    .map((row) => asOptionalNumber(rowField(row, "dc_fast_charge_max_percent")))
+    .filter((value): value is number => value !== null);
+  const range = min.length && max.length ? `${formatNumber(Math.min(...min))}-${formatNumber(Math.max(...max))}%` : "-";
+  return `Fast Charging: Supported; Fast Charging Time: ${time}; Fast Charging Range: ${range}`;
+}
+
+function modelFamilyKey(model: Pick<PortalVehicleModel, "brand" | "model">) {
+  const baseName = `${model.brand} ${model.model}`
+    .replace(/\b(?:bev|ev|phev|erev|reev|dm-?i|dm)\b/gi, " ")
+    .replace(/[纯电增程混动]+/g, " ");
+  return normalizeModelRelation(baseName);
+}
+
+function commonFamilyValue(models: PortalVehicleModel[], key: keyof PortalVehicleModel) {
+  return commonTextValue(models.map((model) => asText(model[key])));
+}
+
+function commonTextValue(candidates: string[]) {
+  const values = Array.from(new Set(candidates.filter(Boolean)));
+  return values.length === 1 ? values[0] : "";
+}
+
+function enrichVehicleModelOverviewFromTrims(
+  baseModels: PortalVehicleModel[],
+  trimRows: D1VehicleTrim[],
+) {
+  const trimsByModelId = new Map<string, Record<string, unknown>[]>();
+  for (const trim of trimRows) {
+    const modelId = asText(rowField(trim as unknown as Record<string, unknown>, "model_id"));
+    if (!modelId) continue;
+    const rows = trimsByModelId.get(modelId) || [];
+    rows.push(trim as unknown as Record<string, unknown>);
+    trimsByModelId.set(modelId, rows);
+  }
+
+  return baseModels.map((model) => {
+    const directTrims = trimsByModelId.get(asText((model as unknown as Record<string, unknown>).model_id)) || [];
+    const family = baseModels.filter((candidate) => candidate.id !== model.id && modelFamilyKey(candidate) === modelFamilyKey(model));
+    const fallback = (key: keyof PortalVehicleModel) => commonFamilyValue(family, key);
+    return {
+      ...model,
+      battery: model.battery || trimMetricRange(directTrims, "battery_capacity_kwh", "kWh", 3),
+      motorPower: model.motorPower || trimMetricRange(directTrims, "motor_power_kw", "kW"),
+      motorTorque: model.motorTorque || trimMetricRange(directTrims, "motor_torque_n_m", "N-m"),
+      driveType: model.driveType || commonTextValue(directTrims.map((row) => asText(rowField(row, "drivetrain_display")))),
+      topSpeed: model.topSpeed || trimMetricRange(directTrims, "top_speed_kmh", "km/h") || fallback("topSpeed"),
+      acceleration: model.acceleration || trimMetricRange(directTrims, "zero_to_100_sec", "sec", 2) || fallback("acceleration"),
+      charging: model.charging || trimChargingSummary(directTrims) || fallback("charging"),
+      dimensions: model.dimensions || fallback("dimensions"),
+      wheelbase: model.wheelbase || fallback("wheelbase"),
+      seats: model.seats || fallback("seats"),
+      doors: model.doors || fallback("doors"),
+      curbWeight: model.curbWeight || fallback("curbWeight"),
+      trunkCapacity: model.trunkCapacity || fallback("trunkCapacity"),
+    };
+  });
+}
+
 function buildTrimComparison(modelFields: Record<string, unknown>, trimRecords: FeishuRecord[]) {
   const trims = trimRecords
     .map((record) => {
@@ -1808,7 +1882,6 @@ async function handleBootstrap(request: Request, env: Env) {
 
   const [
     modelRows,
-    trimRows,
     vehicleRows,
     inquiries,
     quotes,
@@ -1818,7 +1891,6 @@ async function handleBootstrap(request: Request, env: Env) {
     portalUsers,
   ] = await Promise.all([
     queryVehicleModels(db),
-    queryVehicleTrims(db),
     queryVehicles(db),
     listScopedInquiries(env, session),
     listScopedQuotes(env, session),
@@ -1829,7 +1901,7 @@ async function handleBootstrap(request: Request, env: Env) {
   ]);
 
   const [modelsRes, vehiclesRes] = await Promise.all([
-    handleGetVehicleModels(request, env, { modelRows, trimRows, vehicleRows })
+    handleGetVehicleModels(request, env, { modelRows, trimRows: [], vehicleRows: [] }, { includeTrimDetails: false })
       .then((r) => r.json() as Promise<{ vehicleModels?: PortalVehicleModel[]; vehicleModelSpecs?: PortalVehicleModelSpec[] }>),
     handleGetVehicles(request, env, vehicleRows)
       .then((r) => r.json() as Promise<{ vehicles?: Record<string, unknown>[] }>),
@@ -2824,7 +2896,8 @@ function dashboardVehicleModelImage(row: Record<string, unknown>, slug: string):
 async function handleGetVehicleModels(
   request: Request,
   env: Env,
-  preloaded?: { modelRows: D1VehicleModel[]; trimRows: D1VehicleTrim[]; vehicleRows: D1Vehicle[] }
+  preloaded?: { modelRows: D1VehicleModel[]; trimRows: D1VehicleTrim[]; vehicleRows: D1Vehicle[] },
+  options: { includeTrimDetails?: boolean } = {},
 ) {
   const session = await requireSession(request, env);
   const [modelRows, trimRows, vehicleRows] = preloaded
@@ -2900,7 +2973,13 @@ async function handleGetVehicleModels(
     };
   });
 
-  const modelLookup = buildVehicleModelLookup(baseModels);
+  const overviewModels = enrichVehicleModelOverviewFromTrims(baseModels, trimRows);
+
+  if (options.includeTrimDetails === false) {
+    return json({ vehicleModels: overviewModels, vehicleModelSpecs: [] });
+  }
+
+  const modelLookup = buildVehicleModelLookup(overviewModels);
 
   const trimVariantsByModelId = new Map<string, PortalVehicleModel[]>();
   for (const trim of trimRows) {
@@ -2926,7 +3005,7 @@ async function handleGetVehicleModels(
 
   const vehicleModels: PortalVehicleModel[] = [];
   const vehicleModelSpecs: PortalVehicleModelSpec[] = [];
-  for (const parent of baseModels) {
+  for (const parent of overviewModels) {
     const configuredVariants = trimVariantsByModelId.get(parent.id) || [];
     const inventoryVariants = buildInventoryTrimVariants(parent, inventoryRowsByModelId.get(parent.id) || []);
     const variants = configuredVariants.length ? configuredVariants : inventoryVariants;
