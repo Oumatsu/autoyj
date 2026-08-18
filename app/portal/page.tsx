@@ -3046,7 +3046,7 @@ function AdminUserManagement({
           <TableHeader>
             <TableRow className="border-b border-white/10 bg-white/[0.02]">
               <TableHead className="text-[11px] font-black uppercase tracking-wider text-slate-400">Account / Identity</TableHead>
-              <TableHead className="text-[11px] font-black uppercase tracking-wider text-slate-400">Role & Tier</TableHead>
+              <TableHead className="text-[11px] font-black uppercase tracking-wider text-slate-400">Role</TableHead>
               <TableHead className="text-[11px] font-black uppercase tracking-wider text-slate-400">Company</TableHead>
               <TableHead className="text-[11px] font-black uppercase tracking-wider text-slate-400">WhatsApp</TableHead>
               <TableHead className="text-[11px] font-black uppercase tracking-wider text-slate-400">Telegram Bot Binding</TableHead>
@@ -3076,20 +3076,17 @@ function AdminUserManagement({
                       <div className="font-mono text-[10px] text-[#22b8aa]">{user.user_id}</div>
                     </TableCell>
                     <TableCell className="py-3">
-                      <div className="flex flex-col gap-1">
-                        <span className={`inline-flex w-fit items-center rounded-md px-2 py-0.5 text-[10px] font-black uppercase tracking-wider ${
-                          user.role === "admin"
-                            ? "bg-purple-500/20 text-purple-300 border border-purple-500/30"
-                            : user.role === "sales"
-                            ? "bg-blue-500/20 text-blue-300 border border-blue-500/30"
-                            : user.role === "partner"
-                            ? "bg-amber-500/20 text-amber-300 border border-amber-500/30"
-                            : "bg-teal-500/20 text-teal-300 border border-teal-500/30"
-                        }`}>
-                          {formatPortalRole(user.role, locale)}
-                        </span>
-                        <span className="text-[10px] text-gray-400 uppercase">Tier: <strong className="text-gray-200">{user.price_tier}</strong></span>
-                      </div>
+                      <span className={`inline-flex w-fit items-center rounded-md px-2 py-0.5 text-[10px] font-black uppercase tracking-wider ${
+                        user.role === "admin"
+                          ? "bg-purple-500/20 text-purple-300 border border-purple-500/30"
+                          : user.role === "sales"
+                          ? "bg-blue-500/20 text-blue-300 border border-blue-500/30"
+                          : user.role === "partner"
+                          ? "bg-amber-500/20 text-amber-300 border border-amber-500/30"
+                          : "bg-teal-500/20 text-teal-300 border border-teal-500/30"
+                      }`}>
+                        {formatPortalRole(user.role, locale)}
+                      </span>
                     </TableCell>
                     <TableCell className="py-3 text-xs text-gray-300">
                       {user.company || "-"}
@@ -3187,7 +3184,7 @@ function AdminUserManagement({
                 </DialogTitle>
                 <DialogDescription className="text-xs text-gray-400">
                   {editingUser
-                    ? "Update credentials, price tier, WhatsApp, or manually configure Telegram chat ID."
+                    ? "Update credentials, account role, WhatsApp, or manually configure Telegram chat ID."
                     : "Create a new internal staff or buyer account with login credentials."}
                 </DialogDescription>
               </DialogHeader>
