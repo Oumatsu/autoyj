@@ -8,6 +8,7 @@ const defaultLanguage = defaultLocale;
 const availableLanguages = locales;
 
 const instanceLanguageMap = new WeakMap<object, string>();
+const tolgeeInstanceCache = new Map<string, ReturnType<typeof createTolgeeInstance>>();
 let lastCreatedLanguage: string = defaultLanguage;
 
 export function getLastCreatedTolgeeLanguage(): string {
@@ -19,16 +20,7 @@ export function getTolgeeTargetLanguage(tolgee: object | null | undefined): stri
   return instanceLanguageMap.get(tolgee);
 }
 
-export function createTolgee(
-  initialLocale: string = defaultLanguage,
-  _options: { remote?: boolean } = {}
-) {
-  const language = (availableLanguages as readonly string[]).includes(initialLocale)
-    ? initialLocale
-    : defaultLanguage;
-
-  lastCreatedLanguage = language;
-
+function createTolgeeInstance(language: string) {
   const instance = Tolgee().use(FormatIcu());
   instanceLanguageMap.set(instance, language);
   const res = instance.init({
@@ -42,3 +34,22 @@ export function createTolgee(
   void res.run();
   return res;
 }
+
+export function createTolgee(
+  initialLocale: string = defaultLanguage,
+  _options: { remote?: boolean } = {}
+) {
+  const language = (availableLanguages as readonly string[]).includes(initialLocale)
+    ? initialLocale
+    : defaultLanguage;
+
+  lastCreatedLanguage = language;
+
+  let instance = tolgeeInstanceCache.get(language);
+  if (!instance) {
+    instance = createTolgeeInstance(language);
+    tolgeeInstanceCache.set(language, instance);
+  }
+  return instance;
+}
+

@@ -3,6 +3,33 @@ import { handlePortalRequest } from "./api/portal";
 import { runFeishuScheduledSync } from "./jobs/feishu-sync";
 import type { ExecutionContext, WorkerEnv } from "./types";
 
+const STATIC_EXTENSIONS = /\.(webp|png|jpg|jpeg|svg|ico|gif|woff2?|ttf|eot|css|js|map|json|pdf|txt|xml|webmanifest)$/i;
+
+function isStaticAssetPath(pathname: string): boolean {
+  return (
+    pathname.startsWith("/_next/") ||
+    pathname.startsWith("/pic/") ||
+    pathname.startsWith("/assets/") ||
+    pathname.startsWith("/reports/") ||
+    pathname.startsWith("/insights/") ||
+    pathname.startsWith("/favicon") ||
+    pathname.startsWith("/logo") ||
+    pathname.startsWith("/icons") ||
+    pathname.startsWith("/images") ||
+    pathname.startsWith("/fonts") ||
+    pathname === "/robots.txt" ||
+    pathname === "/sitemap.xml" ||
+    pathname === "/manifest.webmanifest" ||
+    pathname === "/sw.js" ||
+    STATIC_EXTENSIONS.test(pathname)
+  );
+}
+
+function isPublicCacheableRoute(pathname: string): boolean {
+  return !pathname.startsWith("/api/");
+}
+
+
 export default {
   async fetch(request: Request, env: WorkerEnv, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
@@ -34,17 +61,39 @@ export default {
       return assetResponse;
     }
 
-    if (url.pathname === "/robots.txt" || url.pathname === "/sitemap.xml") {
-      const assetResponse = await env.ASSETS.fetch(request);
-      if (assetResponse.status === 200) {
-        const headers = new Headers(assetResponse.headers);
-        const contentType = url.pathname.endsWith(".xml") ? "application/xml; charset=utf-8" : "text/plain; charset=utf-8";
-        headers.set("content-type", contentType);
-        headers.set("cache-control", "public, max-age=86400, stale-while-revalidate=604800");
-        return new Response(assetResponse.body, {
-          status: 200,
-          headers,
-        });
+    // Direct edge asset serving: bypass Worker runtime JS routing for all static files
+    if (isStaticAssetPath(url.pathname)) {
+      try {
+        const assetResponse = await env.ASSETS.fetch(request);
+        if (assetResponse.status === 200 || assetResponse.status === 304 || assetResponse.status === 206) {
+          const headers = new Headers(assetResponse.headers);
+          if (url.pathname.startsWith("/_next/static/")) {
+            headers.set("cache-control", "public, max-age=31536000, immutable");
+          } else if (url.pathname.endsWith(".xml")) {
+            headers.set("content-type", "application/xml; charset=utf-8");
+            headers.set("cache-control", "public, max-age=86400, stale-while-revalidate=604800");
+          } else if (url.pathname === "/robots.txt") {
+            headers.set("content-type", "text/plain; charset=utf-8");
+            headers.set("cache-control", "public, max-age=86400, stale-while-revalidate=604800");
+          } else if (url.pathname === "/manifest.webmanifest") {
+            headers.set("content-type", "application/manifest+json; charset=utf-8");
+            headers.set("cache-control", "public, max-age=86400, stale-while-revalidate=604800");
+          } else if (url.pathname === "/sw.js") {
+            headers.set("content-type", "application/javascript; charset=utf-8");
+            headers.set("cache-control", "no-cache, no-store, must-revalidate, max-age=0");
+            headers.set("pragma", "no-cache");
+            headers.set("expires", "0");
+          } else {
+            headers.set("cache-control", "public, max-age=86400, stale-while-revalidate=604800");
+          }
+          return new Response(assetResponse.body, {
+            status: assetResponse.status,
+            statusText: assetResponse.statusText,
+            headers,
+          });
+        }
+      } catch {
+        // Fall through if ASSETS fetch failed
       }
     }
 
@@ -63,7 +112,29 @@ export default {
       });
     }
 
-    return handler.fetch(request, env, ctx);
+    const response = await handler.fetch(request, env, ctx);
+
+    // Apply Edge caching for public marketing/catalog HTML pages to eliminate Error 1102
+    if (
+      request.method === "GET" &&
+      response.status === 200 &&
+      isPublicCacheableRoute(url.pathname)
+    ) {
+      const contentType = response.headers.get("content-type") || "";
+      if (contentType.includes("text/html") || response.headers.get("rsc")) {
+        const headers = new Headers(response.headers);
+        if (!headers.has("cache-control") || headers.get("cache-control")?.includes("no-store")) {
+          headers.set("cache-control", "public, max-age=0, s-maxage=300, stale-while-revalidate=86400");
+          return new Response(response.body, {
+            status: response.status,
+            statusText: response.statusText,
+            headers,
+          });
+        }
+      }
+    }
+
+    return response;
   },
   async scheduled(_event: { cron: string }, env: WorkerEnv, ctx: ExecutionContext): Promise<void> {
     ctx.waitUntil(runFeishuScheduledSync(env));
