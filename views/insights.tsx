@@ -1,7 +1,7 @@
 "use client";
 
 import Loading from "../components/Loading";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useTranslation, T } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
 import { sanitizeDisplayData } from "@/lib/display-text";
@@ -109,13 +109,11 @@ export default function InsightsPage() {
   const start = page * PER_PAGE;
   const paged = feedArticles.slice(start, start + PER_PAGE);
 
+  const feedRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
-    const el = document.getElementById("insights-feed");
-    if (el) {
-      const navbar = document.getElementById("navbar");
-      const offset = navbar ? navbar.offsetHeight + 12 : 80;
-      const top = el.getBoundingClientRect().top + window.scrollY - offset;
-      window.scrollTo({ top, behavior: "smooth" });
+    if (page > 0) {
+      feedRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   }, [page]);
 
@@ -200,7 +198,7 @@ export default function InsightsPage() {
               )}
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
                 <div className="lg:col-span-8">
-                  <div id="insights-feed" className="flex items-center gap-4 mb-8 pb-4 border-b border-white/10">
+                  <div ref={feedRef} id="insights-feed" className="scroll-mt-24 flex items-center gap-4 mb-8 pb-4 border-b border-white/10">
                     <div className="text-xs font-black uppercase tracking-widest text-white">{t("insights.latestIntelligence")}</div>
                     <div className="flex items-center gap-1">
                       {(["recommended", "newest", "oldest"] as const).map((mode) => (
