@@ -46,21 +46,33 @@ const STATIC_PAGES = [
 const CJK_RE = /[\u4e00-\u9fff]/;
 
 async function collectLocalImgSrcs(page: import("@playwright/test").Page): Promise<string[]> {
-  await page.waitForLoadState("domcontentloaded");
-  return page.evaluate(() => {
-    return Array.from(document.querySelectorAll("img[src]") as NodeListOf<HTMLImageElement>)
-      .map((img) => img.getAttribute("src") ?? "")
-      .filter((src) => src.startsWith("/pic/"));
-  });
+  await page.waitForLoadState("load");
+  await page.waitForTimeout(200);
+  try {
+    return await page.locator("img[src]").evaluateAll((imgs) => {
+      return imgs
+        .map((img) => img.getAttribute("src") ?? "")
+        .filter((src) => src.startsWith("/pic/"));
+    });
+  } catch {
+    await page.waitForTimeout(300);
+    return await page.locator("img[src]").evaluateAll((imgs) => {
+      return imgs
+        .map((img) => img.getAttribute("src") ?? "")
+        .filter((src) => src.startsWith("/pic/"));
+    });
+  }
 }
 
 async function getBodyText(page: import("@playwright/test").Page): Promise<string> {
-  await page.waitForLoadState("domcontentloaded");
-  return page.evaluate(() => {
-    const clone = document.body.cloneNode(true) as HTMLElement;
-    clone.querySelectorAll("script, style, noscript, meta").forEach((el) => el.remove());
-    return (clone as HTMLElement).innerText || clone.textContent || "";
-  });
+  await page.waitForLoadState("load");
+  await page.waitForTimeout(200);
+  try {
+    return await page.locator("body").innerText();
+  } catch {
+    await page.waitForTimeout(300);
+    return await page.locator("body").innerText();
+  }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
