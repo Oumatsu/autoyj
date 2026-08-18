@@ -20,7 +20,9 @@ export function SiteChrome({ children }: { children: ReactNode }) {
   const isDashboardRoute =
     pathSegments[0] === "dashboard" ||
     pathSegments[1] === "dashboard";
-  const hidePublicFooter = isPortalRoute || isDashboardRoute;
+  const isAppConsole = isPortalRoute || isDashboardRoute;
+  const hidePublicFooter = isAppConsole;
+  const hidePublicNavbar = isAppConsole;
   const locale = getLocaleFromPath(pathname);
 
   useEffect(() => {
@@ -42,7 +44,7 @@ export function SiteChrome({ children }: { children: ReactNode }) {
 
   return (
     <TolgeeWrapper locale={locale}>
-      {!isPortalRoute && <Navbar />}
+      {!hidePublicNavbar && <Navbar />}
       {children}
       {!hidePublicFooter && <Footer />}
       <PwaInstallPrompt />

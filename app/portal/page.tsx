@@ -1183,7 +1183,7 @@ function AdminPortal({
             className="fixed inset-0 z-30 bg-black/70 lg:hidden"
           />
         )}
-        <aside className={`${mobileSidebarOpen ? "fixed inset-y-[var(--navbar-h,56px)] left-0 z-40 flex" : "hidden"} min-h-[calc(100vh-var(--navbar-h,56px))] w-[min(20rem,calc(100vw-2rem))] flex-col overflow-y-auto border-b border-white/10 bg-[#101827] px-4 py-5 shadow-2xl transition-[padding] duration-200 lg:sticky lg:top-0 lg:z-auto lg:flex lg:h-screen lg:w-auto lg:self-start lg:overflow-visible lg:border-b-0 lg:border-r lg:shadow-none ${sidebarCollapsed ? "lg:px-3" : "lg:px-5"}`}>
+        <aside className={`${mobileSidebarOpen ? "fixed inset-y-0 left-0 z-50 flex" : "hidden"} min-h-screen w-[min(20rem,calc(100vw-2rem))] flex-col overflow-y-auto border-b border-white/10 bg-[#101827] px-4 py-5 shadow-2xl transition-[padding] duration-200 lg:sticky lg:top-0 lg:z-auto lg:flex lg:h-screen lg:w-auto lg:self-start lg:overflow-visible lg:border-b-0 lg:border-r lg:shadow-none ${sidebarCollapsed ? "lg:px-3" : "lg:px-5"}`}>
           <div className="min-h-0 flex-1">
             <div className={`flex items-center gap-3 border-b border-white/10 pb-6 ${sidebarCollapsed ? "lg:flex-col lg:justify-center lg:gap-2 lg:pb-4" : ""}`}>
               <div className={`grid shrink-0 place-items-center rounded-2xl bg-[#22b8aa] font-black text-[#0c1322] transition-all duration-200 ${sidebarCollapsed ? "lg:h-12 lg:w-12 lg:text-base" : "h-14 w-14 text-xl"}`}>

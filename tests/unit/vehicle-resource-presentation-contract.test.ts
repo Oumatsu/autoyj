@@ -85,7 +85,7 @@ test("mobile dashboard hides the sidebar until its dedicated navigation drawer i
 
   expect(portal).toContain("const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);");
   expect(portal).toContain('aria-label="Open dashboard navigation"');
-  expect(portal).toContain('mobileSidebarOpen ? "fixed inset-y-[var(--navbar-h,56px)] left-0 z-40 flex" : "hidden"');
+  expect(portal).toContain('mobileSidebarOpen ? "fixed inset-y-0 left-0 z-50 flex" : "hidden"');
   expect(portal).toContain("lg:flex");
   expect(portal).toContain("setMobileSidebarOpen(false);");
 });
