@@ -2,31 +2,15 @@ import { describe, expect, test } from "bun:test";
 import { canTransitionInquiryStatus, type InquiryStatus } from "../../../lib/inquiry-workflow";
 
 const ALL_STATUSES: InquiryStatus[] = [
-  "New Inquiry",
-  "Quoted",
-  "Negotiating",
-  "Accepted",
-  "Closed",
+  "open",
+  "closed",
 ];
 
 describe("Inquiry Status Machine Exhaustive Transitions", () => {
-  // Legal transitions:
-  // New Inquiry -> Quoted, Closed
-  // Quoted -> Negotiating, Accepted, Closed
-  // Negotiating -> Quoted, Accepted, Closed
-  // Accepted -> Closed
-  // Closed -> New Inquiry (reopen)
+  // Legal transitions: open <-> closed.
   const LEGAL_PAIRS: Array<[InquiryStatus, InquiryStatus]> = [
-    ["New Inquiry", "Quoted"],
-    ["New Inquiry", "Closed"],
-    ["Quoted", "Negotiating"],
-    ["Quoted", "Accepted"],
-    ["Quoted", "Closed"],
-    ["Negotiating", "Quoted"],
-    ["Negotiating", "Accepted"],
-    ["Negotiating", "Closed"],
-    ["Accepted", "Closed"],
-    ["Closed", "New Inquiry"],
+    ["open", "closed"],
+    ["closed", "open"],
   ];
 
   test("all defined legal transitions return true", () => {
@@ -47,8 +31,15 @@ describe("Inquiry Status Machine Exhaustive Transitions", () => {
   });
 
   test("null or undefined status transitions return false", () => {
-    expect(canTransitionInquiryStatus(null, "Quoted")).toBe(false);
-    expect(canTransitionInquiryStatus("New Inquiry", null)).toBe(false);
+    expect(canTransitionInquiryStatus(null, "open")).toBe(false);
+    expect(canTransitionInquiryStatus("open", null)).toBe(false);
     expect(canTransitionInquiryStatus("", "")).toBe(false);
+  });
+
+  test("rejects every retired status", () => {
+    for (const retired of ["New Inquiry", "Quoted", "Negotiating", "Accepted", "Closed"]) {
+      expect(canTransitionInquiryStatus("open", retired)).toBe(false);
+      expect(canTransitionInquiryStatus(retired, "closed")).toBe(false);
+    }
   });
 });

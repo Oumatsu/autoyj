@@ -1112,7 +1112,7 @@ function AdminPortal({
   const normalizedActiveModule = visibleNav.some((item) => item.key === activeModule) ? activeModule : "dashboard";
   const activeItem = visibleNav.find((item) => item.key === normalizedActiveModule) || visibleNav[0];
   const totalStock = data.vehicles.reduce((sum, vehicle) => sum + getVehicleStockQuantity(vehicle), 0);
-  const openInquiries = data.inquiries.filter((item) => !["accepted", "closed", "cancelled"].includes(item.status.trim().toLowerCase())).length;
+  const openInquiries = data.inquiries.filter((item) => item.status.trim().toLowerCase() === "open").length;
   const orderTotal = data.orders.reduce((sum, order) => sum + order.total, 0);
 
   return (
@@ -2534,7 +2534,7 @@ function AdminQuotes({ data, onRefresh }: { data: BootstrapData; onRefresh: () =
   async function post(event: React.FormEvent) { event.preventDefault(); if (!selected || !note.trim()) return; setBusy(true); try { const result = await api<{ note: InquiryNote }>(`/api/portal/inquiries/${encodeURIComponent(selected.inquiryNo)}/notes`, { method: "POST", body: JSON.stringify({ body: note, parentNoteId: replyTo }) }); setPostedNotes((current) => appendInquiryComment(current, result.note)); setNote(""); setReplyTo(""); } catch (e) { setError(e instanceof Error ? e.message : "Could not add follow-up"); } finally { setBusy(false); } }
   async function submitCommentClosure(comment: InquiryNote, mode: "single" | "cascade") { setBusy(true); setError(""); try { const result = await api<{ closedNoteIds: string[] }>(`/api/portal/inquiry-content/note/${encodeURIComponent(comment.noteId)}`, { method: "DELETE", body: JSON.stringify({ reason: "Closed by administrator", mode }) }); const closedNoteIds = new Set(result.closedNoteIds || [comment.noteId]); setPostedNotes((current) => current.filter((item) => !closedNoteIds.has(item.noteId))); setReplyTo(""); setCommentPendingClosure(null); await onRefresh(); } catch (e) { setError(e instanceof Error ? e.message : "Could not close comment"); } finally { setBusy(false); } }
   function closeComment(comment: InquiryNote) { if (notes.some((item) => item.parentNoteId === comment.noteId)) { setCommentPendingClosure(comment); return; } if (!window.confirm(`${copy.closeComment}?`)) return; void submitCommentClosure(comment, "single"); }
-  async function closeInquiry(inquiry: Inquiry) { if (!window.confirm(inquiryCloseCopy.closeInquiryConfirmation)) return; setBusy(true); setError(""); try { await api(`/api/portal/inquiries/${encodeURIComponent(inquiry.inquiryNo)}/status`, { method: "PATCH", body: JSON.stringify({ status: "Closed" }) }); await onRefresh(); } catch (e) { setError(e instanceof Error ? e.message : "Could not close inquiry"); } finally { setBusy(false); } }
+  async function closeInquiry(inquiry: Inquiry) { if (!window.confirm(inquiryCloseCopy.closeInquiryConfirmation)) return; setBusy(true); setError(""); try { await api(`/api/portal/inquiries/${encodeURIComponent(inquiry.inquiryNo)}/status`, { method: "PATCH", body: JSON.stringify({ status: "closed" }) }); await onRefresh(); } catch (e) { setError(e instanceof Error ? e.message : "Could not close inquiry"); } finally { setBusy(false); } }
   async function loadHiddenComments() { setBusy(true); setError(""); try { const result = await api<{ notes: InquiryNote[] }>("/api/portal/inquiry-content/deleted"); setHiddenNotes(result.notes); setShowHiddenNotes(true); } catch (e) { setError(e instanceof Error ? e.message : "Could not load closed comments"); } finally { setBusy(false); } }
   async function moderateHiddenComment(noteId: string, action: "restore" | "purge") { if (action === "purge" && !window.confirm(copy.deletePermanently + "?")) return; setBusy(true); setError(""); try { await api(`/api/portal/inquiry-content/note/${encodeURIComponent(noteId)}`, { method: "PATCH", body: JSON.stringify({ action }) }); if (action === "restore") await onRefresh(); await loadHiddenComments(); } catch (e) { setError(e instanceof Error ? e.message : "Could not update closed comment"); } finally { setBusy(false); } }
   async function loadClosedInquiries() { setBusy(true); setError(""); try { const result = await api<{ inquiries: Inquiry[] }>("/api/portal/inquiries/closed"); setClosedInquiries(result.inquiries); setShowClosedInquiries(true); } catch (e) { setError(e instanceof Error ? e.message : "Could not load closed inquiries"); } finally { setBusy(false); } }
@@ -3780,53 +3780,6 @@ export function buildModelProfileGroups(data: BootstrapData): ModelProfileGroup[
     return st === "active" || st === "published" || st === "online" || st === "在售" || st === "启用" || !/archived|draft|disabled|下架|停售/i.test(st);
   });
   const models = [...(activeModels.length ? activeModels : data.vehicleModels || [])];
-  const knownModelKeys = new Set(models.map((model) => normalizeKey(model.brand, model.model)));
-  for (const vehicle of data.vehicles || []) {
-    const canonicalModel = canonicalCatalogModelName(vehicle.brand, vehicle.model, models);
-    const key = normalizeKey(vehicle.brand, canonicalModel);
-    if (knownModelKeys.has(key)) continue;
-    models.push({
-      id: `resource:${modelResourceKey(vehicle.brand, canonicalModel)}`,
-      brand: vehicle.brand,
-      model: canonicalModel,
-      trim: "",
-      year: vehicle.year || "",
-      bodyType: vehicle.vehicleClass || inferVehicleSegment(vehicle),
-      fuelType: "",
-      msrpChina: "",
-      battery: "",
-      batteryType: "",
-      batteryMaker: "",
-      range: "",
-      energyConsumption: "",
-      motorPower: "",
-      motorTorque: "",
-      driveType: "",
-      topSpeed: "",
-      acceleration: "",
-      seats: "",
-      doors: "",
-      dimensions: "",
-      wheelbase: "",
-      curbWeight: "",
-      trunkCapacity: "",
-      charging: "",
-      frontSuspension: "",
-      rearSuspension: "",
-      adas: "",
-      marketPosition: "",
-      exportNotes: "",
-      imageUrl: vehicle.imageUrl || "",
-      brochureUrl: "",
-      sourceUrl: "",
-      sourceName: "Vehicle Resource",
-      lastSyncedAt: vehicle.syncedAt || "",
-      fullSpecsJson: "",
-      status: "active",
-      recommendationRank: vehicle.recommendationRank ?? null,
-    });
-    knownModelKeys.add(key);
-  }
   const grouped = new Map<string, ModelProfileGroup>();
   for (const model of models) {
     const modelGallery = modelGalleryImages(model);

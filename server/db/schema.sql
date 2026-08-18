@@ -149,7 +149,7 @@ CREATE TABLE IF NOT EXISTS inquiries (
   initial_note TEXT,
   vehicle_snapshot_json TEXT NOT NULL DEFAULT '',
   is_public INTEGER NOT NULL DEFAULT 0,
-  status TEXT NOT NULL DEFAULT 'New Inquiry',
+  status TEXT NOT NULL DEFAULT 'open',
   source TEXT NOT NULL DEFAULT 'Customer Portal',
   deleted_at TEXT,
   deleted_by_user_id TEXT,

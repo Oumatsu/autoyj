@@ -12,7 +12,7 @@ test("active quote cards show their start time, hide IDs from non-admins, and le
   expect(panel).toContain("inquiry.createdAt");
   expect(panel).toContain("inquiryCloseCopy.startedAt");
   expect(panel).toContain("canModerateComments && <span");
-  expect(panel).toContain('status: "Closed"');
+  expect(panel).toContain('status: "closed"');
   expect(panel).toContain("/inquiries/${encodeURIComponent(inquiry.inquiryNo)}/status");
   expect(panel).toContain("inquiryCloseCopy.closeInquiry");
   expect(panel).toContain("Close comment");

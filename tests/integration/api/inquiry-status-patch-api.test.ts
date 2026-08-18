@@ -68,32 +68,32 @@ const OPEN_INQUIRY = {
   vehicle_id: "V-001", vehicle_model: "BYD Seal", title: "Test",
   quantity: 5, destination_port: "Djibouti", trade_term: "FOB",
   target_price: 25000, initial_note: "Test inquiry", vehicle_snapshot_json: "{}",
-  is_public: 0, status: "New Inquiry", source: "Customer Portal",
+  is_public: 0, status: "open", source: "Customer Portal",
   deleted_at: null, created_at: "2026-08-14T00:00:00.000Z", updated_at: "2026-08-14T00:00:00.000Z",
 };
 
-const CLOSED_INQUIRY = { ...OPEN_INQUIRY, status: "Closed", updated_at: "2026-08-15T00:00:00.000Z" };
+const CLOSED_INQUIRY = { ...OPEN_INQUIRY, status: "closed", updated_at: "2026-08-15T00:00:00.000Z" };
 
 describe("PATCH /api/portal/inquiries/:id/status", () => {
-  test("returns 400 for illegal status transition (New Inquiry → Accepted)", async () => {
+  test("returns 400 for every retired status", async () => {
     const db = makeDb(OPEN_INQUIRY);
     const env = makeEnv(db);
-    const token = await loginAs("sales", env);
+    const token = await loginAs("admin", env);
 
     const res = await handlePortalRequest(
       new Request("http://localhost/api/portal/inquiries/INQ-2026-001/status", {
         method: "PATCH",
         headers: { "Content-Type": "application/json", Cookie: `portal_session=${token}` },
-        body: JSON.stringify({ status: "Accepted", reason: "skipping steps" }),
+        body: JSON.stringify({ status: "Quoted", reason: "retired state" }),
       }),
       env,
     );
     expect(res.status).toBe(400);
     const body = await res.json() as { error?: string };
-    expect(body.error).toMatch(/transition|invalid|not allowed/i);
+    expect(body.error).toMatch(/open or closed/i);
   });
 
-  test("returns 403 when customer role tries to change status", async () => {
+  test("returns 403 when customer role tries to close an inquiry", async () => {
     const db = makeDb(OPEN_INQUIRY);
     const env = makeEnv(db);
     const token = await loginAs("customer", env);
@@ -102,32 +102,33 @@ describe("PATCH /api/portal/inquiries/:id/status", () => {
       new Request("http://localhost/api/portal/inquiries/INQ-2026-001/status", {
         method: "PATCH",
         headers: { "Content-Type": "application/json", Cookie: `portal_session=${token}` },
-        body: JSON.stringify({ status: "Quoted", reason: "customer trying to self-quote" }),
+        body: JSON.stringify({ status: "closed", reason: "customer trying to close" }),
       }),
       env,
     );
     expect(res.status).toBe(403);
   });
 
-  test("returns 200 and writes status history for valid transition (New Inquiry → Quoted)", async () => {
+  test("administrator closes an open inquiry and writes normalized history", async () => {
     const db = makeDb(OPEN_INQUIRY);
     const env = makeEnv(db);
-    const token = await loginAs("sales", env);
+    const token = await loginAs("admin", env);
 
     const res = await handlePortalRequest(
       new Request("http://localhost/api/portal/inquiries/INQ-2026-001/status", {
         method: "PATCH",
         headers: { "Content-Type": "application/json", Cookie: `portal_session=${token}` },
-        body: JSON.stringify({ status: "Quoted", reason: "quote sent" }),
+        body: JSON.stringify({ status: "closed", reason: "administrative closure" }),
       }),
       env,
     );
     expect(res.status).toBe(200);
+    expect(await res.json()).toMatchObject({ status: "closed" });
     const historyWrite = db.written.some(({ sql }) => /inquiry_status_history/i.test(sql));
     expect(historyWrite).toBe(true);
   });
 
-  test("only administrators can restore a closed inquiry to its pre-closure status", async () => {
+  test("only administrators can restore a closed inquiry to open", async () => {
     const db = makeDb(CLOSED_INQUIRY);
     const env = makeEnv(db);
     const salesToken = await loginAs("sales", env);
@@ -152,7 +153,7 @@ describe("PATCH /api/portal/inquiries/:id/status", () => {
       env,
     );
     expect(restored.status).toBe(200);
-    expect(db.written.some(({ sql, values }) => /UPDATE\s+inquiries\s+SET\s+status=\?/i.test(sql) && values.includes("Quoted"))).toBe(true);
+    expect(db.written.some(({ sql, values }) => /UPDATE\s+inquiries\s+SET\s+status=\?/i.test(sql) && values.includes("open"))).toBe(true);
   });
 
   test("administrator can list closed inquiries for recovery", async () => {
@@ -168,7 +169,7 @@ describe("PATCH /api/portal/inquiries/:id/status", () => {
     );
     expect(res.status).toBe(200);
     const payload = await res.json() as { inquiries: Array<{ inquiryNo: string; status: string }> };
-    expect(payload.inquiries).toEqual([expect.objectContaining({ inquiryNo: "INQ-2026-001", status: "Closed" })]);
+    expect(payload.inquiries).toEqual([expect.objectContaining({ inquiryNo: "INQ-2026-001", status: "closed" })]);
   });
 
   test("non-administrators cannot read the closed inquiry recovery list", async () => {

@@ -529,7 +529,7 @@ describe("portal request/D1 isolation", () => {
       inquiries: [{
         inquiry_no: "INQ-1",
         customer_id: "CUS-1",
-        status: "Quoted",
+        status: "open",
       }],
     });
     const cookie = await login(db);
@@ -558,8 +558,8 @@ describe("portal request/D1 isolation", () => {
     const sql = db.batches.flat().join("\n");
     expect(sql).toContain("INSERT INTO negotiations");
     expect(sql).toContain("UPDATE quotes");
-    expect(sql).toContain("UPDATE inquiries");
-    expect(sql).toContain("INSERT INTO inquiry_status_history");
+    expect(sql).not.toContain("UPDATE inquiries SET status");
+    expect(sql).not.toContain("INSERT INTO inquiry_status_history");
     expect(sql).toContain("INSERT INTO orders");
   });
 
@@ -626,22 +626,22 @@ describe("portal request/D1 isolation", () => {
   });
 
   test("only an administrator can close an inquiry without deleting its discussion", async () => {
-    const inquiry = { inquiry_no: "INQ-1", status: "New Inquiry", customer_id: "CUS-1" };
+    const inquiry = { inquiry_no: "INQ-1", status: "open", customer_id: "CUS-1" };
     const adminDb = fakeD1({ user: { ...validUser, role: "admin", account_type: "internal" }, inquiries: [inquiry] });
     const adminCookie = await login(adminDb);
     const response = await handlePortalRequest(
       new Request("https://portal.example/api/portal/inquiries/INQ-1/status", {
         method: "PATCH",
         headers: { cookie: adminCookie, "content-type": "application/json" },
-        body: JSON.stringify({ status: "Closed" }),
+        body: JSON.stringify({ status: "closed" }),
       }),
       env(adminDb),
     );
 
     expect(response.status).toBe(200);
-    expect(await response.json()).toMatchObject({ ok: true, status: "Closed" });
+    expect(await response.json()).toMatchObject({ ok: true, status: "closed" });
     const adminSql = adminDb.batches.flat().join("\n");
-    expect(adminSql).toContain("UPDATE inquiries SET status='Closed'");
+    expect(adminSql).toContain("UPDATE inquiries SET status=?");
     expect(adminSql).toContain("INSERT INTO inquiry_status_history");
     expect(adminSql).not.toContain("DELETE FROM inquiries");
 
@@ -651,7 +651,7 @@ describe("portal request/D1 isolation", () => {
       new Request("https://portal.example/api/portal/inquiries/INQ-1/status", {
         method: "PATCH",
         headers: { cookie: salesCookie, "content-type": "application/json" },
-        body: JSON.stringify({ status: "Closed" }),
+        body: JSON.stringify({ status: "closed" }),
       }),
       env(salesDb),
     );

@@ -51,15 +51,44 @@ describe("Portal vehicle resource grouping", () => {
     expect(groups[0].galleryImages).toEqual([]);
   });
 
-  test("includes a resource-only model in the vehicle-model navigator", () => {
+  test("does not include a resource-only model in the vehicle-model navigator", () => {
     const groups = buildModelProfileGroups({
       vehicleModels: [],
       vehicles: [{ id: "huajing-s", brand: "Wuling", model: "Huajing S", year: "2025", trim: "", waitDays: 45, stockQuantity: 0 }],
       vehicleModelSpecs: [],
     } as any);
 
+    expect(groups).toHaveLength(0);
+  });
+
+  test("uses the model master record even when an inventory record has a different brand", () => {
+    const groups = buildModelProfileGroups({
+      vehicleModels: [{
+        id: "MDL-032-trim-1",
+        model_id: "MDL-032",
+        brand: "Deepal",
+        model: "Deepal S05",
+        trim: "520 Plus",
+        imageUrl: "/pic/revenue-king/S05/1.webp",
+        galleryImages: [{ src: "/pic/revenue-king/S05/1.webp" }],
+      }],
+      vehicles: [{
+        id: "source-s05",
+        modelId: "MDL-032",
+        brand: "Changan",
+        model: "Deepal S05",
+        trim: "520 Plus",
+        year: "2025",
+        waitDays: 0,
+        stockQuantity: 12,
+      }],
+      vehicleModelSpecs: [],
+    } as any);
+
     expect(groups).toHaveLength(1);
-    expect(groups[0].model).toBe("Huajing S");
+    expect(groups[0].brand).toBe("Deepal");
+    expect(groups[0].model).toBe("Deepal S05");
+    expect(groups[0].variants).toHaveLength(1);
   });
 
   test("groups matching vehicles across years and keeps supplier resources in the detail rows", () => {

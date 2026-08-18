@@ -116,14 +116,11 @@ export function hasUnreadInquiryActivity({ viewerUserId, noteAuthorUserId, noteC
   return noteAuthorUserId !== viewerUserId && (!lastReadAt || noteCreatedAt > lastReadAt);
 }
 
-export type InquiryStatus = "New Inquiry" | "Quoted" | "Negotiating" | "Accepted" | "Closed";
+export type InquiryStatus = "open" | "closed";
 
 const LEGAL_INQUIRY_TRANSITIONS: Record<string, string[]> = {
-  "New Inquiry": ["Quoted", "Closed"],
-  "Quoted": ["Negotiating", "Accepted", "Closed"],
-  "Negotiating": ["Quoted", "Accepted", "Closed"],
-  "Accepted": ["Closed"],
-  "Closed": ["New Inquiry"],
+  open: ["closed"],
+  closed: ["open"],
 };
 
 export function canTransitionInquiryStatus(

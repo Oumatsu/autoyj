@@ -3554,7 +3554,7 @@ async function handleCreateInquiry(request: Request, env: Env) {
     priceUsd: rowField(vehicle, "fob_usd", "display_price_low", "FOB"),
   } : { vehicleId, vehicleModel: selectedVehicleModel });
   const statements = [
-    db.prepare("INSERT INTO inquiries (id,inquiry_no,customer_id,vehicle_id,vehicle_model,title,quantity,destination_port,trade_term,target_price,initial_note,vehicle_snapshot_json,is_public,status,source,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)").bind(crypto.randomUUID(), inquiryNo, session.customerId, vehicleId, selectedVehicleModel, title, quantity, asText(body?.destinationPort), asText(body?.tradeTerm) || "FOB", asNumber(body?.targetPrice) || null, initialNote, vehicleSnapshot, Number(isPublic), "New Inquiry", "Customer Portal", now, now),
+    db.prepare("INSERT INTO inquiries (id,inquiry_no,customer_id,vehicle_id,vehicle_model,title,quantity,destination_port,trade_term,target_price,initial_note,vehicle_snapshot_json,is_public,status,source,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)").bind(crypto.randomUUID(), inquiryNo, session.customerId, vehicleId, selectedVehicleModel, title, quantity, asText(body?.destinationPort), asText(body?.tradeTerm) || "FOB", asNumber(body?.targetPrice) || null, initialNote, vehicleSnapshot, Number(isPublic), "open", "Customer Portal", now, now),
     db.prepare("INSERT INTO inquiry_participants (id,inquiry_no,customer_id,user_id,company,role,access_source,created_at) VALUES (?,?,?,?,?,?,?,?)").bind(crypto.randomUUID(), inquiryNo, session.customerId, session.userId, session.company, session.role, "Creator", now),
   ];
   if (initialNote) statements.push(
@@ -3582,68 +3582,32 @@ async function handleCreateQuote(request: Request, env: Env) {
     db.prepare("INSERT INTO quotes (id, quote_no, inquiry_no, customer_id, vehicle_id, price, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)").bind(
       crypto.randomUUID(), quoteNo, inquiry.inquiry_no, inquiry.customer_id, inquiry.vehicle_id, unitPrice, "Active", now, now,
     ),
-    ...commercialInquiryTransitionStatements(db, inquiry.inquiry_no, inquiry.status, "Quoted", session, "Quotation created", now),
   ];
   await db.batch(statements);
   return json({ ok: true, quoteNo, inquiryNo, quantity: inquiry.quantity, unitPrice }, { status: 201 });
 }
 
-const INQUIRY_STATUS_TRANSITIONS: Record<string, string[]> = {
-  "New Inquiry": ["Quoted", "Closed"],
-  "Quoted": ["Negotiating", "Accepted", "Closed"],
-  "Negotiating": ["Quoted", "Accepted", "Closed"],
-  "Accepted": ["Closed"],
-  "Closed": ["New Inquiry"],
+const INQUIRY_STATUS_TRANSITIONS: Record<"open" | "closed", Array<"open" | "closed">> = {
+  open: ["closed"],
+  closed: ["open"],
 };
 
-function assertInquiryIsMutable(status: string | null | undefined) {
-  if (String(status || "").trim().toLowerCase() === "closed") throw problem("Inquiry is closed", 409);
+function normalizeInquiryStatus(status: string | null | undefined): "open" | "closed" {
+  return String(status || "").trim().toLowerCase() === "closed" ? "closed" : "open";
 }
 
-function commercialInquiryTransitionStatements(
-  db: D1Database,
-  inquiryNo: string,
-  currentStatus: string,
-  nextStatus: "Quoted" | "Negotiating" | "Accepted",
-  session: PortalSession,
-  reason: string,
-  now: string,
-) {
-  if (currentStatus === nextStatus) return [];
-  const allowedNext = INQUIRY_STATUS_TRANSITIONS[currentStatus] || [];
-  if (!allowedNext.includes(nextStatus)) throw problem(`Inquiry cannot transition from '${currentStatus}' to '${nextStatus}'`, 409);
-  return [
-    db.prepare("UPDATE inquiries SET status=?, updated_at=? WHERE inquiry_no=?").bind(nextStatus, now, inquiryNo),
-    db.prepare(
-      "INSERT INTO inquiry_status_history (id, history_id, inquiry_no, from_status, to_status, reason, actor_user_id, actor_name, actor_role, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-    ).bind(
-      crypto.randomUUID(),
-      nextId("HIS"),
-      inquiryNo,
-      currentStatus,
-      nextStatus,
-      reason,
-      session.userId,
-      session.name,
-      session.role,
-      now,
-    ),
-  ];
+function assertInquiryIsMutable(status: string | null | undefined) {
+  if (normalizeInquiryStatus(status) === "closed") throw problem("Inquiry is closed", 409);
 }
 
 async function handleUpdateInquiryStatus(request: Request, env: Env, inquiryNo: string) {
   const session = await requireSession(request, env);
   const body = (await request.json().catch(() => null)) as Record<string, unknown> | null;
-  const restoreRequested = asText(body?.action).trim() === "restore";
-  const newStatus = asText(body?.status).trim();
+  const restoreRequested = asText(body?.action).trim().toLowerCase() === "restore";
+  const newStatus = asText(body?.status).trim().toLowerCase();
   const reason = asText(body?.reason).trim();
   if (!restoreRequested && !newStatus) return problem("Target status is required", 400);
-
-  if (restoreRequested || newStatus.toLowerCase() === "closed") {
-    if (session.role !== "admin") return problem("Administrator access required", 403);
-  } else if (!canCreateVehicleQuotation(session.role)) {
-    return problem("Only admin and sales can update inquiry status", 403);
-  }
+  if (session.role !== "admin") return problem("Administrator access required", 403);
 
   const db = requirePortalDb(env);
   const inquiry = await db
@@ -3653,19 +3617,15 @@ async function handleUpdateInquiryStatus(request: Request, env: Env, inquiryNo: 
 
   if (!inquiry) return problem("Inquiry not found", 404);
 
-  const currentStatus = inquiry.status || "New Inquiry";
-  let targetStatus = newStatus;
+  const currentStatus = normalizeInquiryStatus(inquiry.status);
+  let targetStatus: "open" | "closed";
   if (restoreRequested) {
-    if (currentStatus !== "Closed") return problem("Only closed inquiries can be restored", 409);
-    const closure = await db.prepare("SELECT from_status FROM inquiry_status_history WHERE inquiry_no=? AND to_status='Closed' ORDER BY created_at DESC LIMIT 1").bind(inquiryNo).first<{ from_status: string }>();
-    const priorStatus = closure?.from_status || "";
-    if (!priorStatus || priorStatus === "Closed" || !(INQUIRY_STATUS_TRANSITIONS[priorStatus] || []).includes("Closed")) {
-      return problem("Closed inquiry has no restorable prior status", 409);
-    }
-    targetStatus = priorStatus;
+    if (currentStatus !== "closed") return problem("Only closed inquiries can be restored", 409);
+    targetStatus = "open";
   } else {
-    if (currentStatus === "Closed") return problem("Use restore action for a closed inquiry", 409);
-    const allowedNext = INQUIRY_STATUS_TRANSITIONS[currentStatus] || [];
+    if (newStatus !== "open" && newStatus !== "closed") return problem("Inquiry status must be open or closed", 400);
+    const allowedNext = INQUIRY_STATUS_TRANSITIONS[currentStatus];
+    targetStatus = newStatus;
     if (!allowedNext.includes(targetStatus)) {
       return problem(`Invalid status transition from '${currentStatus}' to '${targetStatus}'`, 400);
     }
@@ -3673,10 +3633,7 @@ async function handleUpdateInquiryStatus(request: Request, env: Env, inquiryNo: 
 
   const now = nowText();
   const historyId = nextId("HIS");
-  const updateStmt =
-    targetStatus === "Closed"
-      ? db.prepare("UPDATE inquiries SET status='Closed', updated_at=? WHERE inquiry_no=?").bind(now, inquiryNo)
-      : db.prepare("UPDATE inquiries SET status=?, updated_at=? WHERE inquiry_no=?").bind(targetStatus, now, inquiryNo);
+  const updateStmt = db.prepare("UPDATE inquiries SET status=?, updated_at=? WHERE inquiry_no=?").bind(targetStatus, now, inquiryNo);
 
   const statements = [
     updateStmt,
@@ -3688,7 +3645,7 @@ async function handleUpdateInquiryStatus(request: Request, env: Env, inquiryNo: 
       inquiryNo,
       currentStatus,
       targetStatus,
-      reason || (restoreRequested ? "Restored by administrator" : targetStatus === "Closed" ? "Closed by administrator" : `Status updated to ${targetStatus}`),
+      reason || (restoreRequested ? "Restored by administrator" : "Closed by administrator"),
       session.userId,
       session.name,
       session.role,
@@ -3768,7 +3725,7 @@ export async function handlePublicContact(request: Request, env: Env) {
   ).run();
   return json({ ok: true });
 }
-function mapD1Inquiry(row: any) { return { id: row.id, inquiryNo: row.inquiry_no, customerId: row.customer_id, vehicleId: row.vehicle_id, vehicleModel: row.vehicle_model, title: row.title || "", quantity: Number(row.quantity || 0), destinationPort: row.destination_port || "", tradeTerm: row.trade_term || "", targetPrice: Number(row.target_price || 0), notes: row.initial_note || "", vehicleSnapshot: row.vehicle_snapshot_json || "", isPublic: Boolean(row.is_public), creatorUserId: row.creator_user_id || "", creatorName: row.creator_name || "", lastReadAt: row.last_read_at || null, hasUnreadFollowUps: Boolean(row.has_unread_follow_ups), status: row.status || "New Inquiry", createdAt: row.created_at, updatedAt: row.updated_at, deletedAt: row.deleted_at || "" }; }
+function mapD1Inquiry(row: any) { return { id: row.id, inquiryNo: row.inquiry_no, customerId: row.customer_id, vehicleId: row.vehicle_id, vehicleModel: row.vehicle_model, title: row.title || "", quantity: Number(row.quantity || 0), destinationPort: row.destination_port || "", tradeTerm: row.trade_term || "", targetPrice: Number(row.target_price || 0), notes: row.initial_note || "", vehicleSnapshot: row.vehicle_snapshot_json || "", isPublic: Boolean(row.is_public), creatorUserId: row.creator_user_id || "", creatorName: row.creator_name || "", lastReadAt: row.last_read_at || null, hasUnreadFollowUps: Boolean(row.has_unread_follow_ups), status: normalizeInquiryStatus(row.status), createdAt: row.created_at, updatedAt: row.updated_at, deletedAt: row.deleted_at || "" }; }
 function mapD1Note(row: any) {
   const isHiddenPlaceholder = Boolean(row.isHiddenPlaceholder);
   const inquiry = row.context_inquiry_no
@@ -4258,7 +4215,7 @@ async function handleCounterOffer(request: Request, env: Env, quoteNo: string) {
   const offeredPrice = asNumber(body?.offeredPrice ?? body?.counterPrice);
   const message = asText(body?.message).trim();
   if (!offeredPrice && !message) return problem("Counteroffer price or message is required");
-  const { db, quote, inquiryStatus } = await findScopedQuote(env, session, quoteNo);
+  const { db, quote } = await findScopedQuote(env, session, quoteNo);
   const now = nowText();
   const counterMessage = [
     offeredPrice ? `Counteroffer price: ${quote.currency} ${offeredPrice}` : "",
@@ -4270,14 +4227,13 @@ async function handleCounterOffer(request: Request, env: Env, quoteNo: string) {
       VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `).bind(crypto.randomUUID(), quote.inquiryNo, quote.quoteNo, session.userId, session.name, session.role, counterMessage, now),
     db.prepare("UPDATE quotes SET status=?, updated_at=? WHERE quote_no=?").bind("Counteroffer Received", now, quote.quoteNo),
-    ...commercialInquiryTransitionStatements(db, quote.inquiryNo, inquiryStatus, "Negotiating", session, "Counteroffer received", now),
   ]);
   return json({ ok: true });
 }
 
 async function handleAcceptQuote(request: Request, env: Env, quoteNo: string) {
   const session = await requireSession(request, env);
-  const { db, quote, inquiryStatus } = await findScopedQuote(env, session, quoteNo);
+  const { db, quote } = await findScopedQuote(env, session, quoteNo);
   const inquiry = await db.prepare("SELECT customer_id FROM inquiries WHERE inquiry_no=? LIMIT 1").bind(quote.inquiryNo).first<{ customer_id: string }>();
   if (!inquiry) return problem("Inquiry not found", 404);
   const now = nowText();
@@ -4311,7 +4267,6 @@ async function handleAcceptQuote(request: Request, env: Env, quoteNo: string) {
       now,
       now,
     ),
-    ...commercialInquiryTransitionStatements(db, quote.inquiryNo, inquiryStatus, "Accepted", session, "Quotation accepted", now),
   ]);
   return json({ orderNo }, { status: 201 });
 }

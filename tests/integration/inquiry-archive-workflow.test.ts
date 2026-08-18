@@ -8,7 +8,7 @@ const CLOSED_INQUIRY = {
   customer_id: "CUS-002",
   vehicle_id: "V-001",
   quantity: 2,
-  status: "Closed",
+  status: "closed",
   deleted_at: null,
 };
 
@@ -24,7 +24,7 @@ const QUOTE = {
   status: "Active",
 };
 
-function makeDb(inquiryStatus = "Closed", statusBeforeClosure = "Negotiating") {
+function makeDb(inquiryStatus = "closed", statusBeforeClosure = "open") {
   const written: Array<{ sql: string; values: unknown[] }> = [];
   const db = {
     prepare(sql: string) {
@@ -77,51 +77,51 @@ test("a closed inquiry blocks quote creation, counteroffers, and quote acceptanc
   expect(db.written).toHaveLength(0);
 });
 
-test("creating a quotation transitions a new inquiry to Quoted with an audit record", async () => {
-  const db = makeDb("New Inquiry");
+test("creating a quotation keeps an open inquiry open without status history", async () => {
+  const db = makeDb("open");
   const targetEnv = env(db);
   const sales = await session("sales", targetEnv);
 
   const create = await handlePortalRequest(new Request("http://localhost/api/portal/quotes", { method: "POST", headers: { "Content-Type": "application/json", Cookie: `portal_session=${sales}` }, body: JSON.stringify({ inquiryNo: CLOSED_INQUIRY.inquiry_no, unitPrice: 22000 }) }), targetEnv);
 
   expect(create.status).toBe(201);
-  expect(db.written.some(({ sql, values }) => /UPDATE\s+inquiries\s+SET\s+status=\?/i.test(sql) && values.includes("Quoted"))).toBe(true);
-  expect(db.written.some(({ sql, values }) => /INSERT\s+INTO\s+inquiry_status_history/i.test(sql) && values.includes("New Inquiry") && values.includes("Quoted"))).toBe(true);
+  expect(db.written.some(({ sql }) => /UPDATE\s+inquiries\s+SET\s+status/i.test(sql))).toBe(false);
+  expect(db.written.some(({ sql }) => /INSERT\s+INTO\s+inquiry_status_history/i.test(sql))).toBe(false);
 });
 
-test("countering a quotation transitions a quoted inquiry to Negotiating with an audit record", async () => {
-  const db = makeDb("Quoted");
+test("countering a quotation keeps an open inquiry open without status history", async () => {
+  const db = makeDb("open");
   const targetEnv = env(db);
   const customer = await session("customer", targetEnv);
 
   const counter = await handlePortalRequest(new Request("http://localhost/api/portal/quotes/QTE-CLOSED-1/counter", { method: "POST", headers: { "Content-Type": "application/json", Cookie: `portal_session=${customer}` }, body: JSON.stringify({ counterPrice: 21000 }) }), targetEnv);
 
   expect(counter.status).toBe(200);
-  expect(db.written.some(({ sql, values }) => /UPDATE\s+inquiries\s+SET\s+status=\?/i.test(sql) && values.includes("Negotiating"))).toBe(true);
-  expect(db.written.some(({ sql, values }) => /INSERT\s+INTO\s+inquiry_status_history/i.test(sql) && values.includes("Quoted") && values.includes("Negotiating"))).toBe(true);
+  expect(db.written.some(({ sql }) => /UPDATE\s+inquiries\s+SET\s+status/i.test(sql))).toBe(false);
+  expect(db.written.some(({ sql }) => /INSERT\s+INTO\s+inquiry_status_history/i.test(sql))).toBe(false);
 });
 
-test("accepting a quotation transitions an active inquiry to Accepted with an audit record", async () => {
-  const db = makeDb("Negotiating");
+test("accepting a quotation keeps an open inquiry open without status history", async () => {
+  const db = makeDb("open");
   const targetEnv = env(db);
   const customer = await session("customer", targetEnv);
 
   const accept = await handlePortalRequest(new Request("http://localhost/api/portal/quotes/QTE-CLOSED-1/accept", { method: "POST", headers: { "Content-Type": "application/json", Cookie: `portal_session=${customer}` }, body: JSON.stringify({}) }), targetEnv);
 
   expect(accept.status).toBe(201);
-  expect(db.written.some(({ sql, values }) => /UPDATE\s+inquiries\s+SET\s+status=\?/i.test(sql) && values.includes("Accepted"))).toBe(true);
-  expect(db.written.some(({ sql, values }) => /INSERT\s+INTO\s+inquiry_status_history/i.test(sql) && values.includes("Negotiating") && values.includes("Accepted"))).toBe(true);
+  expect(db.written.some(({ sql }) => /UPDATE\s+inquiries\s+SET\s+status/i.test(sql))).toBe(false);
+  expect(db.written.some(({ sql }) => /INSERT\s+INTO\s+inquiry_status_history/i.test(sql))).toBe(false);
   expect(db.written.some(({ sql }) => /INSERT\s+INTO\s+orders/i.test(sql))).toBe(true);
 });
 
-test("an administrator restores a closed inquiry to the status it had before closure", async () => {
-  const db = makeDb("Closed", "Negotiating");
+test("an administrator restores a closed inquiry to open", async () => {
+  const db = makeDb("closed");
   const targetEnv = env(db);
   const admin = await session("admin", targetEnv);
 
   const restore = await handlePortalRequest(new Request("http://localhost/api/portal/inquiries/INQ-CLOSED-1/status", { method: "PATCH", headers: { "Content-Type": "application/json", Cookie: `portal_session=${admin}` }, body: JSON.stringify({ action: "restore" }) }), targetEnv);
 
   expect(restore.status).toBe(200);
-  expect(db.written.some(({ sql, values }) => /UPDATE\s+inquiries\s+SET\s+status=\?/i.test(sql) && values.includes("Negotiating"))).toBe(true);
-  expect(db.written.some(({ sql, values }) => /INSERT\s+INTO\s+inquiry_status_history/i.test(sql) && values.includes("Closed") && values.includes("Negotiating"))).toBe(true);
+  expect(db.written.some(({ sql, values }) => /UPDATE\s+inquiries\s+SET\s+status=\?/i.test(sql) && values.includes("open"))).toBe(true);
+  expect(db.written.some(({ sql, values }) => /INSERT\s+INTO\s+inquiry_status_history/i.test(sql) && values.includes("closed") && values.includes("open"))).toBe(true);
 });
