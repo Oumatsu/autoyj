@@ -134,7 +134,8 @@ async function auditHtmlAndAccessibility(baseUrl: string) {
     console.log(`\n  Testing ${url}...`);
 
     try {
-      const resp = await page.goto(url, { waitUntil: "domcontentloaded", timeout: 30000 });
+      const resp = await page.goto(url, { waitUntil: "load", timeout: 30000 });
+      await page.waitForTimeout(500);
       if (!resp || resp.status() !== 200) {
         record("Page HTTP", route, "FAIL", `Status ${resp?.status()}`);
         continue;
