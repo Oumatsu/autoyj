@@ -11,9 +11,9 @@ export function isLocale(value: string | undefined): value is Locale {
 
 export const localeLabels: Record<
   Locale,
-  { name: string; flag: string; code: string; dir: "ltr" | "rtl" }
+  { name: string; nativeName: string; code: string; dir: "ltr" | "rtl" }
 > = {
-  zh: { name: "中文", flag: "🇨🇳", code: "ZH", dir: "ltr" },
-  en: { name: "English", flag: "🇬🇧", code: "EN", dir: "ltr" },
-  am: { name: "አማርኛ", flag: "🇪🇹", code: "AM", dir: "ltr" },
+  en: { name: "English", nativeName: "English", code: "EN", dir: "ltr" },
+  zh: { name: "Chinese", nativeName: "中文", code: "ZH", dir: "ltr" },
+  am: { name: "Amharic", nativeName: "አማርኛ", code: "AM", dir: "ltr" },
 };
