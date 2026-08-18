@@ -21,7 +21,7 @@ export default function HomePage() {
   }, []);
 
   return (
-    <>
+    <main id="main-content">
       <div className="h-[var(--navbar-h,56px)] lg:hidden bg-black w-full" />
       <HeroSlider />
       <SectionTabs />
@@ -33,10 +33,10 @@ export default function HomePage() {
       >
         <div className="container mx-auto px-4 sm:px-6">
           <div className="flex flex-wrap items-center justify-between gap-4 sm:gap-6">
-            <span className="text-[8px] sm:text-[9px] font-black tracking-[.2em] sm:tracking-[.3em] uppercase text-gray-700">
+            <span className="text-[8px] sm:text-[9px] font-black tracking-[.2em] sm:tracking-[.3em] uppercase text-gray-400">
               {t("home.trustBar.label")}
             </span>
-            <div className="flex flex-wrap items-center gap-6 sm:gap-10 md:gap-14 opacity-25 grayscale">
+            <div className="flex flex-wrap items-center gap-6 sm:gap-10 md:gap-14 opacity-80 text-gray-300">
               {tArray("home.trustBar.partners").map(
                 (name) => (
                   <span
@@ -113,6 +113,8 @@ export default function HomePage() {
             className="w-full h-full object-cover"
             style={{ filter: "brightness(.3) grayscale(15%)" }}
             alt="Logistics"
+            loading="lazy"
+            decoding="async"
           />
           <div
             className="absolute inset-0"
@@ -191,10 +193,10 @@ export default function HomePage() {
                   </div>
                   {step.pulse && <div className="pulse-dot mt-2" />}
                 </div>
-                <h4 className="text-white font-black uppercase tracking-wider text-sm mb-3">
+                <h3 className="text-white font-black uppercase tracking-wider text-sm mb-3">
                   {step.title}
-                </h4>
-                <p className="text-gray-500 text-xs leading-relaxed font-light">
+                </h3>
+                <p className="text-gray-300 text-xs leading-relaxed font-light">
                   {step.desc}
                 </p>
                 <div className="mt-6">
@@ -429,6 +431,8 @@ export default function HomePage() {
             className="w-full h-full object-cover"
             style={{ filter: "brightness(.3) grayscale(15%)" }}
             alt="Tech"
+            loading="lazy"
+            decoding="async"
           />
           <div
             className="absolute inset-0"
@@ -634,7 +638,7 @@ export default function HomePage() {
           </div>
         </div>
       )}
-    </>
+    </main>
   );
 }
 
@@ -670,6 +674,8 @@ function ProductCard({
             src={image}
             className="w-full h-full object-cover absolute inset-0"
             alt={t(`home.products.${productKey}.title`)}
+            loading="lazy"
+            decoding="async"
           />
           <div className="v-card-overlay" />
           <div className="absolute top-8 left-8">

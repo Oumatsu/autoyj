@@ -16,6 +16,8 @@
     "check:i18n": "bun run scripts/check-i18n.ts",
     "lint:fast": "oxlint",
     "lint": "oxlint && vinext lint",
+    "audit:lighthouse": "bunx lighthouse http://localhost:3000/en --chrome-flags=\"--headless --no-sandbox\" --output=html --output-path=./lighthouse-report.html",
+    "audit:w3c": "bun run scripts/audit-w3c-standards.ts",
     "test": "bun test tests/unit tests/component tests/integration",
     "test:unit": "bun test tests/unit",
     "test:component": "bun test tests/component",
@@ -57,6 +59,7 @@
     "vinext": "^1.0.0-beta.5"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
     "@cloudflare/vite-plugin": "^1.50.0",
     "@cloudflare/workers-types": "^4.20260507.1",
     "@next/eslint-plugin-next": "^16.3.0",
@@ -76,6 +79,7 @@
     "eslint-config-next": "^16.3.0",
     "eslint-plugin-react-hooks": "^7.1.1",
     "happy-dom": "^20.11.1",
+    "html-validate": "^11.8.0",
     "knip": "^6.31.0",
     "msw": "^2.15.0",
     "oxlint": "^1.78.0",

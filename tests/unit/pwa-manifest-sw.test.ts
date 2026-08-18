@@ -23,13 +23,15 @@ describe("PWA Manifest & Service Worker Integrity", () => {
     expect(json.icons.length).toBeGreaterThanOrEqual(3);
   });
 
-  test("public/sw.js exists and implements defensive caching and instant update strategy", () => {
+  test("public/sw.js exists and implements defensive caching, instant update, and push notification strategy", () => {
     expect(existsSync(swPath)).toBe(true);
     const swContent = readFileSync(swPath, "utf-8");
-    expect(swContent).toContain("youguard-pwa-v2");
+    expect(swContent).toContain("youguard-pwa-v3");
     expect(swContent).toContain("addEventListener(\"install\"");
     expect(swContent).toContain("addEventListener(\"activate\"");
     expect(swContent).toContain("addEventListener(\"fetch\"");
+    expect(swContent).toContain("addEventListener(\"push\"");
+    expect(swContent).toContain("addEventListener(\"notificationclick\"");
     expect(swContent).toContain("SKIP_WAITING"); // Instant force-update support
     expect(swContent).toContain("/api/"); // API route bypass
     expect(swContent).toContain("navigate"); // Page navigation fallback

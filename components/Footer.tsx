@@ -123,13 +123,13 @@ export function Footer() {
           <button
             type="button"
             onClick={() => setMobileFooterOpen((open) => !open)}
-            className="sm:hidden mb-6 flex w-full items-center justify-center gap-3 py-3 text-gray-500 hover:text-white transition"
+            className="sm:hidden mb-6 flex w-full items-center justify-center gap-3 py-3 text-gray-300 hover:text-white transition"
             aria-expanded={mobileFooterOpen}
             aria-controls="footer-navigation"
             aria-label={
               mobileFooterOpen
-                ? "Collapse footer navigation"
-                : "Expand footer navigation"
+                ? `${t("footer.siteNavigation")} - Collapse`
+                : `${t("footer.siteNavigation")} - Expand`
             }
           >
             <span className="h-px flex-1 bg-current opacity-50" />
@@ -157,7 +157,7 @@ export function Footer() {
                     alt="Youguard"
                   />
                 </div>
-                <p className="text-gray-600 text-xs font-light leading-relaxed">
+                <p className="text-gray-300 text-xs font-light leading-relaxed">
                   {t("footer.tagline")}
                 </p>
               </div>
@@ -166,7 +166,7 @@ export function Footer() {
                 <div className="text-[10px] font-black tracking-widest uppercase mb-5 text-theme">
                   {t("footer.vehicles")}
                 </div>
-                <ul className="space-y-3 text-xs text-gray-600 font-light">
+                <ul className="space-y-3 text-xs text-gray-300 font-light">
                   <li>
                     <LocaleLink
                       href="/products/revenue-king"
@@ -206,7 +206,7 @@ export function Footer() {
                 <div className="text-[10px] font-black tracking-widest uppercase mb-5 text-theme">
                   {t("footer.solutions")}
                 </div>
-                <ul className="space-y-3 text-xs text-gray-600 font-light">
+                <ul className="space-y-3 text-xs text-gray-300 font-light">
                   <li>
                     <LocaleLink
                       href="/solutions#pdi"
@@ -245,7 +245,7 @@ export function Footer() {
                 </div>
                 <LocaleLink
                   href="/markets/ethiopia"
-                  className="text-xs text-gray-600 hover:text-theme transition"
+                  className="text-xs text-gray-300 hover:text-theme transition"
                 >
                   {t("footer.ethiopiaFocus")}
                 </LocaleLink>
@@ -255,7 +255,7 @@ export function Footer() {
                 <div className="text-[10px] font-black tracking-widest uppercase mb-5 text-theme">
                   {t("footer.resources")}
                 </div>
-                <ul className="space-y-3 text-xs text-gray-600 font-light mb-6">
+                <ul className="space-y-3 text-xs text-gray-300 font-light mb-6">
                   <li>
                     <LocaleLink
                       href="/insights"
@@ -305,20 +305,20 @@ export function Footer() {
             className="flex flex-col md:flex-row justify-between items-center gap-4 pt-8"
             style={{ borderTop: "1px solid rgba(197,160,89,.06)" }}
           >
-            <p className="text-[9px] font-black tracking-[.4em] uppercase text-gray-700">
+            <p className="text-[9px] font-black tracking-[.4em] uppercase text-gray-400">
               © {new Date().getFullYear()} Youguard Eco Supply Chain.{" "}
               {t("footer.copyright")}
             </p>
             <div className="flex gap-6">
               <LocaleLink
                 href="/privacy"
-                className="text-[9px] font-black tracking-widest uppercase text-gray-700 hover:text-gray-500 transition"
+                className="text-[9px] font-black tracking-widest uppercase text-gray-400 hover:text-white transition"
               >
                 {t("footer.privacy")}
               </LocaleLink>
               <LocaleLink
                 href="/terms"
-                className="text-[9px] font-black tracking-widest uppercase text-gray-700 hover:text-gray-500 transition"
+                className="text-[9px] font-black tracking-widest uppercase text-gray-400 hover:text-white transition"
               >
                 {t("footer.terms")}
               </LocaleLink>
