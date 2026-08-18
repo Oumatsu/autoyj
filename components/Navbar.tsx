@@ -382,10 +382,6 @@ export function Navbar() {
             </a>
           )}
           {signOutError ? <span role="alert" className="text-xs font-bold text-red-300">{signOutError}</span> : null}
-
-          <LocaleLink href="/about#verification" onClick={closeMobile} className="text-slate-400 hover:text-white transition text-xs">
-            {t("footer.companyVerification")}
-          </LocaleLink>
         </div>
 
         <div className="mt-auto border-t border-white/10 pt-4 flex flex-col gap-3">
