@@ -1,6 +1,6 @@
 # Engineering Standards & AI-Native Iron Laws
 
-This document outlines the canonical engineering principles, testing methodologies, and automation rules enforced in the **AutoYJ / Youguard** codebase. All human engineers and AI coding agents must strictly adhere to these iron laws.
+This document outlines the canonical engineering principles, testing methodologies, and automation rules enforced in the **Youguard** codebase. All human engineers and AI coding agents must strictly adhere to these iron laws.
 
 ---
 

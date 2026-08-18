@@ -99,7 +99,7 @@ async function main() {
   const overallStart = Date.now();
   let spawnedServer: ChildProcess | null = null;
 
-  console.log(`\n${COLOR_CYAN}${COLOR_BOLD}🚀 STARTING AUTOYJ LOCAL PRE-PUSH QUALITY GATE${COLOR_RESET}`);
+  console.log(`\n${COLOR_CYAN}${COLOR_BOLD}🚀 STARTING YOUGUARD LOCAL PRE-PUSH QUALITY GATE${COLOR_RESET}`);
   console.log(`${COLOR_YELLOW}Executing full 4-tier validation suite (Unit, Component, Integration, E2E, W3C, Lighthouse)...${COLOR_RESET}\n`);
 
   try {

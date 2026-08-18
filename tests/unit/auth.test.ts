@@ -11,9 +11,9 @@ describe("Unit: createFeishuAuth Configuration & Session Invariants", () => {
   test("createFeishuAuth initializes with custom PORTAL_SESSION_SECRET and BASE_URL", () => {
     const auth = createFeishuAuth({
       PORTAL_SESSION_SECRET: "custom-super-secure-portal-session-secret-key-2026",
-      PORTAL_BASE_URL: "https://portal.autoyj.com",
+      PORTAL_BASE_URL: "https://portal.youguard.com",
     });
     expect(auth).toBeDefined();
-    expect(auth.options.baseURL).toBe("https://portal.autoyj.com");
+    expect(auth.options.baseURL).toBe("https://portal.youguard.com");
   });
 });

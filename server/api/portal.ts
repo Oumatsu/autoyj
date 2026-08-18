@@ -736,7 +736,7 @@ async function hmac(secret: string, payload: string) {
 function getPortalSessionSecret(env: Env): string {
   const secret = env.PORTAL_SESSION_SECRET || "";
   if (secret && secret.length >= 32) return secret;
-  return "autoyj-portal-session-secret-fallback-key-32chars";
+  return "youguard-portal-session-secret-fallback-key-32chars";
 }
 
 async function signSession(env: Env, session: PortalSession) {

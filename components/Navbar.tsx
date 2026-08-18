@@ -276,7 +276,7 @@ export function Navbar() {
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen} side="right">
         <div className="flex items-center justify-between border-b border-white/10 pb-4">
           <SheetHeader>
-            <SheetTitle>AUTO YJ</SheetTitle>
+            <SheetTitle>Youguard</SheetTitle>
           </SheetHeader>
           <Button
             variant="ghost"
