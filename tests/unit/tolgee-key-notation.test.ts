@@ -64,7 +64,7 @@ describe("Unit: Tolgee Key Notation — No Bracket Notation", () => {
   });
 
   test("All flat keys are valid dot-notation strings", () => {
-    const invalidKeys = Object.keys(zhFlat).filter((k) => /[\[\]]/.test(k) || k.startsWith(".") || k.endsWith("."));
+    const invalidKeys = Object.keys(zhFlat).filter((k) => k.includes("[") || k.includes("]") || k.startsWith(".") || k.endsWith("."));
     expect(invalidKeys).toEqual([]);
   });
 

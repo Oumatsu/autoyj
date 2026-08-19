@@ -47,10 +47,9 @@ export function SectionTabs() {
   }, []);
 
   return (
-    <div
+    <nav
       id="section-tabs"
       ref={tabBarRef}
-      role="navigation"
       aria-label="Page sections"
       className={isVisible ? "visible" : ""}
       style={{ top: "calc(var(--navbar-h, 56px) - 1px)" }}
@@ -117,6 +116,6 @@ export function SectionTabs() {
           </a>
         </QrDropdown>
       </div>
-    </div>
+    </nav>
   );
 }

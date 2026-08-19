@@ -842,12 +842,50 @@ export default function VehicleDetail({ data: rawData }: { data: DetailData }) {
       </section>
 
       {lightboxOpen && (
-        <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/95" onClick={closeLightbox}>
-          <button className="absolute top-5 right-6 w-10 h-10 rounded-full bg-white/7 border border-white/15 text-white text-lg flex items-center justify-center hover:bg-white/15 transition z-10" onClick={closeLightbox}>&times;</button>
-          <button className="absolute top-1/2 -translate-y-1/2 left-5 w-12 h-12 rounded-full bg-white/5 border border-white/10 text-white text-2xl flex items-center justify-center hover:bg-gold/60 hover:text-black transition" onClick={(e) => { e.stopPropagation(); goGallery(-1); }}>&lsaquo;</button>
-          <img src={gallery[galIdx].src} className="max-w-[92vw] max-h-[88vh] object-contain rounded-md" alt="" onClick={(e) => e.stopPropagation()} />
-          <button className="absolute top-1/2 -translate-y-1/2 right-5 w-12 h-12 rounded-full bg-white/5 border border-white/10 text-white text-2xl flex items-center justify-center hover:bg-gold/60 hover:text-black transition" onClick={(e) => { e.stopPropagation(); goGallery(1); }}>&rsaquo;</button>
-          <div className="absolute bottom-5 left-1/2 -translate-x-1/2 text-white/30 text-[11px] font-black tracking-[.2em]">{galIdx + 1} / {gallery.length}</div>
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Vehicle image gallery enlarged view"
+          className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/95"
+        >
+          <button
+            type="button"
+            className="absolute inset-0 cursor-default"
+            onClick={closeLightbox}
+            aria-label="Close enlarged gallery"
+          />
+          <button
+            type="button"
+            className="absolute top-5 right-6 w-10 h-10 rounded-full bg-white/7 border border-white/15 text-white text-lg flex items-center justify-center hover:bg-white/15 transition z-10"
+            onClick={closeLightbox}
+            aria-label="Close enlarged gallery"
+          >
+            &times;
+          </button>
+          <button
+            type="button"
+            className="absolute top-1/2 -translate-y-1/2 left-5 w-12 h-12 rounded-full bg-white/5 border border-white/10 text-white text-2xl flex items-center justify-center hover:bg-gold/60 hover:text-black transition z-10"
+            onClick={() => goGallery(-1)}
+            aria-label="Previous image"
+          >
+            &lsaquo;
+          </button>
+          <img
+            src={gallery[galIdx].src}
+            className="relative z-10 max-w-[92vw] max-h-[88vh] object-contain rounded-md"
+            alt={`Vehicle gallery image ${galIdx + 1}`}
+          />
+          <button
+            type="button"
+            className="absolute top-1/2 -translate-y-1/2 right-5 w-12 h-12 rounded-full bg-white/5 border border-white/10 text-white text-2xl flex items-center justify-center hover:bg-gold/60 hover:text-black transition z-10"
+            onClick={() => goGallery(1)}
+            aria-label="Next image"
+          >
+            &rsaquo;
+          </button>
+          <div className="absolute bottom-5 left-1/2 -translate-x-1/2 text-white/30 text-[11px] font-black tracking-[.2em] z-10">
+            {galIdx + 1} / {gallery.length}
+          </div>
         </div>
       )}
 
@@ -983,7 +1021,9 @@ export default function VehicleDetail({ data: rawData }: { data: DetailData }) {
               <table className="w-full border-collapse min-w-[720px]">
                 <thead>
                   <tr>
-                    <th className="py-3.5 px-3.5 text-[10px] font-black tracking-[.15em] uppercase border-b border-white/[0.07] text-left w-[210px] text-[#4B5563]"></th>
+                    <th scope="col" className="py-3.5 px-3.5 text-[10px] font-black tracking-[.15em] uppercase border-b border-white/[0.07] text-left w-[210px] text-[#4B5563]">
+                      <span className="sr-only">Feature specification</span>
+                    </th>
                     {data.trimData.map((t) => (
                       <th key={t.name} className={`py-3.5 px-3.5 text-[10px] font-black tracking-[.15em] uppercase border-b border-white/[0.07] text-center ${t.rec ? "border-b-2 border-b-accent bg-accent/[0.07] rounded-t-xl text-white" : "text-[#6B7280]"}`}>
                         {t.range}<br /><span className="text-[9px] font-semibold">{t.name}</span>
