@@ -600,20 +600,6 @@ let globalBootstrapData: BootstrapData | null = null;
 let globalBootstrapPromise: Promise<BootstrapData | null> | null = null;
 
 export default function PortalPage() {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted || typeof window === "undefined") {
-    return <Loading text="Loading portal..." />;
-  }
-
-  return <PortalClientContent />;
-}
-
-function PortalClientContent() {
   const { t, locale } = useTranslation();
   const [email, setEmail] = useState("");
   const [accessCode, setAccessCode] = useState("");
@@ -621,20 +607,20 @@ function PortalClientContent() {
   const [data, setData] = useState<BootstrapData | null>(() => globalBootstrapData);
   const [loading, setLoading] = useState(!globalBootstrapData);
   const [error, setError] = useState("");
-  const [isLocalDev] = useState(() => {
-    if (typeof window === "undefined") return false;
-    const host = window.location.hostname.toLowerCase();
-    return host === "localhost" || host === "127.0.0.1" || host === "::1" || host === "[::1]";
-  });
-  const [showPreviewTestLogin] = useState(() => {
-    if (typeof window === "undefined") return false;
-    const host = window.location.hostname.toLowerCase();
-    return (
-      host.includes("workers.dev") ||
-      host.includes("youguard-preview") ||
-      host.includes("preview")
-    );
-  });
+  const [isLocalDev, setIsLocalDev] = useState(false);
+  const [showPreviewTestLogin, setShowPreviewTestLogin] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const host = window.location.hostname.toLowerCase();
+      setIsLocalDev(host === "localhost" || host === "127.0.0.1" || host === "::1" || host === "[::1]");
+      setShowPreviewTestLogin(
+        host.includes("workers.dev") ||
+        host.includes("youguard-preview") ||
+        host.includes("preview")
+      );
+    }
+  }, []);
   const [activeAdminModule, setActiveAdminModule] = useState<AdminModule>(() => {
     if (typeof window !== "undefined") {
       const pathname = window.location.pathname.toLowerCase();
