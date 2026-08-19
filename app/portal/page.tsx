@@ -595,11 +595,16 @@ async function api<T>(path: string, init?: RequestInit): Promise<T> {
   return sanitizeDisplayData(data) as T;
 }
 
-// 妯″潡鍏ㄥ眬缂撳瓨锛堣法璺敱鍒囨崲/缁勪欢鍗歌浇鎸傝浇鍏变韩锛屽疄鐜伴〉闈㈠垏鎹?0 娆￠噸澶嶈姹備笌骞跺彂鍘婚噸锛?
+// 模块全局缓存（跨路由切换/组件卸载挂载共享，实现页面切换 0 次重复请求与并发去重）
 let globalBootstrapData: BootstrapData | null = null;
-const emptySubscribe = () => () => {};
+let globalBootstrapPromise: Promise<BootstrapData | null> | null = null;
+
 export default function PortalPage() {
-  const mounted = useSyncExternalStore(emptySubscribe, () => true, () => false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   if (!mounted || typeof window === "undefined") {
     return <Loading text="Loading portal..." />;
