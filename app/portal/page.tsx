@@ -222,9 +222,10 @@ type SellableModel = {
   preorderAvailable: boolean;
   fobPriceRange: string;
   recommendationRank: number | null;
-  /** 姹囨€昏杞﹀瀷鎵€鏈?offer 涓嚭鐜拌繃鐨?FOB/EXW/FCA 浠锋牸鍖洪棿 */
+  /** 汇总该车型所有 offer 中出现过的 FOB/EXW/FCA 价格区间 */
   priceTermsSummary: PriceTermSummary[];
   offers: VehicleOffer[];
+  vehicles?: Vehicle[];
 };
 
 type ModelProfileGroup = {
@@ -1996,14 +1997,16 @@ function AdminVehicles({ data, onEdit, onRefresh, onRefreshData }: { data: Boots
 
   const visibleModels = sellableModels
     .map((item) => {
-      const rawVehicles = vehiclesForSellableModel(data.vehicles, item).filter((vehicle) =>
+      const candidateVehicles = (item.vehicles && item.vehicles.length > 0)
+        ? item.vehicles
+        : vehiclesForSellableModel(data.vehicles, item, data.vehicleModels || []);
+      const rawVehicles = candidateVehicles.filter((vehicle) =>
         vehicleMatchesAdminFilters(vehicle, item, normalizedSearch, supplyFilter, brandFilter, effectiveSupplierFilter, canSeeSupplier, canSeeLocation)
       );
       const offers = item.offers.filter((offer) =>
         offerMatchesAdminFilters(offer, item, normalizedSearch, supplyFilter, brandFilter, effectiveSupplierFilter, canSeeSupplier, canSeeLocation)
       );
       const modelMatches = modelMatchesAdminFilters(item, normalizedSearch, brandFilter);
-      // 鍙湁褰撻鑹?渚涘簲鍟?渚涘簲鐘舵€佺瓫閫夐兘鏈縺娲绘椂锛屾墠鍏佽 modelMatches 鍥為€€鍒版樉绀哄叏閮?
       const hasDetailFilter = effectiveSupplierFilter !== "all" || supplyFilter !== "all";
 
       const effectiveOffers = isAllDefault
@@ -2012,13 +2015,21 @@ function AdminVehicles({ data, onEdit, onRefresh, onRefreshData }: { data: Boots
           ? offers
           : (modelMatches && !hasDetailFilter ? item.offers : []);
       const effectiveRawVehicles = isAllDefault
-        ? vehiclesForSellableModel(data.vehicles, item)
+        ? candidateVehicles
         : rawVehicles.length > 0
           ? rawVehicles
-          : (modelMatches && !hasDetailFilter ? vehiclesForSellableModel(data.vehicles, item) : []);
+          : (modelMatches && !hasDetailFilter ? candidateVehicles : []);
+
+      const currentStockQuantity = effectiveRawVehicles.reduce((sum, v) => {
+        const qty = v.colorStockQuantity ?? (typeof v.stockQuantity === "number" && v.stockQuantity > 0 ? v.stockQuantity : 0);
+        return sum + qty;
+      }, 0);
+      const hasCurrentStockQuantity = effectiveRawVehicles.some((v) => (v.colorStockQuantity !== null && v.colorStockQuantity !== undefined) || (typeof v.stockQuantity === "number" && v.stockQuantity > 0));
 
       return {
         ...item,
+        stockQuantity: currentStockQuantity,
+        hasStockQuantity: hasCurrentStockQuantity,
         offers: effectiveOffers,
         rawVehicles: effectiveRawVehicles,
         modelMatches,
@@ -3996,7 +4007,7 @@ export function buildSellableModels(data: BootstrapData): SellableModel[] {
     modelsByName.set(modelResourceKey(item.brand, item.model), item);
   }
 
-  const grouped = new Map<string, { item: SellableModel; offerMap: Map<string, VehicleOffer> }>();
+  const grouped = new Map<string, { item: SellableModel; offerMap: Map<string, VehicleOffer>; vehicles: Vehicle[] }>();
   for (const vehicle of data.vehicles || []) {
     const directModel = modelsByVehicle.get(vehicle.modelId) || modelsByName.get(modelResourceKey(vehicle.brand, vehicle.model));
     const canonicalModel = directModel?.model || canonicalCatalogModelName(vehicle.brand, vehicle.model, data.vehicleModels || []);
@@ -4018,12 +4029,15 @@ export function buildSellableModels(data: BootstrapData): SellableModel[] {
           recommendationRank: vehicle.recommendationRank ?? null,
           priceTermsSummary: [],
           offers: [],
+          vehicles: [],
         },
         offerMap: new Map(),
+        vehicles: [],
       });
     }
 
     const entry = grouped.get(modelKey)!;
+    entry.vehicles.push(vehicle);
     const supplyType = getSupplyType(vehicle);
     const itemStock = vehicle.colorStockQuantity ?? (typeof vehicle.stockQuantity === "number" && vehicle.stockQuantity > 0 ? vehicle.stockQuantity : null);
     if (itemStock !== null && itemStock !== undefined) {
@@ -4076,7 +4090,7 @@ export function buildSellableModels(data: BootstrapData): SellableModel[] {
   }
 
   return Array.from(grouped.values())
-    .map(({ item, offerMap }) => {
+    .map(({ item, offerMap, vehicles }) => {
       const offers = Array.from(offerMap.values()).sort((a, b) => {
         const stockRank = Number(b.supplyType === "In Stock") - Number(a.supplyType === "In Stock");
         return stockRank || (a.price || Number.MAX_SAFE_INTEGER) - (b.price || Number.MAX_SAFE_INTEGER);
@@ -4103,8 +4117,14 @@ export function buildSellableModels(data: BootstrapData): SellableModel[] {
           return { term: t, min: range.min, max: range.max };
         });
 
+      const sortedVehicles = [...vehicles].sort((a, b) => {
+        const supplyRank = Number(getSupplyType(b) === "In Stock") - Number(getSupplyType(a) === "In Stock");
+        return supplyRank || (getFobPrice(a) || Number.MAX_SAFE_INTEGER) - (getFobPrice(b) || Number.MAX_SAFE_INTEGER);
+      });
+
       return {
         ...item,
+        vehicles: sortedVehicles,
         offers,
         priceTermsSummary,
         fobPriceRange: formatFobRange(offers.map((offer) => offer.price).filter((price): price is number => Boolean(price))),
@@ -4223,16 +4243,38 @@ function vehiclePriceByLocation(vehicles: Vehicle[]) {
   return Array.from(unique.values()).sort((a, b) => a.location.localeCompare(b.location) || a.term.localeCompare(b.term) || a.amount - b.amount);
 }
 
-export function vehiclesForSellableModel(vehicles: Vehicle[], item: SellableModel) {
-  return vehicles
-    .filter((vehicle) => {
+export function vehiclesForSellableModel(vehicles: Vehicle[], item: SellableModel, catalogModels: VehicleModel[] = []) {
+  const matched = (item.vehicles && item.vehicles.length > 0)
+    ? (() => {
+        const itemVehicleIds = new Set(item.vehicles.map((v) => v.id));
+        const subset = vehicles.filter((v) => itemVehicleIds.has(v.id));
+        return subset.length > 0 ? subset : [];
+      })()
+    : [];
+
+  let candidates = matched;
+  if (candidates.length === 0) {
+    const modelsByVehicle = new Map<string, VehicleModel>();
+    const modelsByName = new Map<string, VehicleModel>();
+    for (const cm of catalogModels) {
+      if (cm.id) modelsByVehicle.set(cm.id, cm);
+      modelsByName.set(modelResourceKey(cm.brand, cm.model), cm);
+    }
+
+    candidates = vehicles.filter((vehicle) => {
+      const directModel = modelsByVehicle.get(vehicle.modelId) || modelsByName.get(modelResourceKey(vehicle.brand, vehicle.model));
+      const canonicalModel = directModel?.model || canonicalCatalogModelName(vehicle.brand, vehicle.model, catalogModels);
+      const modelKey = modelResourceKey(vehicle.brand, canonicalModel);
       const rawKey = modelResourceKey(vehicle.brand, vehicle.model);
-      return rawKey === item.key || modelResourceKey(vehicle.brand, stripPowertrainSuffix(vehicle.model)) === item.key;
-    })
-    .sort((a, b) => {
-      const supplyRank = Number(getSupplyType(b) === "In Stock") - Number(getSupplyType(a) === "In Stock");
-      return supplyRank || (getFobPrice(a) || Number.MAX_SAFE_INTEGER) - (getFobPrice(b) || Number.MAX_SAFE_INTEGER);
+      const strippedKey = modelResourceKey(vehicle.brand, stripPowertrainSuffix(vehicle.model));
+      return modelKey === item.key || rawKey === item.key || strippedKey === item.key;
     });
+  }
+
+  return candidates.sort((a, b) => {
+    const supplyRank = Number(getSupplyType(b) === "In Stock") - Number(getSupplyType(a) === "In Stock");
+    return supplyRank || (getFobPrice(a) || Number.MAX_SAFE_INTEGER) - (getFobPrice(b) || Number.MAX_SAFE_INTEGER);
+  });
 }
 
 function modelMatchesAdminFilters(item: SellableModel, query: string, brandFilter: string) {

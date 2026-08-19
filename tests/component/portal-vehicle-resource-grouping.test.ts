@@ -258,4 +258,76 @@ describe("Portal vehicle resource grouping", () => {
       { term: "FOB", amount: 20685 },
     ]);
   });
+
+  test("ensures BYD Seal and Qin L variants are non-empty and total units match variants units exactly", () => {
+    const data = {
+      vehicleModels: [
+        { id: "MDL-SEAL", brand: "BYD", model: "Seal", bodyType: "Sedan" },
+        { id: "MDL-QIN-L", brand: "BYD", model: "Qin L", bodyType: "Sedan" },
+      ],
+      vehicles: [
+        {
+          id: "seal-1",
+          modelId: "MDL-SEAL",
+          brand: "BYD",
+          model: "Seal 06 DM-i",
+          trim: "Honor 80km",
+          configuration: "DM-i",
+          colorStockQuantity: 15,
+          stockQuantity: 15,
+          waitDays: 0,
+          price: 18000,
+        },
+        {
+          id: "qin-ev-1",
+          modelId: "MDL-QIN-L",
+          brand: "BYD",
+          model: "Qin L EV",
+          trim: "EV 545",
+          configuration: "EV",
+          colorStockQuantity: 8,
+          stockQuantity: 8,
+          waitDays: 0,
+          price: 16000,
+        },
+        {
+          id: "qin-dmi-1",
+          modelId: "MDL-QIN-L",
+          brand: "BYD",
+          model: "Qin L DM-i",
+          trim: "DM-i 120",
+          configuration: "DM-i",
+          colorStockQuantity: 12,
+          stockQuantity: 12,
+          waitDays: 0,
+          price: 15000,
+        },
+      ],
+    } as any;
+
+    const models = buildSellableModels(data);
+    expect(models).toHaveLength(2);
+
+    // BYD Seal
+    const sealModel = models.find((m) => m.model === "Seal")!;
+    expect(sealModel).toBeDefined();
+    expect(sealModel.stockQuantity).toBe(15);
+    const sealVehicles = vehiclesForSellableModel(data.vehicles, sealModel, data.vehicleModels);
+    expect(sealVehicles).toHaveLength(1);
+    const sealVariants = buildVehicleResourceVariants(sealVehicles);
+    expect(sealVariants).toHaveLength(1);
+    expect(sealVariants[0].stockQuantity).toBe(15);
+
+    // BYD Qin L
+    const qinModel = models.find((m) => m.model === "Qin L")!;
+    expect(qinModel).toBeDefined();
+    expect(qinModel.stockQuantity).toBe(20); // 8 + 12 = 20
+    const qinVehicles = vehiclesForSellableModel(data.vehicles, qinModel, data.vehicleModels);
+    expect(qinVehicles).toHaveLength(2);
+    const qinVariants = buildVehicleResourceVariants(qinVehicles);
+    expect(qinVariants).toHaveLength(2);
+    const qinVariantsTotalUnits = qinVariants.reduce((sum, v) => sum + v.stockQuantity, 0);
+    expect(qinVariantsTotalUnits).toBe(qinModel.stockQuantity);
+    expect(qinVariantsTotalUnits).toBe(20);
+  });
 });
