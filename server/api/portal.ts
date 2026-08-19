@@ -1826,6 +1826,20 @@ async function handleLogin(request: Request, env: Env) {
   const accessCode = String(body?.accessCode || "").trim();
   if (!email || !accessCode) return problem("Email and access code are required");
 
+  const isProduction = (() => {
+    try {
+      const url = new URL(request.url);
+      const host = url.hostname.toLowerCase();
+      return host.includes("youguard.net") || host === "autoyj.com";
+    } catch {
+      return false;
+    }
+  })();
+
+  if (isProduction && (email.endsWith("@local.test") || email.endsWith("@example.com"))) {
+    return problem("Demo accounts are only allowed in local development", 403);
+  }
+
   const account = await findLoginAccount(env, email, accessCode);
   if (!account) return problem("Invalid portal credentials", 401);
 

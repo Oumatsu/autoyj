@@ -71,11 +71,6 @@ export async function runFeishuScheduledSync(env: Env): Promise<FeishuSyncResult
     console.log(`[cron:feishu-sync] ✓ Vehicles: ${vehicles} records written to D1`);
   });
 
-  await run("users", () => syncUsersToD1(env), (res) => {
-    users = res.users;
-    console.log(`[cron:feishu-sync] ✓ Users: ${users} records written to D1`);
-  });
-
   await run("articles", () => syncArticlesToD1(env), (res) => {
     articles = res.articles;
     console.log(`[cron:feishu-sync] ✓ Articles: ${articles} records written to D1`);

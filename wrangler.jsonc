@@ -15,7 +15,6 @@
   "vars": {
     "FEISHU_APP_ID": "cli_aab1f0eeb0fa9cc0",
     "FEISHU_BASE_APP_TOKEN": "Is6Xb3btbazhFhsDXgFcqFG1nRc",
-    "FEISHU_TABLE_INTERNAL_USERS": "tblzuCupuStUvBwM",
     "FEISHU_TABLE_VEHICLE_MODELS": "tblxVNjP9dnJ7b3o",
     "FEISHU_VIEW_PROFILES": "vewppBx2ht",
     "FEISHU_TABLE_VEHICLE_TRIM_CONFIGURATIONS": "tbl8YzkZkMxvHRoT",

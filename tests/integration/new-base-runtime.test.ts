@@ -62,7 +62,6 @@ describe("Integration: Worker API Contracts & Feishu Base Schema Rules", () => {
     const primary = await readFile(new URL("wrangler.jsonc", root), "utf8");
     const expected = {
       FEISHU_BASE_APP_TOKEN: "Is6Xb3btbazhFhsDXgFcqFG1nRc",
-      FEISHU_TABLE_INTERNAL_USERS: "tblzuCupuStUvBwM",
       FEISHU_TABLE_VEHICLE_MODELS: "tblxVNjP9dnJ7b3o",
       FEISHU_TABLE_VEHICLES: "tblte61W3fKoXmSw",
       FEISHU_TABLE_INQUIRIES: "tblEL6AHiMiWhkVj",

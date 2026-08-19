@@ -131,7 +131,7 @@ describe("runFeishuScheduledSync full integration", () => {
     expect(result.models).toBe(1);
     expect(result.trims).toBe(1);
     expect(result.vehicles).toBe(1);
-    expect(result.users).toBeGreaterThan(0);
+    expect(result.users).toBe(0);
     expect(result.articles).toBe(1);
     expect(result.lessons).toBe(1);
     expect(result.vault).toBe(1);
