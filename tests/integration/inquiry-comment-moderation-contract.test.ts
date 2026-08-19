@@ -30,18 +30,18 @@ test("comment moderation endpoints accept notes only and require an administrato
   expect(handler).not.toContain('type === "inquiry"');
 });
 
-test("deleted comment manager groups comments by inquiry and keeps their original context visible", () => {
+test("deleted comment manager renders compact individual comment cards with inquiry context", () => {
   const start = portalPage.indexOf("function AdminQuotes(");
   const end = portalPage.indexOf("function AdminOrders", start);
   const panel = portalPage.slice(start, end);
 
-  expect(panel).toContain("groupedHiddenNotes");
-  expect(panel).toContain("item.inquiry.inquiryNo");
-  expect(panel).toContain("item.inquiry.vehicleModel");
-  expect(panel).toContain("item.inquiry.creatorName");
-  expect(panel).toContain("item.inquiry.createdAt");
+  expect(panel).toContain("data-testid=\"closed-comment-manager\"");
+  expect(panel).toContain("hiddenNotes.map((item)");
+  expect(panel).toContain("item.inquiry?.inquiryNo || item.inquiryNo");
+  expect(panel).toContain("item.inquiry?.vehicleModel || \"-\"");
   expect(panel).toContain("item.createdAt");
   expect(panel).toContain("item.deletedAt");
+  expect(panel).not.toContain("groupedHiddenNotes");
 });
 
 test("closed inquiries have a separate administrator recovery manager", () => {
