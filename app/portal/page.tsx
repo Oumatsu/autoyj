@@ -623,33 +623,7 @@ export default function PortalPage() {
       );
     }
   }, []);
-  const [activeAdminModule, setActiveAdminModule] = useState<AdminModule>(() => {
-    if (typeof window !== "undefined") {
-      const pathname = window.location.pathname.toLowerCase();
-      const segments = pathname.split("/").filter(Boolean);
-      const lastSegment = (segments[segments.length - 1] || "").replaceAll("-", "_");
-      if (lastSegment === "vehicle_models" || lastSegment === "profiles") return "vehicle_models";
-      if (lastSegment === "vehicles") return "vehicles";
-      if (lastSegment === "quotes" || lastSegment === "inquiries") return "quotes";
-      if (lastSegment === "orders") return "orders";
-      if (lastSegment === "payments") return "payments";
-      if (lastSegment === "logistics") return "logistics";
-      if (lastSegment === "accounts" || lastSegment === "users") return "accounts";
-      if (lastSegment === "customers" || lastSegment === "staff") return "accounts";
-
-      const params = new URLSearchParams(window.location.search);
-      const queryTab = (params.get("tab") || params.get("module") || "").toLowerCase().replaceAll("-", "_");
-      if (queryTab === "vehicle_models" || queryTab === "profiles") return "vehicle_models";
-      if (queryTab === "vehicles") return "vehicles";
-      if (queryTab === "quotes" || queryTab === "inquiries") return "quotes";
-      if (queryTab === "orders") return "orders";
-      if (queryTab === "payments") return "payments";
-      if (queryTab === "logistics") return "logistics";
-      if (queryTab === "accounts" || queryTab === "users") return "accounts";
-      if (queryTab === "customers" || queryTab === "staff") return "accounts";
-    }
-    return "dashboard";
-  });
+  const [activeAdminModule, setActiveAdminModule] = useState<AdminModule>("dashboard");
   const [selectedSellableModel, setSelectedSellableModel] = useState<SellableModel | null>(null);
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
   const [inquiryForm, setInquiryForm] = useState<InquiryForm>(emptyInquiryForm);
