@@ -27,7 +27,6 @@ export function SiteChrome({ children }: { children: ReactNode }) {
     pathSegments[1] === "dashboard";
   const isAppConsole = isPortalRoute || isDashboardRoute;
   const hidePublicFooter = isAppConsole;
-  const hidePublicNavbar = isAppConsole;
   const locale = getLocaleFromPath(pathname);
   const fontClass = LOCALE_FONT_MAP[locale] || "font-sans";
   const textDir = localeLabels[locale]?.dir || "ltr";
@@ -35,7 +34,7 @@ export function SiteChrome({ children }: { children: ReactNode }) {
   return (
     <TolgeeWrapper locale={locale}>
       <div lang={locale} dir={textDir} className={`min-h-screen ${fontClass}`}>
-        {!hidePublicNavbar && <Navbar />}
+        <Navbar />
         {children}
         {!hidePublicFooter && <Footer />}
         <PwaInstallPrompt />

@@ -1146,18 +1146,20 @@ function AdminPortal({
   const orderTotal = data.orders.reduce((sum, order) => sum + order.total, 0);
 
   return (
-    <main className="min-h-screen bg-[#0c1322] text-slate-100">
-      {/* Mobile Top Header for PWA and Small Screens */}
+    <main className="min-h-screen bg-[#0c1322] text-slate-100 pt-16 sm:pt-20">
+      {/* Mobile Top Sub-Header for Dashboard Module Selection */}
       <div
-        className="sticky top-0 z-40 flex items-center justify-between border-b border-white/10 bg-[#0b1425]/95 px-4 py-3 backdrop-blur-md lg:hidden"
-        style={{ paddingTop: "calc(env(safe-area-inset-top, 0px) + 10px)" }}
+        className="sticky top-16 z-40 flex items-center justify-between border-b border-white/10 bg-[#0b1425]/95 px-4 py-2.5 backdrop-blur-md lg:hidden"
       >
-        <a href={`/${locale}`} className="flex items-center gap-2">
-          <img src="/favicon.svg" className="h-7 w-auto" alt="Youguard" />
-          <span className="text-xs font-black tracking-wider text-white">
-            YOUGUARD <span className="text-[#22b8aa]">PORTAL</span>
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-black tracking-wider text-[#22b8aa] uppercase">
+            {t("portal.navDashboard")}
           </span>
-        </a>
+          <span className="text-slate-500">/</span>
+          <span className="text-xs font-bold text-white truncate max-w-[160px]">
+            {t(activeItem.labelKey)}
+          </span>
+        </div>
         <div className="flex items-center gap-2">
           <Button
             type="button"
@@ -1165,7 +1167,7 @@ function AdminPortal({
             size="sm"
             onClick={() => setMobileSidebarOpen((prev) => !prev)}
             aria-label="Toggle navigation drawer"
-            className="flex items-center gap-1.5 rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-bold text-white hover:bg-white/10"
+            className="flex items-center gap-1.5 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-bold text-white hover:bg-white/10"
           >
             <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
               <path d="M4 7h16M4 12h16M4 17h16" />
@@ -1175,7 +1177,7 @@ function AdminPortal({
         </div>
       </div>
 
-      <div className={`grid min-h-screen min-w-0 transition-[grid-template-columns] duration-200 ${sidebarCollapsed ? "lg:grid-cols-[88px_minmax(0,1fr)]" : "lg:grid-cols-[300px_minmax(0,1fr)]"}`}>
+      <div className={`grid min-h-[calc(100vh-5rem)] min-w-0 transition-[grid-template-columns] duration-200 ${sidebarCollapsed ? "lg:grid-cols-[88px_minmax(0,1fr)]" : "lg:grid-cols-[300px_minmax(0,1fr)]"}`}>
         {mobileSidebarOpen && (
           <button
             type="button"
@@ -1184,7 +1186,7 @@ function AdminPortal({
             className="fixed inset-0 z-30 bg-black/70 lg:hidden"
           />
         )}
-        <aside className={`${mobileSidebarOpen ? "fixed inset-y-0 left-0 z-50 flex" : "hidden"} min-h-screen w-[min(20rem,calc(100vw-2rem))] flex-col overflow-y-auto border-b border-white/10 bg-[#101827] px-4 py-5 shadow-2xl transition-[padding] duration-200 lg:sticky lg:top-0 lg:z-auto lg:flex lg:h-screen lg:w-auto lg:self-start lg:overflow-visible lg:border-b-0 lg:border-r lg:shadow-none ${sidebarCollapsed ? "lg:px-3" : "lg:px-5"}`}>
+        <aside className={`${mobileSidebarOpen ? "fixed inset-y-0 left-0 z-50 flex" : "hidden"} min-h-screen w-[min(20rem,calc(100vw-2rem))] flex-col overflow-y-auto border-b border-white/10 bg-[#101827] px-4 py-5 shadow-2xl transition-[padding] duration-200 lg:sticky lg:top-20 lg:z-auto lg:flex lg:h-[calc(100vh-5rem)] lg:w-auto lg:self-start lg:overflow-visible lg:border-b-0 lg:border-r lg:shadow-none ${sidebarCollapsed ? "lg:px-3" : "lg:px-5"}`}>
           <div className="min-h-0 flex-1">
             <div className={`flex items-center gap-3 border-b border-white/10 pb-6 ${sidebarCollapsed ? "lg:flex-col lg:justify-center lg:gap-2 lg:pb-4" : ""}`}>
               <div className={`grid shrink-0 place-items-center rounded-2xl bg-[#22b8aa] font-black text-[#0c1322] transition-all duration-200 ${sidebarCollapsed ? "lg:h-12 lg:w-12 lg:text-base" : "h-14 w-14 text-xl"}`}>

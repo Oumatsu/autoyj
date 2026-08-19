@@ -2,12 +2,11 @@ import { describe, expect, test } from "bun:test";
 import { readFile } from "node:fs/promises";
 
 describe("Dashboard & Portal Layout Chrome Isolation", () => {
-  test("components/SiteChrome.tsx hides global public Navbar and Footer on both /dashboard and /portal routes", async () => {
+  test("components/SiteChrome.tsx renders global public Navbar on all pages and hides public Footer on app console", async () => {
     const source = await readFile(new URL("../../components/SiteChrome.tsx", import.meta.url), "utf8");
     expect(source).toContain("isDashboardRoute");
     expect(source).toContain("isPortalRoute");
-    expect(source).toContain("hidePublicNavbar");
-    expect(source).toContain("!hidePublicNavbar && <Navbar />");
+    expect(source).toContain("<Navbar />");
     expect(source).toContain("!hidePublicFooter && <Footer />");
   });
 
