@@ -28,7 +28,7 @@ export function LocaleSwitcher() {
     if (locales.includes(segments[0] as Locale)) {
       segments.shift();
     }
-    const basePath = `/${segments.join("/")}` || "/";
+    const basePath = segments.length > 0 ? `/${segments.join("/")}` : "/";
     const query = searchParams ? searchParams.toString() : "";
     return localizeHref(query ? `${basePath}?${query}` : basePath, targetLocale);
   };

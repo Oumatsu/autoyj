@@ -84,17 +84,18 @@ export function CommandItem({
   children,
   onSelect,
   ...props
-}: React.HTMLAttributes<HTMLDivElement> & { onSelect?: () => void }) {
+}: React.ButtonHTMLAttributes<HTMLButtonElement> & { onSelect?: () => void }) {
   return (
-    <div
+    <button
+      type="button"
       onClick={onSelect}
       className={cn(
-        "relative flex cursor-pointer select-none items-center rounded-xl px-3 py-2 text-xs font-bold text-slate-300 outline-none hover:bg-white/5 hover:text-white transition",
+        "relative flex w-full text-left cursor-pointer select-none items-center rounded-xl px-3 py-2 text-xs font-bold text-slate-300 outline-none hover:bg-white/5 hover:text-white transition",
         className
       )}
       {...props}
     >
       {children}
-    </div>
+    </button>
   );
 }

@@ -70,8 +70,6 @@ export function BreadcrumbPage({
 }: React.HTMLAttributes<HTMLSpanElement>) {
   return (
     <span
-      role="link"
-      aria-disabled="true"
       aria-current="page"
       className={cn("font-bold text-[#5ee6d8]", className)}
       {...props}

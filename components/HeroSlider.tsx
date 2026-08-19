@@ -172,9 +172,7 @@ export function HeroSlider() {
                     />
                   </h1>
                 ) : (
-                  <div
-                    role="heading"
-                    aria-level={2}
+                  <h2
                     className="sh mb-3 lg:mb-8"
                     style={{ fontSize: "calc(clamp(1.8rem, 7vw, 6.5rem) * 1)" }}
                   >
@@ -186,7 +184,7 @@ export function HeroSlider() {
                         br: () => <br />,
                       }}
                     />
-                  </div>
+                  </h2>
                 )}
 
                 {/* Sub-copy (High-contrast for WCAG 2.1 AA) */}

@@ -362,9 +362,9 @@ export function Navbar() {
               </button>
             </>
           ) : (
-            <a href="/dashboard" onClick={closeMobile} className="text-[#5ee6d8] hover:text-white transition">
+            <LocaleLink href="/dashboard" onClick={closeMobile} className="text-[#5ee6d8] hover:text-white transition">
               {t("nav.signIn")}
-            </a>
+            </LocaleLink>
           )}
           {signOutError ? <span role="alert" className="text-xs font-bold text-red-300">{signOutError}</span> : null}
         </div>

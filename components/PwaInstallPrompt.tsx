@@ -59,7 +59,6 @@ export function PwaInstallPrompt() {
 
   return (
     <aside
-      role="banner"
       aria-label="Install Youguard Application"
       className="fixed bottom-4 left-4 right-4 z-50 mx-auto max-w-md animate-in fade-in slide-in-from-bottom-5 sm:bottom-6 sm:left-auto sm:right-6"
     >

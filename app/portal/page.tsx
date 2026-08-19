@@ -2598,7 +2598,7 @@ function AdminQuotes({ data, onRefresh }: { data: BootstrapData; onRefresh: () =
 
   useEffect(() => {
     if (selected?.hasUnreadFollowUps) void markInquiryRead(selected);
-  }, [markInquiryRead, selected?.hasUnreadFollowUps, selected?.inquiryNo]);
+  }, [markInquiryRead, selected]);
 
   async function select(inquiry: Inquiry) {
     setSelectedNo(inquiry.inquiryNo);

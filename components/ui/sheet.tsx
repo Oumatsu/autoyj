@@ -47,14 +47,24 @@ export function SheetHeader({
 
 export function SheetTitle({
   className,
+  children,
   ...props
 }: React.HTMLAttributes<HTMLHeadingElement>) {
-  return <h3 className={cn("text-base font-black text-white", className)} {...props} />;
+  return (
+    <h3 className={cn("text-base font-black text-white", className)} {...props}>
+      {children}
+    </h3>
+  );
 }
 
 export function SheetDescription({
   className,
+  children,
   ...props
 }: React.HTMLAttributes<HTMLParagraphElement>) {
-  return <p className={cn("text-xs text-slate-400", className)} {...props} />;
+  return (
+    <p className={cn("text-xs text-slate-400", className)} {...props}>
+      {children}
+    </p>
+  );
 }
