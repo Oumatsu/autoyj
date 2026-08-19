@@ -1,6 +1,6 @@
 "use client";
 
-import React, { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { Fragment, useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import Loading from "../../components/Loading";
 import type { ReactNode } from "react";
 import { Badge } from "@/components/ui/badge";
@@ -597,13 +597,9 @@ async function api<T>(path: string, init?: RequestInit): Promise<T> {
 
 // 妯″潡鍏ㄥ眬缂撳瓨锛堣法璺敱鍒囨崲/缁勪欢鍗歌浇鎸傝浇鍏变韩锛屽疄鐜伴〉闈㈠垏鎹?0 娆￠噸澶嶈姹備笌骞跺彂鍘婚噸锛?
 let globalBootstrapData: BootstrapData | null = null;
-let globalBootstrapPromise: Promise<BootstrapData | null> | null = null;
+const emptySubscribe = () => () => {};
 export default function PortalPage() {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = useSyncExternalStore(emptySubscribe, () => true, () => false);
 
   if (!mounted || typeof window === "undefined") {
     return <Loading text="Loading portal..." />;
@@ -2597,7 +2593,12 @@ function AdminQuotes({ data, onRefresh }: { data: BootstrapData; onRefresh: () =
   }, [onRefresh]);
 
   useEffect(() => {
-    if (selected?.hasUnreadFollowUps) void markInquiryRead(selected);
+    if (selected?.hasUnreadFollowUps) {
+      const timer = setTimeout(() => {
+        void markInquiryRead(selected);
+      }, 0);
+      return () => clearTimeout(timer);
+    }
   }, [markInquiryRead, selected]);
 
   async function select(inquiry: Inquiry) {

@@ -1,8 +1,7 @@
-import nextPlugin from "@next/eslint-plugin-next";
-import reactHooksPlugin from "eslint-plugin-react-hooks";
-import typescriptParser from "@typescript-eslint/parser";
+import nextConfig from "eslint-config-next";
 
 export default [
+  ...nextConfig,
   {
     ignores: [
       ".next/**",
@@ -15,31 +14,6 @@ export default [
       "public/**",
       "scripts/**",
     ],
-  },
-  {
-    files: ["**/*.{js,mjs,cjs,ts,jsx,tsx}"],
-    plugins: {
-      "@next/next": nextPlugin,
-      "react-hooks": reactHooksPlugin,
-    },
-    languageOptions: {
-      parser: typescriptParser,
-      parserOptions: {
-        ecmaVersion: "latest",
-        sourceType: "module",
-        ecmaFeatures: {
-          jsx: true,
-        },
-      },
-    },
-    rules: {
-      ...nextPlugin.configs.recommended.rules,
-      ...nextPlugin.configs["core-web-vitals"].rules,
-      ...reactHooksPlugin.configs.recommended.rules,
-      "@next/next/no-html-link-for-pages": "off",
-      "@next/next/no-img-element": "warn",
-      "no-unused-vars": "off",
-    },
   },
   {
     files: ["components/**/*.{ts,tsx}", "views/**/*.{ts,tsx}", "app/**/*.{ts,tsx}"],
