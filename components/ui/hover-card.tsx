@@ -1,6 +1,14 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 
+interface HoverCardContextType {
+  open: boolean;
+}
+
+const HoverCardContext = React.createContext<HoverCardContextType>({
+  open: false,
+});
+
 interface HoverCardProps {
   children: React.ReactNode;
 }
@@ -9,20 +17,15 @@ export function HoverCard({ children }: HoverCardProps) {
   const [open, setOpen] = React.useState(false);
 
   return (
-    <div
-      className="relative inline-block"
-      onMouseEnter={() => setOpen(true)}
-      onMouseLeave={() => setOpen(false)}
-    >
-      {React.Children.map(children, (child) => {
-        if (!React.isValidElement(child)) return child;
-        if ((child.type as any).displayName === "HoverCardContent") {
-          if (!open) return null;
-          return child;
-        }
-        return child;
-      })}
-    </div>
+    <HoverCardContext.Provider value={{ open }}>
+      <div
+        className="relative inline-block"
+        onMouseEnter={() => setOpen(true)}
+        onMouseLeave={() => setOpen(false)}
+      >
+        {children}
+      </div>
+    </HoverCardContext.Provider>
   );
 }
 
@@ -45,6 +48,10 @@ export function HoverCardContent({
   align = "center",
   ...props
 }: React.HTMLAttributes<HTMLDivElement> & { align?: "start" | "center" | "end" }) {
+  const { open } = React.useContext(HoverCardContext);
+
+  if (!open) return null;
+
   return (
     <div
       className={cn(

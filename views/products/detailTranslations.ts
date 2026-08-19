@@ -103,6 +103,7 @@ const PHRASE_TRANSLATIONS: Record<string, Record<string, string>> = {
 export function translatedDetailValue(
   translate: DetailTranslate,
   source: string,
+  locale?: string,
 ): string {
   if (!source) return source;
   const key = detailValueKey(source);
@@ -117,12 +118,8 @@ export function translatedDetailValue(
   ) {
     return value;
   }
-  if (typeof window !== "undefined") {
-    const path = window.location.pathname;
-    const locale = path.startsWith("/am") ? "am" : path.startsWith("/zh") ? "zh" : "en";
-    if (locale !== "en" && PHRASE_TRANSLATIONS[locale]?.[source]) {
-      return PHRASE_TRANSLATIONS[locale][source];
-    }
+  if (locale && locale !== "en" && PHRASE_TRANSLATIONS[locale]?.[source]) {
+    return PHRASE_TRANSLATIONS[locale][source];
   }
   return source;
 }
@@ -130,8 +127,9 @@ export function translatedDetailValue(
 export function translatedDetailValues(
   translate: DetailTranslate,
   source: string[],
+  locale?: string,
 ): string[] {
-  return source.map((value) => translatedDetailValue(translate, value));
+  return source.map((value) => translatedDetailValue(translate, value, locale));
 }
 
 export function translatedDetailString(

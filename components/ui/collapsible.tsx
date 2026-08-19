@@ -1,6 +1,16 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 
+interface CollapsibleContextType {
+  isOpen: boolean;
+  toggle: () => void;
+}
+
+const CollapsibleContext = React.createContext<CollapsibleContextType>({
+  isOpen: false,
+  toggle: () => {},
+});
+
 interface CollapsibleProps {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
@@ -28,34 +38,31 @@ export function Collapsible({
   }, [isOpen, customOpen, onOpenChange]);
 
   return (
-    <div className={cn("w-full", className)}>
-      {React.Children.map(children, (child) => {
-        if (!React.isValidElement(child)) return child;
-        if ((child.type as any).displayName === "CollapsibleTrigger") {
-          return React.cloneElement(child as React.ReactElement<any>, {
-            onClick: toggle,
-            "aria-expanded": isOpen,
-          });
-        }
-        if ((child.type as any).displayName === "CollapsibleContent") {
-          if (!isOpen) return null;
-          return child;
-        }
-        return child;
-      })}
-    </div>
+    <CollapsibleContext.Provider value={{ isOpen, toggle }}>
+      <div className={cn("w-full", className)}>
+        {children}
+      </div>
+    </CollapsibleContext.Provider>
   );
 }
 
 export function CollapsibleTrigger({
   className,
   children,
+  onClick,
   ...props
 }: React.ButtonHTMLAttributes<HTMLButtonElement>) {
+  const { isOpen, toggle } = React.useContext(CollapsibleContext);
+
   return (
     <button
       type="button"
       className={cn("flex items-center justify-between text-left", className)}
+      onClick={(e) => {
+        onClick?.(e);
+        toggle();
+      }}
+      aria-expanded={isOpen}
       {...props}
     >
       {children}
@@ -69,6 +76,10 @@ export function CollapsibleContent({
   children,
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) {
+  const { isOpen } = React.useContext(CollapsibleContext);
+
+  if (!isOpen) return null;
+
   return (
     <div
       className={cn("animate-in fade-in-0 duration-150", className)}

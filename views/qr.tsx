@@ -10,15 +10,6 @@ export default function QrPage() {
   const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
 
-  const handleSave = () => {
-    const a = document.createElement("a");
-    a.href = "/pic/0.webp";
-    a.download = "Youguard-WhatsApp-QR.jpg";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-  };
-
   const handleCopy = () => {
     navigator.clipboard.writeText(OFFICIAL_WHATSAPP_URL).then(() => {
       setCopied(true);
@@ -96,12 +87,13 @@ export default function QrPage() {
 
           {/* Secondary Actions */}
           <div className="flex flex-col gap-2.5 w-full">
-            <button
-              onClick={handleSave}
-              className="btn-outline w-full py-3 rounded-xl text-xs font-black tracking-widest uppercase text-center"
+            <a
+              href="/pic/0.webp"
+              download="Youguard-WhatsApp-QR.jpg"
+              className="btn-outline w-full py-3 rounded-xl text-xs font-black tracking-widest uppercase text-center block"
             >
               {t("qr.saveButton", "Save QR Code Image")}
-            </button>
+            </a>
           </div>
 
           <LocaleLink

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useCallback } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useTranslation, T } from "@/i18n/useTranslation";
 import { toStaticAssetUrl } from "@/lib/static-asset-url";
 
@@ -16,15 +16,10 @@ const SLIDE_COUNT = 5;
 
 export function HeroSlider() {
   const { t } = useTranslation();
-  const currentIndexRef = useRef(0);
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isOverlap, setIsOverlap] = useState(false);
   const btnRowRef = useRef<HTMLDivElement>(null);
   const dotsRef = useRef<HTMLDivElement>(null);
-  const counterRef = useRef<HTMLSpanElement>(null);
-  const slideRefs = useRef<Array<HTMLDivElement | null>>([]);
-  const panelRefs = useRef<Array<HTMLDivElement | null>>([]);
-  const dotRefs = useRef<Array<HTMLButtonElement | null>>([]);
-  const h1Refs = useRef<Array<HTMLHeadingElement | null>>([]);
 
   const checkOverlap = useCallback(() => {
     const btnRow = btnRowRef.current;
@@ -38,94 +33,28 @@ export function HeroSlider() {
       btnRect.bottom < dotsRect.top ||
       btnRect.top > dotsRect.bottom
     );
-    dots.classList.toggle("right-4", overlap);
-    dots.classList.toggle("sm:right-6", overlap);
-    dots.classList.toggle("md:right-20", overlap);
-    dots.classList.toggle("left-4", !overlap);
-    dots.classList.toggle("sm:left-6", !overlap);
-    dots.classList.toggle("md:left-20", !overlap);
-
-    const counter = counterRef.current?.parentElement;
-    if (counter) {
-      counter.classList.toggle("left-4", overlap);
-      counter.classList.toggle("sm:left-6", overlap);
-      counter.classList.toggle("md:left-20", overlap);
-      counter.classList.toggle("right-4", !overlap);
-      counter.classList.toggle("sm:right-6", !overlap);
-      counter.classList.toggle("md:right-20", !overlap);
-    }
+    setIsOverlap(overlap);
   }, []);
 
-  const showSlide = useCallback(
-    (nextIndex: number) => {
-      const normalizedIndex = ((nextIndex % SLIDE_COUNT) + SLIDE_COUNT) % SLIDE_COUNT;
-      currentIndexRef.current = normalizedIndex;
-
-      slideRefs.current.forEach((slide, index) => {
-        slide?.classList.toggle("active", index === normalizedIndex);
-      });
-      panelRefs.current.forEach((panel, index) => {
-        if (!panel) return;
-        const active = index === normalizedIndex;
-        panel.classList.toggle("opacity-100", active);
-        panel.classList.toggle("pointer-events-auto", active);
-        panel.classList.toggle("opacity-0", !active);
-        panel.classList.toggle("pointer-events-none", !active);
-        panel.setAttribute("aria-hidden", String(!active));
-        panel.toggleAttribute("inert", !active);
-        panel.querySelectorAll("a, button").forEach((el) => {
-          el.setAttribute("tabindex", active ? "0" : "-1");
-        });
-      });
-      dotRefs.current.forEach((dot, index) => {
-        dot?.classList.toggle("active", index === normalizedIndex);
-      });
-      if (counterRef.current) {
-        counterRef.current.textContent = String(normalizedIndex + 1).padStart(2, "0");
-      }
-
-      btnRowRef.current =
-        panelRefs.current[normalizedIndex]?.querySelector("[data-hero-buttons]") ?? null;
-      checkOverlap();
-    },
-    [checkOverlap]
-  );
-
-  const resetTimer = useCallback(() => {
-    if (timerRef.current) clearInterval(timerRef.current);
-    timerRef.current = setInterval(() => {
-      showSlide(currentIndexRef.current + 1);
-    }, 6000);
-  }, [showSlide]);
+  const goSlide = useCallback((n: number) => {
+    const next = ((n % SLIDE_COUNT) + SLIDE_COUNT) % SLIDE_COUNT;
+    setCurrentIndex(next);
+  }, []);
 
   useEffect(() => {
-    currentIndexRef.current = 0;
-    showSlide(0);
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % SLIDE_COUNT);
+    }, 6000);
 
-    // Defer auto-slider interval slightly to give main thread 100% idle time during initial page load/LCP
-    const initialDelay = setTimeout(() => {
-      resetTimer();
-    }, 3000);
-
-    return () => {
-      clearTimeout(initialDelay);
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, [resetTimer, showSlide]);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     checkOverlap();
-    const onResize = () => {
-      checkOverlap();
-    };
+    const onResize = () => checkOverlap();
     window.addEventListener("resize", onResize, { passive: true });
     return () => window.removeEventListener("resize", onResize);
-  }, [checkOverlap]);
-
-  const goSlide = (n: number) => {
-    showSlide(n);
-    resetTimer();
-  };
+  }, [checkOverlap, currentIndex]);
 
   const slides = Array.from({ length: SLIDE_COUNT }, (_, i) => i);
 
@@ -141,8 +70,7 @@ export function HeroSlider() {
       {slides.map((i) => (
         <div
           key={i}
-          ref={(node) => { slideRefs.current[i] = node; }}
-          className={`slide ${i === 0 ? "active" : ""}`}
+          className={`slide ${i === currentIndex ? "active" : ""}`}
         >
           <img
             src={toStaticAssetUrl(SLIDE_IMAGES[i])}
@@ -176,12 +104,11 @@ export function HeroSlider() {
       <div className="absolute inset-0 z-10 flex flex-col justify-center px-4 md:px-12 lg:px-20 pt-4 lg:pt-20 pb-8 lg:pb-24">
         <div className="grid max-w-3xl w-full">
           {slides.map((slideIndex) => {
-            const isActive = slideIndex === 0;
+            const isActive = slideIndex === currentIndex;
             const base = `home.hero.slides.s${slideIndex}`;
             return (
               <div
                 key={slideIndex}
-                ref={(node) => { panelRefs.current[slideIndex] = node; }}
                 aria-hidden={!isActive}
                 inert={!isActive ? true : undefined}
                 className={`transition-opacity duration-700 ${
@@ -198,7 +125,6 @@ export function HeroSlider() {
                 </div>
                 {slideIndex === 0 ? (
                   <h1
-                    ref={(node) => { h1Refs.current[slideIndex] = node; }}
                     className="sh mb-3 lg:mb-8"
                     style={{ fontSize: "calc(clamp(1.8rem, 7vw, 6.5rem) * 1)" }}
                   >
@@ -215,7 +141,6 @@ export function HeroSlider() {
                   <div
                     role="heading"
                     aria-level={2}
-                    ref={(node) => { h1Refs.current[slideIndex] = node; }}
                     className="sh mb-3 lg:mb-8"
                     style={{ fontSize: "calc(clamp(1.8rem, 7vw, 6.5rem) * 1)" }}
                   >
@@ -240,9 +165,7 @@ export function HeroSlider() {
 
                 {/* CTA buttons */}
                 <div
-                  ref={(node) => {
-                    if (slideIndex === 0) btnRowRef.current = node;
-                  }}
+                  ref={isActive ? btnRowRef : undefined}
                   data-hero-buttons
                   className="flex flex-wrap gap-2 lg:gap-4"
                 >
@@ -270,23 +193,28 @@ export function HeroSlider() {
       {/* Navigation dots */}
       <div
         ref={dotsRef}
-        className="absolute bottom-4 sm:bottom-10 z-10 flex gap-2 sm:gap-3 items-center transition-all duration-300 left-4 sm:left-6 md:left-20"
+        className={`absolute bottom-4 sm:bottom-10 z-10 flex gap-2 sm:gap-3 items-center transition-all duration-300 ${
+          isOverlap ? "right-4 sm:right-6 md:right-20" : "left-4 sm:left-6 md:left-20"
+        }`}
       >
         {slides.map((i) => (
           <button
             key={i}
-            ref={(node) => { dotRefs.current[i] = node; }}
             type="button"
             aria-label={`Go to hero slide ${i + 1}`}
-            className={`dot ${i === 0 ? "active" : ""}`}
+            className={`dot ${i === currentIndex ? "active" : ""}`}
             onClick={() => goSlide(i)}
           />
         ))}
       </div>
 
       {/* Slide counter */}
-      <div className="absolute bottom-4 sm:bottom-10 z-10 text-[9px] sm:text-[10px] font-black tracking-widest text-gray-700 uppercase transition-all duration-300 right-4 sm:right-6 md:right-20">
-        <span ref={counterRef} className="text-theme">01</span>
+      <div
+        className={`absolute bottom-4 sm:bottom-10 z-10 text-[9px] sm:text-[10px] font-black tracking-widest text-gray-700 uppercase transition-all duration-300 ${
+          isOverlap ? "left-4 sm:left-6 md:left-20" : "right-4 sm:right-6 md:right-20"
+        }`}
+      >
+        <span className="text-theme">{String(currentIndex + 1).padStart(2, "0")}</span>
         <span> / {String(SLIDE_COUNT).padStart(2, "0")}</span>
       </div>
     </section>

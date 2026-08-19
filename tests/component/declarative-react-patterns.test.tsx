@@ -47,4 +47,47 @@ describe("Next.js Declarative UI Standards (No Anti-Patterns)", () => {
     const source = await readFile(new URL("../../app/layout.tsx", import.meta.url), "utf8");
     expect(source).not.toContain("document.documentElement");
   });
+
+  test("components/HeroSlider.tsx uses declarative state with zero classList/setAttribute/textContent mutations", async () => {
+    const source = await readFile(new URL("../../components/HeroSlider.tsx", import.meta.url), "utf8");
+    expect(source).not.toContain("classList.toggle");
+    expect(source).not.toContain("setAttribute");
+    expect(source).not.toContain("counterRef.current.textContent");
+    expect(source).not.toContain("querySelectorAll");
+    expect(source).toContain("currentIndex");
+  });
+
+  test("components/ui/collapsible.tsx uses React Context with zero displayName reflection", async () => {
+    const source = await readFile(new URL("../../components/ui/collapsible.tsx", import.meta.url), "utf8");
+    expect(source).not.toContain("React.Children.map");
+    expect(source).not.toContain("displayName ===");
+    expect(source).toContain("CollapsibleContext");
+  });
+
+  test("components/ui/hover-card.tsx uses React Context with zero displayName reflection", async () => {
+    const source = await readFile(new URL("../../components/ui/hover-card.tsx", import.meta.url), "utf8");
+    expect(source).not.toContain("React.Children.map");
+    expect(source).not.toContain("displayName ===");
+    expect(source).toContain("HoverCardContext");
+  });
+
+  test("views/products/detailTranslations.ts is pure and contains zero window.location references", async () => {
+    const source = await readFile(new URL("../../views/products/detailTranslations.ts", import.meta.url), "utf8");
+    expect(source).not.toContain("window.location");
+  });
+
+  test("views/qr.tsx and views/page.tsx use declarative download links without document.createElement(a)", async () => {
+    const qrSource = await readFile(new URL("../../views/qr.tsx", import.meta.url), "utf8");
+    const pageSource = await readFile(new URL("../../views/page.tsx", import.meta.url), "utf8");
+    expect(qrSource).not.toContain("document.createElement");
+    expect(pageSource).not.toContain("document.createElement");
+    expect(qrSource).toContain("download=");
+    expect(pageSource).toContain("download=");
+  });
+
+  test("components/Navbar.tsx uses Next.js router with zero window.location.assign", async () => {
+    const source = await readFile(new URL("../../components/Navbar.tsx", import.meta.url), "utf8");
+    expect(source).not.toContain("window.location.assign");
+    expect(source).toContain("router.push");
+  });
 });

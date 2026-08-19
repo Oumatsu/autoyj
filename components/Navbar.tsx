@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { QrDropdown } from "./QrDropdown";
 import { useTranslation } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
@@ -17,6 +17,7 @@ export function Navbar() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pathname = usePathname();
+  const router = useRouter();
   const { t, locale } = useTranslation();
   const openDropdown = useCallback(() => {
     if (closeTimerRef.current) {
@@ -96,12 +97,13 @@ export function Navbar() {
       }
       invalidatePortalSession();
       window.dispatchEvent(new Event("youguard-session-changed"));
-      window.location.assign(`/${locale}/dashboard`);
+      router.push(`/${locale}/dashboard`);
+      router.refresh();
     } catch (error) {
       setSignOutError(error instanceof Error ? error.message : "Sign out failed");
       setSigningOut(false);
     }
-  }, [locale]);
+  }, [locale, router]);
 
   return (
     <>

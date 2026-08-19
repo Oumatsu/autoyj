@@ -588,21 +588,23 @@ export default function HomePage() {
             </p>
 
             <div className="glass rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-8 md:p-10 text-left">
-              <button
-                onClick={() => {
-                  if (isLoggedIn) {
-                    const a = document.createElement("a");
-                    a.href = "/reports/global_ev_outlook_report_2025.pdf";
-                    a.download = "Global_EV_Outlook_Report_2025.pdf";
-                    a.click();
-                  } else {
-                    setShowLoginModal(true);
-                  }
-                }}
-                className="w-full btn-primary py-5 rounded-xl text-sm font-black tracking-widest uppercase italic cursor-pointer transition-all duration-300 hover:scale-[1.02]"
-              >
-                {t("home.leadMagnet.cta")}
-              </button>
+              {isLoggedIn ? (
+                <a
+                  href="/reports/global_ev_outlook_report_2025.pdf"
+                  download="Global_EV_Outlook_Report_2025.pdf"
+                  className="w-full btn-primary py-5 rounded-xl text-sm font-black tracking-widest uppercase italic cursor-pointer transition-all duration-300 hover:scale-[1.02] block text-center"
+                >
+                  {t("home.leadMagnet.cta")}
+                </a>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setShowLoginModal(true)}
+                  className="w-full btn-primary py-5 rounded-xl text-sm font-black tracking-widest uppercase italic cursor-pointer transition-all duration-300 hover:scale-[1.02]"
+                >
+                  {t("home.leadMagnet.cta")}
+                </button>
+              )}
               <p className="text-[10px] text-gray-700 mt-4 text-center">
                 {t("home.leadMagnet.privacy")}
               </p>
