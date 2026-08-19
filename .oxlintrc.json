@@ -2,10 +2,17 @@
   "$schema": "./node_modules/oxlint/configuration_schema.json",
   "plugins": [
     "react",
+    "react-hooks",
+    "jsx-a11y",
     "nextjs",
-    "import",
-    "jsx-a11y"
+    "typescript"
   ],
+  "rules": {
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "warn",
+    "nextjs/no-html-link-for-pages": "off",
+    "nextjs/no-img-element": "warn"
+  },
   "ignorePatterns": [
     ".next/**",
     ".vinext/**",
@@ -16,11 +23,5 @@
     "test-results/**",
     "public/**",
     "scripts/**"
-  ],
-  "rules": {
-    "@next/next/no-img-element": "off",
-    "@next/next/no-html-link-for-pages": "off",
-    "no-unused-vars": "off",
-    "no-empty": "warn"
-  }
+  ]
 }
