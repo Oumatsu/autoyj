@@ -16,21 +16,34 @@ export function SectionTabs() {
   useEffect(() => {
     const handleScroll = () => {
       setIsVisible(window.scrollY > 300);
-
-      const mid = window.innerHeight * 0.45;
-      let active: string | null = null;
-      for (const id of tabSectionIds) {
-        const el = document.querySelector(`#${id}`);
-        if (el && el.getBoundingClientRect().top <= mid) {
-          active = id;
-        }
-      }
-      setActiveId(active);
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
     handleScroll();
-    return () => window.removeEventListener("scroll", handleScroll);
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            setActiveId(entry.target.id);
+          }
+        }
+      },
+      {
+        rootMargin: "-20% 0px -60% 0px",
+        threshold: 0,
+      }
+    );
+
+    tabSectionIds.forEach((id) => {
+      const el = document.querySelector(`#${id}`);
+      if (el) observer.observe(el);
+    });
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      observer.disconnect();
+    };
   }, []);
 
   return (
