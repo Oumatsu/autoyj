@@ -24,6 +24,11 @@ All AI agents and contributors must strictly enforce the following engineering i
    - Tier 4: Comprehensive Playwright E2E (`tests/e2e/`)
    - All code pushed to remote must pass the local `.husky/pre-push` gate (`bun run pre-push` covering Lint, D1 Init, Tier 1-3, W3C, E2E, and Google Lighthouse 100/100 Matrix).
 
+5. **Single Source of Truth & Zero Dual Definitions (单一事实来源与严禁双重定义/状态)**:
+   - **No Dual Definitions (严禁双重类型与接口定义)**: All types, schemas, and enums must be defined in exactly ONE canonical location (e.g. `lib/`, `types/`, D1 schema) and imported everywhere. Never redefine duplicate interfaces or parallel types across client/server.
+   - **No Dual State (严禁双重/分裂状态)**: Never maintain parallel or desynchronized state variables that track the same entity. Multi-level hierarchical views (e.g. Model Level 1 -> Variant Level 2 -> Color/Location Level 3) MUST derive from the exact same underlying record dataset (`vehicles: Vehicle[]`).
+   - **Mathematical Consistency by Construction (构造级数据一致性)**: Card header metrics (e.g. `stockQuantity`) and expanded detail rows must derive from the identical collection to guarantee `sum(detail.quantity) ≡ header.quantity` in all states without divergent matching logic.
+
 ## Agent skills
 
 ### Engineering standards
