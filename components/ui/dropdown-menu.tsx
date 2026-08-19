@@ -11,16 +11,16 @@ export function DropdownMenu({ open, onOpenChange, children }: DropdownMenuProps
   const containerRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
+    function handleClickOutside(event: PointerEvent | MouseEvent) {
       if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
         onOpenChange(false);
       }
     }
     if (open) {
-      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("pointerdown", handleClickOutside);
     }
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("pointerdown", handleClickOutside);
     };
   }, [open, onOpenChange]);
 

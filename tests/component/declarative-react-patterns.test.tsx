@@ -92,4 +92,20 @@ describe("Next.js Declarative UI Standards (No Anti-Patterns)", () => {
     expect(source).not.toContain("window.location.assign");
     expect(source).toContain("router.push");
   });
+
+  test("components/ui/dropdown-menu.tsx and popover.tsx use W3C pointerdown events instead of legacy mousedown", async () => {
+    const dropdownSource = await readFile(new URL("../../components/ui/dropdown-menu.tsx", import.meta.url), "utf8");
+    const popoverSource = await readFile(new URL("../../components/ui/popover.tsx", import.meta.url), "utf8");
+    expect(dropdownSource).toContain("pointerdown");
+    expect(dropdownSource).not.toContain("mousedown");
+    expect(popoverSource).toContain("pointerdown");
+    expect(popoverSource).not.toContain("mousedown");
+  });
+
+  test("components/HeroSlider.tsx implements unified mobile touch & pointer swipe support", async () => {
+    const source = await readFile(new URL("../../components/HeroSlider.tsx", import.meta.url), "utf8");
+    expect(source).toContain("onPointerDown");
+    expect(source).toContain("onPointerUp");
+    expect(source).toContain("touch-pan-y");
+  });
 });

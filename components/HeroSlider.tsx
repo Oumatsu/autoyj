@@ -58,11 +58,45 @@ export function HeroSlider() {
 
   const slides = Array.from({ length: SLIDE_COUNT }, (_, i) => i);
 
+  const pointerStartX = useRef<number | null>(null);
+  const pointerStartY = useRef<number | null>(null);
+
+  const handlePointerDown = (e: React.PointerEvent) => {
+    pointerStartX.current = e.clientX;
+    pointerStartY.current = e.clientY;
+  };
+
+  const handlePointerUp = (e: React.PointerEvent) => {
+    if (pointerStartX.current === null || pointerStartY.current === null) return;
+    const deltaX = e.clientX - pointerStartX.current;
+    const deltaY = e.clientY - pointerStartY.current;
+    pointerStartX.current = null;
+    pointerStartY.current = null;
+
+    if (Math.abs(deltaX) > 40 && Math.abs(deltaX) > Math.abs(deltaY)) {
+      if (deltaX < 0) {
+        goSlide(currentIndex + 1);
+      } else {
+        goSlide(currentIndex - 1);
+      }
+    }
+  };
+
+  const handlePointerCancel = () => {
+    pointerStartX.current = null;
+    pointerStartY.current = null;
+  };
+
   return (
     <section
       id="hero"
-      className="relative w-full overflow-hidden"
+      className="relative w-full overflow-hidden touch-pan-y"
       style={{ aspectRatio: "4/3" }}
+      onPointerDown={handlePointerDown}
+      onPointerUp={handlePointerUp}
+      onPointerCancel={handlePointerCancel}
+      aria-roledescription="carousel"
+      aria-label="Hero Carousel"
     >
       <style>{`@media (min-width: 1024px) { #hero { aspect-ratio: auto; height: 100vh; } }`}</style>
 
