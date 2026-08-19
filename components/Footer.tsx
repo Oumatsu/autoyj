@@ -7,6 +7,7 @@ import { useTranslation, T } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
 import { Button } from "@/components/ui/button";
 import { OFFICIAL_WHATSAPP_URL } from "@/lib/constants";
+import { SocialMediaLinks } from "./SocialMediaLinks";
 
 export function Footer() {
   const [mobileFooterOpen, setMobileFooterOpen] = useState(false);
@@ -307,6 +308,8 @@ export function Footer() {
               </div>
             </div>
           </div>
+
+          <SocialMediaLinks variant="footer" />
 
           <div
             className="flex flex-col md:flex-row justify-between items-center gap-4 pt-8"

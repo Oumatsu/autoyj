@@ -5,6 +5,8 @@ interface SheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   side?: "top" | "bottom" | "left" | "right";
+  contentId?: string;
+  ariaLabel?: string;
   children: React.ReactNode;
 }
 
@@ -12,8 +14,19 @@ export function Sheet({
   open,
   onOpenChange,
   side = "right",
+  contentId,
+  ariaLabel,
   children,
 }: SheetProps) {
+  React.useEffect(() => {
+    if (!open) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onOpenChange(false);
+    };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [open, onOpenChange]);
+
   if (!open) return null;
 
   return (
@@ -24,6 +37,10 @@ export function Sheet({
         aria-hidden="true"
       />
       <div
+        id={contentId}
+        role="dialog"
+        aria-modal="true"
+        aria-label={ariaLabel}
         className={cn(
           "relative z-10 flex flex-col border-white/10 bg-[#0c1322] p-6 text-white shadow-2xl transition-transform duration-300 ease-in-out",
           side === "right" && "ml-auto h-full w-full max-w-md border-l animate-in slide-in-from-right",

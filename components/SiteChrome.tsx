@@ -9,6 +9,7 @@ import { localeLabels } from "@/i18n/config";
 
 import { TolgeeWrapper } from "./TolgeeWrapper";
 import { PwaInstallPrompt } from "./PwaInstallPrompt";
+import { DashboardNavigationProvider } from "./DashboardNavigationContext";
 
 const LOCALE_FONT_MAP: Record<string, string> = {
   zh: "font-sans",
@@ -34,10 +35,12 @@ export function SiteChrome({ children }: { children: ReactNode }) {
   return (
     <TolgeeWrapper locale={locale}>
       <div lang={locale} dir={textDir} className={`min-h-screen ${fontClass}`}>
-        <Navbar />
-        {children}
-        {!hidePublicFooter && <Footer />}
-        <PwaInstallPrompt />
+        <DashboardNavigationProvider>
+          <Navbar />
+          {children}
+          {!hidePublicFooter && <Footer />}
+          <PwaInstallPrompt />
+        </DashboardNavigationProvider>
       </div>
     </TolgeeWrapper>
   );

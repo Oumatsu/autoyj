@@ -3717,6 +3717,7 @@ async function handleUpdateInquiryStatus(request: Request, env: Env, inquiryNo: 
     if (newStatus !== "open" && newStatus !== "closed") return problem("Inquiry status must be open or closed", 400);
     const allowedNext = INQUIRY_STATUS_TRANSITIONS[currentStatus];
     targetStatus = newStatus;
+    if (currentStatus === targetStatus) return json({ ok: true, inquiryNo, status: targetStatus, unchanged: true });
     if (!allowedNext.includes(targetStatus)) {
       return problem(`Invalid status transition from '${currentStatus}' to '${targetStatus}'`, 400);
     }

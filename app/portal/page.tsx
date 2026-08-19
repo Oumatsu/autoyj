@@ -28,6 +28,7 @@ import { QuotationTemplatePreview } from "@/components/portal/QuotationTemplateP
 import { InquiryVehiclePicker } from "@/components/portal/InquiryVehiclePickerField";
 import { appendInquiryComment, inquiryCommentAuthorClass } from "@/lib/inquiry-comment-state";
 import { buildInquiryCommentThreads, inquiryListDetails, replyReference } from "@/lib/inquiry-workflow";
+import { useDashboardNavigation } from "@/components/DashboardNavigationContext";
 
 type AdminModule = "dashboard" | "vehicle_models" | "vehicles" | "quotes" | "orders" | "payments" | "logistics" | "accounts";
 type AdminIconName = "dashboard" | "vehicle_models" | "vehicles" | "quotes" | "orders" | "payments" | "logistics" | "accounts";
@@ -1124,7 +1125,7 @@ function AdminPortal({
   const { t, locale } = useTranslation();
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const { isDashboardNavigationOpen, setDashboardNavigationOpen } = useDashboardNavigation();
   const visibleNav = adminNavItems.filter((item) => item.roles.includes(data.user.role));
   const normalizedActiveModule = visibleNav.some((item) => item.key === activeModule) ? activeModule : "dashboard";
   const activeItem = visibleNav.find((item) => item.key === normalizedActiveModule) || visibleNav[0];
@@ -1134,10 +1135,8 @@ function AdminPortal({
 
   return (
     <main className="min-h-screen bg-[#0c1322] text-slate-100 pt-16 sm:pt-20">
-      {/* Mobile Top Sub-Header for Dashboard Module Selection */}
-      <div
-        className="sticky top-16 z-40 flex items-center justify-between border-b border-white/10 bg-[#0b1425]/95 px-4 py-2.5 backdrop-blur-md lg:hidden"
-      >
+      {/* Mobile dashboard context; drawer control lives in the global mobile header. */}
+      <div className="sticky top-16 z-40 flex items-center border-b border-white/10 bg-[#0b1425]/95 px-4 py-2.5 backdrop-blur-md lg:hidden">
         <div className="flex items-center gap-2">
           <span className="text-xs font-black tracking-wider text-[#22b8aa] uppercase">
             {t("portal.navDashboard")}
@@ -1147,33 +1146,18 @@ function AdminPortal({
             {t(activeItem.labelKey)}
           </span>
         </div>
-        <div className="flex items-center gap-2">
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => setMobileSidebarOpen((prev) => !prev)}
-            aria-label="Toggle navigation drawer"
-            className="flex items-center gap-1.5 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-bold text-white hover:bg-white/10"
-          >
-            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-              <path d="M4 7h16M4 12h16M4 17h16" />
-            </svg>
-            <span>{t(activeItem.labelKey)}</span>
-          </Button>
-        </div>
       </div>
 
       <div className={`grid min-h-[calc(100vh-5rem)] min-w-0 transition-[grid-template-columns] duration-200 ${sidebarCollapsed ? "lg:grid-cols-[88px_minmax(0,1fr)]" : "lg:grid-cols-[300px_minmax(0,1fr)]"}`}>
-        {mobileSidebarOpen && (
+        {isDashboardNavigationOpen && (
           <button
             type="button"
             aria-label="Close dashboard navigation"
-            onClick={() => setMobileSidebarOpen(false)}
+            onClick={() => setDashboardNavigationOpen(false)}
             className="fixed inset-0 z-30 bg-black/70 lg:hidden"
           />
         )}
-        <aside className={`${mobileSidebarOpen ? "fixed inset-y-0 left-0 z-50 flex" : "hidden"} min-h-screen w-[min(20rem,calc(100vw-2rem))] flex-col overflow-y-auto border-b border-white/10 bg-[#101827] px-4 py-5 shadow-2xl transition-[padding] duration-200 lg:sticky lg:top-20 lg:z-auto lg:flex lg:h-[calc(100vh-5rem)] lg:w-auto lg:self-start lg:overflow-visible lg:border-b-0 lg:border-r lg:shadow-none ${sidebarCollapsed ? "lg:px-3" : "lg:px-5"}`}>
+        <aside id="dashboard-navigation-drawer" className={`${isDashboardNavigationOpen ? "fixed inset-y-0 left-0 z-50 flex" : "hidden"} min-h-screen w-[min(20rem,calc(100vw-2rem))] flex-col overflow-y-auto border-b border-white/10 bg-[#101827] px-4 py-5 shadow-2xl transition-[padding] duration-200 lg:sticky lg:top-20 lg:z-auto lg:flex lg:h-[calc(100vh-5rem)] lg:w-auto lg:self-start lg:overflow-visible lg:border-b-0 lg:border-r lg:shadow-none ${sidebarCollapsed ? "lg:px-3" : "lg:px-5"}`}>
           <div className="min-h-0 flex-1">
             <div className={`flex items-center gap-3 border-b border-white/10 pb-6 ${sidebarCollapsed ? "lg:flex-col lg:justify-center lg:gap-2 lg:pb-4" : ""}`}>
               <div className={`grid shrink-0 place-items-center rounded-2xl bg-[#22b8aa] font-black text-[#0c1322] transition-all duration-200 ${sidebarCollapsed ? "lg:h-12 lg:w-12 lg:text-base" : "h-14 w-14 text-xl"}`}>
@@ -1208,7 +1192,7 @@ function AdminPortal({
                     onClick={(e) => {
                       e.preventDefault();
                       onModuleChange(item.key);
-                      setMobileSidebarOpen(false);
+                      setDashboardNavigationOpen(false);
                     }}
                       title={t(item.labelKey)}
                       className={`grid min-h-12 grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-xl px-3 py-2.5 text-left text-[13px] font-bold transition cursor-pointer ${sidebarCollapsed ? "lg:grid-cols-1 lg:justify-items-center lg:px-0" : ""} ${
@@ -1275,18 +1259,6 @@ function AdminPortal({
         <section className="min-w-0 px-4 py-5 sm:px-6 lg:px-8 lg:pb-8 lg:pt-8">
           <header className="mb-6 flex flex-col gap-4 border-b border-white/10 pb-5 xl:flex-row xl:items-end xl:justify-between">
             <div className="flex items-start gap-3">
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                aria-label="Open dashboard navigation"
-                onClick={() => setMobileSidebarOpen(true)}
-                className="mt-0.5 shrink-0 border border-white/10 text-slate-200 lg:hidden"
-              >
-                <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
-                  <path d="M4 7h16M4 12h16M4 17h16" />
-                </svg>
-              </Button>
               <div>
                 <p className="text-[10px] font-black uppercase tracking-[.24em] text-[#22b8aa]">
                   {data.user.role === "admin" ? t("portal.administrator") : formatPortalRole(data.user.role, locale)} {t("portal.adminView")}

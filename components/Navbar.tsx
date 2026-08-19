@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { QrDropdown } from "./QrDropdown";
 import { useTranslation } from "@/i18n/useTranslation";
@@ -10,6 +9,8 @@ import { LocaleSwitcher } from "@/i18n/LocaleSwitcher";
 import { Sheet, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { getPortalSession, invalidatePortalSession } from "@/lib/portal-session-client";
+import { useDashboardNavigation } from "./DashboardNavigationContext";
+import { SocialMediaLinks } from "./SocialMediaLinks";
 
 export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -19,6 +20,9 @@ export function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const { t, locale } = useTranslation();
+  const { isDashboardNavigationOpen, openDashboardNavigation, setDashboardNavigationOpen } = useDashboardNavigation();
+  const pathSegments = pathname?.split("/").filter(Boolean) ?? [];
+  const isDashboardRoute = pathSegments[0] === "dashboard" || pathSegments[1] === "dashboard";
   const openDropdown = useCallback(() => {
     if (closeTimerRef.current) {
       clearTimeout(closeTimerRef.current);
@@ -39,13 +43,9 @@ export function Navbar() {
     };
   }, []);
 
-  const [prevMobileOpen, setPrevMobileOpen] = useState(mobileOpen);
-  if (prevMobileOpen !== mobileOpen) {
-    setPrevMobileOpen(mobileOpen);
-    if (!mobileOpen) {
-      setMobileVehiclesOpen(false);
-    }
-  }
+  useEffect(() => {
+    if (!mobileOpen) setMobileVehiclesOpen(false);
+  }, [mobileOpen]);
 
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -61,6 +61,16 @@ export function Navbar() {
     setMobileOpen(false);
     setMobileVehiclesOpen(false);
   }, []);
+
+  const toggleMainNavigation = useCallback(() => {
+    setMobileOpen((previous) => !previous);
+    setDashboardNavigationOpen(false);
+  }, [setDashboardNavigationOpen]);
+
+  const openDashboardDrawer = useCallback(() => {
+    closeMobile();
+    openDashboardNavigation();
+  }, [closeMobile, openDashboardNavigation]);
 
   const [user, setUser] = useState<{ role: string; name?: string } | null>(null);
   const [signingOut, setSigningOut] = useState(false);
@@ -110,7 +120,7 @@ export function Navbar() {
       <nav
         id="navbar"
         aria-label="Main Navigation"
-        className="fixed top-0 left-0 right-0 z-50 glass px-6 md:px-10 flex items-center justify-between transition-all duration-300"
+        className="fixed top-0 left-0 right-0 z-50 grid grid-cols-[44px_minmax(0,1fr)_44px] items-center glass px-4 sm:px-6 md:px-10 transition-all duration-300 lg:flex lg:justify-between"
         style={{
           paddingTop: isScrolled
             ? "calc(env(safe-area-inset-top, 0px) + 8px)"
@@ -118,7 +128,24 @@ export function Navbar() {
           paddingBottom: isScrolled ? "8px" : "14px",
         }}
       >
-        <LocaleLink href="/" className="flex items-center gap-2.5">
+        <div className="flex lg:hidden">
+          {isDashboardRoute ? (
+            <button
+              type="button"
+              aria-label="Open dashboard navigation"
+              aria-controls="dashboard-navigation-drawer"
+              aria-expanded={isDashboardNavigationOpen}
+              onClick={openDashboardDrawer}
+              className="grid h-11 w-11 place-items-center rounded-lg text-white transition hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5ee6d8]"
+            >
+              <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                <path d="M4 7h16M4 12h16M4 17h16" />
+              </svg>
+            </button>
+          ) : <span className="h-11 w-11" aria-hidden="true" />}
+        </div>
+
+        <LocaleLink href="/" className="flex justify-self-center gap-2.5 lg:justify-self-auto">
           <img src="/favicon.svg" className="h-8 w-auto" alt="Youguard" />
         </LocaleLink>
 
@@ -193,6 +220,7 @@ export function Navbar() {
           <LocaleLink href="/about" className="nav-link">
             {t("nav.about")}
           </LocaleLink>
+          <SocialMediaLinks variant="dropdown" />
         </div>
 
         <div className="hidden lg:flex items-center gap-3">
@@ -242,9 +270,11 @@ export function Navbar() {
 
         <button
           type="button"
-          aria-label="Toggle navigation menu"
-          onClick={() => setMobileOpen((prev) => !prev)}
-          className="lg:hidden p-2 flex flex-col gap-1.5 focus:outline-none"
+          aria-label={mobileOpen ? "Close main navigation" : "Open main navigation"}
+          aria-controls="main-navigation-drawer"
+          aria-expanded={mobileOpen}
+          onClick={toggleMainNavigation}
+          className="justify-self-end p-2 focus:outline-none lg:hidden"
         >
           {mobileOpen ? (
             <span className="text-2xl leading-none text-white">✕</span>
@@ -258,7 +288,7 @@ export function Navbar() {
         </button>
       </nav>
 
-      <Sheet open={mobileOpen} onOpenChange={setMobileOpen} side="right">
+      <Sheet open={mobileOpen} onOpenChange={setMobileOpen} side="right" contentId="main-navigation-drawer" ariaLabel="Main navigation">
         <div className="flex items-center justify-between border-b border-white/10 pb-4">
           <SheetHeader>
             <SheetTitle>Youguard</SheetTitle>
@@ -343,6 +373,7 @@ export function Navbar() {
           <LocaleLink href="/about" onClick={closeMobile} className="text-white hover:text-[#5ee6d8] transition">
             {t("nav.about")}
           </LocaleLink>
+          <SocialMediaLinks variant="mobile-menu" />
 
           {user ? (
             <>

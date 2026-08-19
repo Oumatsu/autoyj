@@ -3,7 +3,8 @@ import { handlePortalRequest } from "../../../server/api/portal";
 import type { PortalEnv as Env } from "../../../server/types";
 
 // Minimal fakeD1 that supports inquiry lookup and write operations
-function makeDb(inquiry: Record<string, unknown>) {
+function makeDb(inquiryFixture: Record<string, unknown>) {
+  const inquiry = { ...inquiryFixture };
   const written: Array<{ sql: string; values: unknown[] }> = [];
   const db = {
     prepare(sql: string) {
@@ -35,6 +36,9 @@ function makeDb(inquiry: Record<string, unknown>) {
       for (const s of stmts) {
         if (s && s.sql) {
           written.push({ sql: s.sql, values: s.bound ?? [] });
+          if (/UPDATE\s+inquiries\s+SET\s+status=\?/i.test(s.sql) && typeof s.bound?.[0] === "string") {
+            inquiry.status = s.bound[0];
+          }
         }
       }
       return stmts.map(() => ({ success: true }));
@@ -126,6 +130,24 @@ describe("PATCH /api/portal/inquiries/:id/status", () => {
     expect(await res.json()).toMatchObject({ status: "closed" });
     const historyWrite = db.written.some(({ sql }) => /inquiry_status_history/i.test(sql));
     expect(historyWrite).toBe(true);
+  });
+
+  test("replaying an administrative close is successful without duplicating status history", async () => {
+    const db = makeDb({ ...OPEN_INQUIRY });
+    const env = makeEnv(db);
+    const token = await loginAs("admin", env);
+    const request = () => new Request("http://localhost/api/portal/inquiries/INQ-2026-001/status", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json", Cookie: `portal_session=${token}` },
+      body: JSON.stringify({ status: "closed" }),
+    });
+
+    expect((await handlePortalRequest(request(), env)).status).toBe(200);
+    const repeated = await handlePortalRequest(request(), env);
+
+    expect(repeated.status).toBe(200);
+    expect(await repeated.json()).toMatchObject({ status: "closed", unchanged: true });
+    expect(db.written.filter(({ sql }) => /INSERT\s+INTO\s+inquiry_status_history/i.test(sql))).toHaveLength(1);
   });
 
   test("only administrators can restore a closed inquiry to open", async () => {

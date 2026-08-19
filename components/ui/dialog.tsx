@@ -10,6 +10,8 @@ interface DialogProps {
 
 export function Dialog({ open, onOpenChange, children, className }: DialogProps) {
   if (!open) return null;
+  const isManagementDialog = className?.includes("max-w-4xl") ?? false;
+  const contentClassName = isManagementDialog ? className?.replace("max-w-4xl", "") : className;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/70 p-4 backdrop-blur-sm animate-in fade-in-0 duration-200">
@@ -21,9 +23,14 @@ export function Dialog({ open, onOpenChange, children, className }: DialogProps)
       <div
         role="dialog"
         aria-modal="true"
-        className={cn("relative z-10 w-full max-w-lg rounded-2xl border border-border bg-background p-6 text-foreground shadow-2xl animate-in zoom-in-95 duration-200", className)}
+        className={cn(
+          "relative z-10 w-full max-w-lg rounded-2xl border border-border bg-background p-6 text-foreground shadow-2xl animate-in zoom-in-95 duration-200",
+          isManagementDialog && "flex h-[min(92vh,1100px)] max-w-[min(96vw,1600px)] flex-col overflow-hidden [&>div.grid]:!max-h-none [&>div.grid]:min-h-0 [&>div.grid]:flex-1 [&>div.grid]:md:grid-cols-2 [&>div.grid]:xl:grid-cols-3 [&>div.grid>section]:grid [&>div.grid>section]:grid-cols-1 [&>div.grid>section]:gap-3 [&>div.grid>section]:md:grid-cols-2",
+          contentClassName,
+        )}
       >
         {children}
+        {isManagementDialog && <button type="button" onClick={() => onOpenChange(false)} className="absolute right-4 top-4 grid h-9 w-9 place-items-center rounded border border-white/15 text-lg font-black text-slate-200 hover:bg-white/10" aria-label="Close dialog">×</button>}
       </div>
     </div>
   );
