@@ -2100,16 +2100,27 @@ function AdminVehicles({ data, onEdit, onRefresh, onRefreshData }: { data: Boots
           </select>
           )}
 
-          {/* 渚涘簲鐘舵€佷笅鎷?*/}
-          <select
-            value={supplyFilter}
-            onChange={(e) => setSupplyFilter(e.target.value)}
-            className="rounded-xl border border-white/10 bg-[#0c1424] px-3 py-2.5 text-xs font-medium text-white outline-none transition focus:border-[#22b8aa]"
-          >
-            <option value="all">{t("portal.allStatuses")}</option>
-            <option value="in-stock">{t("portal.inStock")}</option>
-            <option value="preorder">{t("portal.preorder")}</option>
-          </select>
+          {/* 供应状态分段选择器 (Segmented Pills) */}
+          <div className="flex items-center rounded-xl border border-white/10 bg-[#0c1424] p-0.5">
+            {[
+              { value: "all", label: t("portal.allStatuses") },
+              { value: "in-stock", label: t("portal.inStock") },
+              { value: "preorder", label: t("portal.preorder") },
+            ].map((opt) => (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => setSupplyFilter(opt.value)}
+                className={`rounded-lg px-3 py-2 text-xs font-semibold transition ${
+                  supplyFilter === opt.value
+                    ? "bg-[#22b8aa] text-white shadow-sm font-bold"
+                    : "text-slate-400 hover:text-white"
+                }`}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
 
           <button
             type="button"
@@ -3178,19 +3189,30 @@ function AdminUserManagement({
 
                 <div>
                   <Label className="text-[11px] font-bold text-gray-300">Account Type / Role (账号类型)</Label>
-                  <select
-                    value={form.role}
-                    onChange={(e) => {
-                      const newRole = e.target.value as PortalRole;
-                      setForm({ ...form, role: newRole, priceTier: defaultPriceTierForRole(newRole) });
-                    }}
-                    className="mt-1 w-full rounded-md border border-white/15 bg-black/40 px-3 py-2 text-xs text-white"
-                  >
-                    <option value="customer">Customer (海外买家)</option>
-                    <option value="partner">Partner (合作分销商)</option>
-                    <option value="sales">Sales (销售顾问)</option>
-                    <option value="admin">Admin (系统管理员)</option>
-                  </select>
+                  <div className="mt-1.5 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                    {(
+                      [
+                        { role: "customer", label: "Customer", sub: "海外买家" },
+                        { role: "partner", label: "Partner", sub: "合作分销商" },
+                        { role: "sales", label: "Sales", sub: "销售顾问" },
+                        { role: "admin", label: "Admin", sub: "系统管理员" },
+                      ] as const
+                    ).map((item) => (
+                      <button
+                        key={item.role}
+                        type="button"
+                        onClick={() => setForm({ ...form, role: item.role, priceTier: defaultPriceTierForRole(item.role) })}
+                        className={`flex flex-col items-center justify-center rounded-xl border p-2.5 text-center transition min-h-[44px] ${
+                          form.role === item.role
+                            ? "border-[#22b8aa] bg-[#22b8aa]/20 text-[#5ee6d8] font-bold shadow-sm"
+                            : "border-white/10 bg-white/[0.03] text-gray-400 hover:border-white/20 hover:text-white"
+                        }`}
+                      >
+                        <span className="text-xs">{item.label}</span>
+                        <span className="text-[10px] opacity-60">{item.sub}</span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
                 <div>
@@ -3355,11 +3377,22 @@ function VehicleEditModal({ vehicle, onClose, onSaved }: { vehicle: Vehicle; onC
             </FormField>
           )}
           <FormField label="Status">
-            <select value={form.status} onChange={(event) => updateField("status", event.target.value)}>
-              <option>In Stock</option>
-              <option>Preorder</option>
-              <option>Unavailable</option>
-            </select>
+            <div className="flex items-center gap-1 rounded-xl border border-white/10 bg-[#0c1424] p-1">
+              {["In Stock", "Preorder", "Unavailable"].map((status) => (
+                <button
+                  key={status}
+                  type="button"
+                  onClick={() => updateField("status", status)}
+                  className={`flex-1 rounded-lg py-1.5 px-2 text-xs font-semibold transition min-h-[36px] ${
+                    form.status === status
+                      ? "bg-[#22b8aa] text-white shadow-sm font-bold"
+                      : "text-gray-400 hover:text-white"
+                  }`}
+                >
+                  {status}
+                </button>
+              ))}
+            </div>
           </FormField>
           <FormField label="Color">
             <input value={form.color} onChange={(event) => updateField("color", event.target.value)} />

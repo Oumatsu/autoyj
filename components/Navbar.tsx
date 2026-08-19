@@ -370,9 +370,9 @@ export function Navbar() {
         </div>
 
         <div className="mt-auto border-t border-white/10 pt-4 flex flex-col gap-3">
-          <LocaleSwitcher />
+          <LocaleSwitcher variant="full" onSelect={closeMobile} />
           <LocaleLink href="/#contact" onClick={closeMobile}>
-            <Button className="w-full inline-flex items-center justify-center gap-2" variant="default">
+            <Button className="w-full inline-flex items-center justify-center gap-2 min-h-[44px]" variant="default">
               <svg viewBox="0 0 32 32" width="16" height="16" fill="none" aria-hidden="true">
                 <circle cx="16" cy="16" r="16" fill="currentColor" fillOpacity="0.18" />
                 <path

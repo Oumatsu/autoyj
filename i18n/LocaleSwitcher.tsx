@@ -1,22 +1,23 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { Locale, localeLabels, locales } from "./config";
 import { localizeHref } from "./LocaleLink";
 import { getLocaleFromPath } from "./utils";
-import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 
-export function LocaleSwitcher() {
+export interface LocaleSwitcherProps {
+  variant?: "compact" | "full" | "auto";
+  className?: string;
+  onSelect?: () => void;
+}
+
+export function LocaleSwitcher({ variant = "auto", className, onSelect }: LocaleSwitcherProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const [open, setOpen] = useState(false);
 
   const currentLocale = getLocaleFromPath(pathname);
-  const current = localeLabels[currentLocale] ?? localeLabels.en;
 
   /**
    * Next.js App Router 官方标准 i18n URL 构造方法：
@@ -33,48 +34,9 @@ export function LocaleSwitcher() {
     return localizeHref(query ? `${basePath}?${query}` : basePath, targetLocale);
   };
 
-  const handleLocaleSelect = () => {
-    setOpen(false);
-  };
-
-  return (
-    <DropdownMenu open={open} onOpenChange={setOpen}>
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => setOpen((v) => !v)}
-        className="rounded-full gap-1.5 px-3 py-1.5 font-mono uppercase tracking-widest text-[11px] border-white/15 bg-white/5 hover:bg-white/10 hover:text-white transition-all shadow-sm"
-        aria-label={`Select language, current: ${current.nativeName}`}
-      >
-        {/* W3C i18n Standard: Global Globe Icon instead of country flags */}
-        <svg
-          className="w-3.5 h-3.5 opacity-80 shrink-0 text-current"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          aria-hidden="true"
-        >
-          <circle cx="12" cy="12" r="10" />
-          <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
-          <path d="M2 12h20" />
-        </svg>
-        <span className="font-semibold">{current.code}</span>
-        <svg
-          className={cn("w-3 h-3 ml-0.5 opacity-70 transition-transform duration-200", open && "rotate-180")}
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={2}
-          aria-hidden="true"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-        </svg>
-      </Button>
-
-      <DropdownMenuContent open={open} align="end" className="min-w-[150px] p-1.5 rounded-2xl bg-[#0b1425]/95 border border-white/10 shadow-2xl backdrop-blur-xl">
+  if (variant === "full") {
+    return (
+      <nav aria-label="Language selection" className={cn("flex w-full items-center rounded-2xl bg-white/[0.06] p-1 border border-white/10 shadow-inner", className)}>
         {locales.map((locale) => {
           const label = localeLabels[locale];
           const isActive = locale === currentLocale;
@@ -86,25 +48,76 @@ export function LocaleSwitcher() {
               href={targetHref}
               hrefLang={locale}
               rel="alternate"
-              onClick={handleLocaleSelect}
+              onClick={onSelect}
+              aria-current={isActive ? "true" : undefined}
               className={cn(
-                "flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs font-medium transition-colors cursor-pointer select-none outline-none",
+                "flex-1 flex items-center justify-center gap-1.5 py-2.5 px-2 text-center text-xs font-semibold rounded-xl transition-all duration-200 min-h-[44px] select-none",
                 isActive
-                  ? "bg-[#22b8aa]/20 text-[#5ee6d8] font-bold"
-                  : "text-slate-300 hover:bg-white/10 hover:text-white"
+                  ? "bg-[#22b8aa] text-white font-bold shadow-md shadow-[#22b8aa]/30"
+                  : "text-slate-300 hover:text-white hover:bg-white/5 active:scale-95"
               )}
             >
-              <div className="flex items-center gap-2">
-                <span className={cn("w-1.5 h-1.5 rounded-full transition-opacity", isActive ? "bg-[#5ee6d8]" : "bg-transparent")} />
-                <span>{label.nativeName}</span>
-              </div>
-              <span className="text-[10px] font-mono uppercase tracking-wider opacity-60">
-                {label.code}
-              </span>
+              <span>{label.nativeName}</span>
+              <span className="text-[10px] opacity-60 font-mono uppercase">({label.code})</span>
             </Link>
           );
         })}
-      </DropdownMenuContent>
-    </DropdownMenu>
+      </nav>
+    );
+  }
+
+  return (
+    <nav
+      aria-label="Language selection"
+      className={cn(
+        "inline-flex items-center rounded-full p-1 bg-white/5 border border-white/15 shadow-sm backdrop-blur-md transition-all",
+        className
+      )}
+    >
+      <div className="pl-2 pr-1 text-slate-400" aria-hidden="true">
+        {/* W3C i18n Standard: Global Globe Icon */}
+        <svg
+          className="w-3.5 h-3.5 opacity-75 shrink-0"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <circle cx="12" cy="12" r="10" />
+          <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
+          <path d="M2 12h20" />
+        </svg>
+      </div>
+
+      <div className="flex items-center gap-0.5">
+        {locales.map((locale) => {
+          const label = localeLabels[locale];
+          const isActive = locale === currentLocale;
+          const targetHref = getLocalizedHref(locale);
+
+          return (
+            <Link
+              key={locale}
+              href={targetHref}
+              hrefLang={locale}
+              rel="alternate"
+              onClick={onSelect}
+              aria-current={isActive ? "true" : undefined}
+              title={label.name}
+              className={cn(
+                "px-2.5 py-1 text-[11px] font-mono uppercase tracking-wider rounded-full transition-all duration-200 select-none",
+                isActive
+                  ? "bg-[#22b8aa] text-white font-black shadow-sm shadow-[#22b8aa]/40"
+                  : "text-slate-400 hover:text-white hover:bg-white/10 active:scale-95"
+              )}
+            >
+              {label.code}
+            </Link>
+          );
+        })}
+      </div>
+    </nav>
   );
 }
