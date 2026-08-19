@@ -134,3 +134,37 @@ To conserve private repository GitHub Actions quotas and provide instant develop
   4. `bun run audit:w3c` (W3C HTML5, Web Manifest, and WCAG accessibility standards)
   5. `bun run test:e2e` (297 Playwright browser journeys)
   6. `bun run audit:lighthouse` (Google Lighthouse 100/100 audit matrix across all core routes)
+
+---
+
+## 5. Iron Law V: Single Source of Truth & Zero Dual Definitions (单一事实来源与严禁双重定义/状态)
+
+### 5.1 No Dual Definitions (严禁双重类型与接口定义)
+1. **Canonical Schema Definition**:
+   - All TypeScript types, interfaces, Zod schemas, status enums, and database models must have **exactly ONE canonical definition site** (in `lib/`, `types/`, or server schema).
+   - **Strictly Forbidden 🚫**: Declaring duplicate interfaces or shadow types in component files, page files, or API route wrappers.
+   - **Canonical Practice ✅**: Always import and reuse the single canonical type:
+     ```typescript
+     // ✅ Import from canonical domain module
+     import { type Vehicle, type VehicleModel, type SellableModel } from "@/lib/types";
+     import { type InquiryStatus, canTransitionInquiryStatus } from "@/lib/inquiry-workflow";
+     ```
+
+### 5.2 No Dual State / No Split State (严禁双重/分裂状态与派生割裂)
+1. **Single Source of Truth for Data Hierarchies**:
+   - In hierarchical views (e.g. Model Level 1 -> Variant/Trim Level 2 -> Color/Location Level 3), all levels **MUST derive strictly and deterministically from the exact same underlying raw data array** (`vehicles: Vehicle[]`).
+   - Never re-query or use divergent filtering/heuristic algorithms between parent headers and expanded detail children.
+2. **Mathematical Consistency by Construction**:
+   - Summary statistics (e.g. card header `stockQuantity`, `priceRange`, or variant counts) must be calculated directly from the child collection:
+     $$\text{Header Units} \equiv \sum_{i} \text{Variant}_i.\text{stockQuantity} \equiv \sum_{i,j} \text{Color}_{i,j}.\text{quantity}$$
+   - Any UI state that allows the header to display a count differing from the sum of its expanded child rows is a **Tier-1 critical defect**.
+
+### 5.3 Anti-Patterns vs. Canonical Practices
+
+| Anti-Pattern (Strictly Forbidden 🚫) | Canonical Practice (Mandatory ✅) |
+| :--- | :--- |
+| Writing a custom regex/filter in the UI component to find child vehicles, different from the model aggregator | Passing the aggregated `item.vehicles` array directly to child breakdown functions (`buildVehicleResourceVariants(item.vehicles)`) |
+| Defining `interface User` in `app/portal/page.tsx` and another `interface PortalUser` in `server/api/portal.ts` | Defining `PortalUser` in pure shared domain types and importing it across frontend and backend |
+| Duplicating status enum strings in client select options without importing from `lib/*-workflow.ts` | Importing status lists from the domain workflow (`INQUIRY_STATUSES`, `ORDER_STATUSES`) |
+| Deriving summary totals in one place and detail lists in another with different filtering conditions | Deriving filtered sub-arrays once (`effectiveRawVehicles`), then calculating both summary metrics and detail variants from it |
+
