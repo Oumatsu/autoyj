@@ -15,16 +15,12 @@ export function SectionTabs() {
 
   useEffect(() => {
     const handleScroll = () => {
-      const hero = document.getElementById("hero");
-      if (hero) {
-        const heroBottom = hero.getBoundingClientRect().bottom;
-        setIsVisible(heroBottom < window.innerHeight * 0.25);
-      }
+      setIsVisible(window.scrollY > 300);
 
       const mid = window.innerHeight * 0.45;
       let active: string | null = null;
       for (const id of tabSectionIds) {
-        const el = document.getElementById(id);
+        const el = document.querySelector(`#${id}`);
         if (el && el.getBoundingClientRect().top <= mid) {
           active = id;
         }
@@ -37,14 +33,6 @@ export function SectionTabs() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const scrollTo = (targetId: string) => {
-    const target = document.getElementById(targetId);
-    if (!target) return;
-    const offset = 110;
-    const top = target.getBoundingClientRect().top + window.scrollY - offset;
-    window.scrollTo({ top, behavior: "smooth" });
-  };
-
   return (
     <div
       id="section-tabs"
@@ -55,18 +43,18 @@ export function SectionTabs() {
       style={{ top: "calc(var(--navbar-h, 56px) - 1px)" }}
     >
       <div className="tab-inner">
-        <button
+        <a
+          href="#products"
           className={`tab-btn ${activeId === "products" ? "active" : ""}`}
-          onClick={() => scrollTo("products")}
         >
           <span className="sm:hidden">{t("sectionTabs.topShort", "Top")}</span>
           <span className="hidden sm:inline">
             {t("sectionTabs.top", "Top Selection")}
           </span>
-        </button>
-        <button
+        </a>
+        <a
+          href="#solutions"
           className={`tab-btn ${activeId === "solutions" ? "active" : ""}`}
-          onClick={() => scrollTo("solutions")}
         >
           <span className="sm:hidden">
             {t("sectionTabs.goldShort", "Gold")}
@@ -74,19 +62,19 @@ export function SectionTabs() {
           <span className="hidden sm:inline">
             {t("sectionTabs.gold", "Gold Standard")}
           </span>
-        </button>
-        <button
+        </a>
+        <a
+          href="#tco"
           className={`tab-btn ${activeId === "tco" ? "active" : ""}`}
-          onClick={() => scrollTo("tco")}
         >
           <span className="sm:hidden">{t("sectionTabs.tcoShort", "TCO")}</span>
           <span className="hidden sm:inline">
             {t("sectionTabs.tco", "TCO Savings")}
           </span>
-        </button>
-        <button
+        </a>
+        <a
+          href="#insights"
           className={`tab-btn ${activeId === "insights" ? "active" : ""}`}
-          onClick={() => scrollTo("insights")}
         >
           <span className="sm:hidden">
             {t("sectionTabs.growthShort", "Growth")}
@@ -94,13 +82,13 @@ export function SectionTabs() {
           <span className="hidden sm:inline">
             {t("sectionTabs.growth", "Growth Tools")}
           </span>
-        </button>
-        <button
+        </a>
+        <a
+          href="#about"
           className={`tab-btn ${activeId === "about" ? "active" : ""}`}
-          onClick={() => scrollTo("about")}
         >
           {t("sectionTabs.heritage", "Heritage")}
-        </button>
+        </a>
         <QrDropdown>
           <a
             href={OFFICIAL_WHATSAPP_URL}

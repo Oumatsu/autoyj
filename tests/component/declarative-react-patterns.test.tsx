@@ -26,6 +26,7 @@ describe("Next.js Declarative UI Standards (No Anti-Patterns)", () => {
     const source = await readFile(new URL("../../components/SectionTabs.tsx", import.meta.url), "utf8");
     expect(source).not.toContain("tabBar.classList.toggle");
     expect(source).not.toContain("tabBar.style.top");
+    expect(source).not.toContain("document.getElementById");
     expect(source).toContain("isVisible");
   });
 
@@ -36,10 +37,11 @@ describe("Next.js Declarative UI Standards (No Anti-Patterns)", () => {
     expect(source).toContain("scrollIntoView");
   });
 
-  test("views/academy.tsx uses isVisible state with zero tabBar style or classList mutations", async () => {
+  test("views/academy.tsx uses isVisible state with zero tabBar style, classList mutations, or document.getElementById", async () => {
     const source = await readFile(new URL("../../views/academy.tsx", import.meta.url), "utf8");
     expect(source).not.toContain("tabBar.classList.toggle");
     expect(source).not.toContain("tabBar.style.top");
+    expect(source).not.toContain("document.getElementById");
     expect(source).toContain("isVisible");
   });
 

@@ -77,15 +77,11 @@ export default function AcademyPage() {
 
   useEffect(() => {
     const handleScroll = () => {
-      const hero = heroRef.current;
-      if (hero) {
-        const heroBottom = hero.getBoundingClientRect().bottom;
-        setIsVisible(heroBottom < window.innerHeight * 0.25);
-      }
+      setIsVisible(window.scrollY > 300);
       const mid = window.innerHeight * 0.45;
       let active: string | null = null;
       for (const id of tabSectionIds) {
-        const el = document.getElementById(id);
+        const el = document.querySelector(`#${id}`);
         if (el && el.getBoundingClientRect().top <= mid) {
           active = id;
         }
@@ -96,14 +92,6 @@ export default function AcademyPage() {
     handleScroll();
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
-  const scrollTo = (targetId: string) => {
-    const target = document.getElementById(targetId);
-    if (!target) return;
-    const offset = 110;
-    const top = target.getBoundingClientRect().top + window.scrollY - offset;
-    window.scrollTo({ top, behavior: "smooth" });
-  };
 
   return (
     <>
@@ -118,35 +106,41 @@ export default function AcademyPage() {
         style={{ top: "calc(var(--navbar-h, 56px) - 1px)" }}
       >
         <div className="tab-inner">
-          <button
+          <a
+            href="#hero"
             className={`tab-btn ${activeId === "hero" ? "active" : ""}`}
-            onClick={() => scrollTo("hero")}
           >
             <span className="min-[498px]:hidden">{t("academy.tabs.hub")}</span>
             <span className="hidden min-[498px]:inline">{t("academy.tabs.hubFull")}</span>
-          </button>
-          <button
+          </a>
+          <a
+            href="#fundamentals"
             className={`tab-btn ${activeId === "fundamentals" ? "active" : ""}`}
-            onClick={() => scrollTo("fundamentals")}
           >
             <span className="min-[498px]:hidden">{t("academy.tabs.fundamentals")}</span>
             <span className="hidden min-[498px]:inline">{t("academy.tabs.fundamentalsFull")}</span>
-          </button>
-          <button
+          </a>
+          <a
+            href="#playbook"
             className={`tab-btn ${activeId === "playbook" ? "active" : ""}`}
-            onClick={() => scrollTo("playbook")}
           >
             <span className="min-[498px]:hidden">{t("academy.tabs.playbook")}</span>
             <span className="hidden min-[498px]:inline">{t("academy.tabs.playbookFull")}</span>
-          </button>
-          <button
+          </a>
+          <a
+            href="#workshop"
             className={`tab-btn ${activeId === "workshop" ? "active" : ""}`}
-            onClick={() => scrollTo("workshop")}
           >
             <span className="min-[498px]:hidden">{t("academy.tabs.workshop")}</span>
             <span className="hidden min-[498px]:inline">{t("academy.tabs.workshopFull")}</span>
-          </button>
-        </div>
+          </a>
+          <a
+            href="#vault"
+            className={`tab-btn ${activeId === "vault" ? "active" : ""}`}
+          >
+            <span className="min-[498px]:hidden">{t("academy.tabs.vault")}</span>
+            <span className="hidden min-[498px]:inline">{t("academy.tabs.vaultFull")}</span>
+          </a></div>
       </div>
 
       {/* Hero */}
