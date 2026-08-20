@@ -616,6 +616,9 @@ export default function PortalPage() {
   const [isLocalDev, setIsLocalDev] = useState(false);
   const [showPreviewTestLogin, setShowPreviewTestLogin] = useState(false);
 
+  const [activeAdminModule, setActiveAdminModule] = useState<AdminModule>("dashboard");
+  const [targetInquiryNo, setTargetInquiryNo] = useState("");
+
   useEffect(() => {
     if (typeof window !== "undefined") {
       const host = window.location.hostname.toLowerCase();
@@ -625,9 +628,18 @@ export default function PortalPage() {
         host.includes("youguard-preview") ||
         host.includes("preview")
       );
+
+      const params = new URLSearchParams(window.location.search);
+      const inq = params.get("inquiry");
+      const tab = params.get("tab");
+      if (inq) {
+        setTargetInquiryNo(inq);
+        setActiveAdminModule("quotes");
+      } else if (tab === "quotes" || tab === "vehicles" || tab === "orders" || tab === "accounts") {
+        setActiveAdminModule(tab as AdminModule);
+      }
     }
   }, []);
-  const [activeAdminModule, setActiveAdminModule] = useState<AdminModule>("dashboard");
   const [selectedSellableModel, setSelectedSellableModel] = useState<SellableModel | null>(null);
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
   const [inquiryForm, setInquiryForm] = useState<InquiryForm>(emptyInquiryForm);
@@ -1067,6 +1079,7 @@ export default function PortalPage() {
   return (
     <AdminPortal
       activeModule={activeAdminModule}
+      targetInquiryNo={targetInquiryNo}
       data={data}
       error={error}
       isModuleLoading={moduleLoading}
@@ -1082,6 +1095,7 @@ export default function PortalPage() {
 function AdminPortal({
   data,
   activeModule,
+  targetInquiryNo,
   onModuleChange,
   onLogout,
   onReload,
@@ -1092,6 +1106,7 @@ function AdminPortal({
 }: {
   data: BootstrapData;
   activeModule: AdminModule;
+  targetInquiryNo?: string;
   onModuleChange: (module: AdminModule) => void;
   onLogout: () => Promise<void>;
   onReload: () => Promise<void>;
@@ -1291,6 +1306,7 @@ function AdminPortal({
 
           <AdminModuleContent
             activeModule={normalizedActiveModule}
+            targetInquiryNo={targetInquiryNo}
             data={data}
             isModuleLoading={isModuleLoading}
             onEditVehicle={setEditingVehicle}
@@ -1325,7 +1341,7 @@ function ModuleLoadingSkeleton() {
   );
 }
 
-function AdminModuleContent({ activeModule, data, isModuleLoading, onEditVehicle, onRefreshVehicles, onRefreshData }: { activeModule: AdminModule; data: BootstrapData; isModuleLoading?: boolean; onEditVehicle: (vehicle: Vehicle) => void; onRefreshVehicles: () => Promise<void>; onRefreshData: () => Promise<void> }) {
+function AdminModuleContent({ activeModule, targetInquiryNo, data, isModuleLoading, onEditVehicle, onRefreshVehicles, onRefreshData }: { activeModule: AdminModule; targetInquiryNo?: string; data: BootstrapData; isModuleLoading?: boolean; onEditVehicle: (vehicle: Vehicle) => void; onRefreshVehicles: () => Promise<void>; onRefreshData: () => Promise<void> }) {
   if (isModuleLoading) {
     return <ModuleLoadingSkeleton />;
   }
@@ -1335,7 +1351,7 @@ function AdminModuleContent({ activeModule, data, isModuleLoading, onEditVehicle
     case "vehicles":
       return <AdminVehicles data={data} onEdit={onEditVehicle} onRefresh={onRefreshVehicles} onRefreshData={onRefreshData} />;
     case "quotes":
-      return <AdminQuotes data={data} onRefresh={onRefreshData} />;
+      return <AdminQuotes data={data} initialInquiryNo={targetInquiryNo} onRefresh={onRefreshData} />;
     case "orders":
       return <AdminOrders data={data} />;
     case "payments":
@@ -2531,9 +2547,20 @@ function InquiryCommentThread({ thread, onReply, onClose, replyLabel = "Quote re
   </article>;
 }
 
-function AdminQuotes({ data, onRefresh }: { data: BootstrapData; onRefresh: () => Promise<void> }) {
+function AdminQuotes({ data, onRefresh, initialInquiryNo }: { data: BootstrapData; onRefresh: () => Promise<void>; initialInquiryNo?: string }) {
   const { t, locale } = useTranslation();
-  const [selectedNo, setSelectedNo] = useState(data.inquiries[0]?.inquiryNo || "");
+  const [selectedNo, setSelectedNo] = useState(() => {
+    if (initialInquiryNo && data.inquiries.some((i) => i.inquiryNo === initialInquiryNo)) {
+      return initialInquiryNo;
+    }
+    return data.inquiries[0]?.inquiryNo || "";
+  });
+
+  useEffect(() => {
+    if (initialInquiryNo && data.inquiries.some((i) => i.inquiryNo === initialInquiryNo)) {
+      setSelectedNo(initialInquiryNo);
+    }
+  }, [initialInquiryNo, data.inquiries]);
   const [note, setNote] = useState("");
   const [replyTo, setReplyTo] = useState("");
   const [showNew, setShowNew] = useState(data.inquiries.length === 0);
