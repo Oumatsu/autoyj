@@ -17,6 +17,10 @@ export type VehiclePickerItem = {
 export type InquiryVehicleTarget = {
   vehicleId: string;
   vehicleModel: string;
+  brand?: string;
+  model?: string;
+  configuration?: string;
+  colorConfiguration?: string;
 };
 
 export interface InquiryVehiclePickerFieldProps {
@@ -50,40 +54,47 @@ export function InquiryVehiclePickerField({
 }: InquiryVehiclePickerFieldProps) {
   const brands = Array.from(new Set(vehicles.map((v) => v.brand).filter(Boolean)));
   const selectedVehicle = vehicles.find((vehicle) => vehicle.id === value.vehicleId);
-  const selectedBrand = selectedVehicle?.brand || "";
+  const selectedBrand = value.brand || selectedVehicle?.brand || "";
   const modelOptions = uniqueVehiclesBy(
     vehicles.filter((vehicle) => vehicle.brand === selectedBrand),
     (vehicle) => `${vehicle.brand}::${vehicle.model}`.toLowerCase(),
   );
-  const selectedModel = selectedVehicle?.model || "";
+  const selectedModel = value.model || selectedVehicle?.model || "";
   const configurationOptions = uniqueVehiclesBy(
     vehicles.filter((vehicle) => vehicle.brand === selectedBrand && vehicle.model === selectedModel),
     configurationLabel,
   );
-  const selectedConfiguration = selectedVehicle ? configurationLabel(selectedVehicle) : "";
+  const selectedConfiguration = value.configuration || (selectedVehicle ? configurationLabel(selectedVehicle) : "");
   const colorOptions = uniqueVehiclesBy(
     vehicles.filter((vehicle) => vehicle.brand === selectedBrand && vehicle.model === selectedModel && configurationLabel(vehicle) === selectedConfiguration),
     colorLabel,
   );
   const selectedModelId = modelOptions.find((vehicle) => vehicle.model === selectedModel)?.id || "";
   const selectedConfigurationId = configurationOptions.find((vehicle) => configurationLabel(vehicle) === selectedConfiguration)?.id || "";
-  const selectedColorId = colorOptions.find((vehicle) => colorLabel(vehicle) === (selectedVehicle ? colorLabel(selectedVehicle) : ""))?.id || "";
-
-  const selectVehicle = (vehicle?: VehiclePickerItem) => onChange(
-    vehicle
-      ? { vehicleId: vehicle.id, vehicleModel: `${vehicle.brand} ${vehicle.model}`.trim() }
-      : { vehicleId: "", vehicleModel: "" },
-  );
+  const selectedColor = value.colorConfiguration || (selectedVehicle ? colorLabel(selectedVehicle) : "");
+  const selectedColorId = colorOptions.find((vehicle) => colorLabel(vehicle) === selectedColor)?.id || "";
 
   const handleBrandChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const brand = e.target.value;
-    const first = vehicles.find((v) => v.brand === brand);
-    selectVehicle(first);
+    onChange({ vehicleId: "", vehicleModel: "", brand, model: "", configuration: "", colorConfiguration: "" });
   };
 
-  const handleModelChange = (event: React.ChangeEvent<HTMLSelectElement>) => selectVehicle(modelOptions.find((vehicle) => vehicle.id === event.target.value));
-  const handleConfigurationChange = (event: React.ChangeEvent<HTMLSelectElement>) => selectVehicle(configurationOptions.find((vehicle) => vehicle.id === event.target.value));
-  const handleColorChange = (event: React.ChangeEvent<HTMLSelectElement>) => selectVehicle(colorOptions.find((vehicle) => vehicle.id === event.target.value));
+  const handleModelChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const model = modelOptions.find((vehicle) => vehicle.id === event.target.value)?.model || "";
+    onChange({ vehicleId: "", vehicleModel: model ? `${selectedBrand} ${model}`.trim() : "", brand: selectedBrand, model, configuration: "", colorConfiguration: "" });
+  };
+
+  const handleConfigurationChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const configuration = configurationOptions.find((vehicle) => vehicle.id === event.target.value);
+    onChange({ vehicleId: "", vehicleModel: selectedModel ? `${selectedBrand} ${selectedModel}`.trim() : "", brand: selectedBrand, model: selectedModel, configuration: configuration ? configurationLabel(configuration) : "", colorConfiguration: "" });
+  };
+
+  const handleColorChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const vehicle = colorOptions.find((option) => option.id === event.target.value);
+    onChange(vehicle
+      ? { vehicleId: vehicle.id, vehicleModel: `${vehicle.brand} ${vehicle.model}`.trim(), brand: vehicle.brand, model: vehicle.model, configuration: configurationLabel(vehicle), colorConfiguration: colorLabel(vehicle) }
+      : { vehicleId: "", vehicleModel: selectedModel ? `${selectedBrand} ${selectedModel}`.trim() : "", brand: selectedBrand, model: selectedModel, configuration: selectedConfiguration, colorConfiguration: "" });
+  };
 
   return (
     <div data-testid="vehicle-picker" className="grid gap-2">

@@ -6,6 +6,7 @@ import {
   InquiryVehiclePickerField,
   type VehiclePickerItem,
 } from "../../components/portal/InquiryVehiclePickerField";
+import { requiresInquiryTitle } from "../../lib/inquiry-vehicle-selection";
 
 describe("Inquiry Vehicle Picker Component", () => {
   const VEHICLES: VehiclePickerItem[] = [
@@ -39,7 +40,7 @@ describe("Inquiry Vehicle Picker Component", () => {
     expect(html).toContain("Select Brand");
   });
 
-  test("dispatches change event and invokes onChange callback when brand is selected", async () => {
+  test("records a staged selection when brand is selected", async () => {
     const container = document.createElement("div");
     document.body.appendChild(container);
     const root = createRoot(container);
@@ -65,14 +66,14 @@ describe("Inquiry Vehicle Picker Component", () => {
       select.dispatchEvent(new window.Event("change", { bubbles: true }));
     });
 
-    expect(changedValue).toEqual({ vehicleId: "V-3", vehicleModel: "Changan Deepal SL03" });
+    expect(changedValue).toMatchObject({ vehicleId: "", vehicleModel: "", brand: "Changan" });
 
     // Test clearing selection
     select.value = "";
     await act(async () => {
       select.dispatchEvent(new window.Event("change", { bubbles: true }));
     });
-    expect(changedValue).toEqual({ vehicleId: "", vehicleModel: "" });
+    expect(changedValue).toMatchObject({ vehicleId: "", vehicleModel: "", brand: "" });
 
     await act(async () => {
       root.unmount();
@@ -110,7 +111,7 @@ describe("Inquiry Vehicle Picker Component", () => {
     modelSelect.value = "V-2";
     await act(async () => modelSelect.dispatchEvent(new window.Event("change", { bubbles: true })));
 
-    expect(changedValue).toEqual({ vehicleId: "V-2", vehicleModel: "BYD Han" });
+    expect(changedValue).toMatchObject({ vehicleId: "", vehicleModel: "BYD Han", brand: "BYD", model: "Han" });
 
     await act(async () => root.unmount());
     container.remove();
@@ -153,9 +154,61 @@ describe("Inquiry Vehicle Picker Component", () => {
 
     const updatedColorSelect = container.querySelector('[data-testid="color-select"]') as HTMLSelectElement;
     expect(updatedColorSelect.textContent).toContain("Blue / Grey");
-    expect(selected).toEqual({ vehicleId: "seal-flagship", vehicleModel: "BYD Seal" });
+    updatedColorSelect.value = "seal-flagship";
+    await act(async () => updatedColorSelect.dispatchEvent(new window.Event("change", { bubbles: true })));
+    expect(selected).toMatchObject({ vehicleId: "seal-flagship", vehicleModel: "BYD Seal" });
 
     await act(async () => root.unmount());
     container.remove();
+  });
+
+  test("clears only selections below the level reset by the user", async () => {
+    const resources: VehiclePickerItem[] = [
+      { id: "seal-dynamic-white", brand: "BYD", model: "Seal", variant: "Dynamic", configuration: "510 km", color: "White", interiorColor: "Black" },
+      { id: "seal-dynamic-blue", brand: "BYD", model: "Seal", variant: "Dynamic", configuration: "510 km", color: "Blue", interiorColor: "Grey" },
+      { id: "seal-flagship", brand: "BYD", model: "Seal", variant: "Flagship", configuration: "650 km", color: "Black", interiorColor: "Brown" },
+    ];
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+    const root = createRoot(container);
+    let selected = { vehicleId: "seal-dynamic-white", vehicleModel: "BYD Seal" };
+    const render = async () => act(async () => {
+      root.render(<InquiryVehiclePickerField vehicles={resources} value={selected} onChange={(value) => { selected = value; }} />);
+    });
+    const select = (testId: string) => container.querySelector(`[data-testid="${testId}"]`) as HTMLSelectElement;
+    const change = async (testId: string, value: string) => {
+      const field = select(testId);
+      field.value = value;
+      await act(async () => field.dispatchEvent(new window.Event("change", { bubbles: true })));
+      await render();
+    };
+
+    await render();
+    await change("color-select", "");
+    expect(selected).toMatchObject({ vehicleId: "", vehicleModel: "BYD Seal", brand: "BYD", model: "Seal", configuration: "Dynamic / 510 km" });
+    expect(select("brand-select").value).toBe("BYD");
+    expect(select("model-select").value).toBe("seal-dynamic-white");
+    expect(select("configuration-select").value).toBe("seal-dynamic-white");
+    expect(select("color-select").value).toBe("");
+
+    await change("configuration-select", "");
+    expect(select("brand-select").value).toBe("BYD");
+    expect(select("model-select").value).toBe("seal-dynamic-white");
+    expect(select("configuration-select").value).toBe("");
+    expect(select("color-select").value).toBe("");
+
+    await change("model-select", "");
+    expect(select("brand-select").value).toBe("BYD");
+    expect(select("model-select").value).toBe("");
+    expect(select("configuration-select").value).toBe("");
+    expect(select("color-select").value).toBe("");
+
+    await act(async () => root.unmount());
+    container.remove();
+  });
+
+  test("requires an inquiry title until a color configuration selects a concrete vehicle", () => {
+    expect(requiresInquiryTitle({ vehicleId: "", vehicleModel: "BYD Seal" })).toBe(true);
+    expect(requiresInquiryTitle({ vehicleId: "seal-dynamic-white", vehicleModel: "BYD Seal" })).toBe(false);
   });
 });
