@@ -28,6 +28,8 @@ export function FeaturedVehicleCarousel({
   title?: string;
 }) {
   const stageRef = useRef<HTMLDivElement>(null);
+  const pointerStartX = useRef<number | null>(null);
+  const pointerStartY = useRef<number | null>(null);
   const [stageWidth, setStageWidth] = useState(0);
   const [trackIndex, setTrackIndex] = useState(() => resources.length > 1 ? 1 : 0);
   const [shouldAnimate, setShouldAnimate] = useState(true);
@@ -79,6 +81,32 @@ export function FeaturedVehicleCarousel({
   const cardWidth = Math.min(stageWidth * 0.78, 620);
   const trackOffset = stageWidth > 0 ? stageWidth / 2 - cardWidth / 2 - trackIndex * (cardWidth + CARD_GAP_PX) : 0;
 
+  const handlePointerDown = (e: React.PointerEvent) => {
+    pointerStartX.current = e.clientX;
+    pointerStartY.current = e.clientY;
+  };
+
+  const handlePointerUp = (e: React.PointerEvent) => {
+    if (pointerStartX.current === null || pointerStartY.current === null) return;
+    const deltaX = e.clientX - pointerStartX.current;
+    const deltaY = e.clientY - pointerStartY.current;
+    pointerStartX.current = null;
+    pointerStartY.current = null;
+
+    if (Math.abs(deltaX) > 40 && Math.abs(deltaX) > Math.abs(deltaY)) {
+      if (deltaX < 0) {
+        move(1);
+      } else {
+        move(-1);
+      }
+    }
+  };
+
+  const handlePointerCancel = () => {
+    pointerStartX.current = null;
+    pointerStartY.current = null;
+  };
+
   return (
     <section aria-label="Featured vehicle resources" aria-roledescription="carousel" className="overflow-hidden rounded-2xl border border-[#d5ad49]/35 bg-[#070e1b] p-4 shadow-xl shadow-black/20 sm:p-5">
       <div className="mb-4 flex items-end justify-between gap-3">
@@ -92,7 +120,14 @@ export function FeaturedVehicleCarousel({
         </div>
       </div>
 
-      <div ref={stageRef} className="relative h-[340px] overflow-hidden sm:h-[410px] lg:h-[460px]" aria-live="polite">
+      <div
+        ref={stageRef}
+        onPointerDown={handlePointerDown}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerCancel}
+        className="relative h-[340px] overflow-hidden touch-pan-y sm:h-[410px] lg:h-[460px]"
+        aria-live="polite"
+      >
         <div
           data-featured-carousel-track="true"
           onTransitionEnd={resetAtLoopBoundary}

@@ -61,3 +61,16 @@ test("renders a continuous card track with duplicate end cards for seamless loop
   expect(html).toContain('alt="BYD Dolphin"');
   expect((html.match(/alt="BYD Seal"/g) ?? []).length).toBe(2);
 });
+
+test("supports mobile touch swipe gestures with touch-pan-y viewport class", () => {
+  const html = renderToString(
+    <FeaturedVehicleCarousel
+      resources={[
+        { id: "V-1", brand: "BYD", model: "Seal", imageUrl: "seal.jpg", priceLabel: "$22,000" },
+      ]}
+      onSelect={() => {}}
+    />,
+  );
+
+  expect(html).toContain("touch-pan-y");
+});
