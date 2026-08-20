@@ -644,6 +644,11 @@ export default function PortalPage() {
   const [counterPrice, setCounterPrice] = useState("");
   const [counterMessage, setCounterMessage] = useState("");
 
+  const handleNavigateInquiry = useCallback((inquiryNo: string) => {
+    setTargetInquiryNo(inquiryNo);
+    setActiveAdminModule("quotes");
+  }, []);
+
   const refreshVehicles = useCallback(async () => {
     try {
       const catalog = await api<BootstrapData>("/api/portal/catalog?refresh=1");
@@ -1081,6 +1086,7 @@ export default function PortalPage() {
       error={error}
       isModuleLoading={moduleLoading}
       onModuleChange={handleModuleChange}
+      onNavigateInquiry={handleNavigateInquiry}
       onLogout={logout}
       onReload={checkSessionAndLoad}
       onRefreshVehicles={refreshVehicles}
@@ -1094,6 +1100,7 @@ function AdminPortal({
   activeModule,
   targetInquiryNo,
   onModuleChange,
+  onNavigateInquiry,
   onLogout,
   onReload,
   onRefreshVehicles,
@@ -1105,6 +1112,7 @@ function AdminPortal({
   activeModule: AdminModule;
   targetInquiryNo?: string;
   onModuleChange: (module: AdminModule) => void;
+  onNavigateInquiry?: (inquiryNo: string) => void;
   onLogout: () => Promise<void>;
   onReload: () => Promise<void>;
   onRefreshVehicles: () => Promise<void>;
@@ -1309,6 +1317,8 @@ function AdminPortal({
             onEditVehicle={setEditingVehicle}
             onRefreshVehicles={onRefreshVehicles}
             onRefreshData={onRefreshData}
+            onModuleChange={onModuleChange}
+            onNavigateInquiry={onNavigateInquiry}
           />
         </section>
       </div>
@@ -1338,7 +1348,27 @@ function ModuleLoadingSkeleton() {
   );
 }
 
-function AdminModuleContent({ activeModule, targetInquiryNo, data, isModuleLoading, onEditVehicle, onRefreshVehicles, onRefreshData }: { activeModule: AdminModule; targetInquiryNo?: string; data: BootstrapData; isModuleLoading?: boolean; onEditVehicle: (vehicle: Vehicle) => void; onRefreshVehicles: () => Promise<void>; onRefreshData: () => Promise<void> }) {
+function AdminModuleContent({
+  activeModule,
+  targetInquiryNo,
+  data,
+  isModuleLoading,
+  onEditVehicle,
+  onRefreshVehicles,
+  onRefreshData,
+  onModuleChange,
+  onNavigateInquiry,
+}: {
+  activeModule: AdminModule;
+  targetInquiryNo?: string;
+  data: BootstrapData;
+  isModuleLoading?: boolean;
+  onEditVehicle: (vehicle: Vehicle) => void;
+  onRefreshVehicles: () => Promise<void>;
+  onRefreshData: () => Promise<void>;
+  onModuleChange?: (module: AdminModule) => void;
+  onNavigateInquiry?: (inquiryNo: string) => void;
+}) {
   if (isModuleLoading) {
     return <ModuleLoadingSkeleton />;
   }
@@ -1358,11 +1388,25 @@ function AdminModuleContent({ activeModule, targetInquiryNo, data, isModuleLoadi
     case "accounts":
       return <AdminUserManagement data={data} filterType="all" onRefreshData={onRefreshData} />;
     default:
-      return <AdminDashboard data={data} />;
+      return (
+        <AdminDashboard
+          data={data}
+          onNavigateModule={onModuleChange || (() => {})}
+          onNavigateInquiry={onNavigateInquiry || (() => {})}
+        />
+      );
   }
 }
 
-function AdminDashboard({ data }: { data: BootstrapData }) {
+function AdminDashboard({
+  data,
+  onNavigateModule,
+  onNavigateInquiry,
+}: {
+  data: BootstrapData;
+  onNavigateModule: (module: AdminModule) => void;
+  onNavigateInquiry: (inquiryNo: string) => void;
+}) {
   const { t } = useTranslation();
   // 汇总所有颜色与细分车型的实际库存数量（全量累加）
   const totalStock = data.vehicles.reduce((sum, vehicle) => sum + getVehicleStockQuantity(vehicle), 0);
@@ -1370,8 +1414,7 @@ function AdminDashboard({ data }: { data: BootstrapData }) {
   const quoteValue = data.quotes.reduce((sum, quote) => sum + quote.unitPrice * Math.max(quote.quantity, 1), 0);
   const latestInquiries = [...data.inquiries]
     .sort((a, b) => getDateTime(b.updatedAt || b.createdAt) - getDateTime(a.updatedAt || a.createdAt))
-    .slice(0, 6);
-  const lowStock = data.vehicles.filter(isStockAlertEligible).slice(0, 6);
+    .slice(0, 8);
 
   return (
     <div className="grid min-w-0 gap-5">
@@ -1403,40 +1446,85 @@ function AdminDashboard({ data }: { data: BootstrapData }) {
         </section>
       )}
 
+      {/* Top Metric Cards with direct navigation */}
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <AdminStat label={t("portal.modelRepo")} value={String(modelCount)} note={t("portal.recordStockSummary", { records: data.vehicles.length, count: totalStock })} />
-        <AdminStat label={t("portal.inquiries")} value={String(data.inquiries.length)} note={`${latestInquiries.length} ${t("portal.recentUpdates")}`} />
-        <AdminStat label={t("portal.quoteVersions")} value={String(data.quotes.length)} note={formatUsdStrict(quoteValue)} />
-        <AdminStat label={t("portal.orders")} value={String(data.orders.length)} note={formatUsdStrict(data.orders.reduce((sum, order) => sum + order.total, 0))} />
+        <AdminStat
+          label={t("portal.modelRepo")}
+          value={String(modelCount)}
+          note={t("portal.recordStockSummary", { records: data.vehicles.length, count: totalStock })}
+          onClick={() => onNavigateModule("vehicle_models")}
+        />
+        <AdminStat
+          label={t("portal.inquiries")}
+          value={String(data.inquiries.length)}
+          note={`${latestInquiries.length} ${t("portal.recentUpdates")}`}
+          onClick={() => onNavigateModule("quotes")}
+        />
+        <AdminStat
+          label={t("portal.quoteVersions")}
+          value={String(data.quotes.length)}
+          note={formatUsdStrict(quoteValue)}
+          onClick={() => onNavigateModule("quotes")}
+        />
+        <AdminStat
+          label={t("portal.orders")}
+          value={String(data.orders.length)}
+          note={formatUsdStrict(data.orders.reduce((sum, order) => sum + order.total, 0))}
+          onClick={() => onNavigateModule("orders")}
+        />
       </section>
 
-      <section className="grid min-w-0 gap-5 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,.9fr)]">
-        <AdminPanel title={t("portal.recentInquiries")} subtitle={t("portal.recentRecordsSubtitle")}>
+      {/* Recent Inquiries Panel with direct item click navigation */}
+      <section className="min-w-0">
+        <AdminPanel
+          title={t("portal.recentInquiries")}
+          subtitle={t("portal.recentRecordsSubtitle")}
+          action={
+            <button
+              type="button"
+              onClick={() => onNavigateModule("quotes")}
+              className="text-xs font-bold text-[#5ee6d8] hover:underline flex items-center gap-1.5 cursor-pointer"
+            >
+              <span>{t("common.viewAll", "View All Inquiries")}</span>
+              <span>→</span>
+            </button>
+          }
+        >
           <AdminTable
-            headers={[t("portal.inquiryNo"), t("portal.vehicle"), t("portal.quantity"), t("portal.latestQuote")]}
+            headers={[t("portal.inquiryNo"), t("portal.vehicle"), t("portal.quantity"), t("portal.latestQuote"), ""]}
             rows={latestInquiries.map((inquiry) => {
               const quote = latestQuoteForInquiry(inquiry.inquiryNo, data.quotes);
               return [
-                inquiry.inquiryNo,
-                inquiry.vehicleModel || inquiry.vehicleId,
+                <button
+                  key={`inq-${inquiry.inquiryNo}`}
+                  type="button"
+                  onClick={() => onNavigateInquiry(inquiry.inquiryNo)}
+                  className="font-bold text-[#5ee6d8] hover:underline text-left flex items-center gap-1.5 cursor-pointer"
+                >
+                  <span>{inquiry.inquiryNo}</span>
+                  <span className="text-[10px] text-slate-400">↗</span>
+                </button>,
+                <button
+                  key={`model-${inquiry.inquiryNo}`}
+                  type="button"
+                  onClick={() => onNavigateInquiry(inquiry.inquiryNo)}
+                  className="text-left text-slate-200 hover:text-white hover:underline truncate max-w-[280px] block cursor-pointer"
+                >
+                  {inquiry.vehicleModel || inquiry.vehicleId}
+                </button>,
                 t("portal.unitCount", { count: inquiry.quantity }),
                 quote ? `${quote.quoteNo} / ${formatUsdStrict(quote.unitPrice)}` : t("portal.awaitingQuote"),
+                <button
+                  key={`btn-${inquiry.inquiryNo}`}
+                  type="button"
+                  onClick={() => onNavigateInquiry(inquiry.inquiryNo)}
+                  className="rounded-lg border border-white/10 bg-white/[.04] px-3 py-1 text-xs font-medium text-[#5ee6d8] hover:border-[#5ee6d8]/40 hover:bg-[#5ee6d8]/10 transition-colors cursor-pointer"
+                >
+                  {t("portal.viewDetail", "Open →")}
+                </button>,
               ];
             })}
             emptyText={t("portal.noInquiries")}
-          />
-        </AdminPanel>
-
-        <AdminPanel title={t("portal.stockAlert")} subtitle={t("portal.lowStockSubtitle")}>
-          <AdminTable
-            headers={[t("portal.vehicle"), t("portal.stockQuantity"), t("portal.location"), t("portal.supplyType")]}
-            rows={lowStock.map((vehicle) => [
-              vehicleName(vehicle),
-              t("portal.unitCount", { count: getConfirmedStockQuantity(vehicle)! }),
-              vehicle.location || "-",
-              <AdminStatusBadge key="status" status={getSupplyType(vehicle)} />,
-            ])}
-            emptyText={t("portal.noLowStock")}
           />
         </AdminPanel>
       </section>
@@ -3543,27 +3631,42 @@ function VehicleEditModal({ vehicle, onClose, onSaved }: { vehicle: Vehicle; onC
   );
 }
 
-function AdminPanel({ title, subtitle, children }: { title: string; subtitle: string; children: ReactNode }) {
+function AdminPanel({ title, subtitle, action, children }: { title: string; subtitle: string; action?: ReactNode; children: ReactNode }) {
   const { locale } = useTranslation();
   return (
     <section className="min-w-0">
-      <header className="mb-5 border-b border-white/10 pb-4">
-        <h2 className="text-lg font-black text-white">{localizeVehicleValue(title, locale)}</h2>
-        {subtitle ? <p className="mt-1 text-xs text-slate-400">{localizeVehicleValue(subtitle, locale)}</p> : null}
+      <header className="mb-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-white/10 pb-4">
+        <div>
+          <h2 className="text-lg font-black text-white">{localizeVehicleValue(title, locale)}</h2>
+          {subtitle ? <p className="mt-1 text-xs text-slate-400">{localizeVehicleValue(subtitle, locale)}</p> : null}
+        </div>
+        {action && <div>{action}</div>}
       </header>
       {children}
     </section>
   );
 }
 
-function AdminStat({ label, value, note }: { label: string; value: string; note: string }) {
-  return (
-    <Card className="p-4">
-      <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">{label}</p>
+function AdminStat({ label, value, note, onClick }: { label: string; value: string; note: string; onClick?: () => void }) {
+  const card = (
+    <Card className={`p-4 transition-all duration-200 ${onClick ? "cursor-pointer hover:border-white/30 hover:bg-white/[.04] active:scale-[0.99] group" : ""}`}>
+      <div className="flex items-center justify-between">
+        <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">{label}</p>
+        {onClick && <span className="text-xs text-slate-500 group-hover:text-[#5ee6d8] transition-colors">↗</span>}
+      </div>
       <strong className="mt-2 block text-2xl font-black text-white">{value}</strong>
       <span className="mt-2 block text-xs text-slate-500">{note}</span>
     </Card>
   );
+
+  if (onClick) {
+    return (
+      <button type="button" onClick={onClick} className="text-left w-full block focus:outline-none cursor-pointer">
+        {card}
+      </button>
+    );
+  }
+  return card;
 }
 
 function AdminTopMetric({ label, value }: { label: string; value: string }) {
