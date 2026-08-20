@@ -33,6 +33,7 @@ import {
   handleTelegramWebhook,
   sendTelegramInquiryUpdateNotification,
   notifyInquiryStakeholdersTelegram,
+  notifyNewInquiryStartedTelegram,
   getTelegramUserBinding,
   buildTelegramBindingUrl,
   saveTelegramUserBinding,
@@ -3689,6 +3690,21 @@ async function handleCreateInquiry(request: Request, env: Env) {
     inquiryNoteStatement(db, session, inquiryNo, initialNote),
   );
   await db.batch(statements);
+
+  notifyNewInquiryStartedTelegram(env, {
+    inquiryNo,
+    vehicleModel: selectedVehicleModel,
+    creatorUserId: session.userId,
+    creatorName: session.name || session.email || (session.role === "partner" ? "Trade Partner" : "Client"),
+    creatorRole: session.role,
+    quantity,
+    destinationPort: asText(body?.destinationPort),
+    tradeTerm: asText(body?.tradeTerm) || "FOB",
+    targetPrice: asNumber(body?.targetPrice) || null,
+    initialNote,
+    customerId: session.customerId,
+  }).catch(() => {});
+
   return json({ ok: true, inquiryNo }, { status: 201 });
 }
 
@@ -3712,6 +3728,17 @@ async function handleCreateQuote(request: Request, env: Env) {
     ),
   ];
   await db.batch(statements);
+
+  notifyInquiryStakeholdersTelegram(env, {
+    inquiryNo,
+    vehicleModel: "",
+    noteBody: `Official quotation issued: USD $${unitPrice.toLocaleString()}/unit (Qty: ${inquiry.quantity}).`,
+    authorUserId: session.userId,
+    authorName: session.name || "Sales Specialist",
+    authorRole: session.role,
+    isPublic: true,
+  }).catch(() => {});
+
   return json({ ok: true, quoteNo, inquiryNo, quantity: inquiry.quantity, unitPrice }, { status: 201 });
 }
 

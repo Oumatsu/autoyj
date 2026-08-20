@@ -171,4 +171,42 @@ describe("Telegram Inquiry Stakeholder Notifications", () => {
     expect(notifiedChatIds).not.toContain("1001");
     expect(notifiedChatIds).not.toContain("2002");
   });
+
+  test("new inquiry started by customer notifies all bound admin/sales staff", async () => {
+    globalThis.fetch = mockFetch;
+    telegramRequests.length = 0;
+
+    const env: Env = {
+      PORTAL_DB: makeMockNotificationDb(),
+      TELEGRAM_BOT_TOKEN: "mock_token",
+      TELEGRAM_BOT_USERNAME: "youguard_ev_bot",
+    };
+
+    const { notifyNewInquiryStartedTelegram } = await import("../../../server/services/telegram");
+
+    const result = await notifyNewInquiryStartedTelegram(env, {
+      inquiryNo: "INQ-2026-NEW-99",
+      vehicleModel: "BYD Yangwang U8",
+      creatorUserId: "USR-CUS-01",
+      creatorName: "Dawit Customer",
+      creatorRole: "customer",
+      quantity: 2,
+      destinationPort: "Djibouti Port",
+      tradeTerm: "CIF",
+      targetPrice: 135000,
+      initialNote: "Need luxury trim with English HUD.",
+      customerId: "USR-CUS-01",
+    });
+
+    expect(result.sentCount).toBe(1);
+    const salesMsg = telegramRequests.find((r) => r.chatId === "3003");
+    expect(salesMsg).toBeDefined();
+    expect(salesMsg?.text).toContain("New Sourcing Inquiry");
+    expect(salesMsg?.text).toContain("INQ-2026-NEW-99");
+    expect(salesMsg?.text).toContain("BYD Yangwang U8");
+    expect(salesMsg?.text).toContain("Djibouti Port");
+    expect(salesMsg?.text).toContain("USD $135,000");
+    expect(salesMsg?.text).toContain("Need luxury trim with English HUD.");
+    expect(salesMsg?.buttonUrl).toContain("https://youguard.net/portal?inquiry=INQ-2026-NEW-99&src=tg");
+  });
 });

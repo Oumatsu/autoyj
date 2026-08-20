@@ -126,33 +126,53 @@ export async function notifyInquiryStakeholdersTelegram(
   const vehicleModel = params.vehicleModel || inquiry?.vehicle_model || inquiry?.title || "Vehicle Inquiry";
   const customerId = inquiry?.customer_id;
 
-  // 2. Fetch all participants for this inquiry
-  const participantsRes = await db
-    .prepare("SELECT DISTINCT user_id, customer_id, role FROM inquiry_participants WHERE inquiry_no = ?")
-    .bind(params.inquiryNo)
-    .all<{ user_id: string; customer_id?: string; role: string }>()
-    .catch(() => ({ results: [] }));
+  // 2. Fetch all participants, commenters, and quoters for this inquiry
+  const [participantsRes, commentersRes, quotersRes] = await Promise.all([
+    db
+      .prepare("SELECT DISTINCT user_id, customer_id, role FROM inquiry_participants WHERE inquiry_no = ?")
+      .bind(params.inquiryNo)
+      .all<{ user_id: string; customer_id?: string; role: string }>()
+      .catch(() => ({ results: [] })),
+    db
+      .prepare("SELECT DISTINCT author_user_id AS user_id FROM inquiry_notes WHERE inquiry_no = ? AND deleted_at IS NULL")
+      .bind(params.inquiryNo)
+      .all<{ user_id: string }>()
+      .catch(() => ({ results: [] })),
+    db
+      .prepare("SELECT DISTINCT actor_user_id AS user_id FROM negotiations WHERE inquiry_no = ?")
+      .bind(params.inquiryNo)
+      .all<{ user_id: string }>()
+      .catch(() => ({ results: [] })),
+  ]);
 
   const participants = participantsRes?.results || [];
+  const commenters = commentersRes?.results || [];
+  const quoters = quotersRes?.results || [];
 
   // 3. Determine recipient user IDs
   const recipientUserIds = new Set<string>();
 
   if (isPublic) {
-    // If public:
-    // A) Always add customerId if not author
+    // 规则 1: 4 种身份的人无论身份，只要当前 inquiry 有自己，且绑过 telegram，全收到通知（除了自己）
     if (customerId && customerId !== authorUserId) {
       recipientUserIds.add(customerId);
     }
-    // B) Add all partner/customer participants on this inquiry
     for (const p of participants) {
       if (p.user_id && p.user_id !== authorUserId) {
-        if (p.role === "customer" || p.role === "partner") {
-          recipientUserIds.add(p.user_id);
-        }
+        recipientUserIds.add(p.user_id);
       }
     }
-    // C) If author is customer or partner, notify all internal sales & admin staff with bound Telegram
+    for (const c of commenters) {
+      if (c.user_id && c.user_id !== authorUserId) {
+        recipientUserIds.add(c.user_id);
+      }
+    }
+    for (const q of quoters) {
+      if (q.user_id && q.user_id !== authorUserId) {
+        recipientUserIds.add(q.user_id);
+      }
+    }
+    // 若作者是客户或合伙人，确保绑过 telegram 的内部业务员/管理员也能收到
     if (params.authorRole === "customer" || params.authorRole === "partner") {
       const staffRes = await db
         .prepare("SELECT user_id FROM portal_users WHERE role IN ('sales', 'admin')")
@@ -165,7 +185,7 @@ export async function notifyInquiryStakeholdersTelegram(
       }
     }
   } else {
-    // Internal note: ONLY sales & admin staff
+    // 内部便签：严格仅限内部业务员与管理员
     const staffRes = await db
       .prepare("SELECT user_id FROM portal_users WHERE role IN ('sales', 'admin')")
       .all<{ user_id: string }>()
@@ -177,14 +197,14 @@ export async function notifyInquiryStakeholdersTelegram(
     }
   }
 
-  // Remove author
+  // 排除发帖人自己
   recipientUserIds.delete(authorUserId);
 
   if (recipientUserIds.size === 0) {
     return { attemptedCount: 0, sentCount: 0 };
   }
 
-  // 4. Format notification text and link
+  // 4. 格式化通知文案与一键直达按钮
   const safeBody = (params.noteBody || "").trim();
   const preview = safeBody.length > 200 ? `${safeBody.slice(0, 200)}...` : safeBody;
 
@@ -247,6 +267,132 @@ export async function notifyInquiryStakeholdersTelegram(
       }
     } catch (err) {
       console.error(`Failed to send Telegram notification to user ${userId}:`, err);
+    }
+  }
+
+  return { attemptedCount, sentCount };
+}
+
+export type NewInquiryStartedNotificationParams = {
+  inquiryNo: string;
+  vehicleModel: string;
+  creatorUserId: string;
+  creatorName: string;
+  creatorRole: string;
+  quantity: number;
+  destinationPort?: string;
+  tradeTerm?: string;
+  targetPrice?: number | null;
+  initialNote?: string;
+  customerId?: string;
+};
+
+export async function notifyNewInquiryStartedTelegram(
+  env: PortalEnv,
+  params: NewInquiryStartedNotificationParams
+): Promise<{ attemptedCount: number; sentCount: number }> {
+  const token = getTelegramBotToken(env);
+  const db = env.PORTAL_DB;
+  if (!token || !db) {
+    return { attemptedCount: 0, sentCount: 0 };
+  }
+
+  const isStaffCreator = params.creatorRole === "sales" || params.creatorRole === "admin";
+  const recipientUserIds = new Set<string>();
+
+  if (!isStaffCreator) {
+    // 规则 2: admin/sales (绑过 telegram 的) start inquiry 就能收到提醒
+    const staffRes = await db
+      .prepare("SELECT user_id FROM portal_users WHERE role IN ('sales', 'admin')")
+      .all<{ user_id: string }>()
+      .catch(() => ({ results: [] }));
+    for (const s of staffRes?.results || []) {
+      if (s.user_id && s.user_id !== params.creatorUserId) {
+        recipientUserIds.add(s.user_id);
+      }
+    }
+  } else {
+    // 业务员代客录入询价单：通知指定客户
+    if (params.customerId && params.customerId !== params.creatorUserId) {
+      recipientUserIds.add(params.customerId);
+    }
+  }
+
+  if (recipientUserIds.size === 0) {
+    return { attemptedCount: 0, sentCount: 0 };
+  }
+
+  const roleLabel =
+    params.creatorRole === "partner"
+      ? "Trade Partner"
+      : params.creatorRole === "customer"
+        ? "Client"
+        : params.creatorRole === "sales"
+          ? "Sales Specialist"
+          : "Administrator";
+
+  const lines = [
+    `🚀 *Youguard Auto · New Sourcing Inquiry*`,
+    ``,
+    `*Inquiry*: \`#${params.inquiryNo}\``,
+    `*Vehicle*: *${params.vehicleModel || "Vehicle Inquiry"}*`,
+    `*From*: ${params.creatorName} (${roleLabel})`,
+    `*Quantity*: ${params.quantity || 1} Units`,
+    `*Trade Term*: ${params.tradeTerm || "FOB"}`,
+  ];
+
+  if (params.destinationPort) {
+    lines.push(`*Destination*: ${params.destinationPort}`);
+  }
+  if (params.targetPrice) {
+    lines.push(`*Target Price*: USD $${params.targetPrice.toLocaleString()}`);
+  }
+  if (params.initialNote?.trim()) {
+    const preview = params.initialNote.trim().length > 180 ? `${params.initialNote.trim().slice(0, 180)}...` : params.initialNote.trim();
+    lines.push(``, `💬 _"${preview}"_`);
+  }
+
+  lines.push(``, `👉 Tap below to view details and issue quotation:`);
+
+  const text = lines.join("\n");
+  const portalUrl = `https://youguard.net/portal?inquiry=${encodeURIComponent(params.inquiryNo)}&src=tg`;
+
+  let attemptedCount = 0;
+  let sentCount = 0;
+
+  for (const userId of recipientUserIds) {
+    const binding = await getTelegramUserBinding(db, userId).catch(() => null);
+    if (!binding?.chat_id) continue;
+
+    attemptedCount++;
+    try {
+      const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: binding.chat_id,
+          text,
+          parse_mode: "Markdown",
+          reply_markup: {
+            inline_keyboard: [
+              [
+                {
+                  text: `🔘 View Inquiry #${params.inquiryNo}`,
+                  url: portalUrl,
+                },
+              ],
+            ],
+          },
+        }),
+        signal: AbortSignal.timeout(10000),
+      });
+
+      const data = (await res.json().catch(() => ({}))) as { ok?: boolean };
+      if (data.ok) {
+        sentCount++;
+      }
+    } catch (err) {
+      console.error(`Failed to send Telegram new inquiry notification to user ${userId}:`, err);
     }
   }
 
