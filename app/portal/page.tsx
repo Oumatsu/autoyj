@@ -1407,13 +1407,32 @@ function AdminDashboard({
   onNavigateModule: (module: AdminModule) => void;
   onNavigateInquiry: (inquiryNo: string) => void;
 }) {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
+  const [searchQuery, setSearchQuery] = useState("");
+
   // 汇总所有颜色与细分车型的实际库存数量（全量累加）
   const totalStock = data.vehicles.reduce((sum, vehicle) => sum + getVehicleStockQuantity(vehicle), 0);
   const modelCount = (data.vehicleModels || []).length;
-  const latestInquiries = [...data.inquiries]
-    .sort((a, b) => getDateTime(b.updatedAt || b.createdAt) - getDateTime(a.updatedAt || a.createdAt))
-    .slice(0, 8);
+
+  const allInquiries = useMemo(() => {
+    return [...data.inquiries].sort(
+      (a, b) => getDateTime(b.updatedAt || b.createdAt) - getDateTime(a.updatedAt || a.createdAt)
+    );
+  }, [data.inquiries]);
+
+  const filteredInquiries = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return allInquiries;
+    return allInquiries.filter((inquiry) => {
+      const matchNo = inquiry.inquiryNo.toLowerCase().includes(q);
+      const matchModel = (inquiry.vehicleModel || inquiry.vehicleId || "").toLowerCase().includes(q);
+      const matchCustomer = (inquiry.creatorName || inquiry.customerId || "").toLowerCase().includes(q);
+      const matchPort = (inquiry.destinationPort || "").toLowerCase().includes(q);
+      const matchTrade = (inquiry.tradeTerm || "").toLowerCase().includes(q);
+      const matchTitle = (inquiry.title || "").toLowerCase().includes(q);
+      return matchNo || matchModel || matchCustomer || matchPort || matchTrade || matchTitle;
+    });
+  }, [allInquiries, searchQuery]);
 
   return (
     <div className="grid min-w-0 gap-5">
@@ -1448,62 +1467,156 @@ function AdminDashboard({
       {/* Top Metric Cards with direct navigation (2 focused cards) */}
       <section className="grid gap-4 sm:grid-cols-2">
         <AdminStat
-          label={t("portal.modelRepo")}
+          label={t("portal.modelRepo", "Model Repository")}
           value={String(modelCount)}
           note={t("portal.recordStockSummary", { records: data.vehicles.length, count: totalStock })}
           onClick={() => onNavigateModule("vehicle_models")}
         />
         <AdminStat
-          label={t("portal.inquiries")}
+          label={t("portal.inquiries", "Inquiries")}
           value={String(data.inquiries.length)}
-          note={`${latestInquiries.length} ${t("portal.recentUpdates")}`}
+          note={`${allInquiries.length} ${locale === "zh" ? "单有效询价需求" : "Total Sourcing Requests"}`}
           onClick={() => onNavigateModule("quotes")}
         />
       </section>
 
-      {/* Recent Inquiries Panel with clean direct item click navigation */}
+      {/* All Inquiries Overview Panel with full structured information */}
       <section className="min-w-0">
         <AdminPanel
-          title={t("portal.recentInquiries")}
-          subtitle={t("portal.recentRecordsSubtitle")}
+          title={locale === "zh" ? "询价单全景一览" : locale === "am" ? "የጥያቄዎች አጠቃላይ እይታ" : "Inquiries Overview"}
+          subtitle={locale === "zh" ? "全量车源询价需求、贸易条款、目标港口与报价进度一览" : locale === "am" ? "የሁሉም ተሽከርካሪ ግዢ ጥያቄዎች፣ የንግድ ውሎች እና የዋጋ ዝርዝር" : "Complete structured record of all sourcing requests, commercial terms, ports, and quotation progress."}
           action={
-            <button
-              type="button"
-              onClick={() => onNavigateModule("quotes")}
-              className="text-xs font-bold text-[#5ee6d8] hover:underline flex items-center gap-1.5 cursor-pointer"
-            >
-              <span>{t("common.viewAll", "View All Inquiries")}</span>
-              <span>→</span>
-            </button>
+            <div className="flex items-center gap-3">
+              <div className="relative">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder={locale === "zh" ? "搜索单号/车型/客户/港口..." : "Search inquiries..."}
+                  className="rounded-xl border border-white/10 bg-white/[.04] px-3.5 py-1.5 text-xs text-white placeholder-slate-500 outline-none focus:border-[#5ee6d8] focus:bg-white/[.07] w-48 sm:w-64 transition-all"
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery("")}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-white"
+                  >
+                    ×
+                  </button>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={() => onNavigateModule("quotes")}
+                className="text-xs font-bold text-[#5ee6d8] hover:underline flex items-center gap-1.5 cursor-pointer shrink-0"
+              >
+                <span>{locale === "zh" ? "进入报价与议价工作区" : "Quotes Workspace"}</span>
+                <span>→</span>
+              </button>
+            </div>
           }
         >
           <AdminTable
-            headers={[t("portal.inquiryNo"), t("portal.vehicle"), t("portal.quantity"), t("portal.latestQuote")]}
-            rows={latestInquiries.map((inquiry) => {
+            headers={[
+              t("portal.inquiryNo", "Inquiry No. & Status"),
+              t("portal.vehicle", "Vehicle & Specs"),
+              t("portal.customer", "Customer / Initiator"),
+              t("portal.quantity", "Demand & Terms"),
+              t("portal.destinationPort", "Destination Port"),
+              t("portal.targetPrice", "Target Price"),
+              t("portal.latestQuote", "Latest Quote"),
+            ]}
+            rows={filteredInquiries.map((inquiry) => {
               const quote = latestQuoteForInquiry(inquiry.inquiryNo, data.quotes);
+              const dateStr = (inquiry.createdAt || "").slice(0, 10);
               return [
-                <button
-                  key={`inq-${inquiry.inquiryNo}`}
-                  type="button"
-                  onClick={() => onNavigateInquiry(inquiry.inquiryNo)}
-                  className="font-bold text-[#5ee6d8] hover:underline text-left flex items-center gap-1.5 cursor-pointer"
-                >
-                  <span>{inquiry.inquiryNo}</span>
-                  <span className="text-[10px] text-slate-400">↗</span>
-                </button>,
-                <button
-                  key={`model-${inquiry.inquiryNo}`}
-                  type="button"
-                  onClick={() => onNavigateInquiry(inquiry.inquiryNo)}
-                  className="text-left text-slate-200 hover:text-white hover:underline truncate max-w-[360px] block cursor-pointer"
-                >
-                  {inquiry.vehicleModel || inquiry.vehicleId}
-                </button>,
-                t("portal.unitCount", { count: inquiry.quantity }),
-                quote ? `${quote.quoteNo} / ${formatUsdStrict(quote.unitPrice)}` : t("portal.awaitingQuote"),
+                /* 1. 单号与状态 + 日期 */
+                <div key={`inq-${inquiry.inquiryNo}`} className="flex flex-col gap-1">
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => onNavigateInquiry(inquiry.inquiryNo)}
+                      className="font-bold text-[#5ee6d8] hover:underline text-left flex items-center gap-1 cursor-pointer font-mono"
+                    >
+                      <span>{inquiry.inquiryNo}</span>
+                      <span className="text-[10px] text-slate-400">↗</span>
+                    </button>
+                    {inquiry.hasUnreadFollowUps && (
+                      <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse" title="Unread updates" />
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2 text-[10px] text-slate-400">
+                    <span>{dateStr || "-"}</span>
+                    <AdminStatusBadge status={inquiry.status || "open"} />
+                  </div>
+                </div>,
+
+                /* 2. 车型与配置 */
+                <div key={`model-${inquiry.inquiryNo}`} className="flex flex-col gap-0.5">
+                  <button
+                    type="button"
+                    onClick={() => onNavigateInquiry(inquiry.inquiryNo)}
+                    className="text-left text-slate-100 hover:text-[#5ee6d8] hover:underline font-medium text-xs truncate max-w-[280px] block cursor-pointer"
+                  >
+                    {inquiry.vehicleModel || inquiry.vehicleId}
+                  </button>
+                  {inquiry.title && inquiry.title !== inquiry.vehicleModel && (
+                    <span className="text-[10px] text-slate-400 truncate max-w-[280px]">
+                      {inquiry.title}
+                    </span>
+                  )}
+                </div>,
+
+                /* 3. 客户 / 发起人 */
+                <div key={`cust-${inquiry.inquiryNo}`} className="text-xs text-slate-300">
+                  <span className="font-medium text-white">{inquiry.creatorName || inquiry.customerId || "-"}</span>
+                  {inquiry.creatorUserId && inquiry.creatorName && (
+                    <span className="block text-[10px] text-slate-500 font-mono">{inquiry.customerId}</span>
+                  )}
+                </div>,
+
+                /* 4. 数量与贸易条款 */
+                <div key={`qty-${inquiry.inquiryNo}`} className="flex items-center gap-2">
+                  <span className="font-bold text-xs text-white">
+                    {t("portal.unitCount", { count: inquiry.quantity })}
+                  </span>
+                  {inquiry.tradeTerm && (
+                    <span className="rounded border border-white/15 bg-white/[.05] px-1.5 py-0.5 text-[10px] font-black uppercase text-amber-200/90">
+                      {inquiry.tradeTerm}
+                    </span>
+                  )}
+                </div>,
+
+                /* 5. 目的港口 */
+                <span key={`port-${inquiry.inquiryNo}`} className="text-xs text-slate-300">
+                  {inquiry.destinationPort || "-"}
+                </span>,
+
+                /* 6. 目标价 */
+                <span key={`target-${inquiry.inquiryNo}`} className="text-xs font-mono font-medium text-slate-300">
+                  {inquiry.targetPrice ? formatUsdStrict(inquiry.targetPrice) : "-"}
+                </span>,
+
+                /* 7. 最新报价 */
+                <div key={`quote-${inquiry.inquiryNo}`}>
+                  {quote ? (
+                    <div className="flex flex-col gap-0.5">
+                      <span className="text-xs font-bold text-emerald-400 font-mono">
+                        {formatUsdStrict(quote.unitPrice)}
+                      </span>
+                      <span className="text-[10px] text-slate-400 font-mono">
+                        {quote.quoteNo}
+                      </span>
+                    </div>
+                  ) : (
+                    <span className="text-xs text-slate-500 italic">
+                      {t("portal.awaitingQuote", "Awaiting Quote")}
+                    </span>
+                  )}
+                </div>,
               ];
             })}
-            emptyText={t("portal.noInquiries")}
+            emptyText={searchQuery ? (locale === "zh" ? "没有找到符合搜索条件的询价单" : "No inquiries match your search.") : t("portal.noInquiries")}
           />
         </AdminPanel>
       </section>
