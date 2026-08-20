@@ -1270,22 +1270,22 @@ function AdminPortal({
                 <AdminTopMetric label={t("portal.openInquiries")} value={String(openInquiries)} />
                 <AdminTopMetric label={t("portal.orderValue")} value={formatUsdStrict(orderTotal)} />
               </div>
-              <div className="flex items-center justify-end gap-2.5">
+              <div className="flex flex-wrap items-center justify-start sm:justify-end gap-2.5">
                 {data.telegramBinding && (
                   <a
                     href={data.telegramBinding.bindingUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={`flex items-center gap-1.5 rounded-full border px-4 py-2 text-[10px] font-black uppercase tracking-wider transition ${
+                    className={`flex items-center gap-1.5 rounded-full border px-3 sm:px-4 py-2 text-[10px] font-black uppercase tracking-wider transition ${
                       data.telegramBinding.bound
                         ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/20"
                         : "border-[#c5a059]/40 bg-[#c5a059]/10 text-[#dfba73] hover:bg-[#c5a059]/20"
                     }`}
                   >
-                    <svg className="h-3.5 w-3.5 fill-current" viewBox="0 0 24 24">
+                    <svg className="h-3.5 w-3.5 fill-current shrink-0" viewBox="0 0 24 24">
                       <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.19-.08-.05-.19-.02-.27 0-.12.03-1.99 1.27-5.61 3.72-.53.36-1.01.54-1.44.53-.47-.01-1.38-.27-2.06-.49-.83-.27-1.49-.42-1.43-.89.03-.25.38-.51 1.05-.78 4.12-1.79 6.87-2.97 8.25-3.55 3.93-1.64 4.74-1.92 5.27-1.93.12 0 .37.03.54.17.14.12.18.28.2.45-.02.07-.02.19-.04.35z"/>
                     </svg>
-                    <span>
+                    <span className="truncate max-w-[200px]">
                       {data.telegramBinding.bound
                         ? `Telegram Active (@${data.telegramBinding.telegramUsername || "linked"})`
                         : "Connect Telegram Alerts"}
@@ -1295,7 +1295,7 @@ function AdminPortal({
                 <button
                   type="button"
                   onClick={() => void onLogout()}
-                  className="rounded-full border border-white/15 px-5 py-2 text-[10px] font-black uppercase tracking-widest text-gray-400 transition hover:border-white/40 hover:text-white"
+                  className="rounded-full border border-white/15 px-4 sm:px-5 py-2 text-[10px] font-black uppercase tracking-widest text-gray-400 transition hover:border-white/40 hover:text-white shrink-0"
                 >
                   {t("portal.navSignOut")}
                 </button>
@@ -1458,33 +1458,23 @@ function AdminDashboard({
           title={locale === "zh" ? "询价单全景一览" : locale === "am" ? "የጥያቄዎች አጠቃላይ እይታ" : "Inquiries Overview"}
           subtitle={locale === "zh" ? "全量车源询价需求、贸易条款、目标港口与报价进度一览" : locale === "am" ? "የሁሉም ተሽከርካሪ ግዢ ጥያቄዎች፣ የንግድ ውሎች እና የዋጋ ዝርዝር" : "Complete structured record of all sourcing requests, commercial terms, ports, and quotation progress."}
           action={
-            <div className="flex items-center gap-3">
-              <div className="relative">
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder={locale === "zh" ? "搜索单号/车型/客户/港口..." : "Search inquiries..."}
-                  className="rounded-xl border border-white/10 bg-white/[.04] px-3.5 py-1.5 text-xs text-white placeholder-slate-500 outline-none focus:border-[#5ee6d8] focus:bg-white/[.07] w-48 sm:w-64 transition-all"
-                />
-                {searchQuery && (
-                  <button
-                    type="button"
-                    onClick={() => setSearchQuery("")}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-white"
-                  >
-                    ×
-                  </button>
-                )}
-              </div>
-              <button
-                type="button"
-                onClick={() => onNavigateModule("quotes")}
-                className="text-xs font-bold text-[#5ee6d8] hover:underline flex items-center gap-1.5 cursor-pointer shrink-0"
-              >
-                <span>{locale === "zh" ? "进入报价与议价工作区" : "Quotes Workspace"}</span>
-                <span>→</span>
-              </button>
+            <div className="relative">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder={locale === "zh" ? "搜索单号/车型/客户/港口..." : "Search inquiries..."}
+                className="rounded-xl border border-white/10 bg-white/[.04] px-3.5 py-1.5 text-xs text-white placeholder-slate-500 outline-none focus:border-[#5ee6d8] focus:bg-white/[.07] w-48 sm:w-64 transition-all"
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-white"
+                >
+                  ×
+                </button>
+              )}
             </div>
           }
         >
