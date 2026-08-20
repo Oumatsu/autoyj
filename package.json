@@ -37,6 +37,7 @@
     "sync:feishu-env": "node scripts/feishu/sync-feishu-env.mjs",
     "tg:info": "bun run scripts/telegram-cli.ts info",
     "tg:cli": "bun run scripts/telegram-cli.ts",
+    "tg:test": "bun run scripts/test-telegram-live-alerts.ts",
     "shadcn": "shadcn",
     "tolgee:push": "bun run scripts/tolgee/sync.ts push",
     "tolgee:pull": "bun run scripts/tolgee/sync.ts pull",
