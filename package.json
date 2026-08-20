@@ -35,6 +35,8 @@
     "setup:feishu": "node scripts/feishu/setup-feishu-base.mjs",
     "sync:feishu-data": "node scripts/feishu/import-frontend-to-feishu.mjs",
     "sync:feishu-env": "node scripts/feishu/sync-feishu-env.mjs",
+    "tg:info": "bun run scripts/telegram-cli.ts info",
+    "tg:cli": "bun run scripts/telegram-cli.ts",
     "tolgee:push": "bun run scripts/tolgee/sync.ts push",
     "tolgee:pull": "bun run scripts/tolgee/sync.ts pull",
     "tolgee:pull:server": "bun --env-file=.env.build run scripts/tolgee/pull-translations.ts",

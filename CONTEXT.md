@@ -21,3 +21,7 @@
 ### Technical & Platform Architecture
 - **PWA (Progressive Web Application)**: A browser-installed standalone client designed for instantaneous quotation alerts, PDI report deliveries, and status tracking (prioritizing real-time network data over stale offline caches).
 - **Vinext**: Next.js App Router compatible serverless runtime running on Cloudflare Workers and Vite.
+- **Telegram Notification Engine**:
+  - *Inquiry Participant Broadcast*: Whenever a reply, quote update, or counteroffer occurs on an Inquiry, all bound Telegram users who belong to that single inquiry (creator, participants, previous commenters, and assigned quoters) receive an instant notification with direct Portal link (excluding the author).
+  - *Internal Note Safeguard*: Internal notes (`is_public: false`) strictly notify only internal staff (`admin`/`sales`) associated with the inquiry, preventing sensitive cost/supplier leakages to customers or partners.
+  - *New Inquiry Staff Radar*: When a new inquiry is started by a customer or partner, all internal staff with bound Telegram accounts immediately receive a push alert with full specifications and a direct link to quote.

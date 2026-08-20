@@ -32,6 +32,8 @@ import {
 import {
   handleTelegramWebhook,
   sendTelegramInquiryUpdateNotification,
+  notifyInquiryStakeholdersTelegram,
+  notifyNewInquiryStartedTelegram,
   getTelegramUserBinding,
   buildTelegramBindingUrl,
   saveTelegramUserBinding,
@@ -3688,6 +3690,21 @@ async function handleCreateInquiry(request: Request, env: Env) {
     inquiryNoteStatement(db, session, inquiryNo, initialNote),
   );
   await db.batch(statements);
+
+  notifyNewInquiryStartedTelegram(env, {
+    inquiryNo,
+    vehicleModel: selectedVehicleModel,
+    creatorUserId: session.userId,
+    creatorName: session.name || session.email || (session.role === "partner" ? "Trade Partner" : "Client"),
+    creatorRole: session.role,
+    quantity,
+    destinationPort: asText(body?.destinationPort),
+    tradeTerm: asText(body?.tradeTerm) || "FOB",
+    targetPrice: asNumber(body?.targetPrice) || null,
+    initialNote,
+    customerId: session.customerId,
+  }).catch(() => {});
+
   return json({ ok: true, inquiryNo }, { status: 201 });
 }
 
@@ -3711,6 +3728,17 @@ async function handleCreateQuote(request: Request, env: Env) {
     ),
   ];
   await db.batch(statements);
+
+  notifyInquiryStakeholdersTelegram(env, {
+    inquiryNo,
+    vehicleModel: "",
+    noteBody: `Official quotation issued: USD $${unitPrice.toLocaleString()}/unit (Qty: ${inquiry.quantity}).`,
+    authorUserId: session.userId,
+    authorName: session.name || "Sales Specialist",
+    authorRole: session.role,
+    isPublic: true,
+  }).catch(() => {});
+
   return json({ ok: true, quoteNo, inquiryNo, quantity: inquiry.quantity, unitPrice }, { status: 201 });
 }
 
@@ -4120,15 +4148,15 @@ async function handleCreateInquiryNote(request: Request, env: Env, inquiryNo: st
     db.prepare("UPDATE inquiries SET updated_at=? WHERE inquiry_no=?").bind(now, inquiryNo),
   ]);
 
-  if (session.role === "sales" || session.role === "admin") {
-    sendTelegramInquiryUpdateNotification(env, {
-      inquiryNo,
-      customerUserId: inquiry.customerId,
-      vehicleModel: inquiry.vehicleModel || "Vehicle Inquiry",
-      noteBody: note.body,
-      authorName: session.name || "Sales Manager",
-    }).catch(() => {});
-  }
+  notifyInquiryStakeholdersTelegram(env, {
+    inquiryNo,
+    vehicleModel: inquiry.vehicleModel || "Vehicle Inquiry",
+    noteBody: note.body,
+    authorUserId: session.userId,
+    authorName: session.name || session.email || (session.role === "sales" ? "Sales Specialist" : session.role === "partner" ? "Trade Partner" : "Client"),
+    authorRole: session.role,
+    isPublic: note.isPublic,
+  }).catch(() => {});
 
   return json({ ok: true, note }, { status: 201 });
 }
@@ -4355,6 +4383,17 @@ async function handleCounterOffer(request: Request, env: Env, quoteNo: string) {
     `).bind(crypto.randomUUID(), quote.inquiryNo, quote.quoteNo, session.userId, session.name, session.role, counterMessage, now),
     db.prepare("UPDATE quotes SET status=?, updated_at=? WHERE quote_no=?").bind("Counteroffer Received", now, quote.quoteNo),
   ]);
+
+  notifyInquiryStakeholdersTelegram(env, {
+    inquiryNo: quote.inquiryNo,
+    vehicleModel: quote.vehicleModel || "Vehicle Inquiry",
+    noteBody: `Counter-offer: ${counterMessage}`,
+    authorUserId: session.userId,
+    authorName: session.name || "Client",
+    authorRole: session.role,
+    isPublic: true,
+  }).catch(() => {});
+
   return json({ ok: true });
 }
 
