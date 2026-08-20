@@ -29,6 +29,8 @@ import { InquiryVehiclePicker } from "@/components/portal/InquiryVehiclePickerFi
 import { appendInquiryComment, inquiryCommentAuthorClass } from "@/lib/inquiry-comment-state";
 import { buildInquiryCommentThreads, inquiryListDetails, replyReference } from "@/lib/inquiry-workflow";
 import { useDashboardNavigation } from "@/components/DashboardNavigationContext";
+import { FeaturedVehicleCarousel } from "@/components/portal/FeaturedVehicleCarousel";
+import { selectFeaturedVehicleResources } from "@/lib/featured-vehicle-resources";
 
 type AdminModule = "dashboard" | "vehicle_models" | "vehicles" | "quotes" | "orders" | "payments" | "logistics" | "accounts";
 type AdminIconName = "dashboard" | "vehicle_models" | "vehicles" | "quotes" | "orders" | "payments" | "logistics" | "accounts";
@@ -206,6 +208,8 @@ type Vehicle = {
   duplicateCheck?: string | null;
   recommendationSlot?: string | null;
   recommendationRank?: number | null;
+  featuredRank?: number | null;
+  featuredImageUrl?: string | null;
 };
 
 type PriceTerm = { term: string; amount: number };
@@ -1889,11 +1893,20 @@ function AdminVehicles({ data, onEdit, onRefresh, onRefreshData }: { data: Boots
   const [recommendationRanks, setRecommendationRanks] = useState<Record<string, string>>({});
   const [recommendationBusyId, setRecommendationBusyId] = useState("");
   const [recommendationError, setRecommendationError] = useState("");
+  const [featuredVehicleId, setFeaturedVehicleId] = useState("");
   const normalizedSearch = searchQuery.trim().toLowerCase();
   const canSeeSupplier = data.user.role !== "partner" && data.user.role !== "customer";
   const canSeeLocation = data.user.role !== "partner" && data.user.role !== "customer";
   const canManageRecommendation = data.user.role === "admin";
   const effectiveSupplierFilter = canSeeSupplier ? supplierFilter : "all";
+  const featuredResources = useMemo(() => selectFeaturedVehicleResources(data.vehicles).map((vehicle) => ({
+    id: vehicle.id,
+    brand: localizeVehicleValue(vehicle.brand, locale),
+    model: localizeVehicleValue(vehicle.model, locale),
+    trim: localizeVehicleValue(vehicle.trim || vehicle.configuration, locale),
+    imageUrl: vehicle.imageUrl,
+    priceLabel: vehicle.price != null ? `${vehicle.priceTerm || "FOB"} ${formatUsdStrict(vehicle.price)}` : localizeVehicleValue("Price on request", locale),
+  })), [data.vehicles, locale]);
 
   async function saveRecommendationRank(vehicle: Vehicle) {
     const rawRank = (recommendationRanks[vehicle.id] ?? (vehicle.recommendationRank ? String(vehicle.recommendationRank) : "")).trim();
@@ -1982,6 +1995,34 @@ function AdminVehicles({ data, onEdit, onRefresh, onRefreshData }: { data: Boots
       };
     })
     .filter((item) => (isAllDefault ? (item.offers.length > 0 || item.rawVehicles.length > 0) : (item.rawVehicles.length > 0 || item.offers.length > 0)));
+
+  const focusFeaturedVehicle = useCallback((vehicleId: string) => {
+    const selectedVehicle = data.vehicles.find((vehicle) => vehicle.id === vehicleId);
+    if (!selectedVehicle) return;
+    const selectedModel = sellableModels.find((item) => (item.vehicles || []).some((vehicle) => vehicle.id === vehicleId));
+    if (!selectedModel) return;
+    const selectedVariant = buildVehicleResourceVariants(selectedModel.vehicles || []).find((variant) =>
+      variant.vehicles.some((vehicle) => vehicle.id === vehicleId),
+    );
+    if (!selectedVariant) return;
+
+    setSearchQuery("");
+    setBrandFilter("all");
+    setSupplierFilter("all");
+    setSupplyFilter("all");
+    setExpandedModels(new Set([selectedModel.key]));
+    setExpandedVariants(new Set([`${selectedModel.key}::${selectedVariant.key}`]));
+    setFeaturedVehicleId(vehicleId);
+    window.setTimeout(() => {
+      document.querySelector(`[data-vehicle-resource-id="${CSS.escape(vehicleId)}"]`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 50);
+  }, [data.vehicles, sellableModels]);
+
+  useEffect(() => {
+    if (!featuredVehicleId) return;
+    const timeout = window.setTimeout(() => setFeaturedVehicleId(""), 1300);
+    return () => window.clearTimeout(timeout);
+  }, [featuredVehicleId]);
 
   function toggleModel(key: string) {
     setExpandedModels((current) => {
@@ -2110,6 +2151,12 @@ function AdminVehicles({ data, onEdit, onRefresh, onRefreshData }: { data: Boots
         </div>
       </section>
 
+      <FeaturedVehicleCarousel
+        resources={featuredResources}
+        onSelect={focusFeaturedVehicle}
+        title={locale === "zh" ? "置顶优秀车源" : locale === "am" ? "የተመረጡ የተሽከርካሪ ሀብቶች" : "Top featured vehicle resources"}
+      />
+
       {/* 缁撴灉缁熻 Summary Bar (鐜拌溅鎬诲彴鏁版牴鎹姹傞殣钘? */}
       <div className="flex flex-wrap items-center justify-between gap-3 px-1 text-xs font-bold text-slate-400">
         <div>
@@ -2211,6 +2258,8 @@ function AdminVehicles({ data, onEdit, onRefresh, onRefreshData }: { data: Boots
                       const variantKey = `${item.key}::${variant.key}`;
                       const variantExpanded = expandedVariants.has(variantKey);
                       const vehicle = variant.vehicle;
+                      const internalRowIds = variant.colors.flatMap((color) => color.vehicles.map((item) => item.id));
+                      const externalRowIds = variant.colors.map((color) => color.vehicles.find((item) => item.id === featuredVehicleId)?.id || color.vehicles[0]?.id || "");
                       return (
                         <section key={variantKey} className="overflow-hidden rounded-xl border border-white/10 bg-[#0b1425]">
                           <button
@@ -2270,6 +2319,8 @@ function AdminVehicles({ data, onEdit, onRefresh, onRefreshData }: { data: Boots
                                       ...(canManageRecommendation ? ["Recommendation rank"] : []),
                                       formatPortalHeader("询盘", locale),
                                     ]}
+                                    rowIds={internalRowIds}
+                                    highlightedRowId={featuredVehicleId}
                                     rows={variant.colors.flatMap((color) =>
                                       color.vehicles.map((v) => [
                                         <span key="color" className="text-xs text-slate-300">
@@ -2333,6 +2384,8 @@ function AdminVehicles({ data, onEdit, onRefresh, onRefreshData }: { data: Boots
                                       formatPortalHeader("下单后需要等待天数", locale),
                                       formatPortalHeader("询盘", locale),
                                     ]}
+                                    rowIds={externalRowIds}
+                                    highlightedRowId={featuredVehicleId}
                                     rows={variant.colors.map((color) => {
                                       const colorVehicle = color.vehicles[0];
                                       const locations = Array.from(new Set(color.vehicles.map((item) => item.location).filter(Boolean)));
@@ -3508,7 +3561,7 @@ function AdminSummaryChip({ label, value, tone = "default" }: { label: string; v
   );
 }
 
-function AdminTable({ headers, rows, emptyText }: { headers: string[]; rows: ReactNode[][]; emptyText: string }) {
+function AdminTable({ headers, rows, emptyText, rowIds = [], highlightedRowId = "" }: { headers: string[]; rows: ReactNode[][]; emptyText: string; rowIds?: string[]; highlightedRowId?: string }) {
   const { locale } = useTranslation();
   return (
     <Table>
@@ -3528,7 +3581,11 @@ function AdminTable({ headers, rows, emptyText }: { headers: string[]; rows: Rea
           </TableRow>
         ) : (
           rows.map((row, rowIndex) => (
-            <TableRow key={rowIndex}>
+            <TableRow
+              key={rowIndex}
+              data-vehicle-resource-id={rowIds[rowIndex] || undefined}
+              className={rowIds[rowIndex] === highlightedRowId ? "animate-featured-resource-flash" : undefined}
+            >
               {row.map((cell, cellIndex) => (
                 <TableCell key={cellIndex} className="break-words">
                   {typeof cell === "string" ? localizeVehicleValue(cell, locale) : cell}
@@ -3950,7 +4007,7 @@ export function buildSellableModels(data: BootstrapData): SellableModel[] {
 
   const grouped = new Map<string, { item: SellableModel; offerMap: Map<string, VehicleOffer>; vehicles: Vehicle[] }>();
   for (const vehicle of data.vehicles || []) {
-    const directModel = modelsByVehicle.get(vehicle.modelId) || modelsByName.get(modelResourceKey(vehicle.brand, vehicle.model));
+    const directModel = trustedCatalogModelForVehicle(vehicle, modelsByVehicle, modelsByName);
     const canonicalModel = directModel?.model || canonicalCatalogModelName(vehicle.brand, vehicle.model, data.vehicleModels || []);
     const modelInfo = directModel || modelsByName.get(modelResourceKey(vehicle.brand, canonicalModel));
     const modelKey = modelResourceKey(vehicle.brand, canonicalModel);
@@ -4203,7 +4260,7 @@ export function vehiclesForSellableModel(vehicles: Vehicle[], item: SellableMode
     }
 
     candidates = vehicles.filter((vehicle) => {
-      const directModel = modelsByVehicle.get(vehicle.modelId) || modelsByName.get(modelResourceKey(vehicle.brand, vehicle.model));
+      const directModel = trustedCatalogModelForVehicle(vehicle, modelsByVehicle, modelsByName);
       const canonicalModel = directModel?.model || canonicalCatalogModelName(vehicle.brand, vehicle.model, catalogModels);
       const modelKey = modelResourceKey(vehicle.brand, canonicalModel);
       const rawKey = modelResourceKey(vehicle.brand, vehicle.model);
@@ -4446,6 +4503,26 @@ function modelResourceKey(brand: string, model: string) {
     ? normalizedModel.slice(normalizedBrand.length)
     : normalizedModel;
   return `${normalizedBrand}::${modelWithoutRepeatedBrand}`;
+}
+
+function trustedCatalogModelForVehicle(
+  vehicle: Vehicle,
+  modelsByVehicle: Map<string, VehicleModel>,
+  modelsByName: Map<string, VehicleModel>,
+) {
+  const sourceKey = modelResourceKey(vehicle.brand, vehicle.model);
+  const namedModel = modelsByName.get(sourceKey);
+  if (namedModel) return namedModel;
+  const idModel = modelsByVehicle.get(vehicle.modelId);
+  return idModel && sharesVehicleModelFamily(vehicle.model, idModel.model) ? idModel : undefined;
+}
+
+function sharesVehicleModelFamily(sourceModel: string, catalogModel: string) {
+  const normalizedSource = stripPowertrainSuffix(sourceModel).toLowerCase().trim();
+  const normalizedCatalog = stripPowertrainSuffix(catalogModel).toLowerCase().trim();
+  return normalizedSource === normalizedCatalog
+    || normalizedSource.startsWith(`${normalizedCatalog} `)
+    || normalizedCatalog.startsWith(`${normalizedSource} `);
 }
 
 function stripPowertrainSuffix(model: string) {

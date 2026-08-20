@@ -217,6 +217,32 @@ describe("Feishu sync safety", () => {
     expect(modelValues).toContain(JSON.stringify(gallery));
   });
 
+  test("preserves featured vehicle rank and attachment JSON during vehicle sync", async () => {
+    const db = new FakeD1();
+    const featuredImage = [{
+      file_token: "featured-token",
+      tmp_url: "https://files.example/featured.jpg",
+      name: "featured.jpg",
+    }];
+    mockFeishu({
+      "vehicles-table": [{
+        record_id: "vehicle-featured",
+        fields: {
+          "置顶优秀车源": 1,
+          "置顶优秀车源图片": featuredImage,
+          FOB美金价: 30000,
+        },
+      }],
+    });
+
+    await expect(syncVehiclesToD1(env(db))).resolves.toEqual({ synced: 1 });
+    const vehicleInsertIndex = db.batches[0].findIndex((sql) => sql.includes('INSERT INTO "vehicles"'));
+    expect(vehicleInsertIndex).toBeGreaterThan(-1);
+    const values = db.batchValues[0][vehicleInsertIndex];
+    expect(values).toContain(1);
+    expect(values).toContain(JSON.stringify(featuredImage));
+  });
+
   test("cron rejects with structured failures instead of zero-count success", async () => {
     const db = new FakeD1();
     await expect(runFeishuScheduledSync(env(db, { FEISHU_BASE_APP_TOKEN: "" }))).rejects.toBeInstanceOf(FeishuSyncRunError);

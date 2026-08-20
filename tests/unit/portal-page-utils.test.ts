@@ -173,6 +173,17 @@ describe("buildSellableModels", () => {
     expect(result[0].segment).toBe("Mid-size Sedan");
   });
 
+  test("keeps the vehicle's source model when its model ID incorrectly points to another model", () => {
+    const result = buildSellableModels({
+      vehicleModels: [{ id: "MDL-072", brand: "BYD", model: "Atto 3", bodyType: "SUV" }],
+      vehicles: [{ id: "yuan", brand: "BYD", model: "Yuan Plus", modelId: "MDL-072", year: "2025", trim: "430km", waitDays: 0, stockQuantity: 1 }],
+    } as any);
+
+    expect(result).toHaveLength(1);
+    expect(result[0].model).toBe("Yuan Plus");
+    expect(result[0].vehicles.map((vehicle) => vehicle.id)).toEqual(["yuan"]);
+  });
+
   test("does not present an energy type as a body category when source classification is absent", () => {
     const result = buildSellableModels({
       vehicleModels: [],

@@ -24,6 +24,7 @@ import {
   listPublicProducts,
 } from "../db/public-content";
 import { normalizeProductSlug } from "../../lib/content-normalizers";
+import { featuredAttachmentTokenFromAttachment, featuredLocalImageUrl } from "../../lib/featured-vehicle-resources";
 import {
   getVehicleGalleryImages,
   resolveSyncedGalleryImage,
@@ -2064,7 +2065,7 @@ function getFeishuFieldValue(f: Record<string, any>, columnName: string) {
 function cleanFeishuFieldValue(val: any, fieldName?: string): any {
   if (val === null || val === undefined) return null;
 
-  if (fieldName === "gallery_images_json" || fieldName === "gallery_images_json_pruned") {
+  if (fieldName === "gallery_images_json" || fieldName === "gallery_images_json_pruned" || fieldName === "置顶优秀车源图片") {
     if (typeof val === "string") return val;
     if (Array.isArray(val) || typeof val === "object") return JSON.stringify(val);
   }
@@ -2629,6 +2630,13 @@ async function handleGetVehicles(request: Request, env: Env, preloadedRows?: unk
       : internalFobUsd ?? displayPriceLow;
     const recommendationValue = asOptionalNumber(rowField(fields, "recommendation_slot", "网站推荐位"));
     const recommendationRank = recommendationValue && recommendationValue > 0 ? Math.floor(recommendationValue) : null;
+    const featuredValue = asOptionalNumber(rowField(fields, "置顶优秀车源"));
+    const featuredRank = featuredValue && featuredValue > 0 ? Math.floor(featuredValue) : null;
+    const featuredLocalImage = featuredLocalImageUrl(rowField(fields, "置顶优秀车源图片相对地址", "图片URL"));
+    const featuredAttachmentToken = featuredAttachmentTokenFromAttachment(rowField(fields, "置顶优秀车源图片"));
+    const featuredImageUrl = featuredLocalImage || (featuredAttachmentToken
+      ? `/api/portal/vehicles/${encodeURIComponent(String(row.id))}/featured-image`
+      : "");
     const exwUsd = externalAccount ? null : asOptionalNumber(rowField(fields, "exw_usd", "EXW美金价"));
     const fcaUsd = externalAccount ? null : asOptionalNumber(rowField(fields, "fca_usd", "FCA美金价"));
     const priceTermsList: { term: string; amount: number }[] = [];
@@ -2644,6 +2652,7 @@ async function handleGetVehicles(request: Request, env: Env, preloadedRows?: unk
       brand: asText(rowField(fields, "brand", "品牌")),
       model: asText(rowField(fields, "model", "型号")),
       trim: asText(rowField(fields, "variant", "细分型号")),
+      imageUrl: asText(rowField(fields, "image_url", "车源图片")),
       modelStyle: asText(rowField(fields, "model_style", "车型年款", "车型款式")),
       supplier: internalSession ? asText(rowField(fields, "supplier", "供应商")) : null,
       supplierQuoteYear: internalSession ? asText(rowField(fields, "supplier_quote_year", "供应商报价年份")) : null,
@@ -2684,6 +2693,8 @@ async function handleGetVehicles(request: Request, env: Env, preloadedRows?: unk
       duplicateCheck: internalSession ? asText(rowField(fields, "duplicate_check", "重复数据检查")) : null,
       recommendationSlot: internalSession ? asText(rowField(fields, "recommendation_slot", "网站推荐位")) : null,
       recommendationRank,
+      featuredRank,
+      featuredImageUrl,
       aiConfidence: asOptionalNumber(rowField(fields, "ai_confidence_score", "AI置信度")),
       priceTermsList,
       isApproved: true,
@@ -2693,6 +2704,31 @@ async function handleGetVehicles(request: Request, env: Env, preloadedRows?: unk
     };
   });
   return json({ vehicles });
+}
+
+async function handleGetFeaturedVehicleImage(request: Request, env: Env, vehicleId: string) {
+  await requireSession(request, env);
+  const vehicle = await requirePortalDb(env)
+    .prepare('SELECT "置顶优秀车源图片" FROM vehicles WHERE id = ? LIMIT 1')
+    .bind(vehicleId)
+    .first<Record<string, unknown>>();
+  const fileToken = featuredAttachmentTokenFromAttachment(vehicle?.["置顶优秀车源图片"]);
+  if (!fileToken) return problem("Featured vehicle image not found", 404);
+
+  const token = await feishuToken(env);
+  const apiBase = env.FEISHU_API_URL || FEISHU_API;
+  const upstream = await fetch(`${apiBase}/open-apis/drive/v1/medias/${encodeURIComponent(fileToken)}/download`, {
+    headers: { authorization: `Bearer ${token}` },
+    signal: AbortSignal.timeout(15000),
+  });
+  if (!upstream.ok || !upstream.body) return problem("Featured vehicle image is unavailable", 502);
+
+  return new Response(upstream.body, {
+    headers: {
+      "content-type": upstream.headers.get("content-type") || "image/*",
+      "cache-control": "private, max-age=300",
+    },
+  });
 }
 
 async function handleUpdateVehicleRecommendation(
@@ -4770,6 +4806,10 @@ export async function handlePortalRequest(request: Request, env: Env) {
     }
     if (path === "/api/portal/vehicles" && request.method === "GET") {
       return await handleGetVehicles(request, env);
+    }
+    const featuredVehicleImageMatch = path.match(/^\/api\/portal\/vehicles\/([^/]+)\/featured-image$/);
+    if (featuredVehicleImageMatch && request.method === "GET") {
+      return await handleGetFeaturedVehicleImage(request, env, decodeURIComponent(featuredVehicleImageMatch[1]));
     }
     const vehicleRecommendationMatch = path.match(/^\/api\/portal\/vehicles\/([^/]+)\/recommendation$/);
     if (vehicleRecommendationMatch && request.method === "PATCH") {
