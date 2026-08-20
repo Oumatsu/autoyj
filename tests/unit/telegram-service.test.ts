@@ -25,4 +25,10 @@ describe("Telegram Notification Service", () => {
     const url = buildTelegramBindingUrl(mockEnv, "CUS 2026/01");
     expect(url).toBe("https://t.me/youguard_ev_bot?start=bind_CUS%202026%2F01");
   });
+
+  test("getTelegramUserBinding returns null on empty db or missing user", async () => {
+    const { getTelegramUserBinding } = await import("../../server/services/telegram");
+    expect(await getTelegramUserBinding(undefined, "USR-123")).toBeNull();
+    expect(await getTelegramUserBinding({} as any, "")).toBeNull();
+  });
 });

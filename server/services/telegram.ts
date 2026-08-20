@@ -73,13 +73,27 @@ export async function getTelegramUserBinding(
   db: D1Database | undefined,
   userId: string
 ): Promise<TelegramBinding | null> {
-  if (!db) return null;
+  if (!db || !userId) return null;
   try {
     const row = await db
       .prepare("SELECT * FROM user_telegram_bindings WHERE user_id = ?")
       .bind(userId)
       .first<TelegramBinding>();
-    return row || null;
+    if (row && row.chat_id) return row;
+
+    const portalUser = await db
+      .prepare("SELECT user_id, telegram_chat_id AS chat_id, telegram_username FROM portal_users WHERE user_id = ? OR email = ?")
+      .bind(userId, userId)
+      .first<{ user_id: string; chat_id: string; telegram_username: string }>();
+    if (portalUser && portalUser.chat_id) {
+      return {
+        user_id: portalUser.user_id,
+        chat_id: portalUser.chat_id,
+        telegram_username: portalUser.telegram_username || null,
+      };
+    }
+
+    return null;
   } catch {
     return null;
   }
