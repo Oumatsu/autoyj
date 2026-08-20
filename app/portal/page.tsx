@@ -1237,7 +1237,11 @@ function AdminPortal({
                         ? "text-emerald-400 hover:underline"
                         : "text-[#dfba73] hover:underline"
                     }`}
-                    title="One-click bind your personal Telegram to receive instant mobile alerts"
+                    title={
+                      data.telegramBinding.bound
+                        ? locale === "zh" ? "Telegram 询价与报价通知已激活" : "Telegram alerts active for inquiry replies and updates"
+                        : locale === "zh" ? "点击绑定 Telegram 机器人，实时接收新询价与回复通知" : "One-click link Telegram robot for real-time inquiry alerts"
+                    }
                   >
                     <svg className="h-3 w-3 fill-current shrink-0" viewBox="0 0 24 24">
                       <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.19-.08-.05-.19-.02-.27 0-.12.03-1.99 1.27-5.61 3.72-.53.36-1.01.54-1.44.53-.47-.01-1.38-.27-2.06-.49-.83-.27-1.49-.42-1.43-.89.03-.25.38-.51 1.05-.78 4.12-1.79 6.87-2.97 8.25-3.55 3.93-1.64 4.74-1.92 5.27-1.93.12 0 .37.03.54.17.14.12.18.28.2.45-.02.07-.02.19-.04.35z"/>
@@ -1245,7 +1249,9 @@ function AdminPortal({
                     <span className="truncate">
                       {data.telegramBinding.bound
                         ? `@${data.telegramBinding.telegramUsername || "Linked"}`
-                        : "Connect Telegram ↗"}
+                        : locale === "zh"
+                          ? "绑定 Telegram 接收提醒 ↗"
+                          : "Link Telegram for Alerts ↗"}
                     </span>
                   </a>
                 )}
@@ -1276,6 +1282,15 @@ function AdminPortal({
                     href={data.telegramBinding.bindingUrl}
                     target="_blank"
                     rel="noopener noreferrer"
+                    title={
+                      data.telegramBinding.bound
+                        ? locale === "zh"
+                          ? `已绑定 Telegram 机器人通知 (@${data.telegramBinding.telegramUsername || "已绑定"})，新询价与报价回复将实时推送`
+                          : "Telegram alerts active. You will receive real-time push notifications for new replies and status updates."
+                        : locale === "zh"
+                          ? "点击绑定 Telegram 机器人，实时接收新询价与报价回复通知"
+                          : "Click to link Telegram robot to receive instant push alerts for inquiry replies and quotes."
+                    }
                     className={`flex items-center gap-1.5 rounded-full border px-3 sm:px-4 py-2 text-[10px] font-black uppercase tracking-wider transition ${
                       data.telegramBinding.bound
                         ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/20"
@@ -1285,10 +1300,14 @@ function AdminPortal({
                     <svg className="h-3.5 w-3.5 fill-current shrink-0" viewBox="0 0 24 24">
                       <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.19-.08-.05-.19-.02-.27 0-.12.03-1.99 1.27-5.61 3.72-.53.36-1.01.54-1.44.53-.47-.01-1.38-.27-2.06-.49-.83-.27-1.49-.42-1.43-.89.03-.25.38-.51 1.05-.78 4.12-1.79 6.87-2.97 8.25-3.55 3.93-1.64 4.74-1.92 5.27-1.93.12 0 .37.03.54.17.14.12.18.28.2.45-.02.07-.02.19-.04.35z"/>
                     </svg>
-                    <span className="truncate max-w-[200px]">
+                    <span className="truncate max-w-[240px]">
                       {data.telegramBinding.bound
-                        ? `Telegram Active (@${data.telegramBinding.telegramUsername || "linked"})`
-                        : "Connect Telegram Alerts"}
+                        ? locale === "zh"
+                          ? `已绑定机器人提醒 (@${data.telegramBinding.telegramUsername || "Linked"})`
+                          : `Telegram Active (@${data.telegramBinding.telegramUsername || "linked"})`
+                        : locale === "zh"
+                          ? "绑定 Telegram 接收询价提醒 ↗"
+                          : "Link Telegram for Inquiry Alerts ↗"}
                     </span>
                   </a>
                 )}
