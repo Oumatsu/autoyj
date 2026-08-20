@@ -1411,7 +1411,6 @@ function AdminDashboard({
   // 汇总所有颜色与细分车型的实际库存数量（全量累加）
   const totalStock = data.vehicles.reduce((sum, vehicle) => sum + getVehicleStockQuantity(vehicle), 0);
   const modelCount = (data.vehicleModels || []).length;
-  const quoteValue = data.quotes.reduce((sum, quote) => sum + quote.unitPrice * Math.max(quote.quantity, 1), 0);
   const latestInquiries = [...data.inquiries]
     .sort((a, b) => getDateTime(b.updatedAt || b.createdAt) - getDateTime(a.updatedAt || a.createdAt))
     .slice(0, 8);
@@ -1446,8 +1445,8 @@ function AdminDashboard({
         </section>
       )}
 
-      {/* Top Metric Cards with direct navigation */}
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      {/* Top Metric Cards with direct navigation (2 focused cards) */}
+      <section className="grid gap-4 sm:grid-cols-2">
         <AdminStat
           label={t("portal.modelRepo")}
           value={String(modelCount)}
@@ -1460,21 +1459,9 @@ function AdminDashboard({
           note={`${latestInquiries.length} ${t("portal.recentUpdates")}`}
           onClick={() => onNavigateModule("quotes")}
         />
-        <AdminStat
-          label={t("portal.quoteVersions")}
-          value={String(data.quotes.length)}
-          note={formatUsdStrict(quoteValue)}
-          onClick={() => onNavigateModule("quotes")}
-        />
-        <AdminStat
-          label={t("portal.orders")}
-          value={String(data.orders.length)}
-          note={formatUsdStrict(data.orders.reduce((sum, order) => sum + order.total, 0))}
-          onClick={() => onNavigateModule("orders")}
-        />
       </section>
 
-      {/* Recent Inquiries Panel with direct item click navigation */}
+      {/* Recent Inquiries Panel with clean direct item click navigation */}
       <section className="min-w-0">
         <AdminPanel
           title={t("portal.recentInquiries")}
@@ -1491,7 +1478,7 @@ function AdminDashboard({
           }
         >
           <AdminTable
-            headers={[t("portal.inquiryNo"), t("portal.vehicle"), t("portal.quantity"), t("portal.latestQuote"), ""]}
+            headers={[t("portal.inquiryNo"), t("portal.vehicle"), t("portal.quantity"), t("portal.latestQuote")]}
             rows={latestInquiries.map((inquiry) => {
               const quote = latestQuoteForInquiry(inquiry.inquiryNo, data.quotes);
               return [
@@ -1508,20 +1495,12 @@ function AdminDashboard({
                   key={`model-${inquiry.inquiryNo}`}
                   type="button"
                   onClick={() => onNavigateInquiry(inquiry.inquiryNo)}
-                  className="text-left text-slate-200 hover:text-white hover:underline truncate max-w-[280px] block cursor-pointer"
+                  className="text-left text-slate-200 hover:text-white hover:underline truncate max-w-[360px] block cursor-pointer"
                 >
                   {inquiry.vehicleModel || inquiry.vehicleId}
                 </button>,
                 t("portal.unitCount", { count: inquiry.quantity }),
                 quote ? `${quote.quoteNo} / ${formatUsdStrict(quote.unitPrice)}` : t("portal.awaitingQuote"),
-                <button
-                  key={`btn-${inquiry.inquiryNo}`}
-                  type="button"
-                  onClick={() => onNavigateInquiry(inquiry.inquiryNo)}
-                  className="rounded-lg border border-white/10 bg-white/[.04] px-3 py-1 text-xs font-medium text-[#5ee6d8] hover:border-[#5ee6d8]/40 hover:bg-[#5ee6d8]/10 transition-colors cursor-pointer"
-                >
-                  {t("portal.viewDetail", "Open →")}
-                </button>,
               ];
             })}
             emptyText={t("portal.noInquiries")}
