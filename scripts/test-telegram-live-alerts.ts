@@ -124,7 +124,7 @@ async function testScenario1_NewInquiryAlert(d1Adapter: any) {
     inquiryNo: "INQ-2026-LIVE-901",
     vehicleModel: "BYD Seal 06 DM-i 120km Leading (2026)",
     creatorUserId: "CUS-002",
-    creatorName: "Ahmed Al-Maktoum",
+    creatorName: "VIP Customer (Green Ride Enterprise)",
     creatorRole: "customer",
     quantity: 5,
     destinationPort: "Djibouti Port (吉布提港)",
@@ -169,9 +169,9 @@ async function testScenario2_SalesRepliesWithQuotation(d1Adapter: any) {
   const result = await notifyInquiryStakeholdersTelegram(env, {
     inquiryNo: "INQ-2026-LIVE-901",
     vehicleModel: "BYD Seal 06 DM-i 120km Leading (2026)",
-    noteBody: "Dear Ahmed, our formal quotation for 5 units BYD Seal 06 is USD 16,500/unit (FOB Shanghai) or USD 17,200/unit (CIF Djibouti). All units are in stock and ready to ship within 7 business days.",
+    noteBody: "Our formal quotation for 5 units BYD Seal 06 is USD 16,500/unit (FOB Shanghai) or USD 17,200/unit (CIF Djibouti). All units are in stock and ready to ship within 7 business days.",
     authorUserId: "USR-SALES-LX",
-    authorName: "Sarah Wang (王销售)",
+    authorName: "LX (Sales)",
     authorRole: "sales",
     isPublic: true,
   });
@@ -196,9 +196,9 @@ async function testScenario3_CustomerFollowUpReply(d1Adapter: any) {
   const result = await notifyInquiryStakeholdersTelegram(env, {
     inquiryNo: "INQ-2026-LIVE-901",
     vehicleModel: "BYD Seal 06 DM-i 120km Leading (2026)",
-    noteBody: "Thank you Sarah! Can we confirm 30% deposit by T/T and 70% balance upon presentation of Bill of Lading? We are ready to issue PO.",
+    noteBody: "Can we confirm 30% deposit by T/T and 70% balance upon presentation of Bill of Lading? We are ready to issue PO.",
     authorUserId: "CUS-002",
-    authorName: "Ahmed Al-Maktoum",
+    authorName: "VIP Customer (Green Ride Enterprise)",
     authorRole: "customer",
     isPublic: true,
   });
