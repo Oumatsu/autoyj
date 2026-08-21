@@ -274,16 +274,16 @@ export function Navbar() {
           aria-controls="main-navigation-drawer"
           aria-expanded={mobileOpen}
           onClick={toggleMainNavigation}
-          className="justify-self-end p-2 focus:outline-none lg:hidden"
+          className="grid h-11 w-11 place-items-center justify-self-end rounded-lg text-white transition hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5ee6d8] lg:hidden"
         >
           {mobileOpen ? (
-            <span className="text-2xl leading-none text-white">✕</span>
+            <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+              <path d="M6 18L18 6M6 6l12 12" />
+            </svg>
           ) : (
-            <>
-              <span className="w-6 h-0.5 bg-white block" />
-              <span className="w-6 h-0.5 bg-white block" />
-              <span className="w-4 h-0.5 bg-white block" />
-            </>
+            <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+              <path d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
           )}
         </button>
       </nav>

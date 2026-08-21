@@ -1237,7 +1237,11 @@ function AdminPortal({
                         ? "text-emerald-400 hover:underline"
                         : "text-[#dfba73] hover:underline"
                     }`}
-                    title="One-click bind your personal Telegram to receive instant mobile alerts"
+                    title={
+                      data.telegramBinding.bound
+                        ? locale === "zh" ? "Telegram 询价与报价通知已激活" : "Telegram alerts active for inquiry replies and updates"
+                        : locale === "zh" ? "点击绑定 Telegram 机器人，实时接收新询价与回复通知" : "One-click link Telegram robot for real-time inquiry alerts"
+                    }
                   >
                     <svg className="h-3 w-3 fill-current shrink-0" viewBox="0 0 24 24">
                       <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.19-.08-.05-.19-.02-.27 0-.12.03-1.99 1.27-5.61 3.72-.53.36-1.01.54-1.44.53-.47-.01-1.38-.27-2.06-.49-.83-.27-1.49-.42-1.43-.89.03-.25.38-.51 1.05-.78 4.12-1.79 6.87-2.97 8.25-3.55 3.93-1.64 4.74-1.92 5.27-1.93.12 0 .37.03.54.17.14.12.18.28.2.45-.02.07-.02.19-.04.35z"/>
@@ -1245,7 +1249,9 @@ function AdminPortal({
                     <span className="truncate">
                       {data.telegramBinding.bound
                         ? `@${data.telegramBinding.telegramUsername || "Linked"}`
-                        : "Connect Telegram ↗"}
+                        : locale === "zh"
+                          ? "绑定 Telegram 接收提醒 ↗"
+                          : "Link Telegram for Alerts ↗"}
                     </span>
                   </a>
                 )}
@@ -1270,32 +1276,45 @@ function AdminPortal({
                 <AdminTopMetric label={t("portal.openInquiries")} value={String(openInquiries)} />
                 <AdminTopMetric label={t("portal.orderValue")} value={formatUsdStrict(orderTotal)} />
               </div>
-              <div className="flex items-center justify-end gap-2.5">
+              <div className="flex flex-wrap items-center justify-start sm:justify-end gap-2.5">
                 {data.telegramBinding && (
                   <a
                     href={data.telegramBinding.bindingUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={`flex items-center gap-1.5 rounded-full border px-4 py-2 text-[10px] font-black uppercase tracking-wider transition ${
+                    title={
+                      data.telegramBinding.bound
+                        ? locale === "zh"
+                          ? `已绑定 Telegram 机器人通知 (@${data.telegramBinding.telegramUsername || "已绑定"})，新询价与报价回复将实时推送`
+                          : "Telegram alerts active. You will receive real-time push notifications for new replies and status updates."
+                        : locale === "zh"
+                          ? "点击绑定 Telegram 机器人，实时接收新询价与报价回复通知"
+                          : "Click to link Telegram robot to receive instant push alerts for inquiry replies and quotes."
+                    }
+                    className={`flex items-center gap-1.5 rounded-full border px-3 sm:px-4 py-2 text-[10px] font-black uppercase tracking-wider transition ${
                       data.telegramBinding.bound
                         ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/20"
                         : "border-[#c5a059]/40 bg-[#c5a059]/10 text-[#dfba73] hover:bg-[#c5a059]/20"
                     }`}
                   >
-                    <svg className="h-3.5 w-3.5 fill-current" viewBox="0 0 24 24">
+                    <svg className="h-3.5 w-3.5 fill-current shrink-0" viewBox="0 0 24 24">
                       <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.19-.08-.05-.19-.02-.27 0-.12.03-1.99 1.27-5.61 3.72-.53.36-1.01.54-1.44.53-.47-.01-1.38-.27-2.06-.49-.83-.27-1.49-.42-1.43-.89.03-.25.38-.51 1.05-.78 4.12-1.79 6.87-2.97 8.25-3.55 3.93-1.64 4.74-1.92 5.27-1.93.12 0 .37.03.54.17.14.12.18.28.2.45-.02.07-.02.19-.04.35z"/>
                     </svg>
-                    <span>
+                    <span className="truncate max-w-[240px]">
                       {data.telegramBinding.bound
-                        ? `Telegram Active (@${data.telegramBinding.telegramUsername || "linked"})`
-                        : "Connect Telegram Alerts"}
+                        ? locale === "zh"
+                          ? `已绑定机器人提醒 (@${data.telegramBinding.telegramUsername || "Linked"})`
+                          : `Telegram Active (@${data.telegramBinding.telegramUsername || "linked"})`
+                        : locale === "zh"
+                          ? "绑定 Telegram 接收询价提醒 ↗"
+                          : "Link Telegram for Inquiry Alerts ↗"}
                     </span>
                   </a>
                 )}
                 <button
                   type="button"
                   onClick={() => void onLogout()}
-                  className="rounded-full border border-white/15 px-5 py-2 text-[10px] font-black uppercase tracking-widest text-gray-400 transition hover:border-white/40 hover:text-white"
+                  className="rounded-full border border-white/15 px-4 sm:px-5 py-2 text-[10px] font-black uppercase tracking-widest text-gray-400 transition hover:border-white/40 hover:text-white shrink-0"
                 >
                   {t("portal.navSignOut")}
                 </button>
@@ -1407,124 +1426,178 @@ function AdminDashboard({
   onNavigateModule: (module: AdminModule) => void;
   onNavigateInquiry: (inquiryNo: string) => void;
 }) {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
+  const [searchQuery, setSearchQuery] = useState("");
+
   // 汇总所有颜色与细分车型的实际库存数量（全量累加）
   const totalStock = data.vehicles.reduce((sum, vehicle) => sum + getVehicleStockQuantity(vehicle), 0);
   const modelCount = (data.vehicleModels || []).length;
-  const quoteValue = data.quotes.reduce((sum, quote) => sum + quote.unitPrice * Math.max(quote.quantity, 1), 0);
-  const latestInquiries = [...data.inquiries]
-    .sort((a, b) => getDateTime(b.updatedAt || b.createdAt) - getDateTime(a.updatedAt || a.createdAt))
-    .slice(0, 8);
+
+  const allInquiries = useMemo(() => {
+    return [...data.inquiries].sort(
+      (a, b) => getDateTime(b.updatedAt || b.createdAt) - getDateTime(a.updatedAt || a.createdAt)
+    );
+  }, [data.inquiries]);
+
+  const filteredInquiries = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return allInquiries;
+    return allInquiries.filter((inquiry) => {
+      const matchNo = inquiry.inquiryNo.toLowerCase().includes(q);
+      const matchModel = (inquiry.vehicleModel || inquiry.vehicleId || "").toLowerCase().includes(q);
+      const matchCustomer = (inquiry.creatorName || inquiry.customerId || "").toLowerCase().includes(q);
+      const matchPort = (inquiry.destinationPort || "").toLowerCase().includes(q);
+      const matchTrade = (inquiry.tradeTerm || "").toLowerCase().includes(q);
+      const matchTitle = (inquiry.title || "").toLowerCase().includes(q);
+      return matchNo || matchModel || matchCustomer || matchPort || matchTrade || matchTitle;
+    });
+  }, [allInquiries, searchQuery]);
 
   return (
     <div className="grid min-w-0 gap-5">
-      {data.telegramBinding && !data.telegramBinding.bound && (
-        <section className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 rounded-2xl border border-[#dfba73]/40 bg-gradient-to-r from-[#c5a059]/15 via-black/40 to-[#5ee6d8]/10 shadow-lg backdrop-blur-md">
-          <div className="flex items-center gap-3.5">
-            <div className="w-10 h-10 rounded-xl bg-[#c5a059]/20 flex items-center justify-center text-[#dfba73] shrink-0 border border-[#c5a059]/30">
-              <svg className="h-5 w-5 fill-current" viewBox="0 0 24 24">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.19-.08-.05-.19-.02-.27 0-.12.03-1.99 1.27-5.61 3.72-.53.36-1.01.54-1.44.53-.47-.01-1.38-.27-2.06-.49-.83-.27-1.49-.42-1.43-.89.03-.25.38-.51 1.05-.78 4.12-1.79 6.87-2.97 8.25-3.55 3.93-1.64 4.74-1.92 5.27-1.93.12 0 .37.03.54.17.14.12.18.28.2.45-.02.07-.02.19-.04.35z"/>
-              </svg>
-            </div>
-            <div>
-              <h4 className="text-sm font-black text-white">
-                {t("portal.connectTelegramTitle", "Connect Telegram Bot for Instant Push Alerts")}
-              </h4>
-              <p className="text-xs text-slate-300 font-light mt-0.5">
-                {t("portal.connectTelegramDesc", "Link your personal Telegram account to receive real-time push alerts for new inquiries, quote replies, and orders directly on your device.")}
-              </p>
-            </div>
-          </div>
-          <a
-            href={data.telegramBinding.bindingUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-primary shrink-0 px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-2 shadow-lg shadow-[#5ee6d8]/15 hover:shadow-[#5ee6d8]/25 transition-all text-center"
-          >
-            <span>{t("portal.connectTelegramCta", "One-Click Bind Telegram ↗")}</span>
-          </a>
-        </section>
-      )}
-
-      {/* Top Metric Cards with direct navigation */}
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      {/* Top Metric Cards with direct navigation (2 focused cards) */}
+      <section className="grid gap-4 sm:grid-cols-2">
         <AdminStat
-          label={t("portal.modelRepo")}
+          label={t("portal.modelRepo", "Model Repository")}
           value={String(modelCount)}
           note={t("portal.recordStockSummary", { records: data.vehicles.length, count: totalStock })}
           onClick={() => onNavigateModule("vehicle_models")}
         />
         <AdminStat
-          label={t("portal.inquiries")}
+          label={t("portal.inquiries", "Inquiries")}
           value={String(data.inquiries.length)}
-          note={`${latestInquiries.length} ${t("portal.recentUpdates")}`}
+          note={`${allInquiries.length} ${locale === "zh" ? "单有效询价需求" : "Total Sourcing Requests"}`}
           onClick={() => onNavigateModule("quotes")}
-        />
-        <AdminStat
-          label={t("portal.quoteVersions")}
-          value={String(data.quotes.length)}
-          note={formatUsdStrict(quoteValue)}
-          onClick={() => onNavigateModule("quotes")}
-        />
-        <AdminStat
-          label={t("portal.orders")}
-          value={String(data.orders.length)}
-          note={formatUsdStrict(data.orders.reduce((sum, order) => sum + order.total, 0))}
-          onClick={() => onNavigateModule("orders")}
         />
       </section>
 
-      {/* Recent Inquiries Panel with direct item click navigation */}
+      {/* All Inquiries Overview Panel with full structured information */}
       <section className="min-w-0">
         <AdminPanel
-          title={t("portal.recentInquiries")}
-          subtitle={t("portal.recentRecordsSubtitle")}
+          title={locale === "zh" ? "询价单全景一览" : locale === "am" ? "የጥያቄዎች አጠቃላይ እይታ" : "Inquiries Overview"}
+          subtitle={locale === "zh" ? "全量车源询价需求、贸易条款、目标港口与报价进度一览" : locale === "am" ? "የሁሉም ተሽከርካሪ ግዢ ጥያቄዎች፣ የንግድ ውሎች እና የዋጋ ዝርዝር" : "Complete structured record of all sourcing requests, commercial terms, ports, and quotation progress."}
           action={
-            <button
-              type="button"
-              onClick={() => onNavigateModule("quotes")}
-              className="text-xs font-bold text-[#5ee6d8] hover:underline flex items-center gap-1.5 cursor-pointer"
-            >
-              <span>{t("common.viewAll", "View All Inquiries")}</span>
-              <span>→</span>
-            </button>
+            <div className="relative">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder={locale === "zh" ? "搜索单号/车型/客户/港口..." : "Search inquiries..."}
+                className="rounded-xl border border-white/10 bg-white/[.04] px-3.5 py-1.5 text-xs text-white placeholder-slate-500 outline-none focus:border-[#5ee6d8] focus:bg-white/[.07] w-48 sm:w-64 transition-all"
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-white"
+                >
+                  ×
+                </button>
+              )}
+            </div>
           }
         >
           <AdminTable
-            headers={[t("portal.inquiryNo"), t("portal.vehicle"), t("portal.quantity"), t("portal.latestQuote"), ""]}
-            rows={latestInquiries.map((inquiry) => {
+            headers={[
+              t("portal.inquiryNo", "Inquiry No. & Status"),
+              t("portal.vehicle", "Vehicle & Specs"),
+              t("portal.customer", "Customer / Initiator"),
+              t("portal.quantity", "Demand & Terms"),
+              t("portal.destinationPort", "Destination Port"),
+              t("portal.targetPrice", "Target Price"),
+              t("portal.latestQuote", "Latest Quote"),
+            ]}
+            rows={filteredInquiries.map((inquiry) => {
               const quote = latestQuoteForInquiry(inquiry.inquiryNo, data.quotes);
+              const dateStr = (inquiry.createdAt || "").slice(0, 10);
               return [
-                <button
-                  key={`inq-${inquiry.inquiryNo}`}
-                  type="button"
-                  onClick={() => onNavigateInquiry(inquiry.inquiryNo)}
-                  className="font-bold text-[#5ee6d8] hover:underline text-left flex items-center gap-1.5 cursor-pointer"
-                >
-                  <span>{inquiry.inquiryNo}</span>
-                  <span className="text-[10px] text-slate-400">↗</span>
-                </button>,
-                <button
-                  key={`model-${inquiry.inquiryNo}`}
-                  type="button"
-                  onClick={() => onNavigateInquiry(inquiry.inquiryNo)}
-                  className="text-left text-slate-200 hover:text-white hover:underline truncate max-w-[280px] block cursor-pointer"
-                >
-                  {inquiry.vehicleModel || inquiry.vehicleId}
-                </button>,
-                t("portal.unitCount", { count: inquiry.quantity }),
-                quote ? `${quote.quoteNo} / ${formatUsdStrict(quote.unitPrice)}` : t("portal.awaitingQuote"),
-                <button
-                  key={`btn-${inquiry.inquiryNo}`}
-                  type="button"
-                  onClick={() => onNavigateInquiry(inquiry.inquiryNo)}
-                  className="rounded-lg border border-white/10 bg-white/[.04] px-3 py-1 text-xs font-medium text-[#5ee6d8] hover:border-[#5ee6d8]/40 hover:bg-[#5ee6d8]/10 transition-colors cursor-pointer"
-                >
-                  {t("portal.viewDetail", "Open →")}
-                </button>,
+                /* 1. 单号与状态 + 日期 */
+                <div key={`inq-${inquiry.inquiryNo}`} className="flex flex-col gap-1">
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => onNavigateInquiry(inquiry.inquiryNo)}
+                      className="font-bold text-[#5ee6d8] hover:underline text-left flex items-center gap-1 cursor-pointer font-mono"
+                    >
+                      <span>{inquiry.inquiryNo}</span>
+                      <span className="text-[10px] text-slate-400">↗</span>
+                    </button>
+                    {inquiry.hasUnreadFollowUps && (
+                      <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse" title="Unread updates" />
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2 text-[10px] text-slate-400">
+                    <span>{dateStr || "-"}</span>
+                    <AdminStatusBadge status={inquiry.status || "open"} />
+                  </div>
+                </div>,
+
+                /* 2. 车型与配置 */
+                <div key={`model-${inquiry.inquiryNo}`} className="flex flex-col gap-0.5">
+                  <button
+                    type="button"
+                    onClick={() => onNavigateInquiry(inquiry.inquiryNo)}
+                    className="text-left text-slate-100 hover:text-[#5ee6d8] hover:underline font-medium text-xs truncate max-w-[280px] block cursor-pointer"
+                  >
+                    {inquiry.vehicleModel || inquiry.vehicleId}
+                  </button>
+                  {inquiry.title && inquiry.title !== inquiry.vehicleModel && (
+                    <span className="text-[10px] text-slate-400 truncate max-w-[280px]">
+                      {inquiry.title}
+                    </span>
+                  )}
+                </div>,
+
+                /* 3. 客户 / 发起人 */
+                <div key={`cust-${inquiry.inquiryNo}`} className="text-xs text-slate-300">
+                  <span className="font-medium text-white">{inquiry.creatorName || inquiry.customerId || "-"}</span>
+                  {inquiry.creatorUserId && inquiry.creatorName && (
+                    <span className="block text-[10px] text-slate-500 font-mono">{inquiry.customerId}</span>
+                  )}
+                </div>,
+
+                /* 4. 数量与贸易条款 */
+                <div key={`qty-${inquiry.inquiryNo}`} className="flex items-center gap-2">
+                  <span className="font-bold text-xs text-white">
+                    {t("portal.unitCount", { count: inquiry.quantity })}
+                  </span>
+                  {inquiry.tradeTerm && (
+                    <span className="rounded border border-white/15 bg-white/[.05] px-1.5 py-0.5 text-[10px] font-black uppercase text-amber-200/90">
+                      {inquiry.tradeTerm}
+                    </span>
+                  )}
+                </div>,
+
+                /* 5. 目的港口 */
+                <span key={`port-${inquiry.inquiryNo}`} className="text-xs text-slate-300">
+                  {inquiry.destinationPort || "-"}
+                </span>,
+
+                /* 6. 目标价 */
+                <span key={`target-${inquiry.inquiryNo}`} className="text-xs font-mono font-medium text-slate-300">
+                  {inquiry.targetPrice ? formatUsdStrict(inquiry.targetPrice) : "-"}
+                </span>,
+
+                /* 7. 最新报价 */
+                <div key={`quote-${inquiry.inquiryNo}`}>
+                  {quote ? (
+                    <div className="flex flex-col gap-0.5">
+                      <span className="text-xs font-bold text-emerald-400 font-mono">
+                        {formatUsdStrict(quote.unitPrice)}
+                      </span>
+                      <span className="text-[10px] text-slate-400 font-mono">
+                        {quote.quoteNo}
+                      </span>
+                    </div>
+                  ) : (
+                    <span className="text-xs text-slate-500 italic">
+                      {t("portal.awaitingQuote", "Awaiting Quote")}
+                    </span>
+                  )}
+                </div>,
               ];
             })}
-            emptyText={t("portal.noInquiries")}
+            emptyText={searchQuery ? (locale === "zh" ? "没有找到符合搜索条件的询价单" : "No inquiries match your search.") : t("portal.noInquiries")}
           />
         </AdminPanel>
       </section>

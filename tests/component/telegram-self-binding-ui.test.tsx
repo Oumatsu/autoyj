@@ -12,22 +12,22 @@ describe("Telegram Self-Service 1-Click Binding UI", () => {
     expect(salesUrl).toBe("https://t.me/youguard_ev_bot?start=bind_USR-SALES-LX");
   });
 
-  test("app/portal/page.tsx includes Telegram binding banner on dashboard when unbound", async () => {
+  test("app/portal/page.tsx integrates Telegram binding status in header and sidebar without duplicate dashboard banner", async () => {
     const source = await readFile(new URL("../../app/portal/page.tsx", import.meta.url), "utf8");
-    expect(source).toContain("data.telegramBinding && !data.telegramBinding.bound");
-    expect(source).toContain("One-Click Bind Telegram ↗");
-    expect(source).toContain("Connect Telegram Bot for Instant Push Alerts");
+    expect(source).not.toContain("Connect Telegram Bot for Instant Push Alerts");
+    expect(source).toContain("Link Telegram for Inquiry Alerts ↗");
+    expect(source).toContain("data.telegramBinding.bound");
   });
 
   test("app/portal/page.tsx renders self-service Telegram status in sidebar user profile card", async () => {
     const source = await readFile(new URL("../../app/portal/page.tsx", import.meta.url), "utf8");
     expect(source).toMatch(/data\.telegramBinding\.bindingUrl/);
-    expect(source).toContain("Connect Telegram ↗");
+    expect(source).toContain("Link Telegram for Alerts ↗");
   });
 
   test("app/portal/page.tsx maintains header Telegram alert badge for quick access", async () => {
     const source = await readFile(new URL("../../app/portal/page.tsx", import.meta.url), "utf8");
-    expect(source).toContain("Connect Telegram Alerts");
+    expect(source).toContain("Link Telegram for Inquiry Alerts ↗");
     expect(source).toContain("Telegram Active");
   });
 });
