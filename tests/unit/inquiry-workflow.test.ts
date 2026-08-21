@@ -1,7 +1,14 @@
 import { describe, expect, test } from "bun:test";
-import { groupInquiriesByVehicle, hasUnreadInquiryActivity, replyReference } from "../../lib/inquiry-workflow";
+import { canViewInquiryNumber, groupInquiriesByVehicle, hasUnreadInquiryActivity, replyReference } from "../../lib/inquiry-workflow";
 
 describe("inquiry workflow", () => {
+  test("shows inquiry numbers to internal administrators and sales staff only", () => {
+    expect(canViewInquiryNumber("admin")).toBe(true);
+    expect(canViewInquiryNumber("sales")).toBe(true);
+    expect(canViewInquiryNumber("partner")).toBe(false);
+    expect(canViewInquiryNumber("customer")).toBe(false);
+  });
+
   test("groups multiple customer conversations under one vehicle", () => {
     expect(groupInquiriesByVehicle([
       { inquiryNo: "INQ-1", vehicleId: "V-1", vehicleModel: "BYD Seal", customerId: "CUS-1" },

@@ -29,7 +29,7 @@ import { InquiryVehiclePicker, type InquiryVehicleTarget } from "@/components/po
 import { InquiryTitleField } from "@/components/portal/InquiryTitleField";
 import { requiresInquiryTitle } from "@/lib/inquiry-vehicle-selection";
 import { appendInquiryComment, inquiryCommentAuthorClass } from "@/lib/inquiry-comment-state";
-import { buildInquiryCommentThreads, inquiryListDetails, replyReference } from "@/lib/inquiry-workflow";
+import { buildInquiryCommentThreads, canViewInquiryNumber, inquiryListDetails, replyReference } from "@/lib/inquiry-workflow";
 import { useDashboardNavigation } from "@/components/DashboardNavigationContext";
 import { FeaturedVehicleCarousel } from "@/components/portal/FeaturedVehicleCarousel";
 import { selectFeaturedVehicleResources } from "@/lib/featured-vehicle-resources";
@@ -2700,6 +2700,7 @@ function AdminQuotes({ data, onRefresh, initialInquiryNo }: { data: BootstrapDat
   const commentThreads = buildInquiryCommentThreads(notes);
   const parent = notes.find((item) => item.noteId === replyTo);
   const canModerateComments = data.user.role === "admin";
+  const canViewInquiryNo = canViewInquiryNumber(data.user.role);
   const canCreateQuote = data.user.role === "admin" || data.user.role === "sales";
   const unreadCount = inquiries.filter((inquiry) => inquiry.hasUnreadFollowUps).length;
 
@@ -2753,7 +2754,7 @@ function AdminQuotes({ data, onRefresh, initialInquiryNo }: { data: BootstrapDat
           const isSelected = selected?.inquiryNo === inquiry.inquiryNo;
           return <article key={inquiry.inquiryNo} className={`rounded-lg border p-3 ${isSelected ? "border-white bg-emerald-400/15" : "border-white/10 bg-white/[.03] hover:bg-white/[.06]"}`}>
             <button type="button" onClick={() => void select(inquiry)} className="w-full text-left">
-              <div className="flex items-center justify-between gap-2"><span className={`min-w-0 truncate text-xs font-black ${isSelected ? "text-lime-300" : "text-white"}`}>{inquiry.title || details.model}</span>{canModerateComments && <span className="shrink-0 font-mono text-[10px] font-medium text-slate-500">{inquiry.inquiryNo}</span>}{inquiry.hasUnreadFollowUps && <span className="h-2 w-2 shrink-0 rounded-full bg-amber-300" />}</div>
+              <div className="flex items-center justify-between gap-2"><span className={`min-w-0 truncate text-xs font-black ${isSelected ? "text-lime-300" : "text-white"}`}>{inquiry.title || details.model}</span>{canViewInquiryNo && <span className="shrink-0 font-mono text-[10px] font-medium text-slate-500">{inquiry.inquiryNo}</span>}{inquiry.hasUnreadFollowUps && <span className="h-2 w-2 shrink-0 rounded-full bg-amber-300" />}</div>
               <time className={`mt-2 block text-[10px] ${isSelected ? "text-lime-200/70" : "text-slate-500"}`}>{inquiryCloseCopy.startedAt}: {formatDate(inquiry.createdAt)}</time>
               <div className={`mt-2 grid gap-1 text-xs ${isSelected ? "text-lime-300" : "text-slate-300"}`}>
                 <p className="break-words"><span className={`mr-1 ${isSelected ? "text-lime-200" : "text-slate-500"}`}>{copy.units}</span>{details.quantity}</p>
@@ -2769,7 +2770,7 @@ function AdminQuotes({ data, onRefresh, initialInquiryNo }: { data: BootstrapDat
       </aside>
       {selected && <section className="min-w-0">
         <div className="rounded-lg border border-white/10 bg-[#0b1425] p-4">
-          <div className="flex items-center gap-2"><p className="text-[10px] font-black uppercase text-theme">{commentCopy.inquiryRequest}</p>{canModerateComments && <span className="font-mono text-[10px] font-medium text-slate-500">{selected.inquiryNo}</span>}</div>
+          <div className="flex items-center gap-2"><p className="text-[10px] font-black uppercase text-theme">{commentCopy.inquiryRequest}</p>{canViewInquiryNo && <span className="font-mono text-[10px] font-medium text-slate-500">{selected.inquiryNo}</span>}</div>
           <h3 className="mt-1 font-black text-white">{selected.title || selected.vehicleModel}</h3>
           <InquirySnapshotDetails inquiry={selected} />
           <p className="mt-3 whitespace-pre-wrap text-sm text-slate-300">{selected.notes}</p>

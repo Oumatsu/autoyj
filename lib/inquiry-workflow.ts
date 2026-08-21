@@ -116,6 +116,10 @@ export function hasUnreadInquiryActivity({ viewerUserId, noteAuthorUserId, noteC
   return noteAuthorUserId !== viewerUserId && (!lastReadAt || noteCreatedAt > lastReadAt);
 }
 
+export function canViewInquiryNumber(role: string): boolean {
+  return role === "admin" || role === "sales";
+}
+
 export type InquiryStatus = "open" | "closed";
 
 const LEGAL_INQUIRY_TRANSITIONS: Record<string, string[]> = {
