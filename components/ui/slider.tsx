@@ -37,7 +37,7 @@ export const Slider = React.forwardRef<HTMLInputElement, SliderProps>(
           value={value}
           disabled={disabled}
           onChange={(e) => onValueChange?.(Number(e.target.value))}
-          className="w-full h-2 rounded-lg appearance-none cursor-pointer bg-white/10 accent-[#22b8aa] focus:outline-none"
+          className="w-full h-2 rounded-lg appearance-none cursor-pointer bg-secondary accent-primary focus:outline-none"
           {...props}
         />
       </div>

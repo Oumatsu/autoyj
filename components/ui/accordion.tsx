@@ -19,16 +19,16 @@ export function AccordionItem({
   const [open, setOpen] = React.useState(defaultOpen);
 
   return (
-    <div className={cn("border-b border-white/10 py-3", className)}>
+    <div className={cn("border-b border-border py-3", className)}>
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
-        className="flex w-full items-center justify-between text-left text-xs font-bold text-slate-200 hover:text-white transition cursor-pointer"
+        className="flex w-full items-center justify-between text-left text-xs font-bold text-foreground hover:text-primary transition cursor-pointer"
         aria-expanded={open}
       >
         <span>{title}</span>
         <svg
-          className={cn("h-4 w-4 shrink-0 transition-transform duration-200 text-slate-400", open && "rotate-180")}
+          className={cn("size-4 shrink-0 transition-transform duration-200 text-muted-foreground", open && "rotate-180")}
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -38,7 +38,7 @@ export function AccordionItem({
         </svg>
       </button>
       {open && (
-        <div className="mt-2 text-xs text-slate-400 animate-in fade-in-0 slide-in-from-top-1 duration-150">
+        <div className="mt-2 text-xs text-muted-foreground animate-in fade-in-0 slide-in-from-top-1 duration-150">
           {children}
         </div>
       )}
@@ -53,5 +53,5 @@ export function Accordion({
   className?: string;
   children: React.ReactNode;
 }) {
-  return <div className={cn("w-full divide-y divide-white/10", className)}>{children}</div>;
+  return <div className={cn("w-full divide-y divide-border", className)}>{children}</div>;
 }

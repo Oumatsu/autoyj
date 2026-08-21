@@ -30,19 +30,19 @@ export function Dialog({ open, onOpenChange, children, className }: DialogProps)
         )}
       >
         {children}
-        {isManagementDialog && <button type="button" onClick={() => onOpenChange(false)} className="absolute right-4 top-4 grid h-9 w-9 place-items-center rounded border border-white/15 text-lg font-black text-slate-200 hover:bg-white/10" aria-label="Close dialog">×</button>}
+        {isManagementDialog && <button type="button" onClick={() => onOpenChange(false)} className="absolute right-4 top-4 grid size-9 place-items-center rounded border border-border text-lg font-black text-foreground hover:bg-white/10 cursor-pointer" aria-label="Close dialog">×</button>}
       </div>
     </div>
   );
 }
 
 export function DialogHeader({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("flex flex-col space-y-1.5 text-left mb-4", className)} {...props} />;
+  return <div className={cn("flex flex-col gap-1.5 text-left mb-4", className)} {...props} />;
 }
 
 export function DialogTitle({ className, children, ...props }: React.HTMLAttributes<HTMLHeadingElement>) {
   return (
-    <h3 className={cn("text-base font-black text-white", className)} {...props}>
+    <h3 className={cn("text-base font-black text-foreground", className)} {...props}>
       {children}
     </h3>
   );
@@ -50,12 +50,12 @@ export function DialogTitle({ className, children, ...props }: React.HTMLAttribu
 
 export function DialogDescription({ className, children, ...props }: React.HTMLAttributes<HTMLParagraphElement>) {
   return (
-    <p className={cn("text-xs text-slate-400", className)} {...props}>
+    <p className={cn("text-xs text-muted-foreground", className)} {...props}>
       {children}
     </p>
   );
 }
 
 export function DialogFooter({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 mt-6", className)} {...props} />;
+  return <div className={cn("flex flex-col-reverse sm:flex-row sm:justify-end sm:gap-2 mt-6", className)} {...props} />;
 }

@@ -9,7 +9,7 @@ export function Breadcrumbs({
   return (
     <nav
       aria-label="Breadcrumb"
-      className={cn("flex items-center text-xs text-slate-400 font-medium", className)}
+      className={cn("flex items-center text-xs text-muted-foreground font-medium", className)}
       {...props}
     >
       <ol className="flex items-center gap-1.5 flex-wrap">{children}</ol>
@@ -38,7 +38,7 @@ export function BreadcrumbLink({
   return (
     <a
       href={href}
-      className={cn("transition hover:text-white hover:underline", className)}
+      className={cn("transition hover:text-foreground hover:underline", className)}
       {...props}
     >
       {children}
@@ -55,7 +55,7 @@ export function BreadcrumbSeparator({
     <span
       role="presentation"
       aria-hidden="true"
-      className={cn("text-slate-600 select-none", className)}
+      className={cn("text-muted-foreground/60 select-none", className)}
       {...props}
     >
       {children}
@@ -71,7 +71,7 @@ export function BreadcrumbPage({
   return (
     <span
       aria-current="page"
-      className={cn("font-bold text-[#5ee6d8]", className)}
+      className={cn("font-bold text-primary", className)}
       {...props}
     >
       {children}
