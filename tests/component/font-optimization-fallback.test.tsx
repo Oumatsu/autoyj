@@ -15,5 +15,6 @@ describe("Component: Font Optimization & Fallback Chain Rules", () => {
     const layout = readFileSync("app/layout.tsx", "utf8");
     expect(layout).toContain("display: \"swap\"");
     expect(layout).toContain("font-sans");
+    expect(layout).not.toContain("weight: [");
   });
 });

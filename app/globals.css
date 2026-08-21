@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 :root {
-  --font-global: var(--font-inter), var(--font-sans), "PingFang SC", "Hiragino Sans GB", var(--font-sc), "Microsoft YaHei", var(--font-ethiopic), "Noto Sans Ethiopic", "Kefa", "Ebrima", system-ui, -apple-system, sans-serif;
+  --font-global: var(--font-inter), var(--font-sc), var(--font-ethiopic), var(--font-sans), "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans Ethiopic", "Kefa", "Ebrima", system-ui, -apple-system, sans-serif;
 }
 
 .font-inter {

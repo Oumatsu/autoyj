@@ -7,37 +7,25 @@ import { defaultLocale } from "@/i18n/config";
 
 const inter = Inter({
   subsets: ["latin"],
-  weight: ["400", "500", "700", "800"],
-  style: ["normal"],
   display: "swap",
-  preload: false,
   variable: "--font-inter",
 });
 
 const notoSans = Noto_Sans({
   subsets: ["latin"],
-  weight: ["400", "500", "700", "800"],
-  style: ["normal"],
   display: "swap",
-  preload: false,
   variable: "--font-sans",
 });
 
 const notoSansSc = Noto_Sans_SC({
   subsets: ["latin"],
-  weight: ["400", "700"],
-  style: ["normal"],
   display: "swap",
-  preload: false,
   variable: "--font-sc",
 });
 
 const notoSansEthiopic = Noto_Sans_Ethiopic({
   subsets: ["ethiopic"],
-  weight: ["400", "700"],
-  style: ["normal"],
   display: "swap",
-  preload: false,
   variable: "--font-ethiopic",
 });
 
