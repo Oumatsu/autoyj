@@ -19,6 +19,7 @@
         "react-dom": "^19.2.8",
         "tailwind-merge": "^3.6.0",
         "vinext": "^1.0.0-beta.8",
+        "zod": "^4.4.3",
       },
       "devDependencies": {
         "@astryxdesign/cli": "^0.4.5",
