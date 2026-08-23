@@ -83,6 +83,16 @@ export default {
             headers.set("cache-control", "no-cache, no-store, must-revalidate, max-age=0");
             headers.set("pragma", "no-cache");
             headers.set("expires", "0");
+          } else if (
+            url.pathname.startsWith("/pic/") ||
+            url.pathname.startsWith("/insights/images/") ||
+            url.pathname.startsWith("/assets/") ||
+            url.pathname.startsWith("/icons/") ||
+            url.pathname.startsWith("/favicon") ||
+            url.pathname.startsWith("/logo") ||
+            STATIC_EXTENSIONS.test(url.pathname)
+          ) {
+            headers.set("cache-control", "public, max-age=2592000, stale-while-revalidate=86400");
           } else {
             headers.set("cache-control", "public, max-age=86400, stale-while-revalidate=604800");
           }

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Noto_Sans, Noto_Sans_SC, Noto_Sans_Ethiopic } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import { SiteChrome } from "@/components/SiteChrome";
 import { defaultLocale } from "@/i18n/config";
@@ -9,24 +9,6 @@ const inter = Inter({
   subsets: ["latin"],
   display: "swap",
   variable: "--font-inter",
-});
-
-const notoSans = Noto_Sans({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-sans",
-});
-
-const notoSansSc = Noto_Sans_SC({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-sc",
-});
-
-const notoSansEthiopic = Noto_Sans_Ethiopic({
-  subsets: ["ethiopic"],
-  display: "swap",
-  variable: "--font-ethiopic",
 });
 
 export const metadata: Metadata = {
@@ -61,7 +43,7 @@ export default function RootLayout({
     <html
       lang={defaultLocale}
       dir="ltr"
-      className={`${inter.variable} ${notoSans.variable} ${notoSansSc.variable} ${notoSansEthiopic.variable} font-sans`}
+      className={`${inter.variable} font-sans`}
       suppressHydrationWarning
     >
       <head>

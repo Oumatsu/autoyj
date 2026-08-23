@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { getPortalSession, invalidatePortalSession } from "@/lib/portal-session-client";
 import { useDashboardNavigation } from "./DashboardNavigationContext";
 import { SocialMediaLinks } from "./SocialMediaLinks";
+import { Download } from "lucide-react";
 
 export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -289,7 +290,7 @@ export function Navbar() {
       </nav>
 
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen} side="right" contentId="main-navigation-drawer" ariaLabel="Main navigation">
-        <div className="flex items-center justify-between border-b border-white/10 pb-4">
+        <div className="flex items-center justify-between border-b border-white/10 pb-4 shrink-0">
           <SheetHeader>
             <SheetTitle>Youguard</SheetTitle>
           </SheetHeader>
@@ -397,10 +398,29 @@ export function Navbar() {
               {t("nav.signIn")}
             </LocaleLink>
           )}
+          <button
+            type="button"
+            onClick={() => {
+              closeMobile();
+              if (typeof window !== "undefined") {
+                window.dispatchEvent(new Event("youguard-open-pwa-guide"));
+              }
+            }}
+            className="flex items-center gap-2 rounded-xl bg-white/[0.04] p-3 text-xs font-bold uppercase tracking-wider text-slate-300 hover:text-[#5ee6d8] hover:bg-white/[0.08] transition border border-white/5 cursor-pointer text-left"
+          >
+            <Download className="h-4 w-4 text-[#c5a059] shrink-0" />
+            <span>
+              {locale === "zh"
+                ? "安装手机桌面客户端 (PWA)"
+                : locale === "am"
+                ? "የሞባይል መተግበሪያ ጫን"
+                : "Install Mobile App (PWA)"}
+            </span>
+          </button>
           {signOutError ? <span role="alert" className="text-xs font-bold text-red-300">{signOutError}</span> : null}
         </div>
 
-        <div className="mt-auto border-t border-white/10 pt-4 flex flex-col gap-3">
+        <div className="mt-auto border-t border-white/10 pt-4 flex flex-col gap-3 shrink-0 pb-2">
           <LocaleSwitcher variant="full" onSelect={closeMobile} />
           <LocaleLink href="/#contact" onClick={closeMobile}>
             <Button className="w-full inline-flex items-center justify-center gap-2 min-h-[44px]" variant="default">
