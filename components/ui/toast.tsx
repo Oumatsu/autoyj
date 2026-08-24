@@ -19,14 +19,14 @@ export function Toast({
     <div
       className={cn(
         "pointer-events-auto flex w-full max-w-md items-center justify-between gap-4 rounded-2xl border p-4 text-xs shadow-2xl backdrop-blur-md animate-in slide-in-from-bottom-5 duration-200",
-        variant === "default" && "border-white/15 bg-[#0c1322]/95 text-white",
-        variant === "destructive" && "border-red-500/30 bg-red-950/90 text-red-200",
-        variant === "success" && "border-[#22b8aa]/40 bg-[#0c1322]/95 text-[#5ee6d8]"
+        variant === "default" && "border-border bg-popover/95 text-popover-foreground",
+        variant === "destructive" && "border-destructive/30 bg-destructive/90 text-destructive-foreground",
+        variant === "success" && "border-primary/40 bg-popover/95 text-primary"
       )}
     >
       <div className="flex flex-col gap-1">
-        {title && <div className="font-bold">{title}</div>}
-        {description && <div className="text-slate-300 text-[11px]">{description}</div>}
+        {title && <div className="font-bold text-foreground">{title}</div>}
+        {description && <div className="text-muted-foreground text-[11px]">{description}</div>}
       </div>
       {onClose && (
         <button

@@ -1,28 +1,39 @@
-# Youguard Auto Domain Model
+# Domain Model Context: AutoYJ
 
-## Core Concepts
+Canonical glossary and domain entities for Youguard Auto Export Supply Chain portal.
 
-### User & Identity
-- **Customer**: African automotive dealers and business buyers sourcing EVs from China.
-- **Sales Rep**: Internal Youguard trade specialists managing quotations, specs, and logistics.
-- **Administrator**: Privileged internal operations users managing user accounts, permissions, and moderation.
-- **Telegram Binding**: The 1:1 cryptographic link between a `portal_users` account and a Telegram `chat_id` via `/start bind_<userId>` for instant push notifications.
-- **Push Subscription**: Standard W3C VAPID browser push registration for standalone PWA system notifications.
+---
 
-### Commercial Lifecycle
-- **Inquiry Topic**: The shared discussion subject for a vehicle sourcing need. It contains comments and can group multiple Inquiry Requests, but does not store a request's vehicle, quantity, price, or cancellation state.
-- **Inquiry Request**: One structured vehicle purchase request submitted under an Inquiry Topic. It identifies the requested brand, model, trim, color, quantity, destination, role-specific FOB estimated price, and editable contact-information snapshot. It is visible only to its submitter, Administrators, and Sales Reps; only its submitter can permanently delete it. Deleting an Inquiry Request does not delete its Inquiry Topic or comments.
-- **Public Contact Submission**: A general website contact lead. It is not a vehicle-sourcing Inquiry and must not be represented as a quotation, vehicle request, or repair-service project.
-- **Quotation**: Official pricing breakdown issued by Sales Reps or Administrators, specifying trade terms (EXW, FOB, CIF), unit price, discounts, and expiration. A Quotation can combine multiple vehicle line items.
-  - *Counter-offer*: Customer proposed price modification submitted for sales review.
-- **Order**: A committed transaction created upon quotation acceptance.
-  - *Statuses*: `Draft` → `Confirmed` → `Deposit Paid` → `In Production` → `Shipped` → `Customs Cleared` → `Delivered` (or `Cancelled`).
-- **PDI (Pre-Delivery Inspection)**: Verified inspection checklist, photos, and battery health report generated before port loading.
+## 1. Automotive Catalog Domain (车型目录域)
 
-### Technical & Platform Architecture
-- **PWA (Progressive Web Application)**: A browser-installed standalone client designed for instantaneous quotation alerts, PDI report deliveries, and status tracking (prioritizing real-time network data over stale offline caches).
-- **Vinext**: Next.js App Router compatible serverless runtime running on Cloudflare Workers and Vite.
-- **Telegram Notification Engine**:
-  - *Inquiry Participant Broadcast*: Whenever a reply, quote update, or counteroffer occurs on an Inquiry, all bound Telegram users who belong to that single inquiry (creator, participants, previous commenters, and assigned quoters) receive an instant notification with direct Portal link (excluding the author).
-  - *Internal Note Safeguard*: Internal notes (`is_public: false`) strictly notify only internal staff (`admin`/`sales`) associated with the inquiry, preventing sensitive cost/supplier leakages to customers or partners.
-  - *New Inquiry Staff Radar*: When a new inquiry is started by a customer or partner, all internal staff with bound Telegram accounts immediately receive a push alert with full specifications and a direct link to quote.
+- **VehicleModel (车系/车型总括)**: 顶层车系定义（如 *BYD Yangwang U8*, *Zeekr 001*），包含品牌（brand）、车型定位（segment）、动力类型（powertrain_type）、综合指导价格区间及主打技术亮点。
+- **VehicleTrim (配置级/版本)**: 归属于具体 VehicleModel 的特定配置版本（如 *2026 旗舰版*, *长续航超享版*），包含具体电池容量（kWh）、电机功率（kW）、CLTC 续航（km）与官方人民币指导价。
+- **Vehicle (可交付现车资源/库存单车)**: 真实物理在售或在库车源，拥有唯一定位地（location）、车漆/内饰颜色、现车库存数量（inventory_count）、交货等待周期（wait_days）以及外贸计价条款（EXW/FCA/FOB 美元价格）。
+
+---
+
+## 2. Inquiries & Discussions Domain (询价与多方沟通域)
+
+- **Inquiry Topic (询价主题)**: 海外采购商或合作伙伴围绕采购需求发起的共享讨论主题，系统生成唯一询价编号 `inquiryNo`（如 `INQ-20260823-XXXX`）。主题包含评论与参与者，可关联多张 Inquiry Request，但不保存某张申请的车辆、数量、价格或取消状态。
+- **Inquiry Request (询价申请单)**: 在 Inquiry Topic 下提交的一张结构化采购申请，记录指定品牌、车型、配置、颜色、数量、目的地、角色对应 FOB 估价和可编辑的联系信息快照。仅提交者、管理员和销售可见；仅提交者可永久删除，删除不会影响主题或评论。
+- **InquiryStatus (询价生命周期状态)**:
+  - `open`: 进行中的有效询价单，支持追加沟通与出具报价。
+  - `closed`: 已归档/已结案的询价单。仅管理员与销售具备操作权限。
+- **InquiryParticipant (询价利益相关方)**: 参与此单据协作的角色实体，涵盖发起客户（Customer）、专属销售顾问（Sales）、外贸渠道合伙人（Partner）与平台管理员（Admin）。
+- **InquiryNote (跟进记录/留言讨论)**: 询价单下的双向流转记录，支持结构化回复引用（`parentNoteId`）与内部备忘标记（`isPublic: false` 对客户不可见）。
+- **InquiryRead (已读状态记录)**: 记录各用户对特定询价单最新留言的查阅时间戳（`lastReadAt`），用于未读高亮提示。
+- **Public Contact Submission (公开联系线索)**: 网站通用联系表单产生的线索；它不是询价主题、询价申请单或报价单。
+
+---
+
+## 3. Quotation & Order Lifecycle Domain (报价与订单履约域)
+
+- **Quotation (正式外贸报价单)**: 销售代表针对 Inquiry 出具的具有商业法律效力的报价明细（`quoteNo`），锁定单车外贸单价、贸易术语、装船港口、交期及报价有效期（validityDays）。
+- **Order (履约订单)**: 客户接受报价（Accept Quote）后生成的实际交付订单，状态流转遵循 `Draft -> Confirmed -> Deposit Paid -> In Production -> Shipped -> Customs Cleared -> Delivered`。
+
+---
+
+## 4. Identity & Notification Domain (认证与通知域)
+
+- **User (用户主体)**: Better Auth 驱动的用户账号，划分为 4 种核心角色：`admin` | `sales` | `partner` | `customer`。
+- **TelegramUserBinding (Telegram 双向绑定)**: 记录系统内部 `userId` 与 Telegram `chat_id` / 用户名的映射关系，提供实时的多渠道询价雷达通知与一键回访链接。

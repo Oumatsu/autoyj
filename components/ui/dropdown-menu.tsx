@@ -47,7 +47,7 @@ export function DropdownMenuContent({
   return (
     <div
       className={cn(
-        "absolute z-50 mt-2 min-w-[8rem] overflow-hidden rounded-xl border border-white/10 bg-[#0c1322]/95 p-1 text-slate-100 shadow-2xl backdrop-blur animate-in fade-in-0 zoom-in-95",
+        "absolute z-50 mt-2 min-w-[8rem] overflow-hidden rounded-xl border border-border bg-popover/95 p-1 text-popover-foreground shadow-2xl backdrop-blur animate-in fade-in-0 zoom-in-95",
         align === "end" && "right-0 origin-top-right",
         align === "start" && "left-0 origin-top-left",
         align === "center" && "left-1/2 -translate-x-1/2 origin-top",
@@ -77,8 +77,8 @@ export function DropdownMenuItem({
       className={cn(
         "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs font-bold transition-colors cursor-pointer select-none outline-none",
         active
-          ? "bg-[#22b8aa]/15 text-[#5ee6d8]"
-          : "text-slate-300 hover:bg-white/10 hover:text-white",
+          ? "bg-primary/15 text-primary"
+          : "text-foreground hover:bg-accent hover:text-accent-foreground",
         className
       )}
     >

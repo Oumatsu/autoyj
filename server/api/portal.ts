@@ -4780,6 +4780,35 @@ export async function handlePortalRequest(request: Request, env: Env) {
   const path = url.pathname;
 
   try {
+    if ((path === "/api/portal/health" || path === "/api/health") && request.method === "GET") {
+      let dbStatus: "connected" | "degraded" | "unavailable" = "unavailable";
+      try {
+        if (env.PORTAL_DB) {
+          const res = await env.PORTAL_DB.prepare("SELECT 1 as alive;").first<{ alive: number }>();
+          if (res?.alive === 1) {
+            dbStatus = "connected";
+          }
+        }
+      } catch (_err) {
+        dbStatus = "degraded";
+      }
+
+      return json(
+        {
+          status: dbStatus === "connected" ? "ok" : "degraded",
+          database: dbStatus,
+          timestamp: new Date().toISOString(),
+          service: "autoyj-portal",
+        },
+        {
+          status: dbStatus === "connected" ? 200 : 503,
+          headers: {
+            "Cache-Control": "no-store, no-cache, must-revalidate",
+          },
+        }
+      );
+    }
+
     if (path.startsWith("/api/portal/public/")) {
       if (path === "/api/portal/public/contact" && request.method === "POST") {
         return await handlePublicContact(request, env);

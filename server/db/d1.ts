@@ -1,8 +1,9 @@
 /**
  * D1 database read/write helpers for portal data.
- * Cron Job: Feishu → write to D1
- * API Handler: read from D1 only (zero Feishu calls)
+ * Powered by Drizzle ORM (Type-safe D1 layer)
  */
+
+export * from "./client";
 
 export interface D1Env {
   PORTAL_DB: D1Database;

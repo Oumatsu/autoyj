@@ -11,12 +11,12 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(
       ref={ref}
       role="alert"
       className={cn(
-        "relative w-full rounded-xl border p-4 text-xs font-medium [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-white [&>svg~*]:pl-7",
+        "relative w-full rounded-xl border p-4 text-xs font-medium [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-foreground [&>svg~*]:pl-7",
         {
-          "border-white/10 bg-white/5 text-slate-200": variant === "default",
-          "border-red-500/30 bg-red-500/10 text-red-300": variant === "destructive",
+          "border-border bg-card text-card-foreground": variant === "default",
+          "border-destructive/30 bg-destructive/10 text-destructive": variant === "destructive",
           "border-amber-500/30 bg-amber-500/10 text-amber-300": variant === "warning",
-          "border-[#22b8aa]/30 bg-[#22b8aa]/10 text-[#5ee6d8]": variant === "success",
+          "border-primary/30 bg-primary/10 text-primary": variant === "success",
         },
         className
       )}
@@ -32,7 +32,7 @@ const AlertTitle = React.forwardRef<
 >(({ className, children, ...props }, ref) => (
   <h5
     ref={ref}
-    className={cn("mb-1 font-bold leading-none tracking-tight text-white", className)}
+    className={cn("mb-1 font-bold leading-none tracking-tight text-card-foreground", className)}
     {...props}
   >
     {children}

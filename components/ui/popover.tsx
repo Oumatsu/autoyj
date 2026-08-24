@@ -47,7 +47,7 @@ export function PopoverContent({
   return (
     <div
       className={cn(
-        "absolute z-50 mt-2 w-72 rounded-2xl border border-white/10 bg-[#0c1322] p-4 text-white shadow-2xl backdrop-blur-md animate-in fade-in-0 zoom-in-95 duration-150",
+        "absolute z-50 mt-2 w-72 rounded-2xl border border-border bg-popover p-4 text-popover-foreground shadow-2xl backdrop-blur-md animate-in fade-in-0 zoom-in-95 duration-150",
         align === "center" && "left-1/2 -translate-x-1/2",
         align === "start" && "left-0",
         align === "end" && "right-0",

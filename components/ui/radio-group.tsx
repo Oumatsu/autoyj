@@ -48,8 +48,8 @@ export const RadioGroupItem = React.forwardRef<
     <label
       htmlFor={id}
       className={cn(
-        "flex cursor-pointer items-center gap-3 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-xs font-bold text-slate-300 transition hover:border-[#22b8aa]/40 hover:bg-white/[0.07]",
-        checked && "border-[#22b8aa] bg-[#22b8aa]/10 text-white",
+        "flex cursor-pointer items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 text-xs font-bold text-muted-foreground transition hover:border-primary/40 hover:bg-accent/30",
+        checked && "border-primary bg-primary/10 text-foreground",
         className
       )}
     >
@@ -66,11 +66,11 @@ export const RadioGroupItem = React.forwardRef<
       />
       <div
         className={cn(
-          "flex h-4 w-4 shrink-0 items-center justify-center rounded-full border border-white/30 transition-colors",
-          checked && "border-[#22b8aa] bg-[#22b8aa]"
+          "flex size-4 shrink-0 items-center justify-center rounded-full border border-border transition-colors",
+          checked && "border-primary bg-primary"
         )}
       >
-        {checked && <div className="h-1.5 w-1.5 rounded-full bg-[#0c1322]" />}
+        {checked && <div className="size-1.5 rounded-full bg-primary-foreground" />}
       </div>
       {children}
     </label>

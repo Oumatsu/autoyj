@@ -55,7 +55,7 @@ export function HoverCardContent({
   return (
     <div
       className={cn(
-        "absolute z-50 bottom-full mb-2 w-64 rounded-2xl border border-white/15 bg-[#0c1322]/95 p-4 text-xs text-white shadow-2xl backdrop-blur-md animate-in fade-in-0 zoom-in-95 duration-150",
+        "absolute z-50 bottom-full mb-2 w-64 rounded-2xl border border-border bg-popover/95 p-4 text-xs text-popover-foreground shadow-2xl backdrop-blur-md animate-in fade-in-0 zoom-in-95 duration-150",
         align === "center" && "left-1/2 -translate-x-1/2",
         align === "start" && "left-0",
         align === "end" && "right-0",

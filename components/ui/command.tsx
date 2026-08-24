@@ -9,7 +9,7 @@ export function Command({
   return (
     <div
       className={cn(
-        "flex h-full w-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#0c1322] text-white shadow-2xl",
+        "flex h-full w-full flex-col overflow-hidden rounded-2xl border border-border bg-popover text-popover-foreground shadow-2xl",
         className
       )}
       {...props}
@@ -27,9 +27,9 @@ export function CommandInput({
   onValueChange?: (value: string) => void;
 }) {
   return (
-    <div className="flex items-center border-b border-white/10 px-3">
+    <div className="flex items-center border-b border-border px-3">
       <svg
-        className="mr-2 h-4 w-4 shrink-0 text-slate-400"
+        className="mr-2 size-4 shrink-0 text-muted-foreground"
         fill="none"
         viewBox="0 0 24 24"
         stroke="currentColor"
@@ -43,7 +43,7 @@ export function CommandInput({
       </svg>
       <input
         className={cn(
-          "flex h-11 w-full rounded-md bg-transparent py-3 text-xs outline-none placeholder:text-slate-500 disabled:cursor-not-allowed disabled:opacity-50",
+          "flex h-11 w-full rounded-md bg-transparent py-3 text-xs outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50",
           className
         )}
         onChange={(e) => onValueChange?.(e.target.value)}
@@ -73,7 +73,7 @@ export function CommandEmpty({
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className="py-6 text-center text-xs text-slate-500 font-medium" {...props}>
+    <div className="py-6 text-center text-xs text-muted-foreground font-medium" {...props}>
       {children}
     </div>
   );
@@ -90,7 +90,7 @@ export function CommandItem({
       type="button"
       onClick={onSelect}
       className={cn(
-        "relative flex w-full text-left cursor-pointer select-none items-center rounded-xl px-3 py-2 text-xs font-bold text-slate-300 outline-none hover:bg-white/5 hover:text-white transition",
+        "relative flex w-full text-left cursor-pointer select-none items-center rounded-xl px-3 py-2 text-xs font-bold text-foreground outline-none hover:bg-accent hover:text-accent-foreground transition",
         className
       )}
       {...props}

@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 :root {
-  --font-global: var(--font-inter), var(--font-sans), "PingFang SC", "Hiragino Sans GB", var(--font-sc), "Microsoft YaHei", var(--font-ethiopic), "Noto Sans Ethiopic", "Kefa", "Ebrima", system-ui, -apple-system, sans-serif;
+  --font-global: var(--font-inter), var(--font-sc), var(--font-ethiopic), var(--font-sans), "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans Ethiopic", "Kefa", "Ebrima", system-ui, -apple-system, sans-serif;
 }
 
 .font-inter {
@@ -24,6 +24,11 @@
   --breakpoint-md: 768px;   /* 平板/中屏 (Tablet) */
   --breakpoint-lg: 1024px;  /* 桌面端 (Desktop >= 1024px) */
 
+  /* ── Typography Tokens ── */
+  --font-sans: var(--font-global);
+  --font-inter: var(--font-inter), var(--font-global);
+  --font-ethiopic: var(--font-ethiopic), var(--font-global);
+
   --color-gold: #C5A059;
   --color-gold-lt: #D4AF37;
   --color-green: #10B981;
@@ -32,7 +37,7 @@
   --color-bg3: #2a2a2a;
   --color-mid: #1c1c1c;
 
-  /* ── shadcn/ui & Base UI Design Tokens ── */
+  /* ── shadcn/ui & Astryx Core Semantic Design Tokens ── */
   --color-background: #0c1322;
   --color-foreground: #ffffff;
   --color-card: #0c1322;
@@ -52,6 +57,22 @@
   --color-border: rgba(255, 255, 255, 0.1);
   --color-input: rgba(255, 255, 255, 0.1);
   --color-ring: #22b8aa;
+
+  /* ── Sidebar & Navigation Tokens ── */
+  --color-sidebar: #0c1322;
+  --color-sidebar-foreground: #ffffff;
+  --color-sidebar-primary: #22b8aa;
+  --color-sidebar-primary-foreground: #0c1322;
+  --color-sidebar-accent: #1e293b;
+  --color-sidebar-accent-foreground: #ffffff;
+  --color-sidebar-border: rgba(255, 255, 255, 0.1);
+  --color-sidebar-ring: #22b8aa;
+
+  /* ── Radius System Tokens ── */
+  --radius: 0.5rem;
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
 }
 
 /* ── Article Body Typography (Mobile-First) ── */

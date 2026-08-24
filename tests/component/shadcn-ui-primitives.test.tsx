@@ -50,7 +50,7 @@ describe("Component: shadcn/ui Primitives Comprehensive Suite", () => {
       React.createElement(Badge, { variant: "accent" }, "VIP Tier")
     );
     expect(html).toContain("VIP Tier");
-    expect(html).toContain("bg-[#22b8aa]/20");
+    expect(html).toContain("bg-primary/20");
   });
 
   test("Card family renders nested structural slots with card border styles", () => {
@@ -214,7 +214,7 @@ describe("Component: shadcn/ui Primitives Comprehensive Suite", () => {
     expect(toastHtml).toContain("Saved");
     expect(toastHtml).toContain("Vehicle saved to Feishu");
     expect(alertHtml).toContain("Permission denied");
-    expect(alertHtml).toContain("border-red-500/30");
+    expect(alertHtml).toContain("border-destructive/30");
   });
 
   test("Sheet renders slide-in panel with title and close action", () => {

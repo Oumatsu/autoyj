@@ -42,7 +42,7 @@ export function Sheet({
         aria-modal="true"
         aria-label={ariaLabel}
         className={cn(
-          "relative z-10 flex flex-col border-white/10 bg-[#0c1322] p-6 text-white shadow-2xl transition-transform duration-300 ease-in-out",
+          "relative z-10 flex flex-col border-border bg-background p-6 text-foreground shadow-2xl transition-transform duration-300 ease-in-out",
           side === "right" && "ml-auto h-full w-full max-w-md border-l animate-in slide-in-from-right",
           side === "left" && "mr-auto h-full w-full max-w-md border-r animate-in slide-in-from-left",
           side === "top" && "mb-auto w-full border-b animate-in slide-in-from-top",
@@ -59,7 +59,7 @@ export function SheetHeader({
   className,
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("flex flex-col space-y-1.5 text-left mb-4", className)} {...props} />;
+  return <div className={cn("flex flex-col gap-1.5 text-left mb-4", className)} {...props} />;
 }
 
 export function SheetTitle({
@@ -68,7 +68,7 @@ export function SheetTitle({
   ...props
 }: React.HTMLAttributes<HTMLHeadingElement>) {
   return (
-    <h3 className={cn("text-base font-black text-white", className)} {...props}>
+    <h3 className={cn("text-base font-black text-foreground", className)} {...props}>
       {children}
     </h3>
   );
@@ -80,7 +80,7 @@ export function SheetDescription({
   ...props
 }: React.HTMLAttributes<HTMLParagraphElement>) {
   return (
-    <p className={cn("text-xs text-slate-400", className)} {...props}>
+    <p className={cn("text-xs text-muted-foreground", className)} {...props}>
       {children}
     </p>
   );
