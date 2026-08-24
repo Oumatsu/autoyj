@@ -18,6 +18,7 @@ function fakeD1() {
                 variant: "Performance",
                 stage: "connected",
                 display_price_low: 23000,
+                partner_fob_usd: 23800,
                 customer_fob_usd: 24600,
                 exw_usd: 22000,
                 fca_usd: 22500,
@@ -85,7 +86,7 @@ async function catalogForRole(role: "admin" | "partner" | "customer") {
 }
 
 describe("Integration: Portal price terms by account role", () => {
-  test("D1 prices preserve role visibility: external accounts only see customer FOB", async () => {
+  test("D1 prices preserve each external account's own FOB", async () => {
     const [adminCatalog, partnerCatalog, customerCatalog] = await Promise.all([
       catalogForRole("admin"),
       catalogForRole("partner"),
@@ -104,11 +105,11 @@ describe("Integration: Portal price terms by account role", () => {
       ],
     });
     expect(partnerCatalog.vehicles[0]).toMatchObject({
-      price: 24600,
-      fobUsd: 24600,
+      price: 23800,
+      fobUsd: 23800,
       exwUsd: null,
       fcaUsd: null,
-      priceTermsList: [{ term: "FOB", amount: 24600 }],
+      priceTermsList: [{ term: "FOB", amount: 23800 }],
     });
     expect(customerCatalog.vehicles[0]).toMatchObject({
       price: 24600,

@@ -4,7 +4,7 @@ import { resolve } from "node:path";
 
 export const LOCAL_D1_DIRECTORY = resolve(
   import.meta.dir,
-  "../../.wrangler/state/v3/d1/miniflare-D1DatabaseObject"
+  "../../.wrangler/local-d1/v3/d1/miniflare-D1DatabaseObject"
 );
 
 export function fail(message: string): never {

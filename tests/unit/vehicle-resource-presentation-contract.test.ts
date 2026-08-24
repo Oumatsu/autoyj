@@ -9,8 +9,7 @@ test("external roles resolve their own FOB fields before the shared fallback", (
   const end = portalSource.indexOf("function normalizeTrimName", start);
   const handler = portalSource.slice(start, end);
 
-  expect(handler).toContain('session.role === "partner" ? partnerFobUsd');
-  expect(handler).toContain('session.role === "customer" ? customerFobUsd');
+  expect(handler).toContain("resolveInquiryRequestFob(session.role, { partnerFobUsd, customerFobUsd })");
 });
 
 test("vehicle presentation maps model style, English colors, and recommendation ranking", () => {
