@@ -6,6 +6,7 @@ test("inquiry request storage is created by a versioned D1 migration before depl
 
   expect(migration).toContain("CREATE TABLE IF NOT EXISTS inquiry_requests");
   expect(packageJson.scripts["db:local:init"]).toContain("d1 migrations apply");
+  expect(packageJson.scripts["db:migrate:remote"]).toContain("scripts/d1/apply-remote-migrations.mjs");
   expect(packageJson.scripts.deploy).toContain("db:migrate:remote");
 });
 
@@ -21,5 +22,8 @@ test("local D1 snapshot sync uses Bun to invoke Wrangler on Windows", async () =
 
 test("Wrangler pins the account that owns the configured portal D1 database", async () => {
   const wranglerConfig = await Bun.file("wrangler.jsonc").text();
+  const migrationScript = await Bun.file("scripts/d1/apply-remote-migrations.mjs").text();
   expect(wranglerConfig).toContain('"account_id": "f236185f93c49e07d4a6d364cf82c165"');
+  expect(migrationScript).toContain("CLOUDFLARE_ACCOUNT_ID: config.account_id");
+  expect(migrationScript).toContain('"d1", "migrations", "apply", "autoyj-portal", "--remote"');
 });

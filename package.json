@@ -11,7 +11,7 @@
     "build:server": "vinext build",
     "start": "vinext start",
     "db:migrate:local": "wrangler d1 migrations apply autoyj-portal --local --persist-to .wrangler/local-d1",
-    "db:migrate:remote": "wrangler d1 migrations apply autoyj-portal --remote",
+    "db:migrate:remote": "node scripts/d1/apply-remote-migrations.mjs",
     "deploy": "bun run db:migrate:remote && BUILD_TARGET=cloudflare vinext-cloudflare deploy",
     "deploy:with-pull": "bun run tolgee:pull:server && bun run deploy",
     "check": "oxlint && vinext check",
