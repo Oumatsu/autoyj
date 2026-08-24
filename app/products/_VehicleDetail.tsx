@@ -773,9 +773,8 @@ export default function VehicleDetail({ data: rawData }: { data: DetailData }) {
                   {resolveStatLabel(t, data.stat3Label, "price", "Price")}
                 </div>
               </div>
-              <div className="col-span-3 glass rounded-[1.5rem] px-6 py-4 flex items-center justify-between border-theme/10">
+              <div className="col-span-3 glass rounded-[1.5rem] px-6 py-4 flex items-center border-theme/10">
                 <div className="flex items-center gap-2.5"><div className="pulse-dot" /><span className="text-[10px] font-black tracking-widest uppercase text-gray-500">{t("productsDetail.ui.factoryPrice", "Factory Price")}</span></div>
-                <LocaleLink href="/solutions/request-quote" className="text-[10px] font-black tracking-widest uppercase text-theme hover:text-white transition">{t("productsDetail.ui.requestBatchQuote", "Request Batch Quote") as string} →</LocaleLink>
               </div>
             </div>
           </div>
@@ -952,7 +951,7 @@ export default function VehicleDetail({ data: rawData }: { data: DetailData }) {
                 <div className="flex justify-between text-xs"><span className="text-gray-600 font-black uppercase tracking-wider">{t("productsDetail.ui.marginPerUnit", "Margin / unit")}</span><span className="text-theme font-black">{batchMargin.low} – {batchMargin.high}</span></div>
                 <div className="flex justify-between text-xs border-t pt-3" style={{ borderColor: "rgba(255,255,255,.05)" }}><span className="text-gray-400 font-black uppercase tracking-wider">{t("productsDetail.ui.totalGross", "Total gross")}</span><span className="text-accent font-black">{batch.display}</span></div>
               </div>
-             <p className="text-[9px] text-gray-700 text-center">*{t("productsDetail.ui.pricingDisclaimer", "Based on typical emerging market retail pricing.")} <LocaleLink href="/solutions/request-quote" className="text-theme hover:text-white transition">{t("productsDetail.ui.requestDetailedQuote", "Request a detailed quote")}</LocaleLink>.</p>
+             <p className="text-[9px] text-gray-700 text-center">*{t("productsDetail.ui.pricingDisclaimer", "Based on typical emerging market retail pricing.")}</p>
             </div>
           </div>
         </div>

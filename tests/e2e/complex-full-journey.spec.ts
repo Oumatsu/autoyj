@@ -51,26 +51,12 @@ test.describe("Tier 4: E2E Comprehensive Full-Journey User & Portal Workflows", 
     expect(bodyText).toMatch(/Revenue King|BYD|Geely|Electric|Range/i);
   });
 
-  test("3. Solutions Customization & Quote Form Interactive Workflow", async ({ page }) => {
+  test("3. Solutions Customization Interactive Workflow", async ({ page }) => {
     await page.goto("/en/solutions/configure-kit", { waitUntil: "domcontentloaded" });
     await expect(page.locator("body")).toBeVisible();
 
     await page.waitForTimeout(500);
 
-    // Navigate to Quote Form
-    await page.goto("/en/solutions/request-quote", { waitUntil: "domcontentloaded" });
-    await expect(page.locator("body")).toBeVisible();
-
-    // Fill Form Fields
-    const nameInput = page.locator("input[name='fullName'], input[placeholder*='Name']").first();
-    if (await nameInput.isVisible().catch(() => false)) {
-      await nameInput.fill("Global Fleet Director");
-    }
-
-    const emailInput = page.locator("input[type='email']").first();
-    if (await emailInput.isVisible().catch(() => false)) {
-      await emailInput.fill("fleet.director@global-logistics.com");
-    }
   });
 
   test("4. Multi-Role Portal Workstation Login, Tab Traversal & Re-login Data Safeguard", async ({ page }) => {

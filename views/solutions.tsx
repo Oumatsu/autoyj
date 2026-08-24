@@ -249,12 +249,6 @@ export default function SolutionsPage() {
               <p className="text-gray-500 text-lg font-light leading-relaxed mb-8">
                 {t("solutions.serviceCentre.description")}
               </p>
-              <LocaleLink
-                href="/solutions/request-quote"
-                className="btn-outline px-9 py-4 rounded text-xs font-black tracking-widest uppercase italic"
-              >
-                {t("solutions.serviceCentre.requestButton")}
-              </LocaleLink>
             </div>
             <div className="grid gap-4">
               {serviceCentreItems.map((item, i) => (

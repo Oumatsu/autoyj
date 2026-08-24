@@ -40,6 +40,21 @@ describe("Inquiry Vehicle Picker Component", () => {
     expect(html).toContain("Select Brand");
   });
 
+  test("labels each selection stage instead of presenting an unlabeled select stack", () => {
+    const html = renderToString(
+      <InquiryVehiclePickerField
+        vehicles={VEHICLES}
+        value={{ vehicleId: "", vehicleModel: "" }}
+        onChange={() => {}}
+      />,
+    );
+
+    expect(html).toContain(">Brand<");
+    expect(html).toContain(">Model<");
+    expect(html).toContain(">Trim / configuration<");
+    expect(html).toContain(">Colour configuration<");
+  });
+
   test("records a staged selection when brand is selected", async () => {
     const container = document.createElement("div");
     document.body.appendChild(container);

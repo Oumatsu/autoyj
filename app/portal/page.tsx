@@ -32,6 +32,8 @@ import { appendInquiryComment, inquiryCommentAuthorClass } from "@/lib/inquiry-c
 import { buildInquiryCommentThreads, canViewInquiryNumber, inquiryListDetails, replyReference } from "@/lib/inquiry-workflow";
 import { useDashboardNavigation } from "@/components/DashboardNavigationContext";
 import { FeaturedVehicleCarousel } from "@/components/portal/FeaturedVehicleCarousel";
+import { InquiryRequestPanel } from "@/components/portal/InquiryRequestPanel";
+import type { InquiryRequest } from "@/lib/inquiry-requests";
 import { selectFeaturedVehicleResources } from "@/lib/featured-vehicle-resources";
 
 type AdminModule = "dashboard" | "vehicle_models" | "vehicles" | "quotes" | "orders" | "payments" | "logistics" | "accounts";
@@ -415,6 +417,7 @@ type BootstrapData = {
   quotes: Quote[];
   negotiations: Negotiation[];
   inquiryNotes: InquiryNote[];
+  inquiryRequests: InquiryRequest[];
   inquiryStatusHistory: InquiryStatusHistory[];
   orders: Order[];
   internalUsers: InternalUser[];
@@ -2820,6 +2823,7 @@ function AdminQuotes({ data, onRefresh, initialInquiryNo }: { data: BootstrapDat
     <div className="mb-4 flex flex-wrap justify-between gap-3"><Input aria-label={copy.search} value={inquirySearch} onChange={(event) => setInquirySearch(event.target.value)} placeholder={copy.search} /><div className="flex flex-wrap gap-3">{canModerateComments && <><button type="button" onClick={() => void loadHiddenComments()} className="rounded border border-white/15 px-4 py-2 text-[10px] font-black uppercase text-slate-200">{copy.manageHidden}</button><button type="button" onClick={() => void loadClosedInquiries()} className="rounded border border-white/15 px-4 py-2 text-[10px] font-black uppercase text-slate-200">{closedInquiryCopy.manageClosedInquiries}</button></>}{canCreateQuote && <button type="button" disabled={!selected} onClick={() => setShowQuoteComposer((value) => !value)} className="btn-primary rounded px-4 py-2 text-[10px] font-black uppercase">{t("portal.createQuotation")}</button>}<button type="button" onClick={() => setShowNew((value) => !value)} className="btn-primary rounded px-4 py-2 text-[10px] font-black uppercase">{t("portal.startInquiry")}</button></div></div>
     {showQuoteComposer && selected && <form onSubmit={createQuotation} className="mb-4 grid gap-3 rounded-lg border border-gold/40 bg-gold/5 p-4 md:grid-cols-3"><p className="text-xs text-slate-300 md:col-span-3">{selected.vehicleModel} / {selected.quantity} units — the original quotation template will open after creation.</p><Input aria-label="USD unit price" type="number" min="0" step="0.01" value={quotePrice} onChange={(event) => setQuotePrice(event.target.value)} placeholder="FOB unit price (USD)" required /><Input aria-label="CIF total" value={quoteCif} onChange={(event) => setQuoteCif(event.target.value)} placeholder="CIF total (USD, manual entry)" /><button disabled={busy} className="btn-primary rounded px-4 py-2 text-[10px] font-black uppercase">{busy ? "Creating..." : "Create and open template"}</button></form>}
     {showNew && <form onSubmit={create} className="mb-4 grid gap-3 rounded-lg border border-theme/30 bg-theme/5 p-4"><InquiryVehiclePicker vehicles={data.vehicles} value={target} onChange={setTarget} /><Input aria-label="Inquiry quantity" type="number" min="1" value={newInquiryQuantity} onChange={(event) => setNewInquiryQuantity(Math.max(1, Number(event.target.value) || 1))} /><InquiryTitleField value={title} onChange={setTitle} required={requiresInquiryTitle(target)} /><textarea value={initialNote} onChange={(event) => setInitialNote(event.target.value)} className="min-h-24 rounded border border-white/15 bg-black/20 p-3 text-sm text-white" /><button disabled={busy || (requiresInquiryTitle(target) && !title.trim()) || !initialNote.trim()} className="btn-primary rounded px-4 py-2 text-[10px] font-black uppercase">{copy.postInquiry}</button></form>}
+    {selected && <InquiryRequestPanel inquiryNo={selected.inquiryNo} title={selected.title || selected.vehicleModel} initialVehicleId={selected.vehicleId} vehicles={data.vehicles} requests={data.inquiryRequests || []} user={data.user} onRefresh={onRefresh} />}
     <div className="grid gap-4 xl:grid-cols-[minmax(23rem,0.8fr)_minmax(0,1.2fr)]">
       <aside className="grid content-start max-h-[70vh] gap-2 overflow-y-auto pr-1">
         {visibleInquiries.map((inquiry) => {

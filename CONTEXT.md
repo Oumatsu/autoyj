@@ -10,9 +10,10 @@
 - **Push Subscription**: Standard W3C VAPID browser push registration for standalone PWA system notifications.
 
 ### Commercial Lifecycle
-- **Inquiry**: A customer's formal vehicle sourcing request specifying brand, model, target trim, and quantity.
-  - *Statuses*: `New Inquiry` → `Quoted` → `Accepted` / `Declined` → `Closed`.
-- **Quotation**: Official pricing breakdown issued by sales, specifying trade terms (EXW, FOB, CIF), unit price, discounts, and expiration.
+- **Inquiry Topic**: The shared discussion subject for a vehicle sourcing need. It contains comments and can group multiple Inquiry Requests, but does not store a request's vehicle, quantity, price, or cancellation state.
+- **Inquiry Request**: One structured vehicle purchase request submitted under an Inquiry Topic. It identifies the requested brand, model, trim, color, quantity, destination, role-specific FOB estimated price, and editable contact-information snapshot. It is visible only to its submitter, Administrators, and Sales Reps; only its submitter can permanently delete it. Deleting an Inquiry Request does not delete its Inquiry Topic or comments.
+- **Public Contact Submission**: A general website contact lead. It is not a vehicle-sourcing Inquiry and must not be represented as a quotation, vehicle request, or repair-service project.
+- **Quotation**: Official pricing breakdown issued by Sales Reps or Administrators, specifying trade terms (EXW, FOB, CIF), unit price, discounts, and expiration. A Quotation can combine multiple vehicle line items.
   - *Counter-offer*: Customer proposed price modification submitted for sales review.
 - **Order**: A committed transaction created upon quotation acceptance.
   - *Statuses*: `Draft` → `Confirmed` → `Deposit Paid` → `In Production` → `Shipped` → `Customs Cleared` → `Delivered` (or `Cancelled`).

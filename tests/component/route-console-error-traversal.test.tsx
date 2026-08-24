@@ -48,7 +48,6 @@ import LocaleQrPage from "../../app/[locale]/qr/page";
 import SolutionsPage from "../../app/solutions/page";
 import LocaleSolutionsPage from "../../app/[locale]/solutions/page";
 import LocaleSolutionsConfigurePage from "../../app/[locale]/solutions/configure-kit/page";
-import LocaleSolutionsRequestQuotePage from "../../app/[locale]/solutions/request-quote/page";
 
 import TermsPage from "../../app/terms/page";
 import LocaleTermsPage from "../../app/[locale]/terms/page";
@@ -109,7 +108,6 @@ const routesToTraverse = [
   { route: "/solutions", component: SolutionsPage },
   { route: "/[locale]/solutions", component: LocaleSolutionsPage },
   { route: "/[locale]/solutions/configure-kit", component: LocaleSolutionsConfigurePage },
-  { route: "/[locale]/solutions/request-quote", component: LocaleSolutionsRequestQuotePage },
 ];
 
 describe("Component: 102 Route-Locale Render Traversal & Console Interception", () => {
