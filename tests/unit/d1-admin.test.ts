@@ -5,7 +5,7 @@ import { getLocalD1Path, LOCAL_D1_DIRECTORY } from "../../scripts/d1/local-d1";
 
 describe("D1 Admin & Local Database Utilities", () => {
   test("LOCAL_D1_DIRECTORY is resolved properly within repo root", () => {
-    expect(LOCAL_D1_DIRECTORY).toContain(".wrangler/state/v3/d1");
+    expect(LOCAL_D1_DIRECTORY.replaceAll("\\", "/")).toContain(".wrangler/local-d1/v3/d1");
   });
 
   test("getLocalD1Path locates existing sqlite file when initialized", () => {

@@ -14,13 +14,15 @@ Canonical glossary and domain entities for Youguard Auto Export Supply Chain por
 
 ## 2. Inquiries & Discussions Domain (询价与多方沟通域)
 
-- **Inquiry (外贸询价单)**: 海外采购商或合作伙伴针对特定车型/车源发起的需求单据。系统生成唯一询价编号 `inquiryNo`（如 `INQ-20260823-XXXX`），包含采购台数（quantity > 0）、目标口岸、期望贸易条款（EXW/FOB/CIF）。
+- **Inquiry Topic (询价主题)**: 海外采购商或合作伙伴围绕采购需求发起的共享讨论主题，系统生成唯一询价编号 `inquiryNo`（如 `INQ-20260823-XXXX`）。主题包含评论与参与者，可关联多张 Inquiry Request，但不保存某张申请的车辆、数量、价格或取消状态。
+- **Inquiry Request (询价申请单)**: 在 Inquiry Topic 下提交的一张结构化采购申请，记录指定品牌、车型、配置、颜色、数量、目的地、角色对应 FOB 估价和可编辑的联系信息快照。仅提交者、管理员和销售可见；仅提交者可永久删除，删除不会影响主题或评论。
 - **InquiryStatus (询价生命周期状态)**:
   - `open`: 进行中的有效询价单，支持追加沟通与出具报价。
   - `closed`: 已归档/已结案的询价单。仅管理员与销售具备操作权限。
 - **InquiryParticipant (询价利益相关方)**: 参与此单据协作的角色实体，涵盖发起客户（Customer）、专属销售顾问（Sales）、外贸渠道合伙人（Partner）与平台管理员（Admin）。
 - **InquiryNote (跟进记录/留言讨论)**: 询价单下的双向流转记录，支持结构化回复引用（`parentNoteId`）与内部备忘标记（`isPublic: false` 对客户不可见）。
 - **InquiryRead (已读状态记录)**: 记录各用户对特定询价单最新留言的查阅时间戳（`lastReadAt`），用于未读高亮提示。
+- **Public Contact Submission (公开联系线索)**: 网站通用联系表单产生的线索；它不是询价主题、询价申请单或报价单。
 
 ---
 

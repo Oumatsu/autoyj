@@ -3,6 +3,7 @@
 import { findLocalUser, defaultPriceTierForRole } from "../../lib/users";
 import type { AccountType, PortalRole, PriceTier } from "../../lib/users";
 import { canCreateVehicleQuotation } from "../../lib/quotation-permissions";
+import { resolveInquiryRequestFob } from "../../lib/inquiry-request-pricing";
 import { hasUnreadInquiryActivity, inquiryCommentDescendantIds, selectDiscussionNotes } from "../../lib/inquiry-workflow";
 import {
   queryVehicleModels,
@@ -1727,6 +1728,11 @@ async function listAllPortalUsers(db: D1Database): Promise<PortalUserRecord[]> {
   }
 }
 
+async function portalUsersRequireLegacyAccessCode(db: D1Database): Promise<boolean> {
+  const columns = await db.prepare("PRAGMA table_info(portal_users)").all<{ name?: string }>();
+  return (columns.results || []).some((column) => column.name === "access_code");
+}
+
 async function findLoginAccount(env: Env, email: string, accessCode: string): Promise<Omit<PortalSession, "exp"> | null> {
   if (!env.PORTAL_DB) throw problem("Portal database is not configured", 503);
 
@@ -1913,6 +1919,7 @@ async function handleBootstrap(request: Request, env: Env) {
     orders,
     telegramRow,
     portalUsers,
+    inquiryRequests,
   ] = await Promise.all([
     queryVehicleModels(db),
     queryVehicles(db),
@@ -1922,6 +1929,7 @@ async function handleBootstrap(request: Request, env: Env) {
     listScopedOrders(env, session),
     getTelegramUserBinding(db, session.userId).catch(() => null),
     session.role === "admin" ? listAllPortalUsers(db) : Promise.resolve([]),
+    listScopedInquiryRequests(db, session),
   ]);
 
   const modelsData = buildPortalVehicleModelsData(modelRows, [], [], session, { includeTrimDetails: false });
@@ -1958,6 +1966,7 @@ async function handleBootstrap(request: Request, env: Env) {
     vehicleModelSpecs: modelsData.vehicleModelSpecs || [],
     vehicles: vehicles || [],
     inquiries: inquiriesWithUnread,
+    inquiryRequests,
     quotes,
     negotiations,
     inquiryNotes: inquiryNotes.filter((item) => inquiryNumbers.has(item.inquiryNo)),
@@ -1968,6 +1977,42 @@ async function handleBootstrap(request: Request, env: Env) {
     portalUsers,
     telegramBinding,
   });
+}
+
+function mapD1InquiryRequest(row: any) { return { id: row.id, inquiryNo: row.inquiry_no, requesterUserId: row.requester_user_id, vehicleId: row.vehicle_id, vehicleLabel: row.vehicle_label, quantity: Number(row.quantity), fobUnitUsd: Number(row.fob_unit_usd), fobTotalUsd: Number(row.fob_total_usd), contactName: row.contact_name, company: row.company || "", country: row.country, email: row.email, phonePrefix: row.phone_prefix || "", phone: row.phone || "", requirements: row.requirements || "", createdAt: row.created_at }; }
+async function listScopedInquiryRequests(db: D1Database, session: PortalSession) {
+  const where = session.role === "admin" || session.role === "sales" ? "1=1" : "requester_user_id=?";
+  const query = `SELECT * FROM inquiry_requests WHERE ${where} ORDER BY created_at DESC`;
+  const result = session.role === "admin" || session.role === "sales" ? await db.prepare(query).all() : await db.prepare(query).bind(session.userId).all();
+  return result.results.map(mapD1InquiryRequest);
+}
+
+async function handleCreateInquiryRequest(request: Request, env: Env, inquiryNo: string) {
+  const session = await requireSession(request, env);
+  if (session.role !== "partner" && session.role !== "customer") return problem("Only partners and customers can apply for a quotation", 403);
+  const body = await request.json().catch(() => null) as Record<string, unknown> | null;
+  const vehicleId = asText(body?.vehicleId).trim(); const quantity = asNumber(body?.quantity);
+  const contactName = asText(body?.contactName).trim(); const country = asText(body?.country).trim(); const email = asText(body?.email).trim();
+  if (!vehicleId || quantity <= 0 || !contactName || !country || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return problem("Vehicle, quantity, contact name, country, and email are required", 400);
+  const db = requirePortalDb(env);
+  const topic = await db.prepare("SELECT inquiry_no FROM inquiries WHERE inquiry_no=? AND deleted_at IS NULL LIMIT 1").bind(inquiryNo).first();
+  if (!topic) return problem("Inquiry topic not found", 404);
+  const vehicle = await db.prepare("SELECT * FROM vehicles WHERE id=? LIMIT 1").bind(vehicleId).first<Record<string, unknown>>();
+  if (!vehicle) return problem("Vehicle not found", 404);
+  const fob = resolveInquiryRequestFob(session.role, { partnerFobUsd: asOptionalNumber(rowField(vehicle, "partner_fob_usd", "partnerFOB美金报价（自动计算）")), customerFobUsd: asOptionalNumber(rowField(vehicle, "customer_fob_usd", "customerFOB美金报价（自动计算）")) });
+  if (!fob) return problem("No authorized FOB price is available for this vehicle", 409);
+  const label = [rowField(vehicle, "brand", "品牌"), rowField(vehicle, "model", "型号"), rowField(vehicle, "variant", "细分型号"), rowField(vehicle, "color", "颜色", "外饰颜色"), rowField(vehicle, "interior_color", "内饰颜色")].map(asText).filter(Boolean).join(" "); const now = nowText();
+  const id = crypto.randomUUID();
+  await db.prepare("INSERT INTO inquiry_requests (id,inquiry_no,requester_user_id,vehicle_id,vehicle_label,quantity,fob_unit_usd,fob_total_usd,contact_name,company,country,email,phone_prefix,phone,requirements,created_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)").bind(id,inquiryNo,session.userId,vehicleId,label,quantity,fob,fob*quantity,contactName,asText(body?.company).trim(),country,email,asText(body?.phonePrefix).trim(),asText(body?.phone).trim(),asText(body?.requirements).trim().slice(0,4000),now).run();
+  return json({ ok:true, request: mapD1InquiryRequest({ id,inquiry_no:inquiryNo,requester_user_id:session.userId,vehicle_id:vehicleId,vehicle_label:label,quantity,fob_unit_usd:fob,fob_total_usd:fob*quantity,contact_name:contactName,company:asText(body?.company).trim(),country,email,phone_prefix:asText(body?.phonePrefix).trim(),phone:asText(body?.phone).trim(),requirements:asText(body?.requirements).trim(),created_at:now }) }, { status:201 });
+}
+async function handleDeleteInquiryRequest(request: Request, env: Env, inquiryNo: string, requestId: string) {
+  const session = await requireSession(request, env); const db = requirePortalDb(env);
+  const record = await db.prepare("SELECT requester_user_id FROM inquiry_requests WHERE id=? AND inquiry_no=? LIMIT 1").bind(requestId, inquiryNo).first<{ requester_user_id: string }>();
+  if (!record) return problem("Inquiry request not found", 404);
+  if (record.requester_user_id !== session.userId) return problem("Only the request submitter can delete it", 403);
+  await db.prepare("DELETE FROM inquiry_requests WHERE id=? AND inquiry_no=?").bind(requestId, inquiryNo).run();
+  return new Response(null, { status: 204 });
 }
 
 async function handleGetCatalog(request: Request, env: Env) {
@@ -2653,8 +2698,8 @@ function buildPortalVehicleList(rows: unknown[], session: PortalSession) {
     const partnerFobUsd = asOptionalNumber(rowField(fields, "partner_fob_usd", "partnerFOB美金报价（自动计算）")) ??
       asOptionalNumber(fields["partnerFOB美金报价（自动计算）"]);
     const displayPriceLow = asOptionalNumber(rowField(fields, "display_price_low"));
-    const fobUsd = session.role === "partner" ? partnerFobUsd ?? customerFobUsd ?? displayPriceLow
-      : session.role === "customer" ? customerFobUsd ?? partnerFobUsd ?? displayPriceLow
+    const fobUsd = session.role === "partner" || session.role === "customer"
+      ? resolveInquiryRequestFob(session.role, { partnerFobUsd, customerFobUsd })
       : internalFobUsd ?? displayPriceLow;
     const recommendationValue = asOptionalNumber(rowField(fields, "recommendation_slot", "网站推荐位"));
     const recommendationRank = recommendationValue && recommendationValue > 0 ? Math.floor(recommendationValue) : null;
@@ -2692,8 +2737,8 @@ function buildPortalVehicleList(rows: unknown[], session: PortalSession) {
       location: asText(rowField(fields, "location", "批发地点", "车源地点")),
       stage: asText(rowField(fields, "stage", "审核api用字段")),
       price: canSeePrice ? fobUsd : null,
-      partnerPrice: partnerFobUsd ?? customerFobUsd,
-      customerPrice: customerFobUsd,
+      partnerPrice: internalSession || session.role === "partner" ? partnerFobUsd : null,
+      customerPrice: internalSession || session.role === "customer" ? customerFobUsd : null,
       cost: internalSession ? asOptionalNumber(rowField(fields, "supplier_price_cny", "人民币成本价")) : null,
       guidePriceCny: asOptionalNumber(rowField(fields, "guide_price_cny", "人民币指导价")),
       exwUsd: canSeePrice ? exwUsd : null,
@@ -4290,12 +4335,21 @@ async function handleCreateAdminUser(request: Request, env: Env) {
   const userId = `${rolePrefix}-${randomSuffix}`;
   const accountType = role === "admin" || role === "sales" || role === "sourcing" || role === "finance" ? "internal" : "external";
 
-  await db.prepare(
-    `INSERT INTO portal_users (user_id, customer_id, name, email, company, whatsapp, telegram_chat_id, telegram_username, account_type, role, password, status, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Active', ?, ?)`
-  ).bind(
-    userId, userId, name, email, company, whatsapp, telegramChatId, telegramUsername, accountType, role, accessCode, now, now
-  ).run();
+  const requiresLegacyAccessCode = await portalUsersRequireLegacyAccessCode(db);
+  const insertStatement = requiresLegacyAccessCode
+    ? db.prepare(
+      `INSERT INTO portal_users (user_id, customer_id, name, email, company, whatsapp, telegram_chat_id, telegram_username, account_type, role, password, access_code, status, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Active', ?, ?)`
+    ).bind(
+      userId, userId, name, email, company, whatsapp, telegramChatId, telegramUsername, accountType, role, accessCode, accessCode, now, now
+    )
+    : db.prepare(
+      `INSERT INTO portal_users (user_id, customer_id, name, email, company, whatsapp, telegram_chat_id, telegram_username, account_type, role, password, status, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Active', ?, ?)`
+    ).bind(
+      userId, userId, name, email, company, whatsapp, telegramChatId, telegramUsername, accountType, role, accessCode, now, now
+    );
+  await insertStatement.run();
 
   if (telegramChatId) {
     await saveTelegramUserBinding(db, {
@@ -4985,6 +5039,10 @@ export async function handlePortalRequest(request: Request, env: Env) {
     }
     const inquiryReadMatch = path.match(/^\/api\/portal\/inquiries\/([^/]+)\/read$/);
     if (inquiryReadMatch && request.method === "POST") return await handleMarkInquiryRead(request, env, decodeURIComponent(inquiryReadMatch[1]));
+    const inquiryRequestMatch = path.match(/^\/api\/portal\/inquiries\/([^/]+)\/requests$/);
+    if (inquiryRequestMatch && request.method === "POST") return await handleCreateInquiryRequest(request, env, decodeURIComponent(inquiryRequestMatch[1]));
+    const inquiryRequestDeleteMatch = path.match(/^\/api\/portal\/inquiries\/([^/]+)\/requests\/([^/]+)$/);
+    if (inquiryRequestDeleteMatch && request.method === "DELETE") return await handleDeleteInquiryRequest(request, env, decodeURIComponent(inquiryRequestDeleteMatch[1]), decodeURIComponent(inquiryRequestDeleteMatch[2]));
     const inquiryMatch = path.match(/^\/api\/portal\/inquiries\/([^/]+)$/);
     if (inquiryMatch && request.method === "DELETE") return await handlePermanentlyDeleteInquiry(request, env, decodeURIComponent(inquiryMatch[1]));
     if (path === "/api/portal/quotes" && request.method === "POST") {

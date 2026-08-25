@@ -1,6 +1,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "autoyj",
+  "account_id": "f236185f93c49e07d4a6d364cf82c165",
   "compatibility_date": "2026-05-08",
   "compatibility_flags": ["nodejs_compat"],
   "main": "./server/index.ts",

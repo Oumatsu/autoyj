@@ -38,7 +38,6 @@ const STATIC_PAGES = [
   "/products/utility-pro",
   "/solutions",
   "/solutions/configure-kit",
-  "/solutions/request-quote",
   "/terms",
 ];
 

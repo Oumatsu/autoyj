@@ -12,6 +12,7 @@ export type VehiclePickerItem = {
   configuration?: string;
   exteriorColor?: string;
   interiorColor?: string;
+  fobUsd?: number | null;
 };
 
 export type InquiryVehicleTarget = {
@@ -96,14 +97,19 @@ export function InquiryVehiclePickerField({
       : { vehicleId: "", vehicleModel: selectedModel ? `${selectedBrand} ${selectedModel}`.trim() : "", brand: selectedBrand, model: selectedModel, configuration: selectedConfiguration, colorConfiguration: "" });
   };
 
+  const selectClassName = "h-10 w-full rounded-lg border border-white/10 bg-black/20 px-3 text-sm text-white outline-none transition focus:border-theme/70 focus:ring-2 focus:ring-theme/15 disabled:cursor-not-allowed disabled:opacity-45";
+
   return (
-    <div data-testid="vehicle-picker" className="grid gap-2">
-      <select
+    <div data-testid="vehicle-picker" className="grid gap-4 sm:grid-cols-2">
+      <div>
+        <label htmlFor="inquiry-vehicle-brand" className="mb-1.5 block text-xs font-bold text-slate-200">Brand</label>
+        <select
+        id="inquiry-vehicle-brand"
         data-testid="brand-select"
         aria-label="Select Brand"
         value={selectedBrand}
         onChange={handleBrandChange}
-        className="rounded border border-white/15 bg-black/20 p-2 text-sm text-white"
+        className={selectClassName}
       >
         <option value="">Select Brand</option>
         {brands.map((b) => (
@@ -111,14 +117,18 @@ export function InquiryVehiclePickerField({
             {b}
           </option>
         ))}
-      </select>
-      <select
+        </select>
+      </div>
+      <div>
+        <label htmlFor="inquiry-vehicle-model" className="mb-1.5 block text-xs font-bold text-slate-200">Model</label>
+        <select
+        id="inquiry-vehicle-model"
         data-testid="model-select"
         aria-label="Select Model"
         value={selectedModelId}
         onChange={handleModelChange}
         disabled={!selectedBrand}
-        className="rounded border border-white/10 bg-black/10 p-2 text-sm text-slate-300"
+        className={selectClassName}
       >
         <option value="">Select Model</option>
         {modelOptions.map((vehicle) => (
@@ -126,14 +136,18 @@ export function InquiryVehiclePickerField({
             {vehicle.model}
           </option>
         ))}
-      </select>
-      <select
+        </select>
+      </div>
+      <div>
+        <label htmlFor="inquiry-vehicle-configuration" className="mb-1.5 block text-xs font-bold text-slate-200">Trim / configuration</label>
+        <select
+        id="inquiry-vehicle-configuration"
         data-testid="configuration-select"
         aria-label="Select Configuration"
         value={selectedConfigurationId}
         onChange={handleConfigurationChange}
         disabled={!selectedModel}
-        className="rounded border border-white/10 bg-black/10 p-2 text-sm text-slate-300"
+        className={selectClassName}
       >
         <option value="">Select Configuration</option>
         {configurationOptions.map((vehicle) => (
@@ -141,14 +155,18 @@ export function InquiryVehiclePickerField({
             {configurationLabel(vehicle)}
           </option>
         ))}
-      </select>
-      <select
+        </select>
+      </div>
+      <div>
+        <label htmlFor="inquiry-vehicle-color" className="mb-1.5 block text-xs font-bold text-slate-200">Colour configuration</label>
+        <select
+        id="inquiry-vehicle-color"
         data-testid="color-select"
         aria-label="Select Color Configuration"
         value={selectedColorId}
         onChange={handleColorChange}
         disabled={!selectedConfiguration}
-        className="rounded border border-white/10 bg-black/10 p-2 text-sm text-slate-300"
+        className={selectClassName}
       >
         <option value="">Select Color Configuration</option>
         {colorOptions.map((vehicle) => (
@@ -156,7 +174,8 @@ export function InquiryVehiclePickerField({
             {colorLabel(vehicle)}
           </option>
         ))}
-      </select>
+        </select>
+      </div>
     </div>
   );
 }

@@ -6,20 +6,22 @@ import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const database = process.env.PORTAL_DB_NAME || "autoyj-portal";
-const persistTo = process.env.MINIFLARE_PERSIST_PATH || ".wrangler/state";
-const wrangler = process.env.WRANGLER_BIN || path.join(
+const persistTo = process.env.MINIFLARE_PERSIST_PATH || ".wrangler/local-d1";
+const bundledWrangler = path.join(
   root,
   "node_modules",
   ".bin",
   process.platform === "win32" ? "wrangler.cmd" : "wrangler",
 );
+const wrangler = process.env.WRANGLER_BIN || (process.platform === "win32" ? "bun" : bundledWrangler);
 const schemaPath = path.join(root, "server", "db", "schema.sql");
 const tempDir = mkdtempSync(path.join(os.tmpdir(), "autoyj-d1-sync-"));
 const dumpPath = path.join(tempDir, "remote-snapshot.sql");
 const backupPath = path.join(tempDir, "local-backup.sql");
 
 function runWrangler(args) {
-  execFileSync(wrangler, args, {
+  const commandArgs = process.platform === "win32" && !process.env.WRANGLER_BIN ? ["x", "wrangler", ...args] : args;
+  execFileSync(wrangler, commandArgs, {
     cwd: root,
     stdio: "inherit",
   });
@@ -87,6 +89,8 @@ try {
     "--local",
     "--output",
     backupPath,
+    "--persist-to",
+    persistTo,
     "--skip-confirmation",
   ]);
 

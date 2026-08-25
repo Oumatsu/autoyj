@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { handlePortalRequest } from "../../../server/api/portal";
 import type { PortalEnv as Env } from "../../../server/types";
 
-function makeMockAdminDb() {
+function makeMockAdminDb({ hasLegacyAccessCodeColumn = true }: { hasLegacyAccessCodeColumn?: boolean } = {}) {
   const users = new Map<string, Record<string, unknown>>();
   const bindings = new Map<string, Record<string, unknown>>();
 
@@ -51,6 +51,15 @@ function makeMockAdminDb() {
           return null;
         },
         async all<T = Record<string, unknown>>() {
+          if (sql.includes("PRAGMA table_info(portal_users)")) {
+            return {
+              results: [
+                { name: "user_id" },
+                { name: "password" },
+                ...(hasLegacyAccessCodeColumn ? [{ name: "access_code" }] : []),
+              ] as T[],
+            };
+          }
           if (sql.includes("FROM portal_users")) {
             return { results: Array.from(users.values()) as T[] };
           }
@@ -58,7 +67,11 @@ function makeMockAdminDb() {
         },
         async run() {
           if (sql.includes("INSERT INTO portal_users")) {
-            const [userId, customerId, name, email, company, whatsapp, telegramChatId, telegramUsername, accountType, role, accessCode] = boundValues;
+            if (hasLegacyAccessCodeColumn && !sql.includes("access_code")) {
+              throw new Error("D1_ERROR: NOT NULL constraint failed: portal_users.access_code");
+            }
+            const [userId, customerId, name, email, company, whatsapp, telegramChatId, telegramUsername, accountType, role, password, ...credentialValues] = boundValues;
+            const accessCode = hasLegacyAccessCodeColumn ? credentialValues[0] : password;
             users.set(String(userId), {
               user_id: String(userId),
               customer_id: String(customerId),
@@ -71,6 +84,7 @@ function makeMockAdminDb() {
               account_type: String(accountType),
               role: String(role),
               access_code: String(accessCode),
+              password: String(password),
               status: "Active",
             });
           }
@@ -201,6 +215,57 @@ describe("Admin User Management API", () => {
     expect(data.ok).toBe(true);
     expect(data.user.email).toBe("dawit@addisev.com");
     expect(users.has(data.user.user_id)).toBe(true);
+  });
+
+  test("POST /api/portal/admin/users creates an account when legacy access_code is required", async () => {
+    const adminCookie = await getAdminCookie();
+    const response = await handlePortalRequest(
+      new Request("http://localhost:3000/api/portal/admin/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", cookie: adminCookie },
+        body: JSON.stringify({
+          name: "Legacy Schema Customer",
+          email: "legacy-schema@example.com",
+          accessCode: "test-only-access-code",
+          role: "customer",
+        }),
+      }),
+      env,
+    );
+
+    expect(response.status).toBe(201);
+  });
+
+  test("POST /api/portal/admin/users also works when the database has no legacy access_code column", async () => {
+    const { db: passwordOnlyDb } = makeMockAdminDb({ hasLegacyAccessCodeColumn: false });
+    const passwordOnlyEnv: Env = {
+      PORTAL_DB: passwordOnlyDb,
+      PORTAL_SESSION_SECRET: "test_secret_for_admin_user_mgmt_tests_123",
+    };
+    const loginResponse = await handlePortalRequest(
+      new Request("http://localhost:3000/api/portal/dev-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ role: "admin" }),
+      }),
+      passwordOnlyEnv,
+    );
+    const adminCookie = loginResponse.headers.get("set-cookie") || "";
+    const response = await handlePortalRequest(
+      new Request("http://localhost:3000/api/portal/admin/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", cookie: adminCookie },
+        body: JSON.stringify({
+          name: "Password Only Customer",
+          email: "password-only@example.com",
+          accessCode: "test-only-access-code",
+          role: "customer",
+        }),
+      }),
+      passwordOnlyEnv,
+    );
+
+    expect(response.status).toBe(201);
   });
 
   test("PATCH /api/portal/admin/users/:id updates user details and Telegram credentials", async () => {

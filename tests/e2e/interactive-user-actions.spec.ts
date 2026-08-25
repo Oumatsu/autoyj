@@ -29,23 +29,4 @@ test.describe("Tier 4: Interactive User Form Submissions & Catalog Filtering E2E
     }
   });
 
-  test("User can fill and submit the Solutions Quote Request form", async ({ page }) => {
-    await page.goto("/en/solutions/request-quote");
-    await expect(page).toHaveURL(/\/en\/solutions\/request-quote/);
-
-    // Verify quote request page title or main section
-    const title = page.locator("h1");
-    await expect(title).toBeVisible();
-
-    // Fill form inputs if present
-    const nameInput = page.locator("input[name='fullName'], input[placeholder*='Name']").first();
-    if (await nameInput.isVisible().catch(() => false)) {
-      await nameInput.fill("Test Global Buyer");
-    }
-
-    const emailInput = page.locator("input[type='email']").first();
-    if (await emailInput.isVisible().catch(() => false)) {
-      await emailInput.fill("buyer@global-fleet.com");
-    }
-  });
 });

@@ -239,14 +239,6 @@ export function Footer() {
                       {t("footer.marketingAssets")}
                     </LocaleLink>
                   </li>
-                  <li>
-                    <LocaleLink
-                      href="/solutions/request-quote"
-                      className="hover:text-white transition"
-                    >
-                      {t("footer.customSourcing")}
-                    </LocaleLink>
-                  </li>
                 </ul>
                 <div className="text-[10px] font-black tracking-widest uppercase mb-3 mt-6 text-theme">
                   {t("footer.markets")}

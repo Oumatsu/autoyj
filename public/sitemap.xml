@@ -91,14 +91,6 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://youguard.net/en/solutions/request-quote</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://youguard.net/en/solutions/request-quote" />
-    <xhtml:link rel="alternate" hreflang="zh" href="https://youguard.net/zh/solutions/request-quote" />
-    <xhtml:link rel="alternate" hreflang="am" href="https://youguard.net/am/solutions/request-quote" />
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://youguard.net/en/solutions/configure-kit</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://youguard.net/en/solutions/configure-kit" />
     <xhtml:link rel="alternate" hreflang="zh" href="https://youguard.net/zh/solutions/configure-kit" />

@@ -22,7 +22,6 @@ const routesToTest = [
   "/en/solutions",
   "/am/solutions",
   "/zh/solutions/configure-kit",
-  "/en/solutions/request-quote",
   "/zh/academy",
   "/en/academy",
   "/am/academy",
@@ -47,6 +46,13 @@ const routesToTest = [
 ];
 
 test.describe("Tier 4: E2E Real Browser Traversal & Console Interception", () => {
+  test("keeps the retired service-centre quote route unreachable in every locale", async ({ page }) => {
+    for (const locale of ["zh", "en", "am"]) {
+      const response = await page.goto(`/${locale}/solutions/request-quote`, { waitUntil: "domcontentloaded" });
+      expect(response?.status()).toBe(404);
+    }
+  });
+
   for (const route of routesToTest) {
     test(`visits ${route} without console errors or warnings`, async ({ page }) => {
       const consoleErrors: string[] = [];
