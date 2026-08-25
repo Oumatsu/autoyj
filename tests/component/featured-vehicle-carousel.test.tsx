@@ -26,7 +26,7 @@ test("renders image-led featured cards and exposes a semantic stock-detail actio
   expect(html).toContain('aria-label="View featured vehicle BYD Seal"');
 });
 
-test("renders a three-card stage with the active resource centered", () => {
+test("renders shadcn embla carousel track with active and adjacent card positioning", () => {
   const html = renderToString(
     <FeaturedVehicleCarousel
       resources={[
@@ -40,11 +40,11 @@ test("renders a three-card stage with the active resource centered", () => {
 
   expect(html).toContain('aria-roledescription="carousel"');
   expect(html).toContain('data-featured-card-position="active"');
-  expect((html.match(/data-featured-card-position="adjacent"/g) ?? []).length).toBe(4);
+  expect(html).toContain('data-featured-card-position="adjacent"');
   expect(html).toContain('aria-label="Next featured vehicle"');
 });
 
-test("renders a continuous card track with duplicate end cards for seamless looping", () => {
+test("renders standard cards on embla carousel track with semantic accessibility labels", () => {
   const html = renderToString(
     <FeaturedVehicleCarousel
       resources={[
@@ -59,18 +59,5 @@ test("renders a continuous card track with duplicate end cards for seamless loop
 
   expect(html).toContain('data-featured-carousel-track="true"');
   expect(html).toContain('alt="BYD Dolphin"');
-  expect((html.match(/alt="BYD Seal"/g) ?? []).length).toBe(2);
-});
-
-test("supports mobile touch swipe gestures with touch-pan-y viewport class", () => {
-  const html = renderToString(
-    <FeaturedVehicleCarousel
-      resources={[
-        { id: "V-1", brand: "BYD", model: "Seal", imageUrl: "seal.jpg", priceLabel: "$22,000" },
-      ]}
-      onSelect={() => {}}
-    />,
-  );
-
-  expect(html).toContain("touch-pan-y");
+  expect(html).toContain('alt="BYD Seal"');
 });

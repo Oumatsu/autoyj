@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useEffect, useState, useRef, useCallback } from "react";
+import useEmblaCarousel from "embla-carousel-react";
+import Autoplay from "embla-carousel-autoplay";
 import { useTranslation, T } from "@/i18n/useTranslation";
 import { toStaticAssetUrl } from "@/lib/static-asset-url";
 
@@ -21,6 +23,19 @@ export function HeroSlider() {
   const btnRowRef = useRef<HTMLDivElement>(null);
   const dotsRef = useRef<HTMLDivElement>(null);
 
+  const [emblaRef, emblaApi] = useEmblaCarousel(
+    { loop: true },
+    [Autoplay({ delay: 6000, stopOnInteraction: false })]
+  );
+
+  useEffect(() => {
+    if (!emblaApi) return;
+    setCurrentIndex(emblaApi.selectedScrollSnap());
+    emblaApi.on("select", () => {
+      setCurrentIndex(emblaApi.selectedScrollSnap());
+    });
+  }, [emblaApi]);
+
   const checkOverlap = useCallback(() => {
     const btnRow = btnRowRef.current;
     const dots = dotsRef.current;
@@ -37,17 +52,8 @@ export function HeroSlider() {
   }, []);
 
   const goSlide = useCallback((n: number) => {
-    const next = ((n % SLIDE_COUNT) + SLIDE_COUNT) % SLIDE_COUNT;
-    setCurrentIndex(next);
-  }, []);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % SLIDE_COUNT);
-    }, 6000);
-
-    return () => clearInterval(interval);
-  }, []);
+    emblaApi?.scrollTo(n);
+  }, [emblaApi]);
 
   useEffect(() => {
     checkOverlap();
@@ -58,84 +64,55 @@ export function HeroSlider() {
 
   const slides = Array.from({ length: SLIDE_COUNT }, (_, i) => i);
 
-  const pointerStartX = useRef<number | null>(null);
-  const pointerStartY = useRef<number | null>(null);
-
-  const handlePointerDown = (e: React.PointerEvent) => {
-    pointerStartX.current = e.clientX;
-    pointerStartY.current = e.clientY;
-  };
-
-  const handlePointerUp = (e: React.PointerEvent) => {
-    if (pointerStartX.current === null || pointerStartY.current === null) return;
-    const deltaX = e.clientX - pointerStartX.current;
-    const deltaY = e.clientY - pointerStartY.current;
-    pointerStartX.current = null;
-    pointerStartY.current = null;
-
-    if (Math.abs(deltaX) > 40 && Math.abs(deltaX) > Math.abs(deltaY)) {
-      if (deltaX < 0) {
-        goSlide(currentIndex + 1);
-      } else {
-        goSlide(currentIndex - 1);
-      }
-    }
-  };
-
-  const handlePointerCancel = () => {
-    pointerStartX.current = null;
-    pointerStartY.current = null;
-  };
-
   return (
     <section
       id="hero"
+      ref={emblaRef}
       className="relative w-full overflow-hidden touch-pan-y"
       style={{ aspectRatio: "4/3" }}
-      onPointerDown={handlePointerDown}
-      onPointerUp={handlePointerUp}
-      onPointerCancel={handlePointerCancel}
       aria-roledescription="carousel"
       aria-label="Hero Carousel"
     >
       <style>{`@media (min-width: 1024px) { #hero { aspect-ratio: auto; height: 100vh; } }`}</style>
 
-      {/* Background images */}
-      {slides.map((i) => (
-        <div
-          key={i}
-          className={`slide ${i === currentIndex ? "active" : ""}`}
-        >
-          <img
-            src={toStaticAssetUrl(SLIDE_IMAGES[i])}
-            width={1920}
-            height={1080}
-            className="absolute inset-0 w-full h-full object-cover"
-            style={{ filter: "brightness(.95)" }}
-            alt={t(`home.hero.slides.s${i}.label`)}
-            loading={i === 0 ? "eager" : "lazy"}
-            fetchPriority={i === 0 ? "high" : "low"}
-            decoding={i === 0 ? "sync" : "async"}
-          />
+      {/* Background images embla track */}
+      <div className="flex h-full w-full">
+        {slides.map((i) => (
           <div
-            className="absolute inset-0"
-            style={{
-              background:
-                "linear-gradient(to top, rgba(28,28,28,.95) 0%, rgba(28,28,28,.45) 35%, transparent 100%)",
-            }}
-          />
-          <div
-            className="absolute inset-0"
-            style={{
-              background:
-                "linear-gradient(to right, rgba(28,28,28,.5) 28%, transparent 75%)",
-            }}
-          />
-        </div>
-      ))}
+            key={i}
+            className={`slide min-w-0 shrink-0 grow-0 basis-full relative h-full ${i === currentIndex ? "active" : ""}`}
+          >
+            <img
+              src={toStaticAssetUrl(SLIDE_IMAGES[i])}
+              width={1920}
+              height={1080}
+              className="absolute inset-0 w-full h-full object-cover"
+              style={{ filter: "brightness(.95)" }}
+              alt={t(`home.hero.slides.s${i}.label`)}
+              loading={i === 0 ? "eager" : "lazy"}
+              fetchPriority={i === 0 ? "high" : "low"}
+              decoding={i === 0 ? "sync" : "async"}
+            />
+            <div
+              className="absolute inset-0"
+              style={{
+                background:
+                  "linear-gradient(to top, rgba(28,28,28,.95) 0%, rgba(28,28,28,.45) 35%, transparent 100%)",
+              }}
+            />
+            <div
+              className="absolute inset-0"
+              style={{
+                background:
+                  "linear-gradient(to right, rgba(28,28,28,.5) 28%, transparent 75%)",
+              }}
+            />
+          </div>
+        ))}
+      </div>
 
-      {/* Content panels — each t() call is inline JSX so Tolgee can inject _tolgee DOM attributes */}
-      <div className="absolute inset-0 z-10 flex flex-col justify-center px-4 md:px-12 lg:px-20 pt-4 lg:pt-20 pb-8 lg:pb-24">
+      {/* Content panels */}
+      <div className="absolute inset-0 z-10 flex flex-col justify-center px-4 md:px-12 lg:px-20 pt-4 lg:pt-20 pb-8 lg:pb-24 pointer-events-none">
         <div className="grid max-w-3xl w-full">
           {slides.map((slideIndex) => {
             const isActive = slideIndex === currentIndex;
@@ -199,7 +176,7 @@ export function HeroSlider() {
                 <div
                   ref={isActive ? btnRowRef : undefined}
                   data-hero-buttons
-                  className="flex flex-wrap gap-2 lg:gap-4"
+                  className="flex flex-wrap gap-2 lg:gap-4 pointer-events-auto"
                 >
                   <a
                     href="#products"
@@ -225,7 +202,7 @@ export function HeroSlider() {
       {/* Navigation dots */}
       <div
         ref={dotsRef}
-        className={`absolute bottom-4 sm:bottom-10 z-10 flex gap-2 sm:gap-3 items-center transition-all duration-300 ${
+        className={`absolute bottom-4 sm:bottom-10 z-10 flex gap-2 sm:gap-3 items-center transition-all duration-300 pointer-events-auto ${
           isOverlap ? "right-4 sm:right-6 md:right-20" : "left-4 sm:left-6 md:left-20"
         }`}
       >
@@ -252,5 +229,3 @@ export function HeroSlider() {
     </section>
   );
 }
-
-

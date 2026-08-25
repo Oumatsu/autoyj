@@ -42,7 +42,7 @@ export async function runFeishuScheduledSync(env: Env): Promise<FeishuSyncResult
   let models = 0, trims = 0, vehicles = 0, users = 0, articles = 0, lessons = 0, vault = 0;
   const errors: Array<{ table: string; message: string }> = [];
 
-  const MAX_SYNC_DURATION_MS = 25000;
+  const MAX_SYNC_DURATION_MS = 15000;
   const isBudgetExhausted = () => Date.now() - startTime > MAX_SYNC_DURATION_MS;
 
   const run = async <T>(table: string, sync: () => Promise<T>, onSuccess: (result: T) => void) => {

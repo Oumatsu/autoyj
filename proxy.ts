@@ -19,8 +19,11 @@ const nextIntlProxy = createMiddleware(routing);
 export function isLocaleProxySkipPath(pathname: string): boolean {
   return (
     pathname === "/__scheduled" ||
+    pathname === "/admin" ||
+    pathname.startsWith("/admin/") ||
     pathname.startsWith("/_next") ||
     pathname.startsWith("/api") ||
+    pathname.startsWith("/pic") ||
     pathname.startsWith("/favicon") ||
     pathname.startsWith("/logo") ||
     pathname.startsWith("/icons") ||
@@ -56,6 +59,13 @@ function redirectPortalToEnglish(request: NextRequest): NextResponse {
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  const adminMatch = pathname.match(/^\/(zh|en|am)(\/admin(\/.*)?)$/);
+  if (adminMatch) {
+    const url = request.nextUrl.clone();
+    url.pathname = adminMatch[2];
+    return NextResponse.redirect(url, { status: 308 });
+  }
 
   if (isLocaleProxySkipPath(pathname)) {
     return NextResponse.next();

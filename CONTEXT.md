@@ -35,3 +35,6 @@ Canonical glossary and domain entities for Youguard Auto Export Supply Chain por
 
 - **User (用户主体)**: Better Auth 驱动的用户账号，划分为 4 种核心角色：`admin` | `sales` | `partner` | `customer`。
 - **TelegramUserBinding (Telegram 双向绑定)**: 记录系统内部 `userId` 与 Telegram `chat_id` / 用户名的映射关系，提供实时的多渠道询价雷达通知与一键回访链接。
+- **PushSubscription (PWA 浏览器推送订阅)**: 记录用户在各终端设备（1:N）上授权的 W3C Web Push 凭据（包含 `endpoint`、`p256dh` 与 `auth` 密钥），用于在未绑定 Telegram 或桌面在线时实现即时商机弹窗。
+- **NotificationDeliveryPolicy (通知多通道投递策略)**: 询价产生新动态时，优先走 Telegram 机器人直推；若用户未绑定 Telegram，自动降级（Fallback）投递名下所有有效 `PushSubscription`，在收到 410/404 响应时自动清理失效订阅。
+

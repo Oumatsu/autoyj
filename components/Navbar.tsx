@@ -17,7 +17,6 @@ export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mobileVehiclesOpen, setMobileVehiclesOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pathname = usePathname();
   const router = useRouter();
   const { t, locale } = useTranslation();
@@ -25,23 +24,11 @@ export function Navbar() {
   const pathSegments = pathname?.split("/").filter(Boolean) ?? [];
   const isDashboardRoute = pathSegments[0] === "dashboard" || pathSegments[1] === "dashboard";
   const openDropdown = useCallback(() => {
-    if (closeTimerRef.current) {
-      clearTimeout(closeTimerRef.current);
-      closeTimerRef.current = null;
-    }
     setDropdownOpen(true);
   }, []);
 
   const closeDropdown = useCallback(() => {
-    closeTimerRef.current = setTimeout(() => {
-      setDropdownOpen(false);
-    }, 150);
-  }, []);
-
-  useEffect(() => {
-    return () => {
-      if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
-    };
+    setDropdownOpen(false);
   }, []);
 
   useEffect(() => {

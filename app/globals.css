@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 :root {
-  --font-global: var(--font-inter), -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans Ethiopic", "Kefa", "Ebrima", system-ui, sans-serif;
+  --font-global: var(--font-inter), -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Kefa", "Ebrima", system-ui, sans-serif;
 }
 
 @theme {
@@ -13,7 +13,7 @@
   /* ── Typography Tokens ── */
   --font-sans: var(--font-global);
   --font-inter: var(--font-inter), var(--font-global);
-  --font-ethiopic: "Noto Sans Ethiopic", "Kefa", "Ebrima", var(--font-global);
+  --font-ethiopic: "Kefa", "Ebrima", var(--font-global);
 
   --color-gold: #C5A059;
   --color-gold-lt: #D4AF37;

@@ -18,7 +18,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
 import { Progress } from "@/components/ui/progress";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, Copy, Check } from "lucide-react";
 import { useTranslation } from "@/i18n/useTranslation";
 import { sanitizeDisplayData } from "@/lib/display-text";
 import { getPortalSession, invalidatePortalSession } from "@/lib/portal-session-client";
@@ -33,6 +33,7 @@ import { buildInquiryCommentThreads, canViewInquiryNumber, inquiryListDetails, r
 import { useDashboardNavigation } from "@/components/DashboardNavigationContext";
 import { FeaturedVehicleCarousel } from "@/components/portal/FeaturedVehicleCarousel";
 import { selectFeaturedVehicleResources } from "@/lib/featured-vehicle-resources";
+import { NotificationChannelsDialog } from "@/components/NotificationChannelsDialog";
 
 type AdminModule = "dashboard" | "vehicle_models" | "vehicles" | "quotes" | "orders" | "payments" | "logistics" | "accounts";
 type AdminIconName = "dashboard" | "vehicle_models" | "vehicles" | "quotes" | "orders" | "payments" | "logistics" | "accounts";
@@ -585,6 +586,8 @@ function safeText(val: any, fallback = ""): string {
 
 async function api<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(path, {
+    credentials: "include",
+    signal: init?.signal || (typeof AbortSignal !== "undefined" && "timeout" in AbortSignal ? AbortSignal.timeout(12000) : undefined),
     ...init,
     headers: {
       "content-type": "application/json",
@@ -647,6 +650,11 @@ export default function PortalPage() {
   const handleNavigateInquiry = useCallback((inquiryNo: string) => {
     setTargetInquiryNo(inquiryNo);
     setActiveAdminModule("quotes");
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      url.searchParams.set("inquiry", inquiryNo);
+      window.history.pushState({ module: "quotes", inquiryNo }, "", url.toString());
+    }
   }, []);
 
   const refreshVehicles = useCallback(async () => {
@@ -753,14 +761,10 @@ export default function PortalPage() {
 
     syncFromUrl();
     window.addEventListener("popstate", syncFromUrl);
-
-    const timer = setTimeout(() => {
-      void checkSessionAndLoad();
-    }, 0);
+    void checkSessionAndLoad();
 
     return () => {
       window.removeEventListener("popstate", syncFromUrl);
-      clearTimeout(timer);
     };
   }, [checkSessionAndLoad]);
 
@@ -823,14 +827,11 @@ export default function PortalPage() {
 
   useEffect(() => {
     if (!data) return;
-    const timer = setTimeout(() => {
-      if (activeAdminModule === "vehicle_models" && !loadedModels && (!data.vehicleModelSpecs || data.vehicleModelSpecs.length === 0)) {
-        void loadModels();
-      } else if ((activeAdminModule === "vehicles" || activeAdminModule === "quotes") && !loadedVehicles && (!data.vehicles || data.vehicles.length === 0)) {
-        void loadVehicles();
-      }
-    }, 0);
-    return () => clearTimeout(timer);
+    if (activeAdminModule === "vehicle_models" && !loadedModels && (!data.vehicleModelSpecs || data.vehicleModelSpecs.length === 0)) {
+      void loadModels();
+    } else if ((activeAdminModule === "vehicles" || activeAdminModule === "quotes") && !loadedVehicles && (!data.vehicles || data.vehicles.length === 0)) {
+      void loadVehicles();
+    }
   }, [data, activeAdminModule, loadedModels, loadedVehicles, loadModels, loadVehicles]);
 
   const handleModuleChange = (module: AdminModule) => {
@@ -845,6 +846,9 @@ export default function PortalPage() {
       url.pathname = targetPath;
       url.searchParams.delete("tab");
       url.searchParams.delete("module");
+      if (module !== "quotes") {
+        url.searchParams.delete("inquiry");
+      }
       
       window.history.pushState({ module }, "", url.toString());
     }
@@ -1123,6 +1127,7 @@ function AdminPortal({
   const { t, locale } = useTranslation();
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [isNotificationDialogOpen, setIsNotificationDialogOpen] = useState(false);
   const { isDashboardNavigationOpen, setDashboardNavigationOpen } = useDashboardNavigation();
   const visibleNav = adminNavItems.filter((item) => item.roles.includes(data.user.role));
   const normalizedActiveModule = visibleNav.some((item) => item.key === activeModule) ? activeModule : "dashboard";
@@ -1277,40 +1282,34 @@ function AdminPortal({
                 <AdminTopMetric label={t("portal.orderValue")} value={formatUsdStrict(orderTotal)} />
               </div>
               <div className="flex flex-wrap items-center justify-start sm:justify-end gap-2.5">
-                {data.telegramBinding && (
-                  <a
-                    href={data.telegramBinding.bindingUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    title={
-                      data.telegramBinding.bound
-                        ? locale === "zh"
-                          ? `已绑定 Telegram 机器人通知 (@${data.telegramBinding.telegramUsername || "已绑定"})，新询价与报价回复将实时推送`
-                          : "Telegram alerts active. You will receive real-time push notifications for new replies and status updates."
-                        : locale === "zh"
-                          ? "点击绑定 Telegram 机器人，实时接收新询价与报价回复通知"
-                          : "Click to link Telegram robot to receive instant push alerts for inquiry replies and quotes."
-                    }
-                    className={`flex items-center gap-1.5 rounded-full border px-3 sm:px-4 py-2 text-[10px] font-black uppercase tracking-wider transition ${
-                      data.telegramBinding.bound
-                        ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/20"
-                        : "border-[#c5a059]/40 bg-[#c5a059]/10 text-[#dfba73] hover:bg-[#c5a059]/20"
-                    }`}
-                  >
-                    <svg className="h-3.5 w-3.5 fill-current shrink-0" viewBox="0 0 24 24">
-                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.19-.08-.05-.19-.02-.27 0-.12.03-1.99 1.27-5.61 3.72-.53.36-1.01.54-1.44.53-.47-.01-1.38-.27-2.06-.49-.83-.27-1.49-.42-1.43-.89.03-.25.38-.51 1.05-.78 4.12-1.79 6.87-2.97 8.25-3.55 3.93-1.64 4.74-1.92 5.27-1.93.12 0 .37.03.54.17.14.12.18.28.2.45-.02.07-.02.19-.04.35z"/>
-                    </svg>
-                    <span className="truncate max-w-[240px]">
-                      {data.telegramBinding.bound
-                        ? locale === "zh"
-                          ? `已绑定机器人提醒 (@${data.telegramBinding.telegramUsername || "Linked"})`
-                          : `Telegram Active (@${data.telegramBinding.telegramUsername || "linked"})`
-                        : locale === "zh"
-                          ? "绑定 Telegram 接收询价提醒 ↗"
-                          : "Link Telegram for Inquiry Alerts ↗"}
-                    </span>
-                  </a>
-                )}
+                <button
+                  type="button"
+                  data-testid="open-notification-dialog-trigger"
+                  onClick={() => setIsNotificationDialogOpen(true)}
+                  className={`flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-[10px] font-black uppercase tracking-wider transition shrink-0 ${
+                    data.telegramBinding?.bound
+                      ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/20"
+                      : "border-[#c5a059]/40 bg-[#c5a059]/10 text-[#dfba73] hover:bg-[#c5a059]/20"
+                  }`}
+                  title={
+                    locale === "zh"
+                      ? "配置多渠道实时消息提醒 (Telegram & PWA 桌面推送)"
+                      : "Configure real-time notification delivery (Telegram & PWA Web Push)"
+                  }
+                >
+                  <svg className="h-3.5 w-3.5 fill-current shrink-0" viewBox="0 0 24 24">
+                    <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z" />
+                  </svg>
+                  <span>
+                    {data.telegramBinding?.bound
+                      ? locale === "zh"
+                        ? `通知已激活 (@${data.telegramBinding.telegramUsername || "Linked"})`
+                        : `Alerts Active (@${data.telegramBinding.telegramUsername || "Linked"})`
+                      : locale === "zh"
+                        ? "通知与提醒设置"
+                        : "Notification Alerts"}
+                  </span>
+                </button>
                 <button
                   type="button"
                   onClick={() => void onLogout()}
@@ -1321,6 +1320,13 @@ function AdminPortal({
               </div>
             </div>
           </header>
+
+          <NotificationChannelsDialog
+            isOpen={isNotificationDialogOpen}
+            onClose={() => setIsNotificationDialogOpen(false)}
+            telegramBinding={data.telegramBinding}
+            locale={locale}
+          />
 
           {error && (
             <Alert variant="destructive" className="mb-5">
@@ -2187,9 +2193,9 @@ function AdminVehicles({ data, onEdit, onRefresh, onRefreshData }: { data: Boots
     setExpandedModels(new Set([selectedModel.key]));
     setExpandedVariants(new Set([`${selectedModel.key}::${selectedVariant.key}`]));
     setFeaturedVehicleId(vehicleId);
-    window.setTimeout(() => {
+    requestAnimationFrame(() => {
       document.querySelector(`[data-vehicle-resource-id="${CSS.escape(vehicleId)}"]`)?.scrollIntoView({ behavior: "smooth", block: "center" });
-    }, 50);
+    });
   }, [data.vehicles, sellableModels]);
 
   useEffect(() => {
@@ -2227,14 +2233,10 @@ function AdminVehicles({ data, onEdit, onRefresh, onRefreshData }: { data: Boots
           </p>
         </div>
 
-        {/* 鍔ㄦ€佸疄鐢ㄧ瓫閫変笌鍏ㄦ枃鎼滅储宸ュ叿鏍?*/}
-        <div className={`mt-5 grid gap-3 border-t border-white/10 pt-4 sm:items-center ${
-          canSeeSupplier
-            ? "sm:grid-cols-[minmax(0,2fr)_minmax(0,1.2fr)_minmax(0,1.2fr)_minmax(0,1fr)_auto_auto]"
-            : "sm:grid-cols-[minmax(0,2fr)_minmax(0,1.2fr)_minmax(0,1fr)_auto_auto]"
-        }`}>
-          {/* 鍏ㄦ枃鎼滅储妗?*/}
-          <div className="relative">
+        {/* 动态实用筛选与全文搜索工具栏 (响应式流式布局，自适应各断点) */}
+        <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-white/10 pt-4">
+          {/* 全文搜索框 */}
+          <div className="relative min-w-[200px] flex-1">
             <span className="pointer-events-none absolute inset-y-0 left-3.5 flex items-center text-slate-500">
               🔍
             </span>
@@ -2250,7 +2252,7 @@ function AdminVehicles({ data, onEdit, onRefresh, onRefreshData }: { data: Boots
           <select
             value={brandFilter}
             onChange={(e) => setBrandFilter(e.target.value)}
-            className="rounded-xl border border-white/10 bg-[#0c1424] px-3 py-2.5 text-xs font-medium text-white outline-none transition focus:border-[#22b8aa]"
+            className="w-full sm:w-auto min-w-[140px] rounded-xl border border-white/10 bg-[#0c1424] px-3.5 py-2.5 text-xs font-medium text-white outline-none transition focus:border-[#22b8aa]"
           >
             <option value="all">{t("portal.allBrands")}</option>
             {brandOptions.map((brand) => (
@@ -2258,22 +2260,22 @@ function AdminVehicles({ data, onEdit, onRefresh, onRefreshData }: { data: Boots
             ))}
           </select>
 
-          {/* 鍏ㄩ儴渚涘簲鍟嗕笅鎷?*/}
+          {/* 全部供应商下拉 */}
           {canSeeSupplier && (
-          <select
-            value={supplierFilter}
-            onChange={(e) => setSupplierFilter(e.target.value)}
-            className="rounded-xl border border-white/10 bg-[#0c1424] px-3 py-2.5 text-xs font-medium text-white outline-none transition focus:border-[#22b8aa]"
-          >
-            <option value="all">{t("portal.allSuppliers")}</option>
-            {displaySupplierOptions.map((supplier) => (
-              <option key={supplier} value={supplier}>{localizeVehicleValue(supplier, locale)}</option>
-            ))}
-          </select>
+            <select
+              value={supplierFilter}
+              onChange={(e) => setSupplierFilter(e.target.value)}
+              className="w-full sm:w-auto min-w-[140px] rounded-xl border border-white/10 bg-[#0c1424] px-3.5 py-2.5 text-xs font-medium text-white outline-none transition focus:border-[#22b8aa]"
+            >
+              <option value="all">{t("portal.allSuppliers")}</option>
+              {displaySupplierOptions.map((supplier) => (
+                <option key={supplier} value={supplier}>{localizeVehicleValue(supplier, locale)}</option>
+              ))}
+            </select>
           )}
 
           {/* 供应状态分段选择器 (Segmented Pills) */}
-          <div className="flex items-center rounded-xl border border-white/10 bg-[#0c1424] p-0.5">
+          <div className="flex shrink-0 items-center rounded-xl border border-white/10 bg-[#0c1424] p-0.5">
             {[
               { value: "all", label: t("portal.allStatuses") },
               { value: "in-stock", label: t("portal.inStock") },
@@ -2283,7 +2285,7 @@ function AdminVehicles({ data, onEdit, onRefresh, onRefreshData }: { data: Boots
                 key={opt.value}
                 type="button"
                 onClick={() => setSupplyFilter(opt.value)}
-                className={`rounded-lg px-3 py-2 text-xs font-semibold transition ${
+                className={`rounded-lg px-3 py-2 text-xs font-semibold transition shrink-0 ${
                   supplyFilter === opt.value
                     ? "bg-[#22b8aa] text-white shadow-sm font-bold"
                     : "text-slate-400 hover:text-white"
@@ -2294,34 +2296,36 @@ function AdminVehicles({ data, onEdit, onRefresh, onRefreshData }: { data: Boots
             ))}
           </div>
 
-          <button
-            type="button"
-            onClick={() => {
-              void onRefresh();
-            }}
-            className="inline-flex items-center gap-1.5 rounded-xl border border-[#22b8aa]/30 bg-[#22b8aa]/10 px-3.5 py-2.5 text-xs font-bold text-[#5ee6d8] transition hover:border-[#22b8aa] hover:bg-[#22b8aa]/15 hover:text-white"
-            aria-label={t("portal.refreshVehicleResources")}
-            title={t("portal.refreshVehicleResources")}
-          >
-            <RefreshCw className="h-3.5 w-3.5" aria-hidden="true" />
-            {t("portal.refreshVehicleResources")}
-          </button>
+          <div className="flex shrink-0 items-center gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                void onRefresh();
+              }}
+              className="inline-flex items-center gap-1.5 rounded-xl border border-[#22b8aa]/30 bg-[#22b8aa]/10 px-3.5 py-2.5 text-xs font-bold text-[#5ee6d8] transition hover:border-[#22b8aa] hover:bg-[#22b8aa]/15 hover:text-white"
+              aria-label={t("portal.refreshVehicleResources")}
+              title={t("portal.refreshVehicleResources")}
+            >
+              <RefreshCw className="h-3.5 w-3.5" aria-hidden="true" />
+              {t("portal.refreshVehicleResources")}
+            </button>
 
-          {/* 重置按钮 */}
-          <button
-            type="button"
-            onClick={() => {
-              setSearchQuery("");
-              setBrandFilter("all");
-              setSupplierFilter("all");
-              setSupplyFilter("all");
-              setExpandedModels(new Set());
-              setExpandedVariants(new Set());
-            }}
-            className="inline-flex items-center justify-center rounded-xl border border-white/10 bg-white/[.04] px-3.5 py-2.5 text-xs font-bold text-slate-300 transition hover:border-[#22b8aa] hover:bg-[#22b8aa]/10 hover:text-white"
-          >
-            {t("portal.reset")}
-          </button>
+            {/* 重置按钮 */}
+            <button
+              type="button"
+              onClick={() => {
+                setSearchQuery("");
+                setBrandFilter("all");
+                setSupplierFilter("all");
+                setSupplyFilter("all");
+                setExpandedModels(new Set());
+                setExpandedVariants(new Set());
+              }}
+              className="inline-flex items-center justify-center rounded-xl border border-white/10 bg-white/[.04] px-3.5 py-2.5 text-xs font-bold text-slate-300 transition hover:border-[#22b8aa] hover:bg-[#22b8aa]/10 hover:text-white"
+            >
+              {t("portal.reset")}
+            </button>
+          </div>
         </div>
       </section>
 
@@ -2667,26 +2671,29 @@ function parseInquirySnapshot(value: string): InquirySnapshot {
   }
 }
 
-function InquirySnapshotDetails({ inquiry }: { inquiry: Inquiry }) {
+function InquirySnapshotDetails({ inquiry, data }: { inquiry: Inquiry; data?: BootstrapData }) {
   const { locale } = useTranslation();
   const labels = locale === "zh" ? {
-    model: "车型", quantity: "数量", color: "颜色", configuration: "配置", steering: "方向盘", marketVersion: "市场版本", location: "所在地", tradeTerm: "贸易条款", fobPrice: "FOB 价格", targetPrice: "目标价格", destinationPort: "目的港", units: "辆",
+    model: "车型", quantity: "数量", color: "颜色", configuration: "配置", steering: "方向盘", marketVersion: "市场版本", location: "所在地", tradeTerm: "贸易条款", fobPrice: "参考 FOB 价格", targetPrice: "目标价格", destinationPort: "目的港", units: "辆",
   } : locale === "am" ? {
-    model: "ሞዴል", quantity: "ብዛት", color: "ቀለም", configuration: "ውቅር", steering: "መሪ", marketVersion: "የገበያ ስሪት", location: "ቦታ", tradeTerm: "የንግድ ውል", fobPrice: "FOB ዋጋ", targetPrice: "የታለመ ዋጋ", destinationPort: "የመድረሻ ወደብ", units: "ክፍሎች",
+    model: "ሞዴል", quantity: "ብዛት", color: "ቀለም", configuration: "ውቅር", steering: "መሪ", marketVersion: "የገበያ ስሪት", location: "ቦታ", tradeTerm: "የንግድ ውል", fobPrice: "የFOB ዋጋ", targetPrice: "የታለመ ዋጋ", destinationPort: "የመድረሻ ወደብ", units: "ክፍሎች",
   } : {
-    model: "Model", quantity: "Quantity", color: "Color", configuration: "Configuration", steering: "Steering", marketVersion: "Market version", location: "Location", tradeTerm: "Trade term", fobPrice: "FOB price", targetPrice: "Target price", destinationPort: "Destination port", units: "units",
+    model: "Model", quantity: "Quantity", color: "Color", configuration: "Configuration", steering: "Steering", marketVersion: "Market version", location: "Location", tradeTerm: "Trade term", fobPrice: "Ref FOB price", targetPrice: "Target price", destinationPort: "Destination port", units: "units",
   };
   const snapshot = parseInquirySnapshot(inquiry.vehicleSnapshot);
+  const matchedVehicle = data?.vehicles?.find((v) => v.id === inquiry.vehicleId || v.vehicle_id === inquiry.vehicleId);
+  const refPrice = snapshot.priceUsd || matchedVehicle?.fob_usd || matchedVehicle?.display_price_low;
+
   const details = [
-    [labels.model, [snapshot.brand, snapshot.model, snapshot.variant].filter(Boolean).join(" ") || inquiry.vehicleModel],
+    [labels.model, [snapshot.brand || matchedVehicle?.brand, snapshot.model || matchedVehicle?.model, snapshot.variant || matchedVehicle?.variant].filter(Boolean).join(" ") || inquiry.vehicleModel],
     [labels.quantity, `${inquiry.quantity} ${labels.units}`],
-    [labels.color, [snapshot.exteriorColor, snapshot.interiorColor, snapshot.color].filter(Boolean).join(" / ")],
-    [labels.configuration, snapshot.configuration],
-    [labels.steering, snapshot.steering],
+    [labels.color, [snapshot.exteriorColor || matchedVehicle?.exterior_color, snapshot.interiorColor || matchedVehicle?.interior_color, snapshot.color || matchedVehicle?.color].filter(Boolean).join(" / ")],
+    [labels.configuration, snapshot.configuration || matchedVehicle?.variant],
+    [labels.steering, snapshot.steering || matchedVehicle?.steering],
     [labels.marketVersion, snapshot.marketVersion],
-    [labels.location, snapshot.location],
+    [labels.location, snapshot.location || matchedVehicle?.location],
     [labels.tradeTerm, inquiry.tradeTerm],
-    [labels.fobPrice, snapshot.priceUsd ? `USD ${Number(snapshot.priceUsd).toLocaleString()}` : ""],
+    [labels.fobPrice, refPrice ? `USD ${Number(refPrice).toLocaleString()}` : ""],
     [labels.targetPrice, inquiry.targetPrice ? `USD ${inquiry.targetPrice.toLocaleString()}` : ""],
     [labels.destinationPort, inquiry.destinationPort],
   ].filter(([, value]) => Boolean(value));
@@ -2713,12 +2720,20 @@ function AdminQuotes({ data, onRefresh, initialInquiryNo }: { data: BootstrapDat
     }
     return data.inquiries[0]?.inquiryNo || "";
   });
+  const [copiedInquiryLink, setCopiedInquiryLink] = useState(false);
+
+  useEffect(() => {
+    if (!copiedInquiryLink) return;
+    const timer = setTimeout(() => setCopiedInquiryLink(false), 2000);
+    return () => clearTimeout(timer);
+  }, [copiedInquiryLink]);
 
   useEffect(() => {
     if (initialInquiryNo && data.inquiries.some((i) => i.inquiryNo === initialInquiryNo)) {
       setSelectedNo(initialInquiryNo);
     }
   }, [initialInquiryNo, data.inquiries]);
+
   const [note, setNote] = useState("");
   const [replyTo, setReplyTo] = useState("");
   const [showNew, setShowNew] = useState(data.inquiries.length === 0);
@@ -2757,11 +2772,11 @@ function AdminQuotes({ data, onRefresh, initialInquiryNo }: { data: BootstrapDat
       ? { manageClosedInquiries: "የተዘጉ ጥያቄዎችን አስተዳድር", closedInquiryTitle: "የተዘጉ ጥያቄዎች", closedInquiryDescription: "የተዘጉ ጥያቄዎች በንቁ ዝርዝሩ ውስጥ አይታዩም። ከተመለሱ በኋላ እንደ አዲስ ጥያቄ ይታያሉ።", closedInquiryEmpty: "የተዘጋ ጥያቄ የለም።", restoreInquiry: "ጥያቄን መልስ", deleteClosedInquiry: "ጥያቄን ለዘላለም ሰርዝ", deleteInquiryConfirmation: "ይህን ጥያቄ እና ሁሉንም አስተያየቶቹን፣ ጥቅሶቹን፣ ድርድሮቹን እና የትዕዛዝ መዝገቦቹን ለዘላለም ሰርዝ? ይህ ሊመለስ አይችልም።", closedAt: "የተዘጋበት ጊዜ", initiator: "አስጀማሪ" }
       : { manageClosedInquiries: "Manage closed inquiries", closedInquiryTitle: "Closed inquiries", closedInquiryDescription: "Closed inquiries are hidden from active discussions. Restoring one returns it as a new inquiry.", closedInquiryEmpty: "No closed inquiries.", restoreInquiry: "Restore inquiry", deleteClosedInquiry: "Delete inquiry permanently", deleteInquiryConfirmation: "Permanently delete this inquiry and all of its comments, quotes, negotiations, and orders? This cannot be undone.", closedAt: "Closed", initiator: "Initiator" };
   const commentCopy = locale === "zh" ? {
-    inquiryRequest: "询价请求", closeComment: "关闭评论", reply: "引用回复", cancel: "取消", replyPlaceholder: "写一条引用回复", messagePlaceholder: "写一条消息", send: "发送消息", sendReply: "发送引用回复", saving: "保存中…", noMessages: "此询价暂无评论。", hiddenTitle: "已关闭的评论", hiddenDescription: "关闭仅会从主会话中隐藏单条评论，不会关闭或删除整条询价。", hiddenEmpty: "没有已关闭的评论。", restore: "恢复评论", deletePermanently: "永久删除", manageHidden: "管理已关闭评论", inquiryNo: "询价单号", vehicle: "关联车型", initiator: "发起人", inquiryStarted: "询价发起时间", subject: "询价标题", quantity: "数量", tradeTerm: "贸易条款", destinationPort: "目的港", initialNote: "初始备注", commentAuthor: "评论作者", commentCreatedAt: "评论创建时间", commentClosedAt: "评论关闭时间", hiddenPlaceholder: "此条评论已被管理员屏蔽", closeWithRepliesTitle: "此评论包含回复", closeWithRepliesDescription: "请选择关闭整个回复链，或仅屏蔽当前评论并保留子评论。", closeThread: "同时关闭子评论", hideOnlyThis: "仅屏蔽此条",
+    inquiryRequest: "询价请求", closeComment: "关闭评论", reply: "引用回复", cancel: "取消", replyPlaceholder: "写一条引用回复", messagePlaceholder: "写一条消息", send: "发送消息", sendReply: "发送引用回复", saving: "保存中…", noMessages: "此询价暂无评论。", hiddenTitle: "已关闭的评论", hiddenDescription: "关闭仅会从主会话中隐藏单条评论，不会关闭或删除整条询价。", hiddenEmpty: "没有已关闭的评论。", restore: "恢复评论", deletePermanently: "永久删除", manageHidden: "管理已关闭评论", inquiryNo: "询价单号", vehicle: "关联车型", initiator: "发起人", inquiryStarted: "询价发起时间", subject: "询价标题", quantity: "数量", tradeTerm: "贸易条款", destinationPort: "目的港", initialNote: "初始备注", commentAuthor: "评论作者", commentCreatedAt: "评论创建时间", commentClosedAt: "评论关闭时间", hiddenPlaceholder: "此条评论已被管理员屏蔽", closeWithRepliesTitle: "此评论包含回复", closeWithRepliesDescription: "请选择关闭整个回复链，或仅屏蔽当前评论并保留子评论。", closeThread: "同时关闭子评论", hideOnlyThis: "仅屏蔽此条", copyLink: "复制直达链接", linkCopied: "已复制直达链接",
   } : locale === "am" ? {
-    inquiryRequest: "የጥያቄ ጥያቄ", closeComment: "አስተያየት ዝጋ", reply: "ጥቅስ ምላሽ", cancel: "ሰርዝ", replyPlaceholder: "የጥቅስ ምላሽ ይጻፉ", messagePlaceholder: "መልእክት ይጻፉ", send: "መልእክት ላክ", sendReply: "የጥቅስ ምላሽ ላክ", saving: "በማስቀመጥ ላይ…", noMessages: "በዚህ ጥያቄ ላይ ገና አስተያየት የለም።", hiddenTitle: "የተዘጉ አስተያየቶች", hiddenDescription: "መዝጋት አንድን አስተያየት ከዋናው ውይይት ብቻ ይደብቃል፤ ጥያቄውን አይዘጋውም ወይም አይሰርዘውም።", hiddenEmpty: "የተዘጉ አስተያየቶች የሉም።", restore: "አስተያየት መልስ", deletePermanently: "በቋሚነት ሰርዝ", manageHidden: "የተዘጉ አስተያየቶችን አስተዳድር", inquiryNo: "የጥያቄ ቁጥር", vehicle: "ተሽከርካሪ", initiator: "አስጀማሪ", inquiryStarted: "ጥያቄ የተጀመረበት ጊዜ", subject: "ርዕስ", quantity: "ብዛት", tradeTerm: "የንግድ ውል", destinationPort: "መድረሻ ወደብ", initialNote: "የመጀመሪያ ማስታወሻ", commentAuthor: "የአስተያየት ጸሐፊ", commentCreatedAt: "አስተያየት የተጻፈበት ጊዜ", commentClosedAt: "አስተያየት የተዘጋበት ጊዜ", hiddenPlaceholder: "ይህ አስተያየት በአስተዳዳሪ ተደብቋል።", closeWithRepliesTitle: "ይህ አስተያየት ምላሾች አሉት", closeWithRepliesDescription: "ሙሉውን የምላሽ ሰንሰለት ይዝጉ ወይም ይህን አስተያየት ብቻ ይደብቁ።", closeThread: "ምላሾቹን ጨምሮ ዝጋ", hideOnlyThis: "ይህን ብቻ ደብቅ",
+    inquiryRequest: "የጥያቄ ጥያቄ", closeComment: "አስተያየት ዝጋ", reply: "ጥቅስ ምላሽ", cancel: "ሰርዝ", replyPlaceholder: "የጥቅስ ምላሽ ይጻፉ", messagePlaceholder: "መልእክት ይጻፉ", send: "መልእክት ላክ", sendReply: "የጥቅስ ምላሽ ላክ", saving: "በማስቀመጥ ላይ…", noMessages: "በዚህ ጥያቄ ላይ ገና አስተያየት የለም።", hiddenTitle: "የተዘጉ አስተያየቶች", hiddenDescription: "መዝጋት አንድን አስተያየት ከዋናው ውይይት ብቻ ይደብቃል፤ ጥያቄውን አይዘጋውም ወይም አይሰርዘውም።", hiddenEmpty: "የተዘጉ አስተያየቶች የሉም።", restore: "አስተያየት መልስ", deletePermanently: "በቋሚነት ሰርዝ", manageHidden: "የተዘጉ አስተያየቶችን አስተዳድር", inquiryNo: "የጥያቄ ቁጥር", vehicle: "ተሽከርካሪ", initiator: "አስጀማሪ", inquiryStarted: "ጥያቄ የተጀመረበት ጊዜ", subject: "ርዕስ", quantity: "ብዛት", tradeTerm: "የንግድ ውል", destinationPort: "መድረሻ ወደብ", initialNote: "የመጀመሪያ ማስታወሻ", commentAuthor: "የአስተያየት ጸሐፊ", commentCreatedAt: "አስተያየት የተጻፈበት ጊዜ", commentClosedAt: "አስተያየት የተዘጋበት ጊዜ", hiddenPlaceholder: "ይህ አስተያየት በአስተዳዳሪ ተደብቋል።", closeWithRepliesTitle: "ይህ አስተያየት ምላሾች አሉት", closeWithRepliesDescription: "ሙሉውን የምላሽ ሰንሰለት ይዝጉ ወይም ይህን አስተያየት ብቻ ይደብቁ።", closeThread: "ምላሾቹን ጨምሮ ዝጋ", hideOnlyThis: "ይህን ብቻ ደብቅ", copyLink: "አገናኝ ቅዳ", linkCopied: "አገናኝ ተቀድቷል!",
   } : {
-    inquiryRequest: "Inquiry request", closeComment: "Close comment", reply: "Quote reply", cancel: "Cancel", replyPlaceholder: "Write a quote reply", messagePlaceholder: "Write a message", send: "Send message", sendReply: "Send quote reply", saving: "Saving…", noMessages: "No comments in this inquiry yet.", hiddenTitle: "Closed comments", hiddenDescription: "Closing only hides one comment from the main conversation. It does not close or delete the inquiry.", hiddenEmpty: "No closed comments.", restore: "Restore comment", deletePermanently: "Delete permanently", manageHidden: "Manage closed comments", inquiryNo: "Inquiry no.", vehicle: "Vehicle", initiator: "Initiator", inquiryStarted: "Inquiry started", subject: "Inquiry title", quantity: "Quantity", tradeTerm: "Trade term", destinationPort: "Destination port", initialNote: "Initial note", commentAuthor: "Comment author", commentCreatedAt: "Comment created", commentClosedAt: "Comment closed", hiddenPlaceholder: "This comment has been hidden by an administrator.", closeWithRepliesTitle: "This comment has replies", closeWithRepliesDescription: "Close the entire reply thread, or hide only this comment and keep its replies visible.", closeThread: "Close with replies", hideOnlyThis: "Hide only this comment",
+    inquiryRequest: "Inquiry request", closeComment: "Close comment", reply: "Quote reply", cancel: "Cancel", replyPlaceholder: "Write a quote reply", messagePlaceholder: "Write a message", send: "Send message", sendReply: "Send quote reply", saving: "Saving…", noMessages: "No comments in this inquiry yet.", hiddenTitle: "Closed comments", hiddenDescription: "Closing only hides one comment from the main conversation. It does not close or delete the inquiry.", hiddenEmpty: "No closed comments.", restore: "Restore comment", deletePermanently: "Delete permanently", manageHidden: "Manage closed comments", inquiryNo: "Inquiry no.", vehicle: "Vehicle", initiator: "Initiator", inquiryStarted: "Inquiry started", subject: "Inquiry title", quantity: "Quantity", tradeTerm: "Trade term", destinationPort: "Destination port", initialNote: "Initial note", commentAuthor: "Comment author", commentCreatedAt: "Comment created", commentClosedAt: "Comment closed", hiddenPlaceholder: "This comment has been hidden by an administrator.", closeWithRepliesTitle: "This comment has replies", closeWithRepliesDescription: "Close the entire reply thread, or hide only this comment and keep its replies visible.", closeThread: "Close with replies", hideOnlyThis: "Hide only this comment", copyLink: "Copy Link", linkCopied: "Link Copied!",
   };
   const inquiries = data.inquiries.filter((inquiry) => inquiry.status.trim().toLowerCase() !== "closed");
   const visibleInquiries = inquiries.filter((inquiry) => {
@@ -2789,12 +2804,28 @@ function AdminQuotes({ data, onRefresh, initialInquiryNo }: { data: BootstrapDat
 
   useEffect(() => {
     if (selected?.hasUnreadFollowUps) {
-      const timer = setTimeout(() => {
-        void markInquiryRead(selected);
-      }, 0);
-      return () => clearTimeout(timer);
+      void markInquiryRead(selected);
     }
   }, [markInquiryRead, selected]);
+
+  useEffect(() => {
+    if (selected && typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      if (url.searchParams.get("inquiry") !== selected.inquiryNo) {
+        url.searchParams.set("inquiry", selected.inquiryNo);
+        window.history.replaceState(null, "", url.toString());
+      }
+    }
+  }, [selected]);
+
+  const handleCopyInquiryLink = () => {
+    if (!selected) return;
+    const base = typeof window !== "undefined" ? window.location.origin : "https://youguard.net";
+    const link = `${base}/portal?inquiry=${encodeURIComponent(selected.inquiryNo)}`;
+    navigator.clipboard.writeText(link).then(() => {
+      setCopiedInquiryLink(true);
+    });
+  };
 
   async function select(inquiry: Inquiry) {
     setSelectedNo(inquiry.inquiryNo);
@@ -2802,8 +2833,44 @@ function AdminQuotes({ data, onRefresh, initialInquiryNo }: { data: BootstrapDat
     setNote("");
     setShowQuoteComposer(false);
     setError("");
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      url.searchParams.set("inquiry", inquiry.inquiryNo);
+      window.history.replaceState(null, "", url.toString());
+    }
   }
-  async function create(event: React.FormEvent) { event.preventDefault(); if ((requiresInquiryTitle(target) && !title.trim()) || !initialNote.trim()) return; setBusy(true); try { await api("/api/portal/inquiries", { method: "POST", body: JSON.stringify({ vehicleId: target.vehicleId, vehicleModel: target.vehicleModel, title, quantity: newInquiryQuantity, tradeTerm: "FOB", notes: initialNote }) }); setShowNew(false); await onRefresh(); } catch (e) { setError(e instanceof Error ? e.message : "Could not start inquiry"); } finally { setBusy(false); } }
+  async function create(event: React.FormEvent) {
+    event.preventDefault();
+    if ((requiresInquiryTitle(target) && !title.trim()) || !initialNote.trim()) return;
+    setBusy(true);
+    try {
+      const result = await api<{ inquiryNo?: string }>("/api/portal/inquiries", {
+        method: "POST",
+        body: JSON.stringify({
+          vehicleId: target.vehicleId,
+          vehicleModel: target.vehicleModel,
+          title,
+          quantity: newInquiryQuantity,
+          tradeTerm: "FOB",
+          notes: initialNote,
+        }),
+      });
+      setShowNew(false);
+      await onRefresh();
+      if (result?.inquiryNo) {
+        setSelectedNo(result.inquiryNo);
+        if (typeof window !== "undefined") {
+          const url = new URL(window.location.href);
+          url.searchParams.set("inquiry", result.inquiryNo);
+          window.history.replaceState(null, "", url.toString());
+        }
+      }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Could not start inquiry");
+    } finally {
+      setBusy(false);
+    }
+  }
   async function post(event: React.FormEvent) { event.preventDefault(); if (!selected || !note.trim()) return; setBusy(true); try { const result = await api<{ note: InquiryNote }>(`/api/portal/inquiries/${encodeURIComponent(selected.inquiryNo)}/notes`, { method: "POST", body: JSON.stringify({ body: note, parentNoteId: replyTo }) }); setPostedNotes((current) => appendInquiryComment(current, result.note)); setNote(""); setReplyTo(""); } catch (e) { setError(e instanceof Error ? e.message : "Could not add follow-up"); } finally { setBusy(false); } }
   async function submitCommentClosure(comment: InquiryNote, mode: "single" | "cascade") { setBusy(true); setError(""); try { const result = await api<{ closedNoteIds: string[] }>(`/api/portal/inquiry-content/note/${encodeURIComponent(comment.noteId)}`, { method: "DELETE", body: JSON.stringify({ reason: "Closed by administrator", mode }) }); const closedNoteIds = new Set(result.closedNoteIds || [comment.noteId]); setPostedNotes((current) => current.filter((item) => !closedNoteIds.has(item.noteId))); setReplyTo(""); setCommentPendingClosure(null); await onRefresh(); } catch (e) { setError(e instanceof Error ? e.message : "Could not close comment"); } finally { setBusy(false); } }
   function closeComment(comment: InquiryNote) { if (notes.some((item) => item.parentNoteId === comment.noteId)) { setCommentPendingClosure(comment); return; } if (!window.confirm(`${copy.closeComment}?`)) return; void submitCommentClosure(comment, "single"); }
@@ -2843,9 +2910,23 @@ function AdminQuotes({ data, onRefresh, initialInquiryNo }: { data: BootstrapDat
       </aside>
       {selected && <section className="min-w-0">
         <div className="rounded-lg border border-white/10 bg-[#0b1425] p-4">
-          <div className="flex items-center gap-2"><p className="text-[10px] font-black uppercase text-theme">{commentCopy.inquiryRequest}</p>{canViewInquiryNo && <span className="font-mono text-[10px] font-medium text-slate-500">{selected.inquiryNo}</span>}</div>
-          <h3 className="mt-1 font-black text-white">{selected.title || selected.vehicleModel}</h3>
-          <InquirySnapshotDetails inquiry={selected} />
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-3">
+            <div className="flex items-center gap-2">
+              <p className="text-[10px] font-black uppercase text-theme">{commentCopy.inquiryRequest}</p>
+              {canViewInquiryNo && <span className="font-mono text-[10px] font-medium text-slate-400 bg-white/5 px-2 py-0.5 rounded">{selected.inquiryNo}</span>}
+            </div>
+            <button
+              type="button"
+              onClick={handleCopyInquiryLink}
+              className="flex items-center gap-1.5 rounded-lg border border-white/15 px-2.5 py-1 text-[10px] font-bold text-slate-300 transition hover:border-theme/40 hover:text-theme active:scale-95"
+              title={commentCopy.copyLink}
+            >
+              {copiedInquiryLink ? <Check className="h-3 w-3 text-emerald-400" /> : <Copy className="h-3 w-3" />}
+              <span>{copiedInquiryLink ? commentCopy.linkCopied : commentCopy.copyLink}</span>
+            </button>
+          </div>
+          <h3 className="mt-3 font-black text-white text-base">{selected.title || selected.vehicleModel}</h3>
+          <InquirySnapshotDetails inquiry={selected} data={data} />
           <p className="mt-3 whitespace-pre-wrap text-sm text-slate-300">{selected.notes}</p>
         </div>
         <div className="mt-4 grid gap-3">
@@ -3018,11 +3099,16 @@ function AdminUserManagement({
     });
   }, [allUsers, activeTab, search]);
 
+  useEffect(() => {
+    if (!copiedId) return;
+    const timer = setTimeout(() => setCopiedId(null), 2000);
+    return () => clearTimeout(timer);
+  }, [copiedId]);
+
   const handleCopyTelegramLink = (userId: string) => {
     const url = `https://t.me/youguard_ev_bot?start=bind_${encodeURIComponent(userId)}`;
     navigator.clipboard.writeText(url).then(() => {
       setCopiedId(userId);
-      setTimeout(() => setCopiedId(null), 2000);
     });
   };
 

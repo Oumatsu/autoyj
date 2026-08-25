@@ -126,15 +126,15 @@ export function PwaInstallPrompt() {
                 <div className="text-[10px] text-gray-300">
                   {isIOS
                     ? (locale === "zh"
-                        ? "添加到主屏幕，享受独立 App 体验"
+                        ? "添加到主屏幕，实时接收商机通知"
                         : locale === "am"
                         ? "ወደ መነሻ ማያ ገጽ ያክሉ"
-                        : "Add to Home Screen for fast access")
+                        : "Add to Home Screen for instant alerts")
                     : (locale === "zh"
-                        ? "安装网页应用，秒开体验"
+                        ? "安装应用，实时接收询价与商机通知"
                         : locale === "am"
-                        ? "መተግበሪያውን ጫን"
-                        : "Install app for instant offline access")}
+                        ? "ፈጣን ማሳወቂያዎችን ለማግኘት መተግበሪያውን ጫን"
+                        : "Install app for instant notifications")}
                 </div>
               </div>
             </div>
