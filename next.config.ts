@@ -1,3 +1,4 @@
+import { withSentryConfig } from "@sentry/nextjs";
 import type { NextConfig } from "vinext";
 
 /**
@@ -20,4 +21,9 @@ const config: NextConfig = {
   },
 };
 
-export default config;
+export default withSentryConfig(config as unknown as Parameters<typeof withSentryConfig>[0], {
+  silent: !process.env.CI,
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+});
+

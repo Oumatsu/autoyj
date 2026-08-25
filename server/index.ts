@@ -1,7 +1,9 @@
+import * as Sentry from "@sentry/nextjs";
 import handler from "vinext/server/app-router-entry";
 import { handlePortalRequest } from "./api/portal";
 import { runFeishuScheduledSync } from "./jobs/feishu-sync";
 import type { ExecutionContext, WorkerEnv } from "./types";
+
 
 const STATIC_EXTENSIONS = /\.(webp|png|jpg|jpeg|svg|ico|gif|woff2?|ttf|eot|css|js|map|json|pdf|txt|xml|webmanifest)$/i;
 
@@ -148,6 +150,9 @@ export default {
       return response;
     } catch (fetchError) {
       console.error("[server:edge-worker] Uncaught error during fetch handler:", fetchError);
+      Sentry.captureException(fetchError, {
+        tags: { runtime: "cloudflare-workers", path: url.pathname },
+      });
       return new Response(
         JSON.stringify({
           error: "Internal Server Error",
@@ -164,7 +169,11 @@ export default {
     ctx.waitUntil(
       runFeishuScheduledSync(env).catch((err) => {
         console.error("[cron:feishu-sync] Uncaught error during scheduled sync:", err);
+        Sentry.captureException(err, {
+          tags: { runtime: "cloudflare-workers", job: "feishu-sync" },
+        });
       })
     );
   },
 };
+
