@@ -1720,6 +1720,11 @@ async function listAllPortalUsers(db: D1Database): Promise<PortalUserRecord[]> {
   }
 }
 
+async function portalUsersRequireLegacyAccessCode(db: D1Database): Promise<boolean> {
+  const columns = await db.prepare("PRAGMA table_info(portal_users)").all<{ name?: string }>();
+  return (columns.results || []).some((column) => column.name === "access_code");
+}
+
 async function findLoginAccount(env: Env, email: string, accessCode: string): Promise<Omit<PortalSession, "exp"> | null> {
   if (!env.PORTAL_DB) throw problem("Portal database is not configured", 503);
 
@@ -4294,12 +4299,21 @@ async function handleCreateAdminUser(request: Request, env: Env) {
   const userId = `${rolePrefix}-${randomSuffix}`;
   const accountType = role === "admin" || role === "sales" || role === "sourcing" || role === "finance" ? "internal" : "external";
 
-  await db.prepare(
-    `INSERT INTO portal_users (user_id, customer_id, name, email, company, whatsapp, telegram_chat_id, telegram_username, account_type, role, password, status, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Active', ?, ?)`
-  ).bind(
-    userId, userId, name, email, company, whatsapp, telegramChatId, telegramUsername, accountType, role, accessCode, now, now
-  ).run();
+  const requiresLegacyAccessCode = await portalUsersRequireLegacyAccessCode(db);
+  const insertStatement = requiresLegacyAccessCode
+    ? db.prepare(
+      `INSERT INTO portal_users (user_id, customer_id, name, email, company, whatsapp, telegram_chat_id, telegram_username, account_type, role, password, access_code, status, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Active', ?, ?)`
+    ).bind(
+      userId, userId, name, email, company, whatsapp, telegramChatId, telegramUsername, accountType, role, accessCode, accessCode, now, now
+    )
+    : db.prepare(
+      `INSERT INTO portal_users (user_id, customer_id, name, email, company, whatsapp, telegram_chat_id, telegram_username, account_type, role, password, status, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Active', ?, ?)`
+    ).bind(
+      userId, userId, name, email, company, whatsapp, telegramChatId, telegramUsername, accountType, role, accessCode, now, now
+    );
+  await insertStatement.run();
 
   if (telegramChatId) {
     await saveTelegramUserBinding(db, {
