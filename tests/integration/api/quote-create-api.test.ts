@@ -12,6 +12,7 @@ function makeDb(inquiry: Record<string, unknown>) {
         bind(...v: unknown[]) { this.bound = v; return this; },
         async first<T>() {
           if (/FROM\s+inquiries/i.test(sql)) return inquiry as T;
+          if (/FROM\s+vehicles/i.test(sql)) return { id: "V-002" } as T;
           if (/FROM\s+quotes/i.test(sql)) return null;
           if (/FROM\s+user/i.test(sql) || /JOIN\s+account/i.test(sql)) {
             return { id: "USR-SALES-01", role: "sales", account_type: "internal",
@@ -76,7 +77,7 @@ describe("POST /api/portal/quotes", () => {
       new Request("http://localhost/api/portal/quotes", {
         method: "POST",
         headers: { "Content-Type": "application/json", Cookie: `portal_session=${token}` },
-        body: JSON.stringify({ inquiryNo: "INQ-2026-001", unitPrice: 28000 }),
+        body: JSON.stringify({ inquiryNo: "INQ-2026-001", vehicleId: "V-002", quantity: 3, unitPrice: 28000 }),
       }),
       env,
     );
@@ -84,10 +85,12 @@ describe("POST /api/portal/quotes", () => {
     const body = await res.json() as { quoteNo: string; quantity: number; unitPrice: number };
     expect(typeof body.quoteNo).toBe("string");
     expect(body.quoteNo.length).toBeGreaterThan(0);
-    expect(body.quantity).toBe(5);
+    expect(body.quantity).toBe(3);
     expect(body.unitPrice).toBe(28000);
-    const quoteWrite = db.written.some(({ sql }) => /INSERT INTO quotes/i.test(sql));
-    expect(quoteWrite).toBe(true);
+    const quoteWrite = db.written.find(({ sql }) => /INSERT INTO quotes/i.test(sql));
+    expect(quoteWrite).toBeDefined();
+    expect(quoteWrite?.values).toContain("V-002");
+    expect(quoteWrite?.values).toContain(3);
   });
 
   test("customer role cannot create a quote (403)", async () => {
@@ -136,5 +139,23 @@ describe("POST /api/portal/quotes", () => {
       env,
     );
     expect(res.status).toBe(400);
+  });
+
+  test("requires a selected vehicle and a positive whole-unit quantity", async () => {
+    const db = makeDb(OPEN_INQUIRY);
+    const env = makeEnv(db);
+    const token = await loginAs("sales", env);
+
+    const res = await handlePortalRequest(
+      new Request("http://localhost/api/portal/quotes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Cookie: `portal_session=${token}` },
+        body: JSON.stringify({ inquiryNo: "INQ-2026-001", vehicleId: "V-002", quantity: 1.5, unitPrice: 28000 }),
+      }),
+      env,
+    );
+
+    expect(res.status).toBe(400);
+    expect(db.written.some(({ sql }) => /INSERT INTO quotes/i.test(sql))).toBe(false);
   });
 });

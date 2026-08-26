@@ -36,6 +36,7 @@ function makeDb(inquiryStatus = "closed", statusBeforeClosure = "open") {
           if (/FROM\s+inquiry_status_history/i.test(sql)) return { from_status: statusBeforeClosure } as T;
           if (/FROM\s+quotes/i.test(sql)) return { ...QUOTE, inquiry_status: inquiryStatus } as T;
           if (/FROM\s+inquiries/i.test(sql)) return { ...CLOSED_INQUIRY, status: inquiryStatus } as T;
+          if (/FROM\s+vehicles/i.test(sql)) return { id: "V-001" } as T;
           if (/FROM\s+user/i.test(sql) || /JOIN\s+account/i.test(sql)) return { id: "CUS-002", role: "customer", account_type: "external", customer_id: "CUS-002", name: "VIP Customer", email: "customer@example.com", price_tier: "vip", status: "Active" } as T;
           return null;
         },
@@ -67,7 +68,7 @@ test("a closed inquiry blocks quote creation, counteroffers, and quote acceptanc
   const sales = await session("sales", targetEnv);
   const customer = await session("customer", targetEnv);
 
-  const create = await handlePortalRequest(new Request("http://localhost/api/portal/quotes", { method: "POST", headers: { "Content-Type": "application/json", Cookie: `portal_session=${sales}` }, body: JSON.stringify({ inquiryNo: CLOSED_INQUIRY.inquiry_no, unitPrice: 22000 }) }), targetEnv);
+  const create = await handlePortalRequest(new Request("http://localhost/api/portal/quotes", { method: "POST", headers: { "Content-Type": "application/json", Cookie: `portal_session=${sales}` }, body: JSON.stringify({ inquiryNo: CLOSED_INQUIRY.inquiry_no, vehicleId: "V-001", quantity: 2, unitPrice: 22000 }) }), targetEnv);
   const counter = await handlePortalRequest(new Request("http://localhost/api/portal/quotes/QTE-CLOSED-1/counter", { method: "POST", headers: { "Content-Type": "application/json", Cookie: `portal_session=${customer}` }, body: JSON.stringify({ counterPrice: 21000 }) }), targetEnv);
   const accept = await handlePortalRequest(new Request("http://localhost/api/portal/quotes/QTE-CLOSED-1/accept", { method: "POST", headers: { "Content-Type": "application/json", Cookie: `portal_session=${customer}` }, body: JSON.stringify({}) }), targetEnv);
 
@@ -82,7 +83,7 @@ test("creating a quotation keeps an open inquiry open without status history", a
   const targetEnv = env(db);
   const sales = await session("sales", targetEnv);
 
-  const create = await handlePortalRequest(new Request("http://localhost/api/portal/quotes", { method: "POST", headers: { "Content-Type": "application/json", Cookie: `portal_session=${sales}` }, body: JSON.stringify({ inquiryNo: CLOSED_INQUIRY.inquiry_no, unitPrice: 22000 }) }), targetEnv);
+  const create = await handlePortalRequest(new Request("http://localhost/api/portal/quotes", { method: "POST", headers: { "Content-Type": "application/json", Cookie: `portal_session=${sales}` }, body: JSON.stringify({ inquiryNo: CLOSED_INQUIRY.inquiry_no, vehicleId: "V-001", quantity: 2, unitPrice: 22000 }) }), targetEnv);
 
   expect(create.status).toBe(201);
   expect(db.written.some(({ sql }) => /UPDATE\s+inquiries\s+SET\s+status/i.test(sql))).toBe(false);

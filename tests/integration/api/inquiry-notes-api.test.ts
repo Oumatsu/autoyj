@@ -84,7 +84,8 @@ function makeDb(
         },
         async all<T>() {
           if (/FROM\s+inquiries/i.test(sql)) {
-            return { results: inquiryData ? [inquiryData as T] : [] };
+            const visibleToSession = role === "sales" || inquiryData?.creator_user_id === "CUS-002";
+            return { results: inquiryData && visibleToSession ? [inquiryData as T] : [] };
           }
           if (/FROM\s+inquiry_notes/i.test(sql)) {
             return { results: parentNoteData ? [parentNoteData as T] : [] };

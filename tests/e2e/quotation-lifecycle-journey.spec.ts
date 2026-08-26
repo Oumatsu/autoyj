@@ -55,6 +55,8 @@ test.describe("E2E Journey: Inquiry → Quote → Counter-Offer → Order", () =
       headers: { Cookie: salesCookie },
       data: {
         inquiryNo,
+        vehicleId: data.vehicles?.[0]?.id || "V-001",
+        quantity: 5,
         unitPrice: 28500,
       },
     });
@@ -74,5 +76,31 @@ test.describe("E2E Journey: Inquiry → Quote → Counter-Offer → Order", () =
     expect(acceptResult).toHaveProperty("orderNo");
     expect(typeof acceptResult.orderNo).toBe("string");
     expect(acceptResult.orderNo.length).toBeGreaterThan(0);
+  });
+
+  test("sales adds a partner to an inquiry topic", async ({ request }) => {
+    const salesLogin = await request.post("/api/portal/dev-session", { data: { role: "sales" } });
+    const salesCookie = salesLogin.headers()["set-cookie"] || "";
+    const customerLogin = await request.post("/api/portal/dev-session", { data: { role: "customer" } });
+    const customerCookie = customerLogin.headers()["set-cookie"] || "";
+    const catalog = await request.get("/api/portal/bootstrap", { headers: { Cookie: salesCookie } });
+    const data = await catalog.json();
+    const createInquiry = await request.post("/api/portal/inquiries", {
+      headers: { Cookie: customerCookie },
+      data: { vehicleId: data.vehicles?.[0]?.id || "V-001", vehicleModel: "Shared vehicle", title: "Shared topic", quantity: 1, tradeTerm: "FOB", notes: "Partner collaboration" },
+    });
+    expect(createInquiry.status()).toBe(201);
+    const { inquiryNo } = await createInquiry.json();
+
+    const before = await request.get(`/api/portal/inquiries/${encodeURIComponent(inquiryNo)}/participants`, { headers: { Cookie: salesCookie } });
+    expect(before.status()).toBe(200);
+    const candidate = (await before.json()).candidates.find((entry: { role: string }) => entry.role === "partner");
+    expect(candidate).toBeTruthy();
+    const added = await request.post(`/api/portal/inquiries/${encodeURIComponent(inquiryNo)}/participants`, {
+      headers: { Cookie: salesCookie }, data: { userId: candidate.userId },
+    });
+    expect(added.status()).toBe(201);
+    const after = await request.get(`/api/portal/inquiries/${encodeURIComponent(inquiryNo)}/participants`, { headers: { Cookie: salesCookie } });
+    expect((await after.json()).participants).toEqual(expect.arrayContaining([expect.objectContaining({ userId: candidate.userId, role: "partner" })]));
   });
 });

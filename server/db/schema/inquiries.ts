@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm";
-import { index, integer, primaryKey, real, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { index, integer, primaryKey, real, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
 
 export const inquiries = sqliteTable(
   "inquiries",
@@ -46,6 +46,7 @@ export const inquiryParticipants = sqliteTable(
   },
   (table) => [
     index("idx_inquiry_participants_user").on(table.userId, table.inquiryNo),
+    uniqueIndex("idx_inquiry_participants_unique").on(table.inquiryNo, table.userId),
   ]
 );
 

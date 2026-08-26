@@ -37,7 +37,7 @@ test.describe("Advanced E2E: Auth Session Lifecycle & Browser API Verification",
     await page.locator("form button[type='submit'], form button", { hasText: /Sign In|登录|Sign in/i }).first().click();
 
     // 4. Assert workspace renders cleanly
-    const logoutBtn = page.locator("button", { hasText: /退出登录|Log Out|Sign Out|Logout/i }).first();
+    const logoutBtn = page.getByLabel("Sign out of portal workspace");
     await expect(logoutBtn).toBeVisible({ timeout: 10000 });
 
     // 5. Perform logout
@@ -66,7 +66,7 @@ test.describe("Advanced E2E: Auth Session Lifecycle & Browser API Verification",
     await page.locator("form button[type='submit'], form button", { hasText: /Sign In/i }).click();
 
     // 3. Wait for dashboard layout to load
-    const logoutBtn = page.locator("button", { hasText: /退出登录|Log Out|Sign Out|Logout/i }).first();
+    const logoutBtn = page.getByLabel("Sign out of portal workspace");
     await expect(logoutBtn).toBeVisible({ timeout: 10000 });
 
     // 4. Inspect browser cookies post-login
@@ -97,7 +97,7 @@ test.describe("Advanced E2E: Auth Session Lifecycle & Browser API Verification",
     await page.locator("#login-access-code").fill("partner-demo-2026");
     await page.locator("form button[type='submit'], form button", { hasText: /Sign In/i }).click();
 
-    const logoutBtn = page.locator("button", { hasText: /退出登录|Log Out|Sign Out|Logout/i }).first();
+    const logoutBtn = page.getByLabel("Sign out of portal workspace");
     await expect(logoutBtn).toBeVisible({ timeout: 10000 });
 
     // 2. Listen for custom window event in browser context before clicking logout
@@ -139,7 +139,7 @@ test.describe("Advanced E2E: Auth Session Lifecycle & Browser API Verification",
       await page.locator("form button[type='submit'], form button", { hasText: /Sign In/i }).click();
 
       // Assert login succeeded
-      const logoutBtn = page.locator("button", { hasText: /退出登录|Log Out|Sign Out|Logout/i }).first();
+      const logoutBtn = page.getByLabel("Sign out of portal workspace");
       await expect(logoutBtn).toBeVisible({ timeout: 10000 });
 
       // Verify page content is visible and non-empty

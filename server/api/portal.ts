@@ -13,7 +13,6 @@ import {
 import type { D1Vehicle, D1VehicleModel, D1VehicleTrim } from "../db/d1";
 import {
   canPublishPublicNote,
-  canViewInquiry,
   canViewNote,
 } from "../inquiries/visibility";
 import {
@@ -3758,18 +3757,22 @@ async function handleCreateQuote(request: Request, env: Env) {
   if (!canCreateVehicleQuotation(session.role)) return problem("Only admin and sales can create quotations", 403);
   const body = (await request.json().catch(() => null)) as Record<string, unknown> | null;
   const inquiryNo = asText(body?.inquiryNo).trim();
+  const vehicleId = asText(body?.vehicleId).trim();
+  const quantity = asNumber(body?.quantity);
   const unitPrice = asNumber(body?.unitPrice);
-  if (!inquiryNo || unitPrice <= 0) return problem("Inquiry and USD unit price are required");
+  if (!inquiryNo || !vehicleId || !Number.isInteger(quantity) || quantity <= 0 || unitPrice <= 0) return problem("Inquiry, vehicle, positive whole-unit quantity, and USD unit price are required");
 
   const db = requirePortalDb(env);
-  const inquiry = await db.prepare("SELECT inquiry_no, customer_id, vehicle_id, quantity, status FROM inquiries WHERE inquiry_no=? AND deleted_at IS NULL LIMIT 1").bind(inquiryNo).first<{ inquiry_no: string; customer_id: string; vehicle_id: string; quantity: number; status: string }>();
+  const inquiry = await db.prepare("SELECT inquiry_no, customer_id, status FROM inquiries WHERE inquiry_no=? AND deleted_at IS NULL LIMIT 1").bind(inquiryNo).first<{ inquiry_no: string; customer_id: string; status: string }>();
   if (!inquiry) return problem("Inquiry not found", 404);
   assertInquiryIsMutable(inquiry.status);
+  const vehicle = await db.prepare("SELECT id FROM vehicles WHERE id=? LIMIT 1").bind(vehicleId).first<{ id: string }>();
+  if (!vehicle) return problem("Vehicle not found", 404);
   const now = nowText();
   const quoteNo = nextId("QTE");
   const statements = [
-    db.prepare("INSERT INTO quotes (id, quote_no, inquiry_no, customer_id, vehicle_id, price, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)").bind(
-      crypto.randomUUID(), quoteNo, inquiry.inquiry_no, inquiry.customer_id, inquiry.vehicle_id, unitPrice, "Active", now, now,
+    db.prepare("INSERT INTO quotes (id, quote_no, inquiry_no, customer_id, vehicle_id, quantity, price, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)").bind(
+      crypto.randomUUID(), quoteNo, inquiry.inquiry_no, inquiry.customer_id, vehicle.id, quantity, unitPrice, "Active", now, now,
     ),
   ];
   await db.batch(statements);
@@ -3777,14 +3780,14 @@ async function handleCreateQuote(request: Request, env: Env) {
   notifyInquiryStakeholdersTelegram(env, {
     inquiryNo,
     vehicleModel: "",
-    noteBody: `Official quotation issued: USD $${unitPrice.toLocaleString()}/unit (Qty: ${inquiry.quantity}).`,
+    noteBody: `Official quotation issued: USD $${unitPrice.toLocaleString()}/unit (Qty: ${quantity}).`,
     authorUserId: session.userId,
     authorName: session.name || "Sales Specialist",
     authorRole: session.role,
     isPublic: true,
   }).catch(() => {});
 
-  return json({ ok: true, quoteNo, inquiryNo, quantity: inquiry.quantity, unitPrice }, { status: 201 });
+  return json({ ok: true, quoteNo, inquiryNo, vehicleId: vehicle.id, quantity, unitPrice }, { status: 201 });
 }
 
 const INQUIRY_STATUS_TRANSITIONS: Record<"open" | "closed", Array<"open" | "closed">> = {
@@ -4038,10 +4041,118 @@ async function listScopedInquiries(env: Env, session: PortalSession) {
     LEFT JOIN inquiry_reads reads ON reads.inquiry_no=i.inquiry_no AND reads.user_id=?
     WHERE i.deleted_at IS NULL
       AND LOWER(i.status) <> 'closed'
-      AND (? IN ('admin','sales') OR creator.user_id=?)
+      AND (
+        ? IN ('admin','sales')
+        OR EXISTS (
+          SELECT 1
+          FROM inquiry_participants participant
+          WHERE participant.inquiry_no = i.inquiry_no AND participant.user_id = ?
+        )
+      )
     ORDER BY i.updated_at DESC
   `).bind(session.userId, session.role, session.userId).all();
-  return result.results.map(mapD1Inquiry).filter((inquiry) => canViewInquiry(session, inquiry));
+  return result.results.map(mapD1Inquiry);
+}
+
+type InquiryParticipantView = {
+  userId: string;
+  customerId: string;
+  name: string;
+  email: string;
+  company: string;
+  role: "partner" | "customer";
+  accessSource: string;
+  createdAt: string;
+};
+
+function mapInquiryParticipant(row: Record<string, unknown>): InquiryParticipantView {
+  return {
+    userId: asText(row.user_id), customerId: asText(row.customer_id), name: asText(row.name) || asText(row.user_id),
+    email: asText(row.email), company: asText(row.company),
+    role: asText(row.role).toLowerCase() === "partner" ? "partner" : "customer",
+    accessSource: asText(row.access_source), createdAt: asText(row.created_at),
+  };
+}
+
+async function requireInquiryParticipantManager(request: Request, env: Env) {
+  const session = await requireSession(request, env);
+  if (session.role !== "admin" && session.role !== "sales") throw problem("Only admin and sales can manage inquiry participants", 403);
+  return session;
+}
+
+async function getActiveInquiryParticipantCandidates(db: D1Database, inquiryNo: string) {
+  const result = await db.prepare(`
+    SELECT user_id, customer_id, name, email, company, role
+    FROM portal_users candidate
+    WHERE LOWER(candidate.role) IN ('customer', 'partner')
+      AND LOWER(candidate.status) = 'active'
+      AND NOT EXISTS (
+        SELECT 1 FROM inquiry_participants participant
+        WHERE participant.inquiry_no = ? AND participant.user_id = candidate.user_id
+      )
+    ORDER BY candidate.name, candidate.email
+  `).bind(inquiryNo).all<Record<string, unknown>>();
+  return result.results.map((row) => ({
+    userId: asText(row.user_id), customerId: asText(row.customer_id), name: asText(row.name),
+    email: asText(row.email), company: asText(row.company),
+    role: asText(row.role).toLowerCase() === "partner" ? "partner" as const : "customer" as const,
+  }));
+}
+
+async function handleInquiryParticipants(request: Request, env: Env, inquiryNo: string) {
+  await requireInquiryParticipantManager(request, env);
+  const db = requirePortalDb(env);
+  const inquiry = await db.prepare("SELECT inquiry_no FROM inquiries WHERE inquiry_no=? AND deleted_at IS NULL LIMIT 1").bind(inquiryNo).first<{ inquiry_no: string }>();
+  if (!inquiry) return problem("Inquiry not found", 404);
+
+  if (request.method === "GET") {
+    const [participants, candidates] = await Promise.all([
+      db.prepare(`
+        SELECT participant.user_id, participant.customer_id, participant.company, participant.role, participant.access_source, participant.created_at,
+          portal_user.name, portal_user.email
+        FROM inquiry_participants participant
+        LEFT JOIN portal_users portal_user ON portal_user.user_id = participant.user_id
+        WHERE participant.inquiry_no = ?
+        ORDER BY participant.created_at
+      `).bind(inquiryNo).all<Record<string, unknown>>(),
+      getActiveInquiryParticipantCandidates(db, inquiryNo),
+    ]);
+    return json({ participants: participants.results.map(mapInquiryParticipant), candidates });
+  }
+
+  const body = (await request.json().catch(() => null)) as Record<string, unknown> | null;
+  const userId = asText(body?.userId).trim();
+  if (!userId || userId.length > 128) return problem("A valid customer or partner account is required", 400);
+  const candidate = await db.prepare(`
+    SELECT user_id, customer_id, name, email, company, role, status
+    FROM portal_users WHERE user_id = ? LIMIT 1
+  `).bind(userId).first<Record<string, unknown>>();
+  const candidateRole = asText(candidate?.role).toLowerCase();
+  if (!candidate || (candidateRole !== "customer" && candidateRole !== "partner") || asText(candidate.status).toLowerCase() !== "active") {
+    return problem("Only active customer or partner accounts can be added", 400);
+  }
+  const existing = await db.prepare("SELECT id FROM inquiry_participants WHERE inquiry_no=? AND user_id=? LIMIT 1").bind(inquiryNo, userId).first<{ id: string }>();
+  if (existing) return problem("This account is already a participant", 409);
+
+  const now = nowText();
+  await db.prepare("INSERT INTO inquiry_participants (id,inquiry_no,customer_id,user_id,company,role,access_source,created_at) VALUES (?,?,?,?,?,?,?,?)").bind(
+    crypto.randomUUID(), inquiryNo, asText(candidate.customer_id), userId, asText(candidate.company), candidateRole, "Added by staff", now,
+  ).run();
+  return json({ participant: mapInquiryParticipant({ ...candidate, user_id: userId, role: candidateRole, access_source: "Added by staff", created_at: now }) }, { status: 201 });
+}
+
+async function handleRemoveInquiryParticipant(request: Request, env: Env, inquiryNo: string, userId: string) {
+  await requireInquiryParticipantManager(request, env);
+  const db = requirePortalDb(env);
+  const inquiry = await db.prepare("SELECT inquiry_no FROM inquiries WHERE inquiry_no=? AND deleted_at IS NULL LIMIT 1").bind(inquiryNo).first<{ inquiry_no: string }>();
+  if (!inquiry) return problem("Inquiry not found", 404);
+
+  const participant = await db.prepare("SELECT user_id, access_source FROM inquiry_participants WHERE inquiry_no=? AND user_id=? LIMIT 1").bind(inquiryNo, userId).first<{ user_id: string; access_source: string }>();
+  if (!participant) return problem("Inquiry participant not found", 404);
+  if (participant.access_source === "Creator") return problem("The inquiry creator cannot be removed", 409);
+
+  await db.prepare("DELETE FROM inquiry_participants WHERE inquiry_no=? AND user_id=?").bind(inquiryNo, userId).run();
+  return new Response(null, { status: 204 });
 }
 
 async function handleListClosedInquiries(request: Request, env: Env) {
@@ -4091,14 +4202,14 @@ async function listScopedQuotes(env: Env, session: PortalSession) {
   const db = requirePortalDb(env);
   const result = isInternalSession(session)
     ? await db.prepare(`
-        SELECT q.*, i.quantity, i.trade_term, i.status AS inquiry_status
+        SELECT q.*, COALESCE(q.quantity, i.quantity) AS quantity, i.trade_term, i.status AS inquiry_status
         FROM quotes q
         INNER JOIN inquiries i ON i.inquiry_no = q.inquiry_no
         WHERE i.deleted_at IS NULL
         ORDER BY q.updated_at DESC
       `).all()
     : await db.prepare(`
-        SELECT q.*, i.quantity, i.trade_term, i.status AS inquiry_status
+        SELECT q.*, COALESCE(q.quantity, i.quantity) AS quantity, i.trade_term, i.status AS inquiry_status
         FROM quotes q
         INNER JOIN inquiries i ON i.inquiry_no = q.inquiry_no
         WHERE i.deleted_at IS NULL AND q.customer_id = ?
@@ -4126,7 +4237,7 @@ async function listScopedOrders(env: Env, session: PortalSession) {
 async function findScopedQuote(env: Env, session: PortalSession, quoteNo: string) {
   const db = requirePortalDb(env);
   const quote = await db.prepare(`
-    SELECT q.*, i.quantity, i.trade_term, i.status AS inquiry_status
+    SELECT q.*, COALESCE(q.quantity, i.quantity) AS quantity, i.trade_term, i.status AS inquiry_status
     FROM quotes q
     INNER JOIN inquiries i ON i.inquiry_no = q.inquiry_no
     WHERE q.quote_no = ? AND i.deleted_at IS NULL
@@ -4952,6 +5063,10 @@ export async function handlePortalRequest(request: Request, env: Env) {
     if (inquiryRequestMatch && request.method === "POST") return await handleCreateInquiryRequest(request, env, decodeURIComponent(inquiryRequestMatch[1]));
     const inquiryRequestDeleteMatch = path.match(/^\/api\/portal\/inquiries\/([^/]+)\/requests\/([^/]+)$/);
     if (inquiryRequestDeleteMatch && request.method === "DELETE") return await handleDeleteInquiryRequest(request, env, decodeURIComponent(inquiryRequestDeleteMatch[1]), decodeURIComponent(inquiryRequestDeleteMatch[2]));
+    const inquiryParticipantsMatch = path.match(/^\/api\/portal\/inquiries\/([^/]+)\/participants$/);
+    if (inquiryParticipantsMatch && (request.method === "GET" || request.method === "POST")) return await handleInquiryParticipants(request, env, decodeURIComponent(inquiryParticipantsMatch[1]));
+    const inquiryParticipantRemoveMatch = path.match(/^\/api\/portal\/inquiries\/([^/]+)\/participants\/([^/]+)$/);
+    if (inquiryParticipantRemoveMatch && request.method === "DELETE") return await handleRemoveInquiryParticipant(request, env, decodeURIComponent(inquiryParticipantRemoveMatch[1]), decodeURIComponent(inquiryParticipantRemoveMatch[2]));
     const inquiryMatch = path.match(/^\/api\/portal\/inquiries\/([^/]+)$/);
     if (inquiryMatch && request.method === "DELETE") return await handlePermanentlyDeleteInquiry(request, env, decodeURIComponent(inquiryMatch[1]));
     if (path === "/api/portal/quotes" && request.method === "POST") {

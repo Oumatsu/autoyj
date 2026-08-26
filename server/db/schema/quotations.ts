@@ -8,6 +8,7 @@ export const quotes = sqliteTable("quotes", {
   inquiryNo: text("inquiry_no").notNull(),
   customerId: text("customer_id").notNull(),
   vehicleId: text("vehicle_id").notNull(),
+  quantity: integer("quantity").notNull().default(1),
   price: real("price").notNull(),
   status: text("status").default("Active"),
   createdAt: text("created_at").notNull(),

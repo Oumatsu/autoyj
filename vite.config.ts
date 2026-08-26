@@ -160,7 +160,7 @@ export default defineConfig({
     vinext(),
     cloudflare({
       // Keep local SSR on the persisted Miniflare bindings used by Wrangler.
-      persistState: { path: ".wrangler/state" },
+      persistState: { path: ".wrangler/local-d1" },
       remoteBindings: false,
       viteEnvironment: {
         name: "rsc",

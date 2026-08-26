@@ -209,6 +209,7 @@ CREATE TABLE IF NOT EXISTS inquiry_status_history (
 
 CREATE INDEX IF NOT EXISTS idx_inquiries_customer_updated ON inquiries(customer_id, updated_at DESC);
 CREATE INDEX IF NOT EXISTS idx_inquiry_participants_user ON inquiry_participants(user_id, inquiry_no);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_inquiry_participants_unique ON inquiry_participants(inquiry_no, user_id);
 CREATE INDEX IF NOT EXISTS idx_inquiry_notes_inquiry_created ON inquiry_notes(inquiry_no, created_at);
 CREATE INDEX IF NOT EXISTS idx_inquiry_status_history_inquiry_created ON inquiry_status_history(inquiry_no, created_at);
 CREATE INDEX IF NOT EXISTS idx_inquiries_deleted_at ON inquiries(deleted_at);
@@ -323,6 +324,7 @@ CREATE TABLE IF NOT EXISTS quotes (
   inquiry_no TEXT NOT NULL,
   customer_id TEXT NOT NULL,
   vehicle_id TEXT NOT NULL,
+  quantity INTEGER NOT NULL DEFAULT 1,
   price REAL NOT NULL,
   status TEXT DEFAULT 'Active',
   created_at TEXT NOT NULL,
