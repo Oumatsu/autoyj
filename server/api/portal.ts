@@ -38,6 +38,17 @@ import {
   buildTelegramBindingUrl,
   saveTelegramUserBinding,
 } from "../services/telegram";
+import {
+  getVapidPublicKey,
+  saveUserPushSubscription,
+  deleteUserPushSubscription,
+  getUserPushSubscriptions,
+  sendWebPushNotification,
+} from "../services/web-push";
+import {
+  notifyInquiryStakeholdersDualChannel,
+  notifyNewInquiryStartedDualChannel,
+} from "../services/notifications";
 import type { PortalEnv } from "../types";
 
 export type Env = PortalEnv;
@@ -1923,12 +1934,8 @@ async function handleBootstrap(request: Request, env: Env) {
     listScopedInquiryRequests(db, session),
   ]);
 
-  const [modelsRes, vehiclesRes] = await Promise.all([
-    handleGetVehicleModels(request, env, { modelRows, trimRows: [], vehicleRows: [] }, { includeTrimDetails: false })
-      .then((r) => r.json() as Promise<{ vehicleModels?: PortalVehicleModel[]; vehicleModelSpecs?: PortalVehicleModelSpec[] }>),
-    handleGetVehicles(request, env, vehicleRows)
-      .then((r) => r.json() as Promise<{ vehicles?: Record<string, unknown>[] }>),
-  ]);
+  const modelsData = buildPortalVehicleModelsData(modelRows, [], [], session, { includeTrimDetails: false });
+  const vehicles = buildPortalVehicleList(vehicleRows, session);
 
   const inquiryNumbers = new Set(inquiries.map((item) => item.inquiryNo));
   const inquiryNotes = inquiryNumbers.size > 0 ? await listScopedInquiryNotes(env, session, Array.from(inquiryNumbers)) : [];
@@ -1957,9 +1964,9 @@ async function handleBootstrap(request: Request, env: Env) {
       canRequestQuote: true,
       canCounterOffer: true,
     },
-    vehicleModels: modelsRes.vehicleModels || [],
-    vehicleModelSpecs: modelsRes.vehicleModelSpecs || [],
-    vehicles: vehiclesRes.vehicles || [],
+    vehicleModels: modelsData.vehicleModels || [],
+    vehicleModelSpecs: modelsData.vehicleModelSpecs || [],
+    vehicles: vehicles || [],
     inquiries: inquiriesWithUnread,
     inquiryRequests,
     quotes,
@@ -2164,6 +2171,8 @@ function cleanFeishuFieldValue(val: any, fieldName?: string): any {
   return String(val);
 }
 
+const dynamicTableSchemaCache = new Map<string, { columns: { name: string; type: string; isPk: boolean }[]; pkCol: string; colNamesSet: Set<string> }>();
+
 async function prepareDynamicUpserts(
   db: D1Database,
   tableName: string,
@@ -2195,29 +2204,44 @@ async function prepareDynamicUpserts(
     }
   }
 
-  // 2. Fetch existing database columns
-  let info = await db.prepare(`PRAGMA table_info("${tableName}")`).all<ColumnInfo>();
-  const existingCols = new Set(info.results.map(col => col.name));
+  // 2. Discover / cache existing database columns
+  const cached = dynamicTableSchemaCache.get(tableName);
+  let columns: { name: string; type: string; isPk: boolean }[];
+  let pkCol: string;
 
-  // 3. Dynamically add missing columns to SQLite table
-  for (const key of allFeishuKeys) {
-    if (!existingCols.has(key)) {
-      try {
-        await db.prepare(`ALTER TABLE "${tableName}" ADD COLUMN "${key}" TEXT`).run();
-        existingCols.add(key);
-      } catch (err) {
-        const message = err instanceof Error ? err.message : String(err);
-        if (!/duplicate column name|already exists/i.test(message)) {
-          throw err;
+  const hasNewColumns = !cached || Array.from(allFeishuKeys).some(k => !cached.colNamesSet.has(k));
+  if (hasNewColumns) {
+    let info = await db.prepare(`PRAGMA table_info("${tableName}")`).all<ColumnInfo>();
+    const existingCols = new Set(info.results.map(col => col.name));
+
+    // 3. Dynamically add missing columns to SQLite table
+    for (const key of allFeishuKeys) {
+      if (!existingCols.has(key)) {
+        try {
+          await db.prepare(`ALTER TABLE "${tableName}" ADD COLUMN "${key}" TEXT`).run();
+          existingCols.add(key);
+        } catch (err) {
+          const message = err instanceof Error ? err.message : String(err);
+          if (!/duplicate column name|already exists/i.test(message)) {
+            throw err;
+          }
         }
       }
     }
-  }
 
-  // Refresh column list after additions
-  info = await db.prepare(`PRAGMA table_info("${tableName}")`).all<ColumnInfo>();
-  const columns = info.results.map(col => ({ name: col.name, type: col.type, isPk: col.pk > 0 }));
-  const pkCol = columns.find(c => c.isPk)?.name || "id";
+    // Refresh column list after additions
+    info = await db.prepare(`PRAGMA table_info("${tableName}")`).all<ColumnInfo>();
+    columns = info.results.map(col => ({ name: col.name, type: col.type, isPk: col.pk > 0 }));
+    pkCol = columns.find(c => c.isPk)?.name || "id";
+    dynamicTableSchemaCache.set(tableName, {
+      columns,
+      pkCol,
+      colNamesSet: new Set(columns.map(c => c.name)),
+    });
+  } else {
+    columns = cached.columns;
+    pkCol = cached.pkCol;
+  }
 
   // 4. Build rows
   const now = new Date().toISOString();
@@ -2659,10 +2683,15 @@ export async function syncVehicleModelsToDB(env: Env): Promise<{ models: number;
 async function handleGetVehicles(request: Request, env: Env, preloadedRows?: unknown[]) {
   const session = await requireSession(request, env);
   const rows = (preloadedRows as Record<string, unknown>[]) ?? await queryVehicles(requirePortalDb(env));
+  const vehicles = buildPortalVehicleList(rows, session);
+  return json({ vehicles });
+}
+
+function buildPortalVehicleList(rows: unknown[], session: PortalSession) {
   const canSeePrice = canSeePortalPrice(session);
   const internalSession = isInternalSession(session);
 
-  const vehicles = rows.map((row) => {
+  return (rows as Record<string, unknown>[]).map((row) => {
     const fields = row as unknown as Record<string, unknown>;
     const externalAccount = session.role === "partner" || session.role === "customer";
     const internalFobUsd = asOptionalNumber(rowField(fields, "fob_usd", "FOB美金价"));
@@ -2749,7 +2778,6 @@ async function handleGetVehicles(request: Request, env: Env, preloadedRows?: unk
       rawFields: internalSession ? fields : null,
     };
   });
-  return json({ vehicles });
 }
 
 async function handleGetFeaturedVehicleImage(request: Request, env: Env, vehicleId: string) {
@@ -3001,6 +3029,17 @@ async function handleGetVehicleModels(
         queryVehicleTrims(requirePortalDb(env)),
         queryVehicles(requirePortalDb(env)),
       ]);
+  const data = buildPortalVehicleModelsData(modelRows, trimRows, vehicleRows, session, options);
+  return json(data);
+}
+
+function buildPortalVehicleModelsData(
+  modelRows: D1VehicleModel[],
+  trimRows: D1VehicleTrim[],
+  vehicleRows: D1Vehicle[],
+  session: PortalSession,
+  options: { includeTrimDetails?: boolean } = {},
+): { vehicleModels: PortalVehicleModel[]; vehicleModelSpecs: PortalVehicleModelSpec[] } {
   const baseModels: PortalVehicleModel[] = modelRows.map((row) => {
     const fields = row as unknown as Record<string, unknown>;
     const recommendationValue = asOptionalNumber(rowField(row as unknown as Record<string, unknown>, "Recommendation"));
@@ -3070,7 +3109,7 @@ async function handleGetVehicleModels(
   const overviewModels = enrichVehicleModelOverviewFromTrims(baseModels, trimRows);
 
   if (options.includeTrimDetails === false) {
-    return json({ vehicleModels: overviewModels, vehicleModelSpecs: [] });
+    return { vehicleModels: overviewModels, vehicleModelSpecs: [] };
   }
 
   const modelLookup = buildVehicleModelLookup(overviewModels);
@@ -3146,7 +3185,7 @@ async function handleGetVehicleModels(
     addSpec("升级配置", jsonList(fields.upgraded_features_json).join("; "), 42, "版本配置");
   }
 
-  return json({ vehicleModels, vehicleModelSpecs });
+  return { vehicleModels, vehicleModelSpecs };
 }
 
 function getBaselineVehicleModels(): PortalVehicleModel[] {
@@ -3735,7 +3774,7 @@ async function handleCreateInquiry(request: Request, env: Env) {
   );
   await db.batch(statements);
 
-  notifyNewInquiryStartedTelegram(env, {
+  notifyNewInquiryStartedDualChannel(env, {
     inquiryNo,
     vehicleModel: selectedVehicleModel,
     creatorUserId: session.userId,
@@ -3777,7 +3816,7 @@ async function handleCreateQuote(request: Request, env: Env) {
   ];
   await db.batch(statements);
 
-  notifyInquiryStakeholdersTelegram(env, {
+  notifyInquiryStakeholdersDualChannel(env, {
     inquiryNo,
     vehicleModel: "",
     noteBody: `Official quotation issued: USD $${unitPrice.toLocaleString()}/unit (Qty: ${quantity}).`,
@@ -4304,7 +4343,7 @@ async function handleCreateInquiryNote(request: Request, env: Env, inquiryNo: st
     db.prepare("UPDATE inquiries SET updated_at=? WHERE inquiry_no=?").bind(now, inquiryNo),
   ]);
 
-  notifyInquiryStakeholdersTelegram(env, {
+  notifyInquiryStakeholdersDualChannel(env, {
     inquiryNo,
     vehicleModel: inquiry.vehicleModel || "Vehicle Inquiry",
     noteBody: note.body,
@@ -4549,7 +4588,7 @@ async function handleCounterOffer(request: Request, env: Env, quoteNo: string) {
     db.prepare("UPDATE quotes SET status=?, updated_at=? WHERE quote_no=?").bind("Counteroffer Received", now, quote.quoteNo),
   ]);
 
-  notifyInquiryStakeholdersTelegram(env, {
+  notifyInquiryStakeholdersDualChannel(env, {
     inquiryNo: quote.inquiryNo,
     vehicleModel: quote.vehicleModel || "Vehicle Inquiry",
     noteBody: `Counter-offer: ${counterMessage}`,
@@ -4977,6 +5016,61 @@ export async function handlePortalRequest(request: Request, env: Env) {
         telegramUsername: telegramRow?.telegram_username || null,
         bindingUrl: buildTelegramBindingUrl(env, session.userId),
       });
+    }
+    if (path === "/api/portal/push/public-key" && request.method === "GET") {
+      return json({ publicKey: getVapidPublicKey(env) });
+    }
+    if (path === "/api/portal/push/status" && request.method === "GET") {
+      const session = await requireSession(request, env);
+      const subs = await getUserPushSubscriptions(env.PORTAL_DB, session.userId);
+      return json({
+        subscriptionsCount: subs.length,
+        hasActiveSubscription: subs.length > 0,
+      });
+    }
+    if (path === "/api/portal/push/subscribe" && request.method === "POST") {
+      const session = await requireSession(request, env);
+      const body = ((await request.json().catch(() => ({}))) || {}) as any;
+      const endpoint = body.endpoint;
+      const p256dh = body.keys?.p256dh || body.p256dh;
+      const auth = body.keys?.auth || body.auth;
+      const userAgent = request.headers.get("user-agent") || body.userAgent || "";
+      if (!endpoint || !p256dh || !auth) {
+        return problem("Missing required push subscription fields (endpoint, keys.p256dh, keys.auth)", 400);
+      }
+      const ok = await saveUserPushSubscription(env.PORTAL_DB, {
+        userId: session.userId,
+        endpoint,
+        p256dh,
+        auth,
+        userAgent,
+      });
+      return json({ ok });
+    }
+    if (path === "/api/portal/push/subscribe" && request.method === "DELETE") {
+      const session = await requireSession(request, env);
+      const body = ((await request.json().catch(() => ({}))) || {}) as any;
+      const endpoint = body.endpoint;
+      if (!endpoint) return problem("Missing endpoint to unsubscribe", 400);
+      const ok = await deleteUserPushSubscription(env.PORTAL_DB, endpoint);
+      return json({ ok });
+    }
+    if (path === "/api/portal/push/test" && request.method === "POST") {
+      const session = await requireSession(request, env);
+      const subs = await getUserPushSubscriptions(env.PORTAL_DB, session.userId);
+      if (subs.length === 0) {
+        return problem("No registered push subscriptions found for your account on this device", 404);
+      }
+      let sentCount = 0;
+      for (const sub of subs) {
+        const res = await sendWebPushNotification(env, sub, {
+          title: "Youguard Auto · Test Notification",
+          body: `Hello ${session.name || "User"}, your PWA Web Push notification is working!`,
+          url: "/portal",
+        });
+        if (res.success) sentCount++;
+      }
+      return json({ ok: true, attemptedCount: subs.length, sentCount });
     }
     if (path === "/api/portal/webhook/sync" && request.method === "POST") {
       cacheMap.clear();

@@ -136,3 +136,21 @@ export function canTransitionInquiryStatus(
   return allowed ? allowed.includes(toStatus) : false;
 }
 
+export function buildInquiryDeepLink(inquiryNo: string, baseUrl = "https://youguard.net", locale?: string): string {
+  const cleanBase = baseUrl.replace(/\/+$/, "");
+  const prefix = locale && locale !== "en" ? `/${locale}` : "";
+  return `${cleanBase}${prefix}/portal?inquiry=${encodeURIComponent(inquiryNo)}`;
+}
+
+export function parseInquiryDeepLink(urlOrSearch: string): string | null {
+  try {
+    const search = urlOrSearch.includes("?") ? urlOrSearch.slice(urlOrSearch.indexOf("?")) : urlOrSearch;
+    const params = new URLSearchParams(search);
+    return params.get("inquiry") || null;
+  } catch {
+    return null;
+  }
+}
+
+
+

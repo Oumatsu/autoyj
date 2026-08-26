@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import quotationTemplate from "../../templates/quotations/outputs/youguard-quotation-template.html?raw";
 import quotationLogo from "../../templates/quotations/outputs/youguard-logo.svg?raw";
 import { buildWhatsAppQuoteShareUrl } from "../../lib/quotation-pricing";
@@ -22,6 +22,12 @@ const quotationLogoUrl = `data:image/svg+xml,${encodeURIComponent(quotationLogo)
 export function QuotationTemplatePreview({ quoteNo, customer, vehicleModel, quantity, unitPrice, cifTotal, phone }: Props) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    if (!copied) return;
+    const timer = setTimeout(() => setCopied(false), 2000);
+    return () => clearTimeout(timer);
+  }, [copied]);
 
   const html = quotationTemplate
     .replace("<head>", '<head><link rel="icon" href="/favicon.svg" type="image/svg+xml">')
@@ -57,7 +63,6 @@ export function QuotationTemplatePreview({ quoteNo, customer, vehicleModel, quan
     try {
       await navigator.clipboard.writeText(summary);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
     } catch {
       // Fallback
     }

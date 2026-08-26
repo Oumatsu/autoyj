@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
 import { T } from "@tolgee/react";
@@ -10,10 +10,15 @@ export default function QrPage() {
   const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
 
+  useEffect(() => {
+    if (!copied) return;
+    const timer = setTimeout(() => setCopied(false), 2500);
+    return () => clearTimeout(timer);
+  }, [copied]);
+
   const handleCopy = () => {
     navigator.clipboard.writeText(OFFICIAL_WHATSAPP_URL).then(() => {
       setCopied(true);
-      setTimeout(() => setCopied(false), 2500);
     });
   };
 

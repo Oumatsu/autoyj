@@ -1,7 +1,13 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import { LocaleLink } from "@/i18n/LocaleLink";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  type CarouselApi,
+} from "@/components/ui/carousel";
 
 import { useTranslation } from "@/i18n/useTranslation";
 import { getVehicleGalleryImages } from "@/lib/static-assets";
@@ -665,23 +671,29 @@ export default function VehicleDetail({ data: rawData }: { data: DetailData }) {
   const gallery: GalleryImage[] = data.galleryImages?.length ? data.galleryImages : getVehicleGalleryImages(rawData.slug, v.img);
   const batchLevels = data.batchLevels?.length ? data.batchLevels : DEFAULT_BATCH_LEVELS;
   const batchMargin = data.batchMargin || DEFAULT_BATCH_MARGIN;
+  const [galApi, setGalApi] = useState<CarouselApi>();
   const [galIdx, setGalIdx] = useState(0);
-  const [animating, setAnimating] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [batchIdx, setBatchIdx] = useState(0);
 
+  useEffect(() => {
+    if (!galApi) return;
+    setGalIdx(galApi.selectedScrollSnap());
+    galApi.on("select", () => {
+      setGalIdx(galApi.selectedScrollSnap());
+    });
+  }, [galApi]);
+
   const goGallery = useCallback((dir: number) => {
-    if (animating) return;
-    setAnimating(true);
-    setGalIdx((prev) => (prev + dir + gallery.length) % gallery.length);
-    setTimeout(() => setAnimating(false), 600);
-  }, [animating, gallery.length]);
+    if (dir < 0) {
+      galApi?.scrollPrev();
+    } else {
+      galApi?.scrollNext();
+    }
+  }, [galApi]);
 
   const openLightbox = useCallback(() => setLightboxOpen(true), []);
   const closeLightbox = useCallback(() => setLightboxOpen(false), []);
-
-  const prevIdx = (galIdx - 1 + gallery.length) % gallery.length;
-  const nextIdx = (galIdx + 1) % gallery.length;
 
   const batch = batchLevels[batchIdx];
 
@@ -818,23 +830,74 @@ export default function VehicleDetail({ data: rawData }: { data: DetailData }) {
         <style>{`@keyframes imgSwitchIn { from { opacity: 0.5; transform: scale(0.96); } to { opacity: 1; transform: scale(1); } } .img-switch-in { animation: imgSwitchIn 500ms cubic-bezier(0.4, 0, 0.2, 1) both; }`}</style>
         <div className="container mx-auto px-2 md:px-6 max-w-7xl">
           <div className="relative">
-            <div className="relative rounded-2xl overflow-hidden">
-              <div className="absolute left-0 inset-y-0 w-[9%] sm:w-[14%] md:w-[18%] cursor-pointer overflow-hidden hidden sm:block" onClick={() => goGallery(-1)}>
-                <img src={gallery[prevIdx].src} className="h-full object-cover transition-opacity duration-700" alt={gallery[prevIdx].label} style={{ width: "200%", opacity: 0.4, borderRadius: "0 0.75rem 0.75rem 0", objectPosition: "right" }} />
-              </div>
-              <div className="relative mx-auto w-[90%] sm:w-[70%] md:w-[64%] lg:w-[60%] cursor-zoom-in" style={{ zIndex: 1, aspectRatio: "16/9" }} onClick={openLightbox}>
-                <img key={`center-img-${galIdx}`} src={gallery[galIdx].src} className="w-full h-full object-cover rounded-xl img-switch-in" alt={gallery[galIdx].label} />
-              </div>
-              <div className="absolute right-0 inset-y-0 w-[9%] sm:w-[14%] md:w-[18%] cursor-pointer overflow-hidden hidden sm:block" onClick={() => goGallery(1)}>
-                <img src={gallery[nextIdx].src} className="h-full object-cover transition-opacity duration-700" alt={gallery[nextIdx].label} style={{ width: "200%", opacity: 0.4, borderRadius: "0.75rem 0 0 0.75rem", objectPosition: "left" }} />
-              </div>
-            </div>
-            <button onClick={(e) => { e.stopPropagation(); goGallery(-1); }} className="absolute top-1/2 -translate-y-1/2 left-1 sm:left-3 md:left-5 w-8 h-8 sm:w-10 sm:h-10 md:w-11 md:h-11 rounded-full bg-black/55 border border-white/10 text-white text-lg sm:text-xl flex items-center justify-center hover:bg-gold/85 hover:text-black transition z-20">&lsaquo;</button>
-            <button onClick={(e) => { e.stopPropagation(); goGallery(1); }} className="absolute top-1/2 -translate-y-1/2 right-1 sm:right-3 md:right-5 w-8 h-8 sm:w-10 sm:h-10 md:w-11 md:h-11 rounded-full bg-black/55 border border-white/10 text-white text-lg sm:text-xl flex items-center justify-center hover:bg-gold/85 hover:text-black transition z-20">&rsaquo;</button>
+            <Carousel
+              setApi={setGalApi}
+              opts={{
+                align: "center",
+                loop: gallery.length > 1,
+              }}
+              className="w-full"
+            >
+              <CarouselContent className="-ml-4">
+                {gallery.map((imgItem, idx) => (
+                  <CarouselItem
+                    key={idx}
+                    className="pl-4 basis-[88%] sm:basis-[72%] md:basis-[64%] lg:basis-[60%]"
+                  >
+                    <div
+                      className={`relative w-full cursor-zoom-in overflow-hidden rounded-2xl transition-all duration-500 ${
+                        idx === galIdx
+                          ? "scale-100 opacity-100 ring-1 ring-gold/40 shadow-2xl"
+                          : "scale-95 opacity-40 hover:opacity-70"
+                      }`}
+                      style={{ aspectRatio: "16/9" }}
+                      onClick={openLightbox}
+                    >
+                      <img
+                        src={imgItem.src}
+                        className="w-full h-full object-cover rounded-2xl"
+                        alt={imgItem.label}
+                      />
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+            </Carousel>
+
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                goGallery(-1);
+              }}
+              aria-label="Previous gallery image"
+              className="absolute top-1/2 -translate-y-1/2 left-1 sm:left-3 md:left-5 w-8 h-8 sm:w-10 sm:h-10 md:w-11 md:h-11 rounded-full bg-black/55 border border-white/10 text-white text-lg sm:text-xl flex items-center justify-center hover:bg-gold/85 hover:text-black transition z-20"
+            >
+              &lsaquo;
+            </button>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                goGallery(1);
+              }}
+              aria-label="Next gallery image"
+              className="absolute top-1/2 -translate-y-1/2 right-1 sm:right-3 md:right-5 w-8 h-8 sm:w-10 sm:h-10 md:w-11 md:h-11 rounded-full bg-black/55 border border-white/10 text-white text-lg sm:text-xl flex items-center justify-center hover:bg-gold/85 hover:text-black transition z-20"
+            >
+              &rsaquo;
+            </button>
           </div>
           <div className="flex items-center justify-center gap-2 mt-6 relative z-10">
             {gallery.map((_, i) => (
-              <button key={i} onClick={() => { if (i !== galIdx) goGallery(i - galIdx); }} className={`w-2 h-2 rounded-full transition-all ${i === galIdx ? "bg-gold w-5" : "bg-white/20 hover:bg-white/40"}`} />
+              <button
+                key={i}
+                type="button"
+                aria-label={`Go to gallery image ${i + 1}`}
+                onClick={() => galApi?.scrollTo(i)}
+                className={`h-2 rounded-full transition-all ${
+                  i === galIdx ? "bg-gold w-5" : "bg-white/20 hover:bg-white/40 w-2"
+                }`}
+              />
             ))}
           </div>
         </div>

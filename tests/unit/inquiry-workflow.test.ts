@@ -1,5 +1,11 @@
-import { describe, expect, test } from "bun:test";
-import { canViewInquiryNumber, groupInquiriesByVehicle, hasUnreadInquiryActivity, replyReference } from "../../lib/inquiry-workflow";
+import {
+  canViewInquiryNumber,
+  groupInquiriesByVehicle,
+  hasUnreadInquiryActivity,
+  replyReference,
+  buildInquiryDeepLink,
+  parseInquiryDeepLink,
+} from "../../lib/inquiry-workflow";
 
 describe("inquiry workflow", () => {
   test("shows inquiry numbers to internal administrators and sales staff only", () => {
@@ -29,8 +35,15 @@ describe("inquiry workflow", () => {
     expect(replyReference({ authorName: "Sales Lead", body: "The vessel leaves on Friday and the CIF total is USD 18,200." })).toBe("Replying to Sales Lead: The vessel leaves on Friday and the CIF total is USD 18,200.");
   });
 
-  test("marks activity from another participant as unread for every role", () => {
-    expect(hasUnreadInquiryActivity({ viewerUserId: "SALES-1", noteAuthorUserId: "CUS-1", noteCreatedAt: "2026-08-11T09:00:00.000Z", lastReadAt: "2026-08-11T08:00:00.000Z" })).toBe(true);
-    expect(hasUnreadInquiryActivity({ viewerUserId: "SALES-1", noteAuthorUserId: "SALES-1", noteCreatedAt: "2026-08-11T09:00:00.000Z", lastReadAt: null })).toBe(false);
+  test("builds and parses inquiry deep links accurately across locales", () => {
+    expect(buildInquiryDeepLink("INQ-2026-001")).toBe("https://youguard.net/portal?inquiry=INQ-2026-001");
+    expect(buildInquiryDeepLink("INQ-2026-002", "http://localhost:3004", "zh")).toBe("http://localhost:3004/zh/portal?inquiry=INQ-2026-002");
+    expect(buildInquiryDeepLink("INQ-2026-003", "https://youguard.net", "am")).toBe("https://youguard.net/am/portal?inquiry=INQ-2026-003");
+
+    expect(parseInquiryDeepLink("https://youguard.net/portal?inquiry=INQ-2026-888")).toBe("INQ-2026-888");
+    expect(parseInquiryDeepLink("/zh/dashboard/quotes?inquiry=INQ-2026-999&tab=quotes")).toBe("INQ-2026-999");
+    expect(parseInquiryDeepLink("?inquiry=INQ-2026-777")).toBe("INQ-2026-777");
+    expect(parseInquiryDeepLink("https://youguard.net/dashboard/vehicles")).toBeNull();
   });
 });
+

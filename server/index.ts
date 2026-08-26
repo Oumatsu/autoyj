@@ -1,7 +1,9 @@
+import * as Sentry from "@sentry/nextjs";
 import handler from "vinext/server/app-router-entry";
 import { handlePortalRequest } from "./api/portal";
 import { runFeishuScheduledSync } from "./jobs/feishu-sync";
 import type { ExecutionContext, WorkerEnv } from "./types";
+
 
 const STATIC_EXTENSIONS = /\.(webp|png|jpg|jpeg|svg|ico|gif|woff2?|ttf|eot|css|js|map|json|pdf|txt|xml|webmanifest)$/i;
 
@@ -83,6 +85,16 @@ export default {
             headers.set("cache-control", "no-cache, no-store, must-revalidate, max-age=0");
             headers.set("pragma", "no-cache");
             headers.set("expires", "0");
+          } else if (
+            url.pathname.startsWith("/pic/") ||
+            url.pathname.startsWith("/insights/images/") ||
+            url.pathname.startsWith("/assets/") ||
+            url.pathname.startsWith("/icons/") ||
+            url.pathname.startsWith("/favicon") ||
+            url.pathname.startsWith("/logo") ||
+            STATIC_EXTENSIONS.test(url.pathname)
+          ) {
+            headers.set("cache-control", "public, max-age=2592000, stale-while-revalidate=86400");
           } else {
             headers.set("cache-control", "public, max-age=86400, stale-while-revalidate=604800");
           }
@@ -138,6 +150,9 @@ export default {
       return response;
     } catch (fetchError) {
       console.error("[server:edge-worker] Uncaught error during fetch handler:", fetchError);
+      Sentry.captureException(fetchError, {
+        tags: { runtime: "cloudflare-workers", path: url.pathname },
+      });
       return new Response(
         JSON.stringify({
           error: "Internal Server Error",
@@ -154,7 +169,11 @@ export default {
     ctx.waitUntil(
       runFeishuScheduledSync(env).catch((err) => {
         console.error("[cron:feishu-sync] Uncaught error during scheduled sync:", err);
+        Sentry.captureException(err, {
+          tags: { runtime: "cloudflare-workers", job: "feishu-sync" },
+        });
       })
     );
   },
 };
+

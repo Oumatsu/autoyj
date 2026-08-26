@@ -381,6 +381,19 @@ CREATE TABLE IF NOT EXISTS user_telegram_bindings (
 );
 CREATE INDEX IF NOT EXISTS idx_user_telegram_chat_id ON user_telegram_bindings(chat_id);
 
+-- Web Push Subscriptions for PWA browser notifications (1:N multi-device)
+CREATE TABLE IF NOT EXISTS user_push_subscriptions (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL,
+  endpoint TEXT NOT NULL UNIQUE,
+  p256dh TEXT NOT NULL,
+  auth TEXT NOT NULL,
+  user_agent TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_user_push_sub_user_id ON user_push_subscriptions(user_id);
+
 -- Portal Users table for dynamic user CRUD and manual Telegram/WhatsApp binding
 CREATE TABLE IF NOT EXISTS portal_users (
   user_id TEXT PRIMARY KEY,
@@ -400,4 +413,27 @@ CREATE TABLE IF NOT EXISTS portal_users (
 );
 CREATE INDEX IF NOT EXISTS idx_portal_users_email ON portal_users(email);
 CREATE INDEX IF NOT EXISTS idx_portal_users_role ON portal_users(role);
+
+CREATE TABLE IF NOT EXISTS inquiry_requests (
+  id TEXT PRIMARY KEY,
+  inquiry_no TEXT NOT NULL REFERENCES inquiries(inquiry_no),
+  requester_user_id TEXT NOT NULL,
+  vehicle_id TEXT NOT NULL,
+  vehicle_label TEXT NOT NULL,
+  quantity INTEGER NOT NULL CHECK (quantity > 0),
+  fob_unit_usd REAL NOT NULL,
+  fob_total_usd REAL NOT NULL,
+  contact_name TEXT NOT NULL,
+  company TEXT NOT NULL DEFAULT '',
+  country TEXT NOT NULL,
+  email TEXT NOT NULL,
+  phone_prefix TEXT NOT NULL DEFAULT '',
+  phone TEXT NOT NULL DEFAULT '',
+  requirements TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_inquiry_requests_topic_created
+  ON inquiry_requests(inquiry_no, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_inquiry_requests_requester_topic
+  ON inquiry_requests(requester_user_id, inquiry_no);
 

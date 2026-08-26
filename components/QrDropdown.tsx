@@ -9,20 +9,13 @@ import { OFFICIAL_WHATSAPP_URL } from "@/lib/constants";
 export function QrDropdown({ children }: { children: React.ReactNode }) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const openDropdown = useCallback(() => {
-    if (timerRef.current) {
-      clearTimeout(timerRef.current);
-      timerRef.current = null;
-    }
     setOpen(true);
   }, []);
 
   const closeDropdown = useCallback(() => {
-    timerRef.current = setTimeout(() => {
-      setOpen(false);
-    }, 150);
+    setOpen(false);
   }, []);
 
   return (

@@ -27,10 +27,19 @@ export function Sheet({
     return () => window.removeEventListener("keydown", closeOnEscape);
   }, [open, onOpenChange]);
 
+  React.useEffect(() => {
+    if (!open || typeof document === "undefined") return;
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [open]);
+
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex overflow-hidden bg-black/70 backdrop-blur-sm animate-in fade-in-0 duration-200">
+    <div className="fixed inset-0 z-50 flex overflow-hidden bg-black/70 backdrop-blur-sm animate-in fade-in-0 duration-200 overscroll-none touch-none">
       <div
         className="fixed inset-0"
         onClick={() => onOpenChange(false)}
@@ -42,9 +51,9 @@ export function Sheet({
         aria-modal="true"
         aria-label={ariaLabel}
         className={cn(
-          "relative z-10 flex flex-col border-border bg-background p-6 text-foreground shadow-2xl transition-transform duration-300 ease-in-out",
-          side === "right" && "ml-auto h-full w-full max-w-md border-l animate-in slide-in-from-right",
-          side === "left" && "mr-auto h-full w-full max-w-md border-r animate-in slide-in-from-left",
+          "relative z-10 flex flex-col border-border bg-background p-6 text-foreground shadow-2xl transition-transform duration-300 ease-in-out overflow-y-auto overscroll-contain touch-pan-y max-h-[100dvh] h-[100dvh] [-webkit-overflow-scrolling:touch]",
+          side === "right" && "ml-auto w-full max-w-md border-l animate-in slide-in-from-right",
+          side === "left" && "mr-auto w-full max-w-md border-r animate-in slide-in-from-left",
           side === "top" && "mb-auto w-full border-b animate-in slide-in-from-top",
           side === "bottom" && "mt-auto w-full border-t animate-in slide-in-from-bottom"
         )}

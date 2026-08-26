@@ -2,3 +2,6 @@
 preload = ["./tests/setup.ts"]
 coverageReporter = ["text", "lcov"]
 coverageDir = "coverage"
+
+[install]
+registry = "https://registry.npmjs.org/"
