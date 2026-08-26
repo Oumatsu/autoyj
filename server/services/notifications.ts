@@ -10,6 +10,25 @@ export type DualChannelNotificationParams = InquiryStakeholderNotificationParams
   ) => Promise<{ success: boolean; expired?: boolean }>;
 };
 
+export type NewInquiryStartedDualChannelParams = {
+  inquiryNo: string;
+  vehicleModel?: string;
+  creatorUserId: string;
+  creatorName: string;
+  creatorRole: string;
+  quantity?: number;
+  destinationPort?: string;
+  tradeTerm?: string;
+  targetPrice?: number | null;
+  initialNote?: string;
+  customerId?: string;
+  mockSendTelegram?: (chatId: string, text: string, url: string) => Promise<boolean>;
+  mockSendWebPush?: (
+    subscription: { endpoint: string; p256dh: string; auth: string },
+    payload: { title: string; body: string; url?: string }
+  ) => Promise<{ success: boolean; expired?: boolean }>;
+};
+
 export type DualChannelDeliveryResult = {
   telegramAttempted: number;
   telegramSent: number;
@@ -19,7 +38,7 @@ export type DualChannelDeliveryResult = {
 };
 
 /**
- * Deliver inquiry notifications across Telegram (Primary) and PWA Web Push (Fallback)
+ * Deliver inquiry note/reply notifications across Telegram (Primary) AND PWA Web Push (Simultaneous Broadcast)
  */
 export async function notifyInquiryStakeholdersDualChannel(
   env: PortalEnv,
@@ -169,12 +188,11 @@ export async function notifyInquiryStakeholdersDualChannel(
 
   const token = getTelegramBotToken(env);
 
-  // 5. Deliver to recipients
+  // 5. Deliver to recipients (Simultaneous Broadcast: Telegram if bound + Web Push for all subscribed devices)
   for (const userId of recipientUserIds) {
+    // Channel 1: Telegram
     const binding = await getTelegramUserBinding(db, userId).catch(() => null);
-
     if (binding?.chat_id) {
-      // Primary: Telegram Channel
       telegramAttempted++;
       if (params.mockSendTelegram) {
         const ok = await params.mockSendTelegram(binding.chat_id, telegramText, portalUrl);
@@ -200,28 +218,186 @@ export async function notifyInquiryStakeholdersDualChannel(
           console.error(`[notifications] Telegram send failure for user ${userId}:`, err);
         }
       }
-    } else {
-      // Fallback: PWA Web Push Channel
-      const pushSubscriptions = await getUserPushSubscriptions(db, userId);
-      for (const sub of pushSubscriptions) {
-        webPushAttempted++;
-        if (params.mockSendWebPush) {
-          const res = await params.mockSendWebPush(sub, {
-            title: pushTitle,
-            body: pushBody,
-            url: portalUrl,
+    }
+
+    // Channel 2: PWA Web Push (Delivers to all active devices registered by this user)
+    const pushSubscriptions = await getUserPushSubscriptions(db, userId);
+    for (const sub of pushSubscriptions) {
+      webPushAttempted++;
+      if (params.mockSendWebPush) {
+        const res = await params.mockSendWebPush(sub, {
+          title: pushTitle,
+          body: pushBody,
+          url: portalUrl,
+        });
+        if (res.success) webPushSent++;
+        if (res.expired) webPushExpired++;
+      } else {
+        const res = await sendWebPushNotification(env, sub, {
+          title: pushTitle,
+          body: pushBody,
+          url: portalUrl,
+        });
+        if (res.success) webPushSent++;
+        if (res.expired) webPushExpired++;
+      }
+    }
+  }
+
+  return {
+    telegramAttempted,
+    telegramSent,
+    webPushAttempted,
+    webPushSent,
+    webPushExpired,
+  };
+}
+
+/**
+ * Deliver new inquiry broadcast notifications across Telegram AND PWA Web Push
+ */
+export async function notifyNewInquiryStartedDualChannel(
+  env: PortalEnv,
+  params: NewInquiryStartedDualChannelParams
+): Promise<DualChannelDeliveryResult> {
+  const db = env.PORTAL_DB;
+  if (!db) {
+    return {
+      telegramAttempted: 0,
+      telegramSent: 0,
+      webPushAttempted: 0,
+      webPushSent: 0,
+      webPushExpired: 0,
+    };
+  }
+
+  const isStaffCreator = params.creatorRole === "sales" || params.creatorRole === "admin";
+  const recipientUserIds = new Set<string>();
+
+  if (!isStaffCreator) {
+    // Notify all sales and admin staff
+    const staffRes = await db
+      .prepare("SELECT user_id FROM portal_users WHERE role IN ('sales', 'admin')")
+      .all<{ user_id: string }>()
+      .catch(() => ({ results: [] }));
+    for (const s of staffRes?.results || []) {
+      if (s.user_id && s.user_id !== params.creatorUserId) {
+        recipientUserIds.add(s.user_id);
+      }
+    }
+  } else {
+    // Staff代客录入: notify target customer
+    if (params.customerId && params.customerId !== params.creatorUserId) {
+      recipientUserIds.add(params.customerId);
+    }
+  }
+
+  if (recipientUserIds.size === 0) {
+    return {
+      telegramAttempted: 0,
+      telegramSent: 0,
+      webPushAttempted: 0,
+      webPushSent: 0,
+      webPushExpired: 0,
+    };
+  }
+
+  const roleLabel =
+    params.creatorRole === "partner"
+      ? "Trade Partner"
+      : params.creatorRole === "customer"
+        ? "Client"
+        : params.creatorRole === "sales"
+          ? "Sales Specialist"
+          : "Administrator";
+
+  const lines = [
+    `🚀 *Youguard Auto · New Sourcing Inquiry*`,
+    ``,
+    `*Inquiry*: \`#${params.inquiryNo}\``,
+    `*Vehicle*: *${params.vehicleModel || "Vehicle Inquiry"}*`,
+    `*From*: ${params.creatorName} (${roleLabel})`,
+    `*Quantity*: ${params.quantity || 1} Units`,
+    `*Trade Term*: ${params.tradeTerm || "FOB"}`,
+  ];
+
+  if (params.destinationPort) {
+    lines.push(`*Destination*: ${params.destinationPort}`);
+  }
+  if (params.targetPrice) {
+    lines.push(`*Target Price*: USD $${params.targetPrice.toLocaleString()}`);
+  }
+  if (params.initialNote?.trim()) {
+    const preview = params.initialNote.trim().length > 180 ? `${params.initialNote.trim().slice(0, 180)}...` : params.initialNote.trim();
+    lines.push(``, `💬 _"${preview}"_`);
+  }
+
+  lines.push(``, `👉 Tap below to view details and issue quotation:`);
+
+  const telegramText = lines.join("\n");
+  const portalUrl = `https://youguard.net/portal?inquiry=${encodeURIComponent(params.inquiryNo)}&src=notification`;
+  const pushTitle = `🚀 New Inquiry #${params.inquiryNo} · ${params.vehicleModel || "Vehicle"}`;
+  const pushBody = `${params.creatorName} (${roleLabel}) requested ${params.quantity || 1} units (${params.tradeTerm || "FOB"}).`;
+
+  let telegramAttempted = 0;
+  let telegramSent = 0;
+  let webPushAttempted = 0;
+  let webPushSent = 0;
+  let webPushExpired = 0;
+
+  const token = getTelegramBotToken(env);
+
+  for (const userId of recipientUserIds) {
+    // Channel 1: Telegram
+    const binding = await getTelegramUserBinding(db, userId).catch(() => null);
+    if (binding?.chat_id) {
+      telegramAttempted++;
+      if (params.mockSendTelegram) {
+        const ok = await params.mockSendTelegram(binding.chat_id, telegramText, portalUrl);
+        if (ok) telegramSent++;
+      } else if (token) {
+        try {
+          const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              chat_id: binding.chat_id,
+              text: telegramText,
+              parse_mode: "Markdown",
+              reply_markup: {
+                inline_keyboard: [[{ text: `🔘 View Inquiry #${params.inquiryNo}`, url: portalUrl }]],
+              },
+            }),
+            signal: AbortSignal.timeout(10000),
           });
-          if (res.success) webPushSent++;
-          if (res.expired) webPushExpired++;
-        } else {
-          const res = await sendWebPushNotification(env, sub, {
-            title: pushTitle,
-            body: pushBody,
-            url: portalUrl,
-          });
-          if (res.success) webPushSent++;
-          if (res.expired) webPushExpired++;
+          const data = (await res.json().catch(() => ({}))) as { ok?: boolean };
+          if (data.ok) telegramSent++;
+        } catch (err) {
+          console.error(`[notifications] Telegram send failure for new inquiry to user ${userId}:`, err);
         }
+      }
+    }
+
+    // Channel 2: PWA Web Push
+    const pushSubscriptions = await getUserPushSubscriptions(db, userId);
+    for (const sub of pushSubscriptions) {
+      webPushAttempted++;
+      if (params.mockSendWebPush) {
+        const res = await params.mockSendWebPush(sub, {
+          title: pushTitle,
+          body: pushBody,
+          url: portalUrl,
+        });
+        if (res.success) webPushSent++;
+        if (res.expired) webPushExpired++;
+      } else {
+        const res = await sendWebPushNotification(env, sub, {
+          title: pushTitle,
+          body: pushBody,
+          url: portalUrl,
+        });
+        if (res.success) webPushSent++;
+        if (res.expired) webPushExpired++;
       }
     }
   }

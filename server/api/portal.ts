@@ -46,7 +46,10 @@ import {
   getUserPushSubscriptions,
   sendWebPushNotification,
 } from "../services/web-push";
-import { notifyInquiryStakeholdersDualChannel } from "../services/notifications";
+import {
+  notifyInquiryStakeholdersDualChannel,
+  notifyNewInquiryStartedDualChannel,
+} from "../services/notifications";
 import type { PortalEnv } from "../types";
 
 export type Env = PortalEnv;
@@ -3772,7 +3775,7 @@ async function handleCreateInquiry(request: Request, env: Env) {
   );
   await db.batch(statements);
 
-  notifyNewInquiryStartedTelegram(env, {
+  notifyNewInquiryStartedDualChannel(env, {
     inquiryNo,
     vehicleModel: selectedVehicleModel,
     creatorUserId: session.userId,

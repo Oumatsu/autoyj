@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import {
   notifyInquiryStakeholdersDualChannel,
+  notifyNewInquiryStartedDualChannel,
 } from "../../server/services/notifications";
 import type { PortalEnv } from "../../server/types";
 
@@ -97,12 +98,19 @@ describe("Dual-Channel Notification Delivery Policy Domain Tests", () => {
     VAPID_SUBJECT: "mailto:support@youguard.net",
   } as unknown as PortalEnv;
 
-  test("delivers via Telegram for bound users and falls back to PWA Web Push for unbound users", async () => {
+  test("delivers via Telegram AND PWA Web Push simultaneously when a user has both configured", async () => {
     const mockDb = makeMockDb({
       telegramBindings: {
         "SALES-REP-01": { chat_id: "TG_111", telegram_username: "sales_rep" },
       },
       pushSubscriptions: {
+        "SALES-REP-01": [
+          {
+            endpoint: "https://fcm.googleapis.com/fcm/send/sales-desktop-device",
+            p256dh: "p256dh_sales",
+            auth: "auth_sales",
+          },
+        ],
         "CUST-VIP-01": [
           {
             endpoint: "https://fcm.googleapis.com/fcm/send/cust-device-1",
@@ -123,7 +131,6 @@ describe("Dual-Channel Notification Delivery Policy Domain Tests", () => {
       authorName: "Partner Aebissa",
       authorRole: "partner",
       isPublic: true,
-      // Test mock dispatchers
       mockSendTelegram: async (chatId, text) => {
         mockDb.sentTelegramMessages.push({ chatId, text });
         return true;
@@ -138,8 +145,70 @@ describe("Dual-Channel Notification Delivery Policy Domain Tests", () => {
     expect(result.webPushAttempted).toBeGreaterThan(0);
     // Sales received Telegram
     expect(mockDb.sentTelegramMessages.some((m) => m.chatId === "TG_111")).toBe(true);
+    // Sales ALSO received PWA Web Push on desktop simultaneously
+    expect(mockDb.sentWebPushes.some((p) => p.endpoint.includes("sales-desktop-device"))).toBe(true);
     // Customer received PWA Web Push
     expect(mockDb.sentWebPushes.some((p) => p.endpoint.includes("cust-device-1"))).toBe(true);
+  });
+
+  test("new inquiry broadcast notifies all sales and admin via both Telegram and PWA Web Push", async () => {
+    const mockDb = makeMockDb({
+      telegramBindings: {
+        "SALES-REP-01": { chat_id: "TG_111", telegram_username: "sales_rep" },
+        "ADMIN-01": { chat_id: "TG_999", telegram_username: "admin_user" },
+      },
+      pushSubscriptions: {
+        "SALES-REP-01": [
+          {
+            endpoint: "https://fcm.googleapis.com/fcm/send/sales-desktop-device",
+            p256dh: "p256dh_sales",
+            auth: "auth_sales",
+          },
+        ],
+        "ADMIN-01": [
+          {
+            endpoint: "https://fcm.googleapis.com/fcm/send/admin-desktop-device",
+            p256dh: "p256dh_admin",
+            auth: "auth_admin",
+          },
+        ],
+      },
+    });
+
+    const env = { ...fakeEnv, PORTAL_DB: mockDb } as unknown as PortalEnv;
+
+    const result = await notifyNewInquiryStartedDualChannel(env, {
+      inquiryNo: "INQ-2026-NEW-01",
+      vehicleModel: "Zeekr 001 2026",
+      creatorUserId: "CUST-VIP-01",
+      creatorName: "Aebissa Client",
+      creatorRole: "customer",
+      quantity: 5,
+      destinationPort: "Djibouti",
+      tradeTerm: "FOB",
+      targetPrice: 42000,
+      initialNote: "Urgent sourcing needed for fleet expansion",
+      mockSendTelegram: async (chatId, text) => {
+        mockDb.sentTelegramMessages.push({ chatId, text });
+        return true;
+      },
+      mockSendWebPush: async (sub, payload) => {
+        mockDb.sentWebPushes.push({ endpoint: sub.endpoint, payload });
+        return { success: true };
+      },
+    });
+
+    expect(result.telegramAttempted).toBe(2);
+    expect(result.telegramSent).toBe(2);
+    expect(result.webPushAttempted).toBe(2);
+    expect(result.webPushSent).toBe(2);
+
+    // Both sales and admin received Telegram
+    expect(mockDb.sentTelegramMessages.some((m) => m.chatId === "TG_111")).toBe(true);
+    expect(mockDb.sentTelegramMessages.some((m) => m.chatId === "TG_999")).toBe(true);
+    // Both sales and admin received PWA Web Push
+    expect(mockDb.sentWebPushes.some((p) => p.endpoint.includes("sales-desktop-device"))).toBe(true);
+    expect(mockDb.sentWebPushes.some((p) => p.endpoint.includes("admin-desktop-device"))).toBe(true);
   });
 
   test("excludes author from receiving notifications on their own notes", async () => {
@@ -151,7 +220,7 @@ describe("Dual-Channel Notification Delivery Policy Domain Tests", () => {
 
     const env = { ...fakeEnv, PORTAL_DB: mockDb } as unknown as PortalEnv;
 
-    const result = await notifyInquiryStakeholdersDualChannel(env, {
+    await notifyInquiryStakeholdersDualChannel(env, {
       inquiryNo: "INQ-2026-001",
       vehicleModel: "BYD Yangwang U8",
       noteBody: "I will check shipping schedule.",
