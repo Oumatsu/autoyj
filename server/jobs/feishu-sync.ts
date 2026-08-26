@@ -1,5 +1,6 @@
 import type { PortalEnv as Env } from "../types";
 import { syncVehicleModelsToDB, syncVehiclesToD1, syncUsersToD1, syncArticlesToD1, syncAcademyToD1 } from "../api/portal";
+import { invalidateVehicleCache } from "../db/d1";
 
 /**
  * Scheduled Cron Job — Runs every 10 minutes via Cloudflare Workers.
@@ -63,11 +64,13 @@ export async function runFeishuScheduledSync(env: Env): Promise<FeishuSyncResult
   await run("vehicle models/trims", () => syncVehicleModelsToDB(env), (res) => {
     models = res.models;
     trims = res.trims;
+    invalidateVehicleCache();
     console.log(`[cron:feishu-sync] ✓ Vehicle models: ${models} models + ${trims} trims written to D1`);
   });
 
   await run("vehicles", () => syncVehiclesToD1(env), (res) => {
     vehicles = res.synced;
+    invalidateVehicleCache();
     console.log(`[cron:feishu-sync] ✓ Vehicles: ${vehicles} records written to D1`);
   });
 

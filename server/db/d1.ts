@@ -298,31 +298,77 @@ async function withD1Retry<T>(fn: () => Promise<T>): Promise<T> {
   }
 }
 
+const CACHE_TTL_MS = 60_000;
+const cachedModelsByDb = new WeakMap<object, { data: D1VehicleModel[]; expiresAt: number }>();
+const cachedVehiclesByDb = new WeakMap<object, { data: D1Vehicle[]; expiresAt: number }>();
+const cachedTrimsByDb = new WeakMap<object, Map<string, { data: D1VehicleTrim[]; expiresAt: number }>>();
+
+export function invalidateVehicleCache(db?: object): void {
+  if (db && typeof db === "object") {
+    cachedModelsByDb.delete(db);
+    cachedVehiclesByDb.delete(db);
+    cachedTrimsByDb.delete(db);
+  }
+}
+
 export async function queryVehicleModels(db: D1Database): Promise<D1VehicleModel[]> {
+  const now = Date.now();
+  const cached = typeof db === "object" && db !== null ? cachedModelsByDb.get(db) : null;
+  if (cached && cached.expiresAt > now) {
+    return cached.data;
+  }
   return withD1Retry(async () => {
     const result = await db.prepare(
       `SELECT * FROM vehicle_models WHERE status IS NULL OR status NOT IN ('archived','draft','disabled','下架','停售') ORDER BY brand`
     ).all<D1VehicleModel>();
+    if (typeof db === "object" && db !== null) {
+      cachedModelsByDb.set(db, { data: result.results, expiresAt: Date.now() + CACHE_TTL_MS });
+    }
     return result.results;
   });
 }
 
 export async function queryVehicleTrims(db: D1Database, modelId?: string): Promise<D1VehicleTrim[]> {
+  const now = Date.now();
+  const cacheKey = modelId || "__ALL__";
+  const trimsMap = typeof db === "object" && db !== null ? cachedTrimsByDb.get(db) : null;
+  const cached = trimsMap ? trimsMap.get(cacheKey) : null;
+  if (cached && cached.expiresAt > now) {
+    return cached.data;
+  }
   return withD1Retry(async () => {
     if (modelId) {
       const result = await db.prepare(
         `SELECT * FROM vehicle_trims WHERE model_id = ?`
       ).bind(modelId).all<D1VehicleTrim>();
+      if (typeof db === "object" && db !== null) {
+        const map = cachedTrimsByDb.get(db) || new Map<string, { data: D1VehicleTrim[]; expiresAt: number }>();
+        map.set(cacheKey, { data: result.results, expiresAt: Date.now() + CACHE_TTL_MS });
+        cachedTrimsByDb.set(db, map);
+      }
       return result.results;
     }
     const result = await db.prepare(`SELECT * FROM vehicle_trims`).all<D1VehicleTrim>();
+    if (typeof db === "object" && db !== null) {
+      const map = cachedTrimsByDb.get(db) || new Map<string, { data: D1VehicleTrim[]; expiresAt: number }>();
+      map.set(cacheKey, { data: result.results, expiresAt: Date.now() + CACHE_TTL_MS });
+      cachedTrimsByDb.set(db, map);
+    }
     return result.results;
   });
 }
 
 export async function queryVehicles(db: D1Database): Promise<D1Vehicle[]> {
+  const now = Date.now();
+  const cached = typeof db === "object" && db !== null ? cachedVehiclesByDb.get(db) : null;
+  if (cached && cached.expiresAt > now) {
+    return cached.data;
+  }
   return withD1Retry(async () => {
     const result = await db.prepare(`SELECT * FROM vehicles WHERE stage = 'connected'`).all<D1Vehicle>();
+    if (typeof db === "object" && db !== null) {
+      cachedVehiclesByDb.set(db, { data: result.results, expiresAt: Date.now() + CACHE_TTL_MS });
+    }
     return result.results;
   });
 }
