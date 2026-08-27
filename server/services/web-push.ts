@@ -350,20 +350,24 @@ export async function sendWebPushNotification(
     });
 
     if (res.status === 200 || res.status === 201 || res.status === 202) {
+      console.log(`[push] Web Push delivered successfully (${res.status}) to ${subscription.endpoint.slice(0, 45)}...`);
       return { success: true, status: res.status };
     }
+
+    const errText = await res.text().catch(() => "");
+    console.error(`[push] Push gateway rejected delivery (${res.status}): ${errText}`);
 
     // 404 Not Found or 410 Gone indicates the push subscription has expired/been revoked
     if (res.status === 404 || res.status === 410) {
       if (env.PORTAL_DB) {
         await deleteUserPushSubscription(env.PORTAL_DB, subscription.endpoint);
       }
-      return { success: false, status: res.status, expired: true };
+      return { success: false, status: res.status, expired: true, errorText: errText };
     }
 
-    return { success: false, status: res.status };
-  } catch (err) {
-    console.error("[push] Web Push delivery error:", err);
-    return { success: false };
+    return { success: false, status: res.status, errorText: errText };
+  } catch (err: any) {
+    console.error("[push] Web Push delivery error:", err?.message || err);
+    return { success: false, errorText: err?.message || String(err) };
   }
 }

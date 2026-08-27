@@ -137,7 +137,12 @@ export function NotificationChannelsDialog({
 
       // 2. Dispatch through backend Web Push service
       const res = await fetch("/api/portal/push/test", { method: "POST" });
-      const data = (await res.json().catch(() => ({}))) as { ok?: boolean; attemptedCount?: number };
+      const data = (await res.json().catch(() => ({}))) as { ok?: boolean; attemptedCount?: number; details?: any[] };
+      console.log("[PWA Web Push Diagnostic Log]:", {
+        status: res.status,
+        response: data,
+        subscriptionEndpoint: subscription?.endpoint,
+      });
 
       // Instant local system notification for immediate visual confirmation
       try {

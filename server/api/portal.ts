@@ -5159,19 +5159,23 @@ export async function handlePortalRequest(request: Request, env: Env) {
     if (path === "/api/portal/push/test" && request.method === "POST") {
       const session = await requireSession(request, env);
       const subs = await getUserPushSubscriptions(env.PORTAL_DB, session.userId);
+      console.log(`[push-test] User ${session.userId} (${session.name}) requested test push. Found ${subs.length} active subscription(s) in D1.`);
       if (subs.length === 0) {
         return problem("No registered push subscriptions found for your account on this device", 404);
       }
       let sentCount = 0;
+      const details: any[] = [];
       for (const sub of subs) {
         const res = await sendWebPushNotification(env, sub, {
-          title: "Youguard Auto · Test Notification",
-          body: `Hello ${session.name || "User"}, your PWA Web Push notification is working!`,
+          title: "🚗 Youguard Auto · Test Notification",
+          body: `Hello ${session.name || "Partner"}, your PWA Web Push notification is working!`,
           url: "/portal",
         });
+        console.log(`[push-test] Endpoint ${sub.endpoint.slice(0, 45)}... -> success: ${res.success}, status: ${res.status || "N/A"}`);
+        details.push({ endpointPreview: sub.endpoint.slice(0, 45) + "...", ...res });
         if (res.success) sentCount++;
       }
-      return json({ ok: true, attemptedCount: subs.length, sentCount });
+      return json({ ok: true, attemptedCount: subs.length, sentCount, details });
     }
     if (path === "/api/portal/webhook/sync" && request.method === "POST") {
       cacheMap.clear();
