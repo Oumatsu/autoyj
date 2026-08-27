@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { Download, X, Share, PlusSquare, MoreVertical, Smartphone, Monitor, ExternalLink } from "lucide-react";
+import { Download, X, Share, PlusSquare, MoreVertical, Smartphone, Monitor, ExternalLink, Apple, Laptop, ChevronDown, ChevronUp } from "lucide-react";
 import { useTranslation } from "@/i18n/useTranslation";
 
 interface BeforeInstallPromptEvent extends Event {
@@ -9,17 +9,16 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 }
 
-type PlatformTab = "android" | "ios" | "desktop" | "inapp";
+export type PlatformTarget = "ios" | "android" | "mac" | "mac_safari" | "windows" | "inapp" | "desktop";
 
 export function PwaInstallPrompt() {
   const { locale } = useTranslation();
   const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null);
-  const [isIOS, setIsIOS] = useState(false);
-  const [isAndroid, setIsAndroid] = useState(false);
-  const [isInApp, setIsInApp] = useState(false);
+  const [platform, setPlatform] = useState<PlatformTarget>("desktop");
+  const [activeTab, setActiveTab] = useState<PlatformTarget>("desktop");
+  const [showOtherPlatforms, setShowOtherPlatforms] = useState(false);
   const [isStandalone, setIsStandalone] = useState(false);
   const [showGuideModal, setShowGuideModal] = useState(false);
-  const [activeTab, setActiveTab] = useState<PlatformTab>("android");
   const [dismissed, setDismissed] = useState(false);
   const [promptTriggered, setPromptTriggered] = useState(false);
 
@@ -36,27 +35,33 @@ export function PwaInstallPrompt() {
       return;
     }
 
-    // Device detection
+    // Precise Platform Detection
     const userAgent = window.navigator.userAgent.toLowerCase();
-    const isIosDevice =
-      /iphone|ipad|ipod/.test(userAgent) ||
-      (window.navigator.platform === "MacIntel" && window.navigator.maxTouchPoints > 1);
-    const isAndroidDevice = /android/.test(userAgent);
-    const isInAppBrowser = /micromessenger|wechat|lark|feishu|telegram|fbav|instagram|line\//.test(userAgent);
+    const isTouchMac = window.navigator.platform === "MacIntel" && window.navigator.maxTouchPoints > 1;
+    const isIos = /iphone|ipad|ipod/.test(userAgent) || isTouchMac;
+    const isAndroid = /android/.test(userAgent);
+    const isInApp = /micromessenger|wechat|lark|feishu|telegram|fbav|instagram|line\//.test(userAgent);
+    const isMac = !isIos && (/macintosh|mac os x/.test(userAgent) || (window.navigator.platform || "").toLowerCase().includes("mac"));
+    const isWin = !isAndroid && (/windows|win32|win64/.test(userAgent) || (window.navigator.platform || "").toLowerCase().includes("win"));
+    const isSafari = /safari/.test(userAgent) && !/chrome|chromium|edg|crios|fxios|opr/.test(userAgent);
 
-    setIsIOS(isIosDevice);
-    setIsAndroid(isAndroidDevice);
-    setIsInApp(isInAppBrowser);
-
-    if (isInAppBrowser) {
-      setActiveTab("inapp");
-    } else if (isIosDevice) {
-      setActiveTab("ios");
-    } else if (isAndroidDevice) {
-      setActiveTab("android");
-    } else {
-      setActiveTab("desktop");
+    let detected: PlatformTarget = "desktop";
+    if (isInApp) {
+      detected = "inapp";
+    } else if (isIos) {
+      detected = "ios";
+    } else if (isAndroid) {
+      detected = "android";
+    } else if (isMac && isSafari) {
+      detected = "mac_safari";
+    } else if (isMac) {
+      detected = "mac";
+    } else if (isWin) {
+      detected = "windows";
     }
+
+    setPlatform(detected);
+    setActiveTab(detected);
 
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
@@ -70,19 +75,13 @@ export function PwaInstallPrompt() {
 
     const handleCustomOpen = () => {
       setDismissed(false);
-      if (isIosDevice) {
+      if (detected === "ios") {
         setActiveTab("ios");
         setShowGuideModal(true);
       } else if (installPrompt) {
         void installPrompt.prompt();
       } else {
-        if (isInAppBrowser) {
-          setActiveTab("inapp");
-        } else if (isAndroidDevice) {
-          setActiveTab("android");
-        } else {
-          setActiveTab("desktop");
-        }
+        setActiveTab(detected);
         setShowGuideModal(true);
       }
     };
@@ -103,7 +102,7 @@ export function PwaInstallPrompt() {
   }, []);
 
   const handleInstallAction = useCallback(async () => {
-    if (isIOS) {
+    if (platform === "ios") {
       setActiveTab("ios");
       setShowGuideModal(true);
       return;
@@ -122,26 +121,73 @@ export function PwaInstallPrompt() {
         }
       } catch {
         setPromptTriggered(false);
-        setActiveTab(isAndroid ? "android" : "desktop");
+        setActiveTab(platform);
         setShowGuideModal(true);
       } finally {
         setInstallPrompt(null);
       }
     } else {
-      if (isInApp) {
-        setActiveTab("inapp");
-      } else if (isAndroid) {
-        setActiveTab("android");
-      } else {
-        setActiveTab("desktop");
-      }
+      setActiveTab(platform);
       setShowGuideModal(true);
     }
-  }, [isIOS, isAndroid, isInApp, installPrompt]);
+  }, [platform, installPrompt]);
 
   if (isStandalone) return null;
 
   const canShowBanner = !dismissed;
+
+  // Banner text per platform
+  const bannerLabel = promptTriggered
+    ? (locale === "zh"
+        ? "☝️ 请在浏览器顶部（地址栏旁）弹窗中确认安装"
+        : locale === "am"
+        ? "☝️ እባክዎ ከላይ ባለው መስኮት ላይ 'ጫን' ን ያረጋግጡ"
+        : "☝️ Please confirm 'Install' in the prompt at the top")
+    : platform === "ios"
+    ? (locale === "zh"
+        ? "添加到 iPhone / iPad 主屏幕，实时接收商机通知"
+        : locale === "am"
+        ? "ወደ iPhone/iPad መነሻ ማያ ገጽ ያክሉ"
+        : "Add to Home Screen for instant alerts")
+    : platform === "mac" || platform === "mac_safari"
+    ? (locale === "zh"
+        ? "安装 Mac 桌面客户端，常驻 Dock 程序坞"
+        : locale === "am"
+        ? "የ Mac መተግበሪያን ጫን"
+        : "Install Mac desktop app for instant alerts")
+    : platform === "windows"
+    ? (locale === "zh"
+        ? "安装 Windows 桌面客户端，固定到任务栏"
+        : locale === "am"
+        ? "የ Windows መተግበሪያን ጫን"
+        : "Install Windows desktop app for instant alerts")
+    : platform === "android"
+    ? (locale === "zh"
+        ? "安装 Android 应用，秒开与即时商机通知"
+        : locale === "am"
+        ? "የ Android መተግበሪያን ጫን"
+        : "Install Android app for instant alerts")
+    : (locale === "zh"
+        ? "安装桌面应用，实时接收询价与商机通知"
+        : locale === "am"
+        ? "ፈጣን ማሳወቂያዎችን ለማግኘት መተግበሪያውን ጫን"
+        : "Install app for instant notifications");
+
+  // Modal Title per platform
+  const modalTitle =
+    activeTab === "ios"
+      ? (locale === "zh" ? "添加到 iPhone / iPad 主屏幕" : locale === "am" ? "ወደ iPhone/iPad ማያ ገጽ ያክሉ" : "Add to iOS Home Screen")
+      : activeTab === "android"
+      ? (locale === "zh" ? "安装 Android 手机客户端" : locale === "am" ? "የ Android መተግበሪያን ጫን" : "Install Android App")
+      : activeTab === "mac"
+      ? (locale === "zh" ? "安装 Mac 桌面客户端 (Edge / Chrome)" : locale === "am" ? "የ Mac መተግበሪያን ጫን" : "Install Mac Desktop App")
+      : activeTab === "mac_safari"
+      ? (locale === "zh" ? "添加到 Mac 程序坞 (Safari)" : locale === "am" ? "ወደ Mac Dock አክል" : "Add to Mac Dock (Safari)")
+      : activeTab === "windows"
+      ? (locale === "zh" ? "安装 Windows 桌面客户端" : locale === "am" ? "የ Windows መተግበሪያን ጫን" : "Install Windows Desktop App")
+      : activeTab === "inapp"
+      ? (locale === "zh" ? "请在默认浏览器中打开" : locale === "am" ? "በነባሪ አሳሽ ውስጥ ይክፈቱ" : "Open in Default Browser")
+      : (locale === "zh" ? "安装 Youguard 应用" : locale === "am" ? "Youguard መተግበሪያን ጫን" : "Install Youguard App");
 
   return (
     <>
@@ -159,29 +205,7 @@ export function PwaInstallPrompt() {
               />
               <div>
                 <div className="text-xs font-black text-white">Youguard Auto</div>
-                <div className="text-[10px] text-gray-300">
-                  {promptTriggered ? (
-                    <span className="font-bold text-[#dfba73] animate-pulse">
-                      {locale === "zh"
-                        ? "☝️ 请在浏览器顶部（地址栏旁）弹窗中确认安装"
-                        : locale === "am"
-                        ? "☝️ እባክዎ ከላይ ባለው መስኮት ላይ 'ጫን' ን ያረጋግጡ"
-                        : "☝️ Please confirm 'Install' in the prompt at the top"}
-                    </span>
-                  ) : isIOS ? (
-                    locale === "zh"
-                      ? "添加到主屏幕，实时接收商机通知"
-                      : locale === "am"
-                      ? "ወደ መነሻ ማያ ገጽ ያክሉ"
-                      : "Add to Home Screen for instant alerts"
-                  ) : locale === "zh" ? (
-                    "安装应用，实时接收询价与商机通知"
-                  ) : locale === "am" ? (
-                    "ፈጣን ማሳወቂያዎችን ለማግኘት መተግበሪያውን ጫን"
-                  ) : (
-                    "Install app for instant notifications"
-                  )}
-                </div>
+                <div className="text-[10px] text-gray-300">{bannerLabel}</div>
               </div>
             </div>
             <div className="flex items-center gap-1.5 shrink-0">
@@ -190,9 +214,9 @@ export function PwaInstallPrompt() {
                 onClick={() => void handleInstallAction()}
                 className="flex items-center gap-1 rounded-xl bg-gradient-to-r from-[#c5a059] to-[#dfba73] px-3 py-2 text-[11px] font-black uppercase tracking-wider text-black shadow-md transition hover:opacity-90 active:scale-95 cursor-pointer"
               >
-                {isIOS ? <Share className="h-3.5 w-3.5" /> : <Download className="h-3.5 w-3.5" />}
+                {platform === "ios" ? <Share className="h-3.5 w-3.5" /> : <Download className="h-3.5 w-3.5" />}
                 <span>
-                  {locale === "zh" ? (isIOS ? "添加" : "安装") : locale === "am" ? "ጫን" : "Install"}
+                  {locale === "zh" ? (platform === "ios" ? "添加" : "安装") : locale === "am" ? "ጫን" : "Install"}
                 </span>
               </button>
               <button
@@ -208,7 +232,7 @@ export function PwaInstallPrompt() {
         </aside>
       )}
 
-      {/* Multi-Platform Step-by-Step Installation Modal */}
+      {/* Hyper-Targeted Platform Installation Modal */}
       {showGuideModal && (
         <div
           role="dialog"
@@ -222,7 +246,7 @@ export function PwaInstallPrompt() {
             aria-hidden="true"
           />
           <div className="relative z-10 w-full max-w-md rounded-t-3xl sm:rounded-3xl border border-white/15 bg-[#0c1322] p-6 shadow-2xl text-foreground text-left max-h-[90dvh] overflow-y-auto">
-            <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-3">
+            <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-4">
               <div className="flex items-center gap-3">
                 <img
                   src="/icons/icon-192.png"
@@ -231,15 +255,11 @@ export function PwaInstallPrompt() {
                 />
                 <div>
                   <h3 className="text-sm font-black text-white uppercase tracking-wider">
-                    {locale === "zh"
-                      ? "安装 Youguard 应用"
-                      : locale === "am"
-                      ? "Youguard መተግበሪያን ጫን"
-                      : "Install Youguard App"}
+                    {modalTitle}
                   </h3>
                   <p className="text-[11px] text-gray-400">
                     {locale === "zh"
-                      ? "像原生 App 一样快速启动与离线访问"
+                      ? "无需应用商店，像原生客户端一样独立运行"
                       : locale === "am"
                       ? "ፈጣን እና ምቹ መዳረሻ"
                       : "Instant standalone app experience"}
@@ -255,95 +275,163 @@ export function PwaInstallPrompt() {
               </button>
             </div>
 
-            {/* Platform Tabs Selector */}
-            <div className="flex rounded-xl bg-white/[0.04] p-1 border border-white/5 mb-4 text-xs font-semibold">
-              <button
-                type="button"
-                onClick={() => setActiveTab("android")}
-                className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg transition ${
-                  activeTab === "android"
-                    ? "bg-[#c5a059] text-black font-bold shadow"
-                    : "text-gray-400 hover:text-white"
-                }`}
-              >
-                <Smartphone className="h-3.5 w-3.5" />
-                <span>Android</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveTab("ios")}
-                className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg transition ${
-                  activeTab === "ios"
-                    ? "bg-[#c5a059] text-black font-bold shadow"
-                    : "text-gray-400 hover:text-white"
-                }`}
-              >
-                <Share className="h-3.5 w-3.5" />
-                <span>iOS (Safari)</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveTab("desktop")}
-                className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg transition ${
-                  activeTab === "desktop"
-                    ? "bg-[#c5a059] text-black font-bold shadow"
-                    : "text-gray-400 hover:text-white"
-                }`}
-              >
-                <Monitor className="h-3.5 w-3.5" />
-                <span>Desktop</span>
-              </button>
-            </div>
-
-            {/* TAB CONTENT: In-App Browser Warning (WeChat / Lark / Telegram) */}
+            {/* In-App Browser Warning Guide */}
             {activeTab === "inapp" && (
-              <div className="flex flex-col gap-3.5 py-2 text-xs text-gray-200">
-                <div className="flex items-start gap-3 rounded-xl bg-amber-500/10 p-3.5 border border-amber-500/20">
-                  <ExternalLink className="h-5 w-5 text-amber-400 shrink-0 mt-0.5" />
-                  <div>
-                    <div className="font-bold text-amber-300">
-                      {locale === "zh"
-                        ? "请在系统默认浏览器中打开"
-                        : locale === "am"
-                        ? "በነባሪ አሳሽዎ ውስጥ ይክፈቱ"
-                        : "Open in Default Browser"}
+              <div className="space-y-3.5">
+                <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-3.5 text-xs text-amber-200">
+                  <p className="font-bold">
+                    {locale === "zh"
+                      ? "⚠️ 当前处于应用内置浏览器环境中"
+                      : locale === "am"
+                      ? "⚠️ በመተግበሪያ አሳሽ ውስጥ ነዎት"
+                      : "⚠️ Currently in an In-App Browser"}
+                  </p>
+                  <p className="mt-1 text-[11px] text-amber-300/80">
+                    {locale === "zh"
+                      ? "微信、飞书或 Telegram 等内置视图无法直接安装 PWA，请按以下步骤切换至系统浏览器："
+                      : locale === "am"
+                      ? "እባክዎ በነባሪ አሳሽዎ ውስጥ ይክፈቱት፦"
+                      : "Please switch to your system browser to install the standalone application:"}
+                  </p>
+                </div>
+                <div className="space-y-3 text-xs">
+                  <div className="flex items-start gap-3 rounded-xl bg-white/[0.04] p-3 border border-white/5">
+                    <div className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-[#c5a059]/20 text-[#c5a059] font-black text-xs">
+                      1
                     </div>
-                    <p className="text-[11px] text-gray-300 mt-1 leading-relaxed">
-                      {locale === "zh"
-                        ? "当前应用内置浏览器不支持直接安装。请点击右上角「…」菜单，选择「在浏览器中打开」（Chrome 或 Safari），即可畅享 PWA 桌面级体验。"
-                        : locale === "am"
-                        ? "እባክዎ ከላይ በቀኝ በኩል ያለውን ምናሌ በመጫን 'በአሳሽ ውስጥ ክፈት' ን ይምረጡ።"
-                        : "In-app browsers don't support direct installation. Tap the top-right menu and select 'Open in Browser' (Chrome or Safari)."}
-                    </p>
+                    <div>
+                      <div className="font-bold text-white flex items-center gap-1.5">
+                        <span>
+                          {locale === "zh"
+                            ? "点击右上角的「...」更多选项"
+                            : locale === "am"
+                            ? "የበለጠ አማራጮችን '...' ይጫኑ"
+                            : "Tap '...' at top right"}
+                        </span>
+                        <MoreVertical className="h-4 w-4 text-[#c5a059] inline shrink-0" />
+                      </div>
+                      <p className="text-[11px] text-gray-400 mt-0.5">
+                        {locale === "zh" ? "在屏幕右上角打开选项菜单" : "Open the options menu in the top right"}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3 rounded-xl bg-white/[0.04] p-3 border border-white/5">
+                    <div className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-emerald-500/20 text-emerald-400 font-black text-xs">
+                      2
+                    </div>
+                    <div>
+                      <div className="font-bold text-white flex items-center gap-1.5">
+                        <span>
+                          {locale === "zh"
+                            ? "选择「在系统默认浏览器中打开」"
+                            : locale === "am"
+                            ? "በነባሪ አሳሽ ውስጥ ክፈት የሚለውን ይምረጡ"
+                            : "Choose 'Open in Default Browser'"}
+                        </span>
+                        <ExternalLink className="h-4 w-4 text-emerald-400 inline shrink-0" />
+                      </div>
+                      <p className="text-[11px] text-gray-400 mt-0.5">
+                        {locale === "zh"
+                          ? "使用 Safari、Chrome 或 Edge 打开后即可一键安装"
+                          : "Open with Safari, Chrome, or Edge to install"}
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* TAB CONTENT: Android Guide */}
-            {activeTab === "android" && (
-              <div className="flex flex-col gap-3.5 py-2 text-xs text-gray-200">
+            {/* iOS Safari Guide */}
+            {activeTab === "ios" && (
+              <div className="space-y-3 text-xs">
                 <div className="flex items-start gap-3 rounded-xl bg-white/[0.04] p-3 border border-white/5">
-                  <div className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-[#22b8aa]/20 text-[#5ee6d8] font-black text-xs">
+                  <div className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-[#c5a059]/20 text-[#c5a059] font-black text-xs">
                     1
                   </div>
                   <div>
                     <div className="font-bold text-white flex items-center gap-1.5">
                       <span>
                         {locale === "zh"
-                          ? "点击 Chrome/浏览器右上角菜单"
+                          ? "点击 Safari 底部工具栏的「分享」按钮"
                           : locale === "am"
-                          ? "በላይኛው ቀኝ ጥግ ያለውን ምናሌ ይጫኑ"
-                          : "Tap browser menu icon (3 dots)"}
+                          ? "በ Safari ታችኛው ክፍል 'Share' ን ይጫኑ"
+                          : "Tap Safari bottom 'Share' button"}
                       </span>
-                      <MoreVertical className="h-4 w-4 text-[#5ee6d8] inline shrink-0" />
+                      <Share className="h-4 w-4 text-[#c5a059] inline shrink-0" />
                     </div>
                     <p className="text-[11px] text-gray-400 mt-0.5">
                       {locale === "zh"
-                        ? "位于浏览器右上角的三点图标"
+                        ? "屏幕底部正中央的方框带向上箭头图标"
+                        : "Square icon with an upward arrow at bottom"}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3 rounded-xl bg-white/[0.04] p-3 border border-white/5">
+                  <div className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-[#c5a059]/20 text-[#c5a059] font-black text-xs">
+                    2
+                  </div>
+                  <div>
+                    <div className="font-bold text-white flex items-center gap-1.5">
+                      <span>
+                        {locale === "zh"
+                          ? "向下滑动并选择「添加到主屏幕」"
+                          : locale === "am"
+                          ? "'Add to Home Screen' ን ይምረጡ"
+                          : "Scroll down and select 'Add to Home Screen'"}
+                      </span>
+                      <PlusSquare className="h-4 w-4 text-[#c5a059] inline shrink-0" />
+                    </div>
+                    <p className="text-[11px] text-gray-400 mt-0.5">
+                      {locale === "zh"
+                        ? "在弹出的操作列表中找到「添加到主屏幕」选项"
+                        : "Find 'Add to Home Screen' option in the sheet"}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3 rounded-xl bg-white/[0.04] p-3 border border-white/5">
+                  <div className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-emerald-500/20 text-emerald-400 font-black text-xs">
+                    3
+                  </div>
+                  <div>
+                    <div className="font-bold text-white">
+                      {locale === "zh"
+                        ? "点击右上角「添加」完成"
                         : locale === "am"
-                        ? "በChrome ወይም በEdge አሳሽ የላይኛው ቀኝ ጥግ"
-                        : "Located in the top right corner of Chrome/Edge"}
+                        ? "በላይኛው ቀኝ ጥግ ላይ 'Add' ን ይጫኑ"
+                        : "Tap 'Add' at top right"}
+                    </div>
+                    <p className="text-[11px] text-gray-400 mt-0.5">
+                      {locale === "zh"
+                        ? "应用图标将出现在手机主屏幕上，点击即可独立运行并接收通知"
+                        : "Icon appears on your home screen for instant standalone launch"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Android Guide */}
+            {activeTab === "android" && (
+              <div className="space-y-3 text-xs">
+                <div className="flex items-start gap-3 rounded-xl bg-white/[0.04] p-3 border border-white/5">
+                  <div className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-[#c5a059]/20 text-[#c5a059] font-black text-xs">
+                    1
+                  </div>
+                  <div>
+                    <div className="font-bold text-white flex items-center gap-1.5">
+                      <span>
+                        {locale === "zh"
+                          ? "点击 Chrome/浏览器右上角「⋮」菜单"
+                          : locale === "am"
+                          ? "የ Chrome ምናሌውን '⋮' ይጫኑ"
+                          : "Tap browser menu '⋮' at top right"}
+                      </span>
+                      <MoreVertical className="h-4 w-4 text-[#c5a059] inline shrink-0" />
+                    </div>
+                    <p className="text-[11px] text-gray-400 mt-0.5">
+                      {locale === "zh" ? "在地址栏右侧的三点菜单图标" : "Three-dot menu icon next to the address bar"}
                     </p>
                   </div>
                 </div>
@@ -358,17 +446,13 @@ export function PwaInstallPrompt() {
                         {locale === "zh"
                           ? "选择「安装应用」或「添加到主屏幕」"
                           : locale === "am"
-                          ? "'መተግበሪያ ጫን' ወይም 'ወደ መነሻ ማያ አክል' ን ይምረጡ"
+                          ? "'መተግበሪያ ጫን' ወይም 'ወደ መነሻ ማያ ገጽ' ይምረጡ"
                           : "Select 'Install app' or 'Add to Home screen'"}
                       </span>
                       <Download className="h-4 w-4 text-[#c5a059] inline shrink-0" />
                     </div>
                     <p className="text-[11px] text-gray-400 mt-0.5">
-                      {locale === "zh"
-                        ? "在下拉菜单中找到「安装应用」或「添加到主屏幕」"
-                        : locale === "am"
-                        ? "በተቆልቋይ ምናሌው ውስጥ"
-                        : "In the browser menu options"}
+                      {locale === "zh" ? "选择安装选项以创建独立桌面图标" : "Create a standalone app shortcut"}
                     </p>
                   </div>
                 </div>
@@ -380,105 +464,117 @@ export function PwaInstallPrompt() {
                   <div>
                     <div className="font-bold text-white">
                       {locale === "zh"
-                        ? "点击「安装」确认完成"
+                        ? "在系统弹窗中点击「安装」确认"
                         : locale === "am"
-                        ? "ለማጠናቀቅ 'ጫን' ን ይጫኑ"
+                        ? "'ጫን' ን በመጫን ያረጋግጡ"
                         : "Tap 'Install' to confirm"}
                     </div>
                     <p className="text-[11px] text-gray-400 mt-0.5">
                       {locale === "zh"
-                        ? "桌面将生成 Youguard 图标，支持全屏极速启动"
-                        : locale === "am"
-                        ? "መተግበሪያው በመነሻ ማያዎ ላይ ይታያል"
-                        : "The app icon will be added to your home screen"}
+                        ? "应用将作为原生 App 安装并显示在桌面与应用抽屉中"
+                        : "The app installs directly and runs in full-screen standalone mode"}
                     </p>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* TAB CONTENT: iOS Guide */}
-            {activeTab === "ios" && (
-              <div className="flex flex-col gap-3.5 py-2 text-xs text-gray-200">
+            {/* Mac Edge / Chrome Guide */}
+            {activeTab === "mac" && (
+              <div className="space-y-3 text-xs">
                 <div className="flex items-start gap-3 rounded-xl bg-white/[0.04] p-3 border border-white/5">
-                  <div className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-[#22b8aa]/20 text-[#5ee6d8] font-black text-xs">
+                  <div className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-[#c5a059]/20 text-[#c5a059] font-black text-xs">
                     1
                   </div>
                   <div>
                     <div className="font-bold text-white flex items-center gap-1.5">
                       <span>
                         {locale === "zh"
-                          ? "点击 Safari 底部栏的分享图标"
+                          ? "点击顶部地址栏最右侧的「安装」图标"
                           : locale === "am"
-                          ? "የSafari ማጋሪያ አዶውን ይጫኑ"
-                          : "Tap the Safari Share button"}
+                          ? "በአድራሻ አሞሌው ውስጥ 'ጫን' ን ይጫኑ"
+                          : "Click 'Install' icon in address bar"}
                       </span>
-                      <Share className="h-4 w-4 text-[#5ee6d8] inline shrink-0" />
+                      <Download className="h-4 w-4 text-[#5ee6d8] inline shrink-0" />
                     </div>
                     <p className="text-[11px] text-gray-400 mt-0.5">
                       {locale === "zh"
-                        ? "位于屏幕底部的工具栏中间（方块带向上箭头）"
+                        ? "看 Edge / Chrome 浏览器地址栏右端（⭐五角星旁边的小电脑图标 ⊕）"
                         : locale === "am"
-                        ? "በማያ ገጹ ግርጌ የሚገኘው"
-                        : "Located in the bottom toolbar of Safari"}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3 rounded-xl bg-white/[0.04] p-3 border border-white/5">
-                  <div className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-[#c5a059]/20 text-[#c5a059] font-black text-xs">
-                    2
-                  </div>
-                  <div>
-                    <div className="font-bold text-white flex items-center gap-1.5">
-                      <span>
-                        {locale === "zh"
-                          ? "向下滑动选择「添加到主屏幕」"
-                          : locale === "am"
-                          ? "ወደ መነሻ ማያ ገጽ አክል የሚለውን ይምረጡ"
-                          : "Select 'Add to Home Screen'"}
-                      </span>
-                      <PlusSquare className="h-4 w-4 text-[#c5a059] inline shrink-0" />
-                    </div>
-                    <p className="text-[11px] text-gray-400 mt-0.5">
-                      {locale === "zh"
-                        ? "在弹出的系统分享菜单中找到该选项"
-                        : locale === "am"
-                        ? "በአማራጮች ዝርዝር ውስጥ"
-                        : "In the share sheet menu options"}
+                        ? "በ Chrome/Edge አድራሻ አሞሌ ውስጥ"
+                        : "On the right side of the address bar next to bookmarks"}
                     </p>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-3 rounded-xl bg-white/[0.04] p-3 border border-white/5">
                   <div className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-emerald-500/20 text-emerald-400 font-black text-xs">
-                    3
+                    2
                   </div>
                   <div>
                     <div className="font-bold text-white">
                       {locale === "zh"
-                        ? "点击右上角「添加」完成安装"
+                        ? "点击弹窗中的「安装」常驻 Mac 程序坞"
                         : locale === "am"
-                        ? "ከላይ በቀኝ በኩል 'አክል' ን ይጫኑ"
-                        : "Tap 'Add' in the top right"}
+                        ? "'ጫን' ን በመጫን ወደ Mac Dock አክል"
+                        : "Click 'Install' to pin to Mac Dock"}
                     </div>
                     <p className="text-[11px] text-gray-400 mt-0.5">
                       {locale === "zh"
-                        ? "桌面上将生成 Youguard 图标，点击即可秒开"
-                        : locale === "am"
-                        ? "አዶው በመነሻ ማያዎ ላይ ይታያል"
-                        : "The app icon will be added to your home screen"}
+                        ? "生成独立的 Mac 应用窗口，并可常驻在底部 Dock 栏随开随用"
+                        : "Runs as a dedicated Mac desktop app in the Dock with push alerts"}
                     </p>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* TAB CONTENT: Desktop Guide */}
-            {activeTab === "desktop" && (
-              <div className="flex flex-col gap-3.5 py-2 text-xs text-gray-200">
+            {/* Mac Safari Guide */}
+            {activeTab === "mac_safari" && (
+              <div className="space-y-3 text-xs">
                 <div className="flex items-start gap-3 rounded-xl bg-white/[0.04] p-3 border border-white/5">
-                  <div className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-[#22b8aa]/20 text-[#5ee6d8] font-black text-xs">
+                  <div className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-[#c5a059]/20 text-[#c5a059] font-black text-xs">
+                    1
+                  </div>
+                  <div>
+                    <div className="font-bold text-white flex items-center gap-1.5">
+                      <span>
+                        {locale === "zh"
+                          ? "点击屏幕顶部菜单栏「文件 (File)」"
+                          : "Click 'File' in top menu bar"}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-gray-400 mt-0.5">
+                      {locale === "zh" ? "在 Mac 顶部菜单栏左侧找到「文件」" : "In the macOS top system menu bar"}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3 rounded-xl bg-white/[0.04] p-3 border border-white/5">
+                  <div className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-emerald-500/20 text-emerald-400 font-black text-xs">
+                    2
+                  </div>
+                  <div>
+                    <div className="font-bold text-white">
+                      {locale === "zh"
+                        ? "选择「添加到程序坞... (Add to Dock...)」"
+                        : "Select 'Add to Dock...'"}
+                    </div>
+                    <p className="text-[11px] text-gray-400 mt-0.5">
+                      {locale === "zh"
+                        ? "点击添加后，应用图标将固定到 Mac 程序坞中独立启动"
+                        : "Adds the Web App directly to macOS Dock for standalone launch"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Windows Guide */}
+            {(activeTab === "windows" || activeTab === "desktop") && (
+              <div className="space-y-3 text-xs">
+                <div className="flex items-start gap-3 rounded-xl bg-white/[0.04] p-3 border border-white/5">
+                  <div className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-[#c5a059]/20 text-[#c5a059] font-black text-xs">
                     1
                   </div>
                   <div>
@@ -494,9 +590,7 @@ export function PwaInstallPrompt() {
                     </div>
                     <p className="text-[11px] text-gray-400 mt-0.5">
                       {locale === "zh"
-                        ? "在 Chrome/Edge 浏览器地址栏右端（或右上角菜单中选择「安装 Youguard」）"
-                        : locale === "am"
-                        ? "በ Chrome/Edge አድራሻ አሞሌ ውስጥ"
+                        ? "在 Chrome / Edge 浏览器地址栏右侧点击安装小图标 ⊕"
                         : "Right side of the address bar or via browser settings menu"}
                     </p>
                   </div>
@@ -509,28 +603,75 @@ export function PwaInstallPrompt() {
                   <div>
                     <div className="font-bold text-white">
                       {locale === "zh"
-                        ? "在弹窗中点击「安装」即可独立启动"
+                        ? "在弹窗中点击「安装」固定到任务栏"
                         : locale === "am"
                         ? "'ጫን' ን በመጫን ያረጋግጡ"
                         : "Click 'Install' to confirm"}
                     </div>
                     <p className="text-[11px] text-gray-400 mt-0.5">
                       {locale === "zh"
-                        ? "将作为独立的桌面客户端运行，并可固定到任务栏/程序坞"
-                        : locale === "am"
-                        ? "እንደ ገለልተኛ የዴስክቶፕ መተግበሪያ ይሰራል"
-                        : "Runs as a dedicated desktop app pinned to Dock / Taskbar"}
+                        ? "将作为独立的桌面客户端运行，可固定到任务栏与开始菜单"
+                        : "Runs as a dedicated desktop app pinned to Taskbar / Start Menu"}
                     </p>
                   </div>
                 </div>
               </div>
             )}
 
-            <div className="mt-5 pt-3 border-t border-white/10">
+            {/* Optional Other Platform Switcher (Collapsed by Default) */}
+            <div className="mt-4 pt-3 border-t border-white/10">
+              <button
+                type="button"
+                onClick={() => setShowOtherPlatforms(!showOtherPlatforms)}
+                className="flex items-center justify-between w-full text-[11px] text-gray-400 hover:text-[#5ee6d8] transition py-1 cursor-pointer"
+              >
+                <span>{locale === "zh" ? "在其他设备上安装？" : "Install on another device?"}</span>
+                {showOtherPlatforms ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+              </button>
+
+              {showOtherPlatforms && (
+                <div className="grid grid-cols-3 gap-1.5 mt-2.5 p-1 rounded-xl bg-white/[0.03] border border-white/5 text-[10px]">
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("ios")}
+                    className={`py-1.5 px-2 rounded-lg font-bold transition flex items-center justify-center gap-1 ${
+                      activeTab === "ios" ? "bg-[#c5a059] text-black" : "text-gray-400 hover:text-white"
+                    }`}
+                  >
+                    <Apple className="h-3 w-3" />
+                    <span>iOS</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("android")}
+                    className={`py-1.5 px-2 rounded-lg font-bold transition flex items-center justify-center gap-1 ${
+                      activeTab === "android" ? "bg-[#c5a059] text-black" : "text-gray-400 hover:text-white"
+                    }`}
+                  >
+                    <Smartphone className="h-3 w-3" />
+                    <span>Android</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("mac")}
+                    className={`py-1.5 px-2 rounded-lg font-bold transition flex items-center justify-center gap-1 ${
+                      activeTab === "mac" || activeTab === "mac_safari" || activeTab === "windows"
+                        ? "bg-[#c5a059] text-black"
+                        : "text-gray-400 hover:text-white"
+                    }`}
+                  >
+                    <Laptop className="h-3 w-3" />
+                    <span>Desktop</span>
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <div className="mt-4">
               <button
                 type="button"
                 onClick={() => setShowGuideModal(false)}
-                className="w-full rounded-xl bg-white/10 py-3 text-xs font-bold text-white hover:bg-white/20 transition cursor-pointer"
+                className="w-full rounded-xl bg-white/10 py-2.5 text-xs font-bold text-white hover:bg-white/20 transition cursor-pointer"
               >
                 {locale === "zh" ? "我知道了" : locale === "am" ? "ገባኝ" : "Got it"}
               </button>

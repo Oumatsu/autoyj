@@ -130,7 +130,32 @@ describe("Component: PWA Install Prompt", () => {
     await act(async () => root.unmount());
   });
 
-  test("responds to custom youguard-open-pwa-guide event and allows platform tab switching", async () => {
+  test("renders macOS desktop guide with Dock instructions when on Mac Edge/Chrome", async () => {
+    Object.defineProperty(window.navigator, "userAgent", {
+      value: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0",
+      configurable: true,
+    });
+
+    const root = createRoot(container);
+    await act(async () => {
+      root.render(<PwaInstallPrompt />);
+    });
+
+    // Click install button on banner
+    const installBtn = container.querySelector("button");
+    await act(async () => {
+      installBtn?.click();
+    });
+
+    expect(container.querySelector('[role="dialog"]')).not.toBeNull();
+    const modalText = container.textContent || "";
+    expect(modalText).toContain("Mac");
+    expect(modalText.includes("Dock") || modalText.includes("程序坞") || modalText.includes("地址栏")).toBe(true);
+
+    await act(async () => root.unmount());
+  });
+
+  test("responds to custom youguard-open-pwa-guide event and allows platform switching via expander", async () => {
     Object.defineProperty(window.navigator, "userAgent", {
       value: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
       configurable: true,
@@ -147,6 +172,15 @@ describe("Component: PWA Install Prompt", () => {
     });
 
     expect(container.querySelector('[role="dialog"]')).not.toBeNull();
+
+    // Click the toggle to reveal other platform buttons
+    const expandBtn = Array.from(container.querySelectorAll("button")).find(
+      (b) => b.textContent?.includes("其他设备") || b.textContent?.includes("another device")
+    );
+    expect(expandBtn).toBeDefined();
+    await act(async () => {
+      expandBtn?.click();
+    });
 
     // Switch to iOS tab
     const iosTabButton = Array.from(container.querySelectorAll("button")).find(
