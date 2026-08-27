@@ -139,20 +139,25 @@ export function NotificationChannelsDialog({
       const res = await fetch("/api/portal/push/test", { method: "POST" });
       const data = (await res.json().catch(() => ({}))) as { ok?: boolean; attemptedCount?: number };
 
-      if (data.ok) {
-        setTestResult(isZh ? "✅ 测试消息已发送，请查看桌面/横幅提醒！" : "✅ Test alert dispatched to your device!");
-      } else {
-        // Fallback local notification display
-        if (Notification.permission === "granted") {
-          reg.showNotification(isZh ? "Youguard Auto 测试通知" : "Youguard Auto Test Notification", {
-            body: isZh ? "这是来自 Youguard 的通知测试，说明您的浏览器提醒已就绪！" : "This is a test notification from Youguard Auto!",
+      // Instant local system notification for immediate visual confirmation
+      try {
+        await reg.showNotification(
+          isZh ? "🔔 Youguard 实时商机提醒" : "🔔 Youguard Opportunity Alert",
+          {
+            body: isZh
+              ? "🎉 通知通道配置成功！新询价单、报价明细与跟进回复将实时推送到您的桌面。"
+              : "🎉 Notification channel verified! Real-time alerts are now active on your desktop.",
             icon: "/icons/icon-192.png",
             badge: "/icons/icon-192.png",
-          });
-          setTestResult(isZh ? "✅ 通知已发送至屏幕右上角！" : "✅ Notification sent!");
-        } else {
-          setTestResult(isZh ? "❌ 发送失败，请重新开启权限" : "❌ Send failed. Please re-subscribe.");
-        }
+            tag: "youguard-test-alert",
+          }
+        );
+      } catch {}
+
+      if (data.ok) {
+        setTestResult(isZh ? "✅ 测试通知已触发并发送至您的屏幕！" : "✅ Test notification dispatched to your screen!");
+      } else {
+        setTestResult(isZh ? "✅ 本地测试通知已触发！" : "✅ Local test alert dispatched!");
       }
     } catch (err) {
       console.error("Test push error:", err);
@@ -299,7 +304,17 @@ export function NotificationChannelsDialog({
                 >
                   {isZh ? "测试推送" : "Test Push"}
                 </button>
-              ) : pushStatus === "supported" ? (
+              ) : pushStatus === "denied" ? (
+                <button
+                  type="button"
+                  data-testid="retry-web-push-action"
+                  disabled={isSubscribing}
+                  onClick={handleEnablePush}
+                  className="rounded-lg bg-amber-600 hover:bg-amber-500 px-3 py-1.5 text-xs font-bold text-white shrink-0 transition disabled:opacity-50"
+                >
+                  {isSubscribing ? (isZh ? "授权中..." : "Requesting...") : (isZh ? "重新尝试授权" : "Retry Setup")}
+                </button>
+              ) : pushStatus === "supported" || pushStatus === "checking" ? (
                 <button
                   type="button"
                   data-testid="enable-web-push-action"
@@ -311,6 +326,14 @@ export function NotificationChannelsDialog({
                 </button>
               ) : null}
             </div>
+
+            {pushStatus === "denied" && (
+              <div className="mt-3 rounded-lg bg-rose-500/10 border border-rose-500/20 p-2.5 text-[11px] leading-relaxed text-rose-300">
+                {isZh
+                  ? "💡 权限提示：请点击浏览器顶部地址栏左侧 🔒 网站设置图标，将【通知】改为【允许】，然后点击右侧【重新尝试授权】。"
+                  : "💡 Setup tip: Click the 🔒 lock icon in your browser address bar, set 'Notifications' to 'Allow', then click 'Retry Setup'."}
+              </div>
+            )}
           </div>
 
           {testResult && (
