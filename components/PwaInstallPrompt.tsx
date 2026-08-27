@@ -140,7 +140,7 @@ export function PwaInstallPrompt() {
 
   if (isStandalone) return null;
 
-  const canShowBanner = !dismissed && (Boolean(installPrompt) || isIOS || isAndroid);
+  const canShowBanner = !dismissed;
 
   return (
     <>
