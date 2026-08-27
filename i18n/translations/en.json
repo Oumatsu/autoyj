@@ -302,7 +302,9 @@
       "playbook": "Playbook",
       "playbookFull": "dealer-playbook",
       "workshop": "Workshop",
-      "workshopFull": "technical-workshop"
+      "workshopFull": "technical-workshop",
+      "vault": "Vault",
+      "vaultFull": "Knowledge Vault"
     },
     "vault": {
       "badge": "Exclusive Access",
@@ -779,7 +781,8 @@
     "whatsapp": {
       "label": "Priority Channel",
       "response": "Average response: 15 minutes",
-      "title": "WhatsApp Business"
+      "title": "WhatsApp Business",
+      "cta": "Chat Directly on WhatsApp"
     }
   },
   "footer": {
@@ -1467,7 +1470,8 @@
     "signIn": "Sign In",
     "solutions": "Solutions",
     "utilityPro": "Utility Pro",
-    "vehicles": "Vehicles"
+    "vehicles": "Vehicles",
+    "socialMedia": "Social Channels"
   },
   "portal": {
     "acceleration": "0-100km/h Acceleration",
@@ -1662,7 +1666,9 @@
     "customs": "Customs",
     "currentSignedInAccount": "Current signed-in account",
     "active": "Active",
-    "internalAccount": "Internal Submitter Account"
+    "internalAccount": "Internal Submitter Account",
+    "destinationPort": "Destination Port",
+    "targetPrice": "Target Price"
   },
   "privacy": {
     "badge": "Legal",

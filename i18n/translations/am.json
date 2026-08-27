@@ -302,7 +302,9 @@
       "playbook": "የአከፋፋይ መመሪያ",
       "playbookFull": "የአከፋፋይ ተግባራዊ መመሪያ",
       "workshop": "ቴክኒክ ወርክሾፕ",
-      "workshopFull": "ቴክኒክ ወርክሾፕ"
+      "workshopFull": "ቴክኒክ ወርክሾፕ",
+      "vault": "ቮልት",
+      "vaultFull": "የእውቀት ቮልት"
     },
     "vault": {
       "badge": "ልዩ መዳረሻ",
@@ -779,7 +781,8 @@
     "whatsapp": {
       "label": "ቅድሚያ የሚሰጠው ቻናል",
       "response": "አማካይ ምላሽ: 15 ደቂቃዎች",
-      "title": "WhatsApp ንግድ"
+      "title": "WhatsApp ንግድ",
+      "cta": "በ WhatsApp በቀጥታ ይወያዩ"
     }
   },
   "footer": {
@@ -1467,7 +1470,8 @@
     "signIn": "ግባ",
     "solutions": "መፍትሄዎች",
     "utilityPro": "ተግባራዊ ምርጫ",
-    "vehicles": "ሞዴሎች"
+    "vehicles": "ሞዴሎች",
+    "socialMedia": "ማህበራዊ ሰርጦች"
   },
   "portal": {
     "acceleration": "ከ0-100 ኪ.ሜ/ሰ ፍጥነት",
@@ -1662,7 +1666,9 @@
     "administrator": "አስተዳዳሪ",
     "internalAccount": "የውስጥ መለያ",
     "currentSignedInAccount": "አሁን የገባ መለያ",
-    "active": "ንቁ"
+    "active": "ንቁ",
+    "destinationPort": "የመድረሻ ወደብ",
+    "targetPrice": "የታለመ ዋጋ"
   },
   "privacy": {
     "badge": "ህጋዊ",

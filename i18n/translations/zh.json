@@ -302,7 +302,9 @@
       "playbook": "经销手册",
       "playbookFull": "经销商实战手册",
       "workshop": "技术工坊",
-      "workshopFull": "技术工坊"
+      "workshopFull": "技术工坊",
+      "vault": "知识库",
+      "vaultFull": "出海知识宝库"
     },
     "vault": {
       "badge": "专属访问",
@@ -779,7 +781,8 @@
     "whatsapp": {
       "label": "优先渠道",
       "response": "平均响应：15 分钟",
-      "title": "WhatsApp Business"
+      "title": "WhatsApp Business",
+      "cta": "在 WhatsApp 上直接沟通"
     }
   },
   "footer": {
@@ -1467,7 +1470,8 @@
     "signIn": "登录",
     "solutions": "解决方案",
     "utilityPro": "多功能商用先锋",
-    "vehicles": "车型"
+    "vehicles": "车型",
+    "socialMedia": "社交渠道"
   },
   "portal": {
     "acceleration": "0-100km/h 加速",
@@ -1662,7 +1666,9 @@
     "administrator": "管理员",
     "internalAccount": "内部账户",
     "currentSignedInAccount": "当前登录账户",
-    "active": "启用"
+    "active": "启用",
+    "destinationPort": "目的港口",
+    "targetPrice": "目标价格"
   },
   "privacy": {
     "badge": "法律",
