@@ -24,6 +24,9 @@ describe("Component: PWA Install Prompt", () => {
       removeEventListener: () => {},
       dispatchEvent: () => false,
     })) as any;
+    if (typeof window !== "undefined" && window.localStorage?.clear) {
+      window.localStorage.clear();
+    }
     delete (window.navigator as any).standalone;
   });
 
@@ -194,5 +197,42 @@ describe("Component: PWA Install Prompt", () => {
     expect(container.textContent).toContain("Safari");
 
     await act(async () => root.unmount());
+  });
+
+  test("renders completely null and silent when running inside installed standalone PWA", async () => {
+    window.matchMedia = ((query: string) => ({
+      matches: query.includes("standalone"),
+      media: query,
+      onchange: null,
+      addListener: () => {},
+      removeListener: () => {},
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      dispatchEvent: () => false,
+    })) as any;
+
+    const root = createRoot(container);
+    await act(async () => {
+      root.render(<PwaInstallPrompt />);
+    });
+
+    expect(container.querySelector("aside")).toBeNull();
+    expect(container.textContent).toBe("");
+
+    await act(async () => root.unmount());
+  });
+
+  test("suppresses floating banner if app was already installed on this device", async () => {
+    window.localStorage?.setItem("youguard_pwa_installed", "true");
+
+    const root = createRoot(container);
+    await act(async () => {
+      root.render(<PwaInstallPrompt />);
+    });
+
+    expect(container.querySelector("aside")).toBeNull();
+
+    await act(async () => root.unmount());
+    window.localStorage?.removeItem("youguard_pwa_installed");
   });
 });

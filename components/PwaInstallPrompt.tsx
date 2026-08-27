@@ -11,31 +11,72 @@ interface BeforeInstallPromptEvent extends Event {
 
 export type PlatformTarget = "ios" | "android" | "mac" | "mac_safari" | "windows" | "inapp" | "desktop";
 
+export function checkIsStandalone(): boolean {
+  if (typeof window === "undefined") return false;
+  const nav = window.navigator as unknown as { standalone?: boolean };
+  return (
+    window.matchMedia("(display-mode: standalone)").matches ||
+    window.matchMedia("(display-mode: window-controls-overlay)").matches ||
+    window.matchMedia("(display-mode: minimal-ui)").matches ||
+    window.matchMedia("(display-mode: fullscreen)").matches ||
+    nav.standalone === true ||
+    (typeof document !== "undefined" && document.referrer.includes("android-app://")) ||
+    window.location.search.includes("source=pwa") ||
+    window.location.search.includes("mode=standalone")
+  );
+}
+
 export function PwaInstallPrompt() {
   const { locale } = useTranslation();
   const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [platform, setPlatform] = useState<PlatformTarget>("desktop");
   const [activeTab, setActiveTab] = useState<PlatformTarget>("desktop");
   const [showOtherPlatforms, setShowOtherPlatforms] = useState(false);
-  const [isStandalone, setIsStandalone] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+  const [isStandalone, setIsStandalone] = useState(() => (typeof window !== "undefined" ? checkIsStandalone() : false));
   const [showGuideModal, setShowGuideModal] = useState(false);
   const [dismissed, setDismissed] = useState(false);
   const [promptTriggered, setPromptTriggered] = useState(false);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
+    setIsMounted(true);
 
-    // Check if already in standalone (installed) mode
-    const standalone =
-      window.matchMedia("(display-mode: standalone)").matches ||
-      (window.navigator as unknown as { standalone?: boolean }).standalone === true;
-
-    if (standalone) {
+    // 1. Immediate Standalone Check
+    if (checkIsStandalone()) {
       setIsStandalone(true);
       return;
     }
 
-    // Precise Platform Detection
+    // 2. Check persistent installed status & dismissal cooldown
+    try {
+      if (typeof window !== "undefined") {
+        if (window.localStorage?.getItem("youguard_pwa_installed") === "true") {
+          setDismissed(true);
+        }
+        const dismissedUntil = window.localStorage?.getItem("youguard_pwa_dismissed_until");
+        if (dismissedUntil && Number(dismissedUntil) > Date.now()) {
+          setDismissed(true);
+        }
+      }
+    } catch {}
+
+    // 3. Dynamic display-mode change listener
+    const standaloneMql = window.matchMedia("(display-mode: standalone)");
+    const overlayMql = window.matchMedia("(display-mode: window-controls-overlay)");
+    const minimalMql = window.matchMedia("(display-mode: minimal-ui)");
+
+    const onDisplayModeChange = () => {
+      if (checkIsStandalone()) {
+        setIsStandalone(true);
+      }
+    };
+
+    standaloneMql.addEventListener?.("change", onDisplayModeChange);
+    overlayMql.addEventListener?.("change", onDisplayModeChange);
+    minimalMql.addEventListener?.("change", onDisplayModeChange);
+
+    // 4. Precise Platform Detection
     const userAgent = window.navigator.userAgent.toLowerCase();
     const isTouchMac = window.navigator.platform === "MacIntel" && window.navigator.maxTouchPoints > 1;
     const isIos = /iphone|ipad|ipod/.test(userAgent) || isTouchMac;
@@ -71,6 +112,9 @@ export function PwaInstallPrompt() {
     const handleAppInstalled = () => {
       setIsStandalone(true);
       setInstallPrompt(null);
+      try {
+        window.localStorage?.setItem("youguard_pwa_installed", "true");
+      } catch {}
     };
 
     const handleCustomOpen = () => {
@@ -91,6 +135,9 @@ export function PwaInstallPrompt() {
     window.addEventListener("youguard-open-pwa-guide", handleCustomOpen);
 
     return () => {
+      standaloneMql.removeEventListener?.("change", onDisplayModeChange);
+      overlayMql.removeEventListener?.("change", onDisplayModeChange);
+      minimalMql.removeEventListener?.("change", onDisplayModeChange);
       window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
       window.removeEventListener("appinstalled", handleAppInstalled);
       window.removeEventListener("youguard-open-pwa-guide", handleCustomOpen);
@@ -99,6 +146,9 @@ export function PwaInstallPrompt() {
 
   const handleDismiss = useCallback(() => {
     setDismissed(true);
+    try {
+      window.localStorage?.setItem("youguard_pwa_dismissed_until", (Date.now() + 7 * 86400000).toString());
+    } catch {}
   }, []);
 
   const handleInstallAction = useCallback(async () => {
@@ -116,6 +166,9 @@ export function PwaInstallPrompt() {
         if (choice.outcome === "accepted") {
           setIsStandalone(true);
           setShowGuideModal(false);
+          try {
+            window.localStorage?.setItem("youguard_pwa_installed", "true");
+          } catch {}
         } else {
           setPromptTriggered(false);
         }
@@ -132,7 +185,8 @@ export function PwaInstallPrompt() {
     }
   }, [platform, installPrompt]);
 
-  if (isStandalone) return null;
+  if (!isMounted || isStandalone) return null;
+  if (dismissed && !showGuideModal) return null;
 
   const canShowBanner = !dismissed;
 
