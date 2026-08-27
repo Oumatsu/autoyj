@@ -1,6 +1,5 @@
-"use client";
-
 import React, { useEffect, useState } from "react";
+import { ensurePushSubscriptionSynced, urlBase64ToUint8Array } from "@/lib/push-client";
 
 export type TelegramBindingInfo = {
   bound: boolean;
@@ -14,17 +13,6 @@ export type NotificationChannelsDialogProps = {
   telegramBinding?: TelegramBindingInfo | null;
   locale?: string;
 };
-
-function urlBase64ToUint8Array(base64String: string) {
-  const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
-  const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
-  const rawData = window.atob(base64);
-  const outputArray = new Uint8Array(rawData.length);
-  for (let i = 0; i < rawData.length; ++i) {
-    outputArray[i] = rawData.charCodeAt(i);
-  }
-  return outputArray;
-}
 
 export function NotificationChannelsDialog({
   isOpen,
@@ -45,6 +33,10 @@ export function NotificationChannelsDialog({
 
     if (Notification.permission === "granted") {
       setPushStatus("granted");
+      // Auto-sync token to D1 in background
+      ensurePushSubscriptionSynced().then((res) => {
+        console.log("[PWA Push Token Auto-Sync]:", res);
+      });
     } else if (Notification.permission === "denied") {
       setPushStatus("denied");
     } else {

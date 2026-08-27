@@ -36,6 +36,7 @@ import { InquiryRequestPanel } from "@/components/portal/InquiryRequestPanel";
 import type { InquiryRequest } from "@/lib/inquiry-requests";
 import { selectFeaturedVehicleResources } from "@/lib/featured-vehicle-resources";
 import { NotificationChannelsDialog } from "@/components/NotificationChannelsDialog";
+import { ensurePushSubscriptionSynced } from "@/lib/push-client";
 
 type AdminModule = "dashboard" | "vehicle_models" | "vehicles" | "quotes" | "orders" | "payments" | "logistics" | "accounts";
 type AdminIconName = "dashboard" | "vehicle_models" | "vehicles" | "quotes" | "orders" | "payments" | "logistics" | "accounts";
@@ -1243,6 +1244,14 @@ function AdminPortal({
   const totalStock = data.vehicles.reduce((sum, vehicle) => sum + getVehicleStockQuantity(vehicle), 0);
   const openInquiries = data.inquiries.filter((item) => item.status.trim().toLowerCase() === "open").length;
   const orderTotal = data.orders.reduce((sum, order) => sum + order.total, 0);
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && typeof Notification !== "undefined" && Notification.permission === "granted") {
+      ensurePushSubscriptionSynced().then((res) => {
+        console.log("[Portal Mount] Auto-synced Push Subscription:", res);
+      });
+    }
+  }, []);
 
   return (
     <main className="min-h-screen bg-[#0c1322] text-slate-100 pt-16 sm:pt-20">
