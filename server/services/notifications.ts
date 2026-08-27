@@ -1,11 +1,118 @@
 import type { PortalEnv } from "../types";
 import { getTelegramBotToken, getTelegramUserBinding, type InquiryStakeholderNotificationParams } from "./telegram";
-import { getUserPushSubscriptions, sendWebPushNotification } from "./web-push";
+import { getUserPushSubscriptions, sendWebPushNotification, type PushSubscriptionRecord } from "./web-push";
+
+export type NotificationLogEntry = {
+  id?: string;
+  channel: "pwa_push" | "telegram";
+  recipientUserId: string;
+  inquiryNo?: string;
+  deviceInfo?: string;
+  destination: string;
+  title: string;
+  body?: string;
+  status: "sent" | "failed" | "expired";
+  httpStatus?: number;
+  errorMessage?: string;
+  createdAt?: string;
+};
+
+export async function recordNotificationLog(
+  db: D1Database | undefined,
+  entry: NotificationLogEntry
+): Promise<boolean> {
+  if (!db) return false;
+  const id = entry.id || `notif_${crypto.randomUUID()}`;
+  const now = entry.createdAt || new Date().toISOString();
+  try {
+    await db
+      .prepare(
+        `INSERT INTO notification_logs (
+          id, channel, recipient_user_id, inquiry_no, device_info, destination,
+          title, body, status, http_status, error_message, created_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+      )
+      .bind(
+        id,
+        entry.channel,
+        entry.recipientUserId,
+        entry.inquiryNo || null,
+        entry.deviceInfo || "",
+        entry.destination,
+        entry.title,
+        entry.body || "",
+        entry.status,
+        entry.httpStatus || null,
+        entry.errorMessage || null,
+        now
+      )
+      .run();
+    return true;
+  } catch (err) {
+    console.error("[notifications] Failed to record notification log:", err);
+    return false;
+  }
+}
+
+export type NotificationLogFilter = {
+  recipientUserId?: string;
+  inquiryNo?: string;
+  channel?: "pwa_push" | "telegram";
+  limit?: number;
+};
+
+export async function getNotificationLogs(
+  db: D1Database | undefined,
+  filter: NotificationLogFilter = {}
+): Promise<Array<NotificationLogEntry>> {
+  if (!db) return [];
+  const limit = Math.min(filter.limit || 50, 200);
+  const conditions: string[] = [];
+  const params: any[] = [];
+
+  if (filter.recipientUserId) {
+    conditions.push("recipient_user_id = ?");
+    params.push(filter.recipientUserId);
+  }
+  if (filter.inquiryNo) {
+    conditions.push("inquiry_no = ?");
+    params.push(filter.inquiryNo);
+  }
+  if (filter.channel) {
+    conditions.push("channel = ?");
+    params.push(filter.channel);
+  }
+
+  const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+  try {
+    const res = await db
+      .prepare(`SELECT * FROM notification_logs ${whereClause} ORDER BY created_at DESC LIMIT ?`)
+      .bind(...params, limit)
+      .all<any>();
+    return (res.results || []).map((r) => ({
+      id: r.id,
+      channel: r.channel,
+      recipientUserId: r.recipient_user_id,
+      inquiryNo: r.inquiry_no || undefined,
+      deviceInfo: r.device_info,
+      destination: r.destination,
+      title: r.title,
+      body: r.body,
+      status: r.status,
+      httpStatus: r.http_status,
+      errorMessage: r.error_message,
+      createdAt: r.created_at,
+    }));
+  } catch (err) {
+    console.error("[notifications] Failed to fetch notification logs:", err);
+    return [];
+  }
+}
 
 export type DualChannelNotificationParams = InquiryStakeholderNotificationParams & {
   mockSendTelegram?: (chatId: string, text: string, url: string) => Promise<boolean>;
   mockSendWebPush?: (
-    subscription: { endpoint: string; p256dh: string; auth: string },
+    subscription: { endpoint: string; p256dh: string; auth: string; user_agent?: string },
     payload: { title: string; body: string; url?: string }
   ) => Promise<{ success: boolean; expired?: boolean }>;
 };
@@ -24,7 +131,7 @@ export type NewInquiryStartedDualChannelParams = {
   customerId?: string;
   mockSendTelegram?: (chatId: string, text: string, url: string) => Promise<boolean>;
   mockSendWebPush?: (
-    subscription: { endpoint: string; p256dh: string; auth: string },
+    subscription: { endpoint: string; p256dh: string; auth: string; user_agent?: string },
     payload: { title: string; body: string; url?: string }
   ) => Promise<{ success: boolean; expired?: boolean }>;
 };
@@ -195,9 +302,36 @@ export async function notifyInquiryStakeholdersDualChannel(
       const binding = await getTelegramUserBinding(db, userId).catch(() => null);
       if (binding?.chat_id) {
         telegramAttempted++;
+        const tgDeviceInfo = `Telegram (${binding.telegram_username ? `@${binding.telegram_username}` : binding.first_name || `chat:${binding.chat_id}`})`;
         if (params.mockSendTelegram) {
           const ok = await params.mockSendTelegram(binding.chat_id, telegramText, portalUrl);
-          if (ok) telegramSent++;
+          if (ok) {
+            telegramSent++;
+            await recordNotificationLog(db, {
+              channel: "telegram",
+              recipientUserId: userId,
+              inquiryNo: params.inquiryNo,
+              deviceInfo: tgDeviceInfo,
+              destination: binding.chat_id,
+              title: `Inquiry #${params.inquiryNo} Message`,
+              body: preview,
+              status: "sent",
+              httpStatus: 200,
+            }).catch(() => {});
+          } else {
+            await recordNotificationLog(db, {
+              channel: "telegram",
+              recipientUserId: userId,
+              inquiryNo: params.inquiryNo,
+              deviceInfo: tgDeviceInfo,
+              destination: binding.chat_id,
+              title: `Inquiry #${params.inquiryNo} Message`,
+              body: preview,
+              status: "failed",
+              httpStatus: 500,
+              errorMessage: "Mock telegram dispatch rejected",
+            }).catch(() => {});
+          }
         } else if (token) {
           try {
             const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
@@ -214,9 +348,47 @@ export async function notifyInquiryStakeholdersDualChannel(
               signal: AbortSignal.timeout(10000),
             });
             const data = (await res.json().catch(() => ({}))) as { ok?: boolean };
-            if (data.ok) telegramSent++;
-          } catch (err) {
+            if (data.ok) {
+              telegramSent++;
+              await recordNotificationLog(db, {
+                channel: "telegram",
+                recipientUserId: userId,
+                inquiryNo: params.inquiryNo,
+                deviceInfo: tgDeviceInfo,
+                destination: binding.chat_id,
+                title: `Inquiry #${params.inquiryNo} Message`,
+                body: preview,
+                status: "sent",
+                httpStatus: res.status,
+              }).catch(() => {});
+            } else {
+              await recordNotificationLog(db, {
+                channel: "telegram",
+                recipientUserId: userId,
+                inquiryNo: params.inquiryNo,
+                deviceInfo: tgDeviceInfo,
+                destination: binding.chat_id,
+                title: `Inquiry #${params.inquiryNo} Message`,
+                body: preview,
+                status: "failed",
+                httpStatus: res.status,
+                errorMessage: "Telegram API returned ok: false",
+              }).catch(() => {});
+            }
+          } catch (err: any) {
             console.error(`[notifications] Telegram send failure for user ${userId}:`, err);
+            await recordNotificationLog(db, {
+              channel: "telegram",
+              recipientUserId: userId,
+              inquiryNo: params.inquiryNo,
+              deviceInfo: tgDeviceInfo,
+              destination: binding.chat_id,
+              title: `Inquiry #${params.inquiryNo} Message`,
+              body: preview,
+              status: "failed",
+              httpStatus: 500,
+              errorMessage: err?.message || String(err),
+            }).catch(() => {});
           }
         }
       }
@@ -225,22 +397,101 @@ export async function notifyInquiryStakeholdersDualChannel(
       const pushSubscriptions = await getUserPushSubscriptions(db, userId);
       for (const sub of pushSubscriptions) {
         webPushAttempted++;
+        const pwaDeviceInfo = sub.user_agent || "Browser PWA Client";
         if (params.mockSendWebPush) {
           const res = await params.mockSendWebPush(sub, {
             title: pushTitle,
             body: pushBody,
             url: portalUrl,
           });
-          if (res.success) webPushSent++;
-          if (res.expired) webPushExpired++;
+          if (res.success) {
+            webPushSent++;
+            await recordNotificationLog(db, {
+              channel: "pwa_push",
+              recipientUserId: userId,
+              inquiryNo: params.inquiryNo,
+              deviceInfo: pwaDeviceInfo,
+              destination: sub.endpoint,
+              title: pushTitle,
+              body: pushBody,
+              status: "sent",
+              httpStatus: 200,
+            }).catch(() => {});
+          } else if (res.expired) {
+            webPushExpired++;
+            await recordNotificationLog(db, {
+              channel: "pwa_push",
+              recipientUserId: userId,
+              inquiryNo: params.inquiryNo,
+              deviceInfo: pwaDeviceInfo,
+              destination: sub.endpoint,
+              title: pushTitle,
+              body: pushBody,
+              status: "expired",
+              httpStatus: 410,
+              errorMessage: "Subscription expired",
+            }).catch(() => {});
+          } else {
+            await recordNotificationLog(db, {
+              channel: "pwa_push",
+              recipientUserId: userId,
+              inquiryNo: params.inquiryNo,
+              deviceInfo: pwaDeviceInfo,
+              destination: sub.endpoint,
+              title: pushTitle,
+              body: pushBody,
+              status: "failed",
+              httpStatus: 500,
+              errorMessage: "Mock push delivery failed",
+            }).catch(() => {});
+          }
         } else {
           const res = await sendWebPushNotification(env, sub, {
             title: pushTitle,
             body: pushBody,
             url: portalUrl,
           });
-          if (res.success) webPushSent++;
-          if (res.expired) webPushExpired++;
+          if (res.success) {
+            webPushSent++;
+            await recordNotificationLog(db, {
+              channel: "pwa_push",
+              recipientUserId: userId,
+              inquiryNo: params.inquiryNo,
+              deviceInfo: pwaDeviceInfo,
+              destination: sub.endpoint,
+              title: pushTitle,
+              body: pushBody,
+              status: "sent",
+              httpStatus: res.status || 200,
+            }).catch(() => {});
+          } else if (res.expired) {
+            webPushExpired++;
+            await recordNotificationLog(db, {
+              channel: "pwa_push",
+              recipientUserId: userId,
+              inquiryNo: params.inquiryNo,
+              deviceInfo: pwaDeviceInfo,
+              destination: sub.endpoint,
+              title: pushTitle,
+              body: pushBody,
+              status: "expired",
+              httpStatus: res.status || 410,
+              errorMessage: "Subscription expired or revoked",
+            }).catch(() => {});
+          } else {
+            await recordNotificationLog(db, {
+              channel: "pwa_push",
+              recipientUserId: userId,
+              inquiryNo: params.inquiryNo,
+              deviceInfo: pwaDeviceInfo,
+              destination: sub.endpoint,
+              title: pushTitle,
+              body: pushBody,
+              status: "failed",
+              httpStatus: res.status || 500,
+              errorMessage: (res as any).errorText || "Push delivery failed",
+            }).catch(() => {});
+          }
         }
       }
     })
@@ -356,9 +607,36 @@ export async function notifyNewInquiryStartedDualChannel(
       const binding = await getTelegramUserBinding(db, userId).catch(() => null);
       if (binding?.chat_id) {
         telegramAttempted++;
+        const tgDeviceInfo = `Telegram (${binding.telegram_username ? `@${binding.telegram_username}` : binding.first_name || `chat:${binding.chat_id}`})`;
         if (params.mockSendTelegram) {
           const ok = await params.mockSendTelegram(binding.chat_id, telegramText, portalUrl);
-          if (ok) telegramSent++;
+          if (ok) {
+            telegramSent++;
+            await recordNotificationLog(db, {
+              channel: "telegram",
+              recipientUserId: userId,
+              inquiryNo: params.inquiryNo,
+              deviceInfo: tgDeviceInfo,
+              destination: binding.chat_id,
+              title: pushTitle,
+              body: pushBody,
+              status: "sent",
+              httpStatus: 200,
+            }).catch(() => {});
+          } else {
+            await recordNotificationLog(db, {
+              channel: "telegram",
+              recipientUserId: userId,
+              inquiryNo: params.inquiryNo,
+              deviceInfo: tgDeviceInfo,
+              destination: binding.chat_id,
+              title: pushTitle,
+              body: pushBody,
+              status: "failed",
+              httpStatus: 500,
+              errorMessage: "Mock telegram dispatch rejected",
+            }).catch(() => {});
+          }
         } else if (token) {
           try {
             const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
@@ -375,9 +653,47 @@ export async function notifyNewInquiryStartedDualChannel(
               signal: AbortSignal.timeout(10000),
             });
             const data = (await res.json().catch(() => ({}))) as { ok?: boolean };
-            if (data.ok) telegramSent++;
-          } catch (err) {
+            if (data.ok) {
+              telegramSent++;
+              await recordNotificationLog(db, {
+                channel: "telegram",
+                recipientUserId: userId,
+                inquiryNo: params.inquiryNo,
+                deviceInfo: tgDeviceInfo,
+                destination: binding.chat_id,
+                title: pushTitle,
+                body: pushBody,
+                status: "sent",
+                httpStatus: res.status,
+              }).catch(() => {});
+            } else {
+              await recordNotificationLog(db, {
+                channel: "telegram",
+                recipientUserId: userId,
+                inquiryNo: params.inquiryNo,
+                deviceInfo: tgDeviceInfo,
+                destination: binding.chat_id,
+                title: pushTitle,
+                body: pushBody,
+                status: "failed",
+                httpStatus: res.status,
+                errorMessage: "Telegram API returned ok: false",
+              }).catch(() => {});
+            }
+          } catch (err: any) {
             console.error(`[notifications] Telegram send failure for new inquiry to user ${userId}:`, err);
+            await recordNotificationLog(db, {
+              channel: "telegram",
+              recipientUserId: userId,
+              inquiryNo: params.inquiryNo,
+              deviceInfo: tgDeviceInfo,
+              destination: binding.chat_id,
+              title: pushTitle,
+              body: pushBody,
+              status: "failed",
+              httpStatus: 500,
+              errorMessage: err?.message || String(err),
+            }).catch(() => {});
           }
         }
       }
@@ -386,22 +702,101 @@ export async function notifyNewInquiryStartedDualChannel(
       const pushSubscriptions = await getUserPushSubscriptions(db, userId);
       for (const sub of pushSubscriptions) {
         webPushAttempted++;
+        const pwaDeviceInfo = sub.user_agent || "Browser PWA Client";
         if (params.mockSendWebPush) {
           const res = await params.mockSendWebPush(sub, {
             title: pushTitle,
             body: pushBody,
             url: portalUrl,
           });
-          if (res.success) webPushSent++;
-          if (res.expired) webPushExpired++;
+          if (res.success) {
+            webPushSent++;
+            await recordNotificationLog(db, {
+              channel: "pwa_push",
+              recipientUserId: userId,
+              inquiryNo: params.inquiryNo,
+              deviceInfo: pwaDeviceInfo,
+              destination: sub.endpoint,
+              title: pushTitle,
+              body: pushBody,
+              status: "sent",
+              httpStatus: 200,
+            }).catch(() => {});
+          } else if (res.expired) {
+            webPushExpired++;
+            await recordNotificationLog(db, {
+              channel: "pwa_push",
+              recipientUserId: userId,
+              inquiryNo: params.inquiryNo,
+              deviceInfo: pwaDeviceInfo,
+              destination: sub.endpoint,
+              title: pushTitle,
+              body: pushBody,
+              status: "expired",
+              httpStatus: 410,
+              errorMessage: "Subscription expired",
+            }).catch(() => {});
+          } else {
+            await recordNotificationLog(db, {
+              channel: "pwa_push",
+              recipientUserId: userId,
+              inquiryNo: params.inquiryNo,
+              deviceInfo: pwaDeviceInfo,
+              destination: sub.endpoint,
+              title: pushTitle,
+              body: pushBody,
+              status: "failed",
+              httpStatus: 500,
+              errorMessage: "Mock push delivery failed",
+            }).catch(() => {});
+          }
         } else {
           const res = await sendWebPushNotification(env, sub, {
             title: pushTitle,
             body: pushBody,
             url: portalUrl,
           });
-          if (res.success) webPushSent++;
-          if (res.expired) webPushExpired++;
+          if (res.success) {
+            webPushSent++;
+            await recordNotificationLog(db, {
+              channel: "pwa_push",
+              recipientUserId: userId,
+              inquiryNo: params.inquiryNo,
+              deviceInfo: pwaDeviceInfo,
+              destination: sub.endpoint,
+              title: pushTitle,
+              body: pushBody,
+              status: "sent",
+              httpStatus: res.status || 200,
+            }).catch(() => {});
+          } else if (res.expired) {
+            webPushExpired++;
+            await recordNotificationLog(db, {
+              channel: "pwa_push",
+              recipientUserId: userId,
+              inquiryNo: params.inquiryNo,
+              deviceInfo: pwaDeviceInfo,
+              destination: sub.endpoint,
+              title: pushTitle,
+              body: pushBody,
+              status: "expired",
+              httpStatus: res.status || 410,
+              errorMessage: "Subscription expired or revoked",
+            }).catch(() => {});
+          } else {
+            await recordNotificationLog(db, {
+              channel: "pwa_push",
+              recipientUserId: userId,
+              inquiryNo: params.inquiryNo,
+              deviceInfo: pwaDeviceInfo,
+              destination: sub.endpoint,
+              title: pushTitle,
+              body: pushBody,
+              status: "failed",
+              httpStatus: res.status || 500,
+              errorMessage: (res as any).errorText || "Push delivery failed",
+            }).catch(() => {});
+          }
         }
       }
     })

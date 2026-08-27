@@ -394,6 +394,25 @@ CREATE TABLE IF NOT EXISTS user_push_subscriptions (
 );
 CREATE INDEX IF NOT EXISTS idx_user_push_sub_user_id ON user_push_subscriptions(user_id);
 
+-- Notification Delivery Logs (Audit Trail for PWA Push & Telegram)
+CREATE TABLE IF NOT EXISTS notification_logs (
+  id TEXT PRIMARY KEY,
+  channel TEXT NOT NULL, -- 'pwa_push' | 'telegram'
+  recipient_user_id TEXT NOT NULL,
+  inquiry_no TEXT,
+  device_info TEXT NOT NULL DEFAULT '',
+  destination TEXT NOT NULL,
+  title TEXT NOT NULL,
+  body TEXT NOT NULL DEFAULT '',
+  status TEXT NOT NULL, -- 'sent' | 'failed' | 'expired'
+  http_status INTEGER,
+  error_message TEXT,
+  created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_notification_logs_recipient ON notification_logs(recipient_user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_notification_logs_inquiry ON notification_logs(inquiry_no, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_notification_logs_channel ON notification_logs(channel, created_at DESC);
+
 -- Portal Users table for dynamic user CRUD and manual Telegram/WhatsApp binding
 CREATE TABLE IF NOT EXISTS portal_users (
   user_id TEXT PRIMARY KEY,

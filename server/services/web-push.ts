@@ -291,16 +291,25 @@ export async function deleteUserPushSubscription(
   }
 }
 
+export type PushSubscriptionRecord = {
+  id: string;
+  user_id: string;
+  endpoint: string;
+  p256dh: string;
+  auth: string;
+  user_agent?: string;
+};
+
 export async function getUserPushSubscriptions(
   db: D1Database | undefined,
   userId: string
-): Promise<Array<{ id: string; user_id: string; endpoint: string; p256dh: string; auth: string }>> {
+): Promise<Array<PushSubscriptionRecord>> {
   if (!db || !userId) return [];
   try {
     const res = await db
-      .prepare("SELECT id, user_id, endpoint, p256dh, auth FROM user_push_subscriptions WHERE user_id = ?")
+      .prepare("SELECT id, user_id, endpoint, p256dh, auth, user_agent FROM user_push_subscriptions WHERE user_id = ?")
       .bind(userId)
-      .all<{ id: string; user_id: string; endpoint: string; p256dh: string; auth: string }>();
+      .all<PushSubscriptionRecord>();
     return res.results || [];
   } catch {
     return [];

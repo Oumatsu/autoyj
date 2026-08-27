@@ -48,6 +48,8 @@ import {
 import {
   notifyInquiryStakeholdersDualChannel,
   notifyNewInquiryStartedDualChannel,
+  getNotificationLogs,
+  recordNotificationLog,
 } from "../services/notifications";
 import type { PortalEnv } from "../types";
 
@@ -5166,16 +5168,64 @@ export async function handlePortalRequest(request: Request, env: Env) {
       let sentCount = 0;
       const details: any[] = [];
       for (const sub of subs) {
+        const pwaDeviceInfo = sub.user_agent || "Browser PWA Client";
+        const title = "🚗 Youguard Auto · Test Notification";
+        const body = `Hello ${session.name || "Partner"}, your PWA Web Push notification is working!`;
         const res = await sendWebPushNotification(env, sub, {
-          title: "🚗 Youguard Auto · Test Notification",
-          body: `Hello ${session.name || "Partner"}, your PWA Web Push notification is working!`,
+          title,
+          body,
           url: "/portal",
         });
         console.log(`[push-test] Endpoint ${sub.endpoint.slice(0, 45)}... -> success: ${res.success}, status: ${res.status || "N/A"}`);
         details.push({ endpointPreview: sub.endpoint.slice(0, 45) + "...", ...res });
-        if (res.success) sentCount++;
+        if (res.success) {
+          sentCount++;
+          await recordNotificationLog(env.PORTAL_DB, {
+            channel: "pwa_push",
+            recipientUserId: session.userId,
+            deviceInfo: pwaDeviceInfo,
+            destination: sub.endpoint,
+            title,
+            body,
+            status: "sent",
+            httpStatus: res.status || 200,
+          }).catch(() => {});
+        } else {
+          await recordNotificationLog(env.PORTAL_DB, {
+            channel: "pwa_push",
+            recipientUserId: session.userId,
+            deviceInfo: pwaDeviceInfo,
+            destination: sub.endpoint,
+            title,
+            body,
+            status: res.expired ? "expired" : "failed",
+            httpStatus: res.status || 500,
+            errorMessage: (res as any).errorText || "Test push delivery failed",
+          }).catch(() => {});
+        }
       }
       return json({ ok: true, attemptedCount: subs.length, sentCount, details });
+    }
+    if (path === "/api/portal/notification-logs" && request.method === "GET") {
+      const session = await requireSession(request, env);
+      const url = new URL(request.url);
+      const inquiryNo = url.searchParams.get("inquiryNo") || undefined;
+      const channel = (url.searchParams.get("channel") as any) || undefined;
+      const limit = Number(url.searchParams.get("limit")) || 50;
+
+      // Regular users only see their own notification logs; internal admin/sales can query by recipient or view all
+      const recipientUserId = isInternalSession(session)
+        ? url.searchParams.get("userId") || undefined
+        : session.userId;
+
+      const logs = await getNotificationLogs(env.PORTAL_DB, {
+        recipientUserId,
+        inquiryNo,
+        channel,
+        limit,
+      });
+
+      return json({ ok: true, logs });
     }
     if (path === "/api/portal/webhook/sync" && request.method === "POST") {
       cacheMap.clear();
