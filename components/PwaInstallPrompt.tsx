@@ -60,6 +60,18 @@ export function PwaInstallPrompt() {
       }
     } catch {}
 
+    // 3. Native Browser Installed Apps API
+    if (typeof navigator !== "undefined" && "getInstalledRelatedApps" in navigator) {
+      (navigator as any).getInstalledRelatedApps().then((apps: any[]) => {
+        if (apps && apps.length > 0) {
+          setIsStandalone(true);
+          try {
+            window.localStorage?.setItem("youguard_pwa_installed", "true");
+          } catch {}
+        }
+      }).catch(() => {});
+    }
+
     // 3. Dynamic display-mode change listener
     const standaloneMql = window.matchMedia("(display-mode: standalone)");
     const overlayMql = window.matchMedia("(display-mode: window-controls-overlay)");

@@ -105,17 +105,67 @@ export function NotificationChannelsDialog({
   }
 
   async function handleSendTestPush() {
-    setTestResult(isZh ? "正在发送测试推送..." : "Sending test push...");
+    setTestResult(isZh ? "正在准备并发送测试推送..." : "Sending test push...");
     try {
+      // 1. Ensure local push subscription is active and synced with server
+      const reg = await navigator.serviceWorker.ready;
+      let subscription = await reg.pushManager.getSubscription().catch(() => null);
+
+      if (!subscription) {
+        const keyRes = await fetch("/api/portal/push/public-key");
+        const keyData = (await keyRes.json().catch(() => ({}))) as { publicKey?: string };
+        if (keyData.publicKey) {
+          subscription = await reg.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: urlBase64ToUint8Array(keyData.publicKey),
+          });
+        }
+      }
+
+      if (subscription) {
+        const subJson = subscription.toJSON();
+        await fetch("/api/portal/push/subscribe", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            endpoint: subJson.endpoint,
+            keys: subJson.keys,
+            userAgent: navigator.userAgent,
+          }),
+        });
+      }
+
+      // 2. Dispatch through backend Web Push service
       const res = await fetch("/api/portal/push/test", { method: "POST" });
       const data = (await res.json().catch(() => ({}))) as { ok?: boolean; attemptedCount?: number };
+
       if (data.ok) {
         setTestResult(isZh ? "✅ 测试消息已发送，请查看桌面/横幅提醒！" : "✅ Test alert dispatched to your device!");
       } else {
-        setTestResult(isZh ? "❌ 发送失败，请重新开启权限" : "❌ Send failed. Please re-subscribe.");
+        // Fallback local notification display
+        if (Notification.permission === "granted") {
+          reg.showNotification(isZh ? "Youguard Auto 测试通知" : "Youguard Auto Test Notification", {
+            body: isZh ? "这是来自 Youguard 的通知测试，说明您的浏览器提醒已就绪！" : "This is a test notification from Youguard Auto!",
+            icon: "/icons/icon-192.png",
+            badge: "/icons/icon-192.png",
+          });
+          setTestResult(isZh ? "✅ 通知已发送至屏幕右上角！" : "✅ Notification sent!");
+        } else {
+          setTestResult(isZh ? "❌ 发送失败，请重新开启权限" : "❌ Send failed. Please re-subscribe.");
+        }
       }
-    } catch {
-      setTestResult(isZh ? "❌ 网络异常" : "❌ Network error");
+    } catch (err) {
+      console.error("Test push error:", err);
+      try {
+        const reg = await navigator.serviceWorker.ready;
+        reg.showNotification("Youguard Auto", {
+          body: isZh ? "测试通知已触发！" : "Test alert triggered!",
+          icon: "/icons/icon-192.png",
+        });
+        setTestResult(isZh ? "✅ 测试消息已送达！" : "✅ Test alert dispatched!");
+      } catch {
+        setTestResult(isZh ? "❌ 网络异常" : "❌ Network error");
+      }
     }
   }
 

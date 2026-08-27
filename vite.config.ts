@@ -179,6 +179,12 @@ export default defineConfig({
         orientation: "portrait-primary",
         background_color: "#0b1425",
         theme_color: "#0b1425",
+        related_applications: [
+          {
+            platform: "webapp",
+            url: "/manifest.webmanifest",
+          },
+        ],
         icons: [
           {
             src: "/icons/icon-192.png",
