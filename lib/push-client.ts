@@ -23,6 +23,25 @@ export function arrayBufferToBase64Url(buffer: ArrayBuffer | null): string {
   return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 
+export async function getActiveServiceWorkerRegistration(): Promise<ServiceWorkerRegistration | null> {
+  if (typeof window === "undefined" || !("serviceWorker" in navigator)) {
+    return null;
+  }
+  try {
+    const readyPromise = navigator.serviceWorker.ready;
+    const timeoutPromise = new Promise<null>((resolve) => setTimeout(() => resolve(null), 3000));
+    const reg = await Promise.race([readyPromise, timeoutPromise]);
+    if (reg) return reg;
+
+    const existing = await navigator.serviceWorker.getRegistration();
+    if (existing) return existing;
+
+    return await navigator.serviceWorker.register("/sw.js", { scope: "/" }).catch(() => null);
+  } catch {
+    return null;
+  }
+}
+
 export async function ensurePushSubscriptionSynced(forceRenew: boolean = false): Promise<{
   success: boolean;
   endpoint?: string;
@@ -37,8 +56,12 @@ export async function ensurePushSubscriptionSynced(forceRenew: boolean = false):
   }
 
   try {
-    const reg = await navigator.serviceWorker.ready;
-    const keyRes = await fetch("/api/portal/push/public-key");
+    const reg = await getActiveServiceWorkerRegistration();
+    if (!reg || !reg.pushManager) {
+      return { success: false, error: "Service Worker push manager unavailable" };
+    }
+
+    const keyRes = await fetch("/api/portal/push/public-key", { signal: AbortSignal.timeout(4000) });
     if (!keyRes.ok) {
       return { success: false, error: `Failed to fetch VAPID key (${keyRes.status})` };
     }

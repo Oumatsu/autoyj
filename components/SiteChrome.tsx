@@ -9,6 +9,7 @@ import { localeLabels } from "@/i18n/config";
 
 import { TolgeeWrapper } from "./TolgeeWrapper";
 import { PwaInstallPrompt } from "./PwaInstallPrompt";
+import { PwaUpdateToast } from "./PwaUpdateToast";
 import { DashboardNavigationProvider } from "./DashboardNavigationContext";
 
 const LOCALE_FONT_MAP: Record<string, string> = {
@@ -40,6 +41,7 @@ export function SiteChrome({ children }: { children: ReactNode }) {
           {children}
           {!hidePublicFooter && <Footer />}
           <PwaInstallPrompt />
+          <PwaUpdateToast />
         </DashboardNavigationProvider>
       </div>
     </TolgeeWrapper>

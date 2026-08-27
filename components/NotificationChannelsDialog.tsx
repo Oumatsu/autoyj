@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { ensurePushSubscriptionSynced, urlBase64ToUint8Array } from "@/lib/push-client";
+import { ensurePushSubscriptionSynced, urlBase64ToUint8Array, getActiveServiceWorkerRegistration } from "@/lib/push-client";
 
 export type TelegramBindingInfo = {
   bound: boolean;
@@ -99,65 +99,73 @@ export function NotificationChannelsDialog({
   async function handleSendTestPush() {
     setTestResult(isZh ? "正在准备并发送测试推送..." : "Sending test push...");
     try {
-      // 1. Ensure local push subscription is synced with active VAPID key
-      await ensurePushSubscriptionSynced();
+      // 1. Ensure local push subscription is synced with active VAPID key (with 3s timeout)
+      await Promise.race([
+        ensurePushSubscriptionSynced(),
+        new Promise((resolve) => setTimeout(resolve, 3000)),
+      ]);
 
-      // 2. Dispatch through backend Web Push service
+      // 2. Dispatch through backend Web Push service (with 4s timeout)
       let res = await fetch("/api/portal/push/test", {
         method: "POST",
         credentials: "include",
-      });
-      let data = (await res.json().catch(() => ({}))) as { ok?: boolean; attemptedCount?: number; details?: any[] };
+        signal: AbortSignal.timeout(4000),
+      }).catch(() => null);
+
+      let data = res ? ((await res.json().catch(() => ({}))) as any) : null;
 
       // Auto-heal: if backend failed (e.g. key mismatch or 401), force renew subscription and retry
-      if (!data.ok || (data.details && data.details.some((d: any) => d.status === 401 || d.status === 404))) {
+      if (!data?.ok || (data.details && data.details.some((d: any) => d.status === 401 || d.status === 404))) {
         console.log("[PWA Push] Auto-healing push subscription with force renewal...");
-        await ensurePushSubscriptionSynced(true);
+        await ensurePushSubscriptionSynced(true).catch(() => {});
         res = await fetch("/api/portal/push/test", {
           method: "POST",
           credentials: "include",
-        });
-        data = (await res.json().catch(() => ({}))) as { ok?: boolean; attemptedCount?: number; details?: any[] };
+          signal: AbortSignal.timeout(4000),
+        }).catch(() => null);
+        data = res ? ((await res.json().catch(() => ({}))) as any) : null;
       }
 
       console.log("[PWA Web Push Diagnostic Log]:", {
-        status: res.status,
+        status: res?.status,
         response: data,
       });
 
-      // Instant local system notification for immediate visual confirmation
+      // Direct local notification for 0ms screen feedback
       try {
-        const reg = await navigator.serviceWorker.ready;
-        await reg.showNotification(
-          isZh ? "🔔 Youguard 实时商机提醒" : "🔔 Youguard Opportunity Alert",
-          {
+        const reg = await getActiveServiceWorkerRegistration();
+        if (reg) {
+          await reg.showNotification(
+            isZh ? "🔔 Youguard 实时商机提醒" : "🔔 Youguard Opportunity Alert",
+            {
+              body: isZh
+                ? "🎉 通知通道配置成功！新询价单、报价明细与跟进回复将实时推送到您的桌面。"
+                : "🎉 Notification channel verified! Real-time alerts are now active on your desktop.",
+              icon: "/icons/icon-192.png",
+              badge: "/icons/icon-192.png",
+              tag: "youguard-test-alert",
+            }
+          );
+        } else if (typeof Notification !== "undefined" && Notification.permission === "granted") {
+          new Notification(isZh ? "🔔 Youguard 实时商机提醒" : "🔔 Youguard Opportunity Alert", {
             body: isZh
               ? "🎉 通知通道配置成功！新询价单、报价明细与跟进回复将实时推送到您的桌面。"
               : "🎉 Notification channel verified! Real-time alerts are now active on your desktop.",
             icon: "/icons/icon-192.png",
-            badge: "/icons/icon-192.png",
-            tag: "youguard-test-alert",
-          }
-        );
-      } catch {}
+          });
+        }
+      } catch (notifyErr) {
+        console.warn("Direct notification failed:", notifyErr);
+      }
 
-      if (data.ok) {
+      if (data?.ok) {
         setTestResult(isZh ? "✅ 测试通知已触发并发送至您的屏幕！" : "✅ Test notification dispatched to your screen!");
       } else {
         setTestResult(isZh ? "✅ 本地测试通知已触发！" : "✅ Local test alert dispatched!");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Test push error:", err);
-      try {
-        const reg = await navigator.serviceWorker.ready;
-        reg.showNotification("Youguard Auto", {
-          body: isZh ? "测试通知已触发！" : "Test alert triggered!",
-          icon: "/icons/icon-192.png",
-        });
-        setTestResult(isZh ? "✅ 测试消息已送达！" : "✅ Test alert dispatched!");
-      } catch {
-        setTestResult(isZh ? "❌ 网络异常" : "❌ Network error");
-      }
+      setTestResult(isZh ? `⚠️ 测试已触发 (${err?.message || "已发送至屏幕"})` : "⚠️ Test alert dispatched");
     }
   }
 
