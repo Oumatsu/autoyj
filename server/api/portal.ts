@@ -1789,7 +1789,9 @@ async function findLoginAccount(env: Env, email: string, accessCode: string): Pr
   ).bind(cleanEmail).first<PortalUserRecord>().catch(() => null);
 
   if (portalUser) {
-    if (portalUser.password !== cleanCode) return null;
+    const userPass = portalUser.password || (portalUser as any).access_code || "";
+    const userAccess = (portalUser as any).access_code || portalUser.password || "";
+    if (userPass !== cleanCode && userAccess !== cleanCode) return null;
     if (portalUser.status && portalUser.status.toLowerCase() !== "active") {
       throw problem("This account is not active", 403);
     }
@@ -1806,6 +1808,105 @@ async function findLoginAccount(env: Env, email: string, accessCode: string): Pr
   }
 
   return null;
+}
+
+async function handleRegister(request: Request, env: Env) {
+  const body = (await request.json().catch(() => null)) as {
+    name?: string;
+    email?: string;
+    password?: string;
+    accessCode?: string;
+    company?: string;
+    whatsapp?: string;
+    telegram?: string;
+  } | null;
+
+  const email = String(body?.email || "").trim().toLowerCase();
+  const password = String(body?.password || body?.accessCode || "").trim();
+  const name = String(body?.name || "").trim() || email.split("@")[0];
+  const company = String(body?.company || "").trim() || "Dealer Partner";
+  const whatsapp = String(body?.whatsapp || "").trim();
+  const telegram = String(body?.telegram || "").trim();
+
+  if (!email || !password) {
+    return problem("Email and password are required", 400);
+  }
+  if (!email.includes("@")) {
+    return problem("Please provide a valid email address", 400);
+  }
+  if (password.length < 4) {
+    return problem("Password must be at least 4 characters", 400);
+  }
+
+  const existing = await findLoginAccount(env, email, password).catch(() => null);
+  if (existing) {
+    return problem("An account with this email already exists. Please sign in.", 409);
+  }
+
+  const userId = `CUS-${Date.now().toString(36).toUpperCase()}`;
+  const now = nowText();
+
+  if (env.PORTAL_DB) {
+    const hasAccessCode = await portalUsersRequireLegacyAccessCode(env.PORTAL_DB);
+    if (hasAccessCode) {
+      await env.PORTAL_DB.prepare(`
+        INSERT OR REPLACE INTO portal_users (
+          user_id, customer_id, name, email, company, whatsapp, telegram_chat_id, telegram_username,
+          account_type, role, access_code, password, status, created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, '', ?, 'external', 'customer', ?, ?, 'Active', ?, ?)
+      `).bind(userId, userId, name, email, company, whatsapp, telegram, password, password, now, now).run().catch((e) => {
+        console.error("[register:d1-portal-users-error]", e);
+        return null;
+      });
+    } else {
+      await env.PORTAL_DB.prepare(`
+        INSERT OR REPLACE INTO portal_users (
+          user_id, customer_id, name, email, company, whatsapp, telegram_chat_id, telegram_username,
+          account_type, role, password, status, created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, '', ?, 'external', 'customer', ?, 'Active', ?, ?)
+      `).bind(userId, userId, name, email, company, whatsapp, telegram, password, now, now).run().catch((e) => {
+        console.error("[register:d1-portal-users-error]", e);
+        return null;
+      });
+    }
+
+    const nowMs = Date.now();
+    await env.PORTAL_DB.prepare(`
+      INSERT OR REPLACE INTO user (
+        id, user_id, customer_id, name, email, emailVerified, company, account_type, role, status, createdAt, updatedAt
+      ) VALUES (?, ?, ?, ?, ?, 1, ?, 'external', 'customer', 'Active', ?, ?)
+    `).bind(userId, userId, userId, name, email, company, nowMs, nowMs).run().catch((e) => {
+      console.error("[register:d1-user-error]", e);
+      return null;
+    });
+
+    await env.PORTAL_DB.prepare(`
+      INSERT OR REPLACE INTO account (
+        id, userId, accountId, providerId, password, createdAt, updatedAt
+      ) VALUES (?, ?, ?, 'credential', ?, ?, ?)
+    `).bind(`acc_${userId}`, userId, email, password, nowMs, nowMs).run().catch((e) => {
+      console.error("[register:d1-account-error]", e);
+      return null;
+    });
+  }
+
+  const session: PortalSession = {
+    userId,
+    customerId: userId,
+    name,
+    email,
+    company,
+    accountType: "external",
+    role: "customer",
+    priceTier: "partner",
+    exp: Math.floor(Date.now() / 1000) + SESSION_TTL_SECONDS,
+  };
+
+  const token = await signSession(env, session);
+  return json(
+    { ok: true, user: publicUser(session) },
+    { headers: { "set-cookie": sessionCookie(env, request, token) } }
+  );
 }
 
 async function requireSession(request: Request, env: Env) {
@@ -5103,10 +5204,17 @@ export async function handlePortalRequest(request: Request, env: Env) {
       return json({ ok: true, syncedAt: new Date().toISOString(), message: "Manual Feishu-to-D1 sync triggered successfully." });
     }
 
+    if (
+      (path === "/api/portal/register" ||
+        path === "/api/portal/signup" ||
+        path === "/api/auth/sign-up" ||
+        path === "/api/auth/register") &&
+      request.method === "POST"
+    ) {
+      return await handleRegister(request, env);
+    }
+
     if (path.startsWith("/api/auth/")) {
-      if (path.includes("sign-up") || path.includes("signup") || path.includes("register")) {
-        return problem("Public registration is disabled. Accounts are managed in D1.", 403);
-      }
       if (!env.PORTAL_DB) return problem("Portal database is not configured", 503);
       return problem("Use the D1-backed portal session endpoint for authentication", 404);
     }

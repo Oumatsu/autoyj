@@ -437,3 +437,34 @@ CREATE INDEX IF NOT EXISTS idx_inquiry_requests_topic_created
 CREATE INDEX IF NOT EXISTS idx_inquiry_requests_requester_topic
   ON inquiry_requests(requester_user_id, inquiry_no);
 
+-- Seed System Users into D1 (user, account, portal_users)
+INSERT OR IGNORE INTO user (id, name, email, emailVerified, createdAt, updatedAt, user_id, customer_id, company, account_type, role, status) VALUES
+  ('USR-ADMIN-01', 'Admin Manager', 'admin@local.test', 1, 1786003344000, 1786003344000, 'USR-ADMIN-01', 'USR-ADMIN-01', 'Youguard Operations', 'internal', 'admin', 'Active'),
+  ('USR-SALES-01', 'Sales Lead', 'sales@local.test', 1, 1786003344000, 1786003344000, 'USR-SALES-01', 'USR-SALES-01', 'Youguard Sales Team', 'internal', 'sales', 'Active'),
+  ('PARTNER-001', 'Partner Agent', 'partner@example.com', 1, 1786003344000, 1786003344000, 'PARTNER-001', 'PARTNER-001', 'Addis Auto Imports PLC', 'external', 'partner', 'Active'),
+  ('CUS-002', 'VIP Customer', 'customer@example.com', 1, 1786003344000, 1786003344000, 'CUS-002', 'CUS-002', 'Green Ride Enterprise', 'external', 'customer', 'Active'),
+  ('USR-ZZC', 'ZZC Admin', 'zzc@youguard.net', 1, 1786003344000, 1786003344000, 'USR-ZZC', 'USR-ZZC', 'Youguard HQ', 'internal', 'admin', 'Active'),
+  ('USR-LJW', 'LJW Admin', 'ljw@youguard.net', 1, 1786003344000, 1786003344000, 'USR-LJW', 'USR-LJW', 'Youguard HQ', 'internal', 'admin', 'Active'),
+  ('USR-LX', 'LX Sales', 'lx@youguard.net', 1, 1786003344000, 1786003344000, 'USR-LX', 'USR-LX', 'Youguard Sales', 'internal', 'sales', 'Active'),
+  ('USR-WSC', 'WSC Sales', 'wsc@youguard.net', 1, 1786003344000, 1786003344000, 'USR-WSC', 'USR-WSC', 'Youguard Sales', 'internal', 'sales', 'Active');
+
+INSERT OR IGNORE INTO account (id, userId, accountId, providerId, password, createdAt, updatedAt) VALUES
+  ('acc_USR-ADMIN-01', 'USR-ADMIN-01', 'admin@local.test', 'credential', 'admin-demo-2026', 1786003344000, 1786003344000),
+  ('acc_USR-SALES-01', 'USR-SALES-01', 'sales@local.test', 'credential', 'sales-demo-2026', 1786003344000, 1786003344000),
+  ('acc_PARTNER-001', 'PARTNER-001', 'partner@example.com', 'credential', 'partner-demo-2026', 1786003344000, 1786003344000),
+  ('acc_CUS-002', 'CUS-002', 'customer@example.com', 'credential', 'customer-demo-2026', 1786003344000, 1786003344000),
+  ('acc_USR-ZZC', 'USR-ZZC', 'zzc@youguard.net', 'credential', 'yg-admin-2026', 1786003344000, 1786003344000),
+  ('acc_USR-LJW', 'USR-LJW', 'ljw@youguard.net', 'credential', 'yg-admin-2026', 1786003344000, 1786003344000),
+  ('acc_USR-LX', 'USR-LX', 'lx@youguard.net', 'credential', 'yg-sales-2026', 1786003344000, 1786003344000),
+  ('acc_USR-WSC', 'USR-WSC', 'wsc@youguard.net', 'credential', 'yg-sales-2026', 1786003344000, 1786003344000);
+
+INSERT OR IGNORE INTO portal_users (user_id, customer_id, name, email, company, whatsapp, telegram_chat_id, telegram_username, account_type, role, password, status, created_at, updated_at) VALUES
+  ('USR-ADMIN-01', 'USR-ADMIN-01', 'Admin Manager', 'admin@local.test', 'Youguard Operations', '', '', '', 'internal', 'admin', 'admin-demo-2026', 'Active', '2026-08-17 08:45:19', '2026-08-17 08:45:19'),
+  ('USR-SALES-01', 'USR-SALES-01', 'Sales Lead', 'sales@local.test', 'Youguard Sales Team', '', '', '', 'internal', 'sales', 'sales-demo-2026', 'Active', '2026-08-17 08:45:19', '2026-08-17 08:45:19'),
+  ('PARTNER-001', 'PARTNER-001', 'Partner Agent', 'partner@example.com', 'Addis Auto Imports PLC', '', '8914011709', '', 'external', 'partner', 'partner-demo-2026', 'Active', '2026-08-17 08:45:19', '2026-08-17 08:45:19'),
+  ('CUS-002', 'CUS-002', 'VIP Customer', 'customer@example.com', 'Green Ride Enterprise', '', '', '', 'external', 'customer', 'customer-demo-2026', 'Active', '2026-08-17 08:45:19', '2026-08-17 08:45:19'),
+  ('USR-ZZC', 'USR-ZZC', 'ZZC Admin', 'zzc@youguard.net', 'Youguard HQ', '', '', '', 'internal', 'admin', 'yg-admin-2026', 'Active', '2026-08-17 08:45:19', '2026-08-17 08:45:19'),
+  ('USR-LJW', 'USR-LJW', 'LJW Admin', 'ljw@youguard.net', 'Youguard HQ', '', '', '', 'internal', 'admin', 'yg-admin-2026', 'Active', '2026-08-17 08:45:19', '2026-08-17 08:45:19'),
+  ('USR-LX', 'USR-LX', 'LX Sales', 'lx@youguard.net', 'Youguard Sales', '', '', '', 'internal', 'sales', 'yg-sales-2026', 'Active', '2026-08-17 08:45:19', '2026-08-17 08:45:19'),
+  ('USR-WSC', 'USR-WSC', 'WSC Sales', 'wsc@youguard.net', 'Youguard Sales', '', '', '', 'internal', 'sales', 'yg-sales-2026', 'Active', '2026-08-17 08:45:19', '2026-08-17 08:45:19');
+

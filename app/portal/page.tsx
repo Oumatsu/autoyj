@@ -614,6 +614,11 @@ export default function PortalPage() {
   const { t, locale } = useTranslation();
   const [email, setEmail] = useState("");
   const [accessCode, setAccessCode] = useState("");
+  const [authMode, setAuthMode] = useState<"signin" | "signup">("signin");
+  const [regName, setRegName] = useState("");
+  const [regCompany, setRegCompany] = useState("");
+  const [regWhatsapp, setRegWhatsapp] = useState("");
+  const [regPassword, setRegPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [data, setData] = useState<BootstrapData | null>(() => globalBootstrapData);
   const [loading, setLoading] = useState(!globalBootstrapData);
@@ -902,6 +907,39 @@ export default function PortalPage() {
     }
   }
 
+  async function registerAccount(event: React.FormEvent) {
+    event.preventDefault();
+    setBusy(true);
+    setError("");
+    try {
+      await api("/api/portal/register", {
+        method: "POST",
+        body: JSON.stringify({
+          name: regName,
+          email,
+          password: regPassword || accessCode,
+          company: regCompany,
+          whatsapp: regWhatsapp,
+        }),
+      });
+      globalBootstrapData = null;
+      globalBootstrapPromise = null;
+      await checkSessionAndLoad(true);
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event("youguard-session-changed"));
+      }
+      const params = new URLSearchParams(window.location.search);
+      const redirect = params.get("redirect");
+      if (redirect) {
+        window.location.href = redirect;
+      }
+    } catch (regErr) {
+      setError(regErr instanceof Error ? regErr.message : "Registration failed");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function devLogin(role: PortalRole) {
     setBusy(true);
     setError("");
@@ -1021,12 +1059,31 @@ export default function PortalPage() {
             </p>
           </div>
 
-          <form onSubmit={login} className="glass grid gap-5 rounded-[2rem] p-6 sm:p-8">
-            <div>
-              <h2 className="text-2xl font-black uppercase italic text-white">Sign In</h2>
-              <p className="mt-2 text-xs text-gray-500">Your access level is managed by system administrators.</p>
+          <form onSubmit={authMode === "signin" ? login : registerAccount} className="glass grid gap-5 rounded-[2rem] p-6 sm:p-8">
+            <div className="flex items-center justify-between border-b border-white/10 pb-4">
+              <div className="flex items-center gap-4">
+                <button
+                  type="button"
+                  onClick={() => { setAuthMode("signin"); setError(""); }}
+                  className={`text-sm font-black uppercase tracking-wider transition ${
+                    authMode === "signin" ? "text-gold border-b-2 border-gold pb-1" : "text-gray-400 hover:text-white"
+                  }`}
+                >
+                  {locale === "zh" ? "用户登录" : "Sign In"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setAuthMode("signup"); setError(""); }}
+                  className={`text-sm font-black uppercase tracking-wider transition ${
+                    authMode === "signup" ? "text-gold border-b-2 border-gold pb-1" : "text-gray-400 hover:text-white"
+                  }`}
+                >
+                  {locale === "zh" ? "注册新客户账号" : "Create Account"}
+                </button>
+              </div>
             </div>
-            {(isLocalDev || showPreviewTestLogin) && (
+
+            {authMode === "signin" && (isLocalDev || showPreviewTestLogin) && (
               <div className="grid gap-3 rounded-xl border border-gold/20 bg-gold/[.06] p-3">
                 <p className="text-[10px] font-black uppercase tracking-widest text-gold">Test accounts</p>
                 <div className="grid grid-cols-2 gap-2">
@@ -1045,35 +1102,87 @@ export default function PortalPage() {
                 </div>
               </div>
             )}
+
+            {authMode === "signup" && (
+              <>
+                <label htmlFor="reg-name" className="grid gap-2 text-xs font-black uppercase tracking-widest text-gray-500">
+                  {locale === "zh" ? "姓名 / 称谓 *" : "Full Name *"}
+                  <input
+                    id="reg-name"
+                    name="name"
+                    value={regName}
+                    onChange={(e) => setRegName(e.target.value)}
+                    required
+                    className="rounded-xl border border-white/10 bg-white/[.04] px-4 py-3 text-sm font-medium normal-case tracking-normal text-white outline-none focus:border-gold"
+                    placeholder={locale === "zh" ? "例如：张经理 / Alex Kamau" : "e.g. Alex Kamau"}
+                  />
+                </label>
+                <label htmlFor="reg-company" className="grid gap-2 text-xs font-black uppercase tracking-widest text-gray-500">
+                  {locale === "zh" ? "公司 / 车行名称" : "Company / Dealership"}
+                  <input
+                    id="reg-company"
+                    name="company"
+                    value={regCompany}
+                    onChange={(e) => setRegCompany(e.target.value)}
+                    className="rounded-xl border border-white/10 bg-white/[.04] px-4 py-3 text-sm font-medium normal-case tracking-normal text-white outline-none focus:border-gold"
+                    placeholder={locale === "zh" ? "例如：Nairobi Motors Ltd" : "e.g. Nairobi Motors Ltd"}
+                  />
+                </label>
+                <label htmlFor="reg-whatsapp" className="grid gap-2 text-xs font-black uppercase tracking-widest text-gray-500">
+                  {locale === "zh" ? "WhatsApp / 联系电话" : "WhatsApp / Phone"}
+                  <input
+                    id="reg-whatsapp"
+                    name="whatsapp"
+                    value={regWhatsapp}
+                    onChange={(e) => setRegWhatsapp(e.target.value)}
+                    className="rounded-xl border border-white/10 bg-white/[.04] px-4 py-3 text-sm font-medium normal-case tracking-normal text-white outline-none focus:border-gold"
+                    placeholder="+254 712 345678"
+                  />
+                </label>
+              </>
+            )}
+
             <label htmlFor="login-email" className="grid gap-2 text-xs font-black uppercase tracking-widest text-gray-500">
-              Email
+              {locale === "zh" ? "邮箱地址 *" : "Email *"}
               <input
                 id="login-email"
                 name="email"
                 autoComplete="username"
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
+                required
                 className="rounded-xl border border-white/10 bg-white/[.04] px-4 py-3 text-sm font-medium normal-case tracking-normal text-white outline-none focus:border-gold"
                 placeholder="partner@example.com"
                 type="email"
               />
             </label>
+
             <label htmlFor="login-access-code" className="grid gap-2 text-xs font-black uppercase tracking-widest text-gray-500">
-              Access Code
+              {authMode === "signup" ? (locale === "zh" ? "设置密码 *" : "Password *") : (locale === "zh" ? "密码 / 授权码 *" : "Password / Access Code *")}
               <input
                 id="login-access-code"
                 name="password"
-                autoComplete="current-password"
-                value={accessCode}
-                onChange={(event) => setAccessCode(event.target.value)}
+                autoComplete={authMode === "signup" ? "new-password" : "current-password"}
+                value={authMode === "signup" ? regPassword : accessCode}
+                onChange={(event) => {
+                  if (authMode === "signup") {
+                    setRegPassword(event.target.value);
+                  } else {
+                    setAccessCode(event.target.value);
+                  }
+                }}
+                required
                 className="rounded-xl border border-white/10 bg-white/[.04] px-4 py-3 text-sm font-medium normal-case tracking-normal text-white outline-none focus:border-gold"
-                placeholder="Provided by Youguard"
+                placeholder={authMode === "signup" ? (locale === "zh" ? "设置至少 4 位密码" : "At least 4 characters") : (locale === "zh" ? "誉甲分配密码或授权码" : "Provided by Youguard")}
                 type="password"
               />
             </label>
+
             {error && <p className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-xs font-bold text-red-300">{error}</p>}
             <button disabled={busy} className="btn-primary rounded-xl px-5 py-4 text-xs font-black uppercase tracking-widest disabled:opacity-60">
-              {busy ? "Signing in..." : "Sign In"}
+              {busy
+                ? (authMode === "signup" ? (locale === "zh" ? "正在创建账号..." : "Creating account...") : (locale === "zh" ? "正在登录..." : "Signing in..."))
+                : (authMode === "signup" ? (locale === "zh" ? "立即创建并进入门户" : "Create Account & Enter") : (locale === "zh" ? "立即登录" : "Sign In"))}
             </button>
           </form>
         </section>
