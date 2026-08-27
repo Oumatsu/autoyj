@@ -177,8 +177,8 @@ export async function notifyInquiryStakeholdersDualChannel(
   ].join("\n");
 
   const portalUrl = `https://youguard.net/portal?inquiry=${encodeURIComponent(params.inquiryNo)}&src=notification`;
-  const pushTitle = `Youguard Auto · #${params.inquiryNo}`;
-  const pushBody = `${params.authorName} (${roleLabel}): "${preview}"`;
+  const pushTitle = `🚗 Youguard #${params.inquiryNo} · ${params.authorName} (${roleLabel})`;
+  const pushBody = preview || "posted a new message on this inquiry";
 
   let telegramAttempted = 0;
   let telegramSent = 0;
@@ -188,61 +188,63 @@ export async function notifyInquiryStakeholdersDualChannel(
 
   const token = getTelegramBotToken(env);
 
-  // 5. Deliver to recipients (Simultaneous Broadcast: Telegram if bound + Web Push for all subscribed devices)
-  for (const userId of recipientUserIds) {
-    // Channel 1: Telegram
-    const binding = await getTelegramUserBinding(db, userId).catch(() => null);
-    if (binding?.chat_id) {
-      telegramAttempted++;
-      if (params.mockSendTelegram) {
-        const ok = await params.mockSendTelegram(binding.chat_id, telegramText, portalUrl);
-        if (ok) telegramSent++;
-      } else if (token) {
-        try {
-          const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              chat_id: binding.chat_id,
-              text: telegramText,
-              parse_mode: "Markdown",
-              reply_markup: {
-                inline_keyboard: [[{ text: `🔘 Open Inquiry #${params.inquiryNo}`, url: portalUrl }]],
-              },
-            }),
-            signal: AbortSignal.timeout(10000),
-          });
-          const data = (await res.json().catch(() => ({}))) as { ok?: boolean };
-          if (data.ok) telegramSent++;
-        } catch (err) {
-          console.error(`[notifications] Telegram send failure for user ${userId}:`, err);
+  // Parallel dual-channel delivery across all stakeholder recipients
+  await Promise.allSettled(
+    Array.from(recipientUserIds).map(async (userId) => {
+      // Channel 1: Telegram
+      const binding = await getTelegramUserBinding(db, userId).catch(() => null);
+      if (binding?.chat_id) {
+        telegramAttempted++;
+        if (params.mockSendTelegram) {
+          const ok = await params.mockSendTelegram(binding.chat_id, telegramText, portalUrl);
+          if (ok) telegramSent++;
+        } else if (token) {
+          try {
+            const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                chat_id: binding.chat_id,
+                text: telegramText,
+                parse_mode: "Markdown",
+                reply_markup: {
+                  inline_keyboard: [[{ text: `🔘 Open Inquiry #${params.inquiryNo}`, url: portalUrl }]],
+                },
+              }),
+              signal: AbortSignal.timeout(10000),
+            });
+            const data = (await res.json().catch(() => ({}))) as { ok?: boolean };
+            if (data.ok) telegramSent++;
+          } catch (err) {
+            console.error(`[notifications] Telegram send failure for user ${userId}:`, err);
+          }
         }
       }
-    }
 
-    // Channel 2: PWA Web Push (Delivers to all active devices registered by this user)
-    const pushSubscriptions = await getUserPushSubscriptions(db, userId);
-    for (const sub of pushSubscriptions) {
-      webPushAttempted++;
-      if (params.mockSendWebPush) {
-        const res = await params.mockSendWebPush(sub, {
-          title: pushTitle,
-          body: pushBody,
-          url: portalUrl,
-        });
-        if (res.success) webPushSent++;
-        if (res.expired) webPushExpired++;
-      } else {
-        const res = await sendWebPushNotification(env, sub, {
-          title: pushTitle,
-          body: pushBody,
-          url: portalUrl,
-        });
-        if (res.success) webPushSent++;
-        if (res.expired) webPushExpired++;
+      // Channel 2: PWA Web Push (Delivers to all active devices registered by this user)
+      const pushSubscriptions = await getUserPushSubscriptions(db, userId);
+      for (const sub of pushSubscriptions) {
+        webPushAttempted++;
+        if (params.mockSendWebPush) {
+          const res = await params.mockSendWebPush(sub, {
+            title: pushTitle,
+            body: pushBody,
+            url: portalUrl,
+          });
+          if (res.success) webPushSent++;
+          if (res.expired) webPushExpired++;
+        } else {
+          const res = await sendWebPushNotification(env, sub, {
+            title: pushTitle,
+            body: pushBody,
+            url: portalUrl,
+          });
+          if (res.success) webPushSent++;
+          if (res.expired) webPushExpired++;
+        }
       }
-    }
-  }
+    })
+  );
 
   return {
     telegramAttempted,
