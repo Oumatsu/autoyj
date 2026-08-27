@@ -133,26 +133,33 @@ export function NotificationChannelsDialog({
 
       // Direct local notification for 0ms screen feedback
       try {
+        if (typeof Notification !== "undefined" && Notification.permission === "granted") {
+          try {
+            const notif = new Notification(isZh ? "🚗 Youguard 实时商机提醒" : "🚗 Youguard Opportunity Alert", {
+              body: isZh
+                ? "🎉 通知通道配置成功！新询价单、报价明细与跟进回复将实时推送到您的桌面。"
+                : "🎉 Notification channel verified! Real-time alerts are now active on your desktop.",
+              icon: typeof window !== "undefined" ? `${window.location.origin}/icons/icon-192.png` : "/icons/icon-192.png",
+              requireInteraction: true,
+            });
+            notif.onclick = () => window.focus();
+          } catch {}
+        }
+
         const reg = await getActiveServiceWorkerRegistration();
         if (reg) {
           await reg.showNotification(
-            isZh ? "🔔 Youguard 实时商机提醒" : "🔔 Youguard Opportunity Alert",
+            isZh ? "🚗 Youguard 实时商机提醒" : "🚗 Youguard Opportunity Alert",
             {
               body: isZh
                 ? "🎉 通知通道配置成功！新询价单、报价明细与跟进回复将实时推送到您的桌面。"
                 : "🎉 Notification channel verified! Real-time alerts are now active on your desktop.",
-              icon: "/icons/icon-192.png",
-              badge: "/icons/icon-192.png",
+              icon: typeof window !== "undefined" ? `${window.location.origin}/icons/icon-192.png` : "/icons/icon-192.png",
+              badge: typeof window !== "undefined" ? `${window.location.origin}/icons/icon-192.png` : "/icons/icon-192.png",
               tag: "youguard-test-alert",
+              requireInteraction: true,
             }
           );
-        } else if (typeof Notification !== "undefined" && Notification.permission === "granted") {
-          new Notification(isZh ? "🔔 Youguard 实时商机提醒" : "🔔 Youguard Opportunity Alert", {
-            body: isZh
-              ? "🎉 通知通道配置成功！新询价单、报价明细与跟进回复将实时推送到您的桌面。"
-              : "🎉 Notification channel verified! Real-time alerts are now active on your desktop.",
-            icon: "/icons/icon-192.png",
-          });
         }
       } catch (notifyErr) {
         console.warn("Direct notification failed:", notifyErr);

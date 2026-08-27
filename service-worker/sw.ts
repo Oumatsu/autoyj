@@ -25,11 +25,14 @@ self.addEventListener("message", (event) => {
 
 // Standard Web Push Notification Handler
 self.addEventListener("push", (event) => {
+  const origin = self.location ? self.location.origin : "";
+  const defaultIcon = origin ? `${origin}/icons/icon-192.png` : "/icons/icon-192.png";
+
   let data = {
-    title: "Youguard Auto",
+    title: "🚗 Youguard Auto",
     body: "You have a new update regarding your vehicle quotation or order.",
-    icon: "/icons/icon-192.png",
-    badge: "/icons/icon-192.png",
+    icon: defaultIcon,
+    badge: defaultIcon,
     data: { url: "/portal" },
   };
 
@@ -42,11 +45,14 @@ self.addEventListener("push", (event) => {
     }
   }
 
+  const iconUrl = data.icon && data.icon.startsWith("http") ? data.icon : (origin ? `${origin}${data.icon.startsWith("/") ? "" : "/"}${data.icon}` : defaultIcon);
+
   const options: NotificationOptions = {
     body: data.body,
-    icon: data.icon || "/icons/icon-192.png",
-    badge: data.badge || "/icons/icon-192.png",
+    icon: iconUrl,
+    badge: iconUrl,
     data: data.data || { url: "/portal" },
+    requireInteraction: true,
     vibrate: [100, 50, 100],
   };
 
