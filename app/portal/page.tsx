@@ -1345,7 +1345,7 @@ function AdminPortal({
                     href={data.telegramBinding.bindingUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={`mt-2 flex items-center gap-1.5 text-[10px] font-bold transition ${
+                    className={`mt-1.5 flex items-center gap-1.5 text-[10px] font-bold transition ${
                       data.telegramBinding.bound
                         ? "text-emerald-400 hover:underline"
                         : "text-[#dfba73] hover:underline"
@@ -1368,6 +1368,24 @@ function AdminPortal({
                     </span>
                   </a>
                 )}
+                <button
+                  type="button"
+                  data-testid="sidebar-notification-center-trigger"
+                  onClick={() => setIsNotificationDialogOpen(true)}
+                  className="mt-2 flex w-full items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-2 py-1 text-[10px] font-bold text-slate-300 hover:border-emerald-500/40 hover:bg-emerald-500/10 hover:text-emerald-300 transition"
+                  title={
+                    locale === "zh"
+                      ? "配置 Telegram 机器人与 PWA 桌面 Web Push 推送"
+                      : "Configure Telegram bot and PWA Web Push alerts"
+                  }
+                >
+                  <svg className="h-3 w-3 fill-current text-emerald-400 shrink-0" viewBox="0 0 24 24">
+                    <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z" />
+                  </svg>
+                  <span className="truncate">
+                    {locale === "zh" ? "🔔 通知中心 (TG & PWA)" : "🔔 Notification Alerts (TG & PWA)"}
+                  </span>
+                </button>
               </div>
             </div>
           </div>
@@ -1394,11 +1412,7 @@ function AdminPortal({
                   type="button"
                   data-testid="open-notification-dialog-trigger"
                   onClick={() => setIsNotificationDialogOpen(true)}
-                  className={`flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-[10px] font-black uppercase tracking-wider transition shrink-0 ${
-                    data.telegramBinding?.bound
-                      ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/20"
-                      : "border-[#c5a059]/40 bg-[#c5a059]/10 text-[#dfba73] hover:bg-[#c5a059]/20"
-                  }`}
+                  className="flex items-center gap-1.5 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-3.5 py-2 text-[10px] font-black uppercase tracking-wider text-emerald-300 hover:bg-emerald-500/20 transition shrink-0"
                   title={
                     locale === "zh"
                       ? "配置多渠道实时消息提醒 (Telegram & PWA 桌面推送)"
@@ -1409,14 +1423,13 @@ function AdminPortal({
                     <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z" />
                   </svg>
                   <span>
-                    {data.telegramBinding?.bound
-                      ? locale === "zh"
-                        ? `通知已激活 (@${data.telegramBinding.telegramUsername || "Linked"})`
-                        : `Alerts Active (@${data.telegramBinding.telegramUsername || "Linked"})`
-                      : locale === "zh"
-                        ? "通知与提醒设置"
-                        : "Notification Alerts"}
+                    {locale === "zh" ? "🔔 通知渠道与提醒中心" : "🔔 Notification Alerts (TG & PWA)"}
                   </span>
+                  {data.telegramBinding?.bound && (
+                    <span className="ml-1 rounded-full bg-emerald-500/20 px-1.5 py-0.5 text-[9px] text-emerald-400">
+                      TG已绑
+                    </span>
+                  )}
                 </button>
                 <button
                   type="button"
