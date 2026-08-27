@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { urlBase64ToUint8Array, ensurePushSubscriptionSynced } from "../../../lib/push-client";
+import { urlBase64ToUint8Array, ensurePushSubscriptionSynced, arrayBufferToBase64Url } from "../../../lib/push-client";
 
 describe("Web Push Client Utilities (lib/push-client.ts)", () => {
   test("urlBase64ToUint8Array properly decodes standard VAPID public key base64url string", () => {
@@ -8,6 +8,14 @@ describe("Web Push Client Utilities (lib/push-client.ts)", () => {
     expect(bytes).toBeInstanceOf(Uint8Array);
     expect(bytes.length).toBe(65);
     expect(bytes[0]).toBe(0x04); // NIST P-256 uncompressed public key prefix 0x04
+  });
+
+  test("arrayBufferToBase64Url safely encodes ArrayBuffer into base64url string", () => {
+    const arr = new Uint8Array([1, 2, 3, 4, 5, 255]);
+    const b64 = arrayBufferToBase64Url(arr.buffer);
+    expect(typeof b64).toBe("string");
+    expect(b64.length).toBeGreaterThan(0);
+    expect(arrayBufferToBase64Url(null)).toBe("");
   });
 
   test("ensurePushSubscriptionSynced handles serverless/non-browser environment gracefully", async () => {

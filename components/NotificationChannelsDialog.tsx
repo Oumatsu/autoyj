@@ -99,49 +99,35 @@ export function NotificationChannelsDialog({
   async function handleSendTestPush() {
     setTestResult(isZh ? "正在准备并发送测试推送..." : "Sending test push...");
     try {
-      // 1. Ensure local push subscription is active and synced with server
-      const reg = await navigator.serviceWorker.ready;
-      let subscription = await reg.pushManager.getSubscription().catch(() => null);
-
-      if (!subscription) {
-        const keyRes = await fetch("/api/portal/push/public-key");
-        const keyData = (await keyRes.json().catch(() => ({}))) as { publicKey?: string };
-        if (keyData.publicKey) {
-          subscription = await reg.pushManager.subscribe({
-            userVisibleOnly: true,
-            applicationServerKey: urlBase64ToUint8Array(keyData.publicKey),
-          });
-        }
-      }
-
-      if (subscription) {
-        const subJson = subscription.toJSON();
-        await fetch("/api/portal/push/subscribe", {
-          method: "POST",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            endpoint: subJson.endpoint,
-            keys: subJson.keys,
-            userAgent: navigator.userAgent,
-          }),
-        });
-      }
+      // 1. Ensure local push subscription is synced with active VAPID key
+      await ensurePushSubscriptionSynced();
 
       // 2. Dispatch through backend Web Push service
-      const res = await fetch("/api/portal/push/test", {
+      let res = await fetch("/api/portal/push/test", {
         method: "POST",
         credentials: "include",
       });
-      const data = (await res.json().catch(() => ({}))) as { ok?: boolean; attemptedCount?: number; details?: any[] };
+      let data = (await res.json().catch(() => ({}))) as { ok?: boolean; attemptedCount?: number; details?: any[] };
+
+      // Auto-heal: if backend failed (e.g. key mismatch or 401), force renew subscription and retry
+      if (!data.ok || (data.details && data.details.some((d: any) => d.status === 401 || d.status === 404))) {
+        console.log("[PWA Push] Auto-healing push subscription with force renewal...");
+        await ensurePushSubscriptionSynced(true);
+        res = await fetch("/api/portal/push/test", {
+          method: "POST",
+          credentials: "include",
+        });
+        data = (await res.json().catch(() => ({}))) as { ok?: boolean; attemptedCount?: number; details?: any[] };
+      }
+
       console.log("[PWA Web Push Diagnostic Log]:", {
         status: res.status,
         response: data,
-        subscriptionEndpoint: subscription?.endpoint,
       });
 
       // Instant local system notification for immediate visual confirmation
       try {
+        const reg = await navigator.serviceWorker.ready;
         await reg.showNotification(
           isZh ? "🔔 Youguard 实时商机提醒" : "🔔 Youguard Opportunity Alert",
           {

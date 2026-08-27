@@ -13,7 +13,17 @@ export function urlBase64ToUint8Array(base64String: string): Uint8Array {
   return outputArray;
 }
 
-export async function ensurePushSubscriptionSynced(): Promise<{
+export function arrayBufferToBase64Url(buffer: ArrayBuffer | null): string {
+  if (!buffer) return "";
+  const bytes = new Uint8Array(buffer);
+  let binary = "";
+  for (let i = 0; i < bytes.byteLength; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+
+export async function ensurePushSubscriptionSynced(forceRenew: boolean = false): Promise<{
   success: boolean;
   endpoint?: string;
   error?: string;
@@ -38,6 +48,20 @@ export async function ensurePushSubscriptionSynced(): Promise<{
     }
 
     let sub = await reg.pushManager.getSubscription().catch(() => null);
+    if (sub) {
+      const existingKeyBuf = sub.options?.applicationServerKey;
+      let matches = !forceRenew;
+      if (existingKeyBuf && !forceRenew) {
+        const existingKeyB64 = arrayBufferToBase64Url(existingKeyBuf);
+        matches = existingKeyB64 === keyData.publicKey;
+      }
+      if (!matches || forceRenew) {
+        console.log("[push-client] Renewing push subscription with active VAPID key...");
+        await sub.unsubscribe().catch(() => {});
+        sub = null;
+      }
+    }
+
     if (!sub) {
       sub = await reg.pushManager.subscribe({
         userVisibleOnly: true,
