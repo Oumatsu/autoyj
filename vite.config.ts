@@ -160,10 +160,15 @@ export default defineConfig({
     devVarsPlugin(),
     vinext(),
     VitePWA({
+      outDir: "dist/client",
       registerType: "autoUpdate",
       strategies: "injectManifest",
       srcDir: "service-worker",
       filename: "sw.ts",
+      injectManifest: {
+        globDirectory: "dist/client",
+        globPatterns: ["**/*.{js,css,ico,png,svg,webmanifest}"],
+      },
       manifest: {
         name: "Youguard - EV Sourcing for Africa",
         short_name: "Youguard Auto",
