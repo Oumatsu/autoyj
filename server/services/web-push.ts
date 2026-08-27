@@ -25,11 +25,11 @@ export function base64UrlDecode(str: string): Uint8Array {
 }
 
 // Default VAPID keypair for Edge environment (Can be overridden via env vars)
-// Generated valid P-256 keypair
+// Generated valid NIST P-256 keypair
 const DEFAULT_VAPID_PUBLIC_KEY =
-  "BEl62iUYgUivxIkv69yViEuiBIa-Ib9-Skv6_Ikv6_Ikv69yViEuiBIa-Ib9-Skv6_Ikv6_Ikv69yViEuiBIa-I";
+  "BP0GXeFrbM_8mHeCf5zHF7irR1cuX9JWz_NVhfk1UH-ThIypM-L7_5mSBRF1Q3lwLvY_bzwB5mIFtNutt_1rIlU";
 const DEFAULT_VAPID_PRIVATE_KEY =
-  "MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQg4n73e72Gk5YQ9nO6m_Q0eF3L8yQ3j5V1r2v4k6x8Z0GhRANCAAR62iUYgUivxIkv69yViEuiBIa-Ib9-Skv6_Ikv6_Ikv69yViEuiBIa-Ib9-Skv6_Ikv6_Ikv69yViEuiBIa-I";
+  "MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgKM5lY10Skn4ORPItuteICVtWqAgKS_ANHSIKcc-fop2hRANCAAT9Bl3ha2zP_Jh3gn-cxxe4q0dXLl_SVs_zVYX5NVB_k4SMqTPi-_-ZkgURdUN5cC72P288AeZiBbTbrbf9ayJV";
 const DEFAULT_VAPID_SUBJECT = "mailto:support@youguard.net";
 
 export function getVapidPublicKey(env?: PortalEnv): string {

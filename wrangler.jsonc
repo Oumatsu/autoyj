@@ -30,7 +30,9 @@
     "FEISHU_TABLE_ACADEMY_LESSONS": "tbl4wwtdHP8sLUsO",
     "FEISHU_TABLE_ACADEMY_VAULT": "tblnMopstEUqjMhu",
     "TELEGRAM_BOT_TOKEN": "8527474898:AAGXxoBBo4yLZyMR-jXNa2KHz7HROXv51RE",
-    "TELEGRAM_BOT_USERNAME": "youguard_ev_bot"
+    "TELEGRAM_BOT_USERNAME": "youguard_ev_bot",
+    "VAPID_PUBLIC_KEY": "BP0GXeFrbM_8mHeCf5zHF7irR1cuX9JWz_NVhfk1UH-ThIypM-L7_5mSBRF1Q3lwLvY_bzwB5mIFtNutt_1rIlU",
+    "VAPID_SUBJECT": "mailto:support@youguard.net"
   },
   "d1_databases": [
     {
