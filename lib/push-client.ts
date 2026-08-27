@@ -48,6 +48,7 @@ export async function ensurePushSubscriptionSynced(): Promise<{
     const subJson = sub.toJSON();
     const saveRes = await fetch("/api/portal/push/subscribe", {
       method: "POST",
+      credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         endpoint: subJson.endpoint,

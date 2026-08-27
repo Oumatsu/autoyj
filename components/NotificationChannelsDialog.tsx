@@ -118,6 +118,7 @@ export function NotificationChannelsDialog({
         const subJson = subscription.toJSON();
         await fetch("/api/portal/push/subscribe", {
           method: "POST",
+          credentials: "include",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             endpoint: subJson.endpoint,
@@ -128,7 +129,10 @@ export function NotificationChannelsDialog({
       }
 
       // 2. Dispatch through backend Web Push service
-      const res = await fetch("/api/portal/push/test", { method: "POST" });
+      const res = await fetch("/api/portal/push/test", {
+        method: "POST",
+        credentials: "include",
+      });
       const data = (await res.json().catch(() => ({}))) as { ok?: boolean; attemptedCount?: number; details?: any[] };
       console.log("[PWA Web Push Diagnostic Log]:", {
         status: res.status,
