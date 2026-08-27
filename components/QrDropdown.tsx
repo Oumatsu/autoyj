@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef } from "react";
+import Image from "next/image";
 import { useTranslation } from "@/i18n/useTranslation";
 import { Popover, PopoverContent } from "@/components/ui/popover";
 
@@ -34,9 +35,11 @@ export function QrDropdown({ children }: { children: React.ReactNode }) {
             className="group relative block w-full rounded-xl overflow-hidden border border-white/10 hover:border-[#5ee6d8]/60 transition-all"
             title="Click to open WhatsApp directly"
           >
-            <img
+            <Image
               src="/pic/0.webp"
               alt={t("qr.badge", "Scan or Click to Connect on WhatsApp") as string}
+              width={240}
+              height={240}
               className="w-full block aspect-square object-cover"
             />
             <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-[10px] font-black text-white uppercase tracking-wider backdrop-blur-[2px]">

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
+import Image from "next/image";
 import Loading from "@/components/Loading";
 import { useTranslation, T } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
@@ -164,9 +165,12 @@ export default function AcademyPage() {
         className="relative min-h-[70vh] flex items-center overflow-hidden scroll-mt-24"
       >
         <div className="absolute inset-0">
-          <img
+          <Image
             src={resolveLessonImage("fundamentals", "academy-hero", "/pic/hero/photo-1593941707882-a5bba14938c7.webp")}
-            className="w-full h-full object-cover"
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover"
             style={{ filter: "grayscale(40%)" }}
             alt="EV Tech"
           />
@@ -246,10 +250,12 @@ export default function AcademyPage() {
                 href={`/academy/ev-fundamentals/${lesson.slug}`}
                 className="article-card block"
               >
-                <div className="article-img-wrap">
-                  <img
+                <div className="article-img-wrap relative">
+                  <Image
                     src={resolveLessonImage(lesson.category, lesson.slug, lesson.img)}
-                    className="article-img"
+                    fill
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                    className="article-img object-cover"
                     alt={lesson.title}
                   />
                 </div>
@@ -285,37 +291,54 @@ export default function AcademyPage() {
         </div>
       </section>
 
-      {/* Dealer Playbook */}
-      <section id="playbook" className="py-16 sm:py-24 bg-b scroll-mt-24">
+      {/* Category 2: Dealer Playbook */}
+      <section
+        id="playbook"
+        className="py-24 sm:py-32 md:py-48 scroll-mt-24 border-t border-white/5 bg-gradient-to-b from-transparent via-accent/5 to-transparent"
+      >
         <div className="container mx-auto px-4 sm:px-6 md:px-12">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16 border-b border-white/5 pb-8">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16">
             <div>
-              <div className="label label-gold mb-3">{t("academy.playbook.badge")}</div>
-              <h2 className="text-4xl font-black italic text-white uppercase tracking-tighter">
+              <div className="label label-accent mb-4">
+                {t("academy.playbook.label")}
+              </div>
+              <h2 className="sh text-3xl sm:text-4xl md:text-5xl lg:text-6xl uppercase italic">
                 <T
                   keyName="academy.playbook.heading"
-                  params={{ theme: <span className="text-theme" />, accent: <span className="text-accent" />, br: <br /> }}
+                  params={{
+                    accent: (chunks: any) => <span className="text-accent">{chunks}</span>,
+                    theme: (chunks: any) => <span className="text-theme">{chunks}</span>,
+                  }}
                 />
               </h2>
             </div>
-            <p className="text-gray-500 text-sm max-w-sm font-light italic text-right hidden md:block">
-              {t("academy.playbook.description")}
+            <p className="text-gray-400 text-sm max-w-sm">
+              {t("academy.playbook.sub")}
             </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
             {localizedPlaybook.length > 0 ? (
-              localizedPlaybook.map((lesson) => (
+              localizedPlaybook.map((lesson, i) => (
               <LocaleLink
                 key={lesson.slug}
                 href={`/academy/dealer-playbook/${lesson.slug}`}
                 className="article-card block"
               >
+                <div className="article-img-wrap relative">
+                  <Image
+                    src={resolveLessonImage(lesson.category, lesson.slug, lesson.img)}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                    className="article-img object-cover"
+                    alt={lesson.title}
+                  />
+                </div>
                 <div className="article-content">
-                  <span className="tag tag-sales">{lesson.tag}</span>
-                  <h3 className="text-2xl font-black italic text-white mb-4">{lesson.title}</h3>
-                  <p className="text-gray-400 text-sm leading-relaxed font-light mb-6">{lesson.desc}</p>
-                  <div className="mt-auto pt-4 border-t border-white/5 text-[9px] font-black uppercase tracking-widest text-gold">
+                  <span className="tag tag-business">{lesson.tag}</span>
+                  <h3 className="text-xl font-bold text-white mb-3">{lesson.title}</h3>
+                  <p className="text-gray-400 text-xs leading-relaxed font-light mb-6">{lesson.desc}</p>
+                  <div className="mt-auto pt-4 border-t border-white/5 text-[9px] font-black uppercase tracking-widest text-accent">
                     {t("academy.playbook.accessLink")}
                   </div>
                 </div>
@@ -331,33 +354,41 @@ export default function AcademyPage() {
           <div className="flex justify-center mt-12">
             <LocaleLink
               href="/academy/dealer-playbook"
-              className="group flex items-center gap-4 px-10 py-4 rounded-full border border-white/10 hover:border-gold/40 transition-all"
+              className="group flex items-center gap-4 px-10 py-4 rounded-full border border-white/10 hover:border-accent/40 transition-all"
             >
               <span className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-500 group-hover:text-white">
                 {t("academy.playbook.exploreMore")}
               </span>
-              <span className="w-6 h-px bg-white/10 group-hover:bg-gold/50 transition-all" />
-              <span className="text-gold group-hover:translate-x-1 transition-transform">→</span>
+              <span className="w-6 h-px bg-white/10 group-hover:bg-accent/50 transition-all" />
+              <span className="text-accent group-hover:translate-x-1 transition-transform">→</span>
             </LocaleLink>
           </div>
         </div>
       </section>
 
-      {/* Technical Workshop */}
-      <section id="workshop" className="py-16 sm:py-24 bg-a scroll-mt-24">
+      {/* Category 3: Technical Workshop */}
+      <section
+        id="workshop"
+        className="py-24 sm:py-32 md:py-48 scroll-mt-24 border-t border-white/5"
+      >
         <div className="container mx-auto px-4 sm:px-6 md:px-12">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16 border-b border-white/5 pb-8">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16">
             <div>
-              <div className="label mb-3" style={{ color: "var(--color-green)" }}>{t("academy.workshop.badge")}</div>
-              <h2 className="text-4xl font-black italic text-white uppercase tracking-tighter">
+              <div className="label label-theme mb-4">
+                {t("academy.workshop.label")}
+              </div>
+              <h2 className="sh text-3xl sm:text-4xl md:text-5xl lg:text-6xl uppercase italic">
                 <T
                   keyName="academy.workshop.heading"
-                  params={{ theme: <span className="text-theme" />, accent: <span className="text-accent" />, br: <br /> }}
+                  params={{
+                    accent: (chunks: any) => <span className="text-accent">{chunks}</span>,
+                    theme: (chunks: any) => <span className="text-theme">{chunks}</span>,
+                  }}
                 />
               </h2>
             </div>
-            <p className="text-gray-500 text-sm max-w-sm font-light italic text-right hidden md:block">
-              {t("academy.workshop.description")}
+            <p className="text-gray-400 text-sm max-w-sm">
+              {t("academy.workshop.sub")}
             </p>
           </div>
 
@@ -369,10 +400,12 @@ export default function AcademyPage() {
                 href={`/academy/technical-workshop/${lesson.slug}`}
                 className="article-card flex md:flex-row block"
               >
-                <div className="article-img-wrap md:w-2/5 md:aspect-auto">
-                  <img
+                <div className="article-img-wrap md:w-2/5 md:aspect-auto relative">
+                  <Image
                     src={resolveLessonImage(lesson.category, lesson.slug, lesson.img)}
-                    className="article-img"
+                    fill
+                    sizes="(max-width: 768px) 100vw, 40vw"
+                    className="article-img object-cover"
                     alt={lesson.title}
                   />
                 </div>
@@ -414,9 +447,11 @@ export default function AcademyPage() {
         className="relative py-48 scroll-mt-24 overflow-hidden"
       >
         <div className="absolute inset-0 z-0">
-          <img
+          <Image
             src={resolveLessonImage("fundamentals", "academy-vault", "/pic/page/photo-1555215695-3004980ad54e.webp")}
-            className="w-full h-full object-cover"
+            fill
+            sizes="100vw"
+            className="object-cover"
             style={{ filter: "brightness(.2) contrast(1.1) grayscale(40%)" }}
             alt="Vault"
           />

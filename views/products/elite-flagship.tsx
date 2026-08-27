@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useCallback, useEffect } from "react";
+import Image from "next/image";
 import { useTranslation } from "@/i18n/useTranslation";
 import { T } from "@tolgee/react";
 import { sanitizeDisplayData } from "@/lib/display-text";
@@ -199,11 +200,15 @@ export default function EliteFlagshipPage() {
   return (
     <>
       <div className="h-[var(--navbar-h,56px)] lg:hidden bg-black w-full" />
+      {/* Hero */}
       <header className="pt-32 pb-20 relative z-10 overflow-hidden min-h-[50vh] flex items-center">
         <div className="absolute inset-0 z-0">
-          <img
+          <Image
             src="/pic/page/photo-1563720360172-67b8f3dce741.webp"
-            className="w-full h-full object-cover"
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover"
             style={{ filter: "brightness(.3) grayscale(20%)" }}
             alt="Elite Fleet"
           />
@@ -485,11 +490,13 @@ function VehicleCard({
 
   return (
     <LocaleLink href={vehicle.link || "#"} className={`v-card-compact group ${!vehicle.link ? "pointer-events-none" : ""}`}>
-      <div className="v-card-compact-img-wrap">
-        <img
+      <div className="v-card-compact-img-wrap relative">
+        <Image
           src={vehicle.img}
           alt={displayName}
-          className="v-card-compact-img"
+          fill
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          className="v-card-compact-img object-cover"
         />
         <div className="v-card-compact-overlay" />
         <div className="absolute bottom-4 left-5 flex items-center gap-2">

@@ -12,6 +12,7 @@ import { getPortalSession, invalidatePortalSession } from "@/lib/portal-session-
 import { useDashboardNavigation } from "./DashboardNavigationContext";
 import { SocialMediaLinks } from "./SocialMediaLinks";
 import { Download } from "lucide-react";
+import Image from "next/image";
 
 export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -134,7 +135,7 @@ export function Navbar() {
         </div>
 
         <LocaleLink href="/" className="flex justify-self-center gap-2.5 lg:justify-self-auto">
-          <img src="/favicon.svg" className="h-8 w-auto" alt="Youguard" />
+          <Image src="/favicon.svg" width={32} height={32} className="h-8 w-auto" alt="Youguard" priority />
         </LocaleLink>
 
         <div className="hidden lg:flex items-center gap-8 xl:gap-10">

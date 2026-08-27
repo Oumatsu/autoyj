@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { useTranslation } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
 import { T } from "@tolgee/react";
@@ -191,9 +192,12 @@ export default function ProductsPage() {
       <div className="h-[var(--navbar-h,56px)] lg:hidden bg-black w-full" />
       {/* Hero */}
       <section className="relative min-h-[720px] sm:min-h-[780px] lg:min-h-[900px] xl:min-h-[960px] overflow-hidden">
-        <img
+        <Image
           src="/pic/hero/Our-solutions-durability-and-fatigue.webp"
-          className="absolute inset-0 h-full w-full object-cover"
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover"
           style={{ filter: "contrast(1.1)" }}
           alt={t("products.hero.imageAlt", "Curated vehicle selection")}
         />
@@ -292,10 +296,12 @@ export default function ProductsPage() {
                 const CardContent = (
                   <div className="group relative bg-bg3/30 rounded-[2.5rem] overflow-hidden border border-white/5 hover:border-accent/30 transition-all duration-500 cursor-pointer">
                     <div className="aspect-[4/5] overflow-hidden relative">
-                      <img
+                      <Image
                         src={localizedCar.img}
                         alt={localizedCar.name}
-                        className="w-full h-full object-cover scale-100 group-hover:scale-110 transition-all duration-700"
+                        fill
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                        className="object-cover scale-100 group-hover:scale-110 transition-all duration-700"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-bg via-transparent to-transparent opacity-60" />
                       {localizedCar.badge && (
@@ -393,10 +399,12 @@ export default function ProductsPage() {
                 className="lg:hidden group relative bg-bg3/30 rounded-[2.5rem] overflow-hidden border border-white/5 hover:border-theme/30 transition-all duration-500 cursor-pointer"
               >
                 <div className="aspect-[16/10] overflow-hidden relative">
-                  <img
+                  <Image
                     src={localizedAitoM9.img}
                     alt={localizedAitoM9.name}
-                    className="w-full h-full object-cover scale-100 group-hover:scale-105 transition-all duration-700"
+                    fill
+                    sizes="100vw"
+                    className="object-cover scale-100 group-hover:scale-105 transition-all duration-700"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-bg via-transparent to-transparent opacity-60" />
                   <div className="absolute bottom-6 left-6 right-6">
@@ -429,10 +437,12 @@ export default function ProductsPage() {
                 className="hidden lg:block group relative bg-bg3/30 rounded-[3rem] overflow-hidden border border-white/5 hover:border-theme/30 transition-all duration-500 cursor-pointer col-span-1 lg:col-span-2"
               >
                 <div className="aspect-[21/9] overflow-hidden relative">
-                  <img
+                  <Image
                     src={localizedAitoM9.img}
                     alt={localizedAitoM9.name}
-                    className="w-full h-full object-cover scale-100 group-hover:scale-105 transition-all duration-700"
+                    fill
+                    sizes="(min-width: 1024px) 66vw, 100vw"
+                    className="object-cover scale-100 group-hover:scale-105 transition-all duration-700"
                   />
                   <div className="absolute inset-0 bg-gradient-to-r from-bg via-bg/20 to-transparent opacity-80" />
                   <div className="absolute inset-0 flex flex-col justify-center p-8 md:p-16">
@@ -461,10 +471,12 @@ export default function ProductsPage() {
                 const CardContent = (
                   <div className="group relative bg-bg3/30 rounded-[2.5rem] overflow-hidden border border-white/5 hover:border-theme/30 transition-all duration-500 cursor-pointer">
                     <div className="aspect-[16/10] overflow-hidden relative">
-                      <img
+                      <Image
                         src={localizedCar.img}
                         alt={localizedCar.name}
-                        className="w-full h-full object-cover scale-100 group-hover:scale-105 transition-all duration-700"
+                        fill
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        className="object-cover scale-100 group-hover:scale-105 transition-all duration-700"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-bg via-transparent to-transparent opacity-60" />
                       <div className="absolute bottom-6 left-6 right-6">
@@ -482,7 +494,7 @@ export default function ProductsPage() {
                       </p>
                       <div className="flex items-center justify-between pt-4 sm:pt-6 border-t border-white/5">
                         <div className="text-[10px] font-black text-theme uppercase tracking-widest">
-                          {localizedCar.label}
+                          {localizedCar.label || t("products.eliteFlagship.luxuryEV")}
                         </div>
                         <div className="text-[10px] font-black text-gray-600 uppercase">
                           {t("products.viewDetails")}
@@ -492,12 +504,13 @@ export default function ProductsPage() {
                   </div>
                 );
 
-                return localizedCar.link ? (
-                  <LocaleLink key={i} href={localizedCar.link}>
+                return (
+                  <LocaleLink
+                    key={localizedCar.slug || localizedCar.name}
+                    href={localizedCar.link || `/products/elite-flagship/${localizedCar.slug}`}
+                  >
                     {CardContent}
                   </LocaleLink>
-                ) : (
-                  <div key={i}>{CardContent}</div>
                 );
               })}
             </div>
@@ -544,10 +557,12 @@ export default function ProductsPage() {
                 const CardContent = (
                   <div className="group relative bg-bg3/30 rounded-[2.5rem] overflow-hidden border border-white/5 hover:border-accent/30 transition-all duration-500 cursor-pointer">
                     <div className="aspect-[16/9] overflow-hidden relative">
-                      <img
+                      <Image
                         src={localizedCar.img}
                         alt={localizedCar.name}
-                        className="w-full h-full object-cover scale-100 group-hover:scale-105 transition-all duration-700"
+                        fill
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        className="object-cover scale-100 group-hover:scale-105 transition-all duration-700"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-bg via-transparent to-transparent opacity-60" />
                       <div className="absolute bottom-6 left-6 right-6">

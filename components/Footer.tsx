@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { QrDropdown } from "./QrDropdown";
 import { useTranslation, T } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
@@ -16,13 +17,13 @@ export function Footer() {
   return (
     <div className="relative overflow-hidden">
       <div className="absolute inset-0">
-        <img
+        <Image
           src="/pic/under/photo-1469854523086-cc02fe5d8800.webp"
-          className="w-full h-full object-cover"
+          className="object-cover"
           style={{ filter: "brightness(.28) grayscale(20%)" }}
           alt=""
-          loading="lazy"
-          decoding="async"
+          fill
+          sizes="100vw"
         />
         <div
           className="absolute inset-0"
@@ -121,7 +122,7 @@ export function Footer() {
         <div className="relative z-10 container mx-auto px-4 sm:px-6 md:px-12 pt-6 sm:pt-16 pb-8 sm:pb-16">
           <div className="sm:hidden mb-3">
             <div className="flex items-center gap-2.5 mb-4">
-              <img src="/favicon.svg" className="h-8 w-auto" alt="Youguard" />
+              <Image src="/favicon.svg" width={32} height={32} className="h-8 w-auto" alt="Youguard" />
             </div>
             <p className="text-gray-600 text-xs font-light leading-relaxed">
               {t("footer.tagline")}
@@ -159,8 +160,10 @@ export function Footer() {
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 sm:gap-10 mb-10 sm:mb-14">
               <div className="hidden sm:block">
                 <div className="flex items-center gap-2.5 mb-5">
-                  <img
+                  <Image
                     src="/favicon.svg"
+                    width={32}
+                    height={32}
                     className="h-8 w-auto"
                     alt="Youguard"
                   />

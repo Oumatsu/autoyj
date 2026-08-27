@@ -1,6 +1,7 @@
 "use client";
 
 import Loading from "../components/Loading";
+import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
 import { useTranslation, T } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
@@ -166,7 +167,7 @@ export default function InsightsPage() {
               {heroArticle && (
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-16">
                   <LocaleLink href={`/insights/${heroArticle.slug}`} className="lg:col-span-8 relative rounded-2xl overflow-hidden flex flex-col justify-end p-6 sm:p-8 min-h-[300px] sm:min-h-[450px] md:min-h-[500px] cursor-pointer border border-white/5 hover:border-gold transition-all duration-300 hover:-translate-y-1 group">
-                    <img src={imgPath(heroArticle)} className="absolute inset-0 w-full h-full object-cover z-0 transition-transform duration-700 group-hover:scale-105" style={{ filter: "brightness(0.6)" }} alt="" />
+                    <Image src={imgPath(heroArticle)} fill sizes="(max-width: 1024px) 100vw, 66vw" className="object-cover z-0 transition-transform duration-700 group-hover:scale-105" style={{ filter: "brightness(0.6)" }} alt="" priority />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent z-10" />
                     <div className="relative z-20">
                       <span className={`inline-block text-[9px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full mb-4 ${getTagClass(heroArticle.category)}`}>
@@ -182,7 +183,7 @@ export default function InsightsPage() {
                   <div className="lg:col-span-4 flex flex-col gap-6">
                     {sideArticles.map((item) => (
                       <LocaleLink key={item.slug} href={`/insights/${item.slug}`} className="relative rounded-2xl overflow-hidden flex flex-col justify-end p-5 sm:p-6 min-h-[180px] sm:min-h-[220px] md:min-h-[235px] cursor-pointer border border-white/5 hover:border-gold transition-all duration-300 hover:-translate-y-1 group flex-1">
-                        <img src={imgPath(item)} className="absolute inset-0 w-full h-full object-cover z-0 transition-transform duration-700 group-hover:scale-105" style={{ filter: "brightness(0.6)" }} alt="" />
+                        <Image src={imgPath(item)} fill sizes="(max-width: 1024px) 100vw, 33vw" className="object-cover z-0 transition-transform duration-700 group-hover:scale-105" style={{ filter: "brightness(0.6)" }} alt="" />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent z-10" />
                         <div className="relative z-20">
                           <span className={`inline-block text-[9px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full mb-3 ${getTagClass(item.category)}`}>
@@ -220,8 +221,8 @@ export default function InsightsPage() {
                       {paged.map((item) => (
                         <LocaleLink key={item.slug} href={`/insights/${item.slug}`}
                           className="flex flex-col md:flex-row gap-8 py-8 border-b border-white/5 hover:bg-white/[0.02] hover:px-4 hover:rounded-2xl hover:border-b-0 transition-all duration-300 group">
-                          <div className="hidden md:block w-[200px] h-[140px] rounded-xl overflow-hidden flex-shrink-0">
-                            <img src={imgPath(item)} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" style={{ filter: "grayscale(20%)" }} alt="" />
+                          <div className="hidden md:block relative w-[200px] h-[140px] rounded-xl overflow-hidden flex-shrink-0">
+                            <Image src={imgPath(item)} fill sizes="200px" className="object-cover transition-transform duration-500 group-hover:scale-105" style={{ filter: "grayscale(20%)" }} alt="" />
                           </div>
                           <div className="flex flex-col justify-center">
                             <span className={`inline-block text-[9px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full mb-3 ${getTagClass(item.category)}`}>

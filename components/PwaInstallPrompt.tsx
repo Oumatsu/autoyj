@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import Image from "next/image";
 import { Download, X, Share, PlusSquare, MoreVertical, Smartphone, Monitor, ExternalLink, Apple, Laptop, ChevronDown, ChevronUp } from "lucide-react";
 import { useTranslation } from "@/i18n/useTranslation";
 
@@ -263,9 +264,11 @@ export function PwaInstallPrompt() {
         >
           <div className="flex items-center justify-between gap-3.5 rounded-2xl border border-[#c5a059]/40 bg-[#0b1425]/95 p-3.5 shadow-2xl backdrop-blur-xl">
             <div className="flex items-center gap-3">
-              <img
+              <Image
                 src="/icons/icon-192.png"
                 alt="Youguard"
+                width={40}
+                height={40}
                 className="h-10 w-10 rounded-xl border border-white/10 shadow-md object-contain"
               />
               <div>
@@ -313,9 +316,11 @@ export function PwaInstallPrompt() {
           <div className="relative z-10 w-full max-w-md rounded-t-3xl sm:rounded-3xl border border-white/15 bg-[#0c1322] p-6 shadow-2xl text-foreground text-left max-h-[90dvh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-4">
               <div className="flex items-center gap-3">
-                <img
+                <Image
                   src="/icons/icon-192.png"
                   alt="Youguard Logo"
+                  width={40}
+                  height={40}
                   className="h-10 w-10 rounded-xl border border-white/10 object-contain"
                 />
                 <div>

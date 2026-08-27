@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useRef, useCallback } from "react";
+import Image from "next/image";
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
 import { useTranslation, T } from "@/i18n/useTranslation";
@@ -82,16 +83,15 @@ export function HeroSlider() {
             key={i}
             className={`slide min-w-0 shrink-0 grow-0 basis-full relative h-full ${i === currentIndex ? "active" : ""}`}
           >
-            <img
+            <Image
               src={toStaticAssetUrl(SLIDE_IMAGES[i])}
-              width={1920}
-              height={1080}
-              className="absolute inset-0 w-full h-full object-cover"
+              fill
+              sizes="100vw"
+              className="object-cover"
               style={{ filter: "brightness(.95)" }}
               alt={t(`home.hero.slides.s${i}.label`)}
+              priority={i === 0}
               loading={i === 0 ? "eager" : "lazy"}
-              fetchPriority={i === 0 ? "high" : "low"}
-              decoding={i === 0 ? "sync" : "async"}
             />
             <div
               className="absolute inset-0"

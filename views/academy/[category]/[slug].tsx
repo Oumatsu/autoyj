@@ -1,6 +1,7 @@
 "use client";
 
 import { use, useEffect, useState } from "react";
+import Image from "next/image";
 import Loading from "@/components/Loading";
 import { useTranslation } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
@@ -231,10 +232,13 @@ export default function DynamicLessonPage({ params }: any) {
               {/* Cover Image */}
               {localizedLesson.img && (
                 <div className="w-full aspect-[21/9] rounded-[2rem] overflow-hidden mb-16 relative bg-mid">
-                  <img
+                  <Image
                     src={resolveLessonImage(category, slug, localizedLesson.img)}
                     alt={localizedLesson.title}
-                    className="w-full h-full object-cover"
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 66vw"
+                    className="object-cover"
+                    priority
                   />
                   <div className="absolute inset-0 border border-white/10 rounded-[2rem] pointer-events-none" />
                 </div>
@@ -312,8 +316,10 @@ export default function DynamicLessonPage({ params }: any) {
                 {/* Consult Expert / Parts Widget */}
                 <div className="glass rounded-[2rem] p-8 bg-mid/50 border-white/5 hover:border-green/30 transition-all duration-300 group">
                   <div className="flex items-center gap-4 mb-6">
-                    <img
+                    <Image
                       src={resolveLessonImage("playbook", "ev-objections-african-dealers", "/pic/academy/photo-1560250097-0b93528c311a.webp")}
+                      width={48}
+                      height={48}
                       className="w-12 h-12 rounded-full border-2 border-green/50 object-cover"
                       alt=""
                     />

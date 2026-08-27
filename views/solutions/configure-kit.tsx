@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useTranslation } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
 import { T } from "@tolgee/react";
@@ -379,9 +380,11 @@ export default function ConfigureKitPage() {
       {/* CTA Banner */}
       <section className="py-16 relative overflow-hidden">
         <div className="absolute inset-0">
-          <img
+          <Image
             src="/pic/page/photo-1520038410233-7141be7e6f97.webp"
-            className="w-full h-full object-cover"
+            fill
+            sizes="100vw"
+            className="object-cover"
             style={{ filter: "brightness(.28) grayscale(20%)" }}
             alt="Logistics"
           />

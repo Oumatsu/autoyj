@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import Loading from "@/components/Loading";
 import { useTranslation, T } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
@@ -107,7 +108,7 @@ export default function TechnicalWorkshopPage() {
               </p>
             ) : localizedArticles.map((a, i) => (
               <LocaleLink key={a.slug} href={`/academy/technical-workshop/${a.slug}`} className="glass rounded-[1.5rem] p-8 block hover:border-accent/30 transition-all duration-300 group relative overflow-hidden">
-                <img src={resolveLessonImage("workshop", a.slug, a.img)} className="absolute inset-0 w-full h-full object-cover z-0 transition-transform duration-500 group-hover:scale-105" style={{ filter: "brightness(0.35)" }} alt="" />
+                <Image src={resolveLessonImage("workshop", a.slug, a.img)} fill sizes="(max-width: 768px) 100vw, 768px" className="object-cover z-0 transition-transform duration-500 group-hover:scale-105" style={{ filter: "brightness(0.35)" }} alt="" />
                 <div className="absolute inset-0 bg-gradient-to-t from-bg via-bg/60 to-transparent z-[1]" />
                 <div className="relative z-10">
                   <div className="flex items-center gap-3 mb-3">

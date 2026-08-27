@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Image from "next/image";
 import {
   Carousel,
   CarouselContent,
@@ -112,12 +113,20 @@ export function FeaturedVehicleCarousel({
                   }`}
                 >
                   {resource.imageUrl ? (
-                    <img
-                      src={resource.imageUrl}
+                    <Image
+                      src={
+                        resource.imageUrl.startsWith("http://") ||
+                        resource.imageUrl.startsWith("https://") ||
+                        resource.imageUrl.startsWith("/")
+                          ? resource.imageUrl
+                          : `/${resource.imageUrl}`
+                      }
                       alt={name}
-                      className="h-full w-full object-cover"
+                      fill
+                      sizes="(max-width: 768px) 88vw, (max-width: 1200px) 70vw, 60vw"
+                      className="object-cover"
+                      priority={isActive}
                       loading={isActive ? "eager" : "lazy"}
-                      decoding="async"
                     />
                   ) : (
                     <div

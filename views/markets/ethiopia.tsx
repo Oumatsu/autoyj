@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useTranslation } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
 import { T } from "@tolgee/react";
@@ -78,11 +79,14 @@ export default function EthiopiaMarketPage() {
       {/* Hero */}
       <section className="relative min-h-[80vh] flex items-center overflow-hidden">
         <div className="absolute inset-0">
-          <img
+          <Image
             src="/pic/page/photo-1523805009345-7448845a9e53.webp"
-            className="w-full h-full object-cover"
+            className="object-cover"
             style={{ filter: "brightness(.75)" }}
             alt="Addis Ababa"
+            fill
+            priority
+            sizes="100vw"
           />
           <div
             className="absolute inset-0"
@@ -183,11 +187,13 @@ export default function EthiopiaMarketPage() {
                   key={i}
                   className="glass rounded-[2.5rem] overflow-hidden border border-white/5 hover:border-gold/30 transition-all duration-500 group"
                 >
-                  <div className="aspect-[4/3] overflow-hidden">
-                    <img
+                  <div className="aspect-[4/3] overflow-hidden relative">
+                    <Image
                       src={car.img}
                       alt={car.name}
-                      className="w-full h-full object-cover scale-100 group-hover:scale-105 transition-all duration-700"
+                      fill
+                      sizes="(max-width: 768px) 100vw, 33vw"
+                      className="object-cover scale-100 group-hover:scale-105 transition-all duration-700"
                     />
                   </div>
                   <div className="p-8">
@@ -257,11 +263,13 @@ export default function EthiopiaMarketPage() {
       {/* CTA */}
       <div className="relative overflow-hidden">
         <div className="absolute inset-0">
-          <img
+          <Image
             src="/pic/page/photo-1523805009345-7448845a9e53.webp"
-            className="w-full h-full object-cover"
+            className="object-cover"
             style={{ filter: "brightness(.28) grayscale(20%)" }}
             alt=""
+            fill
+            sizes="100vw"
           />
           <div
             className="absolute inset-0"

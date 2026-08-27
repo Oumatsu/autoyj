@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { useTranslation } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
 import { T } from "@tolgee/react";
@@ -61,9 +62,11 @@ export default function QrPage() {
               className="group relative block w-full rounded-2xl overflow-hidden border border-white/10 hover:border-[#5ee6d8]/60 transition-all shadow-inner"
               title="Click or scan to chat on WhatsApp"
             >
-              <img
+              <Image
                 src="/qrcode.jpg"
                 alt="WhatsApp QR Code"
+                width={260}
+                height={260}
                 className="w-full block aspect-square object-cover"
               />
               <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center gap-1 transition-opacity p-2 text-center backdrop-blur-[2px]">

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { useTranslation } from "@/i18n/useTranslation";
 import { T } from "@tolgee/react";
 
@@ -92,10 +93,13 @@ export default function AboutPage() {
       {/* Hero */}
       <section className="relative min-h-[80vh] flex items-center overflow-hidden">
         <div className="absolute inset-0">
-          <img
+          <Image
             src="/pic/hero/3.webp"
-            className="w-full h-full object-cover"
+            className="object-cover"
             alt="Mission"
+            fill
+            priority
+            sizes="100vw"
           />
           <div
             className="absolute inset-0"
@@ -266,11 +270,13 @@ export default function AboutPage() {
       {/* Local Presence */}
       <section className="relative py-24 md:py-36 overflow-hidden scroll-mt-48">
         <div className="absolute inset-0">
-          <img
+          <Image
             src="/pic/page/photo-1523805009345-7448845a9e53.webp"
-            className="w-full h-full object-cover"
+            className="object-cover"
             style={{ filter: "brightness(.34) grayscale(15%)" }}
             alt="Ethiopia local presence"
+            fill
+            sizes="100vw"
           />
           <div className="absolute inset-0 bg-black/45" />
           <div
@@ -353,10 +359,12 @@ export default function AboutPage() {
                     aria-label={t("about.gallery.lightbox.openAlbum", { title }) as string}
                   >
                     <div className="aspect-[4/3] lg:aspect-auto lg:h-full relative overflow-hidden">
-                      <img
+                      <Image
                         src={slot.images[0]}
                         alt={title}
-                        className="w-full h-full object-cover scale-100 group-hover:scale-105 transition-transform duration-700"
+                        fill
+                        sizes="(max-width: 1024px) 100vw, 50vw"
+                        className="object-cover scale-100 group-hover:scale-105 transition-transform duration-700"
                         style={{ filter: "brightness(.72) saturate(.85)" }}
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black via-black/45 to-transparent" />
@@ -383,13 +391,15 @@ export default function AboutPage() {
                         key={image}
                         type="button"
                         onClick={() => setLightbox({ albumIndex, imageIndex })}
-                        className="aspect-[4/3] overflow-hidden rounded-lg border border-white/5 hover:border-gold transition-colors"
+                        className="relative aspect-[4/3] overflow-hidden rounded-lg border border-white/5 hover:border-gold transition-colors"
                         aria-label={t("about.gallery.lightbox.viewPhoto", { index: imageIndex + 1 }) as string}
                       >
-                        <img
+                        <Image
                           src={image}
                           alt={`${title} ${imageIndex + 1}`}
-                          className="w-full h-full object-cover"
+                          fill
+                          sizes="150px"
+                          className="object-cover"
                           style={{ filter: "brightness(.7)" }}
                         />
                       </button>
@@ -405,11 +415,13 @@ export default function AboutPage() {
       {/* Global Logistics Network */}
       <section className="relative py-24 sm:py-32 md:py-48 scroll-mt-48 overflow-hidden">
         <div className="absolute inset-0 z-0">
-          <img
+          <Image
             src="/pic/page/photo-1451187580459-43490279c0fa.webp"
-            className="w-full h-full object-cover"
+            className="object-cover"
             style={{ filter: "brightness(.4) contrast(1.2) grayscale(40%)" }}
             alt="Global Network"
+            fill
+            sizes="100vw"
           />
           <div
             className="absolute inset-0"
@@ -419,73 +431,78 @@ export default function AboutPage() {
             className="absolute inset-0"
             style={{
               background:
-                "linear-gradient(to bottom, var(--color-mid) 0%, transparent 20%, transparent 80%, var(--color-mid) 100%)",
+                "linear-gradient(to bottom, var(--color-mid) 0%, transparent 18%, transparent 78%, var(--color-mid) 100%)",
             }}
           />
         </div>
 
-        <div className="relative z-10 container mx-auto px-6 md:px-12">
-          <div className="max-w-2xl">
-            <div className="label mb-4">{t("about.logistics.label")}</div>
-            <h2 className="sh mb-8">
-              <T keyName="about.logistics.heading" params={{ theme: <span className="text-theme" />, accent: <span className="text-accent" /> }} />
+        <div className="container relative z-10 mx-auto px-6 md:px-12">
+          <div className="max-w-3xl mb-12 sm:mb-16">
+            <div className="label label-gold mb-4">
+              {t("about.logistics.label")}
+            </div>
+            <h2 className="sh text-3xl sm:text-4xl md:text-5xl lg:text-6xl mb-6">
+              <T
+                keyName="about.logistics.heading"
+                params={{
+                  accent: (chunks: any) => <span className="text-accent">{chunks}</span>,
+                  theme: (chunks: any) => <span className="text-theme">{chunks}</span>,
+                }}
+              />
             </h2>
-            <p
-              className="text-gray-400 text-lg font-light leading-relaxed mb-12 border-l-2 border-theme/30 pl-6"
-              style={{ borderColor: "rgba(197,160,89,.3)" }}
-            >
-              {t("about.logistics.description")}
+            <p className="text-gray-400 text-sm sm:text-base leading-relaxed">
+              {t("about.logistics.sub")}
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6 mt-16">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {logisticsItems.map((item, i) => (
               <div
                 key={i}
-                className="glass rounded-[2rem] p-8 glass-sm hover:border-gold transition-colors duration-500 relative overflow-hidden group"
+                className="group relative rounded-2xl border border-white/5 bg-black/60 p-6 sm:p-8 backdrop-blur-sm hover:border-gold/30 transition-all duration-300 hover:-translate-y-1"
               >
-                <div className="absolute inset-0 bg-gradient-to-br from-gold/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <div className="relative z-10">
-                  <h3 className="text-xl font-black italic text-white uppercase tracking-tight mb-3">
-                    {item.title}
-                  </h3>
-                  <p className="text-sm text-gray-500 font-light">
-                    {item.desc}
-                  </p>
+                <div className="text-3xl sm:text-4xl font-black italic text-accent/20 group-hover:text-accent/40 transition-colors mb-4 font-mono">
+                  {String(i + 1).padStart(2, "0")}
                 </div>
+                <h3 className="text-white font-bold text-base sm:text-lg mb-2">
+                  {item.title}
+                </h3>
+                <p className="text-gray-400 text-xs sm:text-sm leading-relaxed">
+                  {item.desc}
+                </p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {lightbox !== null && activeAlbum !== null && activeImage !== null && (
+      {/* Lightbox Modal */}
+      {lightbox && (
         <div
-          className="fixed inset-0 z-[80] flex items-center justify-center bg-black/92 px-4 py-6"
           role="dialog"
           aria-modal="true"
-          aria-label={`${activeAlbum.title} enlarged gallery`}
+          aria-label={t("about.gallery.lightbox.dialog") as string}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md p-4 animate-in fade-in-0 duration-200"
+          onClick={() => setLightbox(null)}
         >
-          <button
-            type="button"
-            className="absolute inset-0 cursor-default"
-            onClick={() => setLightbox(null)}
-            aria-label={t("about.gallery.lightbox.close") as string}
-          />
-          <div className="relative z-10 w-full max-w-6xl">
-            <div className="mb-4 flex items-center justify-between gap-4">
+          <div
+            className="relative max-w-5xl w-full"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between pb-3 text-xs text-gray-400">
               <div>
-                <div className="text-[9px] font-black uppercase tracking-[.24em] text-accent mb-1">
-                  {galleryAlbums[lightbox.albumIndex]?.label || activeAlbum.label}
-                </div>
-                <h3 className="text-xl md:text-2xl font-black italic uppercase text-white">
+                <span className="font-bold text-white uppercase tracking-wider">
                   {galleryAlbums[lightbox.albumIndex]?.title || activeAlbum.title}
-                </h3>
+                </span>
+                <span className="mx-2 text-gray-600">/</span>
+                <span>
+                  {lightbox.imageIndex + 1} of {activeAlbum.images.length}
+                </span>
               </div>
               <button
                 type="button"
                 onClick={() => setLightbox(null)}
-                className="w-10 h-10 rounded-full border border-white/15 bg-white/5 text-white text-2xl leading-none hover:border-gold transition-colors flex items-center justify-center"
+                className="text-2xl text-gray-400 hover:text-white transition-colors"
                 aria-label={t("about.gallery.lightbox.close") as string}
               >
                 &times;
@@ -493,9 +510,11 @@ export default function AboutPage() {
             </div>
 
             <div className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-black shadow-2xl">
-              <img
+              <Image
                 src={activeImage}
                 alt={`${galleryAlbums[lightbox.albumIndex]?.title || activeAlbum.title} enlarged`}
+                width={1920}
+                height={1080}
                 className="max-h-[72vh] w-full object-contain"
               />
               {activeAlbum.images.length > 1 && (

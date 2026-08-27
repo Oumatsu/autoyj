@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useTranslation, T } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
 
@@ -15,9 +16,12 @@ export default function SolutionsPage() {
       <div className="h-[var(--navbar-h,56px)] lg:hidden bg-black w-full" />
       {/* Hero */}
       <section className="relative min-h-[720px] sm:min-h-[780px] lg:min-h-[900px] xl:min-h-[960px] overflow-hidden">
-        <img
+        <Image
           src="/pic/hero/0.webp"
-          className="absolute inset-0 h-full w-full object-cover"
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover"
           style={{ filter: "brightness(.28) grayscale(20%)" }}
           alt="Solutions Hero"
         />
@@ -116,11 +120,13 @@ export default function SolutionsPage() {
       {/* Visual Proof: Video Loading */}
       <section className="py-16 sm:py-20 md:py-28 relative overflow-hidden">
         <div className="absolute inset-0">
-          <img
+          <Image
             src="/pic/page/photo-1520038410233-7141be7e6f97.webp"
-            className="w-full h-full object-cover"
+            className="object-cover"
             style={{ filter: "brightness(.28) grayscale(20%)" }}
             alt="Port Loading"
+            fill
+            sizes="100vw"
           />
           <div
             className="absolute inset-0"
@@ -289,11 +295,13 @@ export default function SolutionsPage() {
       {/* Marketing Support */}
       <section id="marketing" className="py-16 sm:py-20 md:py-28 relative overflow-hidden scroll-mt-24">
         <div className="absolute inset-0">
-          <img
+          <Image
             src="/pic/hero/photo-1521791136064-7986c2920216.webp"
-            className="w-full h-full object-cover"
+            className="object-cover"
             style={{ filter: "brightness(.28) grayscale(20%)" }}
             alt="Dealer Support"
+            fill
+            sizes="100vw"
           />
           <div
             className="absolute inset-0"

@@ -6,6 +6,7 @@ import { TcoCounter } from "@/components/TcoCounter";
 import { ScrollColorCard } from "@/components/ScrollColorCard";
 import { useTranslation, T } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
+import Image from "next/image";
 import { useState, useEffect } from "react";
 
 export default function HomePage() {
@@ -108,13 +109,13 @@ export default function HomePage() {
         className="py-16 sm:py-20 md:py-28 relative overflow-hidden"
       >
         <div className="absolute inset-0">
-          <img
+          <Image
             src="/pic/hero/photo-1578575437130-527eed3abbec.webp"
-            className="w-full h-full object-cover"
+            className="object-cover"
             style={{ filter: "brightness(.3) grayscale(15%)" }}
             alt="Logistics"
-            loading="lazy"
-            decoding="async"
+            fill
+            sizes="100vw"
           />
           <div
             className="absolute inset-0"
@@ -426,13 +427,13 @@ export default function HomePage() {
         className="py-16 sm:py-20 md:py-28 relative overflow-hidden"
       >
         <div className="absolute inset-0">
-          <img
+          <Image
             src="/pic/page/photo-1520038410233-7141be7e6f97.webp"
-            className="w-full h-full object-cover"
+            className="object-cover"
             style={{ filter: "brightness(.3) grayscale(15%)" }}
             alt="Tech"
-            loading="lazy"
-            decoding="async"
+            fill
+            sizes="100vw"
           />
           <div
             className="absolute inset-0"
@@ -672,12 +673,12 @@ function ProductCard({
           className={`v-card aspect-[4/5] border ${borderColor}`}
           style={cardStyle}
         >
-          <img
+          <Image
             src={image}
-            className="w-full h-full object-cover absolute inset-0"
+            className="object-cover absolute inset-0"
             alt={t(`home.products.${productKey}.title`)}
-            loading="lazy"
-            decoding="async"
+            fill
+            sizes="(max-width: 768px) 100vw, 33vw"
           />
           <div className="v-card-overlay" />
           <div className="absolute top-8 left-8">

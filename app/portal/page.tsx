@@ -1,6 +1,7 @@
 "use client";
 
 import React, { Fragment, useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import Image from "next/image";
 import Loading from "../../components/Loading";
 import type { ReactNode } from "react";
 import { Badge } from "@/components/ui/badge";
@@ -1949,12 +1950,13 @@ function ModelGalleryCarousel({
       className="overflow-hidden rounded-xl border border-white/10 bg-[#070e1b]"
     >
       <div className="relative aspect-[16/7] min-h-56 overflow-hidden sm:min-h-64">
-        <img
+        <Image
           key={currentImage.src}
           src={currentImage.src}
           alt={`${brand} ${model}${currentImage.label ? ` — ${currentImage.label}` : ""}`}
-          className="h-full w-full object-cover"
-          decoding="async"
+          fill
+          sizes="(max-width: 768px) 100vw, 800px"
+          className="object-cover"
         />
         {usableImages.length > 1 ? (
           <>
@@ -2064,14 +2066,15 @@ function AdminProfiles({ data }: { data: BootstrapData }) {
                       : "hover:bg-white/[.03]"
                   }`}
                 >
-                  <div className="h-14 w-20 shrink-0 overflow-hidden rounded-lg border border-white/10 bg-[#0c1424]">
+                  <div className="relative h-14 w-20 shrink-0 overflow-hidden rounded-lg border border-white/10 bg-[#0c1424]">
                     {group.imageUrl ? (
-                      <img
+                      <Image
                         src={group.imageUrl}
                         alt={`${group.brand} ${group.model}`}
-                        className="h-full w-full object-cover"
+                        fill
+                        sizes="80px"
+                        className="object-cover"
                         loading="lazy"
-                        decoding="async"
                       />
                     ) : (
                       <div className="grid h-full place-items-center text-[9px] font-black uppercase tracking-widest text-slate-600">No image</div>
@@ -2132,13 +2135,14 @@ function AdminProfiles({ data }: { data: BootstrapData }) {
                     >
                       ←
                     </button>
-                    <div className="h-14 w-20 shrink-0 overflow-hidden rounded-lg border border-white/10 bg-[#0c1424]">
+                    <div className="relative h-14 w-20 shrink-0 overflow-hidden rounded-lg border border-white/10 bg-[#0c1424]">
                       {selectedGroup.imageUrl ? (
-                        <img
+                        <Image
                           src={selectedGroup.imageUrl}
                           alt={`${selectedGroup.brand} ${selectedGroup.model}`}
-                          className="h-full w-full object-cover"
-                          decoding="async"
+                          fill
+                          sizes="80px"
+                          className="object-cover"
                         />
                       ) : (
                         <div className="grid h-full place-items-center text-[9px] font-black uppercase tracking-widest text-slate-600">No image</div>

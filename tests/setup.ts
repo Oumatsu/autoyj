@@ -1,6 +1,6 @@
 import { GlobalWindow } from "happy-dom";
 
-const window = new GlobalWindow();
+const window = new GlobalWindow({ url: "http://localhost:3000" });
 globalThis.window = window as unknown as Window & typeof globalThis;
 globalThis.document = window.document as any;
 globalThis.navigator = window.navigator as any;

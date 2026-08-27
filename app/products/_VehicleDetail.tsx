@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useMemo, useEffect } from "react";
+import Image from "next/image";
 import { LocaleLink } from "@/i18n/LocaleLink";
 import {
   Carousel,
@@ -704,7 +705,15 @@ export default function VehicleDetail({ data: rawData }: { data: DetailData }) {
       <section data-vd-hero className="relative lg:min-h-screen flex items-end bg-black w-full overflow-hidden" style={{ aspectRatio: "4/3" }}>
         <style>{`@media (min-width: 1024px) { [data-vd-hero] { aspect-ratio: auto !important; } }`}</style>
         <div className="absolute inset-0">
-          <img src={v.img} className="w-full h-full object-cover" style={{ filter: "grayscale(100%) brightness(.6)" }} alt={v.name} />
+          <Image
+            src={v.img}
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover"
+            style={{ filter: "grayscale(100%) brightness(.6)" }}
+            alt={v.name}
+          />
           <div className="absolute inset-0" style={{ background: "linear-gradient(to right, rgba(28,28,28,.5) 28%, transparent 75%)" }} />
         </div>
         <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 40% 40% at 70% 40%, rgba(16,185,129,.06) 0%, transparent 70%)" }} />
@@ -853,9 +862,11 @@ export default function VehicleDetail({ data: rawData }: { data: DetailData }) {
                       style={{ aspectRatio: "16/9" }}
                       onClick={openLightbox}
                     >
-                      <img
+                      <Image
                         src={imgItem.src}
-                        className="w-full h-full object-cover rounded-2xl"
+                        fill
+                        sizes="(max-width: 768px) 88vw, 60vw"
+                        className="object-cover rounded-2xl"
                         alt={imgItem.label}
                       />
                     </div>
@@ -903,24 +914,20 @@ export default function VehicleDetail({ data: rawData }: { data: DetailData }) {
         </div>
       </section>
 
+      {/* Lightbox Modal */}
       {lightboxOpen && (
         <div
           role="dialog"
           aria-modal="true"
-          aria-label="Vehicle image gallery enlarged view"
-          className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/95"
+          aria-label={t("productsDetail.gallery.lightboxAria", "Vehicle Gallery Lightbox") as string}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md p-4 animate-in fade-in-0 duration-200"
+          onClick={closeLightbox}
         >
           <button
             type="button"
-            className="absolute inset-0 cursor-default"
+            className="absolute top-5 right-5 w-12 h-12 rounded-full bg-white/5 border border-white/15 text-white text-2xl flex items-center justify-center hover:bg-white/15 transition z-10"
             onClick={closeLightbox}
-            aria-label="Close enlarged gallery"
-          />
-          <button
-            type="button"
-            className="absolute top-5 right-6 w-10 h-10 rounded-full bg-white/7 border border-white/15 text-white text-lg flex items-center justify-center hover:bg-white/15 transition z-10"
-            onClick={closeLightbox}
-            aria-label="Close enlarged gallery"
+            aria-label="Close lightbox"
           >
             &times;
           </button>
@@ -932,8 +939,10 @@ export default function VehicleDetail({ data: rawData }: { data: DetailData }) {
           >
             &lsaquo;
           </button>
-          <img
+          <Image
             src={gallery[galIdx].src}
+            width={1920}
+            height={1080}
             className="relative z-10 max-w-[92vw] max-h-[88vh] object-contain rounded-md"
             alt={`Vehicle gallery image ${galIdx + 1}`}
           />
@@ -978,7 +987,7 @@ export default function VehicleDetail({ data: rawData }: { data: DetailData }) {
       {/* Dealer ROI / Business Case */}
       <section className="py-12 md:py-16 relative overflow-hidden">
         <div className="absolute inset-0">
-          <img src="/pic/page/photo-1449965408869-eaa3f722e40d.webp" className="w-full h-full object-cover" style={{ filter: "brightness(.28) grayscale(20%)" }} alt="" />
+          <Image src="/pic/page/photo-1449965408869-eaa3f722e40d.webp" fill sizes="100vw" className="object-cover" style={{ filter: "brightness(.28) grayscale(20%)" }} alt="" />
           <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, rgba(10,10,10,.80) 0%, rgba(10,10,10,.55) 100%)" }} />
           <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, var(--color-mid) 0%, transparent 20%, transparent 80%, var(--color-mid) 100%)" }} />
         </div>
@@ -1023,7 +1032,7 @@ export default function VehicleDetail({ data: rawData }: { data: DetailData }) {
       {/* Specs */}
       <section id="specs" className="py-12 md:py-16 relative overflow-hidden">
         <div className="absolute inset-0">
-          <img src="/pic/page/photo-1503376780353-7e6692767b70.webp" className="w-full h-full object-cover" style={{ filter: "brightness(.35) grayscale(20%)" }} alt="" />
+          <Image src="/pic/page/photo-1503376780353-7e6692767b70.webp" fill sizes="100vw" className="object-cover" style={{ filter: "brightness(.35) grayscale(20%)" }} alt="" />
           <div className="absolute inset-0" style={{ background: "rgba(10,10,10,.60)" }} />
           <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, var(--color-mid) 0%, transparent 20%, transparent 80%, var(--color-mid) 100%)" }} />
         </div>
@@ -1137,7 +1146,7 @@ export default function VehicleDetail({ data: rawData }: { data: DetailData }) {
         </section>
       )}
 
-      {data.fits.length > 0 && (
+      {data.fits && data.fits.length > 0 && (
       <section className="py-12 md:py-16 bg-b">
         <div className="container mx-auto px-6 md:px-12">
           <div className="text-center mb-12"><div className="label justify-center mb-3">{t("productsDetail.ui.idealCustomerProfile", "Ideal Customer Profile")}</div><h2 className="text-2xl font-black uppercase italic tracking-tight text-white">{t("productsDetail.ui.whoShouldBuy", "Who Should Buy This Vehicle?")}</h2></div>
