@@ -36,14 +36,6 @@ export function PwaInstallPrompt() {
       return;
     }
 
-    // Check if dismissed in this session
-    const isDismissed =
-      typeof window !== "undefined" &&
-      window.sessionStorage?.getItem?.("youguard_pwa_dismissed") === "true";
-    if (isDismissed) {
-      setDismissed(true);
-    }
-
     // Device detection
     const userAgent = window.navigator.userAgent.toLowerCase();
     const isIosDevice =
@@ -108,9 +100,6 @@ export function PwaInstallPrompt() {
 
   const handleDismiss = useCallback(() => {
     setDismissed(true);
-    if (typeof window !== "undefined") {
-      window.sessionStorage?.setItem?.("youguard_pwa_dismissed", "true");
-    }
   }, []);
 
   const handleInstallAction = useCallback(async () => {
@@ -540,10 +529,7 @@ export function PwaInstallPrompt() {
             <div className="mt-5 pt-3 border-t border-white/10">
               <button
                 type="button"
-                onClick={() => {
-                  setShowGuideModal(false);
-                  handleDismiss();
-                }}
+                onClick={() => setShowGuideModal(false)}
                 className="w-full rounded-xl bg-white/10 py-3 text-xs font-bold text-white hover:bg-white/20 transition cursor-pointer"
               >
                 {locale === "zh" ? "我知道了" : locale === "am" ? "ገባኝ" : "Got it"}

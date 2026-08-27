@@ -1,6 +1,7 @@
 import { defineConfig, type Plugin } from "vite";
 import vinext from "vinext";
 import { cloudflare } from "@cloudflare/vite-plugin";
+import { VitePWA } from "vite-plugin-pwa";
 import fs from "node:fs";
 import path from "node:path";
 
@@ -158,6 +159,53 @@ export default defineConfig({
   plugins: [
     devVarsPlugin(),
     vinext(),
+    VitePWA({
+      registerType: "autoUpdate",
+      strategies: "injectManifest",
+      srcDir: "service-worker",
+      filename: "sw.ts",
+      manifest: {
+        name: "Youguard - EV Sourcing for Africa",
+        short_name: "Youguard Auto",
+        description: "China's premier EV export partner for African dealers. Expert sourcing, transparent PDI, turnkey dealer empowerment.",
+        start_url: "/en",
+        scope: "/",
+        display: "standalone",
+        orientation: "portrait-primary",
+        background_color: "#0b1425",
+        theme_color: "#0b1425",
+        icons: [
+          {
+            src: "/icons/icon-192.png",
+            sizes: "192x192",
+            type: "image/png",
+            purpose: "any",
+          },
+          {
+            src: "/icons/icon-512.png",
+            sizes: "512x512",
+            type: "image/png",
+            purpose: "any",
+          },
+          {
+            src: "/icons/maskable-icon-512.png",
+            sizes: "512x512",
+            type: "image/png",
+            purpose: "maskable",
+          },
+          {
+            src: "/logo.svg",
+            sizes: "any",
+            type: "image/svg+xml",
+            purpose: "any",
+          },
+        ],
+      },
+      devOptions: {
+        enabled: true,
+        type: "module",
+      },
+    }),
     cloudflare({
       // Keep local SSR on the persisted Miniflare bindings used by Wrangler.
       persistState: { path: ".wrangler/local-d1" },
