@@ -28,19 +28,18 @@ export function checkIsStandalone(): boolean {
 
 export function PwaInstallPrompt() {
   const { locale } = useTranslation();
+  const [mounted, setMounted] = useState(false);
+  const [isStandalone, setIsStandalone] = useState(false);
   const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [platform, setPlatform] = useState<PlatformTarget>("desktop");
   const [activeTab, setActiveTab] = useState<PlatformTarget>("desktop");
   const [showOtherPlatforms, setShowOtherPlatforms] = useState(false);
-  const [isMounted, setIsMounted] = useState(false);
-  const [isStandalone, setIsStandalone] = useState(() => (typeof window !== "undefined" ? checkIsStandalone() : false));
   const [showGuideModal, setShowGuideModal] = useState(false);
   const [dismissed, setDismissed] = useState(false);
   const [promptTriggered, setPromptTriggered] = useState(false);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    setIsMounted(true);
+    setMounted(true);
 
     // 1. Immediate Standalone Check
     if (checkIsStandalone()) {
@@ -185,7 +184,7 @@ export function PwaInstallPrompt() {
     }
   }, [platform, installPrompt]);
 
-  if (!isMounted || isStandalone) return null;
+  if (!mounted || isStandalone) return null;
   if (dismissed && !showGuideModal) return null;
 
   const canShowBanner = !dismissed;
