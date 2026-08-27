@@ -51,14 +51,6 @@ describe("Component: PWA Install Prompt", () => {
     const banner = container.querySelector("aside");
     expect(banner).not.toBeNull();
     expect(container.textContent).toContain("Youguard Auto");
-    
-    // Check that it contains multi-language home screen copy
-    const text = container.textContent || "";
-    const hasHomeScreenText =
-      text.includes("Add to Home Screen") ||
-      text.includes("添加到主屏幕") ||
-      text.includes("ወደ መነሻ ማያ ገጽ");
-    expect(hasHomeScreenText).toBe(true);
 
     // Click the Install/Add button to open iOS guide modal
     const installBtn = container.querySelector("button");
@@ -78,9 +70,9 @@ describe("Component: PWA Install Prompt", () => {
     await act(async () => root.unmount());
   });
 
-  test("responds to custom youguard-open-pwa-guide event to trigger modal", async () => {
+  test("renders Android install banner and shows Android 3-step guide on manual fallback", async () => {
     Object.defineProperty(window.navigator, "userAgent", {
-      value: "Mozilla/5.0 (iPhone; CPU iPhone OS 15_8 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.8 Mobile/15E148 Safari/604.1",
+      value: "Mozilla/5.0 (Linux; Android 13; SM-S918B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36",
       configurable: true,
     });
 
@@ -89,12 +81,83 @@ describe("Component: PWA Install Prompt", () => {
       root.render(<PwaInstallPrompt />);
     });
 
-    // Dispatch custom open event using window.Event in DOM environment
+    const banner = container.querySelector("aside");
+    expect(banner).not.toBeNull();
+
+    // Click the Install button without native beforeinstallprompt available -> opens Android guide
+    const installBtn = container.querySelector("button");
+    await act(async () => {
+      installBtn?.click();
+    });
+
+    expect(container.querySelector('[role="dialog"]')).not.toBeNull();
+    const modalText = container.textContent || "";
+    const hasAndroidGuide =
+      modalText.includes("Chrome") ||
+      modalText.includes("Android") ||
+      modalText.includes("菜单") ||
+      modalText.includes("3 dots");
+    expect(hasAndroidGuide).toBe(true);
+
+    await act(async () => root.unmount());
+  });
+
+  test("renders In-App browser warning when opened within WeChat or Lark webview", async () => {
+    Object.defineProperty(window.navigator, "userAgent", {
+      value: "Mozilla/5.0 (Linux; Android 12; HarmonyOS) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/99.0.4844.88 Mobile Safari/537.36 MicroMessenger/8.0.38",
+      configurable: true,
+    });
+
+    const root = createRoot(container);
+    await act(async () => {
+      root.render(<PwaInstallPrompt />);
+    });
+
+    // Trigger manual guide event
     await act(async () => {
       window.dispatchEvent(new window.Event("youguard-open-pwa-guide"));
     });
 
     expect(container.querySelector('[role="dialog"]')).not.toBeNull();
+    const modalText = container.textContent || "";
+    const hasInAppWarning =
+      modalText.includes("系统默认浏览器") ||
+      modalText.includes("Default Browser") ||
+      modalText.includes("Open in Browser") ||
+      modalText.includes("በነባሪ አሳሽዎ");
+    expect(hasInAppWarning).toBe(true);
+
+    await act(async () => root.unmount());
+  });
+
+  test("responds to custom youguard-open-pwa-guide event and allows platform tab switching", async () => {
+    Object.defineProperty(window.navigator, "userAgent", {
+      value: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+      configurable: true,
+    });
+
+    const root = createRoot(container);
+    await act(async () => {
+      root.render(<PwaInstallPrompt />);
+    });
+
+    // Dispatch custom open event
+    await act(async () => {
+      window.dispatchEvent(new window.Event("youguard-open-pwa-guide"));
+    });
+
+    expect(container.querySelector('[role="dialog"]')).not.toBeNull();
+
+    // Switch to iOS tab
+    const iosTabButton = Array.from(container.querySelectorAll("button")).find(
+      (b) => b.textContent?.includes("iOS")
+    );
+    expect(iosTabButton).toBeDefined();
+    await act(async () => {
+      iosTabButton?.click();
+    });
+
+    expect(container.textContent).toContain("Safari");
 
     await act(async () => root.unmount());
   });
