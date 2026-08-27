@@ -21,6 +21,7 @@ export function PwaInstallPrompt() {
   const [showGuideModal, setShowGuideModal] = useState(false);
   const [activeTab, setActiveTab] = useState<PlatformTab>("android");
   const [dismissed, setDismissed] = useState(false);
+  const [promptTriggered, setPromptTriggered] = useState(false);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -120,12 +121,23 @@ export function PwaInstallPrompt() {
     }
 
     if (installPrompt) {
-      await installPrompt.prompt();
-      const choice = await installPrompt.userChoice;
-      if (choice.outcome === "accepted") {
-        setIsStandalone(true);
+      try {
+        setPromptTriggered(true);
+        await installPrompt.prompt();
+        const choice = await installPrompt.userChoice;
+        if (choice.outcome === "accepted") {
+          setIsStandalone(true);
+          setShowGuideModal(false);
+        } else {
+          setPromptTriggered(false);
+        }
+      } catch {
+        setPromptTriggered(false);
+        setActiveTab(isAndroid ? "android" : "desktop");
+        setShowGuideModal(true);
+      } finally {
+        setInstallPrompt(null);
       }
-      setInstallPrompt(null);
     } else {
       if (isInApp) {
         setActiveTab("inapp");
@@ -159,17 +171,27 @@ export function PwaInstallPrompt() {
               <div>
                 <div className="text-xs font-black text-white">Youguard Auto</div>
                 <div className="text-[10px] text-gray-300">
-                  {isIOS
-                    ? (locale === "zh"
-                        ? "添加到主屏幕，实时接收商机通知"
+                  {promptTriggered ? (
+                    <span className="font-bold text-[#dfba73] animate-pulse">
+                      {locale === "zh"
+                        ? "☝️ 请在浏览器顶部（地址栏旁）弹窗中确认安装"
                         : locale === "am"
-                        ? "ወደ መነሻ ማያ ገጽ ያክሉ"
-                        : "Add to Home Screen for instant alerts")
-                    : (locale === "zh"
-                        ? "安装应用，实时接收询价与商机通知"
-                        : locale === "am"
-                        ? "ፈጣን ማሳወቂያዎችን ለማግኘት መተግበሪያውን ጫን"
-                        : "Install app for instant notifications")}
+                        ? "☝️ እባክዎ ከላይ ባለው መስኮት ላይ 'ጫን' ን ያረጋግጡ"
+                        : "☝️ Please confirm 'Install' in the prompt at the top"}
+                    </span>
+                  ) : isIOS ? (
+                    locale === "zh"
+                      ? "添加到主屏幕，实时接收商机通知"
+                      : locale === "am"
+                      ? "ወደ መነሻ ማያ ገጽ ያክሉ"
+                      : "Add to Home Screen for instant alerts"
+                  ) : locale === "zh" ? (
+                    "安装应用，实时接收询价与商机通知"
+                  ) : locale === "am" ? (
+                    "ፈጣን ማሳወቂያዎችን ለማግኘት መተግበሪያውን ጫን"
+                  ) : (
+                    "Install app for instant notifications"
+                  )}
                 </div>
               </div>
             </div>
