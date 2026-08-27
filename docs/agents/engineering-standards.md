@@ -168,3 +168,31 @@ To conserve private repository GitHub Actions quotas and provide instant develop
 | Duplicating status enum strings in client select options without importing from `lib/*-workflow.ts` | Importing status lists from the domain workflow (`INQUIRY_STATUSES`, `ORDER_STATUSES`) |
 | Deriving summary totals in one place and detail lists in another with different filtering conditions | Deriving filtered sub-arrays once (`effectiveRawVehicles`), then calculating both summary metrics and detail variants from it |
 
+---
+
+## 6. Iron Law VI: Mature Frameworks & Zero Hand-Rolled Wheels (严禁重复造轮子 · 优先采纳成熟框架与生态标准)
+
+### 6.1 Core Principle
+**Do NOT hand-roll ad-hoc custom solutions for problems already solved by battle-tested, standard ecosystem frameworks and libraries.**
+
+AI coding agents often default to writing verbose, fragile helper functions from scratch when encountering generic engineering challenges. In this repository, developers and agents **MUST prioritize established libraries, standard framework plugins, and standard Web/RFC protocols**. Custom code is strictly reserved for **unique B2B domain logic and business rules**.
+
+### 6.2 Anti-Patterns vs. Canonical Practices
+
+| Anti-Pattern (Strictly Forbidden 🚫) | Canonical Practice (Mandatory ✅) |
+| :--- | :--- |
+| Hand-rolling custom Service Worker precache hashing, routing, and update state machines from scratch | Utilizing `vite-plugin-pwa` with `workbox-precaching`, `workbox-core`, and standard injectManifest patterns |
+| Hand-rolling ad-hoc encryption wrappers or proprietary notification protocols | Adhering strictly to Web Crypto API, standard RFC 8291 (ECDH P-256 + AES-128-GCM), and RFC 8292 (VAPID) |
+| Writing custom regex parsers or nested validation logic for API payloads | Declaring strict declarative schemas using `zod` and single-source domain types |
+| Hand-rolling custom SVG icons or ad-hoc button components | Using standard `lucide-react` icons and Radix/Tailwind standard atomic components |
+| Hand-rolling custom i18n translation engines or manual JSON string interpolation | Using `@tolgee/react` and typed translation helper hooks (`useTranslation()`) |
+| Writing custom date parsing, relative time formatters, or time-zone math | Using standard `Intl.DateTimeFormat` or established lightweight utilities |
+
+### 6.3 Boundaries: When Custom Code IS Allowed
+Custom implementations are authorized **ONLY** for:
+1. **Core Business Math**: Pricing formulas (`lib/quotation-pricing.ts`), trade terms (EXW/FOB/CIF), and multi-tier volume discounts.
+2. **Domain State Machines**: Multi-role inquiry and order lifecycle machines (`lib/inquiry-workflow.ts`, `lib/order-workflow.ts`).
+3. **Data Aggregations**: B2B vehicle model aggregation and resource variant tree builders (`lib/vehicle-models.ts`).
+All infrastructure, networking, caching, serialization, and UI primitives MUST build directly upon mature open-source foundations.
+
+

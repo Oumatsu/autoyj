@@ -167,7 +167,7 @@ export default defineConfig({
       filename: "sw.ts",
       injectManifest: {
         globDirectory: "dist/client",
-        globPatterns: ["**/*.{js,css,ico,png,svg,webmanifest}"],
+        globPatterns: ["**/*.{js,css,webmanifest}"],
       },
       manifest: {
         name: "Youguard - EV Sourcing for Africa",

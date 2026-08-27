@@ -29,6 +29,11 @@ All AI agents and contributors must strictly enforce the following engineering i
    - **No Dual State (严禁双重/分裂状态)**: Never maintain parallel or desynchronized state variables that track the same entity. Multi-level hierarchical views (e.g. Model Level 1 -> Variant Level 2 -> Color/Location Level 3) MUST derive from the exact same underlying record dataset (`vehicles: Vehicle[]`).
    - **Mathematical Consistency by Construction (构造级数据一致性)**: Card header metrics (e.g. `stockQuantity`) and expanded detail rows must derive from the identical collection to guarantee `sum(detail.quantity) ≡ header.quantity` in all states without divergent matching logic.
 
+6. **Mature Frameworks & Zero Hand-Rolled Wheels (严禁重复造轮子 · 优先采纳成熟框架与生态标准)**:
+   - **Ecosystem-First Architecture**: Always leverage battle-tested open-source libraries and standard framework plugins (e.g. `vite-plugin-pwa`, `workbox`, `@tolgee/react`, `better-auth`, `zod`, `drizzle-orm`, `lucide-react`) rather than hand-rolling fragile custom equivalents.
+   - **Standard Protocols**: Strictly adhere to established RFCs and W3C/WHATWG web standards (e.g. RFC 8291/8292 for Web Push, WCAG 2.1 for a11y, Web App Manifest specs).
+   - **Zero Custom Baggage**: Restrict custom code strictly to **core automotive B2B domain logic** (pricing math, trade terms, multi-role inquiry state machines). All infrastructure and platform capabilities must build on top of industry-standard packages.
+
 ## Agent skills
 
 ### Engineering standards
