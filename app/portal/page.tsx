@@ -1268,6 +1268,56 @@ function AdminPortal({
   const openInquiries = inquiries.filter((item) => item.status.trim().toLowerCase() === "open").length;
   const orderTotal = orders.reduce((sum, order) => sum + order.total, 0);
 
+  const [swUpdateAvailable, setSwUpdateAvailable] = useState(false);
+  const [waitingWorker, setWaitingWorker] = useState<ServiceWorker | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && "serviceWorker" in navigator) {
+      navigator.serviceWorker.getRegistration().then((reg) => {
+        if (!reg) return;
+        if (reg.waiting) {
+          setWaitingWorker(reg.waiting);
+          setSwUpdateAvailable(true);
+        }
+        reg.addEventListener("updatefound", () => {
+          const newWorker = reg.installing;
+          if (newWorker) {
+            newWorker.addEventListener("statechange", () => {
+              if (newWorker.state === "installed" && navigator.serviceWorker.controller) {
+                setWaitingWorker(newWorker);
+                setSwUpdateAvailable(true);
+              }
+            });
+          }
+        });
+      });
+
+      let refreshing = false;
+      navigator.serviceWorker.addEventListener("controllerchange", () => {
+        if (!refreshing) {
+          refreshing = true;
+          window.location.reload();
+        }
+      });
+    }
+  }, []);
+
+  const handleApplyUpdate = () => {
+    if (waitingWorker) {
+      waitingWorker.postMessage({ type: "SKIP_WAITING" });
+    } else {
+      window.location.reload();
+    }
+  };
+
+  useEffect(() => {
+    if (typeof navigator !== "undefined" && "clearAppBadge" in navigator) {
+      try {
+        (navigator as any).clearAppBadge().catch(() => {});
+      } catch {}
+    }
+  }, [normalizedActiveModule, targetInquiryNo]);
+
   useEffect(() => {
     if (typeof window !== "undefined" && typeof Notification !== "undefined" && Notification.permission === "granted") {
       ensurePushSubscriptionSynced().then((res) => {
@@ -1276,6 +1326,11 @@ function AdminPortal({
       const onVisible = () => {
         if (document.visibilityState === "visible") {
           ensurePushSubscriptionSynced().catch(() => {});
+          if (typeof navigator !== "undefined" && "clearAppBadge" in navigator) {
+            try {
+              (navigator as any).clearAppBadge().catch(() => {});
+            } catch {}
+          }
         }
       };
       document.addEventListener("visibilitychange", onVisible);
@@ -1425,6 +1480,10 @@ function AdminPortal({
                     {locale === "zh" ? "🔔 通知中心 (TG & PWA)" : "🔔 Notification Alerts (TG & PWA)"}
                   </span>
                 </button>
+                <div className={`mt-3 pt-3 border-t border-white/5 text-[10px] text-slate-500 flex items-center justify-between ${sidebarCollapsed ? "lg:hidden" : ""}`}>
+                  <span>Youguard PWA</span>
+                  <span className="font-mono text-[9px] text-[#22b8aa] bg-[#22b8aa]/10 border border-[#22b8aa]/20 px-1.5 py-0.5 rounded">v1.2.0</span>
+                </div>
               </div>
             </div>
           </div>
@@ -1488,6 +1547,26 @@ function AdminPortal({
             telegramBinding={data.telegramBinding}
             locale={locale}
           />
+
+          {swUpdateAvailable && (
+            <div className="mb-5 flex items-center justify-between gap-3 rounded-xl border border-[#22b8aa]/40 bg-[#22b8aa]/10 p-3.5 text-sm text-[#22b8aa] shadow-lg animate-in fade-in slide-in-from-top-2 duration-300">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <span className="text-base">🚀</span>
+                <span className="font-medium text-white truncate text-xs sm:text-sm">
+                  {locale === "zh"
+                    ? "检测到系统新版本已就绪，点击立即更新"
+                    : "New system version ready! Click to apply update."}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={handleApplyUpdate}
+                className="shrink-0 rounded-lg bg-[#22b8aa] px-3.5 py-1.5 text-xs font-black text-[#0c1322] transition hover:bg-[#1fa396] active:scale-95"
+              >
+                {locale === "zh" ? "立即刷新" : "Update Now"}
+              </button>
+            </div>
+          )}
 
           {error && (
             <Alert variant="destructive" className="mb-5">

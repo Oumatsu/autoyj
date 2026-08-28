@@ -34,11 +34,14 @@ self.addEventListener("push", (event) => {
   let icon = defaultIcon;
   let badge = defaultIcon;
 
+  let tag = `youguard-${Date.now()}`;
   if (event.data) {
     try {
       const payload = event.data.json();
       if (payload.title) title = payload.title;
       if (payload.body) body = payload.body;
+      if (payload.tag) tag = payload.tag;
+      else if (payload.inquiryNo) tag = `inq-${payload.inquiryNo}`;
       if (payload.data?.url) url = payload.data.url;
       else if (payload.url) url = payload.url;
       if (payload.icon) {
@@ -52,12 +55,19 @@ self.addEventListener("push", (event) => {
     }
   }
 
+  // OS App Icon Badge synchronization
+  if (typeof navigator !== "undefined" && "setAppBadge" in navigator) {
+    try {
+      (navigator as any).setAppBadge().catch(() => {});
+    } catch {}
+  }
+
   const options: NotificationOptions = {
     body,
     icon,
     badge,
     data: { url },
-    tag: `youguard-${Date.now()}`,
+    tag,
   };
 
   const reportClientTelemetry = (success: boolean, errMsg?: string) => {
@@ -87,7 +97,7 @@ self.addEventListener("push", (event) => {
         const errorDetail = err?.message || String(err);
         console.warn("[sw] Standard showNotification failed, retrying minimal options:", errorDetail);
         return self.registration
-          .showNotification(title, { body, data: { url } })
+          .showNotification(title, { body, data: { url }, tag })
           .then(() => {
             reportClientTelemetry(true, `Fallback rendered after standard error: ${errorDetail}`);
           })
@@ -102,6 +112,14 @@ self.addEventListener("push", (event) => {
 // Notification click -> focus existing tab or open URL
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
+
+  // Clear OS App Icon Badge on interaction
+  if (typeof navigator !== "undefined" && "clearAppBadge" in navigator) {
+    try {
+      (navigator as any).clearAppBadge().catch(() => {});
+    } catch {}
+  }
+
   const rawUrl = (event.notification.data && event.notification.data.url) || "/portal";
   const origin = self.location ? self.location.origin : "https://youguard.net";
   const targetUrl = rawUrl.startsWith("http") ? rawUrl : `${origin}${rawUrl.startsWith("/") ? "" : "/"}${rawUrl}`;

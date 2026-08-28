@@ -43,4 +43,13 @@ Canonical glossary and domain entities for Youguard Auto Export Supply Chain por
   - **询价单内沟通与回复 (Inquiry Reply / Note)**：精准广播给该询价单历史所有参与者（`inquiry_participants`、`inquiry_notes`、`negotiations`），自动排除发信人自己。同样采用双通道全覆盖推送（Telegram 手机卡片 + PWA 浏览器弹窗同时送达）。
   - **失效订阅清理**：Web Push 收到 410/404 响应时自动清理失效订阅。
 
+---
+
+## 5. PWA & Client Application Standards (PWA 与客户端标准)
+
+- **PWA Application Version (PWA 应用版本号)**: 语义化版本标识（Semantic Versioning `v1.2.0`），在 Portal 工作区侧边栏与页脚清晰展示，用于前台标识当前运行资产版本。
+- **Service Worker Lifecycle & SkipWaiting (SW 生命周期与激活管理)**: 监听 `updatefound` 与 `waiting` 状态，当检测到新版本安装完成后在界面顶部弹出非阻塞横幅，用户点击后通过 `SKIP_WAITING` 消息无缝热激活新 Service Worker 并平滑刷新。
+- **App Icon Badge (操作系统级应用角标)**: 遵循 W3C Badging API 标准，在收到 Web Push 时调用 `navigator.setAppBadge()` 同步未读小红点至 Windows 任务栏、macOS Dock 及移动设备主屏幕图标；用户查阅商机或激活工作区时调用 `navigator.clearAppBadge()` 自动消除。
+- **RFC 8291 aes128gcm Web Push Payload Encryption**: 基于标准 Web Crypto API 实现的端到端消息体加密协议，确保商机标题、正文、询价单聚合 Tag（`tag: inq-${inquiryNo}`）及深度链接安全穿透推送网关并在客户端无损还原与窗口复用。
+
 

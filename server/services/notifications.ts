@@ -1,6 +1,6 @@
 import type { PortalEnv } from "../types";
 import { getTelegramBotToken, getTelegramUserBinding, type InquiryStakeholderNotificationParams } from "./telegram";
-import { getUserPushSubscriptions, sendWebPushNotification, type PushSubscriptionRecord } from "./web-push";
+import { getUserPushSubscriptions, sendWebPushNotification, deleteUserPushSubscription, type PushSubscriptionRecord } from "./web-push";
 
 export type NotificationLogEntry = {
   id?: string;
@@ -401,6 +401,7 @@ export async function notifyInquiryStakeholdersDualChannel(
             title: pushTitle,
             body: pushBody,
             url: portalUrl,
+            tag: `inq-${params.inquiryNo}`,
           });
           if (res.success) {
             webPushSent++;
@@ -417,6 +418,7 @@ export async function notifyInquiryStakeholdersDualChannel(
             }).catch(() => {});
           } else if (res.expired) {
             webPushExpired++;
+            await deleteUserPushSubscription(db, sub.endpoint).catch(() => {});
             await recordNotificationLog(db, {
               channel: "pwa_push",
               recipientUserId: userId,
@@ -448,6 +450,7 @@ export async function notifyInquiryStakeholdersDualChannel(
             title: pushTitle,
             body: pushBody,
             url: portalUrl,
+            tag: `inq-${params.inquiryNo}`,
           });
           if (res.success) {
             webPushSent++;
@@ -464,6 +467,7 @@ export async function notifyInquiryStakeholdersDualChannel(
             }).catch(() => {});
           } else if (res.expired) {
             webPushExpired++;
+            await deleteUserPushSubscription(db, sub.endpoint).catch(() => {});
             await recordNotificationLog(db, {
               channel: "pwa_push",
               recipientUserId: userId,
@@ -706,6 +710,7 @@ export async function notifyNewInquiryStartedDualChannel(
             title: pushTitle,
             body: pushBody,
             url: portalUrl,
+            tag: `inq-${params.inquiryNo}`,
           });
           if (res.success) {
             webPushSent++;
@@ -722,6 +727,7 @@ export async function notifyNewInquiryStartedDualChannel(
             }).catch(() => {});
           } else if (res.expired) {
             webPushExpired++;
+            await deleteUserPushSubscription(db, sub.endpoint).catch(() => {});
             await recordNotificationLog(db, {
               channel: "pwa_push",
               recipientUserId: userId,
@@ -753,6 +759,7 @@ export async function notifyNewInquiryStartedDualChannel(
             title: pushTitle,
             body: pushBody,
             url: portalUrl,
+            tag: `inq-${params.inquiryNo}`,
           });
           if (res.success) {
             webPushSent++;
@@ -769,6 +776,7 @@ export async function notifyNewInquiryStartedDualChannel(
             }).catch(() => {});
           } else if (res.expired) {
             webPushExpired++;
+            await deleteUserPushSubscription(db, sub.endpoint).catch(() => {});
             await recordNotificationLog(db, {
               channel: "pwa_push",
               recipientUserId: userId,
