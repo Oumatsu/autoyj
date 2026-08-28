@@ -2,12 +2,20 @@
   "name": "Youguard - EV Sourcing for Africa",
   "short_name": "Youguard Auto",
   "description": "China's premier EV export partner for African dealers. Expert sourcing, transparent PDI, turnkey dealer empowerment.",
+  "id": "/",
   "start_url": "/en",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait-primary",
   "background_color": "#0b1425",
   "theme_color": "#0b1425",
+  "related_applications": [
+    {
+      "platform": "webapp",
+      "url": "/manifest.webmanifest",
+      "id": "/"
+    }
+  ],
   "categories": [
     "business",
     "shopping",

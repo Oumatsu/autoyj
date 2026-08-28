@@ -61,11 +61,12 @@ export function PwaInstallPrompt() {
       }
     } catch {}
 
-    // 3. Native Browser Installed Apps API
+    // 3. Native Browser Installed Apps API & Push Status
     if (typeof navigator !== "undefined" && "getInstalledRelatedApps" in navigator) {
       (navigator as any).getInstalledRelatedApps().then((apps: any[]) => {
-        if (apps && apps.length > 0) {
+        if (Array.isArray(apps) && apps.length > 0) {
           setIsStandalone(true);
+          setDismissed(true);
           try {
             window.localStorage?.setItem("youguard_pwa_installed", "true");
           } catch {}
@@ -73,7 +74,7 @@ export function PwaInstallPrompt() {
       }).catch(() => {});
     }
 
-    // 3. Dynamic display-mode change listener
+    // 4. Dynamic display-mode change listener
     const standaloneMql = window.matchMedia("(display-mode: standalone)");
     const overlayMql = window.matchMedia("(display-mode: window-controls-overlay)");
     const minimalMql = window.matchMedia("(display-mode: minimal-ui)");
@@ -81,6 +82,7 @@ export function PwaInstallPrompt() {
     const onDisplayModeChange = () => {
       if (checkIsStandalone()) {
         setIsStandalone(true);
+        setDismissed(true);
       }
     };
 
@@ -88,7 +90,7 @@ export function PwaInstallPrompt() {
     overlayMql.addEventListener?.("change", onDisplayModeChange);
     minimalMql.addEventListener?.("change", onDisplayModeChange);
 
-    // 4. Precise Platform Detection
+    // 5. Precise Platform Detection
     const userAgent = window.navigator.userAgent.toLowerCase();
     const isTouchMac = window.navigator.platform === "MacIntel" && window.navigator.maxTouchPoints > 1;
     const isIos = /iphone|ipad|ipod/.test(userAgent) || isTouchMac;
@@ -123,6 +125,7 @@ export function PwaInstallPrompt() {
 
     const handleAppInstalled = () => {
       setIsStandalone(true);
+      setDismissed(true);
       setInstallPrompt(null);
       try {
         window.localStorage?.setItem("youguard_pwa_installed", "true");
@@ -159,7 +162,8 @@ export function PwaInstallPrompt() {
   const handleDismiss = useCallback(() => {
     setDismissed(true);
     try {
-      window.localStorage?.setItem("youguard_pwa_dismissed_until", (Date.now() + 7 * 86400000).toString());
+      window.localStorage?.setItem("youguard_pwa_installed", "true");
+      window.localStorage?.setItem("youguard_pwa_dismissed_until", (Date.now() + 30 * 86400000).toString());
     } catch {}
   }, []);
 
@@ -177,6 +181,7 @@ export function PwaInstallPrompt() {
         const choice = await installPrompt.userChoice;
         if (choice.outcome === "accepted") {
           setIsStandalone(true);
+          setDismissed(true);
           setShowGuideModal(false);
           try {
             window.localStorage?.setItem("youguard_pwa_installed", "true");

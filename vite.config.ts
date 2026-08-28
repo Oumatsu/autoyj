@@ -172,6 +172,7 @@ export default defineConfig({
       manifest: {
         name: "Youguard - EV Sourcing for Africa",
         short_name: "Youguard Auto",
+        id: "/",
         description: "China's premier EV export partner for African dealers. Expert sourcing, transparent PDI, turnkey dealer empowerment.",
         start_url: "/en",
         scope: "/",
@@ -183,6 +184,7 @@ export default defineConfig({
           {
             platform: "webapp",
             url: "/manifest.webmanifest",
+            id: "/",
           },
         ],
         icons: [
