@@ -1267,6 +1267,13 @@ function AdminPortal({
       ensurePushSubscriptionSynced().then((res) => {
         console.log("[Portal Mount] Auto-synced Push Subscription:", res);
       });
+      const onVisible = () => {
+        if (document.visibilityState === "visible") {
+          ensurePushSubscriptionSynced().catch(() => {});
+        }
+      };
+      document.addEventListener("visibilitychange", onVisible);
+      return () => document.removeEventListener("visibilitychange", onVisible);
     }
   }, []);
 
