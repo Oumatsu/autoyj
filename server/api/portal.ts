@@ -5214,6 +5214,24 @@ export async function handlePortalRequest(request: Request, env: Env) {
       }
       return json({ ok: true, attemptedCount: subs.length, sentCount, details });
     }
+    if (path === "/api/portal/push/client-log" && request.method === "POST") {
+      const body = ((await request.json().catch(() => ({}))) || {}) as any;
+      if (body && env.PORTAL_DB) {
+        await recordNotificationLog(env.PORTAL_DB, {
+          channel: "pwa_push",
+          recipientUserId: body.recipientUserId || "client_device",
+          inquiryNo: body.inquiryNo || undefined,
+          deviceInfo: body.userAgent || request.headers.get("user-agent") || "ServiceWorker",
+          destination: body.endpoint || "client_terminal",
+          title: body.title || "Client Push Execution",
+          body: body.body || "",
+          status: body.success ? "sent" : "failed",
+          httpStatus: body.success ? 200 : 500,
+          errorMessage: body.errorMessage || undefined,
+        }).catch(() => {});
+      }
+      return json({ ok: true });
+    }
     if (path === "/api/portal/notification-logs" && request.method === "GET") {
       const session = await requireSession(request, env);
       const url = new URL(request.url);

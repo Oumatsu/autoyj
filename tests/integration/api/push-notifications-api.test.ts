@@ -147,4 +147,28 @@ describe("PWA Web Push API Endpoints", () => {
     expect(await res.json()).toMatchObject({ ok: true });
     expect(mockDb.subscriptions.has("https://fcm.googleapis.com/fcm/send/device-token-123")).toBe(false);
   });
+
+  test("POST /api/portal/push/client-log records client device error telemetry", async () => {
+    const mockDb = makeMockDb();
+    const env = { PORTAL_DB: mockDb, ENVIRONMENT: "test" } as unknown as PortalEnv;
+
+    const res = await handlePortalRequest(
+      new Request("http://localhost/api/portal/push/client-log", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: "🚗 Youguard Auto",
+          body: "Test note",
+          url: "/portal",
+          success: false,
+          errorMessage: "TypeError: Invalid option 'vibrate'",
+          userAgent: "Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X)",
+        }),
+      }),
+      env
+    );
+
+    expect(res.status).toBe(200);
+    expect(await res.json()).toMatchObject({ ok: true });
+  });
 });

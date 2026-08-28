@@ -60,11 +60,42 @@ self.addEventListener("push", (event) => {
     tag: `youguard-${Date.now()}`,
   };
 
+  const reportClientTelemetry = (success: boolean, errMsg?: string) => {
+    if (typeof fetch === "function") {
+      fetch("/api/portal/push/client-log", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title,
+          body,
+          url,
+          success,
+          errorMessage: errMsg,
+          userAgent: navigator.userAgent,
+        }),
+      }).catch(() => {});
+    }
+  };
+
   event.waitUntil(
-    self.registration.showNotification(title, options).catch((err) => {
-      console.warn("[sw] Standard showNotification failed, retrying minimal options:", err);
-      return self.registration.showNotification(title, { body, data: { url } });
-    })
+    self.registration
+      .showNotification(title, options)
+      .then(() => {
+        reportClientTelemetry(true);
+      })
+      .catch((err) => {
+        const errorDetail = err?.message || String(err);
+        console.warn("[sw] Standard showNotification failed, retrying minimal options:", errorDetail);
+        return self.registration
+          .showNotification(title, { body, data: { url } })
+          .then(() => {
+            reportClientTelemetry(true, `Fallback rendered after standard error: ${errorDetail}`);
+          })
+          .catch((fallbackErr) => {
+            const fallbackDetail = fallbackErr?.message || String(fallbackErr);
+            reportClientTelemetry(false, `All showNotification attempts failed: ${fallbackDetail}`);
+          });
+      })
   );
 });
 
