@@ -652,15 +652,21 @@ export default function PortalPage() {
         host.includes("preview")
       );
 
-      const params = new URLSearchParams(window.location.search);
-      const inq = params.get("inquiry");
-      const tab = params.get("tab");
-      if (inq) {
-        setTargetInquiryNo(inq);
-        setActiveAdminModule("quotes");
-      } else if (tab === "quotes" || tab === "vehicles" || tab === "orders" || tab === "accounts") {
-        setActiveAdminModule(tab as AdminModule);
-      }
+      const applyUrlParams = () => {
+        const params = new URLSearchParams(window.location.search);
+        const inq = params.get("inquiry");
+        const tab = params.get("tab");
+        if (inq) {
+          setTargetInquiryNo(inq);
+          setActiveAdminModule("quotes");
+        } else if (tab === "quotes" || tab === "vehicles" || tab === "orders" || tab === "accounts") {
+          setActiveAdminModule(tab as AdminModule);
+        }
+      };
+
+      applyUrlParams();
+      window.addEventListener("popstate", applyUrlParams);
+      return () => window.removeEventListener("popstate", applyUrlParams);
     }
   }, []);
   const [selectedSellableModel, setSelectedSellableModel] = useState<SellableModel | null>(null);

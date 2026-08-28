@@ -102,12 +102,14 @@ self.addEventListener("push", (event) => {
 // Notification click -> focus existing tab or open URL
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
-  const targetUrl = (event.notification.data && event.notification.data.url) || "/portal";
+  const rawUrl = (event.notification.data && event.notification.data.url) || "/portal";
+  const origin = self.location ? self.location.origin : "https://youguard.net";
+  const targetUrl = rawUrl.startsWith("http") ? rawUrl : `${origin}${rawUrl.startsWith("/") ? "" : "/"}${rawUrl}`;
 
   event.waitUntil(
     self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((clientList) => {
       for (const client of clientList) {
-        if ("navigate" in client && "focus" in client) {
+        if ("url" in client && client.url.includes("/portal") && "navigate" in client && "focus" in client) {
           return (client as WindowClient).navigate(targetUrl).then(() => (client as WindowClient).focus());
         }
       }
