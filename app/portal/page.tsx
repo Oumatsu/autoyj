@@ -438,14 +438,25 @@ type BootstrapData = {
 function mergeBootstrapData(current: BootstrapData | null, incoming: BootstrapData): BootstrapData {
   if (!current) return incoming;
 
-  // `/bootstrap` deliberately omits the heavy trim payload. Keep the coupled
-  // model rows and their specifications until `/vehicle-models` is reloaded.
-  const keepHydratedModels = current.vehicleModelSpecs.length > 0 && incoming.vehicleModelSpecs.length === 0;
+  const currentSpecs = current.vehicleModelSpecs || [];
+  const incomingSpecs = incoming.vehicleModelSpecs || [];
+  const keepHydratedModels = currentSpecs.length > 0 && incomingSpecs.length === 0;
   return {
+    ...current,
     ...incoming,
-    vehicleModels: keepHydratedModels ? current.vehicleModels : incoming.vehicleModels,
-    vehicleModelSpecs: keepHydratedModels ? current.vehicleModelSpecs : incoming.vehicleModelSpecs,
-    vehicles: incoming.vehicles.length > 0 ? incoming.vehicles : current.vehicles,
+    inquiries: incoming.inquiries || current.inquiries || [],
+    quotes: incoming.quotes || current.quotes || [],
+    orders: incoming.orders || current.orders || [],
+    payments: incoming.payments || current.payments || [],
+    logistics: incoming.logistics || current.logistics || [],
+    inquiryNotes: incoming.inquiryNotes || current.inquiryNotes || [],
+    inquiryRequests: incoming.inquiryRequests || current.inquiryRequests || [],
+    inquiryStatusHistory: incoming.inquiryStatusHistory || current.inquiryStatusHistory || [],
+    internalUsers: incoming.internalUsers || current.internalUsers || [],
+    customers: incoming.customers || current.customers || [],
+    vehicleModels: keepHydratedModels ? (current.vehicleModels || []) : (incoming.vehicleModels || current.vehicleModels || []),
+    vehicleModelSpecs: keepHydratedModels ? currentSpecs : (incoming.vehicleModelSpecs || currentSpecs),
+    vehicles: (incoming.vehicles && incoming.vehicles.length > 0) ? incoming.vehicles : (current.vehicles || []),
   };
 }
 
@@ -671,10 +682,19 @@ export default function PortalPage() {
 
   const refreshVehicles = useCallback(async () => {
     try {
-      const catalog = await api<BootstrapData>("/api/portal/catalog?refresh=1");
+      const catalog = await api<{ vehicleModels?: VehicleModel[]; vehicleModelSpecs?: VehicleModelSpec[]; vehicles?: Vehicle[] }>("/api/portal/catalog?refresh=1");
       if (catalog) {
-        setData(catalog);
-        globalBootstrapData = catalog;
+        setData((prev) => {
+          if (!prev) return prev;
+          const merged: BootstrapData = {
+            ...prev,
+            vehicleModels: catalog.vehicleModels || prev.vehicleModels || [],
+            vehicleModelSpecs: catalog.vehicleModelSpecs || prev.vehicleModelSpecs || [],
+            vehicles: catalog.vehicles || prev.vehicles || [],
+          };
+          globalBootstrapData = merged;
+          return merged;
+        });
       }
     } catch (err) {
       console.error("Failed to refresh catalog:", err);
@@ -1239,12 +1259,16 @@ function AdminPortal({
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [isNotificationDialogOpen, setIsNotificationDialogOpen] = useState(false);
   const { isDashboardNavigationOpen, setDashboardNavigationOpen } = useDashboardNavigation();
-  const visibleNav = adminNavItems.filter((item) => item.roles.includes(data.user.role));
+  const userRole = data?.user?.role || "guest";
+  const visibleNav = adminNavItems.filter((item) => item.roles.includes(userRole));
   const normalizedActiveModule = visibleNav.some((item) => item.key === activeModule) ? activeModule : "dashboard";
   const activeItem = visibleNav.find((item) => item.key === normalizedActiveModule) || visibleNav[0];
-  const totalStock = data.vehicles.reduce((sum, vehicle) => sum + getVehicleStockQuantity(vehicle), 0);
-  const openInquiries = data.inquiries.filter((item) => item.status.trim().toLowerCase() === "open").length;
-  const orderTotal = data.orders.reduce((sum, order) => sum + order.total, 0);
+  const vehicles = data?.vehicles || [];
+  const inquiries = data?.inquiries || [];
+  const orders = data?.orders || [];
+  const totalStock = vehicles.reduce((sum, vehicle) => sum + getVehicleStockQuantity(vehicle), 0);
+  const openInquiries = inquiries.filter((item) => item.status.trim().toLowerCase() === "open").length;
+  const orderTotal = orders.reduce((sum, order) => sum + order.total, 0);
 
   useEffect(() => {
     if (typeof window !== "undefined" && typeof Notification !== "undefined" && Notification.permission === "granted") {
@@ -1568,14 +1592,17 @@ function AdminDashboard({
   const [searchQuery, setSearchQuery] = useState("");
 
   // 汇总所有颜色与细分车型的实际库存数量（全量累加）
-  const totalStock = data.vehicles.reduce((sum, vehicle) => sum + getVehicleStockQuantity(vehicle), 0);
-  const modelCount = (data.vehicleModels || []).length;
+  const vehicles = data?.vehicles || [];
+  const inquiries = data?.inquiries || [];
+  const vehicleModels = data?.vehicleModels || [];
+  const totalStock = vehicles.reduce((sum, vehicle) => sum + getVehicleStockQuantity(vehicle), 0);
+  const modelCount = vehicleModels.length;
 
   const allInquiries = useMemo(() => {
-    return [...data.inquiries].sort(
+    return [...inquiries].sort(
       (a, b) => getDateTime(b.updatedAt || b.createdAt) - getDateTime(a.updatedAt || a.createdAt)
     );
-  }, [data.inquiries]);
+  }, [inquiries]);
 
   const filteredInquiries = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
@@ -2210,18 +2237,19 @@ function AdminVehicles({ data, onEdit, onRefresh, onRefreshData }: { data: Boots
   const [recommendationError, setRecommendationError] = useState("");
   const [featuredVehicleId, setFeaturedVehicleId] = useState("");
   const normalizedSearch = searchQuery.trim().toLowerCase();
+  const rawVehicles = data?.vehicles || [];
   const canSeeSupplier = data.user.role !== "partner" && data.user.role !== "customer";
   const canSeeLocation = data.user.role !== "partner" && data.user.role !== "customer";
   const canManageRecommendation = data.user.role === "admin";
   const effectiveSupplierFilter = canSeeSupplier ? supplierFilter : "all";
-  const featuredResources = useMemo(() => selectFeaturedVehicleResources(data.vehicles).map((vehicle) => ({
+  const featuredResources = useMemo(() => selectFeaturedVehicleResources(rawVehicles).map((vehicle) => ({
     id: vehicle.id,
     brand: localizeVehicleValue(vehicle.brand, locale),
     model: localizeVehicleValue(vehicle.model, locale),
     trim: localizeVehicleValue(vehicle.trim || vehicle.configuration, locale),
     imageUrl: vehicle.imageUrl,
     priceLabel: vehicle.price != null ? `${vehicle.priceTerm || "FOB"} ${formatUsdStrict(vehicle.price)}` : localizeVehicleValue("Price on request", locale),
-  })), [data.vehicles, locale]);
+  })), [rawVehicles, locale]);
 
   async function saveRecommendationRank(vehicle: Vehicle) {
     const rawRank = (recommendationRanks[vehicle.id] ?? (vehicle.recommendationRank ? String(vehicle.recommendationRank) : "")).trim();
@@ -2248,23 +2276,23 @@ function AdminVehicles({ data, onEdit, onRefresh, onRefreshData }: { data: Boots
   // 从真实数据中动态提取下拉筛选选项
   const brandOptions = useMemo(() => {
     const set = new Set<string>();
-    data.vehicles.forEach((v) => {
+    rawVehicles.forEach((v) => {
       if (v.brand?.trim()) set.add(v.brand.trim());
     });
     sellableModels.forEach((m) => {
       if (m.brand?.trim()) set.add(m.brand.trim());
     });
     return Array.from(set).sort();
-  }, [data.vehicles, sellableModels]);
+  }, [rawVehicles, sellableModels]);
 
   const supplierOptions = useMemo(() => {
     if (!canSeeSupplier) return [];
     const set = new Set<string>();
-    data.vehicles.forEach((v) => {
+    rawVehicles.forEach((v) => {
       if (v.supplier?.trim()) set.add(v.supplier.trim());
     });
     return Array.from(set).sort();
-  }, [canSeeSupplier, data.vehicles]);
+  }, [canSeeSupplier, rawVehicles]);
   const displaySupplierOptions = supplierOptions;
 
   const isAllDefault = !normalizedSearch && supplyFilter === "all" && brandFilter === "all" && effectiveSupplierFilter === "all";
@@ -2273,8 +2301,8 @@ function AdminVehicles({ data, onEdit, onRefresh, onRefreshData }: { data: Boots
     .map((item) => {
       const candidateVehicles = (item.vehicles && item.vehicles.length > 0)
         ? item.vehicles
-        : vehiclesForSellableModel(data.vehicles, item, data.vehicleModels || []);
-      const rawVehicles = candidateVehicles.filter((vehicle) =>
+        : vehiclesForSellableModel(rawVehicles, item, data.vehicleModels || []);
+      const matchedVehicles = candidateVehicles.filter((vehicle) =>
         vehicleMatchesAdminFilters(vehicle, item, normalizedSearch, supplyFilter, brandFilter, effectiveSupplierFilter, canSeeSupplier, canSeeLocation)
       );
       const offers = item.offers.filter((offer) =>
@@ -2290,8 +2318,8 @@ function AdminVehicles({ data, onEdit, onRefresh, onRefreshData }: { data: Boots
           : (modelMatches && !hasDetailFilter ? item.offers : []);
       const effectiveRawVehicles = isAllDefault
         ? candidateVehicles
-        : rawVehicles.length > 0
-          ? rawVehicles
+        : matchedVehicles.length > 0
+          ? matchedVehicles
           : (modelMatches && !hasDetailFilter ? candidateVehicles : []);
 
       const currentStockQuantity = effectiveRawVehicles.reduce((sum, v) => {
@@ -2312,7 +2340,7 @@ function AdminVehicles({ data, onEdit, onRefresh, onRefreshData }: { data: Boots
     .filter((item) => (isAllDefault ? (item.offers.length > 0 || item.rawVehicles.length > 0) : (item.rawVehicles.length > 0 || item.offers.length > 0)));
 
   const focusFeaturedVehicle = useCallback((vehicleId: string) => {
-    const selectedVehicle = data.vehicles.find((vehicle) => vehicle.id === vehicleId);
+    const selectedVehicle = rawVehicles.find((vehicle) => vehicle.id === vehicleId);
     if (!selectedVehicle) return;
     const selectedModel = sellableModels.find((item) => (item.vehicles || []).some((vehicle) => vehicle.id === vehicleId));
     if (!selectedModel) return;
@@ -2849,11 +2877,13 @@ function InquiryCommentThread({ thread, onReply, onClose, replyLabel = "Quote re
 
 function AdminQuotes({ data, onRefresh, initialInquiryNo }: { data: BootstrapData; onRefresh: () => Promise<void>; initialInquiryNo?: string }) {
   const { t, locale } = useTranslation();
+  const rawInquiries = data?.inquiries || [];
+  const rawNotes = data?.inquiryNotes || [];
   const [selectedNo, setSelectedNo] = useState(() => {
-    if (initialInquiryNo && data.inquiries.some((i) => i.inquiryNo === initialInquiryNo)) {
+    if (initialInquiryNo && rawInquiries.some((i) => i.inquiryNo === initialInquiryNo)) {
       return initialInquiryNo;
     }
-    return data.inquiries[0]?.inquiryNo || "";
+    return rawInquiries[0]?.inquiryNo || "";
   });
   const [copiedInquiryLink, setCopiedInquiryLink] = useState(false);
 
@@ -2864,14 +2894,14 @@ function AdminQuotes({ data, onRefresh, initialInquiryNo }: { data: BootstrapDat
   }, [copiedInquiryLink]);
 
   useEffect(() => {
-    if (initialInquiryNo && data.inquiries.some((i) => i.inquiryNo === initialInquiryNo)) {
+    if (initialInquiryNo && rawInquiries.some((i) => i.inquiryNo === initialInquiryNo)) {
       setSelectedNo(initialInquiryNo);
     }
-  }, [initialInquiryNo, data.inquiries]);
+  }, [initialInquiryNo, rawInquiries]);
 
   const [note, setNote] = useState("");
   const [replyTo, setReplyTo] = useState("");
-  const [showNew, setShowNew] = useState(data.inquiries.length === 0);
+  const [showNew, setShowNew] = useState(rawInquiries.length === 0);
   const [target, setTarget] = useState<InquiryVehicleTarget>({ vehicleId: "", vehicleModel: "" });
   const [newInquiryQuantity, setNewInquiryQuantity] = useState(1);
   const [title, setTitle] = useState("");
@@ -2919,13 +2949,13 @@ function AdminQuotes({ data, onRefresh, initialInquiryNo }: { data: BootstrapDat
   } : {
     inquiryRequest: "Inquiry request", closeComment: "Close comment", reply: "Quote reply", cancel: "Cancel", replyPlaceholder: "Write a quote reply", messagePlaceholder: "Write a message", send: "Send message", sendReply: "Send quote reply", saving: "Saving…", noMessages: "No comments in this inquiry yet.", hiddenTitle: "Closed comments", hiddenDescription: "Closing only hides one comment from the main conversation. It does not close or delete the inquiry.", hiddenEmpty: "No closed comments.", restore: "Restore comment", deletePermanently: "Delete permanently", manageHidden: "Manage closed comments", inquiryNo: "Inquiry no.", vehicle: "Vehicle", initiator: "Initiator", inquiryStarted: "Inquiry started", subject: "Inquiry title", quantity: "Quantity", tradeTerm: "Trade term", destinationPort: "Destination port", initialNote: "Initial note", commentAuthor: "Comment author", commentCreatedAt: "Comment created", commentClosedAt: "Comment closed", hiddenPlaceholder: "This comment has been hidden by an administrator.", closeWithRepliesTitle: "This comment has replies", closeWithRepliesDescription: "Close the entire reply thread, or hide only this comment and keep its replies visible.", closeThread: "Close with replies", hideOnlyThis: "Hide only this comment", copyLink: "Copy Link", linkCopied: "Link Copied!",
   };
-  const inquiries = data.inquiries.filter((inquiry) => inquiry.status.trim().toLowerCase() !== "closed");
+  const inquiries = rawInquiries.filter((inquiry) => inquiry.status.trim().toLowerCase() !== "closed");
   const visibleInquiries = inquiries.filter((inquiry) => {
     const haystack = `${inquiry.vehicleModel} ${inquiry.title} ${inquiry.customerId} ${inquiry.inquiryNo}`.toLowerCase();
     return !inquirySearch.trim() || haystack.includes(inquirySearch.trim().toLowerCase());
   });
   const selected = visibleInquiries.find((item) => item.inquiryNo === selectedNo) || visibleInquiries[0];
-  const notes = postedNotes.filter((note) => note.inquiryNo === selected?.inquiryNo).reduce((current, note) => appendInquiryComment(current, note), data.inquiryNotes.filter((item) => item.inquiryNo === selected?.inquiryNo));
+  const notes = postedNotes.filter((note) => note.inquiryNo === selected?.inquiryNo).reduce((current, note) => appendInquiryComment(current, note), rawNotes.filter((item) => item.inquiryNo === selected?.inquiryNo));
   const commentThreads = buildInquiryCommentThreads(notes);
   const parent = notes.find((item) => item.noteId === replyTo);
   const canModerateComments = data.user.role === "admin";
