@@ -27,14 +27,48 @@ function isStaticAssetPath(pathname: string): boolean {
   );
 }
 
-function isPublicCacheableRoute(pathname: string): boolean {
-  return !pathname.startsWith("/api/");
+function resolveRootLocale(request: Request): string {
+  const cookie = request.headers.get("cookie") || "";
+  const match = cookie.match(/(?:^|;\s*)NEXT_LOCALE=([a-z]{2})/i);
+  if (match && (match[1] === "zh" || match[1] === "en" || match[1] === "am")) {
+    return match[1].toLowerCase();
+  }
+  const acceptLang = request.headers.get("accept-language") || "";
+  if (/^zh\b|[\s,]zh\b/i.test(acceptLang)) return "zh";
+  if (/^am\b|[\s,]am\b/i.test(acceptLang)) return "am";
+  return "en";
 }
 
+function isPublicMarketingPage(pathname: string): boolean {
+  if (
+    pathname.startsWith("/api/") ||
+    pathname.startsWith("/portal") ||
+    pathname.startsWith("/dashboard") ||
+    pathname.startsWith("/admin")
+  ) {
+    return false;
+  }
+  return /^\/(zh|en|am)(\/.*)?$/.test(pathname);
+}
 
 export default {
   async fetch(request: Request, env: WorkerEnv, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
+
+    // Instant zero-CPU edge locale redirect for root path to eliminate Error 1102
+    if (url.pathname === "/" || url.pathname === "") {
+      const targetLocale = resolveRootLocale(request);
+      const redirectUrl = new URL(`/${targetLocale}`, request.url);
+      return new Response(null, {
+        status: 307,
+        headers: {
+          Location: redirectUrl.toString(),
+          "Set-Cookie": `NEXT_LOCALE=${targetLocale}; Path=/; Max-Age=31536000; SameSite=Lax`,
+          "Cache-Control": "public, max-age=0, s-maxage=86400, stale-while-revalidate=604800",
+          Vary: "Accept-Language, Cookie",
+        },
+      });
+    }
 
     const upgradeHeader = request.headers.get("Upgrade");
     if (upgradeHeader && upgradeHeader.toLowerCase() === "websocket") {
@@ -124,6 +158,35 @@ export default {
       });
     }
 
+    // Check Cloudflare Edge Cache for public marketing HTML
+    let cache: any;
+    let cacheKey: Request | undefined;
+    if (
+      request.method === "GET" &&
+      isPublicMarketingPage(url.pathname) &&
+      typeof caches !== "undefined" &&
+      (caches as any).default
+    ) {
+      try {
+        cache = (caches as any).default;
+        cacheKey = new Request(url.toString(), {
+          headers: { "accept-language": request.headers.get("accept-language") || "" },
+        });
+        const cachedRes = await cache.match(cacheKey);
+        if (cachedRes) {
+          const headers = new Headers(cachedRes.headers);
+          headers.set("cf-edge-cache", "HIT");
+          return new Response(cachedRes.body, {
+            status: cachedRes.status,
+            statusText: cachedRes.statusText,
+            headers,
+          });
+        }
+      } catch {
+        // Fall through on cache match error
+      }
+    }
+
     try {
       const response = await handler.fetch(request, env, ctx);
 
@@ -131,19 +194,22 @@ export default {
       if (
         request.method === "GET" &&
         response.status === 200 &&
-        isPublicCacheableRoute(url.pathname)
+        isPublicMarketingPage(url.pathname)
       ) {
         const contentType = response.headers.get("content-type") || "";
         if (contentType.includes("text/html") || response.headers.get("rsc")) {
           const headers = new Headers(response.headers);
-          if (!headers.has("cache-control") || headers.get("cache-control")?.includes("no-store")) {
-            headers.set("cache-control", "public, max-age=0, s-maxage=300, stale-while-revalidate=86400");
-            return new Response(response.body, {
-              status: response.status,
-              statusText: response.statusText,
-              headers,
-            });
+          headers.set("cache-control", "public, max-age=0, s-maxage=3600, stale-while-revalidate=86400");
+          headers.set("cf-edge-cache", "MISS");
+          const cachedResponse = new Response(response.body, {
+            status: response.status,
+            statusText: response.statusText,
+            headers,
+          });
+          if (cache && cacheKey) {
+            ctx.waitUntil(cache.put(cacheKey, cachedResponse.clone()).catch(() => {}));
           }
+          return cachedResponse;
         }
       }
 
