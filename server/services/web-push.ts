@@ -163,16 +163,29 @@ export async function encryptWebPushPayload({
   const salt = crypto.getRandomValues(new Uint8Array(16));
 
   // HKDF derivation (RFC 8291)
-  // PRK = HKDF-Extract(salt=auth_secret, IKM=shared_secret)
-  const authKey = await crypto.subtle.importKey("raw", rawAuthSecret, "HKDF", false, ["deriveBits"]);
+  // 1. IKM is sharedSecret (derived from ECDH)
+  const ikmKey = await crypto.subtle.importKey(
+    "raw",
+    sharedSecret,
+    "HKDF",
+    false,
+    ["deriveBits"]
+  );
+
+  // 2. Derive PRK using salt = rawAuthSecret, info = "WebPush: info\0" + clientPubKey + serverPubKey
+  const authInfo = new Uint8Array(14 + 65 + 65);
+  authInfo.set(new TextEncoder().encode("WebPush: info\0"), 0);
+  authInfo.set(rawClientPublicKey, 14);
+  authInfo.set(rawEphemeralPubKey, 14 + 65);
+
   const prkBits = await crypto.subtle.deriveBits(
     {
       name: "HKDF",
       hash: "SHA-256",
       salt: rawAuthSecret,
-      info: new TextEncoder().encode("WebPush: info\0" + String.fromCharCode(...rawClientPublicKey) + String.fromCharCode(...rawEphemeralPubKey)),
+      info: authInfo,
     },
-    authKey,
+    ikmKey,
     256
   );
 
