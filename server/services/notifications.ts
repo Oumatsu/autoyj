@@ -220,16 +220,14 @@ export async function notifyInquiryStakeholdersDualChannel(
         recipientUserIds.add(q.user_id);
       }
     }
-    // If author is customer/partner, also notify internal staff (sales/admin)
-    if (params.authorRole === "customer" || params.authorRole === "partner") {
-      const staffRes = await db
-        .prepare("SELECT user_id FROM portal_users WHERE role IN ('sales', 'admin')")
-        .all<{ user_id: string }>()
-        .catch(() => ({ results: [] }));
-      for (const s of staffRes?.results || []) {
-        if (s.user_id && s.user_id !== authorUserId) {
-          recipientUserIds.add(s.user_id);
-        }
+    // Also notify internal staff (sales/admin) so teammates receive push notifications
+    const staffRes = await db
+      .prepare("SELECT user_id FROM portal_users WHERE role IN ('sales', 'admin')")
+      .all<{ user_id: string }>()
+      .catch(() => ({ results: [] }));
+    for (const s of staffRes?.results || []) {
+      if (s.user_id && s.user_id !== authorUserId) {
+        recipientUserIds.add(s.user_id);
       }
     }
   } else {

@@ -3877,7 +3877,7 @@ async function handleCreateInquiry(request: Request, env: Env) {
   );
   await db.batch(statements);
 
-  notifyNewInquiryStartedDualChannel(env, {
+  await notifyNewInquiryStartedDualChannel(env, {
     inquiryNo,
     vehicleModel: selectedVehicleModel,
     creatorUserId: session.userId,
@@ -3889,7 +3889,9 @@ async function handleCreateInquiry(request: Request, env: Env) {
     targetPrice: asNumber(body?.targetPrice) || null,
     initialNote,
     customerId: session.customerId,
-  }).catch(() => {});
+  }).catch((err) => {
+    console.error("[notifications] Failed to dispatch new inquiry notifications:", err);
+  });
 
   return json({ ok: true, inquiryNo }, { status: 201 });
 }
@@ -3919,7 +3921,7 @@ async function handleCreateQuote(request: Request, env: Env) {
   ];
   await db.batch(statements);
 
-  notifyInquiryStakeholdersDualChannel(env, {
+  await notifyInquiryStakeholdersDualChannel(env, {
     inquiryNo,
     vehicleModel: "",
     noteBody: `Official quotation issued: USD $${unitPrice.toLocaleString()}/unit (Qty: ${quantity}).`,
@@ -3927,7 +3929,9 @@ async function handleCreateQuote(request: Request, env: Env) {
     authorName: session.name || "Sales Specialist",
     authorRole: session.role,
     isPublic: true,
-  }).catch(() => {});
+  }).catch((err) => {
+    console.error("[notifications] Failed to dispatch quotation notifications:", err);
+  });
 
   return json({ ok: true, quoteNo, inquiryNo, vehicleId: vehicle.id, quantity, unitPrice }, { status: 201 });
 }
@@ -4446,7 +4450,7 @@ async function handleCreateInquiryNote(request: Request, env: Env, inquiryNo: st
     db.prepare("UPDATE inquiries SET updated_at=? WHERE inquiry_no=?").bind(now, inquiryNo),
   ]);
 
-  notifyInquiryStakeholdersDualChannel(env, {
+  await notifyInquiryStakeholdersDualChannel(env, {
     inquiryNo,
     vehicleModel: inquiry.vehicleModel || "Vehicle Inquiry",
     noteBody: note.body,
@@ -4454,7 +4458,9 @@ async function handleCreateInquiryNote(request: Request, env: Env, inquiryNo: st
     authorName: session.name || session.email || (session.role === "sales" ? "Sales Specialist" : session.role === "partner" ? "Trade Partner" : "Client"),
     authorRole: session.role,
     isPublic: note.isPublic,
-  }).catch(() => {});
+  }).catch((err) => {
+    console.error("[notifications] Failed to dispatch note reply notifications:", err);
+  });
 
   return json({ ok: true, note }, { status: 201 });
 }
@@ -4691,7 +4697,7 @@ async function handleCounterOffer(request: Request, env: Env, quoteNo: string) {
     db.prepare("UPDATE quotes SET status=?, updated_at=? WHERE quote_no=?").bind("Counteroffer Received", now, quote.quoteNo),
   ]);
 
-  notifyInquiryStakeholdersDualChannel(env, {
+  await notifyInquiryStakeholdersDualChannel(env, {
     inquiryNo: quote.inquiryNo,
     vehicleModel: quote.vehicleModel || "Vehicle Inquiry",
     noteBody: `Counter-offer: ${counterMessage}`,
@@ -4699,7 +4705,9 @@ async function handleCounterOffer(request: Request, env: Env, quoteNo: string) {
     authorName: session.name || "Client",
     authorRole: session.role,
     isPublic: true,
-  }).catch(() => {});
+  }).catch((err) => {
+    console.error("[notifications] Failed to dispatch counteroffer notifications:", err);
+  });
 
   return json({ ok: true });
 }
