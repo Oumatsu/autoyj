@@ -188,6 +188,8 @@ export function PwaInstallPrompt() {
           } catch {}
         } else {
           setPromptTriggered(false);
+          setActiveTab(platform);
+          setShowGuideModal(true);
         }
       } catch {
         setPromptTriggered(false);
@@ -205,7 +207,11 @@ export function PwaInstallPrompt() {
   if (!mounted || isStandalone) return null;
   if (dismissed && !showGuideModal) return null;
 
-  const canShowBanner = !dismissed;
+  // Intelligent display condition:
+  // On Chrome / Edge (Mac, Win, Android), only show banner if browser confirms app is installable (beforeinstallprompt fired)
+  // On iOS / Mac Safari (where beforeinstallprompt is unsupported), show manual guide unless dismissed
+  const isChromium = platform === "mac" || platform === "windows" || platform === "desktop" || platform === "android";
+  const canShowBanner = !dismissed && (!isChromium || installPrompt !== null);
 
   // Banner text per platform
   const bannerLabel = promptTriggered

@@ -84,6 +84,13 @@ describe("Component: PWA Install Prompt", () => {
       root.render(<PwaInstallPrompt />);
     });
 
+    await act(async () => {
+      const event = new window.Event("beforeinstallprompt");
+      (event as any).prompt = async () => {};
+      (event as any).userChoice = Promise.resolve({ outcome: "dismissed" });
+      window.dispatchEvent(event);
+    });
+
     const banner = container.querySelector("aside");
     expect(banner).not.toBeNull();
 
@@ -142,6 +149,13 @@ describe("Component: PWA Install Prompt", () => {
     const root = createRoot(container);
     await act(async () => {
       root.render(<PwaInstallPrompt />);
+    });
+
+    await act(async () => {
+      const event = new window.Event("beforeinstallprompt");
+      (event as any).prompt = async () => {};
+      (event as any).userChoice = Promise.resolve({ outcome: "dismissed" });
+      window.dispatchEvent(event);
     });
 
     // Click install button on banner
