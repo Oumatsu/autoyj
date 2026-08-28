@@ -39,16 +39,22 @@ function resolveRootLocale(request: Request): string {
   return "en";
 }
 
-function isPublicMarketingPage(pathname: string): boolean {
-  if (
-    pathname.startsWith("/api/") ||
-    pathname.startsWith("/portal") ||
-    pathname.startsWith("/dashboard") ||
-    pathname.startsWith("/admin")
-  ) {
-    return false;
-  }
-  return /^\/(zh|en|am)(\/.*)?$/.test(pathname);
+function isInteractiveAppRoute(pathname: string): boolean {
+  const clean = pathname.toLowerCase();
+  return (
+    clean.startsWith("/api/") ||
+    clean === "/dashboard" ||
+    clean.startsWith("/dashboard/") ||
+    clean.startsWith("/zh/dashboard") ||
+    clean.startsWith("/en/dashboard") ||
+    clean.startsWith("/am/dashboard") ||
+    clean === "/portal" ||
+    clean.startsWith("/portal/") ||
+    clean.startsWith("/zh/portal") ||
+    clean.startsWith("/en/portal") ||
+    clean.startsWith("/am/portal") ||
+    clean.startsWith("/admin")
+  );
 }
 
 export default {
@@ -64,7 +70,7 @@ export default {
         headers: {
           Location: redirectUrl.toString(),
           "Set-Cookie": `NEXT_LOCALE=${targetLocale}; Path=/; Max-Age=31536000; SameSite=Lax`,
-          "Cache-Control": "public, max-age=0, s-maxage=86400, stale-while-revalidate=604800",
+          "Cache-Control": "public, max-age=0, must-revalidate",
           Vary: "Accept-Language, Cookie",
         },
       });
@@ -158,65 +164,20 @@ export default {
       });
     }
 
-    // Check Cloudflare Edge Cache for public marketing HTML
-    let cache: any;
-    let cacheKey: Request | undefined;
-    if (
-      request.method === "GET" &&
-      isPublicMarketingPage(url.pathname) &&
-      typeof caches !== "undefined" &&
-      (caches as any).default
-    ) {
-      try {
-        cache = (caches as any).default;
-        // Standard normalized GET cache key per full URL path (including query)
-        cacheKey = new Request(url.toString(), { method: "GET" });
-        const cachedRes = await cache.match(cacheKey);
-        if (cachedRes) {
-          const hitHeaders = new Headers(cachedRes.headers);
-          hitHeaders.set("cf-edge-cache", "HIT");
-          return new Response(cachedRes.body, {
-            status: cachedRes.status,
-            statusText: cachedRes.statusText,
-            headers: hitHeaders,
-          });
-        }
-      } catch {
-        // Fall through on cache match error
-      }
-    }
-
     try {
       const response = await handler.fetch(request, env, ctx);
 
-      // Apply Edge caching for public marketing/catalog HTML pages to eliminate Error 1102 and reduce TTFB to < 20ms
-      if (
-        request.method === "GET" &&
-        response.status === 200 &&
-        isPublicMarketingPage(url.pathname)
-      ) {
+      // Ensure fresh HTML responses across all deployments to avoid stale JS chunk 404s
+      if (request.method === "GET" && response.status === 200) {
         const contentType = response.headers.get("content-type") || "";
         if (contentType.includes("text/html") || response.headers.get("rsc")) {
           const responseHeaders = new Headers(response.headers);
-          responseHeaders.set("cache-control", "public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800");
-          responseHeaders.set("cf-edge-cache", "MISS");
-
-          // For Cloudflare Cache API: clone response and strip Set-Cookie (which causes Cloudflare to refuse caching)
-          if (cache && cacheKey) {
-            const storeHeaders = new Headers(response.headers);
-            storeHeaders.delete("set-cookie");
-            storeHeaders.set("cache-control", "public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800");
-            storeHeaders.set("vary", "Accept-Encoding");
-            storeHeaders.set("cf-edge-cache", "HIT");
-
-            const responseToCache = new Response(response.clone().body, {
-              status: response.status,
-              statusText: response.statusText,
-              headers: storeHeaders,
-            });
-            ctx.waitUntil(cache.put(cacheKey, responseToCache).catch(() => {}));
+          if (isInteractiveAppRoute(url.pathname)) {
+            responseHeaders.set("cache-control", "no-cache, no-store, must-revalidate, max-age=0");
+            responseHeaders.set("pragma", "no-cache");
+          } else {
+            responseHeaders.set("cache-control", "public, max-age=0, must-revalidate");
           }
-
           return new Response(response.body, {
             status: response.status,
             statusText: response.statusText,
