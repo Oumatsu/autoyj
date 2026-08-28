@@ -728,18 +728,10 @@ export default function PortalPage() {
       return;
     }
 
-    // 3. 执行真正的网络拉取并写缓存
+    // 3. 执行真正的网络拉取并写缓存 (单次往返直取 bootstrap + session 数据)
     const promise = (async () => {
       setError("");
       try {
-        const sessionRes = await getPortalSession();
-        if (!sessionRes.user) {
-          globalBootstrapData = null;
-          globalBootstrapPromise = null;
-          setData(null);
-          setLoading(false);
-          return null;
-        }
         const bootstrap = await api<BootstrapData>("/api/portal/bootstrap");
         globalBootstrapData = bootstrap;
         setData(bootstrap);
@@ -748,7 +740,7 @@ export default function PortalPage() {
         globalBootstrapData = null;
         globalBootstrapPromise = null;
         setData(null);
-        if (loadError instanceof Error && loadError.message !== "Not signed in") {
+        if (loadError instanceof Error && loadError.message !== "Not signed in" && !loadError.message.includes("401") && !loadError.message.includes("Unauthorized")) {
           setError(loadError.message);
         }
         return null;
