@@ -63,7 +63,7 @@ export default function QrPage() {
               title="Click or scan to chat on WhatsApp"
             >
               <Image
-                src="/qrcode.jpg"
+                src="/qrcode.webp"
                 alt="WhatsApp QR Code"
                 width={260}
                 height={260}
