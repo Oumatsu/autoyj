@@ -200,57 +200,57 @@ export function PwaInstallPrompt() {
   const isChromium = platform === "mac" || platform === "windows" || platform === "desktop" || platform === "android";
   const canShowBanner = !dismissed && (!isChromium || installPrompt !== null);
 
-  // Banner text per platform
+  // Banner text per platform (Concise and clean without fake icons/emojis)
   const bannerLabel = promptTriggered
     ? (locale === "zh"
-        ? "☝️ 请在浏览器顶部（地址栏旁）弹窗中确认安装"
+        ? "请在浏览器弹窗中确认安装"
         : locale === "am"
-        ? "☝️ እባክዎ ከላይ ባለው መስኮት ላይ 'ጫን' ን ያረጋግጡ"
-        : "☝️ Please confirm 'Install' in the prompt at the top")
+        ? "እባክዎ በአሳሽ መስኮት ላይ ያረጋግጡ"
+        : "Please confirm in browser prompt")
     : platform === "ios"
     ? (locale === "zh"
-        ? "添加到 iPhone / iPad 主屏幕，实时接收商机通知"
+        ? "添加到主屏幕，获取即时商机通知"
         : locale === "am"
-        ? "ወደ iPhone/iPad መነሻ ማያ ገጽ ያክሉ"
+        ? "ወደ መነሻ ማያ ገጽ ያክሉ"
         : "Add to Home Screen for instant alerts")
     : platform === "mac" || platform === "mac_safari"
     ? (locale === "zh"
-        ? "安装 Mac 桌面客户端，常驻 Dock 程序坞"
+        ? "安装桌面客户端，常驻 Mac 程序坞"
         : locale === "am"
         ? "የ Mac መተግበሪያን ጫን"
         : "Install Mac desktop app for instant alerts")
     : platform === "windows"
     ? (locale === "zh"
-        ? "安装 Windows 桌面客户端，固定到任务栏"
+        ? "安装桌面客户端，固定到任务栏"
         : locale === "am"
         ? "የ Windows መተግበሪያን ጫን"
         : "Install Windows desktop app for instant alerts")
     : platform === "android"
     ? (locale === "zh"
-        ? "安装 Android 应用，秒开与即时商机通知"
+        ? "安装 Android 客户端，获取即时通知"
         : locale === "am"
         ? "የ Android መተግበሪያን ጫን"
         : "Install Android app for instant alerts")
     : (locale === "zh"
-        ? "安装桌面应用，实时接收询价与商机通知"
+        ? "安装桌面客户端，获取即时商机通知"
         : locale === "am"
-        ? "ፈጣን ማሳወቂያዎችን ለማግኘት መተግበሪያውን ጫን"
-        : "Install app for instant notifications");
+        ? "መተግበሪያውን ጫን"
+        : "Install desktop app for instant alerts");
 
   // Modal Title per platform
   const modalTitle =
     activeTab === "ios"
       ? (locale === "zh" ? "添加到 iPhone / iPad 主屏幕" : locale === "am" ? "ወደ iPhone/iPad ማያ ገጽ ያክሉ" : "Add to iOS Home Screen")
       : activeTab === "android"
-      ? (locale === "zh" ? "安装 Android 手机客户端" : locale === "am" ? "የ Android መተግበሪያን ጫን" : "Install Android App")
+      ? (locale === "zh" ? "安装 Android 客户端" : locale === "am" ? "የ Android መተግበሪያን ጫን" : "Install Android App")
       : activeTab === "mac"
-      ? (locale === "zh" ? "安装 Mac 桌面客户端 (Edge / Chrome)" : locale === "am" ? "የ Mac መተግበሪያን ጫን" : "Install Mac Desktop App")
+      ? (locale === "zh" ? "安装 Mac 桌面客户端" : locale === "am" ? "የ Mac መተግበሪያን ጫን" : "Install Mac Desktop App")
       : activeTab === "mac_safari"
-      ? (locale === "zh" ? "添加到 Mac 程序坞 (Safari)" : locale === "am" ? "ወደ Mac Dock አክል" : "Add to Mac Dock (Safari)")
+      ? (locale === "zh" ? "添加到 Mac 程序坞" : locale === "am" ? "ወደ Mac Dock አክል" : "Add to Mac Dock")
       : activeTab === "windows"
       ? (locale === "zh" ? "安装 Windows 桌面客户端" : locale === "am" ? "የ Windows መተግበሪያን ጫን" : "Install Windows Desktop App")
       : activeTab === "inapp"
-      ? (locale === "zh" ? "请在默认浏览器中打开" : locale === "am" ? "በነባሪ አሳሽ ውስጥ ይክፈቱ" : "Open in Default Browser")
+      ? (locale === "zh" ? "在系统默认浏览器中打开" : locale === "am" ? "በነባሪ አሳሽ ውስጥ ይክፈቱ" : "Open in Default Browser")
       : (locale === "zh" ? "安装 Youguard 应用" : locale === "am" ? "Youguard መተግበሪያን ጫን" : "Install Youguard App");
 
   return (
@@ -349,14 +349,14 @@ export function PwaInstallPrompt() {
                 <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-3.5 text-xs text-amber-200">
                   <p className="font-bold">
                     {locale === "zh"
-                      ? "⚠️ 当前处于应用内置浏览器环境中"
+                      ? "当前处于应用内置浏览器环境中"
                       : locale === "am"
-                      ? "⚠️ በመተግበሪያ አሳሽ ውስጥ ነዎት"
-                      : "⚠️ Currently in an In-App Browser"}
+                      ? "በመተግበሪያ አሳሽ ውስጥ ነዎት"
+                      : "Currently in an In-App Browser"}
                   </p>
                   <p className="mt-1 text-[11px] text-amber-300/80">
                     {locale === "zh"
-                      ? "微信、飞书或 Telegram 等内置视图无法直接安装 PWA，请按以下步骤切换至系统浏览器："
+                      ? "微信、飞书或 Telegram 等内置视图无法直接安装，请按以下步骤切换至系统浏览器："
                       : locale === "am"
                       ? "እባክዎ በነባሪ አሳሽዎ ውስጥ ይክፈቱት፦"
                       : "Please switch to your system browser to install the standalone application:"}
@@ -368,15 +368,12 @@ export function PwaInstallPrompt() {
                       1
                     </div>
                     <div>
-                      <div className="font-bold text-white flex items-center gap-1.5">
-                        <span>
-                          {locale === "zh"
-                            ? "点击右上角的「...」更多选项"
-                            : locale === "am"
-                            ? "የበለጠ አማራጮችን '...' ይጫኑ"
-                            : "Tap '...' at top right"}
-                        </span>
-                        <MoreVertical className="h-4 w-4 text-[#c5a059] inline shrink-0" />
+                      <div className="font-bold text-white">
+                        {locale === "zh"
+                          ? "点击右上角菜单选项"
+                          : locale === "am"
+                          ? "የበለጠ አማራጮችን ይጫኑ"
+                          : "Tap menu button at top right"}
                       </div>
                       <p className="text-[11px] text-gray-400 mt-0.5">
                         {locale === "zh" ? "在屏幕右上角打开选项菜单" : "Open the options menu in the top right"}
@@ -388,15 +385,12 @@ export function PwaInstallPrompt() {
                       2
                     </div>
                     <div>
-                      <div className="font-bold text-white flex items-center gap-1.5">
-                        <span>
-                          {locale === "zh"
-                            ? "选择「在系统默认浏览器中打开」"
-                            : locale === "am"
-                            ? "በነባሪ አሳሽ ውስጥ ክፈት የሚለውን ይምረጡ"
-                            : "Choose 'Open in Default Browser'"}
-                        </span>
-                        <ExternalLink className="h-4 w-4 text-emerald-400 inline shrink-0" />
+                      <div className="font-bold text-white">
+                        {locale === "zh"
+                          ? "选择「在系统默认浏览器中打开」"
+                          : locale === "am"
+                          ? "በነባሪ አሳሽ ውስጥ ክፈት የሚለውን ይምረጡ"
+                          : "Choose 'Open in Default Browser'"}
                       </div>
                       <p className="text-[11px] text-gray-400 mt-0.5">
                         {locale === "zh"
@@ -417,20 +411,17 @@ export function PwaInstallPrompt() {
                     1
                   </div>
                   <div>
-                    <div className="font-bold text-white flex items-center gap-1.5">
-                      <span>
-                        {locale === "zh"
-                          ? "点击 Safari 底部工具栏的「分享」按钮"
-                          : locale === "am"
-                          ? "በ Safari ታችኛው ክፍል 'Share' ን ይጫኑ"
-                          : "Tap Safari bottom 'Share' button"}
-                      </span>
-                      <Share className="h-4 w-4 text-[#c5a059] inline shrink-0" />
+                    <div className="font-bold text-white">
+                      {locale === "zh"
+                        ? "点击 Safari 底部工具栏的「分享」按钮"
+                        : locale === "am"
+                        ? "በ Safari ታችኛው ክፍል 'Share' ን ይጫኑ"
+                        : "Tap Safari bottom 'Share' button"}
                     </div>
                     <p className="text-[11px] text-gray-400 mt-0.5">
                       {locale === "zh"
-                        ? "屏幕底部正中央的方框带向上箭头图标"
-                        : "Square icon with an upward arrow at bottom"}
+                        ? "在 Safari 底部工具栏中找到分享选项"
+                        : "Find the Share option in Safari toolbar"}
                     </p>
                   </div>
                 </div>
@@ -440,20 +431,17 @@ export function PwaInstallPrompt() {
                     2
                   </div>
                   <div>
-                    <div className="font-bold text-white flex items-center gap-1.5">
-                      <span>
-                        {locale === "zh"
-                          ? "向下滑动并选择「添加到主屏幕」"
-                          : locale === "am"
-                          ? "'Add to Home Screen' ን ይምረጡ"
-                          : "Scroll down and select 'Add to Home Screen'"}
-                      </span>
-                      <PlusSquare className="h-4 w-4 text-[#c5a059] inline shrink-0" />
+                    <div className="font-bold text-white">
+                      {locale === "zh"
+                        ? "向下滑动并选择「添加到主屏幕」"
+                        : locale === "am"
+                        ? "'Add to Home Screen' ን ይምረጡ"
+                        : "Scroll down and select 'Add to Home Screen'"}
                     </div>
                     <p className="text-[11px] text-gray-400 mt-0.5">
                       {locale === "zh"
-                        ? "在弹出的操作列表中找到「添加到主屏幕」选项"
-                        : "Find 'Add to Home Screen' option in the sheet"}
+                        ? "在操作列表中选择添加到主屏幕"
+                        : "Select Add to Home Screen from the sheet"}
                     </p>
                   </div>
                 </div>
@@ -472,7 +460,7 @@ export function PwaInstallPrompt() {
                     </div>
                     <p className="text-[11px] text-gray-400 mt-0.5">
                       {locale === "zh"
-                        ? "应用图标将出现在手机主屏幕上，点击即可独立运行并接收通知"
+                        ? "应用图标将出现在手机主屏幕上，点击即可独立运行"
                         : "Icon appears on your home screen for instant standalone launch"}
                     </p>
                   </div>
@@ -488,18 +476,15 @@ export function PwaInstallPrompt() {
                     1
                   </div>
                   <div>
-                    <div className="font-bold text-white flex items-center gap-1.5">
-                      <span>
-                        {locale === "zh"
-                          ? "点击 Chrome/浏览器右上角「⋮」菜单"
-                          : locale === "am"
-                          ? "የ Chrome ምናሌውን '⋮' ይጫኑ"
-                          : "Tap browser menu '⋮' at top right"}
-                      </span>
-                      <MoreVertical className="h-4 w-4 text-[#c5a059] inline shrink-0" />
+                    <div className="font-bold text-white">
+                      {locale === "zh"
+                        ? "点击浏览器右上角菜单"
+                        : locale === "am"
+                        ? "የአሳሽ ምናሌውን ይጫኑ"
+                        : "Tap browser menu at top right"}
                     </div>
                     <p className="text-[11px] text-gray-400 mt-0.5">
-                      {locale === "zh" ? "在地址栏右侧的三点菜单图标" : "Three-dot menu icon next to the address bar"}
+                      {locale === "zh" ? "在地址栏右侧打开浏览器菜单" : "Open browser menu next to address bar"}
                     </p>
                   </div>
                 </div>
@@ -509,15 +494,12 @@ export function PwaInstallPrompt() {
                     2
                   </div>
                   <div>
-                    <div className="font-bold text-white flex items-center gap-1.5">
-                      <span>
-                        {locale === "zh"
-                          ? "选择「安装应用」或「添加到主屏幕」"
-                          : locale === "am"
-                          ? "'መተግበሪያ ጫን' ወይም 'ወደ መነሻ ማያ ገጽ' ይምረጡ"
-                          : "Select 'Install app' or 'Add to Home screen'"}
-                      </span>
-                      <Download className="h-4 w-4 text-[#c5a059] inline shrink-0" />
+                    <div className="font-bold text-white">
+                      {locale === "zh"
+                        ? "选择「安装应用」或「添加到主屏幕」"
+                        : locale === "am"
+                        ? "'መተግበሪያ ጫን' ወይም 'ወደ መነሻ ማያ ገጽ' ይምረጡ"
+                        : "Select 'Install app' or 'Add to Home screen'"}
                     </div>
                     <p className="text-[11px] text-gray-400 mt-0.5">
                       {locale === "zh" ? "选择安装选项以创建独立桌面图标" : "Create a standalone app shortcut"}
@@ -539,7 +521,7 @@ export function PwaInstallPrompt() {
                     </div>
                     <p className="text-[11px] text-gray-400 mt-0.5">
                       {locale === "zh"
-                        ? "应用将作为原生 App 安装并显示在桌面与应用抽屉中"
+                        ? "应用将作为原生客户端安装并显示在桌面上"
                         : "The app installs directly and runs in full-screen standalone mode"}
                     </p>
                   </div>
@@ -555,22 +537,17 @@ export function PwaInstallPrompt() {
                     1
                   </div>
                   <div>
-                    <div className="font-bold text-white flex items-center gap-1.5">
-                      <span>
-                        {locale === "zh"
-                          ? "点击顶部地址栏最右侧的「安装」图标"
-                          : locale === "am"
-                          ? "በአድራሻ አሞሌው ውስጥ 'ጫን' ን ይጫኑ"
-                          : "Click 'Install' icon in address bar"}
-                      </span>
-                      <Download className="h-4 w-4 text-[#5ee6d8] inline shrink-0" />
+                    <div className="font-bold text-white">
+                      {locale === "zh"
+                        ? "点击浏览器地址栏右侧的「安装」按钮"
+                        : locale === "am"
+                        ? "በአድራሻ አሞሌው ውስጥ 'ጫን' ን ይጫኑ"
+                        : "Click 'Install' in the address bar"}
                     </div>
                     <p className="text-[11px] text-gray-400 mt-0.5">
                       {locale === "zh"
-                        ? "看 Edge / Chrome 浏览器地址栏右端（⭐五角星旁边的小电脑图标 ⊕）"
-                        : locale === "am"
-                        ? "በ Chrome/Edge አድራሻ አሞሌ ውስጥ"
-                        : "On the right side of the address bar next to bookmarks"}
+                        ? "在 Chrome 或 Edge 浏览器地址栏右侧点击安装应用"
+                        : "Click the install option on the right side of the address bar"}
                     </p>
                   </div>
                 </div>
@@ -589,7 +566,7 @@ export function PwaInstallPrompt() {
                     </div>
                     <p className="text-[11px] text-gray-400 mt-0.5">
                       {locale === "zh"
-                        ? "生成独立的 Mac 应用窗口，并可常驻在底部 Dock 栏随开随用"
+                        ? "生成独立的 Mac 应用窗口，随开随用"
                         : "Runs as a dedicated Mac desktop app in the Dock with push alerts"}
                     </p>
                   </div>
@@ -605,12 +582,10 @@ export function PwaInstallPrompt() {
                     1
                   </div>
                   <div>
-                    <div className="font-bold text-white flex items-center gap-1.5">
-                      <span>
-                        {locale === "zh"
-                          ? "点击屏幕顶部菜单栏「文件 (File)」"
-                          : "Click 'File' in top menu bar"}
-                      </span>
+                    <div className="font-bold text-white">
+                      {locale === "zh"
+                        ? "点击屏幕顶部菜单栏「文件」"
+                        : "Click 'File' in top menu bar"}
                     </div>
                     <p className="text-[11px] text-gray-400 mt-0.5">
                       {locale === "zh" ? "在 Mac 顶部菜单栏左侧找到「文件」" : "In the macOS top system menu bar"}
@@ -625,12 +600,12 @@ export function PwaInstallPrompt() {
                   <div>
                     <div className="font-bold text-white">
                       {locale === "zh"
-                        ? "选择「添加到程序坞... (Add to Dock...)」"
-                        : "Select 'Add to Dock...'"}
+                        ? "选择「添加到程序坞」"
+                        : "Select 'Add to Dock'"}
                     </div>
                     <p className="text-[11px] text-gray-400 mt-0.5">
                       {locale === "zh"
-                        ? "点击添加后，应用图标将固定到 Mac 程序坞中独立启动"
+                        ? "点击添加后，应用将固定到 Mac 程序坞中独立启动"
                         : "Adds the Web App directly to macOS Dock for standalone launch"}
                     </p>
                   </div>
@@ -646,19 +621,16 @@ export function PwaInstallPrompt() {
                     1
                   </div>
                   <div>
-                    <div className="font-bold text-white flex items-center gap-1.5">
-                      <span>
-                        {locale === "zh"
-                          ? "点击地址栏右侧的「安装」图标"
-                          : locale === "am"
-                          ? "በአድራሻ አሞሌው ውስጥ 'ጫን' ን ይጫኑ"
-                          : "Click 'Install' icon in address bar"}
-                      </span>
-                      <Download className="h-4 w-4 text-[#5ee6d8] inline shrink-0" />
+                    <div className="font-bold text-white">
+                      {locale === "zh"
+                        ? "点击地址栏右侧的「安装」按钮"
+                        : locale === "am"
+                        ? "በአድራሻ አሞሌው ውስጥ 'ጫን' ን ይጫኑ"
+                        : "Click 'Install' in address bar"}
                     </div>
                     <p className="text-[11px] text-gray-400 mt-0.5">
                       {locale === "zh"
-                        ? "在 Chrome / Edge 浏览器地址栏右侧点击安装小图标 ⊕"
+                        ? "在 Chrome 或 Edge 浏览器地址栏右侧点击安装"
                         : "Right side of the address bar or via browser settings menu"}
                     </p>
                   </div>
@@ -678,7 +650,7 @@ export function PwaInstallPrompt() {
                     </div>
                     <p className="text-[11px] text-gray-400 mt-0.5">
                       {locale === "zh"
-                        ? "将作为独立的桌面客户端运行，可固定到任务栏与开始菜单"
+                        ? "将作为独立的桌面客户端运行，可固定到任务栏"
                         : "Runs as a dedicated desktop app pinned to Taskbar / Start Menu"}
                     </p>
                   </div>

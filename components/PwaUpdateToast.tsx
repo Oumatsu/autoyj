@@ -60,7 +60,7 @@ export function PwaUpdateToast() {
       </div>
       <div className="min-w-0 flex-1">
         <strong className="block text-xs font-black text-white">
-          {isZh ? "🚀 Youguard 发现新版本" : "🚀 New Version Available"}
+          {isZh ? "Youguard 发现新版本" : "New Version Available"}
         </strong>
         <p className="mt-0.5 text-[11px] text-slate-300">
           {isZh ? "最新功能与体验已就绪" : "Latest updates ready to apply"}
