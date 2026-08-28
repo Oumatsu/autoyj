@@ -48,28 +48,19 @@ export function PwaInstallPrompt() {
       return;
     }
 
-    // 2. Check persistent installed status & dismissal cooldown
+    // 2. Per-session dismissal check
     try {
-      if (typeof window !== "undefined") {
-        if (window.localStorage?.getItem("youguard_pwa_installed") === "true") {
-          setDismissed(true);
-        }
-        const dismissedUntil = window.localStorage?.getItem("youguard_pwa_dismissed_until");
-        if (dismissedUntil && Number(dismissedUntil) > Date.now()) {
-          setDismissed(true);
-        }
+      if (typeof window !== "undefined" && window.sessionStorage?.getItem("youguard_pwa_dismissed") === "true") {
+        setDismissed(true);
       }
     } catch {}
 
-    // 3. Native Browser Installed Apps API & Push Status
+    // 3. W3C Native Browser Installed Apps API
     if (typeof navigator !== "undefined" && "getInstalledRelatedApps" in navigator) {
       (navigator as any).getInstalledRelatedApps().then((apps: any[]) => {
         if (Array.isArray(apps) && apps.length > 0) {
           setIsStandalone(true);
           setDismissed(true);
-          try {
-            window.localStorage?.setItem("youguard_pwa_installed", "true");
-          } catch {}
         }
       }).catch(() => {});
     }
@@ -162,8 +153,7 @@ export function PwaInstallPrompt() {
   const handleDismiss = useCallback(() => {
     setDismissed(true);
     try {
-      window.localStorage?.setItem("youguard_pwa_installed", "true");
-      window.localStorage?.setItem("youguard_pwa_dismissed_until", (Date.now() + 30 * 86400000).toString());
+      window.sessionStorage?.setItem("youguard_pwa_dismissed", "true");
     } catch {}
   }, []);
 
@@ -183,9 +173,6 @@ export function PwaInstallPrompt() {
           setIsStandalone(true);
           setDismissed(true);
           setShowGuideModal(false);
-          try {
-            window.localStorage?.setItem("youguard_pwa_installed", "true");
-          } catch {}
         } else {
           setPromptTriggered(false);
           setActiveTab(platform);
