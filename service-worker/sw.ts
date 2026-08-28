@@ -25,38 +25,47 @@ self.addEventListener("message", (event) => {
 
 // Standard Web Push Notification Handler
 self.addEventListener("push", (event) => {
-  const origin = self.location ? self.location.origin : "";
-  const defaultIcon = origin ? `${origin}/icons/icon-192.png` : "/icons/icon-192.png";
+  const origin = self.location ? self.location.origin : "https://youguard.net";
+  const defaultIcon = `${origin}/icons/icon-192.png`;
 
-  let data = {
-    title: "🚗 Youguard Auto",
-    body: "You have a new update regarding your vehicle quotation or order.",
-    icon: defaultIcon,
-    badge: defaultIcon,
-    data: { url: "/portal" },
-  };
+  let title = "🚗 Youguard Auto";
+  let body = "You have a new update regarding your vehicle quotation or order.";
+  let url = "/portal";
+  let icon = defaultIcon;
+  let badge = defaultIcon;
 
   if (event.data) {
     try {
       const payload = event.data.json();
-      data = { ...data, ...payload };
+      if (payload.title) title = payload.title;
+      if (payload.body) body = payload.body;
+      if (payload.data?.url) url = payload.data.url;
+      else if (payload.url) url = payload.url;
+      if (payload.icon) {
+        icon = payload.icon.startsWith("http") ? payload.icon : `${origin}${payload.icon.startsWith("/") ? "" : "/"}${payload.icon}`;
+      }
+      if (payload.badge) {
+        badge = payload.badge.startsWith("http") ? payload.badge : `${origin}${payload.badge.startsWith("/") ? "" : "/"}${payload.badge}`;
+      }
     } catch {
-      data.body = event.data.text();
+      body = event.data.text() || body;
     }
   }
 
-  const iconUrl = data.icon && data.icon.startsWith("http") ? data.icon : (origin ? `${origin}${data.icon.startsWith("/") ? "" : "/"}${data.icon}` : defaultIcon);
-
   const options: NotificationOptions = {
-    body: data.body,
-    icon: iconUrl,
-    badge: iconUrl,
-    data: data.data || { url: "/portal" },
-    requireInteraction: true,
-    vibrate: [100, 50, 100],
+    body,
+    icon,
+    badge,
+    data: { url },
+    tag: `youguard-${Date.now()}`,
   };
 
-  event.waitUntil(self.registration.showNotification(data.title, options));
+  event.waitUntil(
+    self.registration.showNotification(title, options).catch((err) => {
+      console.warn("[sw] Standard showNotification failed, retrying minimal options:", err);
+      return self.registration.showNotification(title, { body, data: { url } });
+    })
+  );
 });
 
 // Notification click -> focus existing tab or open URL
