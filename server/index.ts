@@ -169,17 +169,16 @@ export default {
     ) {
       try {
         cache = (caches as any).default;
-        cacheKey = new Request(url.toString(), {
-          headers: { "accept-language": request.headers.get("accept-language") || "" },
-        });
+        // Standard normalized GET cache key per full URL path (including query)
+        cacheKey = new Request(url.toString(), { method: "GET" });
         const cachedRes = await cache.match(cacheKey);
         if (cachedRes) {
-          const headers = new Headers(cachedRes.headers);
-          headers.set("cf-edge-cache", "HIT");
+          const hitHeaders = new Headers(cachedRes.headers);
+          hitHeaders.set("cf-edge-cache", "HIT");
           return new Response(cachedRes.body, {
             status: cachedRes.status,
             statusText: cachedRes.statusText,
-            headers,
+            headers: hitHeaders,
           });
         }
       } catch {
@@ -190,7 +189,7 @@ export default {
     try {
       const response = await handler.fetch(request, env, ctx);
 
-      // Apply Edge caching for public marketing/catalog HTML pages to eliminate Error 1102
+      // Apply Edge caching for public marketing/catalog HTML pages to eliminate Error 1102 and reduce TTFB to < 20ms
       if (
         request.method === "GET" &&
         response.status === 200 &&
@@ -198,18 +197,31 @@ export default {
       ) {
         const contentType = response.headers.get("content-type") || "";
         if (contentType.includes("text/html") || response.headers.get("rsc")) {
-          const headers = new Headers(response.headers);
-          headers.set("cache-control", "public, max-age=0, s-maxage=3600, stale-while-revalidate=86400");
-          headers.set("cf-edge-cache", "MISS");
-          const cachedResponse = new Response(response.body, {
+          const responseHeaders = new Headers(response.headers);
+          responseHeaders.set("cache-control", "public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800");
+          responseHeaders.set("cf-edge-cache", "MISS");
+
+          // For Cloudflare Cache API: clone response and strip Set-Cookie (which causes Cloudflare to refuse caching)
+          if (cache && cacheKey) {
+            const storeHeaders = new Headers(response.headers);
+            storeHeaders.delete("set-cookie");
+            storeHeaders.set("cache-control", "public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800");
+            storeHeaders.set("vary", "Accept-Encoding");
+            storeHeaders.set("cf-edge-cache", "HIT");
+
+            const responseToCache = new Response(response.clone().body, {
+              status: response.status,
+              statusText: response.statusText,
+              headers: storeHeaders,
+            });
+            ctx.waitUntil(cache.put(cacheKey, responseToCache).catch(() => {}));
+          }
+
+          return new Response(response.body, {
             status: response.status,
             statusText: response.statusText,
-            headers,
+            headers: responseHeaders,
           });
-          if (cache && cacheKey) {
-            ctx.waitUntil(cache.put(cacheKey, cachedResponse.clone()).catch(() => {}));
-          }
-          return cachedResponse;
         }
       }
 
