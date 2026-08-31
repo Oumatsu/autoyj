@@ -1111,6 +1111,8 @@ export default function PortalPage() {
                     <button
                       key={option.role}
                       type="button"
+                      data-testid={`dev-login-${option.role}`}
+                      data-role={option.role}
                       disabled={busy}
                       onClick={() => void devLogin(option.role)}
                       className="rounded-lg border border-white/10 bg-black/25 px-3 py-3 text-left transition hover:border-gold/60 disabled:opacity-60"
@@ -1199,7 +1201,12 @@ export default function PortalPage() {
             </label>
 
             {error && <p className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-xs font-bold text-red-300">{error}</p>}
-            <button disabled={busy} className="btn-primary rounded-xl px-5 py-4 text-xs font-black uppercase tracking-widest disabled:opacity-60">
+            <button
+              type="submit"
+              data-testid="login-submit-button"
+              disabled={busy}
+              className="btn-primary rounded-xl px-5 py-4 text-xs font-black uppercase tracking-widest disabled:opacity-60"
+            >
               {busy
                 ? (authMode === "signup" ? (locale === "zh" ? "正在创建账号..." : "Creating account...") : (locale === "zh" ? "正在登录..." : "Signing in..."))
                 : (authMode === "signup" ? (locale === "zh" ? "立即创建并进入门户" : "Create Account & Enter") : (locale === "zh" ? "立即登录" : "Sign In"))}
@@ -1270,6 +1277,36 @@ function AdminPortal({
 
   const [swUpdateAvailable, setSwUpdateAvailable] = useState(false);
   const [waitingWorker, setWaitingWorker] = useState<ServiceWorker | null>(null);
+  const [isSyncingFeishu, setIsSyncingFeishu] = useState(false);
+  const [syncFeedback, setSyncFeedback] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
+  async function handleManualFeishuSync() {
+    if (isSyncingFeishu) return;
+    setIsSyncingFeishu(true);
+    setSyncFeedback(null);
+    try {
+      const res = await api<{ ok: boolean; message?: string }>("/api/portal/admin/sync-d1", {
+        method: "POST",
+      });
+      if (!res.ok) {
+        throw new Error(res.message || "Sync failed");
+      }
+      setSyncFeedback({
+        type: "success",
+        text: locale === "zh" ? "✓ 飞书数据同步成功！已更新至最新车型与现车库存。" : "✓ Feishu data synced successfully to D1 database!",
+      });
+      await onRefreshData();
+      setTimeout(() => setSyncFeedback(null), 5000);
+    } catch (err: any) {
+      setSyncFeedback({
+        type: "error",
+        text: err?.message || (locale === "zh" ? "同步失败，请检查飞书网络与权限" : "Sync failed. Please verify Feishu API connectivity."),
+      });
+      setTimeout(() => setSyncFeedback(null), 6000);
+    } finally {
+      setIsSyncingFeishu(false);
+    }
+  }
 
   useEffect(() => {
     if (typeof window !== "undefined" && "serviceWorker" in navigator) {
@@ -1393,6 +1430,7 @@ function AdminPortal({
                 return (
                   <a
                     key={item.key}
+                    data-testid={`admin-nav-${item.key}`}
                     href={item.key === "dashboard" ? `/${locale}/dashboard` : `/${locale}/dashboard/${item.key}`}
                     onClick={(e) => {
                       e.preventDefault();
@@ -1506,6 +1544,27 @@ function AdminPortal({
                 <AdminTopMetric label={t("portal.orderValue")} value={formatUsdStrict(orderTotal)} />
               </div>
               <div className="flex flex-wrap items-center justify-start sm:justify-end gap-2.5">
+                {userRole === "admin" && (
+                  <button
+                    type="button"
+                    data-testid="admin-manual-sync-trigger"
+                    disabled={isSyncingFeishu}
+                    onClick={() => void handleManualFeishuSync()}
+                    className="flex items-center gap-1.5 rounded-full border border-[#22b8aa]/40 bg-[#22b8aa]/10 px-3.5 py-2 text-[10px] font-black uppercase tracking-wider text-[#22b8aa] hover:bg-[#22b8aa]/20 disabled:opacity-50 transition shrink-0"
+                    title={
+                      locale === "zh"
+                        ? "从飞书多维表格全量拉取最新车型、配置与现车库存数据到 D1"
+                        : "Manually sync latest vehicle models, trims & inventory from Feishu Bitable to D1"
+                    }
+                  >
+                    <RefreshCw className={`h-3.5 w-3.5 ${isSyncingFeishu ? "animate-spin text-[#22b8aa]" : "text-[#22b8aa]"}`} />
+                    <span>
+                      {isSyncingFeishu
+                        ? (locale === "zh" ? "正在同步飞书数据..." : "Syncing Feishu...")
+                        : (locale === "zh" ? "🔄 同步飞书多维表格" : "🔄 Sync Feishu Data")}
+                    </span>
+                  </button>
+                )}
                 <button
                   type="button"
                   data-testid="open-notification-dialog-trigger"
@@ -1531,6 +1590,7 @@ function AdminPortal({
                 </button>
                 <button
                   type="button"
+                  data-testid="portal-sign-out-button"
                   aria-label="Sign out of portal workspace"
                   onClick={() => void onLogout()}
                   className="rounded-full border border-white/15 px-4 sm:px-5 py-2 text-[10px] font-black uppercase tracking-widest text-gray-400 transition hover:border-white/40 hover:text-white shrink-0"
@@ -1540,6 +1600,26 @@ function AdminPortal({
               </div>
             </div>
           </header>
+
+          {syncFeedback && (
+            <div className={`mb-4 flex items-center justify-between gap-3 rounded-xl border p-3.5 text-xs font-semibold animate-in fade-in slide-in-from-top-2 duration-300 ${
+              syncFeedback.type === "success"
+                ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-300"
+                : "border-red-500/40 bg-red-500/10 text-red-300"
+            }`}>
+              <div className="flex items-center gap-2">
+                <span>{syncFeedback.type === "success" ? "✅" : "⚠️"}</span>
+                <span>{syncFeedback.text}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSyncFeedback(null)}
+                className="text-slate-400 hover:text-white transition p-1"
+              >
+                ✕
+              </button>
+            </div>
+          )}
 
           <NotificationChannelsDialog
             isOpen={isNotificationDialogOpen}

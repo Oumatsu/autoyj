@@ -65,22 +65,22 @@ test.describe("Tier 4: E2E Comprehensive Full-Journey User & Portal Workflows", 
     const loginRole = async (email: string, code: string) => {
       const emailInput = page.locator("#login-email");
       const codeInput = page.locator("#login-access-code");
-      const submitBtn = page.locator("form button[type='submit'], form button", { hasText: /Sign In|登录|Sign in/i }).first();
+      const submitBtn = page.locator("[data-testid='login-submit-button'], button[type='submit']").first();
 
       await expect(emailInput).toBeVisible();
       await emailInput.fill(email);
       await codeInput.fill(code);
       await submitBtn.click();
       
-      const logoutBtn = page.locator("button", { hasText: /退出登录|Log Out|Sign Out|Logout/i }).first();
+      const logoutBtn = page.locator("[data-testid='portal-sign-out-button'], button[aria-label*='Sign out']").first();
       await expect(logoutBtn).toBeVisible({ timeout: 10000 });
     };
 
     const logout = async () => {
-      const logoutBtn = page.locator("button", { hasText: /退出登录|Log Out|Sign Out|Logout/i }).first();
+      const logoutBtn = page.locator("[data-testid='portal-sign-out-button'], button[aria-label*='Sign out']").first();
       await expect(logoutBtn).toBeVisible({ timeout: 5000 });
-      await logoutBtn.evaluate((el) => (el as HTMLElement).click());
-      await page.waitForTimeout(600);
+      await logoutBtn.click();
+      await expect(page.locator("#login-email")).toBeVisible({ timeout: 10000 });
     };
 
     // Role 1: Admin
@@ -89,26 +89,23 @@ test.describe("Tier 4: E2E Comprehensive Full-Journey User & Portal Workflows", 
     expect(content).toMatch(/库存台数|待处理询价|车型库|STOCK UNITS|OPEN INQUIRIES|VEHICLE MODELS/i);
 
     // Tab traversal in Admin Workspace
-    const vehiclesTab = page.locator("button, a", { hasText: /车辆资源|Vehicles/i }).first();
+    const vehiclesTab = page.locator("aside button, aside a", { hasText: /车辆资源|Vehicle Resources|Vehicles/i }).first();
     if (await vehiclesTab.isVisible().catch(() => false)) {
       await vehiclesTab.click();
       await page.waitForTimeout(500);
     }
     await logout();
-    await expect(page.locator("#login-email")).toBeVisible();
 
     // Role 2: Sales (Re-login)
     await loginRole("sales@local.test", "sales-demo-2026");
     content = await page.locator("body").innerText();
     expect(content.length).toBeGreaterThan(50);
     await logout();
-    await expect(page.locator("#login-email")).toBeVisible();
 
     // Role 3: Partner (Re-login)
     await loginRole("partner@example.com", "partner-demo-2026");
     content = await page.locator("body").innerText();
     expect(content.length).toBeGreaterThan(50);
     await logout();
-    await expect(page.locator("#login-email")).toBeVisible();
   });
 });

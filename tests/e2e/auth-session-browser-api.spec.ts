@@ -34,7 +34,7 @@ test.describe("Advanced E2E: Auth Session Lifecycle & Browser API Verification",
     // 3. Perform login as partner
     await page.locator("#login-email").fill("partner@example.com");
     await page.locator("#login-access-code").fill("partner-demo-2026");
-    await page.locator("form button[type='submit'], form button", { hasText: /Sign In|登录|Sign in/i }).first().click();
+    await page.locator("[data-testid='login-submit-button'], button[type='submit']").first().click();
 
     // 4. Assert workspace renders cleanly
     const logoutBtn = page.getByLabel("Sign out of portal workspace");
@@ -63,7 +63,7 @@ test.describe("Advanced E2E: Auth Session Lifecycle & Browser API Verification",
     // 2. Login as Admin
     await page.locator("#login-email").fill("admin@local.test");
     await page.locator("#login-access-code").fill("admin-demo-2026");
-    await page.locator("form button[type='submit'], form button", { hasText: /Sign In/i }).click();
+    await page.locator("[data-testid='login-submit-button'], button[type='submit']").first().click();
 
     // 3. Wait for dashboard layout to load
     const logoutBtn = page.getByLabel("Sign out of portal workspace");
@@ -76,7 +76,7 @@ test.describe("Advanced E2E: Auth Session Lifecycle & Browser API Verification",
     expect(cookies.length).toBeGreaterThan(0);
 
     // 5. Perform logout
-    await logoutBtn.evaluate((el) => (el as HTMLElement).click());
+    await logoutBtn.click();
     await page.waitForTimeout(500);
 
     // 6. Verify returning to Sign In screen
@@ -95,7 +95,7 @@ test.describe("Advanced E2E: Auth Session Lifecycle & Browser API Verification",
     // 1. Login
     await page.locator("#login-email").fill("partner@example.com");
     await page.locator("#login-access-code").fill("partner-demo-2026");
-    await page.locator("form button[type='submit'], form button", { hasText: /Sign In/i }).click();
+    await page.locator("[data-testid='login-submit-button'], button[type='submit']").first().click();
 
     const logoutBtn = page.getByLabel("Sign out of portal workspace");
     await expect(logoutBtn).toBeVisible({ timeout: 10000 });
@@ -109,7 +109,7 @@ test.describe("Advanced E2E: Auth Session Lifecycle & Browser API Verification",
     });
 
     // 3. Trigger logout
-    await logoutBtn.evaluate((el) => (el as HTMLElement).click());
+    await logoutBtn.click();
     await page.waitForTimeout(500);
 
     // 4. Check if custom event fired successfully
@@ -136,7 +136,7 @@ test.describe("Advanced E2E: Auth Session Lifecycle & Browser API Verification",
       // Fill credentials
       await page.locator("#login-email").fill(user.email);
       await page.locator("#login-access-code").fill(user.code);
-      await page.locator("form button[type='submit'], form button", { hasText: /Sign In/i }).click();
+      await page.locator("[data-testid='login-submit-button'], button[type='submit']").first().click();
 
       // Assert login succeeded
       const logoutBtn = page.getByLabel("Sign out of portal workspace");
@@ -147,7 +147,7 @@ test.describe("Advanced E2E: Auth Session Lifecycle & Browser API Verification",
       expect(bodyText.length).toBeGreaterThan(50);
 
       // Perform logout
-      await logoutBtn.evaluate((el) => (el as HTMLElement).click());
+      await logoutBtn.click();
       await page.waitForTimeout(400);
 
       // Verify sign in page restored

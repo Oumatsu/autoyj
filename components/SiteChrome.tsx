@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { type ReactNode, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { Footer } from "./Footer";
 import { Navbar } from "./Navbar";
@@ -32,6 +32,13 @@ export function SiteChrome({ children }: { children: ReactNode }) {
   const locale = getLocaleFromPath(pathname);
   const fontClass = LOCALE_FONT_MAP[locale] || "font-sans";
   const textDir = localeLabels[locale]?.dir || "ltr";
+
+  useEffect(() => {
+    if (typeof document !== "undefined") {
+      document.documentElement.lang = locale;
+      document.documentElement.dir = textDir;
+    }
+  }, [locale, textDir]);
 
   return (
     <TolgeeWrapper locale={locale}>

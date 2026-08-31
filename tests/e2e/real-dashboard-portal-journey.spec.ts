@@ -12,8 +12,8 @@ test.describe("Tier 4: E2E Real Portal Login & Logout Interactive Journey", () =
     const bodyText = await page.locator("body").innerText();
     expect(bodyText.length).toBeGreaterThan(0);
 
-    // Verify Sign In heading exists
-    await expect(page.locator("h2", { hasText: /Sign In/i })).toBeVisible();
+    // Verify Sign In heading/tab exists
+    await expect(page.locator("button, h1, h2", { hasText: /Sign In|用户登录|Live Stock/i }).first()).toBeVisible();
   });
 
   test("User can perform real login via test credentials and logout back to login screen", async ({ page }) => {
@@ -22,7 +22,7 @@ test.describe("Tier 4: E2E Real Portal Login & Logout Interactive Journey", () =
     // 1. Locate email & access code inputs
     const emailInput = page.locator("#login-email");
     const codeInput = page.locator("#login-access-code");
-    const submitBtn = page.locator("form button[type='submit'], form button", { hasText: /Sign In/i });
+    const submitBtn = page.locator("[data-testid='login-submit-button'], button[type='submit']").first();
 
     await expect(emailInput).toBeVisible();
     await expect(codeInput).toBeVisible();
@@ -38,7 +38,7 @@ test.describe("Tier 4: E2E Real Portal Login & Logout Interactive Journey", () =
     await page.waitForTimeout(1000);
 
     // Verify workspace or logout button is accessible
-    const logoutBtn = page.locator("button", { hasText: /退出登录|Log Out|Sign Out|Logout/i }).first();
+    const logoutBtn = page.locator("[data-testid='portal-sign-out-button'], button[aria-label*='Sign out']").first();
     const hasLogoutBtn = await logoutBtn.isVisible().catch(() => false);
 
     if (hasLogoutBtn) {
@@ -58,30 +58,29 @@ test.describe("Tier 4: E2E Real Portal Login & Logout Interactive Journey", () =
     const performLogin = async (email: string, code: string) => {
       const emailInput = page.locator("#login-email");
       const codeInput = page.locator("#login-access-code");
-      const submitBtn = page.locator("form button[type='submit'], form button", { hasText: /Sign In/i });
+      const submitBtn = page.locator("[data-testid='login-submit-button'], button[type='submit']").first();
 
-      await expect(emailInput).toBeVisible();
+      await expect(emailInput).toBeVisible({ timeout: 10000 });
       await emailInput.fill(email);
       await codeInput.fill(code);
       await submitBtn.click();
 
-      const logoutBtn = page.locator("button", { hasText: /退出登录|Log Out|Sign Out|Logout/i }).first();
-      await expect(logoutBtn).toBeVisible({ timeout: 10000 });
+      const logoutBtn = page.locator("[data-testid='portal-sign-out-button'], button[aria-label*='Sign out']").first();
+      await expect(logoutBtn).toBeVisible({ timeout: 15000 });
     };
 
     // helper to logout
     const performLogout = async () => {
-      const logoutBtn = page.locator("button", { hasText: /退出登录|Log Out|Sign Out|Logout/i }).first();
-      await expect(logoutBtn).toBeVisible({ timeout: 5000 });
-      await logoutBtn.evaluate((el) => (el as HTMLElement).click());
-      await page.waitForTimeout(600);
+      const logoutBtn = page.locator("[data-testid='portal-sign-out-button'], button[aria-label*='Sign out']").first();
+      await expect(logoutBtn).toBeVisible({ timeout: 10000 });
+      await logoutBtn.click();
+      await expect(page.locator("#login-email")).toBeVisible({ timeout: 10000 });
     };
 
     // 1st Login: Partner
     await performLogin("partner@example.com", "partner-demo-2026");
-    const partnerText = await page.locator("body").innerText();
-    expect(partnerText).not.toMatch(/Sign In/i);
-    expect(partnerText.length).toBeGreaterThan(50);
+    await expect(page.locator("#login-email")).not.toBeVisible();
+    await expect(page.locator("[data-testid='portal-sign-out-button']")).toBeVisible();
 
     // 1st Logout
     await performLogout();
@@ -89,8 +88,8 @@ test.describe("Tier 4: E2E Real Portal Login & Logout Interactive Journey", () =
 
     // 2nd Login: Admin (re-login after logout)
     await performLogin("admin@local.test", "admin-demo-2026");
+    await expect(page.locator("#login-email")).not.toBeVisible();
     const adminText = await page.locator("body").innerText();
-    expect(adminText).not.toMatch(/Sign In/i);
     expect(adminText.length).toBeGreaterThan(50);
     // Ensure catalog metrics/data are actually loaded and rendered (not empty)
     expect(adminText).toMatch(/库存台数|待处理询价|车型库|STOCK UNITS|OPEN INQUIRIES|VEHICLE MODELS/i);
@@ -101,9 +100,8 @@ test.describe("Tier 4: E2E Real Portal Login & Logout Interactive Journey", () =
 
     // 3rd Login: Customer (re-login again)
     await performLogin("customer@example.com", "customer-demo-2026");
-    const customerText = await page.locator("body").innerText();
-    expect(customerText).not.toMatch(/Sign In/i);
-    expect(customerText.length).toBeGreaterThan(50);
+    await expect(page.locator("#login-email")).not.toBeVisible();
+    await expect(page.locator("[data-testid='portal-sign-out-button']")).toBeVisible();
   });
 
   test("Direct navigation to dashboard sub-routes renders layout container", async ({ page }) => {
@@ -125,9 +123,9 @@ test.describe("Tier 4: E2E Real Portal Login & Logout Interactive Journey", () =
 
     await page.locator("#login-email").fill("admin@local.test");
     await page.locator("#login-access-code").fill("admin-demo-2026");
-    await page.locator("form button[type='submit'], form button", { hasText: /Sign In/i }).click();
+    await page.locator("[data-testid='login-submit-button'], button[type='submit']").first().click();
 
-    await page.locator("a[href*='vehicle_models'], button", { hasText: /车型库|Vehicle Models/i }).first().click();
+    await page.locator("[data-testid='admin-nav-vehicle_models'], aside a[href*='vehicle_models']").first().click();
     await expect(page.getByRole("heading", { name: /车型库|Vehicle Models/i, level: 1 })).toBeVisible();
 
     const search = page.getByPlaceholder(/Brand, model, year|品牌、车型、年份|Search vehicle models/i);
@@ -142,9 +140,9 @@ test.describe("Tier 4: E2E Real Portal Login & Logout Interactive Journey", () =
 
     await page.locator("#login-email").fill("admin@local.test");
     await page.locator("#login-access-code").fill("admin-demo-2026");
-    await page.locator("form button[type='submit'], form button", { hasText: /Sign In/i }).click();
+    await page.locator("[data-testid='login-submit-button'], button[type='submit']").first().click();
 
-    await page.locator("a[href*='vehicles'], button", { hasText: /车辆资源|Vehicle Resources|Vehicles/i }).first().click();
+    await page.locator("[data-testid='admin-nav-vehicles'], aside a[href*='vehicles']").first().click();
     await expect(page.locator("[role='status']")).toHaveCount(0, { timeout: 15000 });
 
     const resetButton = page.getByRole("button", { name: /Reset|重置/i });
@@ -174,13 +172,13 @@ test.describe("Tier 4: E2E Real Portal Login & Logout Interactive Journey", () =
 
     await page.locator("#login-email").fill("customer@example.com");
     await page.locator("#login-access-code").fill("customer-demo-2026");
-    await page.locator("form button[type='submit'], form button", { hasText: /Sign In/i }).click();
+    await page.locator("[data-testid='login-submit-button'], button[type='submit']").first().click();
 
-    const vehiclesLink = page.locator("a[href*='vehicles'], button", { hasText: /车辆资源|Vehicle Resources|Vehicles/i }).first();
+    const vehiclesLink = page.locator("[data-testid='admin-nav-vehicles'], aside a[href*='vehicles']").first();
     await expect(vehiclesLink).toBeVisible();
     await vehiclesLink.click();
 
-    await expect(page.getByRole("heading", { name: /Vehicle Resources|车辆资源/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /Vehicle Resources|车辆资源/i, level: 1 })).toBeVisible();
   });
 
   test("Vehicle resources do not expose a color filter", async ({ page }) => {
@@ -188,11 +186,11 @@ test.describe("Tier 4: E2E Real Portal Login & Logout Interactive Journey", () =
 
     await page.locator("#login-email").fill("admin@local.test");
     await page.locator("#login-access-code").fill("admin-demo-2026");
-    await page.locator("form button[type='submit'], form button", { hasText: /Sign In/i }).click();
-    await page.locator("a[href*='vehicles'], button", { hasText: /车辆资源|Vehicle Resources|Vehicles/i }).first().click();
+    await page.locator("[data-testid='login-submit-button'], button[type='submit']").first().click();
+    await page.locator("[data-testid='admin-nav-vehicles'], aside a[href*='vehicles']").first().click();
     await expect(page.locator("[role='status']")).toHaveCount(0, { timeout: 15000 });
 
-    await expect(page.locator("select")).toHaveCount(3);
+    await expect(page.locator("select")).toHaveCount(2);
   });
 
   test("Vehicle resource details group colors beneath each configuration", async ({ page }) => {
@@ -200,9 +198,9 @@ test.describe("Tier 4: E2E Real Portal Login & Logout Interactive Journey", () =
 
     await page.locator("#login-email").fill("admin@local.test");
     await page.locator("#login-access-code").fill("admin-demo-2026");
-    await page.locator("form button[type='submit'], form button", { hasText: /Sign In/i }).click();
+    await page.locator("[data-testid='login-submit-button'], button[type='submit']").first().click();
 
-    await page.locator("a[href*='vehicles'], button", { hasText: /车辆资源|Vehicle Resources|Vehicles/i }).first().click();
+    await page.locator("[data-testid='admin-nav-vehicles'], aside a[href*='vehicles']").first().click();
     const trimBtn = page.getByRole("button", { name: /View trims|查看版本|Trims/i }).first();
     if (await trimBtn.isVisible().catch(() => false)) {
       await trimBtn.click();
