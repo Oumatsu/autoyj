@@ -4,7 +4,6 @@ import type { PortalEnv } from "../../../server/types";
 
 describe("Inquiry Dual-Channel Notification Integration Tests", () => {
   test("delivers inquiry reply alerts via Telegram and falls back to Web Push when Telegram is unbound", async () => {
-    const sentWebPushes: any[] = [];
     const db = {
       prepare(sql: string) {
         let boundValues: any[] = [];

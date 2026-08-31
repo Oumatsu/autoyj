@@ -5,7 +5,7 @@ import type { PortalEnv as Env } from "../../../server/types";
 describe("server/api/portal handlePortalRequest", () => {
   function makeEnv() {
     const db = {
-      prepare(sql: string) {
+      prepare(_sql: string) {
         return {
           bind() { return this; },
           async first() { return null; },

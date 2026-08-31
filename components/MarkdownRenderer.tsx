@@ -151,6 +151,7 @@ function parseMarkdown(
       }
       elements.push(
         <div key={nextKey()} className="rounded-[1.5rem] overflow-hidden my-10">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={src}
             alt={alt}

@@ -1,12 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import Image from "next/image";
 import { QrDropdown } from "./QrDropdown";
-import { useTranslation, T } from "@/i18n/useTranslation";
+import { useTranslation } from "@/i18n/useTranslation";
 import { LocaleLink } from "@/i18n/LocaleLink";
-import { Button } from "@/components/ui/button";
 import { OFFICIAL_WHATSAPP_URL } from "@/lib/constants";
 import { SocialMediaLinks } from "./SocialMediaLinks";
 

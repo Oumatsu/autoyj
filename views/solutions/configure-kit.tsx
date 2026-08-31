@@ -358,9 +358,9 @@ export default function ConfigureKitPage() {
                     {submitting ? t("solutionsConfigureKit.form.submitting") : t("solutionsConfigureKit.form.submitButton")}
                   </button>
                   {submitted && (
-                    <p role="status" className="text-center text-sm text-green">
+                    <output className="block text-center text-sm text-green">
                       {t("solutionsConfigureKit.form.submissionSuccess")}
-                    </p>
+                    </output>
                   )}
                   {error && (
                     <p role="alert" className="text-center text-sm text-red-400">

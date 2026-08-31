@@ -3,18 +3,6 @@ import { describe, expect, test } from "bun:test";
 describe("Integration: Inquiry Lead Management & Status Pipeline", () => {
   type InquiryStatus = "New" | "Contacted" | "Quoted" | "Contract Signed" | "Closed";
 
-  type InquiryPayload = {
-    id: string;
-    contactName: string;
-    email: string;
-    phoneWhatsapp: string;
-    company: string;
-    targetMarket: string;
-    monthlyVolume: string;
-    status: InquiryStatus;
-    createdAt: string;
-  };
-
   function processInquiryStatusTransition(current: InquiryStatus, next: InquiryStatus): { allowed: boolean; newStatus: InquiryStatus } {
     const validTransitions: Record<InquiryStatus, InquiryStatus[]> = {
       New: ["Contacted", "Closed"],

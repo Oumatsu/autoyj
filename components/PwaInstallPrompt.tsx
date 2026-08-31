@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Image from "next/image";
-import { Download, X, Share, PlusSquare, MoreVertical, Smartphone, Monitor, ExternalLink, Apple, Laptop, ChevronDown, ChevronUp } from "lucide-react";
+import { Download, X, Share, Smartphone, Apple, Laptop, ChevronDown, ChevronUp } from "lucide-react";
 import { useTranslation } from "@/i18n/useTranslation";
 
 interface BeforeInstallPromptEvent extends Event {

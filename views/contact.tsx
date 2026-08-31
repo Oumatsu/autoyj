@@ -202,9 +202,9 @@ export default function ContactPage() {
                   {t("contact.form.description")}
                 </p>
                 {submitted && (
-                  <p role="status" className="mt-4 text-sm text-green">
+                  <output className="block mt-4 text-sm text-green">
                     {t("contact.form.success", "Thanks — your request has been received.")}
-                  </p>
+                  </output>
                 )}
                 {error && (
                   <p role="alert" className="mt-4 text-sm text-red-400">

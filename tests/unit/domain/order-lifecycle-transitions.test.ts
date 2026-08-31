@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { canTransitionOrderStatus, type OrderStatus } from "../../../lib/order-workflow";
+import { canTransitionOrderStatus } from "../../../lib/order-workflow";
 
 describe("Order Lifecycle Transitions", () => {
   test("allows sequential forward progress from Draft to Delivered", () => {

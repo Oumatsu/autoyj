@@ -1,6 +1,5 @@
 import { describe, expect, test } from "bun:test";
 import { defaultPriceTierForRole, localUserStore, findLocalUser } from "../../../lib/users";
-import type { PortalRole } from "../../../lib/users";
 
 describe("User Account Types & Price Tier Domain Logic", () => {
   test("derives internal price tier for admin and sales roles", () => {

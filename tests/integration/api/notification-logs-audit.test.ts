@@ -3,7 +3,6 @@ import { handlePortalRequest } from "../../../server/api/portal";
 import {
   notifyInquiryStakeholdersDualChannel,
   recordNotificationLog,
-  getNotificationLogs,
 } from "../../../server/services/notifications";
 import type { PortalEnv } from "../../../server/types";
 

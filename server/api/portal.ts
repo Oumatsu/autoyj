@@ -4487,7 +4487,8 @@ async function handleDeleteInquiryContent(request: Request, env: Env, type: "not
 }
 
 async function handleMarkInquiryRead(request: Request, env: Env, inquiryNo: string) {
-  const session = await requireSession(request, env); const { inquiry } = await findScopedInquiry(env, session, inquiryNo);
+  const session = await requireSession(request, env);
+  await findScopedInquiry(env, session, inquiryNo);
   await requirePortalDb(env).prepare("INSERT INTO inquiry_reads (inquiry_no,user_id,last_read_at) VALUES (?,?,?) ON CONFLICT(inquiry_no,user_id) DO UPDATE SET last_read_at=excluded.last_read_at").bind(inquiryNo, session.userId, nowText()).run();
   return json({ ok: true });
 }
@@ -5065,7 +5066,7 @@ export async function handlePortalRequest(request: Request, env: Env) {
             dbStatus = "connected";
           }
         }
-      } catch (_err) {
+      } catch {
         dbStatus = "degraded";
       }
 
@@ -5160,7 +5161,7 @@ export async function handlePortalRequest(request: Request, env: Env) {
       return json({ ok });
     }
     if (path === "/api/portal/push/subscribe" && request.method === "DELETE") {
-      const session = await requireSession(request, env);
+      await requireSession(request, env);
       const body = ((await request.json().catch(() => ({}))) || {}) as any;
       const endpoint = body.endpoint;
       if (!endpoint) return problem("Missing endpoint to unsubscribe", 400);
