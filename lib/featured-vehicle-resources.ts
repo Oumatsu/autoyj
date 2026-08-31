@@ -25,7 +25,13 @@ function attachmentRecords(value: unknown): Record<string, unknown>[] {
 
 function usableImageUrl(value: string | null | undefined): string {
   const candidate = value?.trim() || "";
-  return featuredLocalImageUrl(candidate) || (/^https?:\/\//i.test(candidate) ? candidate : "");
+  return featuredLocalImageUrl(candidate)
+    || featuredAttachmentProxyUrl(candidate)
+    || (/^https?:\/\//i.test(candidate) ? candidate : "");
+}
+
+function featuredAttachmentProxyUrl(value: string): string {
+  return /^\/api\/portal\/vehicles\/[^\\/?#]+\/featured-image$/.test(value) ? value : "";
 }
 
 export function featuredLocalImageUrl(value: unknown): string {

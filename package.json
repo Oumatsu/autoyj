@@ -26,7 +26,7 @@
     "test:unit": "bun test tests/unit",
     "test:component": "bun test tests/component",
     "test:integration": "bun test tests/integration",
-    "test:e2e": "bunx playwright test",
+    "test:e2e": "bun x playwright test",
     "tdd": "bun test --watch tests/unit tests/component",
     "tdd:domain": "bun test --watch tests/unit/domain",
     "tdd:integration": "bun test --watch tests/integration",

@@ -31,6 +31,17 @@ describe("featured vehicle resources", () => {
     expect(resources.map((resource) => resource.imageUrl)).toEqual(["https://cdn.example/featured.jpg", "https://cdn.example/resource.jpg"]);
   });
 
+  test("keeps the same-origin featured-image proxy URL returned for a Feishu attachment", async () => {
+    const { selectFeaturedVehicleResources } = await import("../../lib/featured-vehicle-resources");
+    const proxyUrl = "/api/portal/vehicles/recvsDG2qxKGX9/featured-image";
+
+    const resources = selectFeaturedVehicleResources([
+      { id: "attachment-proxy", featuredRank: 1, featuredImageUrl: proxyUrl, imageUrl: "" },
+    ]);
+
+    expect(resources[0]?.imageUrl).toBe(proxyUrl);
+  });
+
   test("does not render a filename left by the legacy attachment sync as an image URL", async () => {
     const { selectFeaturedVehicleResources } = await import("../../lib/featured-vehicle-resources");
     const resources = selectFeaturedVehicleResources([
