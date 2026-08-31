@@ -12,11 +12,12 @@ test("inquiry request storage is created by a versioned D1 migration before depl
 
 test("local D1 snapshot sync uses Bun to invoke Wrangler on Windows", async () => {
   const syncScript = await Bun.file("scripts/d1/sync-local.mjs").text();
+  const normalizedSyncScript = syncScript.replaceAll("\r\n", "\n");
   const packageJson = await Bun.file("package.json").json() as { scripts: Record<string, string> };
-  expect(syncScript).toContain('process.platform === "win32" ? "bun"');
-  expect(syncScript).toContain('["x", "wrangler", ...args]');
-  expect(syncScript).toContain('"--output",\n    backupPath,\n    "--persist-to",\n    persistTo');
-  expect(syncScript).toContain('|| ".wrangler/local-d1"');
+  expect(normalizedSyncScript).toContain('process.platform === "win32" ? "bun"');
+  expect(normalizedSyncScript).toContain('["x", "wrangler", ...args]');
+  expect(normalizedSyncScript).toContain('"--output",\n    backupPath,\n    "--persist-to",\n    persistTo');
+  expect(normalizedSyncScript).toContain('|| ".wrangler/local-d1"');
   expect(packageJson.scripts["db:local:init"]).toContain(".wrangler/local-d1");
 });
 
