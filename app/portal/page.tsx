@@ -1778,9 +1778,9 @@ function AdminDashboard({
   const [searchQuery, setSearchQuery] = useState("");
 
   // 汇总所有颜色与细分车型的实际库存数量（全量累加）
-  const vehicles = data?.vehicles || [];
-  const inquiries = data?.inquiries || [];
-  const vehicleModels = data?.vehicleModels || [];
+  const vehicles = useMemo(() => data?.vehicles || [], [data?.vehicles]);
+  const inquiries = useMemo(() => data?.inquiries || [], [data?.inquiries]);
+  const vehicleModels = useMemo(() => data?.vehicleModels || [], [data?.vehicleModels]);
   const totalStock = vehicles.reduce((sum, vehicle) => sum + getVehicleStockQuantity(vehicle), 0);
   const modelCount = vehicleModels.length;
 
@@ -2423,7 +2423,7 @@ function AdminVehicles({ data, onEdit, onRefresh, onRefreshData }: { data: Boots
   const [recommendationError, setRecommendationError] = useState("");
   const [featuredVehicleId, setFeaturedVehicleId] = useState("");
   const normalizedSearch = searchQuery.trim().toLowerCase();
-  const rawVehicles = data?.vehicles || [];
+  const rawVehicles = useMemo(() => data?.vehicles || [], [data?.vehicles]);
   const canSeeSupplier = data.user.role !== "partner" && data.user.role !== "customer";
   const canSeeLocation = data.user.role !== "partner" && data.user.role !== "customer";
   const canManageRecommendation = data.user.role === "admin";
@@ -2545,7 +2545,7 @@ function AdminVehicles({ data, onEdit, onRefresh, onRefreshData }: { data: Boots
     requestAnimationFrame(() => {
       document.querySelector(`[data-vehicle-resource-id="${CSS.escape(vehicleId)}"]`)?.scrollIntoView({ behavior: "smooth", block: "center" });
     });
-  }, [data.vehicles, sellableModels]);
+  }, [rawVehicles, sellableModels]);
 
   useEffect(() => {
     if (!featuredVehicleId) return;
@@ -2713,6 +2713,16 @@ function AdminVehicles({ data, onEdit, onRefresh, onRefreshData }: { data: Boots
               >
                 {/* 1绾ц溅鍨?Header (鍖呭惈鎶樺彔灞曞紑鎺у埗) */}
                 <header
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`${localizeVehicleValue(item.brand, locale)} ${localizeVehicleValue(item.model, locale)}`}
+                  aria-expanded={isExpanded}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      toggleModel(item.key);
+                    }
+                  }}
                   onClick={() => toggleModel(item.key)}
                   className="flex cursor-pointer flex-col gap-4 border-b border-white/5 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5 hover:bg-white/[.02]"
                 >
@@ -2791,6 +2801,11 @@ function AdminVehicles({ data, onEdit, onRefresh, onRefreshData }: { data: Boots
                         <section key={variantKey} className="overflow-hidden rounded-xl border border-white/10 bg-[#0b1425]">
                           <button
                             type="button"
+                            aria-expanded={variantExpanded}
+                            aria-label={compactJoin([
+                              localizeVehicleValue(vehicle.trim, locale) || localizeVehicleValue("Trim not specified", locale),
+                              localizeVehicleValue(vehicle.configuration, locale),
+                            ]) || "Toggle configuration variant"}
                             onClick={() => toggleVariant(variantKey)}
                             className="flex w-full items-center justify-between gap-4 px-4 py-3 text-left transition hover:bg-white/[.03]"
                           >
@@ -3063,8 +3078,8 @@ function InquiryCommentThread({ thread, onReply, onClose, replyLabel = "Quote re
 
 function AdminQuotes({ data, onRefresh, initialInquiryNo }: { data: BootstrapData; onRefresh: () => Promise<void>; initialInquiryNo?: string }) {
   const { t, locale } = useTranslation();
-  const rawInquiries = data?.inquiries || [];
-  const rawNotes = data?.inquiryNotes || [];
+  const rawInquiries = useMemo(() => data?.inquiries || [], [data?.inquiries]);
+  const rawNotes = useMemo(() => data?.inquiryNotes || [], [data?.inquiryNotes]);
   const [selectedNo, setSelectedNo] = useState(() => {
     if (initialInquiryNo && rawInquiries.some((i) => i.inquiryNo === initialInquiryNo)) {
       return initialInquiryNo;

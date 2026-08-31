@@ -110,7 +110,7 @@ test.describe("Advanced E2E: Auth Session Lifecycle & Browser API Verification",
 
     // 3. Trigger logout
     await logoutBtn.click();
-    await page.waitForTimeout(500);
+    await expect(page.locator("#login-email")).toBeVisible({ timeout: 10000 });
 
     // 4. Check if custom event fired successfully
     const eventFired = await page.evaluate(() => {
@@ -118,7 +118,6 @@ test.describe("Advanced E2E: Auth Session Lifecycle & Browser API Verification",
     });
 
     expect(eventFired).toBe(true);
-    await expect(page.locator("#login-email")).toBeVisible();
   });
 
   test("Multi-role isolated login/logout sequence (Admin -> Sales -> Customer)", async ({

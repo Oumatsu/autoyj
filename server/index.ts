@@ -59,6 +59,15 @@ function isInteractiveAppRoute(pathname: string): boolean {
 
 export default {
   async fetch(request: Request, env: WorkerEnv, ctx: ExecutionContext): Promise<Response> {
+    const dsn = env.NEXT_PUBLIC_SENTRY_DSN || env.SENTRY_DSN || (typeof process !== "undefined" ? (process.env.NEXT_PUBLIC_SENTRY_DSN || process.env.SENTRY_DSN) : undefined);
+    if (dsn && !Sentry.getClient()) {
+      Sentry.init({
+        dsn,
+        tracesSampleRate: 0.1,
+        environment: env.NODE_ENV || (typeof process !== "undefined" ? process.env.NODE_ENV : undefined) || "production",
+      });
+    }
+
     const url = new URL(request.url);
 
     // Instant zero-CPU edge locale redirect for root path to eliminate Error 1102
@@ -149,7 +158,12 @@ export default {
       }
     }
 
-    if (url.pathname.startsWith("/api/portal/")) {
+    if (
+      url.pathname.startsWith("/api/portal/") ||
+      url.pathname.startsWith("/api/auth/") ||
+      url.pathname === "/api/health" ||
+      url.pathname === "/api/portal/health"
+    ) {
       return handlePortalRequest(request, env);
     }
 
