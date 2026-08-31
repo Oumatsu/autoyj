@@ -603,9 +603,12 @@ function safeText(val: any, fallback = ""): string {
 }
 
 async function api<T>(path: string, init?: RequestInit): Promise<T> {
+  const isSyncPath = path.includes("sync-d1");
+  const defaultTimeoutMs = isSyncPath ? 90000 : 15000;
+  const timeoutSignal = typeof AbortSignal !== "undefined" && "timeout" in AbortSignal ? AbortSignal.timeout(defaultTimeoutMs) : undefined;
   const response = await fetch(path, {
     credentials: "include",
-    signal: init?.signal || (typeof AbortSignal !== "undefined" && "timeout" in AbortSignal ? AbortSignal.timeout(12000) : undefined),
+    signal: init?.signal || timeoutSignal,
     ...init,
     headers: {
       "content-type": "application/json",
@@ -614,7 +617,7 @@ async function api<T>(path: string, init?: RequestInit): Promise<T> {
   });
   const data = (await response.json().catch(() => ({}))) as any;
   if (!response.ok) {
-    throw new Error(typeof data.error === "string" ? data.error : "Request failed");
+    throw new Error(typeof data.error === "string" ? data.error : (typeof data.message === "string" ? data.message : "Request failed"));
   }
   return sanitizeDisplayData(data) as T;
 }
@@ -1285,24 +1288,43 @@ function AdminPortal({
     setIsSyncingFeishu(true);
     setSyncFeedback(null);
     try {
-      const res = await api<{ ok: boolean; message?: string }>("/api/portal/admin/sync-d1", {
+      const res = await api<{
+        ok: boolean;
+        message?: string;
+        result?: {
+          models: number;
+          trims: number;
+          vehicles: number;
+          articles: number;
+          lessons: number;
+          elapsed: number;
+        };
+      }>("/api/portal/admin/sync-d1", {
         method: "POST",
       });
       if (!res.ok) {
         throw new Error(res.message || "Sync failed");
       }
+      const durationSec = res.result?.elapsed ? (res.result.elapsed / 1000).toFixed(1) : undefined;
+      const detailText = res.result
+        ? (locale === "zh"
+            ? `（耗时 ${durationSec}s · ${res.result.models}款车型 / ${res.result.trims}项配置 / ${res.result.vehicles}辆现车）`
+            : ` (${durationSec}s · ${res.result.models} models / ${res.result.trims} trims / ${res.result.vehicles} vehicles)`)
+        : "";
       setSyncFeedback({
         type: "success",
-        text: locale === "zh" ? "✓ 飞书数据同步成功！已更新至最新车型与现车库存。" : "✓ Feishu data synced successfully to D1 database!",
+        text: locale === "zh"
+          ? `✓ 飞书数据同步成功！${detailText} 已刷新数据库与前端视图。`
+          : `✓ Feishu data synced successfully!${detailText} Database and portal views updated.`,
       });
       await onRefreshData();
-      setTimeout(() => setSyncFeedback(null), 5000);
+      setTimeout(() => setSyncFeedback(null), 8000);
     } catch (err: any) {
       setSyncFeedback({
         type: "error",
         text: err?.message || (locale === "zh" ? "同步失败，请检查飞书网络与权限" : "Sync failed. Please verify Feishu API connectivity."),
       });
-      setTimeout(() => setSyncFeedback(null), 6000);
+      setTimeout(() => setSyncFeedback(null), 8000);
     } finally {
       setIsSyncingFeishu(false);
     }

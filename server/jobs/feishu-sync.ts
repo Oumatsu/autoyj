@@ -37,13 +37,13 @@ export class FeishuSyncRunError extends Error {
 }
 
 export async function runFeishuScheduledSync(env: Env): Promise<FeishuSyncResult> {
-  console.log("[cron:feishu-sync] Starting sync: Feishu → D1...");
+  console.log("[cron:feishu-sync] Starting parallel sync: Feishu → D1...");
   const startTime = Date.now();
 
   let models = 0, trims = 0, vehicles = 0, users = 0, articles = 0, lessons = 0, vault = 0;
   const errors: Array<{ table: string; message: string }> = [];
 
-  const MAX_SYNC_DURATION_MS = 15000;
+  const MAX_SYNC_DURATION_MS = 60000;
   const isBudgetExhausted = () => Date.now() - startTime > MAX_SYNC_DURATION_MS;
 
   const run = async <T>(table: string, sync: () => Promise<T>, onSuccess: (result: T) => void) => {
@@ -61,29 +61,28 @@ export async function runFeishuScheduledSync(env: Env): Promise<FeishuSyncResult
     }
   };
 
-  await run("vehicle models/trims", () => syncVehicleModelsToDB(env), (res) => {
-    models = res.models;
-    trims = res.trims;
-    invalidateVehicleCache();
-    console.log(`[cron:feishu-sync] ✓ Vehicle models: ${models} models + ${trims} trims written to D1`);
-  });
-
-  await run("vehicles", () => syncVehiclesToD1(env), (res) => {
-    vehicles = res.synced;
-    invalidateVehicleCache();
-    console.log(`[cron:feishu-sync] ✓ Vehicles: ${vehicles} records written to D1`);
-  });
-
-  await run("articles", () => syncArticlesToD1(env), (res) => {
-    articles = res.articles;
-    console.log(`[cron:feishu-sync] ✓ Articles: ${articles} records written to D1`);
-  });
-
-  await run("academy lessons/vault", () => syncAcademyToD1(env), (res) => {
-    lessons = res.lessons;
-    vault = res.vault;
-    console.log(`[cron:feishu-sync] ✓ Academy: ${lessons} lessons + ${vault} vault items written to D1`);
-  });
+  await Promise.all([
+    run("vehicle models/trims", () => syncVehicleModelsToDB(env), (res) => {
+      models = res.models;
+      trims = res.trims;
+      invalidateVehicleCache();
+      console.log(`[cron:feishu-sync] ✓ Vehicle models: ${models} models + ${trims} trims written to D1`);
+    }),
+    run("vehicles", () => syncVehiclesToD1(env), (res) => {
+      vehicles = res.synced;
+      invalidateVehicleCache();
+      console.log(`[cron:feishu-sync] ✓ Vehicles: ${vehicles} records written to D1`);
+    }),
+    run("articles", () => syncArticlesToD1(env), (res) => {
+      articles = res.articles;
+      console.log(`[cron:feishu-sync] ✓ Articles: ${articles} records written to D1`);
+    }),
+    run("academy lessons/vault", () => syncAcademyToD1(env), (res) => {
+      lessons = res.lessons;
+      vault = res.vault;
+      console.log(`[cron:feishu-sync] ✓ Academy: ${lessons} lessons + ${vault} vault items written to D1`);
+    }),
+  ]);
 
   const elapsed = Date.now() - startTime;
   if (errors.length) {

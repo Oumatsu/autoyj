@@ -5042,11 +5042,12 @@ async function handlePublicAcademyLesson(request: Request, category: string, slu
   return lesson ? publicCacheJson(lesson) : problem("Not found", 404);
 }
 
-export async function handleScheduledSync(env: Env): Promise<void> {
-  console.log("[scheduled-sync] Running 10-minute Feishu background synchronization...");
+export async function handleScheduledSync(env: Env) {
+  console.log("[scheduled-sync] Running Feishu background synchronization...");
   const { runFeishuScheduledSync } = await import("../jobs/feishu-sync");
-  await runFeishuScheduledSync(env);
+  const result = await runFeishuScheduledSync(env);
   cacheMap.clear();
+  return result;
 }
 
 export async function handlePortalRequest(request: Request, env: Env) {
@@ -5280,8 +5281,14 @@ export async function handlePortalRequest(request: Request, env: Env) {
     if (path === "/api/portal/admin/sync-d1" && request.method === "POST") {
       const session = await requireSession(request, env);
       if (!isInternalSession(session)) return problem("Forbidden: internal admin access required", 403);
-      await handleScheduledSync(env);
-      return json({ ok: true, syncedAt: new Date().toISOString(), message: "Manual Feishu-to-D1 sync triggered successfully." });
+      const result = await handleScheduledSync(env);
+      const elapsedSec = result?.elapsed ? (result.elapsed / 1000).toFixed(1) : "0.0";
+      return json({
+        ok: true,
+        syncedAt: new Date().toISOString(),
+        result,
+        message: `Feishu-to-D1 sync completed in ${elapsedSec}s (${result.models} models, ${result.trims} trims, ${result.vehicles} vehicles).`,
+      });
     }
 
     if (
