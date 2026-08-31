@@ -22,7 +22,7 @@ describe("Admin Manual Feishu Sync API (/api/portal/admin/sync-d1)", () => {
     FEISHU_TABLE_VEHICLES: "tbl-vehicles",
   } as any;
 
-  async function getSessionCookie(role: "admin" | "customer") {
+  async function getSessionCookie(role: "admin" | "sales" | "customer") {
     const loginReq = new Request("http://localhost:3050/api/portal/dev-session", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -48,5 +48,17 @@ describe("Admin Manual Feishu Sync API (/api/portal/admin/sync-d1)", () => {
     });
     const res = await handlePortalRequest(req, env);
     expect(res.status).toBe(403);
+  });
+
+  test("POST /api/portal/admin/sync-d1 allows sales role (authorized)", async () => {
+    const cookie = await getSessionCookie("sales");
+    const req = new Request("http://localhost:3050/api/portal/admin/sync-d1", {
+      method: "POST",
+      headers: { Cookie: cookie },
+    });
+    const res = await handlePortalRequest(req, env);
+    // Should pass the 403 authorization check (returns 200 or executes sync)
+    expect(res.status).not.toBe(403);
+    expect(res.status).not.toBe(401);
   });
 });

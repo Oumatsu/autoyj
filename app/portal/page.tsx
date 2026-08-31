@@ -1566,7 +1566,7 @@ function AdminPortal({
                 <AdminTopMetric label={t("portal.orderValue")} value={formatUsdStrict(orderTotal)} />
               </div>
               <div className="flex flex-wrap items-center justify-start sm:justify-end gap-2.5">
-                {userRole === "admin" && (
+                {(userRole === "admin" || userRole === "sales") && (
                   <button
                     type="button"
                     data-testid="admin-manual-sync-trigger"
