@@ -3482,7 +3482,7 @@ function AdminUserManagement({
             type="button"
             onClick={() => setActiveTab("all")}
             className={`rounded-full px-4 py-1.5 text-xs font-black uppercase tracking-wider transition ${
-              activeTab === "all" ? "bg-theme text-black" : "border border-white/10 text-gray-400 hover:text-white"
+              activeTab === "all" ? "bg-theme text-lime-300" : "border border-white/10 text-gray-400 hover:text-white"
             }`}
           >
             All Accounts ({allUsers.length})
@@ -3491,7 +3491,7 @@ function AdminUserManagement({
             type="button"
             onClick={() => setActiveTab("customers")}
             className={`rounded-full px-4 py-1.5 text-xs font-black uppercase tracking-wider transition ${
-              activeTab === "customers" ? "bg-theme text-black" : "border border-white/10 text-gray-400 hover:text-white"
+              activeTab === "customers" ? "bg-theme text-lime-300" : "border border-white/10 text-gray-400 hover:text-white"
             }`}
           >
             Customers & Partners ({allUsers.filter((u) => u.role === "customer" || u.role === "partner").length})
@@ -3500,7 +3500,7 @@ function AdminUserManagement({
             type="button"
             onClick={() => setActiveTab("staff")}
             className={`rounded-full px-4 py-1.5 text-xs font-black uppercase tracking-wider transition ${
-              activeTab === "staff" ? "bg-theme text-black" : "border border-white/10 text-gray-400 hover:text-white"
+              activeTab === "staff" ? "bg-theme text-lime-300" : "border border-white/10 text-gray-400 hover:text-white"
             }`}
           >
             Internal Accounts ({allUsers.filter((u) => u.role === "admin" || u.role === "sales").length})
