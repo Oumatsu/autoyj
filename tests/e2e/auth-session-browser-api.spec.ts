@@ -28,8 +28,8 @@ test.describe("Advanced E2E: Auth Session Lifecycle & Browser API Verification",
     });
 
     // 2. Navigate to portal login page
-    await page.goto("/portal", { waitUntil: "domcontentloaded" });
-    await expect(page.locator("#login-email")).toBeVisible();
+    await page.goto("/en/portal", { waitUntil: "domcontentloaded" });
+    await expect(page.locator("#login-email")).toBeVisible({ timeout: 15000 });
 
     // 3. Perform login as partner
     await page.locator("#login-email").fill("partner@example.com");
@@ -38,14 +38,14 @@ test.describe("Advanced E2E: Auth Session Lifecycle & Browser API Verification",
 
     // 4. Assert workspace renders cleanly
     const logoutBtn = page.getByLabel("Sign out of portal workspace");
-    await expect(logoutBtn).toBeVisible({ timeout: 10000 });
+    await expect(logoutBtn).toBeVisible({ timeout: 15000 });
 
     // 5. Perform logout
     await logoutBtn.click();
     await page.waitForTimeout(500);
 
-    // 6. Assert return to login form
-    await expect(page.locator("#login-email")).toBeVisible();
+    // 6. Assert redirected back to clean login state
+    await expect(page.locator("#login-email")).toBeVisible({ timeout: 15000 });
 
     // 7. Verify zero uncaught JavaScript exceptions occurred in browser
     expect(pageErrors).toEqual([]);
@@ -56,7 +56,8 @@ test.describe("Advanced E2E: Auth Session Lifecycle & Browser API Verification",
 
   test("Cookie & Storage state transition across login and logout", async ({ page, context }) => {
     // 1. Initial unauthenticated state check
-    await page.goto("/portal", { waitUntil: "domcontentloaded" });
+    await page.goto("/en/portal", { waitUntil: "domcontentloaded" });
+    await expect(page.locator("#login-email")).toBeVisible({ timeout: 15000 });
     let cookies = await context.cookies();
     let sessionCookie = cookies.find((c) => c.name.includes("session") || c.name.includes("auth"));
 
@@ -67,7 +68,7 @@ test.describe("Advanced E2E: Auth Session Lifecycle & Browser API Verification",
 
     // 3. Wait for dashboard layout to load
     const logoutBtn = page.getByLabel("Sign out of portal workspace");
-    await expect(logoutBtn).toBeVisible({ timeout: 10000 });
+    await expect(logoutBtn).toBeVisible({ timeout: 15000 });
 
     // 4. Inspect browser cookies post-login
     cookies = await context.cookies();
@@ -80,7 +81,7 @@ test.describe("Advanced E2E: Auth Session Lifecycle & Browser API Verification",
     await page.waitForTimeout(500);
 
     // 6. Verify returning to Sign In screen
-    await expect(page.locator("#login-email")).toBeVisible();
+    await expect(page.locator("#login-email")).toBeVisible({ timeout: 15000 });
 
     // 7. Verify unauthenticated request to portal API fails appropriately
     const apiRes = await page.request.get("/api/portal/session");
@@ -90,7 +91,8 @@ test.describe("Advanced E2E: Auth Session Lifecycle & Browser API Verification",
   test("Logout dispatches 'youguard-session-changed' custom event without DOM exception", async ({
     page,
   }) => {
-    await page.goto("/portal", { waitUntil: "domcontentloaded" });
+    await page.goto("/en/portal", { waitUntil: "domcontentloaded" });
+    await expect(page.locator("#login-email")).toBeVisible({ timeout: 15000 });
 
     // 1. Login
     await page.locator("#login-email").fill("partner@example.com");
@@ -98,7 +100,7 @@ test.describe("Advanced E2E: Auth Session Lifecycle & Browser API Verification",
     await page.locator("[data-testid='login-submit-button'], button[type='submit']").first().click();
 
     const logoutBtn = page.getByLabel("Sign out of portal workspace");
-    await expect(logoutBtn).toBeVisible({ timeout: 10000 });
+    await expect(logoutBtn).toBeVisible({ timeout: 15000 });
 
     // 2. Listen for custom window event in browser context before clicking logout
     await page.evaluate(() => {

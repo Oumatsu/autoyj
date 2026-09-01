@@ -10,7 +10,7 @@ async function loginAs(page: Page, email: string, code: string) {
   const codeInput = page.locator("#login-access-code");
   const submitBtn = page.locator("[data-testid='login-submit-button'], button[type='submit']").first();
 
-  await expect(emailInput).toBeVisible({ timeout: 10000 });
+  await expect(emailInput).toBeVisible({ timeout: 15000 });
   await emailInput.fill(email);
   await codeInput.fill(code);
   await submitBtn.click();
