@@ -5057,7 +5057,7 @@ export async function handlePortalRequest(request: Request, env: Env) {
   const path = url.pathname;
 
   try {
-    if ((path === "/api/portal/health" || path === "/api/health") && request.method === "GET") {
+    if ((path === "/api/portal/health" || path === "/api/health") && (request.method === "GET" || request.method === "HEAD")) {
       let dbStatus: "connected" | "degraded" | "unavailable" = "unavailable";
       try {
         if (env.PORTAL_DB) {
@@ -5070,46 +5070,46 @@ export async function handlePortalRequest(request: Request, env: Env) {
         dbStatus = "degraded";
       }
 
-      return json(
-        {
-          status: dbStatus === "connected" ? "ok" : "degraded",
-          database: dbStatus,
-          timestamp: new Date().toISOString(),
-          service: "autoyj-portal",
+      const body = request.method === "HEAD" ? null : JSON.stringify({
+        status: dbStatus === "connected" ? "ok" : "degraded",
+        database: dbStatus,
+        timestamp: new Date().toISOString(),
+        service: "autoyj-portal",
+      });
+
+      return new Response(body, {
+        status: dbStatus === "connected" ? 200 : 503,
+        headers: {
+          "Content-Type": "application/json; charset=utf-8",
+          "Cache-Control": "no-store, no-cache, must-revalidate",
         },
-        {
-          status: dbStatus === "connected" ? 200 : 503,
-          headers: {
-            "Cache-Control": "no-store, no-cache, must-revalidate",
-          },
-        }
-      );
+      });
     }
 
     if (path.startsWith("/api/portal/public/")) {
       if (path === "/api/portal/public/contact" && request.method === "POST") {
         return await handlePublicContact(request, env);
       }
-      if (path === "/api/portal/public/insights" && request.method === "GET") {
+      if (path === "/api/portal/public/insights" && (request.method === "GET" || request.method === "HEAD")) {
         return await handlePublicInsights(request, env);
       }
       const insightMatch = path.match(/^\/api\/portal\/public\/insights\/([^/]+)$/);
-      if (insightMatch && request.method === "GET") {
+      if (insightMatch && (request.method === "GET" || request.method === "HEAD")) {
         return await handlePublicInsight(request, decodeURIComponent(insightMatch[1]), env);
       }
-      if (path === "/api/portal/public/products" && request.method === "GET") {
+      if (path === "/api/portal/public/products" && (request.method === "GET" || request.method === "HEAD")) {
         return await handlePublicProducts(request, env);
       }
       const productMatch = path.match(/^\/api\/portal\/public\/products\/([^/]+)$/);
-      if (productMatch && request.method === "GET") {
+      if (productMatch && (request.method === "GET" || request.method === "HEAD")) {
         return await handlePublicProduct(request, decodeURIComponent(productMatch[1]), env);
       }
       // /api/portal/public/i18n removed — translations are served from local static bundles only
-      if (path === "/api/portal/public/academy" && request.method === "GET") {
+      if (path === "/api/portal/public/academy" && (request.method === "GET" || request.method === "HEAD")) {
         return await handlePublicAcademy(request, env);
       }
       const academyLessonMatch = path.match(/^\/api\/portal\/public\/academy\/([^/]+)\/([^/]+)$/);
-      if (academyLessonMatch && request.method === "GET") {
+      if (academyLessonMatch && (request.method === "GET" || request.method === "HEAD")) {
         return await handlePublicAcademyLesson(
           request,
           decodeURIComponent(academyLessonMatch[1]),
@@ -5130,7 +5130,7 @@ export async function handlePortalRequest(request: Request, env: Env) {
         bindingUrl: buildTelegramBindingUrl(env, session.userId),
       });
     }
-    if (path === "/api/portal/push/public-key" && request.method === "GET") {
+    if (path === "/api/portal/push/public-key" && (request.method === "GET" || request.method === "HEAD")) {
       return json({ publicKey: getVapidPublicKey(env) });
     }
     if (path === "/api/portal/push/status" && request.method === "GET") {
