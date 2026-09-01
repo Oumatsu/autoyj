@@ -115,7 +115,7 @@
     "shadcn": "^4.18.0",
     "sharp": "^0.35.0",
     "tailwindcss": "^4.3.3",
-    "typescript": "^5.7.0",
+    "typescript": "^7.0.2",
     "vite": "^8.2.0",
     "vite-plugin-pwa": "^1.3.0",
     "workbox-core": "^7.4.1",
