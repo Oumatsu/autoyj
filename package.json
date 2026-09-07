@@ -63,7 +63,7 @@
     "gate:full": "bun run scripts/ci/gate-full.ts"
   },
   "dependencies": {
-    "@astryxdesign/core": "^0.4.5",
+    "@astryxdesign/core": "^0.5.2",
     "@block65/webcrypto-web-push": "^1.0.2",
     "@sentry/nextjs": "^10.70.0",
     "@tolgee/core": "^7.1.3",
